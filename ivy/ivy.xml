@@ -1,0 +1,38 @@
+<ivy-module version="1.0" xmlns:e="http://ant.apache.org/ivy/extra">
+  <!-- CONFIG: net.lag.example is the example project we're going to setup" -->
+  <!-- CONFIG: testclass is your test runner -->
+  <!-- CONFIG: jarclassname is the name of your main class to run via java -jar -->
+  <!-- CONFIG: thriftpackage is where generated thrift classes go. 
+               Only matters if you're using thrift. -->
+  <info organisation="com.twitter"
+    module="scrooge"
+    revision="1.0"
+    e:buildpackage="com.twitter.scrooge"
+    e:testclass="com.twitter.scrooge.TestRunner"
+    e:jarclassname="com.twitter.scrooge.Main"
+    e:thriftpackage="com.twitter.scrooge.gen"
+  />
+
+  <configurations>
+    <conf name="bootstrap" visibility="private" description="load scala compiler and libraries" />
+    <conf name="default" description="normal build" />
+    <conf name="test" visibility="private" description="build and run tests" />
+  </configurations>
+  <dependencies>
+    <!-- want scala-compiler for running the console -->
+    <dependency org="org.scala-lang" name="scala-compiler" rev="2.7.3" />
+    <dependency org="org.scala-lang" name="scala-library" rev="2.7.3" />
+    <dependency org="org.scala-tools" name="vscaladoc" rev="1.1-md-3" conf="bootstrap->*" />
+
+    <dependency org="commons-logging" name="commons-logging" rev="1.1" />
+    <dependency org="commons-lang" name="commons-lang" rev="2.2" />
+    <dependency org="org.scala-tools.testing" name="specs" rev="1.4.4" />
+    <dependency org="net.lag" name="configgy" rev="1.3" />
+    <dependency org="junit" name="junit" rev="4.4" /> <!--auto-->
+    <dependency org="org.jmock" name="jmock" rev="2.4.0" /> <!--auto-->
+    <dependency org="org.hamcrest" name="hamcrest-all" rev="1.1" /> <!--auto-->
+    <dependency org="cglib" name="cglib" rev="2.1_3" /> <!--auto-->
+    <dependency org="asm" name="asm" rev="1.5.3" /> <!--auto-->
+    <!--dependency org="objenesis" name="objenesis" rev="1.1" /--> <!--auto-->
+  </dependencies>
+</ivy-module>
