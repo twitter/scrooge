@@ -36,6 +36,8 @@
     <!--dependency org="objenesis" name="objenesis" rev="1.1" /--> <!--auto-->
 
     <dependency org="net.lag" name="naggati" rev="0.7.1" />
+    <dependency org="org.apache.mina" name="mina-core" rev="2.0.0-M4" />
+    <dependency org="org.slf4j" name="slf4j-jdk14" rev="1.5.2" />
 
   </dependencies>
 </ivy-module>
