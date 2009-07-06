@@ -92,29 +92,31 @@ object ScalaGen {
     case TDouble => "0.0"
     case TString => "null"
     case TBinary => "null"
-    case MapType(ktpe, vtpe, _) => "Map.empty[" + apply(ktpe) + ", " + apply(vtpe) + "]"
-    case SetType(tpe, _) => "Set.empty[" + apply(tpe) + "]"
+    case MapType(ktpe, vtpe, _) => "mutable.Map.empty[" + apply(ktpe) + ", " + apply(vtpe) + "]"
+    case SetType(tpe, _) => "mutable.Set.empty[" + apply(tpe) + "]"
     case ListType(tpe, _) => "List[" + apply(tpe) + "]()"
     case ReferenceType(name) => name + "()"
   }
 
-  def decoderForType(ftype: FieldType): String = {
-    "Codec." + (ftype match {
-      case TBool => "readBoolean"
-      case TByte => "readByte"
-      case TI16 => "readI16"
-      case TI32 => "readI32"
-      case TI64 => "readI64"
-      case TDouble => "readDouble"
-      case TString => "readString"
-      case TBinary => "readBinary"
-      case ListType(itype, _) => "readList[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
-
-      // FIXME:
-      case MapType(ktpe, vtpe, _) => "Map.empty[" + apply(ktpe) + ", " + apply(vtpe) + "]"
-      case SetType(tpe, _) => "Set.empty[" + apply(tpe) + "]"
-      case ReferenceType(name) => name + "()"
-    })
+  def decoderForType(ftype: FieldType): String = ftype match {
+    case TBool => "Codec.readBoolean"
+    case TByte => "Codec.readByte"
+    case TI16 => "Codec.readI16"
+    case TI32 => "Codec.readI32"
+    case TI64 => "Codec.readI64"
+    case TDouble => "Codec.readDouble"
+    case TString => "Codec.readString"
+    case TBinary => "Codec.readBinary"
+    case MapType(ktype, vtype, _) =>
+      "Codec.readMap[" + apply(ktype) + ", " + apply(vtype) + "](" + constForType(ktype) + ", " + constForType(vtype) + ") " +
+      "{ f => " + decoderForType(ktype) + " { item => f(item) } } " +
+      "{ f => " + decoderForType(vtype) + " { item => f(item) } }"
+    case ListType(itype, _) =>
+      "Codec.readList[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
+    case SetType(itype, _) =>
+      "Codec.readSet[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
+    case ReferenceType(name) =>
+      "(new " + name + ").decode"
   }
 
   def constForType(ftype: FieldType): String = {

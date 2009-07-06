@@ -1,6 +1,7 @@
 package com.twitter.scrooge.codec
 
 import java.io.IOException
+import scala.collection.Map
 import scala.collection.mutable
 import net.lag.naggati.{Decoder, End, ProtocolError, Step}
 import net.lag.naggati.Steps._
@@ -67,23 +68,34 @@ object Codec {
     readInt8 { itype =>
       readInt32 { len =>
         if (itype == itemtype) {
-//          readN(len, itype, itemDecoder) { }
-          readListItems(list, len, itemDecoder, f)
+          readN(len, itype, itemDecoder) { list += _ } { f(list.toList) }
         } else {
-          skipN(len, itype) { f(list) }
+          skipN(len, itype) { f(list.toList) }
         }
       }
     }
   }
 
-  def readListItems[T](list: mutable.ListBuffer[T], len: Int, itemDecoder: (T => Step) => Step, f: Seq[T] => Step): Step = {
-    if (len == 0) {
-      f(list)
-    } else {
-      itemDecoder { item =>
-        list += item
-        readListItems(list, len - 1, itemDecoder, f)
+  def readMap[K, V](keytype: Int, valuetype: Int)(keyDecoder: (K => Step) => Step)(valueDecoder: (V => Step) => Step)(f: Map[K, V] => Step) = {
+    val map = new mutable.HashMap[K, V]
+    readInt8 { ktype =>
+      readInt8 { vtype =>
+        readInt32 { len =>
+          if (ktype == keytype && vtype == valuetype) {
+            readNPairs(len, ktype, vtype, keyDecoder, valueDecoder) { (k, v) => map(k) = v } { f(map) }
+          } else {
+            skipNPairs(len, ktype, vtype) { f(map) }
+          }
+        }
       }
+    }
+  }
+
+  def readStruct[T](struct: T, f: T => Step)(decoder: PartialFunction[(Int, Int), Step]) = readFieldHeader { fieldHeader =>
+    if (fieldHeader.ftype == Type.STOP) {
+      f(struct)
+    } else {
+      decoder(fieldHeader.fid, fieldHeader.ftype)
     }
   }
 
@@ -98,30 +110,17 @@ object Codec {
     }
   }
 
-
-//  def readNItems[T]()
-  
-  /*
-  def readMap[K, V](f: Map[K, V] => Step): Step = readInt8 { ktype => readInt8 { vtype => readInt32 { len =>
-    val map = new mutable.HashMap[K, V]
-    readMap(ktype, vtype, len, new mutable.HashMap[K, V], f)
-  }}}
-
-  def readMap[K, V](ktype: Int, vtype: Int, len: Int, map: mutable.HashMap[K, V], f: Map[K, V] => Step): Step = {
-    if (len > 0) {
-      readValue(ktype) { k => readValue(vtype) { v => map(k) = v; readMap(ktype, vtype, len - 1, map, f) }}
+  private def readNPairs[T1, T2](count: Int, f1type: Int, f2type: Int, item1Decoder: (T1 => Step) => Step,
+                                 item2Decoder: (T2 => Step) => Step)(itemProcessor: (T1, T2) => Unit)(f: => Step): Step = {
+    if (count == 0) {
+      f
     } else {
-      f(map)
-    }
-  }
-  */
-
-
-  def readStruct[T](struct: T, f: T => Step)(decoder: PartialFunction[(Int, Int), Step]) = readFieldHeader { fieldHeader =>
-    if (fieldHeader.ftype == Type.STOP) {
-      f(struct)
-    } else {
-      decoder(fieldHeader.fid, fieldHeader.ftype)
+      item1Decoder { item1 =>
+        item2Decoder { item2 =>
+          itemProcessor(item1, item2)
+          readNPairs(count - 1, f1type, f2type, item1Decoder, item2Decoder)(itemProcessor)(f)
+        }
+      }
     }
   }
 
@@ -156,6 +155,14 @@ object Codec {
     }
   }
 
+  private def skipNPairs(count: Int, f1type: Int, f2type: Int)(f: => Step): Step = {
+    if (count == 0) {
+      f
+    } else {
+      skip(f1type) { skip(f2type) { skipNPairs(count - 1, f1type, f2type)(f) } }
+    }
+  }
+
 
   def readRequest() = {
     readInt64BE { header =>
@@ -171,44 +178,5 @@ object Codec {
         }
       }
     }
-  }
-}
-
-
-
-case class Membership(var destination_id: Long, var position: Long, var updated_at: Int, var count: Int) {
-  // empty constructor for decoding
-  def this() = this(0L, 0L, 0, 0)
-
-  val F_DESTINATION_ID = 1
-  val F_POSITION = 2
-  val F_UPDATED_AT = 3
-  val F_COUNT = 4
-
-  def decode(f: Membership => Step): Step = Codec.readStruct(this, f) {
-    case (F_DESTINATION_ID, Type.I64) => Codec.readI64 { v => this.destination_id = v; decode(f) }
-    case (F_POSITION, Type.I64) => Codec.readI64 { v => this.position = v; decode(f) }
-    case (F_UPDATED_AT, Type.I32) => Codec.readI32 { v => this.updated_at = v; decode(f) }
-    case (F_COUNT, Type.I32) => Codec.readI32 { v => this.count = v; decode(f) }
-    case (_, ftype) => Codec.skip(ftype) { decode(f) }
-  }
-}
-
-
-case class Page(var count: Int, var cursor: Long, var results: Seq[Int], var data: Array[Byte]) {
-  // empty constructor for decoding
-  def this() = this(0, 0L, List[Int](), null)
-
-  val F_COUNT = 1
-  val F_CURSOR = 2
-  val F_RESULTS = 3
-  val F_OK = 0
-
-  def decode(f: Page => Step): Step = Codec.readStruct(this, f) {
-    case (F_COUNT, Type.I32) => Codec.readI32 { v => this.count = v; decode(f) }
-    case (F_CURSOR, Type.I64) => Codec.readI64 { v => this.cursor = v; decode(f) }
-    case (F_RESULTS, Type.LIST) => Codec.readList[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { v => this.results = v; decode(f) }
-    case (F_OK, Type.STRING) => Codec.readBinary { v => this.data = v; decode(f) }
-    case (_, ftype) => Codec.skip(ftype) { decode(f) }
   }
 }
