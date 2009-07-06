@@ -1,6 +1,7 @@
 package com.twitter.scrooge.codec
 
 import java.io.IOException
+import scala.collection.mutable
 import net.lag.naggati.{Decoder, End, ProtocolError, Step}
 import net.lag.naggati.Steps._
 
@@ -61,24 +62,46 @@ object Codec {
   def readString(f: String => Step) = readI32 { len => readByteBuffer(len) { buffer => f(new String(buffer)) } }
   def readBinary(f: Array[Byte] => Step) = readI32 { len => readByteBuffer(len)(f) }
 
-/*
-  def readList[T](itemtype: Int)(f: => Step) = {
+  def readList[T](itemtype: Int)(itemDecoder: (T => Step) => Step)(f: Seq[T] => Step) = {
+    val list = new mutable.ListBuffer[T]
     readInt8 { itype =>
-      if (itype == itemtype) {
-        
-      } else {
-        skip(itemtype) { f(null) }
+      readInt32 { len =>
+        if (itype == itemtype) {
+//          readN(len, itype, itemDecoder) { }
+          readListItems(list, len, itemDecoder, f)
+        } else {
+          skipN(len, itype) { f(list) }
+        }
       }
     }
-    def read_list(s)
-      etype, len = s.read_all(5).unpack("cN")
-      rv = []
-      len.times do
-        rv << read_value(s, etype)
-      end
-      rv
-    end
   }
+
+  def readListItems[T](list: mutable.ListBuffer[T], len: Int, itemDecoder: (T => Step) => Step, f: Seq[T] => Step): Step = {
+    if (len == 0) {
+      f(list)
+    } else {
+      itemDecoder { item =>
+        list += item
+        readListItems(list, len - 1, itemDecoder, f)
+      }
+    }
+  }
+
+  private def readN[T](count: Int, ftype: Int, itemDecoder: (T => Step) => Step)(itemProcessor: T => Unit)(f: => Step): Step = {
+    if (count == 0) {
+      f
+    } else {
+      itemDecoder { item =>
+        itemProcessor(item)
+        readN(count - 1, ftype, itemDecoder)(itemProcessor)(f)
+      }
+    }
+  }
+
+
+//  def readNItems[T]()
+  
+  /*
   def readMap[K, V](f: Map[K, V] => Step): Step = readInt8 { ktype => readInt8 { vtype => readInt32 { len =>
     val map = new mutable.HashMap[K, V]
     readMap(ktype, vtype, len, new mutable.HashMap[K, V], f)
@@ -125,6 +148,14 @@ object Codec {
     readStruct[Unit](null, { _ => f }) { case (_, ftype) => Codec.skip(ftype) { skipStruct(f) } }
   }
 
+  private def skipN(count: Int, ftype: Int)(f: => Step): Step = {
+    if (count == 0) {
+      f
+    } else {
+      skip(ftype) { skipN(count - 1, ftype)(f) }
+    }
+  }
+
 
   def readRequest() = {
     readInt64BE { header =>
@@ -141,43 +172,9 @@ object Codec {
       }
     }
   }
-
-  /*
-  def readRequestArgs(messageName: String, args: List[])
-
-  def read_value(s, type)
-    case type
-    when Types::I64
-      hi, lo = s.read_all(8).unpack("NN")
-      (hi << 32) | lo
-    when Types::STRUCT
-      read_struct(s)
-    when Types::MAP
-      read_map(s)
-    else
-      s.read_all(SIZES[type]).unpack(FORMATS[type]).first
-    end
-  end
-
-  def readField(process: Option[] => Step) = {
-    readInt8 { c =>
-      if (c == Types.STOP) {
-        None
-      } else {
-        readInt16BE { fid => readValue()
-          
-        }
-      }
-    <
-    vdef read_field(s)
-      type = s.read_all(1).unpack("c").first
-      return nil if type == Types::STOP
-      fid = s.read_all(2).unpack("n").first
-      read_value(s, type)
-    end
-    
-    */
 }
+
+
 
 case class Membership(var destination_id: Long, var position: Long, var updated_at: Int, var count: Int) {
   // empty constructor for decoding
@@ -198,37 +195,20 @@ case class Membership(var destination_id: Long, var position: Long, var updated_
 }
 
 
+case class Page(var count: Int, var cursor: Long, var results: Seq[Int], var data: Array[Byte]) {
+  // empty constructor for decoding
+  def this() = this(0, 0L, List[Int](), null)
 
+  val F_COUNT = 1
+  val F_CURSOR = 2
+  val F_RESULTS = 3
+  val F_OK = 0
 
-/*
-
-
-  val decoder = new Decoder(readLine(true, "ISO-8859-1") { line =>
-    val segments = line.split(" ")
-    segments(0) = segments(0).toUpperCase
-
-    val command = segments(0)
-    if (! KNOWN_COMMANDS.contains(command)) {
-      throw new ProtocolError("Invalid command: " + command)
-    }
-
-    if (DATA_COMMANDS.contains(command)) {
-      if (segments.length < 5) {
-        throw new ProtocolError("Malformed request line")
-      }
-      val dataBytes = segments(4).toInt
-      readBytes(dataBytes + 2) {
-        // final 2 bytes are just "\r\n" mandated by protocol.
-        val bytes = new Array[Byte](dataBytes)
-        state.buffer.get(bytes)
-        state.buffer.position(state.buffer.position + 2)
-        state.out.write(Request(segments.toList, Some(bytes)))
-        End
-      }
-    } else {
-      state.out.write(Request(segments.toList, None))
-      End
-    }
-  })
-  
-*/
+  def decode(f: Page => Step): Step = Codec.readStruct(this, f) {
+    case (F_COUNT, Type.I32) => Codec.readI32 { v => this.count = v; decode(f) }
+    case (F_CURSOR, Type.I64) => Codec.readI64 { v => this.cursor = v; decode(f) }
+    case (F_RESULTS, Type.LIST) => Codec.readList[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { v => this.results = v; decode(f) }
+    case (F_OK, Type.STRING) => Codec.readBinary { v => this.data = v; decode(f) }
+    case (_, ftype) => Codec.skip(ftype) { decode(f) }
+  }
+}

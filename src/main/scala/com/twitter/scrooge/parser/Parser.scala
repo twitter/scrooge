@@ -250,6 +250,5 @@ class Parser(importer: Importer) extends StdTokenParsers with ImplicitConversion
       case x @ Error(msg, _) => throw new ParseException(x.toString)
     }
 
-  def parseFile(filename: String) = parse(importer(filename))
+  def parseFile(filename: String) = EnumValueTransformer.transformDocument(FieldIdTransformer.transformDocument(parse(importer(filename))))
 }
-

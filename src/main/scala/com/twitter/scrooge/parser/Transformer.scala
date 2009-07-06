@@ -104,4 +104,6 @@ class Transformer {
     transform(tpe).asInstanceOf[FunctionType]
   def transformConstValues(vs: List[ConstValue]): List[ConstValue] =
     vs.map(v => transform(v).asInstanceOf[ConstValue])
+
+  def transformDocument(doc: Document) = transform(doc).asInstanceOf[Document]
 }

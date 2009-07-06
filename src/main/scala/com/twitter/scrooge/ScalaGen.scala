@@ -75,8 +75,8 @@ object ScalaGen {
     }.mkString("\n") + "\n\n" +
     "  def decode(f: " + struct.name + " => Step): Step = Codec.readStruct(this, f) {\n" +
     struct.fields.map { f =>
-      "    case (F_" + f.name.toUpperCase + ", Type." + constForType(f.ftype) + ") => " +
-      "Codec." + decoderForType(f.ftype) + " { v => this." + f.name + " = v; decode(f) }"
+      "    case (F_" + f.name.toUpperCase + ", " + constForType(f.ftype) + ") => " +
+      decoderForType(f.ftype) + " { v => this." + f.name + " = v; decode(f) }"
     }.mkString("\n") + "\n" +
     "    case (_, ftype) => Codec.skip(ftype) { decode(f) }\n" +
     "  }\n" +
@@ -98,34 +98,39 @@ object ScalaGen {
     case ReferenceType(name) => name + "()"
   }
 
-  def decoderForType(ftype: FieldType): String = ftype match {
-    case TBool => "readBoolean"
-    case TByte => "readByte"
-    case TI16 => "readI16"
-    case TI32 => "readI32"
-    case TI64 => "readI64"
-    case TDouble => "readDouble"
-    case TString => "readString"
-    case TBinary => "readBinary"
-    // FIXME:
-    case MapType(ktpe, vtpe, _) => "Map.empty[" + apply(ktpe) + ", " + apply(vtpe) + "]"
-    case SetType(tpe, _) => "Set.empty[" + apply(tpe) + "]"
-    case ListType(tpe, _) => "List[" + apply(tpe) + "]()"
-    case ReferenceType(name) => name + "()"
+  def decoderForType(ftype: FieldType): String = {
+    "Codec." + (ftype match {
+      case TBool => "readBoolean"
+      case TByte => "readByte"
+      case TI16 => "readI16"
+      case TI32 => "readI32"
+      case TI64 => "readI64"
+      case TDouble => "readDouble"
+      case TString => "readString"
+      case TBinary => "readBinary"
+      case ListType(itype, _) => "readList[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
+
+      // FIXME:
+      case MapType(ktpe, vtpe, _) => "Map.empty[" + apply(ktpe) + ", " + apply(vtpe) + "]"
+      case SetType(tpe, _) => "Set.empty[" + apply(tpe) + "]"
+      case ReferenceType(name) => name + "()"
+    })
   }
 
-  def constForType(ftype: FieldType): String = ftype match {
-    case TBool => "BOOL"
-    case TByte => "BYTE"
-    case TI16 => "I16"
-    case TI32 => "I32"
-    case TI64 => "I64"
-    case TDouble => "DOUBLE"
-    case TString => "STRING"
-    case TBinary => "STRING"
-    case MapType(_, _, _) => "MAP"
-    case SetType(_, _) => "SET"
-    case ListType(_, _) => "LIST"
-    case ReferenceType(_) => "STRUCT"
+  def constForType(ftype: FieldType): String = {
+    "Type." + (ftype match {
+      case TBool => "BOOL"
+      case TByte => "BYTE"
+      case TI16 => "I16"
+      case TI32 => "I32"
+      case TI64 => "I64"
+      case TDouble => "DOUBLE"
+      case TString => "STRING"
+      case TBinary => "STRING"
+      case MapType(_, _, _) => "MAP"
+      case SetType(_, _) => "SET"
+      case ListType(_, _) => "LIST"
+      case ReferenceType(_) => "STRUCT"
+    })
   }
 }
