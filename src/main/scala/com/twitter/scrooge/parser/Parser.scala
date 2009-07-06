@@ -4,7 +4,7 @@ import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.syntactical._
 import scala.util.parsing.combinator.lexical._
 
-class Parser extends StdTokenParsers with ImplicitConversions {
+class Parser(importer: Importer) extends StdTokenParsers with ImplicitConversions {
   type Tokens = Lexer
   val lexical = new Tokens
 
@@ -32,7 +32,7 @@ class Parser extends StdTokenParsers with ImplicitConversions {
     include | cppInclude | namespace
 
   def include:        Parser[Include] =
-    "include" ~> literal ^^ (l => Include(l.string))
+    "include" ~> literal ^^ (l => Include(l.string, parseFile(l.string)))
 
   def cppInclude:     Parser[CppInclude] =
     "cpp_include" ~> literal ^^ (l => CppInclude(l.string))
@@ -241,5 +241,15 @@ class Parser extends StdTokenParsers with ImplicitConversions {
     })
 
   def listSeparator = "," | ";"
+
+
+  def parse(input: String) =
+    phrase(document)(new lexical.Scanner(input)) match {
+      case Success(result, _) => result
+      case x @ Failure(msg, z) => throw new ParseException(x.toString)
+      case x @ Error(msg, _) => throw new ParseException(x.toString)
+    }
+
+  def parseFile(filename: String) = parse(importer(filename))
 }
 

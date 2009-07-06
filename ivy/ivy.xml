@@ -2,7 +2,7 @@
   <!-- CONFIG: net.lag.example is the example project we're going to setup" -->
   <!-- CONFIG: testclass is your test runner -->
   <!-- CONFIG: jarclassname is the name of your main class to run via java -jar -->
-  <!-- CONFIG: thriftpackage is where generated thrift classes go. 
+  <!-- CONFIG: thriftpackage is where generated thrift classes go.
                Only matters if you're using thrift. -->
   <info organisation="com.twitter"
     module="scrooge"
@@ -34,5 +34,8 @@
     <dependency org="cglib" name="cglib" rev="2.1_3" /> <!--auto-->
     <dependency org="asm" name="asm" rev="1.5.3" /> <!--auto-->
     <!--dependency org="objenesis" name="objenesis" rev="1.1" /--> <!--auto-->
+
+    <dependency org="net.lag" name="naggati" rev="0.7.1" />
+
   </dependencies>
 </ivy-module>

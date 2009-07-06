@@ -5,7 +5,7 @@ import org.specs.runner._
 
 object ParserSpec extends Specification {
   "The Thrift IDL parser" should {
-    val p = new Parser
+    val p = new Parser(new Importer())
     import p._
 
     def parseExpression[T](expr: String, p: Parser[T]) = {
@@ -212,7 +212,7 @@ object ParserSpec extends Specification {
          * Included objects are accessed using the name of the .thrift file as a
          * prefix. i.e. shared.SharedObject
          */
-        include "shared.thrift"
+        #include "shared.thrift"
 
         /**
          * Thrift files can namespace, package, or prefix their output in various
@@ -308,7 +308,7 @@ object ParserSpec extends Specification {
          */
       """, document)
 
-      println(ScalaGen(doc))
+      //println(ScalaGen(doc))
 
       doc must haveClass[Document]
     }

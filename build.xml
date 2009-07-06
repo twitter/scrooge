@@ -6,6 +6,8 @@
   <!-- override creation of a jar with a version number in the name -->
   <property name="dist.build_integration" value="true" />
 
+  <property name="skip.docs" value="true" />
+
   <property name="ivy.settings.file" value="${basedir}/ivy/ivysettings.xml" />
   <import file="${basedir}/ant/bootstrap.xml" />
 

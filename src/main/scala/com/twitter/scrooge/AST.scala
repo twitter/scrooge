@@ -1,12 +1,12 @@
-package com.twitter.scrooge.parser
+package com.twitter.scrooge
 
 object AST {
   def toIDL(e: Tree): String = e match {
     case Document(headers, defs) =>
       headers.map(toIDL).mkString("", "\n", "\n") +
       defs.map(toIDL).mkString("", "\n", "\n")
-    case Include(file) =>
-      "include \"" + file + "\""
+    case Include(filename, document) =>
+      "# included from " + filename + ":\n" + toIDL(document) + "\n# end include of " + filename + "\n"
     case CppInclude(file) =>
       "cpp_include \"" + file + "\""
     case Namespace(scope, name) =>
@@ -80,7 +80,7 @@ sealed abstract class Tree
 case class Document(headers: List[Header], defs: List[Definition]) extends Tree
 
 abstract class Header extends Tree
-case class Include(file: String) extends Header
+case class Include(filename: String, document: Document) extends Header
 case class CppInclude(file: String) extends Header
 case class Namespace(scope: String, name: String) extends Header
 
@@ -94,7 +94,7 @@ case class Struct(name: String, fields: List[Field]) extends Definition(name)
 case class Exception(name: String, fields: List[Field]) extends Definition(name)
 case class Service(name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
 
-case class Field(var id: Int, name: String, tpe: FieldType, default: Option[ConstValue], required: Boolean, optional: Boolean) extends Tree {
+case class Field(var id: Int, name: String, ftype: FieldType, default: Option[ConstValue], required: Boolean, optional: Boolean) extends Tree {
   assert(!(required && optional))
 }
 
