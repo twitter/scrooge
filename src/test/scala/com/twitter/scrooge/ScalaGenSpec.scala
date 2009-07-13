@@ -24,6 +24,13 @@ case class Simple(var x: Int, var y: Int) {
     case (F_Y, Type.I32) => Codec.readI32 { v => this.y = v; decode(f) }
     case (_, ftype) => Codec.skip(ftype) { decode(f) }
   }
+
+  def encode(buffer: Buffer) {
+    buffer.writeFieldHeader(Type.I32, F_X)
+    buffer.writeI32(this.x)
+    buffer.writeFieldHeader(Type.I32, F_Y)
+    buffer.writeI32(this.y)
+  }
 }
 
 // generated:
@@ -36,6 +43,11 @@ case class Page(var rows: Seq[Int]) {
     case (F_ROWS, Type.LIST) => Codec.readList[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { v => this.rows = v; decode(f) }
     case (_, ftype) => Codec.skip(ftype) { decode(f) }
   }
+
+  def encode(buffer: Buffer) {
+    buffer.writeFieldHeader(Type.LIST, F_ROWS)
+    buffer.writeListHeader(Type.I32, this.rows.size); for (item <- this.rows) { buffer.writeI32(item) }
+  }
 }
 
 // generated:
@@ -47,6 +59,11 @@ case class Complex(var stuff: Map[String, Seq[Page]]) {
   def decode(f: Complex => Step): Step = Codec.readStruct(this, f) {
     case (F_STUFF, Type.MAP) => Codec.readMap[String, Seq[Page]](Type.STRING, Type.LIST) { f => Codec.readString { item => f(item) } } { f => Codec.readList[Page](Type.STRUCT) { f => (new Page).decode { item => f(item) } } { item => f(item) } } { v => this.stuff = v; decode(f) }
     case (_, ftype) => Codec.skip(ftype) { decode(f) }
+  }
+
+  def encode(buffer: Buffer) {
+    buffer.writeFieldHeader(Type.MAP, F_STUFF)
+    buffer.writeMapHeader(Type.STRING, Type.LIST, this.stuff.size); for ((k, v) <- this.stuff) { buffer.writeString(k); buffer.writeListHeader(Type.STRUCT, v.size); for (item <- v) { item.encode(buffer) } }
   }
 }
 

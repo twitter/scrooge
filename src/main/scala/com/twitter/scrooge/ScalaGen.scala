@@ -80,9 +80,12 @@ object ScalaGen {
     "    case (_, ftype) => Codec.skip(ftype) { decode(f) }\n" +
     "  }\n" +
     "\n" +
-//    "  def encode(buffer: Buffer) {\n" +
-//    "    "
-//    "  }\n" +
+    "  def encode(buffer: Buffer) {\n" +
+    struct.fields.map { f =>
+      "    buffer.writeFieldHeader(" + constForType(f.ftype) + ", F_" + f.name.toUpperCase + ")\n" +
+      "    " + encoderForType(f.ftype, "this." + f.name)
+    }.mkString("\n") + "\n" +
+    "  }\n" +
     "}\n"
   }
 
@@ -120,6 +123,30 @@ object ScalaGen {
       "Codec.readSet[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
     case ReferenceType(name) =>
       "(new " + name + ").decode"
+  }
+
+  def encoderForType(ftype: FieldType, name: String): String = {
+    ftype match {
+      case TBool => "buffer.writeBoolean(" + name + ")"
+      case TByte => "buffer.writeByte(" + name + ")"
+      case TI16 => "buffer.writeI16(" + name + ")"
+      case TI32 => "buffer.writeI32(" + name + ")"
+      case TI64 => "buffer.writeI64(" + name + ")"
+      case TDouble => "buffer.writeDouble(" + name + ")"
+      case TString => "buffer.writeString(" + name + ")"
+      case TBinary => "buffer.writeBinary(" + name + ")"
+      case MapType(ktype, vtype, _) =>
+        "buffer.writeMapHeader(" + constForType(ktype) + ", "+ constForType(vtype) + ", " + name + ".size); " +
+        "for ((k, v) <- " + name + ") { " + encoderForType(ktype, "k") + "; " + encoderForType(vtype, "v") + " }"
+      case ListType(itype, _) =>
+        "buffer.writeListHeader(" + constForType(itype) + ", " + name + ".size); " +
+        "for (item <- " + name + ") { " + encoderForType(itype, "item") + " }"
+      case SetType(itype, _) =>
+        "buffer.writeSetHeader(" + constForType(itype) + ", " + name + ".size); " +
+        "for (item <- " + name + ") { " + encoderForType(itype, "item") + " }"
+      case ReferenceType(_) =>
+        name + ".encode(buffer)"
+    }
   }
 
   def constForType(ftype: FieldType): String = {
