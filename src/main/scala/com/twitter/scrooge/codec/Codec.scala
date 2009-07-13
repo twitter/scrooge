@@ -1,7 +1,7 @@
 package com.twitter.scrooge.codec
 
 import java.io.IOException
-import scala.collection.Map
+import scala.collection.{Map, Set}
 import scala.collection.mutable
 import net.lag.naggati.{Decoder, End, ProtocolError, Step}
 import net.lag.naggati.Steps._
@@ -86,6 +86,19 @@ object Codec {
           } else {
             skipNPairs(len, ktype, vtype) { f(map) }
           }
+        }
+      }
+    }
+  }
+
+  def readSet[T](itemtype: Int)(itemDecoder: (T => Step) => Step)(f: Set[T] => Step) = {
+    val set = new mutable.HashSet[T]
+    readInt8 { itype =>
+      readInt32 { len =>
+        if (itype == itemtype) {
+          readN(len, itype, itemDecoder) { set += _ } { f(set) }
+        } else {
+          skipN(len, itype) { f(set) }
         }
       }
     }

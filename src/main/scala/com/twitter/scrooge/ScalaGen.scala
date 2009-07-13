@@ -67,7 +67,6 @@ object ScalaGen {
 
   def genStruct(struct: Struct): String = {
     "case class " + struct.name + struct.fields.map(f => "var " + apply(f)).mkString("(", ", ", ")") + " {\n" +
-    "  // empty constructor for decoding\n" +
     "  def this() = this" + struct.fields.map(f => defaultForType(f.ftype)).mkString("(", ", ", ")") + "\n" +
     "\n" +
     struct.fields.map { f =>
@@ -80,6 +79,10 @@ object ScalaGen {
     }.mkString("\n") + "\n" +
     "    case (_, ftype) => Codec.skip(ftype) { decode(f) }\n" +
     "  }\n" +
+    "\n" +
+//    "  def encode(buffer: Buffer) {\n" +
+//    "    "
+//    "  }\n" +
     "}\n"
   }
 
