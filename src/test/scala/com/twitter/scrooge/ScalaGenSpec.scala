@@ -1,6 +1,7 @@
 package com.twitter.scrooge
 
-import java.nio.ByteOrder
+import scala.collection.Map
+import scala.collection.mutable
 import org.apache.mina.core.buffer.IoBuffer
 import org.apache.mina.core.filterchain.IoFilter
 import org.apache.mina.core.session.{DummySession, IoSession}
@@ -13,7 +14,6 @@ import com.twitter.scrooge.codec._
 
 // generated:
 case class Simple(var x: Int, var y: Int) {
-  // empty constructor for decoding
   def this() = this(0, 0)
 
   val F_X = 1
@@ -26,9 +26,33 @@ case class Simple(var x: Int, var y: Int) {
   }
 }
 
+// generated:
+case class Page(var rows: Seq[Int]) {
+  def this() = this(List[Int]())
+
+  val F_ROWS = 3
+
+  def decode(f: Page => Step): Step = Codec.readStruct(this, f) {
+    case (F_ROWS, Type.LIST) => Codec.readList[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { v => this.rows = v; decode(f) }
+    case (_, ftype) => Codec.skip(ftype) { decode(f) }
+  }
+}
+
+// generated:
+case class Complex(var stuff: Map[String, Seq[Page]]) {
+  def this() = this(mutable.Map.empty[String, Seq[Page]])
+
+  val F_STUFF = 1
+
+  def decode(f: Complex => Step): Step = Codec.readStruct(this, f) {
+    case (F_STUFF, Type.MAP) => Codec.readMap[String, Seq[Page]](Type.STRING, Type.LIST) { f => Codec.readString { item => f(item) } } { f => Codec.readList[Page](Type.STRUCT) { f => (new Page).decode { item => f(item) } } { item => f(item) } } { v => this.stuff = v; decode(f) }
+    case (_, ftype) => Codec.skip(ftype) { decode(f) }
+  }
+}
+
 
 object ScalaGenSpec extends Specification {
-  private val fakeSession = new DummySession
+  private var fakeSession: IoSession = null
 
   private val fakeDecoderOutput = new ProtocolDecoderOutput {
     override def flush(nextFilter: IoFilter.NextFilter, s: IoSession) = {}
@@ -42,23 +66,41 @@ object ScalaGenSpec extends Specification {
   "ScalaGen" should {
     doBefore {
       written = Nil
+      fakeSession = new DummySession
     }
 
     "decode a simple struct" in {
       val simple = new Simple()
-      val data = IoBuffer.allocate(64)
-      data.order(ByteOrder.BIG_ENDIAN)
-      data.put(Type.I32.toByte)
-      data.putShort(simple.F_X.toShort)
-      data.putInt(3)
-      data.put(Type.I32.toByte)
-      data.putShort(simple.F_Y.toShort)
-      data.putInt(4)
-      data.put(Type.STOP.toByte)
-      data.putShort(0.toShort)
-      data.flip()
-      new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data, fakeDecoderOutput)
+      val data = new Buffer
+      data.writeFieldHeader(Type.I32, simple.F_X)
+      data.writeI32(3)
+      data.writeFieldHeader(Type.I32, simple.F_Y)
+      data.writeI32(4)
+      data.writeFieldHeader(Type.STOP, 0)
+      data.buffer.flip()
+      new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
       written mustEqual List(Simple(3, 4))
+    }
+
+    "decode a complex struct" in {
+      val page = new Page(List(15, 30, 45))
+      val complex = new Complex(mutable.Map("first" -> List(page)))
+      val complex2 = new Complex
+      val data = new Buffer
+      data.writeFieldHeader(Type.MAP, complex.F_STUFF)
+      data.writeMapHeader(Type.STRING, Type.LIST, 1)
+      data.writeString("first")
+      data.writeListHeader(Type.STRUCT, 1)
+      data.writeFieldHeader(Type.LIST, page.F_ROWS)
+      data.writeListHeader(Type.I32, 3)
+      data.writeI32(15)
+      data.writeI32(30)
+      data.writeI32(45)
+      data.writeFieldHeader(Type.STOP, 0)
+      data.writeFieldHeader(Type.STOP, 0)
+      data.buffer.flip()
+      new Decoder(complex2.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
+      written mustEqual List(complex)
     }
   }
 }
