@@ -1,10 +1,25 @@
 package com.twitter.scrooge.codec
 
+import java.nio.ByteOrder
+import scala.collection.mutable
+import org.apache.mina.core.buffer.IoBuffer
+import org.apache.mina.core.filterchain.IoFilter
+import org.apache.mina.core.session.{DummySession, IoSession}
+import org.apache.mina.filter.codec._
 import org.specs._
 import net.lag.extensions._
+import net.lag.naggati.{Decoder, End, ProtocolError, Step, TestDecoder}
 
 object CodecSpec extends Specification {
   var buffer: Buffer = null
+  var fakeSession: IoSession = null
+  var written: mutable.ListBuffer[AnyRef] = null
+  var decoder: TestDecoder = null
+
+  private val fakeDecoderOutput = new ProtocolDecoderOutput {
+    override def flush(nextFilter: IoFilter.NextFilter, s: IoSession) = {}
+    override def write(obj: AnyRef) = written += obj
+  }
 
   def getHex() = {
     buffer.buffer.flip()
@@ -13,9 +28,19 @@ object CodecSpec extends Specification {
     bytes.hexlify()
   }
 
+  def makeBuffer(s: String) = {
+    val buffer = IoBuffer.wrap(s.unhexlify)
+    buffer.order(ByteOrder.BIG_ENDIAN)
+    buffer
+  }
+
+
   "Codec" should {
     doBefore {
       buffer = new Buffer
+      fakeSession = new DummySession
+      written = new mutable.ListBuffer[AnyRef]
+      decoder = new TestDecoder
     }
 
     "encode" in {
@@ -78,6 +103,56 @@ object CodecSpec extends Specification {
       "set header" in {
         buffer.writeSetHeader(Type.I32, 1)
         getHex() mustEqual "0800000001"
+      }
+    }
+
+    "decode" in {
+      "boolean" in {
+        decoder(makeBuffer("0100"), Codec.readBoolean { x => decoder.write(x.toString); End }) mustEqual List("true", "false")
+      }
+
+      "byte" in {
+        decoder(makeBuffer("c7"), Codec.readByte { x => decoder.write(x.toString); End }) mustEqual List("-57")
+      }
+
+      "i16" in {
+        decoder(makeBuffer("0096"), Codec.readI16 { x => decoder.write(x.toString); End }) mustEqual List("150")
+      }
+
+      "i32" in {
+        decoder(makeBuffer("0096b43f"), Codec.readI32 { x => decoder.write(x.toString); End }) mustEqual List("9876543")
+      }
+
+      "i64" in {
+        decoder(makeBuffer("0000001cbbf30904"), Codec.readI64 { x => decoder.write(x.toString); End }) mustEqual List("123412351236")
+      }
+
+      "double" in {
+        decoder(makeBuffer("4023000000000000"), Codec.readDouble { x => decoder.write(x.toString); End }) mustEqual List("9.5")
+      }
+
+      "string" in {
+        decoder(makeBuffer("0000000568656c6c6f"), Codec.readString { x => decoder.write(x.toString); End }) mustEqual List("hello")
+      }
+
+      "binary" in {
+        decoder(makeBuffer("00000003636174"), Codec.readBinary { x => decoder.write(new String(x)); End }) mustEqual List("cat")
+      }
+
+      "field header" in {
+        decoder(makeBuffer("0c002c"), Codec.readFieldHeader { x => decoder.write(x.toString); End }) mustEqual List("FieldHeader(12,44)")
+      }
+
+      "list" in {
+        decoder(makeBuffer("08000000030096b43f0096b43f0096b43f"), Codec.readList[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { x => decoder.write(x.toString); End }) mustEqual List("List(9876543, 9876543, 9876543)")
+      }
+
+      "map" in {
+        decoder(makeBuffer("0b0800000001000000036361740096b43f"), Codec.readMap[String, Int](Type.STRING, Type.I32) { f => Codec.readString { item => f(item) } } { f => Codec.readI32 { item => f(item) } } { x => decoder.write(x.toString); End }) mustEqual List("Map(cat -> 9876543)")
+      }
+
+      "set" in {
+        decoder(makeBuffer("0800000001000000ff"), Codec.readSet[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { x => decoder.write(x.toString); End }) mustEqual List("Set(255)")
       }
     }
   }

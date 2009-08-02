@@ -1,7 +1,6 @@
 package com.twitter.scrooge.codec
 
 import java.nio.ByteOrder
-import scala.reflect.Manifest
 import org.apache.mina.core.buffer.IoBuffer
 
 class Buffer {
