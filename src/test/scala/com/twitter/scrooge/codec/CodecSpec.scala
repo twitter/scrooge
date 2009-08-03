@@ -155,5 +155,30 @@ object CodecSpec extends Specification {
         decoder(makeBuffer("0800000001000000ff"), Codec.readSet[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { x => decoder.write(x.toString); End }) mustEqual List("Set(255)")
       }
     }
+
+    "skip" in {
+      decoder = new TestDecoder
+      decoder(makeBuffer("0123"), Codec.skip(Type.BOOL) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("c723"), Codec.skip(Type.BYTE) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("009623"), Codec.skip(Type.I16) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("0096b43f23"), Codec.skip(Type.I32) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("0000001cbbf3090423"), Codec.skip(Type.I64) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("402300000000000023"), Codec.skip(Type.DOUBLE) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("0000000568656c6c6f23"), Codec.skip(Type.STRING) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("0301ff1f00000023"), Codec.skip(Type.STRUCT) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("08000000010096b43f23"), Codec.skip(Type.LIST) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("0b0800000001000000036361740096b43f23"), Codec.skip(Type.MAP) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder = new TestDecoder
+      decoder(makeBuffer("0800000001000000ff23"), Codec.skip(Type.SET) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+    }
   }
 }

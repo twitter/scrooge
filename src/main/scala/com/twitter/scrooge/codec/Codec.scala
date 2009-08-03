@@ -150,10 +150,9 @@ object Codec {
     case Type.I64 => readI64 { x => f }
     case Type.STRING => readString { x => f }
     case Type.STRUCT => skipStruct(f)
-/*    case Type.MAP =>
-    case Type.SET =>
-    case Type.LIST =>
-    */
+    case Type.MAP => readInt8 { ktype => readInt8 { vtype => { readInt32 { len => skipNPairs(len, ktype, vtype)(f) } } } }
+    case Type.SET => readInt8 { itype => { readInt32 { len => skipN(len, itype)(f) } } }
+    case Type.LIST => readInt8 { itype => { readInt32 { len => skipN(len, itype)(f) } } }
   }
 
   private def skipStruct(f: => Step): Step = {
