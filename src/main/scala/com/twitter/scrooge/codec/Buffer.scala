@@ -23,11 +23,6 @@ class Buffer {
     buffer.put(x)
   }
 
-  def writeFieldHeader(ftype: Int, fid: Int) = {
-    buffer.put(ftype.toByte)
-    buffer.putShort(fid.toShort)
-  }
-
   def writeListHeader(itemtype: Int, size: Int) = {
     buffer.put(itemtype.toByte)
     buffer.putInt(size)
@@ -42,6 +37,18 @@ class Buffer {
   def writeSetHeader(itemtype: Int, size: Int) = {
     buffer.put(itemtype.toByte)
     buffer.putInt(size)
+  }
+
+  def writeFieldHeader(header: FieldHeader) = {
+    buffer.put(header.ftype.toByte)
+    buffer.putShort(header.fid.toShort)
+  }
+
+  def writeRequestHeader(header: RequestHeader) = {
+    buffer.putShort(Codec.VERSION_1.toShort)
+    buffer.putShort(MessageType.CALL.toShort)
+    writeString(header.methodName)
+    buffer.putInt(header.sequenceId)
   }
 
  /* def typeFor[T](cls: Class[T]) = {

@@ -51,6 +51,8 @@ s.write_all(pack_call("stats", [ "reset", Types::BOOL, -1, false ]))
 
 case class FieldHeader(ftype: Int, fid: Int)
 
+case class RequestHeader(methodName: String, sequenceId: Int)
+
 object Codec {
   val VERSION_1 = 0x8001
 
@@ -175,8 +177,7 @@ object Codec {
     }
   }
 
-
-  def readRequest() = {
+  def readRequestHeader(f: RequestHeader => Step) = {
     readInt64BE { header =>
       val version = (header >> 48) & 0xffff
       if (version != VERSION_1) throw new ProtocolException("Illegal protocol version")
@@ -185,8 +186,8 @@ object Codec {
       val messageNameSize = (header & 0xffffffff)
       readByteBuffer(messageNameSize.toInt) { buffer =>
         val messageName = new String(buffer)
-        readInt32BE { sequenceId => End
-//          readRequestArgs(messageName, Nil)
+        readInt32BE { sequenceId =>
+          f(RequestHeader(messageName, sequenceId))
         }
       }
     }

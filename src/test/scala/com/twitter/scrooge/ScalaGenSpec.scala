@@ -27,9 +27,9 @@ case class Simple(var x: Int, var y: Int) {
   }
 
   def encode(buffer: Buffer) {
-    buffer.writeFieldHeader(Type.I32, F_X)
+    buffer.writeFieldHeader(FieldHeader(Type.I32, F_X))
     buffer.writeI32(this.x)
-    buffer.writeFieldHeader(Type.I32, F_Y)
+    buffer.writeFieldHeader(FieldHeader(Type.I32, F_Y))
     buffer.writeI32(this.y)
   }
 }
@@ -46,7 +46,7 @@ case class Page(var rows: Seq[Int]) {
   }
 
   def encode(buffer: Buffer) {
-    buffer.writeFieldHeader(Type.LIST, F_ROWS)
+    buffer.writeFieldHeader(FieldHeader(Type.LIST, F_ROWS))
     buffer.writeListHeader(Type.I32, this.rows.size); for (item <- this.rows) { buffer.writeI32(item) }
   }
 }
@@ -63,7 +63,7 @@ case class Complex(var stuff: Map[String, Seq[Page]]) {
   }
 
   def encode(buffer: Buffer) {
-    buffer.writeFieldHeader(Type.MAP, F_STUFF)
+    buffer.writeFieldHeader(FieldHeader(Type.MAP, F_STUFF))
     buffer.writeMapHeader(Type.STRING, Type.LIST, this.stuff.size); for ((k, v) <- this.stuff) { buffer.writeString(k); buffer.writeListHeader(Type.STRUCT, v.size); for (item <- v) { item.encode(buffer) } }
   }
 }
@@ -117,11 +117,11 @@ object ScalaGenSpec extends Specification {
     "decode" in {
       "a simple struct" in {
         val simple = new Simple()
-        data.writeFieldHeader(Type.I32, simple.F_X)
+        data.writeFieldHeader(FieldHeader(Type.I32, simple.F_X))
         data.writeI32(3)
-        data.writeFieldHeader(Type.I32, simple.F_Y)
+        data.writeFieldHeader(FieldHeader(Type.I32, simple.F_Y))
         data.writeI32(4)
-        data.writeFieldHeader(Type.STOP, 0)
+        data.writeFieldHeader(FieldHeader(Type.STOP, 0))
         data.buffer.flip()
         new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
         written mustEqual List(Simple(3, 4))
@@ -131,17 +131,17 @@ object ScalaGenSpec extends Specification {
         val page = new Page(List(15, 30, 45))
         val complex = new Complex(mutable.Map("first" -> List(page)))
         val complex2 = new Complex
-        data.writeFieldHeader(Type.MAP, complex.F_STUFF)
+        data.writeFieldHeader(FieldHeader(Type.MAP, complex.F_STUFF))
         data.writeMapHeader(Type.STRING, Type.LIST, 1)
         data.writeString("first")
         data.writeListHeader(Type.STRUCT, 1)
-        data.writeFieldHeader(Type.LIST, page.F_ROWS)
+        data.writeFieldHeader(FieldHeader(Type.LIST, page.F_ROWS))
         data.writeListHeader(Type.I32, 3)
         data.writeI32(15)
         data.writeI32(30)
         data.writeI32(45)
-        data.writeFieldHeader(Type.STOP, 0)
-        data.writeFieldHeader(Type.STOP, 0)
+        data.writeFieldHeader(FieldHeader(Type.STOP, 0))
+        data.writeFieldHeader(FieldHeader(Type.STOP, 0))
         data.buffer.flip()
         new Decoder(complex2.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
         written mustEqual List(complex)

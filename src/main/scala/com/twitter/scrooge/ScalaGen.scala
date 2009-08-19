@@ -82,7 +82,7 @@ object ScalaGen {
     "\n" +
     "  def encode(buffer: Buffer) {\n" +
     struct.fields.map { f =>
-      "    buffer.writeFieldHeader(" + constForType(f.ftype) + ", F_" + f.name.toUpperCase + ")\n" +
+      "    buffer.writeFieldHeader(FieldHeader(" + constForType(f.ftype) + ", F_" + f.name.toUpperCase + "))\n" +
       "    " + encoderForType(f.ftype, "this." + f.name)
     }.mkString("\n") + "\n" +
     "  }\n" +

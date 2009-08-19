@@ -85,11 +85,6 @@ object CodecSpec extends Specification {
         getHex() mustEqual "00000003636174"
       }
 
-      "field header" in {
-        buffer.writeFieldHeader(12, 44)
-        getHex() mustEqual "0c002c"
-      }
-
       "list header" in {
         buffer.writeListHeader(Type.I32, 3)
         getHex() mustEqual "0800000003"
@@ -103,6 +98,16 @@ object CodecSpec extends Specification {
       "set header" in {
         buffer.writeSetHeader(Type.I32, 1)
         getHex() mustEqual "0800000001"
+      }
+
+      "field header" in {
+        buffer.writeFieldHeader(FieldHeader(12, 44))
+        getHex() mustEqual "0c002c"
+      }
+
+      "request header" in {
+        buffer.writeRequestHeader(RequestHeader("getHeight", 23))
+        getHex() mustEqual "800100010000000967657448656967687400000017"
       }
     }
 
@@ -139,10 +144,6 @@ object CodecSpec extends Specification {
         decoder(makeBuffer("00000003636174"), Codec.readBinary { x => decoder.write(new String(x)); End }) mustEqual List("cat")
       }
 
-      "field header" in {
-        decoder(makeBuffer("0c002c"), Codec.readFieldHeader { x => decoder.write(x.toString); End }) mustEqual List("FieldHeader(12,44)")
-      }
-
       "list" in {
         decoder(makeBuffer("08000000030096b43f0096b43f0096b43f"), Codec.readList[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { x => decoder.write(x.toString); End }) mustEqual List("List(9876543, 9876543, 9876543)")
       }
@@ -153,6 +154,14 @@ object CodecSpec extends Specification {
 
       "set" in {
         decoder(makeBuffer("0800000001000000ff"), Codec.readSet[Int](Type.I32) { f => Codec.readI32 { item => f(item) } } { x => decoder.write(x.toString); End }) mustEqual List("Set(255)")
+      }
+
+      "field header" in {
+        decoder(makeBuffer("0c002c"), Codec.readFieldHeader { x => decoder.write(x.toString); End }) mustEqual List("FieldHeader(12,44)")
+      }
+
+      "request header" in {
+        decoder(makeBuffer("800100010000000967657448656967687400000017"), Codec.readRequestHeader { x => decoder.write(x.toString); End }) mustEqual List("RequestHeader(getHeight,23)")
       }
     }
 
