@@ -66,27 +66,41 @@ object ScalaGen {
     fields.map(apply).mkString("(", ", ", ")")
 
   def genStruct(struct: Struct): String = {
-    "case class " + struct.name + struct.fields.map(f => "var " + apply(f)).mkString("(", ", ", ")") + " {\n" +
-    "  def this() = this" + struct.fields.map(f => defaultForType(f.ftype)).mkString("(", ", ", ")") + "\n" +
-    "\n" +
-    struct.fields.map { f =>
-      "  val F_" + f.name.toUpperCase + " = " + f.id
-    }.mkString("\n") + "\n\n" +
-    "  def decode(f: " + struct.name + " => Step): Step = Codec.readStruct(this, f) {\n" +
-    struct.fields.map { f =>
-      "    case (F_" + f.name.toUpperCase + ", " + constForType(f.ftype) + ") => " +
-      decoderForType(f.ftype) + " { v => this." + f.name + " = v; decode(f) }"
-    }.mkString("\n") + "\n" +
-    "    case (_, ftype) => Codec.skip(ftype) { decode(f) }\n" +
-    "  }\n" +
-    "\n" +
-    "  def encode(buffer: Buffer) {\n" +
-    struct.fields.map { f =>
-      "    buffer.writeFieldHeader(FieldHeader(" + constForType(f.ftype) + ", F_" + f.name.toUpperCase + "))\n" +
-      "    " + encoderForType(f.ftype, "this." + f.name)
-    }.mkString("\n") + "\n" +
-    "  }\n" +
-    "}\n"
+    {
+      "case class %name%(%vars%) {\n" +
+      {
+        "def this() = this(%defaults%)\n" +
+        "\n" +
+        struct.fields.map(fieldId(_)).mkString("\n") + "\n\n" +
+        "def decode(f: %name% => Step): Step = Codec.readStruct(this, f) {\n" +
+        {
+          struct.fields.map(fieldDecoder(_)).mkString("\n") + "\n" +
+          "case (_, ftype) => Codec.skip(ftype) { decode(f) }"
+        }.indent + "\n" +
+        "}\n" +
+        "\n" +
+        "def encode(buffer: Buffer) {\n" +
+        struct.fields.map(fieldEncoder(_)).mkString("\n").indent + "\n" +
+        "}"
+      }.indent + "\n" +
+      "}\n"
+    } % Map("name" -> struct.name,
+            "vars" -> struct.fields.map(f => "var " + apply(f)).mkString(", "),
+            "defaults" -> struct.fields.map(f => defaultForType(f.ftype)).mkString(", "))
+  }
+
+  def fieldId(f: Field) = {
+    "val F_%uname% = %id%" % Map("uname" -> f.name.toUpperCase, "id" -> f.id.toString)
+  }
+
+  def fieldDecoder(f: Field) = {
+    "case (F_%uname%, %type%) => %dec% { v => this.%name% = v; decode(f) }" %
+      Map("name" -> f.name, "uname" -> f.name.toUpperCase, "type" -> constForType(f.ftype), "dec" -> decoderForType(f.ftype))
+  }
+
+  def fieldEncoder(f: Field) = {
+    "buffer.writeFieldHeader(FieldHeader(%type%, F_%uname%))\n%enc%" %
+      Map("name" -> f.name, "uname" -> f.name.toUpperCase, "type" -> constForType(f.ftype), "enc" -> encoderForType(f.ftype, "this." + f.name))
   }
 
   def defaultForType(ftype: FieldType): String = ftype match {
@@ -114,39 +128,41 @@ object ScalaGen {
     case TString => "Codec.readString"
     case TBinary => "Codec.readBinary"
     case MapType(ktype, vtype, _) =>
-      "Codec.readMap[" + apply(ktype) + ", " + apply(vtype) + "](" + constForType(ktype) + ", " + constForType(vtype) + ") " +
-      "{ f => " + decoderForType(ktype) + " { item => f(item) } } " +
-      "{ f => " + decoderForType(vtype) + " { item => f(item) } }"
+      "Codec.readMap[%k%, %v%](%ktype%, %vtype%) { f => %kdec% { item => f(item) } } { f => %vdec% { item => f(item) } }" %
+        Map("k" -> apply(ktype), "v" -> apply(vtype), "ktype" -> constForType(ktype), "vtype" -> constForType(vtype),
+            "kdec" -> decoderForType(ktype), "vdec" -> decoderForType(vtype))
     case ListType(itype, _) =>
-      "Codec.readList[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
+      "Codec.readList[%i%](%itype%) { f => %dec% { item => f(item) } }" %
+        Map("i" -> apply(itype), "itype" -> constForType(itype), "dec" -> decoderForType(itype))
     case SetType(itype, _) =>
-      "Codec.readSet[" + apply(itype) + "](" + constForType(itype) + ") { f => " + decoderForType(itype) + " { item => f(item) } }"
+      "Codec.readSet[%i%](%itype%) { f => %dec% { item => f(item) } }" %
+        Map("i" -> apply(itype), "itype" -> constForType(itype), "dec" -> decoderForType(itype))
     case ReferenceType(name) =>
-      "(new " + name + ").decode"
+      "(new %name%).decode" % Map("name" -> name)
   }
 
   def encoderForType(ftype: FieldType, name: String): String = {
-    ftype match {
-      case TBool => "buffer.writeBoolean(" + name + ")"
-      case TByte => "buffer.writeByte(" + name + ")"
-      case TI16 => "buffer.writeI16(" + name + ")"
-      case TI32 => "buffer.writeI32(" + name + ")"
-      case TI64 => "buffer.writeI64(" + name + ")"
-      case TDouble => "buffer.writeDouble(" + name + ")"
-      case TString => "buffer.writeString(" + name + ")"
-      case TBinary => "buffer.writeBinary(" + name + ")"
+    (ftype match {
+      case TBool => "buffer.writeBoolean(%name%)"
+      case TByte => "buffer.writeByte(%name%)"
+      case TI16 => "buffer.writeI16(%name%)"
+      case TI32 => "buffer.writeI32(%name%)"
+      case TI64 => "buffer.writeI64(%name%)"
+      case TDouble => "buffer.writeDouble(%name%)"
+      case TString => "buffer.writeString(%name%)"
+      case TBinary => "buffer.writeBinary(%name%)"
       case MapType(ktype, vtype, _) =>
-        "buffer.writeMapHeader(" + constForType(ktype) + ", "+ constForType(vtype) + ", " + name + ".size); " +
-        "for ((k, v) <- " + name + ") { " + encoderForType(ktype, "k") + "; " + encoderForType(vtype, "v") + " }"
+        "buffer.writeMapHeader(%ktype%, %vtype%, %name%.size); for ((k, v) <- %name%) { %kenc%; %venc% }" %
+          Map("ktype" -> constForType(ktype), "vtype" -> constForType(vtype),
+              "kenc" -> encoderForType(ktype, "k"), "venc" -> encoderForType(vtype, "v"))
       case ListType(itype, _) =>
-        "buffer.writeListHeader(" + constForType(itype) + ", " + name + ".size); " +
-        "for (item <- " + name + ") { " + encoderForType(itype, "item") + " }"
+        "buffer.writeListHeader(%itype%, %name%.size); for (item <- %name%) { %enc% }" %
+          Map("itype" -> constForType(itype), "enc" -> encoderForType(itype, "item"))
       case SetType(itype, _) =>
-        "buffer.writeSetHeader(" + constForType(itype) + ", " + name + ".size); " +
-        "for (item <- " + name + ") { " + encoderForType(itype, "item") + " }"
-      case ReferenceType(_) =>
-        name + ".encode(buffer)"
-    }
+        "buffer.writeSetHeader(%itype, %name%.size); for (item <- %name%) { %enc% }" %
+          Map("itype" -> constForType(itype), "enc" -> encoderForType(itype, "item"))
+      case ReferenceType(_) => "%name%.encode(buffer)"
+    }) % Map("name" -> name)
   }
 
   def constForType(ftype: FieldType): String = {
@@ -164,5 +180,18 @@ object ScalaGen {
       case ListType(_, _) => "LIST"
       case ReferenceType(_) => "STRUCT"
     })
+  }
+
+
+  implicit def string2percentString(s: String): PercentString = new PercentString(s)
+}
+
+class PercentString(str: String) {
+  def %(map: Map[String, String]) = {
+    map.foldLeft(str) { (s, item) => item match { case (k, v) => s.replace("%" + k + "%", v) } }
+  }
+
+  def indent = {
+    str.split("\n").mkString("  ", "\n  ", "").replaceAll("(?m)\\s+$", "\n")
   }
 }
