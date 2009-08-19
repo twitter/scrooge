@@ -17,10 +17,8 @@ object ScalaGen {
       genStruct(s)
     case Exception(name, fields) =>
       "case class " + name + "Exception" + genFields(fields) + " extends Exception"
-    case Service(name, Some(parent), fns) =>
-      "trait " + name + " extends " + parent + genFunctions(fns)
-    case Service(name, None, fns) =>
-      "trait " + name + genFunctions(fns)
+    case s @ Service(name, parent, fns) =>
+      genService(s)
     case Function(name, tpe, args, async, throws) =>
       (if (throws.isEmpty) "" else throws.map { field => apply(field.ftype) }.mkString("@throws(", ",", ") ")) +
         "def " + name + genFields(args) + ": " + apply(tpe)
@@ -59,11 +57,35 @@ object ScalaGen {
     }
   }
 
-  def genFunctions(functions: List[Function]): String =
-    functions.map(apply).mkString(" {\n  ", "\n  ", "\n}")
 
   def genFields(fields: List[Field]): String =
     fields.map(apply).mkString("(", ", ", ")")
+
+  def genService(service: Service): String = {
+    {
+      "trait %name%%extends% {\n" +
+      service.functions.map(apply).mkString("\n").indent +
+      "}\n" +
+      "\n" +
+      "object %name% {\n" +
+      {
+        service.functions.map { func => genStruct(Struct(func.name + "_args", func.args)) }.mkString("\n") +
+        "\n\n" +
+        service.functions.map { func => genStruct(functionToReturnValueStruct(func)) }.mkString("\n") +
+        "\n\n"
+      }.indent +
+      "}\n"
+    } % Map("name" -> service.name,
+            "extends" -> service.parent.map(" extends " + _).getOrElse(""))
+  }
+
+  def functionToReturnValueStruct(func: Function) = {
+    val resultFields = (func.tpe match {
+      case Void => Nil
+      case f: FieldType => List(Field(0, "_rv", f, None, false, true))
+    }) ::: func.throws
+    Struct(func.name + "_result", resultFields)
+  }
 
   def genStruct(struct: Struct): String = {
     {
@@ -71,18 +93,18 @@ object ScalaGen {
       {
         "def this() = this(%defaults%)\n" +
         "\n" +
-        struct.fields.map(fieldId(_)).mkString("\n") + "\n\n" +
+        struct.fields.map(fieldId).mkString("\n") + "\n\n" +
         "def decode(f: %name% => Step): Step = Codec.readStruct(this, f) {\n" +
         {
-          struct.fields.map(fieldDecoder(_)).mkString("\n") + "\n" +
+          struct.fields.map(fieldDecoder).mkString("\n") + "\n" +
           "case (_, ftype) => Codec.skip(ftype) { decode(f) }"
-        }.indent + "\n" +
+        }.indent +
         "}\n" +
         "\n" +
         "def encode(buffer: Buffer) {\n" +
-        struct.fields.map(fieldEncoder(_)).mkString("\n").indent + "\n" +
+        struct.fields.map(fieldEncoder).mkString("\n").indent +
         "}"
-      }.indent + "\n" +
+      }.indent +
       "}\n"
     } % Map("name" -> struct.name,
             "vars" -> struct.fields.map(f => "var " + apply(f)).mkString(", "),
@@ -192,6 +214,6 @@ class PercentString(str: String) {
   }
 
   def indent = {
-    str.split("\n").mkString("  ", "\n  ", "").replaceAll("(?m)\\s+$", "\n")
+    str.split("\n").mkString("  ", "\n  ", "\n").replaceAll("(?m)\\s+$", "\n")
   }
 }
