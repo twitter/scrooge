@@ -20,19 +20,39 @@ case class Simple(var x: Int, var y: Int) {
   val F_X = 1
   val F_Y = 2
 
-  def decode(f: Simple => Step): Step = Codec.readStruct(this, f) {
-    case (F_X, Type.I32) => Codec.readI32 { v => this.x = v; decode(f) }
-    case (F_Y, Type.I32) => Codec.readI32 { v => this.y = v; decode(f) }
-    case (_, ftype) => Codec.skip(ftype) { decode(f) }
+  var x__isSet = true
+  var y__isSet = true
+
+  def decode(f: Simple => Step): Step = {
+    x__isSet = false
+    y__isSet = false
+    _decode(f)
+  }
+
+  def _decode(f: Simple => Step): Step = Codec.readStruct(this, f) {
+    case (F_X, Type.I32) =>
+      this.x__isSet = true
+      Codec.readI32 { v => this.x = v; _decode(f) }
+
+    case (F_Y, Type.I32) =>
+      this.y__isSet = true
+      Codec.readI32 { v => this.y = v; _decode(f) }
+
+    case (_, ftype) => Codec.skip(ftype) { _decode(f) }
   }
 
   def encode(buffer: Buffer) {
-    buffer.writeFieldHeader(FieldHeader(Type.I32, F_X))
-    buffer.writeI32(this.x)
-    buffer.writeFieldHeader(FieldHeader(Type.I32, F_Y))
-    buffer.writeI32(this.y)
+    if (this.x__isSet) {
+      buffer.writeFieldHeader(FieldHeader(Type.I32, F_X))
+      buffer.writeI32(this.x)
+    }
+    if (this.y__isSet) {
+      buffer.writeFieldHeader(FieldHeader(Type.I32, F_Y))
+      buffer.writeI32(this.y)
+    }
   }
 }
+
 
 // generated:
 case class Page(var rows: Seq[Int]) {
@@ -82,6 +102,7 @@ object ScalaGenSpec extends Specification {
   private var data: Buffer = null
 
   val simpleEncoding = "080001000000190800020000001a"
+  val partialSimpleEncoding = "08000200000006"
   val complexEncoding = "0d00010b0f00000002000000037265640c000000020f000308000000030000000f00000010000000110f00030800000002000000150000001600000004626c75650c00000000"
 
   def getHex() = {
@@ -105,6 +126,13 @@ object ScalaGenSpec extends Specification {
         getHex() mustEqual simpleEncoding
       }
 
+      "a partial simple struct" in {
+        val simple = new Simple(9, 6)
+        simple.x__isSet = false
+        simple.encode(data)
+        getHex() mustEqual partialSimpleEncoding
+      }
+
       "a complex struct" in {
         val page1 = new Page(List(15, 16, 17))
         val page2 = new Page(List(21, 22))
@@ -125,6 +153,19 @@ object ScalaGenSpec extends Specification {
         data.buffer.flip()
         new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
         written mustEqual List(Simple(3, 4))
+      }
+
+      "a partial simple struct" in {
+        val simple = new Simple()
+        data.writeFieldHeader(FieldHeader(Type.I32, simple.F_X))
+        data.writeI32(3)
+        data.writeFieldHeader(FieldHeader(Type.STOP, 0))
+        data.buffer.flip()
+        new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
+        written mustEqual List(Simple(3, 0))
+        val writtenSimple = written(0).asInstanceOf[Simple]
+        writtenSimple.x__isSet mustBe true
+        writtenSimple.y__isSet mustBe false
       }
 
       "a complex struct" in {

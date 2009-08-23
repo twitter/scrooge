@@ -91,18 +91,34 @@ object ScalaGen {
     {
       "case class %name%(%vars%) {\n" +
       {
-        "def this() = this(%defaults%)\n" +
-        "\n" +
-        struct.fields.map(fieldId).mkString("\n") + "\n\n" +
-        "def decode(f: %name% => Step): Step = Codec.readStruct(this, f) {\n" +
+        (if (struct.fields.size > 0) {
+          "def this() = this(%defaults%)\n" +
+          "\n" +
+          struct.fields.map(fieldId).mkString("\n") + "\n\n" +
+          struct.fields.map(fieldDeclaredSetFlag).mkString("\n") + "\n\n"
+        } else "") +
+        "def decode(f: %name% => Step): Step = {\n" +
         {
-          struct.fields.map(fieldDecoder).mkString("\n") + "\n" +
-          "case (_, ftype) => Codec.skip(ftype) { decode(f) }"
+          (if (struct.fields.size > 0) {
+            struct.fields.map(fieldMarkUnset).mkString("\n") + "\n"
+          } else "") +
+          "_decode(f)\n"
+        }.indent +
+        "}\n" +
+        "\n" +
+        "def _decode(f: %name% => Step): Step = Codec.readStruct(this, f) {\n" +
+        {
+          (if (struct.fields.size > 0) {
+            struct.fields.map(fieldDecoder).mkString("\n") + "\n"
+          } else "") +
+          "case (_, ftype) => Codec.skip(ftype) { _decode(f) }"
         }.indent +
         "}\n" +
         "\n" +
         "def encode(buffer: Buffer) {\n" +
-        struct.fields.map(fieldEncoder).mkString("\n").indent +
+        (if (struct.fields.size > 0) {
+          struct.fields.map(fieldEncoder).mkString("\n").indent
+        } else "") +
         "}"
       }.indent +
       "}\n"
@@ -116,13 +132,34 @@ object ScalaGen {
   }
 
   def fieldDecoder(f: Field) = {
-    "case (F_%uname%, %type%) => %dec% { v => this.%name% = v; decode(f) }" %
+    {
+      "case (F_%uname%, %type%) =>\n" +
+      {
+        "this.%name%__isSet = true\n" +
+        "%dec% { v => this.%name% = v; _decode(f) }"
+      }.indent
+    } %
       Map("name" -> f.name, "uname" -> f.name.toUpperCase, "type" -> constForType(f.ftype), "dec" -> decoderForType(f.ftype))
   }
 
   def fieldEncoder(f: Field) = {
-    "buffer.writeFieldHeader(FieldHeader(%type%, F_%uname%))\n%enc%" %
+    {
+      "if (this.%name%__isSet) {\n" +
+      {
+        "buffer.writeFieldHeader(FieldHeader(%type%, F_%uname%))\n" +
+        "%enc%\n"
+      }.indent +
+      "}"
+    } %
       Map("name" -> f.name, "uname" -> f.name.toUpperCase, "type" -> constForType(f.ftype), "enc" -> encoderForType(f.ftype, "this." + f.name))
+  }
+
+  def fieldDeclaredSetFlag(f: Field) = {
+    "var %name%__isSet = true" % Map("name" -> f.name)
+  }
+
+  def fieldMarkUnset(f: Field) = {
+    "%name%__isSet = false" % Map("name" -> f.name)
   }
 
   def defaultForType(ftype: FieldType): String = ftype match {
