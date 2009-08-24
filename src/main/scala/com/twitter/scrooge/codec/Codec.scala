@@ -25,7 +25,7 @@ object Type {
 object MessageType {
   val CALL = 1
   val REPLY = 2
-  val EXCEPTION = 3
+  val EXCEPTION = 3    // used only for unchecked exceptions
 }
 
 case class ProtocolException(reason: String) extends IOException(reason)
@@ -46,12 +46,19 @@ def pack_field(name, type, fid, value)
 end
 s.write_all(pack_call("stats", [ "reset", Types::BOOL, -1, false ]))
 
+def read_response(s, exp_types)
+  version, message_type, method_name_len = s.read_all(8).unpack("nnN")
+  method_name = s.read_all(method_name_len)
+  seq_id = s.read_all(4).unpack("N").first
+  [ method_name, seq_id, read_struct(s, exp_types) ]
+end
+
 */
 
 
 case class FieldHeader(ftype: Int, fid: Int)
 
-case class RequestHeader(methodName: String, sequenceId: Int)
+case class RequestHeader(messageType: Int, methodName: String, sequenceId: Int)
 
 object Codec {
   val VERSION_1 = 0x8001
@@ -182,12 +189,11 @@ object Codec {
       val version = (header >> 48) & 0xffff
       if (version != VERSION_1) throw new ProtocolException("Illegal protocol version")
       val messageType = (header >> 32) & 0xffff
-      if (messageType != MessageType.CALL) throw new ProtocolException("Expected CALL, got " + messageType)
       val messageNameSize = (header & 0xffffffff)
       readByteBuffer(messageNameSize.toInt) { buffer =>
         val messageName = new String(buffer)
         readInt32BE { sequenceId =>
-          f(RequestHeader(messageName, sequenceId))
+          f(RequestHeader(messageType.toInt, messageName, sequenceId))
         }
       }
     }

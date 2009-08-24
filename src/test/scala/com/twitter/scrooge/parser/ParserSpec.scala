@@ -129,7 +129,7 @@ object ParserSpec extends Specification {
           1: i32 what,
           2: string why
         }
-      """, exception) must_== Exception("InvalidOperation", List(
+      """, exception) must_== Exception_("InvalidOperation", List(
                                 Field(1, "what", TI32, None, false, false),
                                 Field(2, "why", TString, None, false, false)))
     }

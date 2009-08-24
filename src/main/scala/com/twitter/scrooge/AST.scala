@@ -27,7 +27,7 @@ object AST {
       "\nstruct " + name + " {" +
         fields.map(toIDL).mkString("\n  ", ",\n  ", "\n") +
       "}\n"
-    case Exception(name, fields) =>
+    case Exception_(name, fields) =>
       "\nexception " + name + " {" +
         fields.map(toIDL).mkString("\n  ", ",\n  ", "\n") +
       "}\n"
@@ -90,8 +90,9 @@ case class Typedef(name: String, tpe: DefinitionType) extends Definition(name)
 case class Enum(name: String, values: List[EnumValue]) extends Definition(name)
 case class EnumValue(name: String, var value: Int) extends Tree
 case class Senum(name: String, values: List[String]) extends Definition(name)
-case class Struct(name: String, fields: List[Field]) extends Definition(name)
-case class Exception(name: String, fields: List[Field]) extends Definition(name)
+abstract case class StructLike(name: String, fields: List[Field]) extends Definition(name)
+case class Struct(override val name: String, override val fields: List[Field]) extends StructLike(name, fields)
+case class Exception_(override val name: String, override val fields: List[Field]) extends StructLike(name, fields)
 case class Service(name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
 
 case class Field(var id: Int, name: String, ftype: FieldType, default: Option[ConstValue], required: Boolean, optional: Boolean) extends Tree {

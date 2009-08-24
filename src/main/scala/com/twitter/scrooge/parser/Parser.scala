@@ -99,9 +99,9 @@ class Parser(importer: Importer) extends StdTokenParsers with ImplicitConversion
       case name ~ fields => Struct(name.name, fields)
     }
 
-  def exception:      Parser[Exception] =
+  def exception:      Parser[Exception_] =
     "exception" ~> identifier ~ ("{" ~> rep(field) <~ "}") ^^ {
-      case name ~ fields => Exception(name.name, fields)
+      case name ~ fields => Exception_(name.name, fields)
     }
 
   def service:        Parser[Service] =

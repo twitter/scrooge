@@ -1,5 +1,7 @@
 package com.twitter.scrooge
 
+import net.lag.extensions._
+
 object ScalaGen {
   def apply(tree: Tree): String = tree match {
     case Document(headers, defs) =>
@@ -13,14 +15,12 @@ object ScalaGen {
       "val " + name + ": " + apply(tpe) + " = " + apply(value)
     case Typedef(name, tpe) =>
       "type " + name + " = " + apply(tpe)
-    case s @ Struct(name, fields) =>
+    case s @ StructLike(name, fields) =>
       genStruct(s)
-    case Exception(name, fields) =>
-      "case class " + name + "Exception" + genFields(fields) + " extends Exception"
     case s @ Service(name, parent, fns) =>
       genService(s)
     case Function(name, tpe, args, async, throws) =>
-      (if (throws.isEmpty) "" else throws.map { field => apply(field.ftype) }.mkString("@throws(", ",", ") ")) +
+      (if (throws.isEmpty) "" else throws.map { field => apply(field.ftype) }.mkString("@throws(classOf[", "], classOf[", "]) ")) +
         "def " + name + genFields(args) + ": " + apply(tpe)
     case Field(id, name, tpe, default, required, optional) =>
       name + ": " + apply(tpe)
@@ -41,7 +41,7 @@ object ScalaGen {
     case DoubleConstant(d) => d
     case ConstList(elems) => elems.map(apply).mkString("List(", ", ", ")")
     case ConstMap(elems) => elems.map { case (k, v) => apply(k) + " -> " + apply(v) }.mkString("Map(", ", ", ")")
-    case StringLiteral(str) => "\"" + str + "\""
+    case StringLiteral(str) => "\"" + str.quoteC() + "\""
     case Identifier(name) => name
     case Enum(name, values) =>
       "object " + name + " {\n" + values.toString + "\n}\n"
@@ -69,6 +69,12 @@ object ScalaGen {
       "\n" +
       "object %name% {\n" +
       {
+        "def process() = {\n" +
+        {
+          "Codec.readString()"
+        }.indent +
+        "}\n" +
+        "\n" +
         service.functions.map { func => genStruct(Struct(func.name + "_args", func.args)) }.mkString("\n") +
         "\n\n" +
         service.functions.map { func => genStruct(functionToReturnValueStruct(func)) }.mkString("\n") +
@@ -87,9 +93,9 @@ object ScalaGen {
     Struct(func.name + "_result", resultFields)
   }
 
-  def genStruct(struct: Struct): String = {
+  def genStruct(struct: StructLike): String = {
     {
-      "case class %name%(%vars%) {\n" +
+      "case class %name%(%vars%)%exception% {\n" +
       {
         (if (struct.fields.size > 0) {
           "def this() = this(%defaults%)\n" +
@@ -97,11 +103,17 @@ object ScalaGen {
           struct.fields.map(fieldId).mkString("\n") + "\n\n" +
           struct.fields.map(fieldDeclaredSetFlag).mkString("\n") + "\n\n"
         } else "") +
+        "def reset() {\n" +
+          {
+            if (struct.fields.size > 0) {
+              struct.fields.map(fieldMarkUnset).mkString("\n") + "\n"
+            } else ""
+          }.indent +
+        "}\n" +
+        "\n" +
         "def decode(f: %name% => Step): Step = {\n" +
         {
-          (if (struct.fields.size > 0) {
-            struct.fields.map(fieldMarkUnset).mkString("\n") + "\n"
-          } else "") +
+          "reset()\n" +
           "_decode(f)\n"
         }.indent +
         "}\n" +
@@ -109,7 +121,7 @@ object ScalaGen {
         "def _decode(f: %name% => Step): Step = Codec.readStruct(this, f) {\n" +
         {
           (if (struct.fields.size > 0) {
-            struct.fields.map(fieldDecoder).mkString("\n") + "\n"
+            struct.fields.map(fieldDecoder).mkString("")
           } else "") +
           "case (_, ftype) => Codec.skip(ftype) { _decode(f) }"
         }.indent +
@@ -124,7 +136,11 @@ object ScalaGen {
       "}\n"
     } % Map("name" -> struct.name,
             "vars" -> struct.fields.map(f => "var " + apply(f)).mkString(", "),
-            "defaults" -> struct.fields.map(f => defaultForType(f.ftype)).mkString(", "))
+            "defaults" -> struct.fields.map(fieldDefault).mkString(", "),
+            "exception" -> (struct match {
+              case e: Exception_ => " extends Exception"
+              case _ => ""
+            }))
   }
 
   def fieldId(f: Field) = {
@@ -154,6 +170,13 @@ object ScalaGen {
       Map("name" -> f.name, "uname" -> f.name.toUpperCase, "type" -> constForType(f.ftype), "enc" -> encoderForType(f.ftype, "this." + f.name))
   }
 
+  def fieldDefault(f: Field): String = {
+    f.default match {
+      case Some(v) => apply(v)
+      case None => defaultForType(f.ftype)
+    }
+  }
+
   def fieldDeclaredSetFlag(f: Field) = {
     "var %name%__isSet = true" % Map("name" -> f.name)
   }
@@ -174,7 +197,7 @@ object ScalaGen {
     case MapType(ktpe, vtpe, _) => "mutable.Map.empty[" + apply(ktpe) + ", " + apply(vtpe) + "]"
     case SetType(tpe, _) => "mutable.Set.empty[" + apply(tpe) + "]"
     case ListType(tpe, _) => "List[" + apply(tpe) + "]()"
-    case ReferenceType(name) => name + "()"
+    case ReferenceType(name) => "new " + name + "()"
   }
 
   def decoderForType(ftype: FieldType): String = ftype match {

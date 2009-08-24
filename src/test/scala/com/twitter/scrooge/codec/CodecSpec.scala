@@ -106,7 +106,7 @@ object CodecSpec extends Specification {
       }
 
       "request header" in {
-        buffer.writeRequestHeader(RequestHeader("getHeight", 23))
+        buffer.writeRequestHeader(RequestHeader(MessageType.CALL, "getHeight", 23))
         getHex() mustEqual "800100010000000967657448656967687400000017"
       }
     }
@@ -161,7 +161,7 @@ object CodecSpec extends Specification {
       }
 
       "request header" in {
-        decoder(makeBuffer("800100010000000967657448656967687400000017"), Codec.readRequestHeader { x => decoder.write(x.toString); End }) mustEqual List("RequestHeader(getHeight,23)")
+        decoder(makeBuffer("800100010000000967657448656967687400000017"), Codec.readRequestHeader { x => decoder.write(x.toString); End }) mustEqual List("RequestHeader(1,getHeight,23)")
       }
     }
 

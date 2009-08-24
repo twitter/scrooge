@@ -61,8 +61,8 @@ class Transformer {
       Senum(name, vs)
     case Struct(name, fs) =>
       Struct(name, transformFields(fs))
-    case Exception(name, fs) =>
-      Exception(name, transformFields(fs))
+    case Exception_(name, fs) =>
+      Exception_(name, transformFields(fs))
     case Service(name, parent, fs) =>
       Service(name, parent, transformFunctions(fs))
     case EnumValue(name, value) =>
