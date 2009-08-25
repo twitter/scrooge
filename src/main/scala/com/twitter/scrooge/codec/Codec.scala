@@ -205,11 +205,4 @@ object Codec {
       }
     }
   }
-
-  def readCallRequestHeader(f: RequestHeader => Step) = readRequestHeader { request =>
-    if (request.messageType != MessageType.CALL) {
-      throw new ProtocolException("Expected CALL, got " + request.messageType)
-    }
-    f(request)
-  }
 }

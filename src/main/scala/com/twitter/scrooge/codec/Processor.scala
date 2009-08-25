@@ -6,6 +6,18 @@ import net.lag.naggati.{End, ProtocolError, Step}
 abstract class Processor extends ((Buffer => Step) => Step) {
   def apply(f: Buffer => Step): Step
 
+  def process(f: Buffer => Step)(matcher: PartialFunction[RequestHeader, Step]): Step = Codec.readRequestHeader { request =>
+    if (matcher.isDefinedAt(request)) {
+      matcher(request)
+    } else {
+      val buffer = new Buffer()
+      buffer.writeRequestHeader(RequestHeader(MessageType.EXCEPTION, request.methodName, request.sequenceId))
+      val exception = new generated.TApplicationException("no such method " + request.methodName, generated.constants.UNKNOWN_METHOD)
+      exception.encode(buffer)
+      f(buffer)
+    }
+  }
+
   def noExceptions[A] = new PartialFunction[A, Unit] {
     def isDefinedAt(x: A) = false
     def apply(x: A) = ()
