@@ -69,20 +69,48 @@ object ScalaGen {
       "\n" +
       "object %name% {\n" +
       {
-        "def process() = {\n" +
+        "def processor(impl: %name%) = new Processor {\n" +
         {
-          "Codec.readString()"
+          "def apply(f: Buffer => Step) = Codec.readCallRequestHeader { request =>\n" +
+          {
+            "request.methodName match {\n" +
+            {
+              service.functions.map(functionHandler).mkString("\n")
+            }.indent +
+            "}\n"
+          }.indent +
+          "}\n"
         }.indent +
         "}\n" +
         "\n" +
         service.functions.map { func => genStruct(Struct(func.name + "_args", func.args)) }.mkString("\n") +
         "\n\n" +
-        service.functions.map { func => genStruct(functionToReturnValueStruct(func)) }.mkString("\n") +
+        service.functions.map { func => genStruct(functionToReturnValueStruct(func), true) }.mkString("\n") +
         "\n\n"
       }.indent +
       "}\n"
     } % Map("name" -> service.name,
             "extends" -> service.parent.map(" extends " + _).getOrElse(""))
+  }
+
+  def functionHandler(func: Function) = {
+    {
+      "case \"%name%\" =>\n" + {
+        "handleMethod[%rtype%, %name%_args, %name%_result](f, request) { args => impl.%name%(%args%) } " +
+        (if (func.throws.isEmpty) {
+          "(noException)"
+        } else {
+          "{\n" + func.throws.map { exc =>
+            ("case (result, e: %etype%) =>\n" + {
+              "result.%name%__isSet = true\n" +
+              "result.%name% = e\n"
+            }.indent).indent % Map("name" -> exc.name, "etype" -> apply(exc.ftype))
+          }.mkString("\n") +
+          "}\n"
+        })
+      }.indent
+    } % Map("name" -> func.name, "rtype" -> apply(func.tpe),
+            "args" -> func.args.map(a => "args." + a.name).mkString(", "))
   }
 
   def functionToReturnValueStruct(func: Function) = {
@@ -93,9 +121,15 @@ object ScalaGen {
     Struct(func.name + "_result", resultFields)
   }
 
-  def genStruct(struct: StructLike): String = {
+  def genStruct(struct: StructLike): String = genStruct(struct, false)
+
+  def genStruct(struct: StructLike, resultType: Boolean): String = {
+    def serializable = {
+      if (resultType) "ThriftResult[%name%, %rtype%]" else "ThriftSerializable[%name%]"
+    } % Map("name" -> struct.name, "rtype" -> apply(struct.fields(0).ftype))
+
     {
-      "case class %name%(%vars%)%exception% {\n" +
+      "case class %name%(%vars%) %inherit% %serializable% {\n" +
       {
         (if (struct.fields.size > 0) {
           "def this() = this(%defaults%)\n" +
@@ -103,7 +137,7 @@ object ScalaGen {
           struct.fields.map(fieldId).mkString("\n") + "\n\n" +
           struct.fields.map(fieldDeclaredSetFlag).mkString("\n") + "\n\n"
         } else "") +
-        "def reset() {\n" +
+        "def clearIsSet() {\n" +
           {
             if (struct.fields.size > 0) {
               struct.fields.map(fieldMarkUnset).mkString("\n") + "\n"
@@ -113,7 +147,7 @@ object ScalaGen {
         "\n" +
         "def decode(f: %name% => Step): Step = {\n" +
         {
-          "reset()\n" +
+          "clearIsSet()\n" +
           "_decode(f)\n"
         }.indent +
         "}\n" +
@@ -137,10 +171,11 @@ object ScalaGen {
     } % Map("name" -> struct.name,
             "vars" -> struct.fields.map(f => "var " + apply(f)).mkString(", "),
             "defaults" -> struct.fields.map(fieldDefault).mkString(", "),
-            "exception" -> (struct match {
-              case e: Exception_ => " extends Exception"
-              case _ => ""
-            }))
+            "inherit" -> (struct match {
+              case e: Exception_ => "extends Exception with"
+              case _ => "extends"
+            }),
+            "serializable" -> serializable)
   }
 
   def fieldId(f: Field) = {

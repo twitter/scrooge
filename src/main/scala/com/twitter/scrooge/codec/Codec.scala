@@ -30,8 +30,15 @@ object MessageType {
 
 case class ProtocolException(reason: String) extends IOException(reason)
 
-trait Decodable[T] {
+trait ThriftSerializable[T] {
+  def encode(buffer: Buffer)
   def decode(f: T => Step): Step
+  def clearIsSet()
+}
+
+trait ThriftResult[T, R] extends ThriftSerializable[T] {
+  var _rv: R
+  var _rv__isSet: Boolean
 }
 
 /*
@@ -197,5 +204,12 @@ object Codec {
         }
       }
     }
+  }
+
+  def readCallRequestHeader(f: RequestHeader => Step) = readRequestHeader { request =>
+    if (request.messageType != MessageType.CALL) {
+      throw new ProtocolException("Expected CALL, got " + request.messageType)
+    }
+    f(request)
   }
 }
