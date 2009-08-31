@@ -7,6 +7,7 @@
   <property name="dist.build_integration" value="true" />
 
   <property name="skip.docs" value="true" />
+  <property name="skip.thrift" value="true" />
 
   <property name="ivy.settings.file" value="${basedir}/ivy/ivysettings.xml" />
   <import file="${basedir}/ant/bootstrap.xml" />

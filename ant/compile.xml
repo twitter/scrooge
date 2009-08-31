@@ -40,7 +40,7 @@
     </sequential>
   </macrodef>
 
-  <target name="compile-thrift" if="build.thrift">
+  <target name="compile-thrift" if="build.thrift" unless="skip.thrift">
     <generate-thrift />
     <compile-generated-thrift />
   </target>

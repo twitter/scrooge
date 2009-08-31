@@ -93,12 +93,11 @@ object ScalaGenSpec extends Specification {
   private val fakeDecoderOutput = new ProtocolDecoderOutput {
     override def flush(nextFilter: IoFilter.NextFilter, s: IoSession) = {}
     override def write(obj: AnyRef) = {
-      written = obj :: written
+      written += obj
     }
   }
 
-  private var fakeSession: IoSession = null
-  private var written: List[AnyRef] = Nil
+  private var written = new mutable.ListBuffer[AnyRef]
   private var data: Buffer = null
 
   val simpleEncoding = "080001000000190800020000001a"
@@ -112,10 +111,14 @@ object ScalaGenSpec extends Specification {
     bytes.hexlify()
   }
 
+  def decode(buffer: Buffer, step: Step) = {
+    new Decoder(step).decode(new DummySession, buffer.buffer, fakeDecoderOutput)
+  }
+
+
   "ScalaGen" should {
     doBefore {
-      fakeSession = new DummySession
-      written = Nil
+      written.clear()
       data = new Buffer
     }
 
@@ -151,8 +154,8 @@ object ScalaGenSpec extends Specification {
         data.writeI32(4)
         data.writeFieldHeader(FieldHeader(Type.STOP, 0))
         data.buffer.flip()
-        new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
-        written mustEqual List(Simple(3, 4))
+        decode(data, simple.decode { x => written += x; End })
+        written.toList mustEqual List(Simple(3, 4))
       }
 
       "a partial simple struct" in {
@@ -161,8 +164,8 @@ object ScalaGenSpec extends Specification {
         data.writeI32(3)
         data.writeFieldHeader(FieldHeader(Type.STOP, 0))
         data.buffer.flip()
-        new Decoder(simple.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
-        written mustEqual List(Simple(3, 0))
+        decode(data, simple.decode { x => written += x; End })
+        written.toList mustEqual List(Simple(3, 0))
         val writtenSimple = written(0).asInstanceOf[Simple]
         writtenSimple.x__isSet mustBe true
         writtenSimple.y__isSet mustBe false
@@ -184,9 +187,25 @@ object ScalaGenSpec extends Specification {
         data.writeFieldHeader(FieldHeader(Type.STOP, 0))
         data.writeFieldHeader(FieldHeader(Type.STOP, 0))
         data.buffer.flip()
-        new Decoder(complex2.decode { x => written = x :: written; End }).decode(fakeSession, data.buffer, fakeDecoderOutput)
-        written mustEqual List(complex)
+        decode(data, complex2.decode { x => written += x; End })
+        written.toList mustEqual List(complex)
       }
+    }
+
+    "process" in {
+      val impl = new generated.Chirp() {
+        def get_id(name: String): Int = name.length()
+      }
+      val processor = generated.Chirp.processor(impl)
+      val out = new Buffer()
+      out.writeRequestHeader(RequestHeader(MessageType.CALL, "get_id", 23))
+      (new generated.Chirp.get_id_args("cat")).encode(out)
+      out.buffer.flip()
+      decode(out, processor { buffer => data = buffer; End })
+
+      data.buffer.flip()
+      decode(data, Codec.readRequestHeader { request => written += request; (new generated.Chirp.get_id_result()).decode { x => written += x._rv.toString; End } })
+      written.toList mustEqual List(RequestHeader(MessageType.REPLY, "get_id", 23), "3")
     }
   }
 }
