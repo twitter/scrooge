@@ -48,7 +48,9 @@ class Buffer {
 
   def writeFieldHeader(header: FieldHeader) = {
     buffer.put(header.ftype.toByte)
-    buffer.putShort(header.fid.toShort)
+    if (header.ftype != Type.STOP) {
+      buffer.putShort(header.fid.toShort)
+    }
   }
 
   def writeRequestHeader(header: RequestHeader) = {

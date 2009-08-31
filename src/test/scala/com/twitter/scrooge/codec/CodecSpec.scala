@@ -181,7 +181,7 @@ object CodecSpec extends Specification {
       decoder = new TestDecoder
       decoder(makeBuffer("0000000568656c6c6f23"), Codec.skip(Type.STRING) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
       decoder = new TestDecoder
-      decoder(makeBuffer("0301ff1f00000023"), Codec.skip(Type.STRUCT) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
+      decoder(makeBuffer("0301ff1f0023"), Codec.skip(Type.STRUCT) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
       decoder = new TestDecoder
       decoder(makeBuffer("08000000010096b43f23"), Codec.skip(Type.LIST) { Codec.readByte { x => decoder.write(x.toString); End } }) mustEqual List("35")
       decoder = new TestDecoder

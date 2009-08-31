@@ -153,7 +153,13 @@ object Codec {
     }
   }
 
-  def readFieldHeader(f: FieldHeader => Step) = readInt8 { ftype => readInt16BE { fid => f(FieldHeader(ftype, fid)) } }
+  def readFieldHeader(f: FieldHeader => Step) = readInt8 { ftype =>
+    if (ftype == Type.STOP) {
+      f(FieldHeader(ftype, 0))
+    } else {
+      readInt16BE { fid => f(FieldHeader(ftype, fid)) }
+    }
+  }
 
   def skip(ftype: Int)(f: => Step): Step = ftype match {
     case Type.STOP => f
