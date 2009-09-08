@@ -129,9 +129,15 @@ object ScalaGen {
   def genStruct(struct: StructLike): String = genStruct(struct, false)
 
   def genStruct(struct: StructLike, resultType: Boolean): String = {
-    def serializable = {
+    val serializable = {
       if (resultType) "ThriftResult[%name%, %rtype%]" else "ThriftSerializable[%name%]"
     } % Map("name" -> struct.name, "rtype" -> apply(if (struct.fields.isEmpty) Void else struct.fields(0).ftype))
+
+    val vars = if (struct.fields.isEmpty && resultType) {
+      "var _rv: Unit"
+    } else {
+      struct.fields.map(f => "var " + apply(f)).mkString(", ")
+    }
 
     {
       "case class %name%(%vars%) %inherit% %serializable% {\n" +
@@ -141,7 +147,9 @@ object ScalaGen {
           "\n" +
           struct.fields.map(fieldId).mkString("\n") + "\n\n" +
           struct.fields.map(fieldDeclaredSetFlag).mkString("\n") + "\n\n"
-        } else "") +
+        } else {
+          if (resultType) "var _rv__isSet = false\n\n" else ""
+        }) +
         "def clearIsSet() {\n" +
           {
             if (struct.fields.size > 0) {
@@ -177,7 +185,7 @@ object ScalaGen {
       }.indent +
       "}\n"
     } % Map("name" -> struct.name,
-            "vars" -> struct.fields.map(f => "var " + apply(f)).mkString(", "),
+            "vars" -> vars,
             "defaults" -> struct.fields.map(fieldDefault).mkString(", "),
             "inherit" -> (struct match {
               case e: Exception_ => "extends Exception with"
