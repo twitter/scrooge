@@ -4,6 +4,7 @@
 
 package com.twitter.scrooge.generated
 
+import scala.collection.{Map, mutable}
 import com.twitter.scrooge.codec._
 import net.lag.naggati.{End, ProtocolError, Step}
 
@@ -45,9 +46,9 @@ trait Example1 {
 
 object Example1 {
   def processor(impl: Example1) = new Processor {
-    def apply(f: Buffer => Step) = process(f) {
+    def apply() = process {
       case request @ RequestHeader(MessageType.CALL, "get_id", _) =>
-        handleMethod[Int, get_id_args, get_id_result](f, request) { args => impl.get_id(args.name) } {
+        handleMethod[Int, get_id_args, get_id_result](request) { args => impl.get_id(args.name) } {
           case (result, e: Example1Exception) =>
             result.ex__isSet = true
             result.ex = e

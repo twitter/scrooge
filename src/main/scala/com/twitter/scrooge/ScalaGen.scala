@@ -63,6 +63,7 @@ object ScalaGen {
     " */\n\n" +
     filterHeaders(headers).map(apply).mkString("", "\n", "\n") +
     "\n" +
+    "import scala.collection.{Map, mutable}\n" +
     "import com.twitter.scrooge.codec._\n" +
     "import net.lag.naggati.{End, ProtocolError, Step}\n" +
     "\n"
@@ -81,7 +82,7 @@ object ScalaGen {
       {
         "def processor(impl: %name%) = new Processor {\n" +
         {
-          "def apply(f: Buffer => Step) = process(f) {\n" +
+          "def apply() = process {\n" +
           service.functions.map(functionHandler).mkString("\n").indent +
           "}\n"
         }.indent +
@@ -100,9 +101,9 @@ object ScalaGen {
   def functionHandler(func: Function) = {
     {
       "case request @ RequestHeader(MessageType.CALL, \"%name%\", _) =>\n" + {
-        "handleMethod[%rtype%, %name%_args, %name%_result](f, request) { args => impl.%name%(%args%) } " +
+        "handleMethod[%rtype%, %name%_args, %name%_result](request) { args => impl.%name%(%args%) } " +
         (if (func.throws.isEmpty) {
-          "(noException)"
+          "(noExceptions)"
         } else {
           "{\n" + func.throws.map { exc =>
             ("case (result, e: %etype%) =>\n" + {

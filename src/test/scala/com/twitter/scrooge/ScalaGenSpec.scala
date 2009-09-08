@@ -193,18 +193,20 @@ object ScalaGenSpec extends Specification {
     }
 
     "process" in {
-      val impl = new generated.Chirp() {
+      val impl = new generated.Example1() {
         def get_id(name: String): Int = name.length()
       }
-      val processor = generated.Chirp.processor(impl)
+      val processor = generated.Example1.processor(impl)
       val out = new Buffer()
       out.writeRequestHeader(RequestHeader(MessageType.CALL, "get_id", 23))
-      (new generated.Chirp.get_id_args("cat")).encode(out)
+      (new generated.Example1.get_id_args("cat")).encode(out)
       out.buffer.flip()
-      decode(out, processor { buffer => data = buffer; End })
+      decode(out, processor())
 
+      data = written(0).asInstanceOf[Buffer]
+      written.clear
       data.buffer.flip()
-      decode(data, Codec.readRequestHeader { request => written += request; (new generated.Chirp.get_id_result()).decode { x => written += x._rv.toString; End } })
+      decode(data, Codec.readRequestHeader { request => written += request; (new generated.Example1.get_id_result()).decode { x => written += x._rv.toString; End } })
       written.toList mustEqual List(RequestHeader(MessageType.REPLY, "get_id", 23), "3")
     }
   }

@@ -2,11 +2,13 @@ package com.twitter.scrooge.codec
 
 import scala.reflect.Manifest
 import net.lag.naggati.{End, ProtocolError, Step}
+import net.lag.naggati.Steps._
 
-abstract class Processor extends ((Buffer => Step) => Step) {
-  def apply(f: Buffer => Step): Step
+abstract class Processor extends (() => Step) {
 
-  def process(f: Buffer => Step)(matcher: PartialFunction[RequestHeader, Step]): Step = Codec.readRequestHeader { request =>
+  def apply(): Step
+
+  def process(matcher: PartialFunction[RequestHeader, Step]): Step = Codec.readRequestHeader { request =>
     if (matcher.isDefinedAt(request)) {
       matcher(request)
     } else {
@@ -14,7 +16,8 @@ abstract class Processor extends ((Buffer => Step) => Step) {
       buffer.writeRequestHeader(RequestHeader(MessageType.EXCEPTION, request.methodName, request.sequenceId))
       val exception = new generated.TApplicationException("no such method " + request.methodName, generated.constants.UNKNOWN_METHOD)
       exception.encode(buffer)
-      f(buffer)
+      state.out.write(buffer)
+      End
     }
   }
 
@@ -23,7 +26,7 @@ abstract class Processor extends ((Buffer => Step) => Step) {
     def apply(x: A) = ()
   }
 
-  def handleMethod[RV, A <: ThriftSerializable[A], R <: ThriftResult[R, RV]](f: Buffer => Step,
+  def handleMethod[RV, A <: ThriftSerializable[A], R <: ThriftResult[R, RV]](
                    request: RequestHeader)(call: A => RV)(exceptionHandler: PartialFunction[(R, Exception), Unit])(
                    implicit argsManifest: Manifest[A], resultManifest: Manifest[R]): Step = {
     val args = argsManifest.create()
@@ -45,7 +48,8 @@ abstract class Processor extends ((Buffer => Step) => Step) {
       val buffer = new Buffer()
       buffer.writeRequestHeader(RequestHeader(MessageType.REPLY, request.methodName, request.sequenceId))
       result.encode(buffer)
-      f(buffer)
+      state.out.write(buffer)
+      End
     }
   }
 
