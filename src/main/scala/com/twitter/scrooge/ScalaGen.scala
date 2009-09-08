@@ -130,7 +130,7 @@ object ScalaGen {
   def genStruct(struct: StructLike, resultType: Boolean): String = {
     def serializable = {
       if (resultType) "ThriftResult[%name%, %rtype%]" else "ThriftSerializable[%name%]"
-    } % Map("name" -> struct.name, "rtype" -> apply(struct.fields(0).ftype))
+    } % Map("name" -> struct.name, "rtype" -> apply(if (struct.fields.isEmpty) Void else struct.fields(0).ftype))
 
     {
       "case class %name%(%vars%) %inherit% %serializable% {\n" +
