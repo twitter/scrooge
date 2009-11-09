@@ -1,28 +1,28 @@
 package com.twitter.scrooge.parser
 
-class FieldValidationException(msg: String) extends java.lang.Exception(msg)
-class EnumValidationException(msg: String) extends java.lang.Exception(msg)
+import scala.collection.mutable
+
+class FieldValidationException(message: String) extends Exception(message)
+class EnumValidationException(message: String) extends Exception(message)
 
 object EnumValueTransformer extends Transformer {
   override def transformEnumValues(vs: List[EnumValue]): List[EnumValue] = {
-    if (vs.exists(_.value < 0))
+    if (vs.exists(_.value < 0)) {
       throw new EnumValidationException("Negative user-provided enum value")
+    }
 
+    val seen = new mutable.HashSet[Int]
     var nextValue = 1
     for (v <- vs) {
-      if (v.value == 0)
+      if (v.value == 0) {
         v.value = nextValue
+      }
       nextValue = v.value + 1
+      if (seen contains v.value) {
+        throw new EnumValidationException("Repeating enum values")
+      }
+      seen += v.value
     }
-
-    vs.foldLeft(0) {
-      case (max, e) =>
-        if (e.value <= max)
-          throw new EnumValidationException("Descending enum values")
-        else
-          e.value
-    }
-
     vs
   }
 }
