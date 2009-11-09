@@ -11,9 +11,9 @@ object ScalaGen {
     case Include(filename, document) =>
       "\n" + apply(document) + "\n"
     case Const(name, tpe, value) =>
-      "val " + name + ": " + apply(tpe) + " = " + apply(value)
+      "val " + name + ": " + apply(tpe) + " = " + apply(value) + "\n"
     case Typedef(name, tpe) =>
-      "type " + name + " = " + apply(tpe)
+      "type " + name + " = " + apply(tpe) + "\n"
     case s @ StructLike(name, fields) =>
       genStruct(s)
     case s @ Service(name, parent, fns) =>
@@ -26,7 +26,7 @@ object ScalaGen {
     case Void => "Unit"
     case TBool => "Boolean"
     case TByte => "Byte"
-    case TI16 => "Int"
+    case TI16 => "Short"
     case TI32 => "Int"
     case TI64 => "Long"
     case TDouble => "Double"

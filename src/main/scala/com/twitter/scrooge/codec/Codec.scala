@@ -41,28 +41,6 @@ trait ThriftResult[T, R] extends ThriftSerializable[T] {
   var _rv__isSet: Boolean
 }
 
-/*
-def pack_call(method_name, *args)
-  [ VERSION_1, MessageTypes::CALL, method_name.size, method_name, 0, pack_struct(args) ].pack("nnNa*Na*")
-end
-def pack_struct(fields)
-  fields.map { |field| pack_field(*field) }.join + [ Types::STOP ].pack("c")
-end
-def pack_field(name, type, fid, value)
-  [ type, fid, pack_value(type, value) ].pack("cna*")
-end
-s.write_all(pack_call("stats", [ "reset", Types::BOOL, -1, false ]))
-
-def read_response(s, exp_types)
-  version, message_type, method_name_len = s.read_all(8).unpack("nnN")
-  method_name = s.read_all(method_name_len)
-  seq_id = s.read_all(4).unpack("N").first
-  [ method_name, seq_id, read_struct(s, exp_types) ]
-end
-
-*/
-
-
 case class FieldHeader(ftype: Int, fid: Int)
 
 case class RequestHeader(messageType: Int, methodName: String, sequenceId: Int)
