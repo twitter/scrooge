@@ -21,6 +21,8 @@ abstract class Processor extends (() => Step) {
     }
   }
 
+//  def process()
+
   def noExceptions[A] = new PartialFunction[A, Unit] {
     def isDefinedAt(x: A) = false
     def apply(x: A) = ()

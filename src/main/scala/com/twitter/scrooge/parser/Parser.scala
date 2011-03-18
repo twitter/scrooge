@@ -86,7 +86,13 @@ class Parser(importer: Importer) extends StdTokenParsers with ImplicitConversion
 
   def enumValue:      Parser[EnumValue] =
     identifier ~ opt("=" ~> intConstant) <~ opt(listSeparator) ^^ {
-      case name ~ int => EnumValue(name.name, int.map(_.value.toInt).getOrElse(0))
+      case name ~ int =>
+        int.foreach { i =>
+          if (i.value.toInt < 0) {
+            throw new ParseException("invalid (negative) enum value " + i.value)
+          }
+        }
+        EnumValue(name.name, int.map(_.value.toInt).getOrElse(-1))
     }
 
   def senum:          Parser[Senum] =

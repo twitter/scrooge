@@ -9,7 +9,7 @@ object ScalaGen {
     case Namespace(namespace, name) =>
       "package " + name
     case Include(filename, document) =>
-      "\n" + apply(document) + "\n"
+      "" //"\n" + apply(document) + "\n"
     case Const(name, tpe, value) =>
       "val " + name + ": " + apply(tpe) + " = " + apply(value) + "\n"
     case Typedef(name, tpe) =>
@@ -54,6 +54,16 @@ object ScalaGen {
       case Namespace(_, _) => false
       case _ => true
     }
+  }
+
+  def getPackage(doc: Document): Option[String] = {
+    doc.headers.map { header =>
+      header match {
+        case Namespace("scala", namespace) => Some(namespace)
+        case Namespace("java", namespace) => Some(namespace)
+        case _ => None
+      }
+    }.flatMap { x => x }.firstOption
   }
 
 

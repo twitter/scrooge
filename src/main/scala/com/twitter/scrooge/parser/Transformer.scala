@@ -6,20 +6,16 @@ class FieldValidationException(message: String) extends Exception(message)
 class EnumValidationException(message: String) extends Exception(message)
 
 object EnumValueTransformer extends Transformer {
-  override def transformEnumValues(vs: List[EnumValue]): List[EnumValue] = {
-    if (vs.exists(_.value < 0)) {
-      throw new EnumValidationException("Negative user-provided enum value")
-    }
-
+  override def transformEnumValues(name: String, vs: List[EnumValue]): List[EnumValue] = {
     val seen = new mutable.HashSet[Int]
     var nextValue = 1
     for (v <- vs) {
-      if (v.value == 0) {
+      if (v.value < 0) {
         v.value = nextValue
       }
       nextValue = v.value + 1
       if (seen contains v.value) {
-        throw new EnumValidationException("Repeating enum values")
+        throw new EnumValidationException("Repeating enum value in " + name + ": " + v.value)
       }
       seen += v.value
     }
@@ -56,7 +52,7 @@ class Transformer {
     case Typedef(name, tpe) =>
       Typedef(name, transformDefinitionType(tpe))
     case Enum(name, vs) =>
-      Enum(name, transformEnumValues(vs))
+      Enum(name, transformEnumValues(name, vs))
     case Senum(name, vs) =>
       Senum(name, vs)
     case Struct(name, fs) =>
@@ -94,7 +90,7 @@ class Transformer {
     transform(v).asInstanceOf[ConstValue]
   def transformDefinitionType(tpe: DefinitionType): DefinitionType =
     transform(tpe).asInstanceOf[DefinitionType]
-  def transformEnumValues(vs: List[EnumValue]): List[EnumValue] =
+  def transformEnumValues(name: String, vs: List[EnumValue]): List[EnumValue] =
     vs.map(v => transform(v).asInstanceOf[EnumValue])
   def transformFields(fs: List[Field]): List[Field] =
     fs.map(f => transform(f).asInstanceOf[Field])
