@@ -80,25 +80,29 @@ class ScroogeParser extends RegexParsers {
   }
 
   def cppType = "cpp_type" ~> stringConstant ^^ { literal => literal.value }
-  /*
-  (identifier | definitionType) ^^ {
-    case tpe: FieldType => tpe
-    case Identifier(n) => ReferenceType(n)
-    case _ => error("unreachable code")
+
+  // fields
+
+  def field = (opt(fieldId) ~ opt(fieldReq)) ~ (fieldType ~ identifier) ~ (opt("=" ~> constant) ~
+    opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ (value ~ _) =>
+    Field(fid.getOrElse(0), id.name, ftype, value, req == Some("optional"))
   }
 
+  def fieldId = intConstant <~ ":" ^^ { x => x.value.toInt }
+  def fieldReq = "required" | "optional"
 
+  // functions
 
+  def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
+    (opt(throws) ~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ (throws ~ _) =>
+    Function(id.name, ftype, args, oneway.isDefined, throws.getOrElse(Nil))
+  }
 
-[27] MapType         ::=  'map' CppType? '<' FieldType ',' FieldType '>'
+  def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
-[28] SetType         ::=  'set' CppType? '<' FieldType '>'
+  def throws = "throws" ~> "(" ~> rep(field) <~ ")"
 
-[29] ListType        ::=  'list' '<' FieldType '>' CppType?
-
-[30] CppType         ::=  'cpp_type' Literal
-**
-*/
+  // rawr.
 
   def parse[T](in: String, parser: Parser[T]): T = {
     parseAll(parser, in) match {

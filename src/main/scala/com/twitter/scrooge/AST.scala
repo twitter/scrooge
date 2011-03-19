@@ -41,13 +41,10 @@ object AST {
   case class MapType(keyType: FieldType, valueType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
   case class SetType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
   case class ListType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
-}
 
-/*
-abstract class FunctionType extends Tree
-case object Void extends FunctionType
-abstract class FieldType extends FunctionType
-abstract class DefinitionType extends FieldType
-abstract class BaseType extends DefinitionType
-case class ReferenceType(name: String) extends FieldType
-*/
+  case class Field(var id: Int, name: String, `type`: FieldType, default: Option[Constant],
+    optional: Boolean)
+
+  case class Function(name: String, `type`: FunctionType, args: List[Field], oneway: Boolean,
+    throws: List[Field])
+}

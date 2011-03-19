@@ -42,5 +42,18 @@ class ScroogeParserSpec extends Specification {
         None)
       parser.parse("Monster", parser.fieldType) mustEqual ReferenceType("Monster")
     }
+
+    "functions" in {
+      parser.parse("void go()", parser.function) mustEqual Function("go", Void, Nil, false, Nil)
+      parser.parse("oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
+        TI32, List(Field(1, "n", TI32, None, false)), true, Nil)
+      parser.parse(
+        "list<string> get_tables(optional i32 id, 3: string name = 'cat') throws (1: Exception ex);",
+        parser.function) mustEqual
+        Function("get_tables", ListType(TString, None), List(Field(0, "id", TI32, None, true),
+        Field(3, "name", TString, Some(StringConstant("cat")), false)),
+        false, List(Field(1, "ex", ReferenceType("Exception"), None, false)))
+    }
+
   }
 }
