@@ -1,5 +1,6 @@
 package com.twitter.scrooge
 
+import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
 
@@ -10,7 +11,7 @@ class ParseException(reason: String, cause: Throwable) extends Exception(reason,
 class ScroogeParser extends RegexParsers {
   import AST._
 
-  override val whiteSpace = "(\\s|//.*$|#.*$|/\\*(.*)\\*/)".r
+  override val whiteSpace = "(\\s|//.*$|#.*$|/\\*(.*)\\*/)+".r
 
   // constants
 /*
@@ -67,11 +68,11 @@ class ScroogeParser extends RegexParsers {
 
   def containerType: Parser[ContainerType] = mapType | setType | listType
 
-  def mapType = ("map" ~> opt(cppType)) ~ ("<" ~> fieldType) ~ ("," ~> fieldType) <~ ">" ^^ {
+  def mapType = ("map" ~> opt(cppType) <~ "<") ~ (fieldType <~ ",") ~ (fieldType <~ ">") ^^ {
     case cpp ~ key ~ value => MapType(key, value, cpp)
   }
 
-  def setType = ("set" ~> opt(cppType)) ~ ("<" ~> fieldType) <~ ">" ^^ {
+  def setType = ("set" ~> opt(cppType)) ~ ("<" ~> fieldType <~ ">") ^^ {
     case cpp ~ t => SetType(t, cpp)
   }
 
@@ -79,12 +80,13 @@ class ScroogeParser extends RegexParsers {
     case t ~ cpp => ListType(t, cpp)
   }
 
+  // FFS. i'm very close to removing this and forcably breaking old thrift files.
   def cppType = "cpp_type" ~> stringConstant ^^ { literal => literal.value }
 
   // fields
 
-  def field = (opt(fieldId) ~ opt(fieldReq)) ~ (fieldType ~ identifier) ~ (opt("=" ~> constant) ~
-    opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ (value ~ _) =>
+  def field = (opt(fieldId) ~ opt(fieldReq)) ~ (fieldType ~ identifier) ~ (opt("=" ~> constant) <~
+    opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value =>
     Field(fid.getOrElse(0), id.name, ftype, value, req == Some("optional"))
   }
 
@@ -94,13 +96,62 @@ class ScroogeParser extends RegexParsers {
   // functions
 
   def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
-    (opt(throws) ~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ (throws ~ _) =>
+    (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
     Function(id.name, ftype, args, oneway.isDefined, throws.getOrElse(Nil))
   }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
   def throws = "throws" ~> "(" ~> rep(field) <~ ")"
+
+  // definitions
+
+  def definition = const | typedef | enum | senum | struct | exception | service
+
+  def const = "const" ~> fieldType ~ identifier ~ ("=" ~> constant) ~ opt(listSeparator) ^^ {
+    case ftype ~ id ~ const ~ _ => Const(id.name, ftype, const)
+  }
+
+  def typedef = "typedef" ~> definitionType ~ identifier ^^ {
+    case dtype ~ id => Typedef(id.name, dtype)
+  }
+
+  def enum = (("enum" ~> identifier) <~ "{") ~ rep(identifier ~ opt("=" ~> intConstant) <~
+    opt(listSeparator)) <~ "}" ^^ { case id ~ items =>
+    var failed: Option[Int] = None
+    val seen = new mutable.HashSet[Int]
+    var nextValue = 1
+    val values = new mutable.ListBuffer[EnumValue]
+    items.foreach { case k ~ v =>
+      val value = v.map { _.value.toInt }.getOrElse(nextValue)
+      if (seen contains value) failed = Some(value)
+      nextValue = value + 1
+      seen += value
+      values += EnumValue(k.name, value)
+    }
+    if (failed.isDefined) {
+      throw new ParseException("Repeating enum value in " + id.name + ": " + failed.get)
+    } else {
+      Enum(id.name, values.toList)
+    }
+  }
+
+  def senum = (("senum" ~> identifier) <~ "{") ~ rep(stringConstant <~ opt(listSeparator)) <~
+    "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value })
+  }
+
+  def struct = (("struct" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
+    case id ~ fields => Struct(id.name, fields)
+  }
+
+  def exception = (("exception" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
+    case id ~ fields => Exception_(id.name, fields)
+  }
+
+  def service = ("service" ~> identifier) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
+    "}") ^^ {
+    case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions)
+  }
 
   // rawr.
 
@@ -113,70 +164,3 @@ class ScroogeParser extends RegexParsers {
   }
 
 }
-
-/*
-
-  def constValue:     Parser[ConstValue] =
-    intConstant | doubleConstant | literal | identifier | constList | constMap
-
-  def constList:      Parser[ConstList] =
-    "[" ~> rep(constValue <~ opt(listSeparator)) <~ "]" ^^ (ConstList.apply _ )
-
-  def constMap:       Parser[ConstMap] =
-    "{" ~> rep((constValue <~ ":") ~ constValue <~ opt(listSeparator)) <~ "}" ^^ (x =>
-      ConstMap(Map.empty ++ x.map {
-        case key ~ value => (key, value)
-      }))
-
-  def intConstant:    Parser[IntConstant] =
-    accept("int constant", {
-      case lexical.NumericLit(n) if !n.contains(".") && !n.contains("e") &&
-                                    !n.contains("E") && n.exists(_.isDigit) => IntConstant(n)
-    })
-
-  def doubleConstant: Parser[DoubleConstant] =
-    accept("double constant", {
-      case lexical.NumericLit(n) => DoubleConstant(n)
-    })
-
-  def literal:        Parser[StringLiteral] =
-    accept("string literal", {
-      case lexical.StringLit(s) => StringLiteral(s)
-    })
-
-  def identifier:     Parser[Identifier] =
-    accept("identifier", {
-      case lexical.Identifier(s) if !s.contains("-") => Identifier(s)
-    })
-
-
-
-
-import scala.util.parsing.combinator.syntactical._
-import scala.util.parsing.input.CharArrayReader.EofCh
-**/
-
-/*
-
-class Lexer extends StdLexical with ImplicitConversions {
-  override def letter = elem("letter", c => ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')))
-  def identChar = letter | digit | elem('.') | elem('_') | elem('-')
-  def stringLit1: Parser[StringLit] = '"' ~ rep(chrExcept('"', '\n', EofCh)) ~ '"' ^^ {
-    case '"' ~ s ~ '"' => StringLit(s.mkString(""))
-  }
-  def stringLit2: Parser[StringLit] = '\'' ~ rep(chrExcept('\'', '\n', EofCh)) ~ '\'' ^^ {
-    case '\'' ~ s ~ '\'' => StringLit(s.mkString(""))
-  }
-  def intLit = sign ~ rep1(digit) ^^ { case s ~ d => s + d.mkString("") }
-  def numericLit = sign ~ rep(digit) ~ opt(decPart) ~ opt(expPart) ^^ {
-    case s ~ i ~ d ~ e => s + i.mkString("") + d.getOrElse("") + e.getOrElse("")
-  }
-  def sign = opt(elem("sign character", c => c == '-' || c == '+')) ^^ { _.filter(_ == '-').map(_.toString).getOrElse("") }
-  def exponent = elem("exponent character", c => c == 'e' || c == 'E')
-  def decPart: Parser[String] = '.' ~ rep1(digit) ^^ {
-    case '.' ~ d => "." + d.mkString("")
-  }
-  def expPart: Parser[String] = exponent ~ intLit ^^ {
-    case e ~ i => e + i
-  }
- */

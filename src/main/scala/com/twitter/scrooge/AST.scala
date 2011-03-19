@@ -8,11 +8,6 @@ object AST {
   case class CppInclude(file: String) extends Header
   case class Namespace(scope: String, name: String) extends Header
 
-  sealed abstract class Definition(name: String)
-
-//  case class Constant(name: String, `type`: FieldType, value: ConstValue) extends Definition
-// (name)
-
   sealed abstract class Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
@@ -37,7 +32,7 @@ object AST {
   case object TString extends BaseType
   case object TBinary extends BaseType
 
-  abstract class ContainerType(cppType: Option[String]) extends DefinitionType
+  sealed abstract class ContainerType(cppType: Option[String]) extends DefinitionType
   case class MapType(keyType: FieldType, valueType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
   case class SetType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
   case class ListType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
@@ -47,4 +42,15 @@ object AST {
 
   case class Function(name: String, `type`: FunctionType, args: List[Field], oneway: Boolean,
     throws: List[Field])
+
+  sealed abstract class Definition(name: String)
+  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition(name)
+  case class Typedef(name: String, `type`: DefinitionType) extends Definition(name)
+  case class Enum(name: String, values: List[EnumValue]) extends Definition(name)
+  case class EnumValue(name: String, value: Int)
+  case class Senum(name: String, values: List[String]) extends Definition(name)
+  sealed abstract class StructLike(name: String, fields: List[Field]) extends Definition(name)
+  case class Struct(name: String, fields: List[Field]) extends StructLike(name, fields)
+  case class Exception_(name: String, fields: List[Field]) extends StructLike(name, fields)
+  case class Service(name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
 }
