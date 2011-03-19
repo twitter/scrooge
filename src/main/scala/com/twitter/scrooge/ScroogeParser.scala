@@ -11,6 +11,8 @@ class ScroogeParser extends RegexParsers {
   import AST._
 
   override val whiteSpace = "(\\s|//.*$|#.*$|/\\*(.*)\\*/)".r
+
+  // constants
 /*
   def constant: Parser[Constant] =
     "const" ~> fieldType ~ identifier ~ ("=" ~> constValue <~ opt(listSeparator)) ^^ {
@@ -43,6 +45,60 @@ class ScroogeParser extends RegexParsers {
   }
 
   def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ { x => Identifier(x) }
+
+  // types
+
+  def fieldType: Parser[FieldType] = baseType | containerType | referenceType
+
+  def referenceType = identifier ^^ { x => ReferenceType(x.name) }
+
+  def definitionType = baseType | containerType
+
+  def baseType: Parser[BaseType] = (
+    "bool" ^^^ TBool |
+    "byte" ^^^ TByte |
+    "i16" ^^^ TI16 |
+    "i32" ^^^ TI32 |
+    "i64" ^^^ TI64 |
+    "double" ^^^ TDouble |
+    "string" ^^^ TString |
+    "binary" ^^^ TBinary
+  )
+
+  def containerType: Parser[ContainerType] = mapType | setType | listType
+
+  def mapType = ("map" ~> opt(cppType)) ~ ("<" ~> fieldType) ~ ("," ~> fieldType) <~ ">" ^^ {
+    case cpp ~ key ~ value => MapType(key, value, cpp)
+  }
+
+  def setType = ("set" ~> opt(cppType)) ~ ("<" ~> fieldType) <~ ">" ^^ {
+    case cpp ~ t => SetType(t, cpp)
+  }
+
+  def listType = ("list" ~ "<") ~> (fieldType <~ ">") ~ opt(cppType) ^^ {
+    case t ~ cpp => ListType(t, cpp)
+  }
+
+  def cppType = "cpp_type" ~> stringConstant ^^ { literal => literal.value }
+  /*
+  (identifier | definitionType) ^^ {
+    case tpe: FieldType => tpe
+    case Identifier(n) => ReferenceType(n)
+    case _ => error("unreachable code")
+  }
+
+
+
+
+[27] MapType         ::=  'map' CppType? '<' FieldType ',' FieldType '>'
+
+[28] SetType         ::=  'set' CppType? '<' FieldType '>'
+
+[29] ListType        ::=  'list' '<' FieldType '>' CppType?
+
+[30] CppType         ::=  'cpp_type' Literal
+**
+*/
 
   def parse[T](in: String, parser: Parser[T]): T = {
     parseAll(parser, in) match {
