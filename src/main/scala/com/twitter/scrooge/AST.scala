@@ -1,13 +1,6 @@
 package com.twitter.scrooge
 
 object AST {
-  case class Document(headers: List[Header], defs: List[Definition])
-
-  sealed abstract class Header
-  case class Include(filename: String, document: Document) extends Header
-  case class CppInclude(file: String) extends Header
-  case class Namespace(scope: String, name: String) extends Header
-
   sealed abstract class Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
@@ -53,4 +46,11 @@ object AST {
   case class Struct(name: String, fields: List[Field]) extends StructLike(name, fields)
   case class Exception_(name: String, fields: List[Field]) extends StructLike(name, fields)
   case class Service(name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
+
+  sealed abstract class Header
+  case class Include(filename: String, document: Document) extends Header
+  case class CppInclude(file: String) extends Header
+  case class Namespace(scope: String, name: String) extends Header
+
+  case class Document(headers: List[Header], defs: List[Definition])
 }

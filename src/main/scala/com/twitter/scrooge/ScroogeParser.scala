@@ -8,18 +8,12 @@ class ParseException(reason: String, cause: Throwable) extends Exception(reason,
   def this(reason: String) = this(reason, null)
 }
 
-class ScroogeParser extends RegexParsers {
+class ScroogeParser(importer: Importer) extends RegexParsers {
   import AST._
 
-  override val whiteSpace = "(\\s|//.*$|#.*$|/\\*(.*)\\*/)+".r
+  override val whiteSpace = "(\\s|(//.*\\n)|(#.*$)|(/\\*([^\\*]|\\n|\\*(?!/))*\\*/))+".r
 
   // constants
-/*
-  def constant: Parser[Constant] =
-    "const" ~> fieldType ~ identifier ~ ("=" ~> constValue <~ opt(listSeparator)) ^^ {
-      case tpe ~ name ~ value => Const(name.name, tpe, value)
-    }
-*/
 
   def constant: Parser[Constant] = {
     numberConstant | stringConstant | listConstant | mapConstant | identifier |
@@ -153,6 +147,24 @@ class ScroogeParser extends RegexParsers {
     case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions)
   }
 
+  // document
+
+  def document: Parser[Document] = rep(header) ~ rep(definition) ^^ {
+    case hs ~ ds => Document(hs, ds)
+  }
+
+  def header: Parser[Header] = include | cppInclude | namespace
+
+  def include = "include" ~> stringConstant ^^ { s => Include(s.value, parseFile(s.value)) }
+
+  // bogus dude.
+  def cppInclude = "cpp_include" ~> stringConstant ^^ { s => CppInclude(s.value) }
+
+  def namespace = "namespace" ~> namespaceScope ~ identifier ^^ { case scope ~ id =>
+    Namespace(scope, id.name)
+  }
+  def namespaceScope = "*" | (identifier ^^ { id => id.name })
+
   // rawr.
 
   def parse[T](in: String, parser: Parser[T]): T = {
@@ -163,4 +175,5 @@ class ScroogeParser extends RegexParsers {
     }
   }
 
+  def parseFile(filename: String) = parse(importer(filename), document)
 }

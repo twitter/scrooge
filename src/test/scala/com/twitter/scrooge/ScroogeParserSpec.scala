@@ -6,10 +6,15 @@ class ScroogeParserSpec extends Specification {
   import AST._
 
   "ScroogeParser" should {
-    val parser = new ScroogeParser()
+    val parser = new ScroogeParser(Importer.fakeImporter(Map.empty))
+
+    "comments" in {
+      parser.parse("  300  ", parser.constant) mustEqual IntConstant(300)
+      parser.parse("  // go away.\n 300", parser.constant) mustEqual IntConstant(300)
+      parser.parse("  /*\n   * go away.\n   */\n 300", parser.constant) mustEqual IntConstant(300)
+    }
 
     "constant" in {
-      parser.parse("  300  ", parser.constant) mustEqual IntConstant(300)
       parser.parse("300.5", parser.constant) mustEqual DoubleConstant(300.5)
       parser.parse("\"hello!\"", parser.constant) mustEqual StringConstant("hello!")
       parser.parse("'hello!'", parser.constant) mustEqual StringConstant("hello!")
@@ -128,6 +133,31 @@ class ScroogeParserSpec extends Specification {
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
         Service("LeechCache", Some("Cache"), Nil)
+    }
+
+    "document" in {
+      val code = """
+        namespace java com.example
+        namespace * example
+
+        service NullService {
+          void doNothing();
+        }
+        """
+      parser.parse(code, parser.document) mustEqual Document(
+        List(Namespace("java", "com.example"), Namespace("*", "example")),
+        List(Service("NullService", None, List(
+          Function("doNothing", Void, Nil, false, Nil)
+        )))
+      )
+    }
+
+    "standard test file" in {
+      val parser = new ScroogeParser(Importer.resourceImporter(getClass))
+      val doc = parser.parseFile("/test.thrift")
+      // i guess not blowing up is a good first-pass test.
+      // might be nice to verify parts of it tho.
+      doc.headers.size mustEqual 13
     }
   }
 }
