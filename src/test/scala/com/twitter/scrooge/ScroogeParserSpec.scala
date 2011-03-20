@@ -55,9 +55,10 @@ class ScroogeParserSpec extends Specification {
       parser.parse(
         "list<string> get_tables(optional i32 id, 3: string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
-        Function("get_tables", ListType(TString, None), List(Field(0, "id", TI32, None, true),
-        Field(3, "name", TString, Some(StringConstant("cat")), false)),
-        false, List(Field(1, "ex", ReferenceType("Exception"), None, false)))
+        Function("get_tables", ListType(TString, None), List(
+          Field(-1, "id", TI32, None, true),
+          Field(3, "name", TString, Some(StringConstant("cat")), false)
+        ), false, List(Field(1, "ex", ReferenceType("Exception"), None, false)))
     }
 
     "const" in {
@@ -112,6 +113,11 @@ class ScroogeParserSpec extends Specification {
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
         Exception_("BadError", List(Field(1, "message", TString, None, false)))
+      parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
+        Exception_("E", List(
+          Field(-1, "message", TString, None, false),
+          Field(-2, "reason", TString, None, false)
+        ))
     }
 
     "service" in {

@@ -13,6 +13,28 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   override val whiteSpace = "(\\s|(//.*\\n)|(#.*$)|(/\\*([^\\*]|\\n|\\*(?!/))*\\*/))+".r
 
+  // transformations
+
+  def fixFieldIds(fields: List[Field]): List[Field] = {
+    if (fields.exists { _.id < 0 })
+      throw new ParseException("Negative user-provided field id")
+
+    val explicit = fields.filter { _.id != 0 }
+    if (explicit != explicit.distinct)
+      throw new ParseException("Duplicate user-provided field id")
+
+    var nextId = -1
+    fields.map { field =>
+      if (field.id == 0) {
+        val f = field.copy(id = nextId)
+        nextId -= 1
+        f
+      } else {
+        field
+      }
+    }
+  }
+
   // constants
 
   def constant: Parser[Constant] = {
@@ -91,7 +113,8 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
-    Function(id.name, ftype, args, oneway.isDefined, throws.getOrElse(Nil))
+    Function(id.name, ftype, fixFieldIds(args), oneway.isDefined,
+      throws.map { fixFieldIds(_) }.getOrElse(Nil))
   }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
@@ -135,11 +158,11 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   }
 
   def struct = (("struct" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
-    case id ~ fields => Struct(id.name, fields)
+    case id ~ fields => Struct(id.name, fixFieldIds(fields))
   }
 
   def exception = (("exception" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
-    case id ~ fields => Exception_(id.name, fields)
+    case id ~ fields => Exception_(id.name, fixFieldIds(fields))
   }
 
   def service = ("service" ~> identifier) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
@@ -177,3 +200,9 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def parseFile(filename: String) = parse(importer(filename), document)
 }
+
+
+/*
+  override def transformFields(fs: List[Field]): List[Field] = {
+  }
+*/
