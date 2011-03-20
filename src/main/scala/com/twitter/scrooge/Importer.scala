@@ -1,43 +1,47 @@
 package com.twitter.scrooge
 
-import java.io.{BufferedReader, InputStream, InputStreamReader, IOException, File, FileInputStream}
-import scala.collection.mutable
-import parser.ParseException
+import java.io.{IOException, File}
+import scala.collection.Map
+import scala.io.Source
 
-class Importer(importPaths: String*) {
-  val paths = List(".") ++ importPaths
+// an Importer turns a filename into its string contents.
+trait Importer extends (String => String)
 
-  // find the requested file, and load it into a string.
-  def apply(filename: String): String = {
-    val f = new File(filename)
-    val file = if (f.isAbsolute) {
-      f
-    } else {
-      paths.projection.map { path => new File(path, filename) }.find { _.canRead } getOrElse {
-        throw new IOException("Can't find file: " + filename)
+object Importer {
+  def fileImporter(importPaths: String*) = new Importer {
+    val paths = List(".") ++ importPaths
+
+    // find the requested file, and load it into a string.
+    def apply(filename: String): String = {
+      val f = new File(filename)
+      val file = if (f.isAbsolute) {
+        f
+      } else {
+        paths.map { path => new File(path, filename) }.find { _.canRead } getOrElse {
+          throw new IOException("Can't find file: " + filename)
+        }
       }
-    }
 
-    try {
-      streamToString(new FileInputStream(file))
-    } catch {
-      case x => throw new ParseException(x.toString)
+      Source.fromFile(file).mkString
     }
   }
 
-  private val BUFFER_SIZE = 8192
-
-  protected def streamToString(in: InputStream): String = {
-    val reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))
-    val buffer = new Array[Char](BUFFER_SIZE)
-    val out = new StringBuilder
-    var n = 0
-    while (n >= 0) {
-      n = reader.read(buffer, 0, buffer.length)
-      if (n >= 0) {
-        out.append(buffer, 0, n)
+  def fakeImporter(files: Map[String, String]) = new Importer {
+    def apply(filename: String): String = {
+      files.get(filename).getOrElse {
+        throw new IOException("Can't find file: " + filename)
       }
     }
-    out.toString
+  }
+
+  def resourceImporter(c: Class[_]) = new Importer {
+    def apply(filename: String): String = {
+      try {
+        Source.fromInputStream(c.getResourceAsStream(filename)).mkString
+      } catch {
+        case e =>
+          throw new IOException("Can't load resource: " + filename)
+      }
+    }
   }
 }

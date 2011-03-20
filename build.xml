@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- CONFIG: change example and description to fit your project -->
 <project name="scrooge" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
   <description>thrift generator for scala</description>
 
@@ -12,11 +11,15 @@
   <property name="ivy.settings.file" value="${basedir}/ivy/ivysettings.xml" />
   <import file="${basedir}/ant/bootstrap.xml" />
 
-  <property name="install.dir" location="/opt/local/example" />
-  <target name="install" depends="package">
-    <mkdir dir="${install.dir}" />
-    <copy todir="${install.dir}">
-      <fileset dir="${dist.dir}" includes="**" />
-    </copy>
+  <target name="gen-tests" description="use current scrooge build to generate the code used in tests">
+    <java fork="true" jar="dist/scrooge/scrooge-1.0.jar">
+      <arg value="-s" />
+      <arg value="src/main/thrift" />
+      <arg value="-d" />
+      <arg value="src/test/scala" />
+      <arg value="Example1.thrift" />
+    </java>
   </target>
+
+  <target name="test" depends="prepare, compile, gen-tests, unit" />
 </project>
