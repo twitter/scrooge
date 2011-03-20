@@ -36,16 +36,16 @@ object AST {
   case class Function(name: String, `type`: FunctionType, args: List[Field], oneway: Boolean,
     throws: List[Field])
 
-  sealed abstract class Definition(name: String)
-  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition(name)
-  case class Typedef(name: String, `type`: DefinitionType) extends Definition(name)
-  case class Enum(name: String, values: List[EnumValue]) extends Definition(name)
+  sealed abstract class Definition(val name: String)
+  case class Const(override val name: String, `type`: FieldType, value: Constant) extends Definition(name)
+  case class Typedef(override val name: String, `type`: DefinitionType) extends Definition(name)
+  case class Enum(override val name: String, values: List[EnumValue]) extends Definition(name)
   case class EnumValue(name: String, value: Int)
-  case class Senum(name: String, values: List[String]) extends Definition(name)
-  sealed abstract class StructLike(name: String, fields: List[Field]) extends Definition(name)
-  case class Struct(name: String, fields: List[Field]) extends StructLike(name, fields)
-  case class Exception_(name: String, fields: List[Field]) extends StructLike(name, fields)
-  case class Service(name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
+  case class Senum(override val name: String, values: List[String]) extends Definition(name)
+  sealed abstract class StructLike(override val name: String, val fields: List[Field]) extends Definition(name)
+  case class Struct(override val name: String, override val fields: List[Field]) extends StructLike(name, fields)
+  case class Exception_(override val name: String, override val fields: List[Field]) extends StructLike(name, fields)
+  case class Service(override val name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
 
   sealed abstract class Header
   case class Include(filename: String, document: Document) extends Header
