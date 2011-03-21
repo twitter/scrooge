@@ -11,7 +11,7 @@ class ParseException(reason: String, cause: Throwable) extends Exception(reason,
 class ScroogeParser(importer: Importer) extends RegexParsers {
   import AST._
 
-  override val whiteSpace = "(\\s|(//.*\\n)|(#.*$)|(/\\*([^\\*]|\\n|\\*(?!/))*\\*/))+".r
+  override val whiteSpace = "(\\s+|(//.*\\n)|(#.*$)|(/\\*([^\\*]+|\\n|\\*(?!/))*\\*/))+".r
 
   // transformations
 
