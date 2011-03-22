@@ -33,24 +33,24 @@ object AST {
   case class Field(var id: Int, name: String, `type`: FieldType, default: Option[Constant],
     optional: Boolean)
 
-  case class Function(name: String, `type`: FunctionType, args: List[Field], oneway: Boolean,
-    throws: List[Field])
+  case class Function(name: String, `type`: FunctionType, args: Array[Field], oneway: Boolean,
+    throws: Array[Field])
 
   sealed abstract class Definition(val name: String)
   case class Const(override val name: String, `type`: FieldType, value: Constant) extends Definition(name)
   case class Typedef(override val name: String, `type`: DefinitionType) extends Definition(name)
-  case class Enum(override val name: String, values: List[EnumValue]) extends Definition(name)
+  case class Enum(override val name: String, values: Array[EnumValue]) extends Definition(name)
   case class EnumValue(name: String, value: Int)
-  case class Senum(override val name: String, values: List[String]) extends Definition(name)
-  sealed abstract class StructLike(override val name: String, val fields: List[Field]) extends Definition(name)
-  case class Struct(override val name: String, override val fields: List[Field]) extends StructLike(name, fields)
-  case class Exception_(override val name: String, override val fields: List[Field]) extends StructLike(name, fields)
-  case class Service(override val name: String, parent: Option[String], functions: List[Function]) extends Definition(name)
+  case class Senum(override val name: String, values: Array[String]) extends Definition(name)
+  sealed abstract class StructLike(override val name: String, val fields: Array[Field]) extends Definition(name)
+  case class Struct(override val name: String, override val fields: Array[Field]) extends StructLike(name, fields)
+  case class Exception_(override val name: String, override val fields: Array[Field]) extends StructLike(name, fields)
+  case class Service(override val name: String, parent: Option[String], functions: Array[Function]) extends Definition(name)
 
   sealed abstract class Header
   case class Include(filename: String, document: Document) extends Header
   case class CppInclude(file: String) extends Header
   case class Namespace(scope: String, name: String) extends Header
 
-  case class Document(headers: List[Header], defs: List[Definition])
+  case class Document(headers: Array[Header], defs: Array[Definition])
 }

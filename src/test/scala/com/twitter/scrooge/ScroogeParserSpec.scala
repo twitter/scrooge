@@ -49,16 +49,16 @@ class ScroogeParserSpec extends Specification {
     }
 
     "functions" in {
-      parser.parse("void go()", parser.function) mustEqual Function("go", Void, Nil, false, Nil)
+      parser.parse("void go()", parser.function) mustEqual Function("go", Void, Array(), false, Array())
       parser.parse("oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
-        TI32, List(Field(1, "n", TI32, None, false)), true, Nil)
+        TI32, Array(Field(1, "n", TI32, None, false)), true, Array())
       parser.parse(
         "list<string> get_tables(optional i32 id, 3: string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
-        Function("get_tables", ListType(TString, None), List(
+        Function("get_tables", ListType(TString, None), Array(
           Field(-1, "id", TI32, None, true),
           Field(3, "name", TString, Some(StringConstant("cat")), false)
-        ), false, List(Field(1, "ex", ReferenceType("Exception"), None, false)))
+        ), false, Array(Field(1, "ex", ReferenceType("Exception"), None, false)))
     }
 
     "const" in {
@@ -77,7 +77,7 @@ class ScroogeParserSpec extends Specification {
           NORTH, SOUTH, EAST=90, WEST, UP, DOWN=5
         }
         """
-      parser.parse(code, parser.definition) mustEqual Enum("Direction", List(
+      parser.parse(code, parser.definition) mustEqual Enum("Direction", Array(
         EnumValue("NORTH", 1),
         EnumValue("SOUTH", 2),
         EnumValue("EAST", 90),
@@ -92,7 +92,7 @@ class ScroogeParserSpec extends Specification {
     "senum" in {
       // wtf is senum?!
       parser.parse("senum Cities { 'Milpitas', 'Mayfield' }", parser.definition) mustEqual
-        Senum("Cities", List("Milpitas", "Mayfield"))
+        Senum("Cities", Array("Milpitas", "Mayfield"))
     }
 
     "struct" in {
@@ -103,7 +103,7 @@ class ScroogeParserSpec extends Specification {
           3: Color color = BLUE
         }
         """
-      parser.parse(code, parser.definition) mustEqual Struct("Point", List(
+      parser.parse(code, parser.definition) mustEqual Struct("Point", Array(
         Field(1, "x", TDouble, None, false),
         Field(2, "y", TDouble, None, false),
         Field(3, "color", ReferenceType("Color"), Some(Identifier("BLUE")), false)
@@ -112,9 +112,9 @@ class ScroogeParserSpec extends Specification {
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
-        Exception_("BadError", List(Field(1, "message", TString, None, false)))
+        Exception_("BadError", Array(Field(1, "message", TString, None, false)))
       parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
-        Exception_("E", List(
+        Exception_("E", Array(
           Field(-1, "message", TString, None, false),
           Field(-2, "reason", TString, None, false)
         ))
@@ -127,18 +127,18 @@ class ScroogeParserSpec extends Specification {
           binary get(1: string name) throws (1: NotFoundException ex);
         }
         """
-      parser.parse(code, parser.definition) mustEqual Service("Cache", None, List(
-        Function("put", Void, List(
+      parser.parse(code, parser.definition) mustEqual Service("Cache", None, Array(
+        Function("put", Void, Array(
           Field(1, "name", TString, None, false),
           Field(2, "value", TBinary, None, false)
-        ), false, Nil),
-        Function("get", TBinary, List(
+        ), false, Array()),
+        Function("get", TBinary, Array(
           Field(1, "name", TString, None, false)
-        ), false, List(Field(1, "ex", ReferenceType("NotFoundException"), None, false)))
+        ), false, Array(Field(1, "ex", ReferenceType("NotFoundException"), None, false)))
       ))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
-        Service("LeechCache", Some("Cache"), Nil)
+        Service("LeechCache", Some("Cache"), Array())
     }
 
     "document" in {
@@ -151,9 +151,9 @@ class ScroogeParserSpec extends Specification {
         }
         """
       parser.parse(code, parser.document) mustEqual Document(
-        List(Namespace("java", "com.example"), Namespace("*", "example")),
-        List(Service("NullService", None, List(
-          Function("doNothing", Void, Nil, false, Nil)
+        Array(Namespace("java", "com.example"), Namespace("*", "example")),
+        Array(Service("NullService", None, Array(
+          Function("doNothing", Void, Array(), false, Array())
         )))
       )
     }

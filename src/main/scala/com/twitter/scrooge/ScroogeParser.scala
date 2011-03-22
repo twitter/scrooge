@@ -113,8 +113,8 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
-    Function(id.name, ftype, fixFieldIds(args), oneway.isDefined,
-      throws.map { fixFieldIds(_) }.getOrElse(Nil))
+    Function(id.name, ftype, fixFieldIds(args).toArray, oneway.isDefined,
+      throws.map { fixFieldIds(_) }.getOrElse(Nil).toArray)
   }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
@@ -149,31 +149,31 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     if (failed.isDefined) {
       throw new ParseException("Repeating enum value in " + id.name + ": " + failed.get)
     } else {
-      Enum(id.name, values.toList)
+      Enum(id.name, values.toList.toArray)
     }
   }
 
   def senum = (("senum" ~> identifier) <~ "{") ~ rep(stringConstant <~ opt(listSeparator)) <~
-    "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value })
+    "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value }.toArray)
   }
 
   def struct = (("struct" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
-    case id ~ fields => Struct(id.name, fixFieldIds(fields))
+    case id ~ fields => Struct(id.name, fixFieldIds(fields).toArray)
   }
 
   def exception = (("exception" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
-    case id ~ fields => Exception_(id.name, fixFieldIds(fields))
+    case id ~ fields => Exception_(id.name, fixFieldIds(fields).toArray)
   }
 
   def service = ("service" ~> identifier) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
     "}") ^^ {
-    case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions)
+    case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions.toArray)
   }
 
   // document
 
   def document: Parser[Document] = rep(header) ~ rep(definition) ^^ {
-    case hs ~ ds => Document(hs, ds)
+    case hs ~ ds => Document(hs.toArray, ds.toArray)
   }
 
   def header: Parser[Header] = include | cppInclude | namespace
