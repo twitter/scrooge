@@ -27,12 +27,12 @@ import scala.collection.JavaConversions._
 import com.twitter.util._
 */
 
-trait {{service.name}} {{service.parent.map { " extends " + _ }.getOrElse("") }} {
+trait {{service.name}} {{service.parent.map { "extends " + _ + " " }.getOrElse("")}}{
   implicit def voidUnit(f: Future[_]): Future[java.lang.Void] = f.map(x=>null)
 
-{{service.functions.map { f => "  " + serviceFunctionTemplate(f, scope) }.mkString}}
+{{service.functions.map { f => "  " + serviceFunctionTemplate(f, scope) }.mkString("\n")}}
 
-  def toThrift = new {{service.name}}ThriftAdapter(this)
+  def toThrift = new {{service.name}}.ThriftAdapter(this)
 }
 
 object {{service.name}} {
@@ -58,15 +58,68 @@ object {{service.name}} {
       }
     }
   }
+
+  class ThriftAdapter(val self: {{service.name}}) extends {{javaNamespace}}.{{service.name}}.ServiceIface {
+    val log = Logger.get(getClass)
+
+{{service.functions.map { f => "    " + serviceFunctionAdapterTemplate(f, scope) }.mkString("\n")}}
+  }
 }
+
+
+     class <%=obj%>ThriftAdapter(val <%=obj.to_s.camelize%>: <%=obj%>) extends <%=tnamespace%>.<%=obj%>.ServiceIface {
+
+        <% for m in methods do %>
+          def <%=m.name.downcase%>(<%=m.args.map{|f| f[:name].camelize + ": " + type_of(f, true)}.join(", ") %>) = <%="try" if $exception %> {
+            <%=obj.to_s.camelize%>.<%=m.name.camelize%>(<%=m.args.map{|f| wrapper(f) }.join(", ")%>)
+            <% if m.retval %>
+              .map { retval =>
+                <% unwrap(m.retval) do %>retval<%end%>
+              }
+            <% end %>
+          <% if $exception %>
+            } catch {
+              case t: org.apache.thrift.TBase[_,_] => throw(t)
+              case t: Throwable => {
+                log.error(t, "Uncaught error: %s", t)
+
+                throw new <%=tnamespace%>.<%=last $exception%>(t.getMessage)
+              }
+          <% end %>
+          }
+        <% end %>
+      }
+
+      class <%=obj%>ClientAdapter(val <%=obj.to_s.camelize%>: <%=tnamespace%>.<%=obj%>.ServiceIface) extends <%=obj%> {
+        val log = Logger.get(getClass)
+
+        <% for m in methods do %>
+          def <%=m.name.camelize%>(<%=m.args.map{|f| f[:name].camelize + ": " + type_of(f)}.join(", ") %>) = {
+            <%=obj.to_s.camelize%>.<%=m.name.downcase%>(<%=m.args.map{|f| unwrap(f, f[:name].camelize) }.join(", ")%>)
+            <% if m.retval %>
+              .map { retval =>
+                <%=wrapper(m.retval, "retval") %>
+              }
+            <% end %>
+          }
+        <% end %>
+      }
 
 """
 
   val serviceFunctionTemplateText =
-    """def {{name}}({{ args.map { f => serviceArgTemplate(f, scope) }.mkString(", ") }}): Future[{{scalaType(`type`)}}]""" + "\n"
+    """def {{name}}({{ args.map { f => serviceArgTemplate(f, scope) }.mkString(", ") }}): Future[{{scalaType(`type`)}}]"""
 
   val serviceArgTemplateText =
     """{{name}}: {{if (optional) "Option[" else ""}}{{scalaType(`type`)}}{{if (optional) "]" else ""}}"""
+
+  val serviceFunctionAdapterTemplateText =
+"""
+def {{name}}({{ args.map { f => f.name + ": " + javaType(f.`type`) }.mkString(", ") }}) = {{if (throws.size > 0) "try " else ""}}{
+  self.{{name}}({{args.map { f => javaize(f.name, f.`type`) }.mkString(", ")}}).map { rv => {{scalaize("rv", `type`)}} }
+}
+
+"""
 
   case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
 }
@@ -78,6 +131,7 @@ class ScalaGenerator {
   val serviceTemplate = Template[ScalaService](serviceTemplateText)
   val serviceFunctionTemplate = Template[Function](serviceFunctionTemplateText)
   val serviceArgTemplate = Template[Field](serviceArgTemplateText)
+  val serviceFunctionAdapterTemplate = Template[Function](serviceFunctionAdapterTemplateText)
 
   def scalaType(t: FunctionType): String = {
     t match {
@@ -97,6 +151,45 @@ class ScalaGenerator {
     }
   }
 
+  def javaType(t: FunctionType): String = {
+    t match {
+      case Void => "Void"
+      case TBool => "java.lang.Boolean"
+      case TByte => "java.lang.Byte"
+      case TI16 => "java.lang.Short"
+      case TI32 => "java.lang.Integer"
+      case TI64 => "java.lang.Long"
+      case TDouble => "java.lang.Double"
+      case TString => "String"
+      case TBinary => "ByteBuffer"
+      case ReferenceType(x) => x
+      case MapType(k, v, _) => "java.util.Map[" + scalaType(k) + ", " + scalaType(v) + "]"
+      case SetType(x, _) => "java.util.Set[" + scalaType(x) + "]"
+      case ListType(x, _) => "java.util.List[" + scalaType(x) + "]"
+    }
+  }
+
+  def javaize(name: String, t: FunctionType): String = {
+    t match {
+      case TBool => name + ".booleanValue"
+      case TByte => name + ".byteValue"
+      case TI16 => name + ".shortValue"
+      case TI32 => name + ".intValue"
+      case TI64 => name + ".longValue"
+      case TDouble => name + ".doubleValue"
+      case TString => name
+      case TBinary => name
+      case ReferenceType(x) => x + ".toThrift"
+      case MapType(k, v, _) => "asScalaMap(" + name + ").view.map { case (k, v) => (" + javaize("k", k) + ", " + javaize("v", v) + ") }"
+      case SetType(x, _) => "asScalaSet(" + name + ").view.map { x => " + javaize("x", x) + " }"
+      case ListType(x, _) => "asScalaBuffer(" + name + ").view.map { x => " + javaize("x", x) + " }"
+    }
+  }
+
+  def scalaize(name: String, t: FunctionType): String = {
+    "FIXME"
+  }
+
   def apply(doc: Document): String = {
     val javaNamespace = doc.headers.collect {
       case Namespace("java", x) => x
@@ -114,3 +207,41 @@ class ScalaGenerator {
     ""
   }
 }
+
+
+/*
+  public interface ServiceIface {
+
+    public Future<String> get(String key);
+
+    public Future<Void> put(String key, String value);
+
+  }
+
+  public static class ServiceToClient implements ServiceIface {
+    private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
+    private TProtocolFactory protocolFactory;
+    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFa
+ctory) {
+      this.service = service;
+      this.protocolFactory = protocolFactory;
+    }
+
+    public Future<String> get(String key) {
+      try {
+        // TODO: size
+.....
+
+  public static class Service extends com.twitter.finagle.Service<byte[], byte[]> {
+    private final ServiceIface iface;
+    private final TProtocolFactory protocolFactory;
+    protected HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>> functionMap = new HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>>();
+    public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
+      this.iface = iface;
+      this.protocolFactory = protocolFactory;
+      functionMap.put("get", new Function2<TProtocol, Integer, Future<byte[]>>() {
+        public Future<byte[]> apply(final TProtocol iprot, final Integer seqid) {
+          get_args args = new get_args();
+          try {
+
+.....
