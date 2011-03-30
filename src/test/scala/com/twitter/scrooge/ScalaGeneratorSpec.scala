@@ -7,38 +7,40 @@ import scala.collection.JavaConversions._
 class ScalaGeneratorSpec extends Specification {
   import AST._
 
+  var counter = 0
+
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
 
-  def getClass(className: String) = Eval.compiler.classLoader.loadClass(className)
+  def wrapInClass(name: String, code: String) = {
+    "class " + name + " extends (() => Any) {" +
+    "  def apply() = {" +
+        code +
+    "  }" +
+    "}"
+  }
 
-  def invoke[T](cls: Class[_], methodName: String): T =
-    cls.getMethod(methodName).invoke(cls.newInstance()).asInstanceOf[T]
+  def invokeTo[T](code: String): T = {
+    counter += 1
+    Eval.compiler(wrapInClass("Test" + counter, code))
+    Eval.compiler.classLoader.loadClass("Test" + counter).newInstance.asInstanceOf[() => Any].apply().asInstanceOf[T]
+  }
 
-  def invoke[T, A1: Manifest](cls: Class[_], methodName: String, arg1: A1): T =
-    cls.getMethod(methodName, manifest[A1].erasure).invoke(cls.newInstance(), arg1.asInstanceOf[Object]).asInstanceOf[T]
+  def invoke(code: String): Any = invokeTo[Any](code)
 
-  def invoke[T](className: String, methodName: String): T =
-    invoke[T](getClass(className), methodName)
-
-  def invoke[T, A1: Manifest](className: String, methodName: String, arg1: A1): T =
-    invoke[T, A1](getClass(className), methodName, arg1)
-
+  def compile(code: String) {
+    Eval.compiler(code)
+  }
 
   "ScalaGenerator" should {
     "generate an enum" in {
       val enum = Enum("SomeEnum", Array(EnumValue("FOO", 1), EnumValue("BAR", 2)))
-      println(gen(enum))
-      try {
-        Eval.compiler(gen(enum))
-        invoke[Int]("awwYeah.SomeEnum$FOO$", "value") mustEqual 1
-//        println(Eval.compiler.classLoader.loadClass("awwYeah.SomeEnum$").getMethods.toList.mkString("\n"))
-//        println(Eval.compiler.classLoader.loadClass("awwYeah.SomeEnum$").getMethod("apply", classOf[Int]))
-//        invoke[Option[AnyRef], Int]("awwYeah.SomeEnum$", "apply", 1).get.getClass.getName mustEqual "awwYeah.SomeEnum$FOO$"
-      } catch {
-        case e: Throwable => e.printStackTrace()
-      }
+      compile(gen(enum))
+      invoke("awwYeah.SomeEnum.FOO.value") mustEqual 1
+      invoke("awwYeah.SomeEnum.BAR.value") mustEqual 2
+      invoke("awwYeah.SomeEnum.apply(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
+      invoke("awwYeah.SomeEnum.apply(2)") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
+      invoke("awwYeah.SomeEnum.apply(3)") mustEqual invoke("None")
     }
   }
-
 }
