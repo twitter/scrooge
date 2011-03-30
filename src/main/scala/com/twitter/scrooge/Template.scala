@@ -20,8 +20,10 @@ class Template[T: Manifest](text: String) {
       "import __param._\n" +
       "import scope._\n" +
       code + "\n}.asInstanceOf[String] }"
+    /*
     println("manifests: T=" + manifest[T].erasure + " A=" + manifest[A].erasure)
     println(wrappedCode)
+    */
     Eval[(T, A) => String](wrappedCode)(obj, scope)
   }
 
