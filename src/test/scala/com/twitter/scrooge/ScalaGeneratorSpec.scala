@@ -54,9 +54,19 @@ class ScalaGeneratorSpec extends Specification {
     }
 
     "generate a constant" in {
-      val const = Const("name", TString, StringConstant("Columbo"))
-      compile(gen(ConstList(Array(const))))
+      val constList = ConstList(Array(
+        Const("name", TString, StringConstant("Columbo")),
+        Const("someInt", TI32, IntConstant(1)),
+        Const("someDouble", TDouble, DoubleConstant(3.0)),
+        Const("someList", ListType(TString, None), ListConstant(List(StringConstant("piggy")))),
+        Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar"))))
+      ))
+      compile(gen(constList))
       invoke("awwYeah.Constants.name") mustEqual "Columbo"
+      invoke("awwYeah.Constants.someInt") mustEqual 1
+      invoke("awwYeah.Constants.someDouble") mustEqual 3.0
+      invoke("awwYeah.Constants.someList") mustEqual List("piggy")
+      invoke("awwYeah.Constants.someMap") mustEqual Map("foo" -> "bar")
     }
   }
 }
