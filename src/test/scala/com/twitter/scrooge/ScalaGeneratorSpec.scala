@@ -1,14 +1,14 @@
 package com.twitter.scrooge
 
+import java.math.BigInteger
+import java.security.MessageDigest
+import scala.collection.JavaConversions._
 import com.twitter.util.Eval
 import org.specs.Specification
-import scala.collection.JavaConversions._
 
 class ScalaGeneratorSpec extends Specification {
   import AST._
   import ScalaGenerator.ConstList
-
-  var counter = 0
 
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
@@ -21,12 +21,17 @@ class ScalaGeneratorSpec extends Specification {
     "}"
   }
 
-  def invokeTo[T](code: String): T = {
-    counter += 1
-    Eval.compiler(wrapInClass("Test" + counter, code))
-    Eval.compiler.classLoader.loadClass("Test" + counter).newInstance.asInstanceOf[() => Any].apply().asInstanceOf[T]
+  private def uniqueId(code: String): String = {
+    val digest = MessageDigest.getInstance("SHA-1").digest(code.getBytes())
+    val sha = new BigInteger(1, digest).toString(16)
+    "Test_" + sha
   }
-  
+
+  def invokeTo[T](code: String): T = {
+    Eval.compiler(wrapInClass(uniqueId(code), code))
+    Eval.compiler.classLoader.loadClass(uniqueId(code)).newInstance.asInstanceOf[() => Any].apply().asInstanceOf[T]
+  }
+
   def invoke(code: String): Any = invokeTo[Any](code)
 
   def compile(code: String) {
@@ -34,6 +39,10 @@ class ScalaGeneratorSpec extends Specification {
   }
 
   "ScalaGenerator" should {
+    doBefore {
+      Eval.compiler.reset()
+    }
+
     "generate an enum" in {
       val enum = Enum("SomeEnum", Array(EnumValue("FOO", 1), EnumValue("BAR", 2)))
       compile(gen(enum))
