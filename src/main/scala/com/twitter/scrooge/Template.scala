@@ -14,9 +14,16 @@ object Template {
 }
 
 class Template[T: Manifest](text: String) {
+  def getName(klazz: Class[_]): String = {
+    if(klazz.isArray()) {
+      "Array[" + getName(klazz.getComponentType) + "]"
+    } else {
+      klazz.getName + klazz.getTypeParameters.map {_.getName}.mkString(",")
+    }
+  }
   def execute[A: Manifest](code: String, obj: T, scope: A): String = {
     val wrappedCode =
-      "{ (__param: " + manifest[T].erasure.getName + ", scope: " + manifest[A].erasure.getName + ") => {\n" +
+      "{ (__param: " + getName(manifest[T].erasure) + ", scope: " + manifest[A].erasure.getName + ") => {\n" +
       "import __param._\n" +
       "import scope._\n" +
       code + "\n}.asInstanceOf[String] }"

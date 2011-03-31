@@ -6,6 +6,7 @@ import scala.collection.JavaConversions._
 
 class ScalaGeneratorSpec extends Specification {
   import AST._
+  import ScalaGenerator.ConstList
 
   var counter = 0
 
@@ -25,7 +26,7 @@ class ScalaGeneratorSpec extends Specification {
     Eval.compiler(wrapInClass("Test" + counter, code))
     Eval.compiler.classLoader.loadClass("Test" + counter).newInstance.asInstanceOf[() => Any].apply().asInstanceOf[T]
   }
-
+  
   def invoke(code: String): Any = invokeTo[Any](code)
 
   def compile(code: String) {
@@ -41,6 +42,12 @@ class ScalaGeneratorSpec extends Specification {
       invoke("awwYeah.SomeEnum.apply(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
       invoke("awwYeah.SomeEnum.apply(2)") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
       invoke("awwYeah.SomeEnum.apply(3)") mustEqual invoke("None")
+    }
+
+    "generate a constant" in {
+      val const = Const("name", TString, StringConstant("Columbo"))
+      compile(gen(ConstList(Array(const))))
+      invoke("awwYeah.Constants.name") mustEqual "Columbo"
     }
   }
 }
