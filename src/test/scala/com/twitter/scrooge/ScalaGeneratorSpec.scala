@@ -68,5 +68,9 @@ class ScalaGeneratorSpec extends Specification {
       invoke("awwYeah.Constants.someList") mustEqual List("piggy")
       invoke("awwYeah.Constants.someMap") mustEqual Map("foo" -> "bar")
     }
+
+    "generate a struct" in {
+      println(gen())
+    }
   }
 }
