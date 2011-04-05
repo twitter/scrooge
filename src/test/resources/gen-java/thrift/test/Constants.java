@@ -22,6 +22,6 @@ import org.slf4j.LoggerFactory;
 
 public class Constants {
 
-  public static final long myNumberz = 3L;
+  public static final Numberz myNumberz = Numberz.ONE;
 
 }
