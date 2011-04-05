@@ -70,7 +70,8 @@ class ScalaGeneratorSpec extends Specification {
     }
 
     "generate a struct" in {
-      println(gen())
+      val struct = new Struct("Foo", Array(Field(1, "bar", TString, None, false)))
+      println(gen(struct))
     }
   }
 }

@@ -45,15 +45,39 @@ object Constants {
 
   val constTemplateText = "val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(value)}}"
 
+  val basicReadFieldTemplateText =
+"""case {{id}} => { /* {{name}} */
+  field.`type` match {
+    case TType.{{constType(`type`)}} => {{name}} = iprot.{{protocolReadMethod(`type)}}
+    case _ => TProtocolUtil.skip(iprot, field.`type`)
+  }
+}"""
+
   val structTemplateText =
 header + """import org.apache.thrift.protocol._
 
 object {{name}} {
   def apply(iprot: TProtocol) = {
     var field: TField = null
-{{fields.map { f => defaultValueTemplate(f, scope) }.mkString("\n")}}
-
-
+{{fields.map { f => "    var " + f.name + defaultValueTemplate(f) }.mkString("\n")}}
+    var done = false
+    while(!done) {
+      field = iprot.readFieldBegin
+      if(field.`type` == TType.STOP) {
+        done = true
+      }
+      if(!done) {
+        field.id match {
+{{fields.map { f => "          " + structReadField(f) }.mkString.("\n") }}
+          case _ => TProtocolUtil.skip(iprot, field.`type`)
+        }
+        iprot.readFieldEnd()
+      }
+    }
+    iprot.readStructEnd()
+    new {{name}}({{fields.map { f => f.name }.mkString(", ")}})
+  }
+}
 """
 
   val serviceTemplateText =
@@ -192,6 +216,7 @@ class ScalaGenerator {
   val enumTemplate = Template[Enum](enumTemplateText)
   val constsTemplate = Template[ConstList](constsTemplateText)
   val constTemplate = Template[Const](constTemplateText)
+  val structTemplate = Template[Struct](structTemplateText)
 
   // Constants
   val stringTemplate = Template[StringConstant](""""{{value}}"""")
@@ -220,25 +245,53 @@ class ScalaGenerator {
     }
   }
 
-  def defaultValueTemplate(field: Field) = {
-    if(field.`type` == TI16) {
-      
+  def structReadFieldTemplate(field: Field) = {
+    field.`type` match {
+      case _ => Template[Field](basicReadFieldTemplateText)
     }
-    val t = field.`type` match {
+  }
+
+  def defaultValueTemplate(field: Field) = {
+    field.`type` match {
       case c @ TI16 => {
-        ": " + scalaType(c) + " = 0")
+        ": " + scalaType(c) + " = 0"
       }
       case c @ TI32 => {
-        Template[Field](": " + scalaType(c) + " = 0")
+        ": " + scalaType(c) + " = 0"
       }
       case c @ TI64 => {
-        Template[Field](": " + scalaType(c) + " = 0")
+        ": " + scalaType(c) + " = 0"
       }
       case c @ _ => {
-        Template[Field](": " + scalaType(c) + " = null")
+        ": " + scalaType(c) + " = null"
       }
     }
-    t(field, this)
+  }
+
+  def constType(t: FunctionType): String = {
+    t match {
+      case TBool => "BOOL"
+      case TByte => "BYTE"
+      case TI16 => "I16"
+      case TI32 => "I32"
+      case TI64 => "I64"
+      case TDouble => "DOUBLE"
+      case TString => "STRING"
+      case TBinary => "STRING" // IDK why, but Binary fields are marked as String
+    }
+  }
+
+  def protocolReadMethod(t: FunctionType): String = {
+    t match {
+      case TBool => "readBool"
+      case TByte => "readByte"
+      case TI16 => "readI16"
+      case TI32 => "readI32"
+      case TI64 => "readI64"
+      case TDouble => "readDouble"
+      case TString => "readString"
+      case TBinary => "readBinary"
+    }
   }
 
   def scalaType(t: FunctionType): String = {
@@ -298,17 +351,10 @@ class ScalaGenerator {
     "FIXME"
   }
 
-  def apply(enum: Enum): String = {
-    enumTemplate(enum, this)
-  }
-
-  def apply(consts: ConstList): String = {
-    constsTemplate(consts, this)
-  }
-
-  def apply(const: Const): String = {
-    constTemplate(const, this)
-  }
+  def apply(enum: Enum): String = enumTemplate(enum, this)
+  def apply(consts: ConstList): String = constsTemplate(consts, this)
+  def apply(const: Const): String = constTemplate(const, this)
+  def apply(struct: Struct): String = structTemplate(struct, this)
 
   def apply(doc: Document): String = {
     javaNamespace = doc.headers.collect {
