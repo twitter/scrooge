@@ -5,10 +5,12 @@ import java.security.MessageDigest
 import scala.collection.JavaConversions._
 import com.twitter.util.Eval
 import org.specs.Specification
+import org.specs.mock.{ClassMocker, JMocker}
+import org.apache.thrift.protocol.{TType, TField, TProtocol}
 
-class ScalaGeneratorSpec extends Specification {
+class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   import AST._
-  import ScalaGenerator.ConstList
+  import ScalaGenerator._
 
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
@@ -71,7 +73,20 @@ class ScalaGeneratorSpec extends Specification {
 
     "generate a struct" in {
       val struct = new Struct("Foo", Array(Field(1, "bar", TString, None, false)))
-      println(gen(struct))
+      compile(gen(struct))
+
+      val protocol = mock[TProtocol]
+
+      expect {
+        one(protocol).readFieldBegin willReturn new TField("bar", TType.STRING, 1)
+        one(protocol).readString willReturn "someString"
+        one(protocol).readFieldEnd()
+        one(protocol).readFieldBegin willReturn new TField("stop", TType.STOP, 10)
+        one(protocol).readStructEnd()
+      }
+
+      val foo = invokeTo[(TProtocol => ThriftStruct)]("awwYeah.Foo")(protocol)
+      foo mustEqual invoke("awwYeah.Foo(\"someString\")")
     }
   }
 }
