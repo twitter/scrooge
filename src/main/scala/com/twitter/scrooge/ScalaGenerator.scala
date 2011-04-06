@@ -63,6 +63,13 @@ object Constants {
 oprot.{{protocolWriteMethod(`type`)}}({{name}})
 oprot.writeFieldEnd()"""
 
+  val stringWriteFieldTemplateText =
+"""if ({{name}} != null) {
+  oprot.writeFieldBegin({{writeFieldConst(name)}})
+  oprot.writeString({{name}})
+  oprot.writeFieldEnd()
+}"""
+
   val structTemplateText =
 header + """import org.apache.thrift.protocol._
 import com.twitter.scrooge.ThriftStruct
@@ -275,6 +282,7 @@ class ScalaGenerator {
 
   def structWriteFieldTemplate(field: Field) = {
     field.`type` match {
+      case TString => Template[Field](stringWriteFieldTemplateText)
       case _ => Template[Field](basicWriteFieldTemplateText)
     }
   }

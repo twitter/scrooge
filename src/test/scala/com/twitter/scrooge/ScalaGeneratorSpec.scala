@@ -5,8 +5,9 @@ import java.security.MessageDigest
 import scala.collection.JavaConversions._
 import com.twitter.util.Eval
 import org.specs.Specification
+import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
-import org.apache.thrift.protocol.{TType, TField, TProtocol}
+import org.apache.thrift.protocol.{TStruct, TType, TField, TProtocol}
 
 class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   import AST._
@@ -72,21 +73,53 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
     }
 
     "generate a struct" in {
-      val struct = new Struct("Foo", Array(Field(1, "bar", TString, None, false)))
-      compile(gen(struct))
+      val struct = new Struct("Foo", Array(Field(1, "bar", TI32, None, false), Field(2, "baz", TString, None, false)))
+      val structString = gen(struct)
+      println(structString)
+      compile(structString)
 
-      val protocol = mock[TProtocol]
+      case class matchEqualsTField(a: TField) extends Matcher[TField]() {
+        def apply(v: => TField) = (v.equals(a), "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+      }
+
+      def equal(a: TField) = will(matchEqualsTField(a))
+
+      val protocol = mock[TProtocol] 
 
       expect {
-        one(protocol).readFieldBegin willReturn new TField("bar", TType.STRING, 1)
-        one(protocol).readString willReturn "someString"
+        one(protocol).readFieldBegin willReturn new TField("bar", TType.I32, 1)
+        one(protocol).readI32 willReturn 1
         one(protocol).readFieldEnd()
+
+        one(protocol).readFieldBegin willReturn new TField("baz", TType.STRING, 2)
+        one(protocol).readString willReturn "lala"
+        one(protocol).readFieldEnd()
+        
         one(protocol).readFieldBegin willReturn new TField("stop", TType.STOP, 10)
         one(protocol).readStructEnd()
       }
 
-      val foo = invokeTo[(TProtocol => ThriftStruct)]("awwYeah.Foo")(protocol)
-      foo mustEqual invoke("awwYeah.Foo(\"someString\")")
+      val s = capturingParam[TStruct]
+
+      val foo = invokeTo[(TProtocol => ThriftStruct)]("awwYeah.Foo")
+      foo(protocol) mustEqual invoke("awwYeah.Foo(1, \"lala\")")
+
+      expect {
+        one(protocol).writeStructBegin(s.capture)
+
+        one(protocol).writeFieldBegin(equal(new TField("bar", TType.I32, 1)))
+        one(protocol).writeI32(1)
+        one(protocol).writeFieldEnd()
+
+        one(protocol).writeFieldBegin(equal(new TField("baz", TType.STRING, 2)))
+        one(protocol).writeString("lala")
+        one(protocol).writeFieldEnd()
+
+        one(protocol).writeFieldStop()
+        one(protocol).writeStructEnd()
+      }
+
+      invokeTo[ThriftStruct]("awwYeah.Foo(1, \"lala\")").write(protocol)
     }
   }
 }
