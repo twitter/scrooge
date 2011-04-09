@@ -61,7 +61,7 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         Const("name", TString, StringConstant("Columbo")),
         Const("someInt", TI32, IntConstant(1)),
         Const("someDouble", TDouble, DoubleConstant(3.0)),
-        Const("someList", ListType(TString, None), ListConstant(List(StringConstant("piggy")))),
+        Const("someList", ListType(TString, None), ListConstant(Array(StringConstant("piggy")))),
         Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar"))))
       ))
       compile(gen(constList))

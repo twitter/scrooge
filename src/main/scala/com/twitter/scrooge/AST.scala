@@ -4,7 +4,7 @@ object AST {
   sealed abstract class Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
-  case class ListConstant(elems: List[Constant]) extends Constant
+  case class ListConstant(elems: Array[Constant]) extends Constant
   case class MapConstant(elems: Map[Constant, Constant]) extends Constant
   case class StringConstant(value: String) extends Constant
   case class Identifier(name: String) extends Constant

@@ -54,7 +54,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def listSeparator = "[,;]?".r
   def listConstant = "[" ~> repsep(constant, listSeparator) <~ "]" ^^ { list =>
-    ListConstant(list)
+    ListConstant(list.toArray)
   }
 
   def mapConstant = "{" ~> repsep(constant ~ ":" ~ constant, listSeparator) <~ "}" ^^ { list =>

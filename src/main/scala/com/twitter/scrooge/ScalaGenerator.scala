@@ -256,10 +256,10 @@ class ScalaGenerator {
   val doubleTemplate = Template[DoubleConstant]("{{value.toString}}")
   val intTemplate = Template[IntConstant]("{{value.toString}}")
   val listTemplate = Template[ListConstant](
-    """List({{elems.map { e => constantTemplate(e.asInstanceOf[com.twitter.scrooge.AST.Constant]) }.mkString(",")}})"""
+    """List({{elems.map { e => constantTemplate(e) }.mkString(", ")}})"""
   )
   val mapTemplate =  Template[MapConstant](
-    """Map({{elems.map { case (x, y) => constantTemplate(x.asInstanceOf[com.twitter.scrooge.AST.Constant]) + " -> " + constantTemplate(y.asInstanceOf[com.twitter.scrooge.AST.Constant]) }.mkString(",\n")}})"""
+    """Map({{elems.asInstanceOf[Map[com.twitter.scrooge.AST.Constant, com.twitter.scrooge.AST.Constant]].map { case (x, y) => constantTemplate(x) + " -> " + constantTemplate(y) }.mkString(",\n")}})"""
   )
 
   def constantTemplate(constant: Constant): String = {

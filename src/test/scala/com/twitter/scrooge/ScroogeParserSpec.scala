@@ -19,8 +19,9 @@ class ScroogeParserSpec extends Specification {
       parser.parse("\"hello!\"", parser.constant) mustEqual StringConstant("hello!")
       parser.parse("'hello!'", parser.constant) mustEqual StringConstant("hello!")
       parser.parse("cat", parser.constant) mustEqual Identifier("cat")
-      parser.parse("[ 4, 5 ]", parser.constant) mustEqual ListConstant(List(IntConstant(4),
-        IntConstant(5)))
+      val list = parser.parse("[ 4, 5 ]", parser.constant)
+      list must haveClass[ListConstant]
+      list.asInstanceOf[ListConstant].elems.toList mustEqual List(IntConstant(4), IntConstant(5))
       parser.parse("{ 'name': 'Commie', 'home': 'San Francisco' }",
         parser.constant) mustEqual MapConstant(Map(StringConstant("name") -> StringConstant
         ("Commie"), StringConstant("home") -> StringConstant("San Francisco")))
