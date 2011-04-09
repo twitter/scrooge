@@ -74,26 +74,28 @@ oprot.writeFieldEnd()"""
 header + """import org.apache.thrift.protocol._
 import com.twitter.scrooge.ThriftStruct
 
-object {{name}} extends (TProtocol => ThriftStruct) {
-  override def apply(iprot: TProtocol) = {
-    var field: TField = null
-{{fields.map { f => "    var " + f.name + defaultValueTemplate(f) }.mkString("\n")}}
-    var done = false
-    while(!done) {
-      field = iprot.readFieldBegin
-      if(field.`type` == TType.STOP) {
-        done = true
-      }
-      if(!done) {
-        field.id match {
-{{fields.map { f => "          " + structReadFieldTemplate(f)(f, scope) }.mkString("\n") }}
-          case _ => TProtocolUtil.skip(iprot, field.`type`)
+object {{name}} {
+  object decoder extends (TProtocol => ThriftStruct) {
+    override def apply(iprot: TProtocol) = {
+      var field: TField = null
+  {{fields.map { f => "    var " + f.name + defaultValueTemplate(f) }.mkString("\n")}}
+      var done = false
+      while(!done) {
+        field = iprot.readFieldBegin
+        if(field.`type` == TType.STOP) {
+          done = true
         }
-        iprot.readFieldEnd()
+        if(!done) {
+          field.id match {
+  {{fields.map { f => "          " + structReadFieldTemplate(f)(f, scope) }.mkString("\n") }}
+            case _ => TProtocolUtil.skip(iprot, field.`type`)
+          }
+          iprot.readFieldEnd()
+        }
       }
+      iprot.readStructEnd()
+      new {{name}}({{fields.map { f => f.name }.mkString(", ")}})
     }
-    iprot.readStructEnd()
-    new {{name}}({{fields.map { f => f.name }.mkString(", ")}})
   }
 }
 

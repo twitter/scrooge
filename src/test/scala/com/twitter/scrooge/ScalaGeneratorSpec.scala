@@ -94,15 +94,15 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         one(protocol).readFieldBegin willReturn new TField("baz", TType.STRING, 2)
         one(protocol).readString willReturn "lala"
         one(protocol).readFieldEnd()
-        
+
         one(protocol).readFieldBegin willReturn new TField("stop", TType.STOP, 10)
         one(protocol).readStructEnd()
       }
 
       val s = capturingParam[TStruct]
 
-      val foo = invokeTo[(TProtocol => ThriftStruct)]("awwYeah.Foo")
-      foo(protocol) mustEqual invoke("awwYeah.Foo(1, \"lala\")")
+      val decoder = invokeTo[(TProtocol => ThriftStruct)]("awwYeah.Foo.decoder")
+      decoder(protocol) mustEqual invoke("awwYeah.Foo(1, \"lala\")")
 
       expect {
         one(protocol).writeStructBegin(s.capture)
