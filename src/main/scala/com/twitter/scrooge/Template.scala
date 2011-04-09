@@ -14,12 +14,31 @@ object Template {
 }
 
 class Template[T: Manifest](text: String) {
+  def getName(klazz: Class[_]): String = {
+    if (klazz.isArray()) {
+      "Array[" + getName(klazz.getComponentType) + "]"
+    } else {
+      klazz.getName + klazz.getTypeParameters.map {_.getName}.mkString(",")
+    }
+  }
+
   def execute[A: Manifest](code: String, obj: T, scope: A): String = {
     val wrappedCode =
-      "{ (__param: " + manifest[T].erasure.getName + ", scope: " + manifest[A].erasure.getName + ") => {\n" +
-      "import __param._\n" +
-      "import scope._\n" +
-      code + "\n}.asInstanceOf[String] }"
+"""{
+  (__param: """ + getName(manifest[T].erasure) + ", scope: " + getName(manifest[A].erasure) + """) => {
+    import __param._
+    import scope._
+    val __rv = {
+      """ + code + """
+    }
+    try {
+      __rv.asInstanceOf[String]
+    } catch {
+      case e: Throwable =>
+        throw new Exception("Unable to convert to string: (" + __rv + ") when eval'ing (""" + code.quoteC + """)", e)
+    }
+  }
+}"""
     Eval[(T, A) => String](wrappedCode)(obj, scope)
   }
 
