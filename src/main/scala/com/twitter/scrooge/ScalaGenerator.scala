@@ -23,11 +23,11 @@ package {{scalaNamespace}}
 header + """import org.apache.thrift.TEnum
 
 object {{name}} {
-{{values.map { v => "  case object " + v.name + " extends " + name + "(" + v.value + ")"}.mkString("\n")}}
+{{values.map { v => "case object " + v.name + " extends " + name + "(" + v.value + ")"}.indent}}
 
   def apply(value: Int): Option[{{name}}] = {
     value match {
-{{values.map { v => "      case " + v.value + " => Some(" + v.name + ")"}.mkString("\n")}}
+{{values.map { v => "case " + v.value + " => Some(" + v.name + ")"}.indent(3)}}
       case _ => None
     }
   }
@@ -43,7 +43,7 @@ abstract class {{name}}(val value: Int) {
 
   val constsTemplateText =
 header + """object Constants {
-{{constList.map { e => constTemplate(e, scope) }.mkString("\n").indent}}
+{{constList.map { e => constTemplate(e, scope) }.indent}}
 }
 """
 
@@ -77,16 +77,15 @@ object {{name}} {
   object decoder extends (TProtocol => ThriftStruct) {
     override def apply(iprot: TProtocol) = {
       var field: TField = null
-  {{fields.map { f => "    var " + f.name + defaultValueTemplate(f) }.mkString("\n")}}
+{{fields.map { f => "var " + f.name + defaultValueTemplate(f) }.indent(3)}}
       var done = false
-      while(!done) {
+      while (!done) {
         field = iprot.readFieldBegin
-        if(field.`type` == TType.STOP) {
+        if (field.`type` == TType.STOP) {
           done = true
-        }
-        if(!done) {
+        } else {
           field.id match {
-  {{fields.map { f => "          " + structReadFieldTemplate(f)(f, scope) }.mkString("\n") }}
+{{fields.map { f => structReadFieldTemplate(f)(f, scope) }.indent(6) }}
             case _ => TProtocolUtil.skip(iprot, field.`type`)
           }
           iprot.readFieldEnd()
@@ -100,13 +99,13 @@ object {{name}} {
 
 case class {{name}}({{fields.map { f => f.name + ": " + scalaType(f.`type`) }.mkString(", ")}}) extends ThriftStruct {
   private val STRUCT_DESC = new TStruct("{{name}}")
-{{fields.map { f => "  private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.mkString("\n")}}
+{{fields.map { f => "private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.indent}}
 
   override def write(oprot: TProtocol) {
-    validate
+    validate()
 
     oprot.writeStructBegin(STRUCT_DESC)
-{{fields.map { f => "      " + structWriteFieldTemplate(f)(f, scope) }.mkString("\n") }}
+{{fields.map { f => structWriteFieldTemplate(f)(f, scope) }.indent(2) }}
     oprot.writeFieldStop()
     oprot.writeStructEnd()
   }
@@ -407,8 +406,17 @@ class ScalaGenerator {
     "FIXME"
   }
 
-  implicit def indenty(underlying: String) = new Object {
-    def indent: String = underlying.split("\\n").map { "  " + _ }.mkString("\n")
+  implicit def string2indent(underlying: String) = new Object {
+    def indent(level: Int = 1): String = underlying.split("\\n").map { ("  " * level) + _ }.mkString("\n")
+    def indent: String = indent(1)
+  }
+  implicit def seq2indent(underlying: Seq[String]) = new Object {
+    def indent(level: Int = 1): String = underlying.mkString("\n").indent(level)
+    def indent: String = indent(1)
+  }
+  implicit def array2indent(underlying: Array[String]) = new Object {
+    def indent(level: Int = 1): String = underlying.mkString("\n").indent(level)
+    def indent: String = indent(1)
   }
 
   def apply(enum: Enum): String = enumTemplate(enum, this)

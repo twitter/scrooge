@@ -63,7 +63,7 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
     "generate a struct" in {
       val struct = new Struct("Foo", Array(Field(1, "bar", TI32, None, false), Field(2, "baz", TString, None, false)))
       val structString = gen(struct)
-      //println(structString)
+      println(structString)
       compile(structString)
 
       case class matchEqualsTField(a: TField) extends Matcher[TField]() {
