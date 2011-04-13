@@ -15,8 +15,8 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with SubversionPublisher
   with IdeaProject
 {
-  val util_core = "com.twitter" % "util-core" % "1.8.1"
-  val util_eval = "com.twitter" % "util-eval" % "1.8.1"
+  val util_core = "com.twitter" % "util-core" % "1.8.9-SNAPSHOT"
+  val util_eval = "com.twitter" % "util-eval" % "1.8.9-SNAPSHOT"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
 

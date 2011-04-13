@@ -16,34 +16,17 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
 
-  def wrapInClass(name: String, code: String) = {
-    "class " + name + " extends (() => Any) {" +
-    "  def apply() = {" +
-        code +
-    "  }" +
-    "}"
-  }
-
-  private def uniqueId(code: String): String = {
-    val digest = MessageDigest.getInstance("SHA-1").digest(code.getBytes())
-    val sha = new BigInteger(1, digest).toString(16)
-    "Test_" + sha
-  }
-
-  def invokeTo[T](code: String): T = {
-    Eval.compiler(wrapInClass(uniqueId(code), code))
-    Eval.compiler.classLoader.loadClass(uniqueId(code)).newInstance.asInstanceOf[() => Any].apply().asInstanceOf[T]
-  }
-
-  def invoke(code: String): Any = invokeTo[Any](code)
-
-  def compile(code: String) {
-    Eval.compiler(code)
-  }
-
   "ScalaGenerator" should {
+    var eval: Eval = null
+
+    def invoke(code: String): Any = eval.inPlace[Any](code)
+
+    def compile(code: String) {
+      eval.compile(code)
+    }
+
     doBefore {
-      Eval.compiler.reset()
+      eval = new Eval
     }
 
     "generate an enum" in {
@@ -63,13 +46,18 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         Const("someDouble", TDouble, DoubleConstant(3.0)),
         Const("someList", ListType(TString, None), ListConstant(Array(StringConstant("piggy")))),
         Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar"))))
+//        Const("alias", ReferenceType("FakeEnum"), Identifier("FOO"))
       ))
-      compile(gen(constList))
+      // add a definition for SomeEnum2.FOO so it will compile.
+      val code = gen(constList) + "\n\nclass FakeEnumy()\n\nobject FakeEnum { val FOO = new FakeEnumy() }\n"
+      compile(code)
+
       invoke("awwYeah.Constants.name") mustEqual "Columbo"
       invoke("awwYeah.Constants.someInt") mustEqual 1
       invoke("awwYeah.Constants.someDouble") mustEqual 3.0
       invoke("awwYeah.Constants.someList") mustEqual List("piggy")
       invoke("awwYeah.Constants.someMap") mustEqual Map("foo" -> "bar")
+      invoke("awwYeah.FakeEnum.FOO") mustEqual invoke("awwYeah.FakeEnum.FOO")
     }
 
     "generate a struct" in {
@@ -84,7 +72,7 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       def equal(a: TField) = will(matchEqualsTField(a))
 
-      val protocol = mock[TProtocol] 
+      val protocol = mock[TProtocol]
 
       expect {
         one(protocol).readFieldBegin willReturn new TField("bar", TType.I32, 1)
@@ -101,8 +89,8 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       val s = capturingParam[TStruct]
 
-      val decoder = invokeTo[(TProtocol => ThriftStruct)]("awwYeah.Foo.decoder")
-      decoder(protocol) mustEqual invoke("awwYeah.Foo(1, \"lala\")")
+      val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Foo.decoder")
+      decoder(protocol) mustEqual invoke("new awwYeah.Foo(1, \"lala\")")
 
       expect {
         one(protocol).writeStructBegin(s.capture)
@@ -119,7 +107,7 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         one(protocol).writeStructEnd()
       }
 
-      invokeTo[ThriftStruct]("awwYeah.Foo(1, \"lala\")").write(protocol)
+      eval.inPlace[ThriftStruct]("awwYeah.Foo(1, \"lala\")").write(protocol)
     }
   }
 }
