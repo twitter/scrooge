@@ -25,7 +25,7 @@ header + """import org.apache.thrift.TEnum
 object {{name}} {
 {{values.map { v => "  case object " + v.name + " extends " + name + "(" + v.value + ")"}.mkString("\n")}}
 
-  def apply(value: Int): Option[SomeEnum] = {
+  def apply(value: Int): Option[{{name}}] = {
     value match {
 {{values.map { v => "      case " + v.value + " => Some(" + v.name + ")"}.mkString("\n")}}
       case _ => None
@@ -33,7 +33,7 @@ object {{name}} {
   }
 }
 
-abstract class SomeEnum(val value: Int) {
+abstract class {{name}}(val value: Int) {
   def toThrift = new TEnum {
     override def getValue = {
       value
