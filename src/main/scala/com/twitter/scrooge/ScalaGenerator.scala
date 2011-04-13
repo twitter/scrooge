@@ -313,14 +313,20 @@ class ScalaGenerator {
 
   def constType(t: FunctionType): String = {
     t match {
+      case Void => "VOID"
       case TBool => "BOOL"
       case TByte => "BYTE"
+      case TDouble => "DOUBLE"
       case TI16 => "I16"
       case TI32 => "I32"
       case TI64 => "I64"
-      case TDouble => "DOUBLE"
       case TString => "STRING"
       case TBinary => "STRING" // IDK why, but Binary fields are marked as String
+      case ReferenceType(_) => "STRUCT" // FIXME could also be Enum
+      case MapType(_, _) => "MAP"
+      case SetType(_) => "SET"
+      case ListType(_) => "LIST"
+      case x => "????" + x + "????"
     }
   }
 
@@ -334,6 +340,7 @@ class ScalaGenerator {
       case TDouble => "readDouble"
       case TString => "readString"
       case TBinary => "readBinary"
+      case x => "????" + x + "????"
     }
   }
 
@@ -347,6 +354,7 @@ class ScalaGenerator {
       case TDouble => "writeDouble"
       case TString => "writeString"
       case TBinary => "writeBinary"
+      case x => "????" + x + "????"
     }
   }
 
