@@ -48,7 +48,7 @@ object Constants {
 }
 """
 
-  val constTemplateText = "val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(value)}}"
+  val constTemplateText = "val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}"
 
   val basicReadFieldTemplateText =
 """case {{id.toString}} => { /* {{name}} */
@@ -112,7 +112,7 @@ case class {{name}}({{fields.map { f => f.name + ": " + scalaType(f.`type`) }.mk
     oprot.writeStructEnd()
   }
 
-  def validate = true //TODO: Implement this
+  def validate() = true //TODO: Implement this
 }"""
 
   val serviceTemplateText =
@@ -258,13 +258,13 @@ class ScalaGenerator {
   val doubleTemplate = Template[DoubleConstant]("{{value.toString}}")
   val intTemplate = Template[IntConstant]("{{value.toString}}")
   val listTemplate = Template[ListConstant](
-    """List({{elems.map { e => constantTemplate(e) }.mkString(", ")}})"""
+    """List({{elems.map { e => constantTemplate(null, e) }.mkString(", ")}})"""
   )
   val mapTemplate =  Template[MapConstant](
-    """Map({{elems.asInstanceOf[Map[com.twitter.scrooge.AST.Constant, com.twitter.scrooge.AST.Constant]].map { case (x, y) => constantTemplate(x) + " -> " + constantTemplate(y) }.mkString(",\n")}})"""
+    """Map({{elems.asInstanceOf[Map[com.twitter.scrooge.AST.Constant, com.twitter.scrooge.AST.Constant]].map { case (x, y) => constantTemplate(null, x) + " -> " + constantTemplate(null, y) }.mkString(",\n")}})"""
   )
 
-  def constantTemplate(constant: Constant): String = {
+  def constantTemplate(`type`: FieldType, constant: Constant): String = {
     constant match {
       case c @ StringConstant(_) =>
         stringTemplate(c, this)
@@ -276,7 +276,8 @@ class ScalaGenerator {
         listTemplate(c, this)
       case c @ MapConstant(_) =>
         mapTemplate(c, this)
-      case c @ Identifier(_) => ""// WTF is this?
+      case c @ Identifier(name) =>
+        `type`.asInstanceOf[ReferenceType].name + "." + name
     }
   }
 
