@@ -45,11 +45,11 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         Const("someInt", TI32, IntConstant(1)),
         Const("someDouble", TDouble, DoubleConstant(3.0)),
         Const("someList", ListType(TString, None), ListConstant(Array(StringConstant("piggy")))),
-        Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar"))))
-//        Const("alias", ReferenceType("FakeEnum"), Identifier("FOO"))
+        Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar")))),
+        Const("alias", ReferenceType("FakeEnum"), Identifier("FOO"))
       ))
       // add a definition for SomeEnum2.FOO so it will compile.
-      val code = gen(constList) + "\n\nclass FakeEnumy()\n\nobject FakeEnum { val FOO = new FakeEnumy() }\n"
+      val code = gen(constList) + "\n\nclass FakeEnum()\nobject FakeEnum { val FOO = new FakeEnum() }\n"
       compile(code)
 
       invoke("awwYeah.Constants.name") mustEqual "Columbo"
@@ -57,13 +57,13 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
       invoke("awwYeah.Constants.someDouble") mustEqual 3.0
       invoke("awwYeah.Constants.someList") mustEqual List("piggy")
       invoke("awwYeah.Constants.someMap") mustEqual Map("foo" -> "bar")
-      invoke("awwYeah.FakeEnum.FOO") mustEqual invoke("awwYeah.FakeEnum.FOO")
+      invoke("awwYeah.Constants.alias") mustEqual invoke("awwYeah.FakeEnum.FOO")
     }
 
     "generate a struct" in {
       val struct = new Struct("Foo", Array(Field(1, "bar", TI32, None, false), Field(2, "baz", TString, None, false)))
       val structString = gen(struct)
-      println(structString)
+      //println(structString)
       compile(structString)
 
       case class matchEqualsTField(a: TField) extends Matcher[TField]() {
