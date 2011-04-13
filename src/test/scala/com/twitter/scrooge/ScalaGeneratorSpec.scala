@@ -16,6 +16,15 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
 
+  case class matchEqualsTField(a: TField) extends Matcher[TField]() {
+    def apply(v: => TField) = (v.equals(a), "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  }
+
+  def equal(a: TField) = will(matchEqualsTField(a))
+
+  val protocol = mock[TProtocol]
+
+
   "ScalaGenerator" should {
     var eval: Eval = null
 
@@ -61,53 +70,62 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
     }
 
     "generate a struct" in {
-      val struct = new Struct("Foo", Array(Field(1, "bar", TI32, None, false), Field(2, "baz", TString, None, false)))
+      "simple" in {
+        val struct = new Struct("Foo", Array(Field(1, "bar", TI32, None, false), Field(2, "baz", TString, None, false)))
+        val structString = gen(struct)
+        compile(structString)
+
+        expect {
+          one(protocol).readFieldBegin() willReturn new TField("bar", TType.I32, 1)
+          one(protocol).readI32() willReturn 1
+          one(protocol).readFieldEnd()
+
+          one(protocol).readFieldBegin() willReturn new TField("baz", TType.STRING, 2)
+          one(protocol).readString() willReturn "lala"
+          one(protocol).readFieldEnd()
+
+          one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+          one(protocol).readStructEnd()
+        }
+
+        val s = capturingParam[TStruct]
+
+        val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Foo.decoder")
+        decoder(protocol) mustEqual invoke("new awwYeah.Foo(1, \"lala\")")
+
+        expect {
+          one(protocol).writeStructBegin(s.capture)
+
+          one(protocol).writeFieldBegin(equal(new TField("bar", TType.I32, 1)))
+          one(protocol).writeI32(1)
+          one(protocol).writeFieldEnd()
+
+          one(protocol).writeFieldBegin(equal(new TField("baz", TType.STRING, 2)))
+          one(protocol).writeString("lala")
+          one(protocol).writeFieldEnd()
+
+          one(protocol).writeFieldStop()
+          one(protocol).writeStructEnd()
+        }
+
+        eval.inPlace[ThriftStruct]("awwYeah.Foo(1, \"lala\")").write(protocol)
+      }
+    }
+
+    "nested" in {
+      val emperorStruct = new Struct("Emperor", Array(
+        Field(1, "name", TString, None, false),
+        Field(2, "age", TI32, None, false)
+      ))
+      val struct = new Struct("Empire", Array(
+        Field(1, "name", TString, None, false),
+        Field(2, "provinces", ListType(TString, None), None, false),
+        Field(5, "emperor", ReferenceType("Emperor"), None, false)
+      ))
+
       val structString = gen(struct)
       println(structString)
       compile(structString)
-
-      case class matchEqualsTField(a: TField) extends Matcher[TField]() {
-        def apply(v: => TField) = (v.equals(a), "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
-      }
-
-      def equal(a: TField) = will(matchEqualsTField(a))
-
-      val protocol = mock[TProtocol]
-
-      expect {
-        one(protocol).readFieldBegin willReturn new TField("bar", TType.I32, 1)
-        one(protocol).readI32 willReturn 1
-        one(protocol).readFieldEnd()
-
-        one(protocol).readFieldBegin willReturn new TField("baz", TType.STRING, 2)
-        one(protocol).readString willReturn "lala"
-        one(protocol).readFieldEnd()
-
-        one(protocol).readFieldBegin willReturn new TField("stop", TType.STOP, 10)
-        one(protocol).readStructEnd()
-      }
-
-      val s = capturingParam[TStruct]
-
-      val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Foo.decoder")
-      decoder(protocol) mustEqual invoke("new awwYeah.Foo(1, \"lala\")")
-
-      expect {
-        one(protocol).writeStructBegin(s.capture)
-
-        one(protocol).writeFieldBegin(equal(new TField("bar", TType.I32, 1)))
-        one(protocol).writeI32(1)
-        one(protocol).writeFieldEnd()
-
-        one(protocol).writeFieldBegin(equal(new TField("baz", TType.STRING, 2)))
-        one(protocol).writeString("lala")
-        one(protocol).writeFieldEnd()
-
-        one(protocol).writeFieldStop()
-        one(protocol).writeStructEnd()
-      }
-
-      eval.inPlace[ThriftStruct]("awwYeah.Foo(1, \"lala\")").write(protocol)
     }
   }
 }
