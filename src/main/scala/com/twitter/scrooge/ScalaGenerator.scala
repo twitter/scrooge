@@ -323,9 +323,9 @@ class ScalaGenerator {
       case TString => "STRING"
       case TBinary => "STRING" // IDK why, but Binary fields are marked as String
       case ReferenceType(_) => "STRUCT" // FIXME could also be Enum
-      case MapType(_, _) => "MAP"
-      case SetType(_) => "SET"
-      case ListType(_) => "LIST"
+      case MapType(_, _, _) => "MAP"
+      case SetType(_, _) => "SET"
+      case ListType(_, _) => "LIST"
       case x => "????" + x + "????"
     }
   }

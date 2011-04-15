@@ -71,7 +71,10 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
     "generate a struct" in {
       "simple" in {
-        val struct = new Struct("Foo", Array(Field(1, "bar", TI32, None, false), Field(2, "baz", TString, None, false)))
+        val struct = new Struct("Foo", Array(
+          Field(1, "bar", TI32, None, Requiredness.Optional),
+          Field(2, "baz", TString, None, Requiredness.Optional)
+        ))
         val structString = gen(struct)
         compile(structString)
 
@@ -114,13 +117,13 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
     "nested" in {
       val emperorStruct = new Struct("Emperor", Array(
-        Field(1, "name", TString, None, false),
-        Field(2, "age", TI32, None, false)
+        Field(1, "name", TString, None, Requiredness.Optional),
+        Field(2, "age", TI32, None, Requiredness.Optional)
       ))
       val struct = new Struct("Empire", Array(
-        Field(1, "name", TString, None, false),
-        Field(2, "provinces", ListType(TString, None), None, false),
-        Field(5, "emperor", ReferenceType("Emperor"), None, false)
+        Field(1, "name", TString, None, Requiredness.Optional),
+        Field(2, "provinces", ListType(TString, None), None, Requiredness.Optional),
+        Field(5, "emperor", ReferenceType("Emperor"), None, Requiredness.Optional)
       ))
 
       val structString = gen(struct)

@@ -52,14 +52,14 @@ class ScroogeParserSpec extends Specification {
     "functions" in {
       parser.parse("void go()", parser.function) mustEqual Function("go", Void, Array(), false, Array())
       parser.parse("oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
-        TI32, Array(Field(1, "n", TI32, None, false)), true, Array())
+        TI32, Array(Field(1, "n", TI32, None, Requiredness.Default)), true, Array())
       parser.parse(
-        "list<string> get_tables(optional i32 id, 3: string name='cat') throws (1: Exception ex);",
+        "list<string> get_tables(optional i32 id, 3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
         Function("get_tables", ListType(TString, None), Array(
-          Field(-1, "id", TI32, None, true),
-          Field(3, "name", TString, Some(StringConstant("cat")), false)
-        ), false, Array(Field(1, "ex", ReferenceType("Exception"), None, false)))
+          Field(-1, "id", TI32, None, Requiredness.Optional),
+          Field(3, "name", TString, Some(StringConstant("cat")), Requiredness.Required)
+        ), false, Array(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)))
     }
 
     "const" in {
@@ -105,19 +105,19 @@ class ScroogeParserSpec extends Specification {
         }
         """
       parser.parse(code, parser.definition) mustEqual Struct("Point", Array(
-        Field(1, "x", TDouble, None, false),
-        Field(2, "y", TDouble, None, false),
-        Field(3, "color", ReferenceType("Color"), Some(Identifier("BLUE")), false)
+        Field(1, "x", TDouble, None, Requiredness.Default),
+        Field(2, "y", TDouble, None, Requiredness.Default),
+        Field(3, "color", ReferenceType("Color"), Some(Identifier("BLUE")), Requiredness.Default)
       ))
     }
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
-        Exception_("BadError", Array(Field(1, "message", TString, None, false)))
+        Exception_("BadError", Array(Field(1, "message", TString, None, Requiredness.Default)))
       parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
         Exception_("E", Array(
-          Field(-1, "message", TString, None, false),
-          Field(-2, "reason", TString, None, false)
+          Field(-1, "message", TString, None, Requiredness.Default),
+          Field(-2, "reason", TString, None, Requiredness.Default)
         ))
     }
 
@@ -130,12 +130,12 @@ class ScroogeParserSpec extends Specification {
         """
       parser.parse(code, parser.definition) mustEqual Service("Cache", None, Array(
         Function("put", Void, Array(
-          Field(1, "name", TString, None, false),
-          Field(2, "value", TBinary, None, false)
+          Field(1, "name", TString, None, Requiredness.Default),
+          Field(2, "value", TBinary, None, Requiredness.Default)
         ), false, Array()),
         Function("get", TBinary, Array(
-          Field(1, "name", TString, None, false)
-        ), false, Array(Field(1, "ex", ReferenceType("NotFoundException"), None, false)))
+          Field(1, "name", TString, None, Requiredness.Default)
+        ), false, Array(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)))
       ))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual

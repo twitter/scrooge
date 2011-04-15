@@ -101,13 +101,17 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // fields
 
-  def field = (opt(fieldId) ~ opt(fieldReq)) ~ (fieldType ~ identifier) ~ (opt("=" ~> constant) <~
+  def field = opt(fieldId) ~ fieldReq ~ (fieldType ~ identifier) ~ (opt("=" ~> constant) <~
     opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value =>
-    Field(fid.getOrElse(0), id.name, ftype, value, req == Some("optional"))
+    Field(fid.getOrElse(0), id.name, ftype, value, req)
   }
 
   def fieldId = intConstant <~ ":" ^^ { x => x.value.toInt }
-  def fieldReq = "required" | "optional"
+  def fieldReq = opt("required" | "optional") ^^ {
+    case Some("required") => Requiredness.Required
+    case Some("optional") => Requiredness.Optional
+    case None => Requiredness.Default
+  }
 
   // functions
 

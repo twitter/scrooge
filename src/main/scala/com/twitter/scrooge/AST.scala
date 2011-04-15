@@ -1,6 +1,13 @@
 package com.twitter.scrooge
 
 object AST {
+  sealed abstract class Requiredness
+  object Requiredness {
+    case object Optional extends Requiredness
+    case object Required extends Requiredness
+    case object Default extends Requiredness
+  }
+
   sealed abstract class Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
@@ -31,7 +38,7 @@ object AST {
   case class ListType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
 
   case class Field(var id: Int, name: String, `type`: FieldType, default: Option[Constant],
-    optional: Boolean)
+    requiredness: Requiredness)
 
   case class Function(name: String, `type`: FunctionType, args: Array[Field], oneway: Boolean,
     throws: Array[Field]) {
