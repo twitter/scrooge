@@ -14,6 +14,8 @@ object Template {
 }
 
 class Template[T: Manifest](text: String) {
+  val eval = new Eval()
+
   def getName(klazz: Class[_]): String = {
     if (klazz.isArray()) {
       "Array[" + getName(klazz.getComponentType) + "]"
@@ -39,7 +41,7 @@ class Template[T: Manifest](text: String) {
     }
   }
 }"""
-    Eval[(T, A) => String](wrappedCode)(obj, scope)
+    eval[(T, A) => String](wrappedCode)(obj, scope)
   }
 
   def execute(code: String, obj: T): String = execute[AnyRef](code, obj, null)
