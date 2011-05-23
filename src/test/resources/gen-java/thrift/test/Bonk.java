@@ -30,15 +30,15 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
   private static final TStruct STRUCT_DESC = new TStruct("Bonk");
 
   private static final TField MESSAGE_FIELD_DESC = new TField("message", TType.STRING, (short)1);
-  private static final TField TYPE_FIELD_DESC = new TField("type", TType.I32, (short)2);
+  private static final TField LIST_OF_INTS_FIELD_DESC = new TField("listOfInts", TType.LIST, (short)2);
 
   public String message;
-  public int type;
+  public List<Integer> listOfInts;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     MESSAGE((short)1, "message"),
-    TYPE((short)2, "type");
+    LIST_OF_INTS((short)2, "listOfInts");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -55,8 +55,8 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
       switch(fieldId) {
         case 1: // MESSAGE
           return MESSAGE;
-        case 2: // TYPE
-          return TYPE;
+        case 2: // LIST_OF_INTS
+          return LIST_OF_INTS;
         default:
           return null;
       }
@@ -97,16 +97,15 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
   }
 
   // isset id assignments
-  private static final int __TYPE_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.MESSAGE, new FieldMetaData("message", TFieldRequirementType.DEFAULT, 
         new FieldValueMetaData(TType.STRING)));
-    tmpMap.put(_Fields.TYPE, new FieldMetaData("type", TFieldRequirementType.DEFAULT, 
-        new FieldValueMetaData(TType.I32)));
+    tmpMap.put(_Fields.LIST_OF_INTS, new FieldMetaData("listOfInts", TFieldRequirementType.DEFAULT, 
+        new ListMetaData(TType.LIST, 
+            new FieldValueMetaData(TType.I32))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(Bonk.class, metaDataMap);
   }
@@ -116,24 +115,27 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
 
   public Bonk(
     String message,
-    int type)
+    List<Integer> listOfInts)
   {
     this();
     this.message = message;
-    this.type = type;
-    setTypeIsSet(true);
+    this.listOfInts = listOfInts;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public Bonk(Bonk other) {
-    __isset_bit_vector.clear();
-    __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetMessage()) {
       this.message = other.message;
     }
-    this.type = other.type;
+    if (other.isSetListOfInts()) {
+      List<Integer> __this__listOfInts = new ArrayList<Integer>();
+      for (Integer other_element : other.listOfInts) {
+        __this__listOfInts.add(other_element);
+      }
+      this.listOfInts = __this__listOfInts;
+    }
   }
 
   public Bonk deepCopy() {
@@ -143,8 +145,7 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
   @Override
   public void clear() {
     this.message = null;
-    setTypeIsSet(false);
-    this.type = 0;
+    this.listOfInts = null;
   }
 
   public String getMessage() {
@@ -171,27 +172,43 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
     }
   }
 
-  public int getType() {
-    return this.type;
+  public int getListOfIntsSize() {
+    return (this.listOfInts == null) ? 0 : this.listOfInts.size();
   }
 
-  public Bonk setType(int type) {
-    this.type = type;
-    setTypeIsSet(true);
+  public java.util.Iterator<Integer> getListOfIntsIterator() {
+    return (this.listOfInts == null) ? null : this.listOfInts.iterator();
+  }
+
+  public void addToListOfInts(int elem) {
+    if (this.listOfInts == null) {
+      this.listOfInts = new ArrayList<Integer>();
+    }
+    this.listOfInts.add(elem);
+  }
+
+  public List<Integer> getListOfInts() {
+    return this.listOfInts;
+  }
+
+  public Bonk setListOfInts(List<Integer> listOfInts) {
+    this.listOfInts = listOfInts;
     return this;
   }
 
-  public void unsetType() {
-    __isset_bit_vector.clear(__TYPE_ISSET_ID);
+  public void unsetListOfInts() {
+    this.listOfInts = null;
   }
 
-  /** Returns true if field type is set (has been asigned a value) and false otherwise */
-  public boolean isSetType() {
-    return __isset_bit_vector.get(__TYPE_ISSET_ID);
+  /** Returns true if field listOfInts is set (has been asigned a value) and false otherwise */
+  public boolean isSetListOfInts() {
+    return this.listOfInts != null;
   }
 
-  public void setTypeIsSet(boolean value) {
-    __isset_bit_vector.set(__TYPE_ISSET_ID, value);
+  public void setListOfIntsIsSet(boolean value) {
+    if (!value) {
+      this.listOfInts = null;
+    }
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -204,11 +221,11 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
       }
       break;
 
-    case TYPE:
+    case LIST_OF_INTS:
       if (value == null) {
-        unsetType();
+        unsetListOfInts();
       } else {
-        setType((Integer)value);
+        setListOfInts((List<Integer>)value);
       }
       break;
 
@@ -220,8 +237,8 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
     case MESSAGE:
       return getMessage();
 
-    case TYPE:
-      return new Integer(getType());
+    case LIST_OF_INTS:
+      return getListOfInts();
 
     }
     throw new IllegalStateException();
@@ -236,8 +253,8 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
     switch (field) {
     case MESSAGE:
       return isSetMessage();
-    case TYPE:
-      return isSetType();
+    case LIST_OF_INTS:
+      return isSetListOfInts();
     }
     throw new IllegalStateException();
   }
@@ -264,12 +281,12 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
         return false;
     }
 
-    boolean this_present_type = true;
-    boolean that_present_type = true;
-    if (this_present_type || that_present_type) {
-      if (!(this_present_type && that_present_type))
+    boolean this_present_listOfInts = true && this.isSetListOfInts();
+    boolean that_present_listOfInts = true && that.isSetListOfInts();
+    if (this_present_listOfInts || that_present_listOfInts) {
+      if (!(this_present_listOfInts && that_present_listOfInts))
         return false;
-      if (this.type != that.type)
+      if (!this.listOfInts.equals(that.listOfInts))
         return false;
     }
 
@@ -299,12 +316,12 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetType()).compareTo(typedOther.isSetType());
+    lastComparison = Boolean.valueOf(isSetListOfInts()).compareTo(typedOther.isSetListOfInts());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetType()) {
-      lastComparison = TBaseHelper.compareTo(this.type, typedOther.type);
+    if (isSetListOfInts()) {
+      lastComparison = TBaseHelper.compareTo(this.listOfInts, typedOther.listOfInts);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -333,10 +350,19 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
-        case 2: // TYPE
-          if (field.type == TType.I32) {
-            this.type = iprot.readI32();
-            setTypeIsSet(true);
+        case 2: // LIST_OF_INTS
+          if (field.type == TType.LIST) {
+            {
+              TList _list0 = iprot.readListBegin();
+              this.listOfInts = new ArrayList<Integer>(_list0.size);
+              for (int _i1 = 0; _i1 < _list0.size; ++_i1)
+              {
+                int _elem2;
+                _elem2 = iprot.readI32();
+                this.listOfInts.add(_elem2);
+              }
+              iprot.readListEnd();
+            }
           } else { 
             TProtocolUtil.skip(iprot, field.type);
           }
@@ -361,9 +387,18 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
       oprot.writeString(this.message);
       oprot.writeFieldEnd();
     }
-    oprot.writeFieldBegin(TYPE_FIELD_DESC);
-    oprot.writeI32(this.type);
-    oprot.writeFieldEnd();
+    if (this.listOfInts != null) {
+      oprot.writeFieldBegin(LIST_OF_INTS_FIELD_DESC);
+      {
+        oprot.writeListBegin(new TList(TType.I32, this.listOfInts.size()));
+        for (int _iter3 : this.listOfInts)
+        {
+          oprot.writeI32(_iter3);
+        }
+        oprot.writeListEnd();
+      }
+      oprot.writeFieldEnd();
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -381,8 +416,12 @@ public class Bonk implements TBase<Bonk, Bonk._Fields>, java.io.Serializable, Cl
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("type:");
-    sb.append(this.type);
+    sb.append("listOfInts:");
+    if (this.listOfInts == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.listOfInts);
+    }
     first = false;
     sb.append(")");
     return sb.toString();

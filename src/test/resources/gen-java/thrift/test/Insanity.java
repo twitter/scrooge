@@ -371,15 +371,15 @@ public class Insanity implements TBase<Insanity, Insanity._Fields>, java.io.Seri
         case 1: // USER_MAP
           if (field.type == TType.MAP) {
             {
-              TMap _map0 = iprot.readMapBegin();
-              this.userMap = new HashMap<Numberz,Long>(2*_map0.size);
-              for (int _i1 = 0; _i1 < _map0.size; ++_i1)
+              TMap _map4 = iprot.readMapBegin();
+              this.userMap = new HashMap<Numberz,Long>(2*_map4.size);
+              for (int _i5 = 0; _i5 < _map4.size; ++_i5)
               {
-                Numberz _key2;
-                long _val3;
-                _key2 = Numberz.findByValue(iprot.readI32());
-                _val3 = iprot.readI64();
-                this.userMap.put(_key2, _val3);
+                Numberz _key6;
+                long _val7;
+                _key6 = Numberz.findByValue(iprot.readI32());
+                _val7 = iprot.readI64();
+                this.userMap.put(_key6, _val7);
               }
               iprot.readMapEnd();
             }
@@ -390,14 +390,14 @@ public class Insanity implements TBase<Insanity, Insanity._Fields>, java.io.Seri
         case 2: // XTRUCTS
           if (field.type == TType.LIST) {
             {
-              TList _list4 = iprot.readListBegin();
-              this.xtructs = new ArrayList<Xtruct>(_list4.size);
-              for (int _i5 = 0; _i5 < _list4.size; ++_i5)
+              TList _list8 = iprot.readListBegin();
+              this.xtructs = new ArrayList<Xtruct>(_list8.size);
+              for (int _i9 = 0; _i9 < _list8.size; ++_i9)
               {
-                Xtruct _elem6;
-                _elem6 = new Xtruct();
-                _elem6.read(iprot);
-                this.xtructs.add(_elem6);
+                Xtruct _elem10;
+                _elem10 = new Xtruct();
+                _elem10.read(iprot);
+                this.xtructs.add(_elem10);
               }
               iprot.readListEnd();
             }
@@ -424,10 +424,10 @@ public class Insanity implements TBase<Insanity, Insanity._Fields>, java.io.Seri
       oprot.writeFieldBegin(USER_MAP_FIELD_DESC);
       {
         oprot.writeMapBegin(new TMap(TType.I32, TType.I64, this.userMap.size()));
-        for (Map.Entry<Numberz, Long> _iter7 : this.userMap.entrySet())
+        for (Map.Entry<Numberz, Long> _iter11 : this.userMap.entrySet())
         {
-          oprot.writeI32(_iter7.getKey().getValue());
-          oprot.writeI64(_iter7.getValue());
+          oprot.writeI32(_iter11.getKey().getValue());
+          oprot.writeI64(_iter11.getValue());
         }
         oprot.writeMapEnd();
       }
@@ -437,9 +437,9 @@ public class Insanity implements TBase<Insanity, Insanity._Fields>, java.io.Seri
       oprot.writeFieldBegin(XTRUCTS_FIELD_DESC);
       {
         oprot.writeListBegin(new TList(TType.STRUCT, this.xtructs.size()));
-        for (Xtruct _iter8 : this.xtructs)
+        for (Xtruct _iter12 : this.xtructs)
         {
-          _iter8.write(oprot);
+          _iter12.write(oprot);
         }
         oprot.writeListEnd();
       }

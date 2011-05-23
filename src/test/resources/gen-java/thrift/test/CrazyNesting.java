@@ -574,14 +574,14 @@ public class CrazyNesting implements TBase<CrazyNesting, CrazyNesting._Fields>, 
         case 2: // SET_FIELD
           if (field.type == TType.SET) {
             {
-              TSet _set9 = iprot.readSetBegin();
-              this.set_field = new HashSet<Insanity>(2*_set9.size);
-              for (int _i10 = 0; _i10 < _set9.size; ++_i10)
+              TSet _set13 = iprot.readSetBegin();
+              this.set_field = new HashSet<Insanity>(2*_set13.size);
+              for (int _i14 = 0; _i14 < _set13.size; ++_i14)
               {
-                Insanity _elem11;
-                _elem11 = new Insanity();
-                _elem11.read(iprot);
-                this.set_field.add(_elem11);
+                Insanity _elem15;
+                _elem15 = new Insanity();
+                _elem15.read(iprot);
+                this.set_field.add(_elem15);
               }
               iprot.readSetEnd();
             }
@@ -592,80 +592,80 @@ public class CrazyNesting implements TBase<CrazyNesting, CrazyNesting._Fields>, 
         case 3: // LIST_FIELD
           if (field.type == TType.LIST) {
             {
-              TList _list12 = iprot.readListBegin();
-              this.list_field = new ArrayList<Map<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>>>(_list12.size);
-              for (int _i13 = 0; _i13 < _list12.size; ++_i13)
+              TList _list16 = iprot.readListBegin();
+              this.list_field = new ArrayList<Map<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>>>(_list16.size);
+              for (int _i17 = 0; _i17 < _list16.size; ++_i17)
               {
-                Map<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>> _elem14;
+                Map<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>> _elem18;
                 {
-                  TMap _map15 = iprot.readMapBegin();
-                  _elem14 = new HashMap<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>>(2*_map15.size);
-                  for (int _i16 = 0; _i16 < _map15.size; ++_i16)
+                  TMap _map19 = iprot.readMapBegin();
+                  _elem18 = new HashMap<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>>(2*_map19.size);
+                  for (int _i20 = 0; _i20 < _map19.size; ++_i20)
                   {
-                    Set<Integer> _key17;
-                    Map<Integer,Set<List<Map<Insanity,String>>>> _val18;
+                    Set<Integer> _key21;
+                    Map<Integer,Set<List<Map<Insanity,String>>>> _val22;
                     {
-                      TSet _set19 = iprot.readSetBegin();
-                      _key17 = new HashSet<Integer>(2*_set19.size);
-                      for (int _i20 = 0; _i20 < _set19.size; ++_i20)
+                      TSet _set23 = iprot.readSetBegin();
+                      _key21 = new HashSet<Integer>(2*_set23.size);
+                      for (int _i24 = 0; _i24 < _set23.size; ++_i24)
                       {
-                        int _elem21;
-                        _elem21 = iprot.readI32();
-                        _key17.add(_elem21);
+                        int _elem25;
+                        _elem25 = iprot.readI32();
+                        _key21.add(_elem25);
                       }
                       iprot.readSetEnd();
                     }
                     {
-                      TMap _map22 = iprot.readMapBegin();
-                      _val18 = new HashMap<Integer,Set<List<Map<Insanity,String>>>>(2*_map22.size);
-                      for (int _i23 = 0; _i23 < _map22.size; ++_i23)
+                      TMap _map26 = iprot.readMapBegin();
+                      _val22 = new HashMap<Integer,Set<List<Map<Insanity,String>>>>(2*_map26.size);
+                      for (int _i27 = 0; _i27 < _map26.size; ++_i27)
                       {
-                        int _key24;
-                        Set<List<Map<Insanity,String>>> _val25;
-                        _key24 = iprot.readI32();
+                        int _key28;
+                        Set<List<Map<Insanity,String>>> _val29;
+                        _key28 = iprot.readI32();
                         {
-                          TSet _set26 = iprot.readSetBegin();
-                          _val25 = new HashSet<List<Map<Insanity,String>>>(2*_set26.size);
-                          for (int _i27 = 0; _i27 < _set26.size; ++_i27)
+                          TSet _set30 = iprot.readSetBegin();
+                          _val29 = new HashSet<List<Map<Insanity,String>>>(2*_set30.size);
+                          for (int _i31 = 0; _i31 < _set30.size; ++_i31)
                           {
-                            List<Map<Insanity,String>> _elem28;
+                            List<Map<Insanity,String>> _elem32;
                             {
-                              TList _list29 = iprot.readListBegin();
-                              _elem28 = new ArrayList<Map<Insanity,String>>(_list29.size);
-                              for (int _i30 = 0; _i30 < _list29.size; ++_i30)
+                              TList _list33 = iprot.readListBegin();
+                              _elem32 = new ArrayList<Map<Insanity,String>>(_list33.size);
+                              for (int _i34 = 0; _i34 < _list33.size; ++_i34)
                               {
-                                Map<Insanity,String> _elem31;
+                                Map<Insanity,String> _elem35;
                                 {
-                                  TMap _map32 = iprot.readMapBegin();
-                                  _elem31 = new HashMap<Insanity,String>(2*_map32.size);
-                                  for (int _i33 = 0; _i33 < _map32.size; ++_i33)
+                                  TMap _map36 = iprot.readMapBegin();
+                                  _elem35 = new HashMap<Insanity,String>(2*_map36.size);
+                                  for (int _i37 = 0; _i37 < _map36.size; ++_i37)
                                   {
-                                    Insanity _key34;
-                                    String _val35;
-                                    _key34 = new Insanity();
-                                    _key34.read(iprot);
-                                    _val35 = iprot.readString();
-                                    _elem31.put(_key34, _val35);
+                                    Insanity _key38;
+                                    String _val39;
+                                    _key38 = new Insanity();
+                                    _key38.read(iprot);
+                                    _val39 = iprot.readString();
+                                    _elem35.put(_key38, _val39);
                                   }
                                   iprot.readMapEnd();
                                 }
-                                _elem28.add(_elem31);
+                                _elem32.add(_elem35);
                               }
                               iprot.readListEnd();
                             }
-                            _val25.add(_elem28);
+                            _val29.add(_elem32);
                           }
                           iprot.readSetEnd();
                         }
-                        _val18.put(_key24, _val25);
+                        _val22.put(_key28, _val29);
                       }
                       iprot.readMapEnd();
                     }
-                    _elem14.put(_key17, _val18);
+                    _elem18.put(_key21, _val22);
                   }
                   iprot.readMapEnd();
                 }
-                this.list_field.add(_elem14);
+                this.list_field.add(_elem18);
               }
               iprot.readListEnd();
             }
@@ -705,9 +705,9 @@ public class CrazyNesting implements TBase<CrazyNesting, CrazyNesting._Fields>, 
         oprot.writeFieldBegin(SET_FIELD_FIELD_DESC);
         {
           oprot.writeSetBegin(new TSet(TType.STRUCT, this.set_field.size()));
-          for (Insanity _iter36 : this.set_field)
+          for (Insanity _iter40 : this.set_field)
           {
-            _iter36.write(oprot);
+            _iter40.write(oprot);
           }
           oprot.writeSetEnd();
         }
@@ -718,39 +718,39 @@ public class CrazyNesting implements TBase<CrazyNesting, CrazyNesting._Fields>, 
       oprot.writeFieldBegin(LIST_FIELD_FIELD_DESC);
       {
         oprot.writeListBegin(new TList(TType.MAP, this.list_field.size()));
-        for (Map<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>> _iter37 : this.list_field)
+        for (Map<Set<Integer>,Map<Integer,Set<List<Map<Insanity,String>>>>> _iter41 : this.list_field)
         {
           {
-            oprot.writeMapBegin(new TMap(TType.SET, TType.MAP, _iter37.size()));
-            for (Map.Entry<Set<Integer>, Map<Integer,Set<List<Map<Insanity,String>>>>> _iter38 : _iter37.entrySet())
+            oprot.writeMapBegin(new TMap(TType.SET, TType.MAP, _iter41.size()));
+            for (Map.Entry<Set<Integer>, Map<Integer,Set<List<Map<Insanity,String>>>>> _iter42 : _iter41.entrySet())
             {
               {
-                oprot.writeSetBegin(new TSet(TType.I32, _iter38.getKey().size()));
-                for (int _iter39 : _iter38.getKey())
+                oprot.writeSetBegin(new TSet(TType.I32, _iter42.getKey().size()));
+                for (int _iter43 : _iter42.getKey())
                 {
-                  oprot.writeI32(_iter39);
+                  oprot.writeI32(_iter43);
                 }
                 oprot.writeSetEnd();
               }
               {
-                oprot.writeMapBegin(new TMap(TType.I32, TType.SET, _iter38.getValue().size()));
-                for (Map.Entry<Integer, Set<List<Map<Insanity,String>>>> _iter40 : _iter38.getValue().entrySet())
+                oprot.writeMapBegin(new TMap(TType.I32, TType.SET, _iter42.getValue().size()));
+                for (Map.Entry<Integer, Set<List<Map<Insanity,String>>>> _iter44 : _iter42.getValue().entrySet())
                 {
-                  oprot.writeI32(_iter40.getKey());
+                  oprot.writeI32(_iter44.getKey());
                   {
-                    oprot.writeSetBegin(new TSet(TType.LIST, _iter40.getValue().size()));
-                    for (List<Map<Insanity,String>> _iter41 : _iter40.getValue())
+                    oprot.writeSetBegin(new TSet(TType.LIST, _iter44.getValue().size()));
+                    for (List<Map<Insanity,String>> _iter45 : _iter44.getValue())
                     {
                       {
-                        oprot.writeListBegin(new TList(TType.MAP, _iter41.size()));
-                        for (Map<Insanity,String> _iter42 : _iter41)
+                        oprot.writeListBegin(new TList(TType.MAP, _iter45.size()));
+                        for (Map<Insanity,String> _iter46 : _iter45)
                         {
                           {
-                            oprot.writeMapBegin(new TMap(TType.STRUCT, TType.STRING, _iter42.size()));
-                            for (Map.Entry<Insanity, String> _iter43 : _iter42.entrySet())
+                            oprot.writeMapBegin(new TMap(TType.STRUCT, TType.STRING, _iter46.size()));
+                            for (Map.Entry<Insanity, String> _iter47 : _iter46.entrySet())
                             {
-                              _iter43.getKey().write(oprot);
-                              oprot.writeString(_iter43.getValue());
+                              _iter47.getKey().write(oprot);
+                              oprot.writeString(_iter47.getValue());
                             }
                             oprot.writeMapEnd();
                           }

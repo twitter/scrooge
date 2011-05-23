@@ -19,7 +19,7 @@ typedef i64 UserId
 struct Bonk
 {
   1: string message,
-  2: i32 type
+  2: list<i32> listOfInts
 }
 
 struct Bools {

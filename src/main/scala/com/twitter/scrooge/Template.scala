@@ -30,6 +30,7 @@ class Template[T: Manifest](text: String) {
   (__param: """ + getName(manifest[T].erasure) + ", scope: " + getName(manifest[A].erasure) + """) => {
     import __param._
     import scope._
+    import com.twitter.scrooge._
     val __rv = {
       """ + code + """
     }

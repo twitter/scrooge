@@ -7,7 +7,9 @@ import com.twitter.util.Eval
 import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
-import org.apache.thrift.protocol.{TStruct, TType, TField, TProtocol}
+import org.apache.thrift.protocol.{TStruct, TType, TField, TProtocol, TList}
+import javax.jws.Oneway
+import javax.management.openmbean.TabularType
 
 class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   import AST._
@@ -79,6 +81,8 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         compile(structString)
 
         expect {
+          one(protocol).readStructBegin()
+
           one(protocol).readFieldBegin() willReturn new TField("bar", TType.I32, 1)
           one(protocol).readI32() willReturn 1
           one(protocol).readFieldEnd()
@@ -126,9 +130,49 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         Field(5, "emperor", ReferenceType("Emperor"), None, Requiredness.Optional)
       ))
 
-      val structString = gen(struct)
-      println(structString)
-      compile(structString)
+      compile(gen(emperorStruct))
+      compile(gen(struct))
+
+      val s = capturingParam[TStruct]
+
+      expect {
+        one(protocol).readStructBegin()
+
+        one(protocol).readFieldBegin() willReturn new TField("name", TType.STRING, 1)
+        one(protocol).readString() willReturn "United States of America"
+        one(protocol).readFieldEnd()
+
+        one(protocol).readFieldBegin() willReturn new TField("provinces", TType.LIST, 2)
+        one(protocol).readListBegin() willReturn new TList(TType.STRING, 2)
+        one(protocol).readString() willReturn "connecticut"
+        one(protocol).readString() willReturn "california"
+        one(protocol).readListEnd()
+        one(protocol).readFieldEnd()
+
+        one(protocol).readFieldBegin() willReturn new TField("emperor", TType.STRUCT, 5)
+        /** Start of Emperor struct **/
+        one(protocol).readStructBegin()
+
+        one(protocol).readFieldBegin() willReturn new TField("name", TType.STRING, 1)
+        one(protocol).readString() willReturn "Bush"
+        one(protocol).readFieldEnd()
+
+        one(protocol).readFieldBegin() willReturn new TField("age", TType.I32, 2)
+        one(protocol).readI32() willReturn 42
+        one(protocol).readFieldEnd()
+
+        one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+        one(protocol).readStructEnd()
+        /** End of Emperor struct **/
+        one(protocol).readFieldEnd()
+
+        one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+        one(protocol).readStructEnd()
+      }
+
+      val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Empire.decoder")
+      decoder(protocol) mustEqual
+        invoke("new awwYeah.Empire(\"United States of America\", List(\"connecticut\", \"california\"), awwYeah.Emperor(\"Bush\", 42))")
     }
   }
 }
