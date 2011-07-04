@@ -52,38 +52,38 @@ header + """object Constants {
 
   val basicReadFieldTemplateText =
 """case {{id.toString}} => { /* {{name}} */
-  field.`type` match {
-    case TType.{{constType(`type`)}} => {{name}} = iprot.{{protocolReadMethod(`type`)}}
-    case _ => TProtocolUtil.skip(iprot, field.`type`)
+  _field.`type` match {
+    case TType.{{constType(`type`)}} => {{name}} = _iprot.{{protocolReadMethod(`type`)}}
+    case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
 }"""
 
   val listReadFieldTemplateText =
 """case {{id.toString}} => { /* {{name}} */
-  field.`type` match {
+  _field.`type` match {
     case TType.{{constType(`type`)}} => {
-      val _list = iprot.readListBegin()
+      val _list = _iprot.readListBegin()
       val _{{name}} = new mutable.ListBuffer[{{scalaType(`type`.asInstanceOf[AST.ListType].tpe)}}]
       var _i = 0
-      while(_i < _list.size) {
-        _{{name}} += iprot.{{protocolReadMethod(`type`.asInstanceOf[AST.ListType].tpe)}}
+      while (_i < _list.size) {
+        _{{name}} += _iprot.{{protocolReadMethod(`type`.asInstanceOf[AST.ListType].tpe)}}
         _i += 1
       }
-      iprot.readListEnd()
+      _iprot.readListEnd()
       {{name}} = _{{name}}.toList
     }
-    case _ => TProtocolUtil.skip(iprot, field.`type`)
+    case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
 }
 """
 
   val structReadFieldTemplateText =
-"""case {{id.toString}} => {/* {{name}} */
-  field.`type` match {
+"""case {{id.toString}} => { /* {{name}} */
+  _field.`type` match {
     case TType.{{constType(`type`)}} => {
-      {{name}} = {{`type`.asInstanceOf[AST.ReferenceType].name}}.decoder(iprot)
+      {{name}} = {{`type`.asInstanceOf[AST.ReferenceType].name}}.decoder(_iprot)
     }
-    case _ => TProtocolUtil.skip(iprot, field.`type`)
+    case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
 }
  """
@@ -94,21 +94,21 @@ oprot.{{protocolWriteMethod(`type`)}}({{name}})
 oprot.writeFieldEnd()"""
 
   val stringWriteFieldTemplateText =
-"""if ({{name}} != null) {
+"""if ({{name}} ne null) {
   oprot.writeFieldBegin({{writeFieldConst(name)}})
   oprot.writeString({{name}})
   oprot.writeFieldEnd()
 }"""
 
   val listWriteFieldTemplateText =
-"""if ({{name}} != null) {
+"""if ({{name}} ne null) {
   oprot.writeListBegin(new TList(TType.{{constType(`type`.asInstanceOf[AST.ListType].tpe)}}, {{name}}.size))
   {{name}}.foreach { oprot.{{protocolWriteMethod(`type`.asInstanceOf[AST.ListType].tpe)}}(_) }
   oprot.writeFieldEnd()
 }"""
 
   val structWriteFieldTemplateText =
-"""if ({{name}} != null) {
+"""if ({{name}} ne null) {
   oprot.writeFieldBegin({{writeFieldConst(name)}})
   {{name}}.write(oprot)
   oprot.writeFieldEnd()
@@ -120,25 +120,25 @@ import com.twitter.scrooge.ThriftStruct
 
 object {{name}} {
   object decoder extends (TProtocol => ThriftStruct) {
-    override def apply(iprot: TProtocol) = {
-      var field: TField = null
-{{fields.map { f => "var " + f.name + defaultValueTemplate(f) }.indent(3)}}
-      var done = false
-      iprot.readStructBegin()
-      while (!done) {
-        field = iprot.readFieldBegin
-        if (field.`type` == TType.STOP) {
-          done = true
+    override def apply(_iprot: TProtocol) = {
+      var _field: TField = null
+{{ fields.map { f => "var " + f.name + defaultValueTemplate(f) }.indent(3) }}
+      var _done = false
+      _iprot.readStructBegin()
+      while (!_done) {
+        _field = _iprot.readFieldBegin
+        if (_field.`type` == TType.STOP) {
+          _done = true
         } else {
-          field.id match {
-{{fields.map { f => structReadFieldTemplate(f)(f, scope) }.indent(6) }}
-            case _ => TProtocolUtil.skip(iprot, field.`type`)
+          _field.id match {
+{{ fields.map { f => structReadFieldTemplate(f)(f, scope) }.indent(6) }}
+            case _ => TProtocolUtil.skip(_iprot, _field.`type`)
           }
-          iprot.readFieldEnd()
+          _iprot.readFieldEnd()
         }
       }
-      iprot.readStructEnd()
-      new {{name}}({{fields.map { f => f.name }.mkString(", ")}})
+      _iprot.readStructEnd()
+      new {{name}}({{ fields.map { f => f.name }.mkString(", ") }})
     }
   }
 }
@@ -213,6 +213,7 @@ class ScalaGenerator {
       case _ => Template[Field](basicWriteFieldTemplateText)
     }
   }
+
   def structReadFieldTemplate(field: Field) = {
     field.`type` match {
       case l: ListType => Template[Field](listReadFieldTemplateText)
