@@ -21,14 +21,14 @@ class Template[T: Manifest](text: String) {
       "Array[" + getName(klazz.getComponentType) + "]"
     } else {
       klazz.getName + klazz.getTypeParameters.map {_.getName}.mkString(",")
-    }
+    }.replaceAll("\\$", ".")
   }
 
   def execute[A: Manifest](code: String, obj: T, scope: A): String = {
     val wrappedCode =
 """{
-  (__param: """ + getName(manifest[T].erasure) + ", scope: " + getName(manifest[A].erasure) + """) => {
-    import __param._
+  (self: """ + getName(manifest[T].erasure) + ", scope: " + getName(manifest[A].erasure) + """) => {
+    import self._
     import scope._
     import com.twitter.scrooge._
     val __rv = {
