@@ -50,43 +50,36 @@ header + """object Constants {
 
   val constTemplateText = "val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}"
 
-  val basicReadFieldTemplateText =
-"""case {{id.toString}} => { /* {{name}} */
-  _field.`type` match {
-    case TType.{{constType(`type`)}} => {{name}} = _iprot.{{protocolReadMethod(`type`)}}
-    case _ => TProtocolUtil.skip(_iprot, _field.`type`)
-  }
-}"""
+
+  // ----- readers
+
+  val basicReadFieldTemplateText = """{{name}} = _iprot.{{ protocolReadMethod(`type`) }}"""
 
   val listReadFieldTemplateText =
+"""val _list = _iprot.readListBegin()
+val _{{name}} = new mutable.ListBuffer[{{scalaType(`type`.asInstanceOf[AST.ListType].tpe)}}]
+var _i = 0
+while (_i < _list.size) {
+  _{{name}} += _iprot.{{protocolReadMethod(`type`.asInstanceOf[AST.ListType].tpe)}}
+  _i += 1
+}
+_iprot.readListEnd()
+{{name}} = _{{name}}.toList
+"""
+
+  val structReadFieldTemplateText =
+"""{{name}} = {{`type`.asInstanceOf[AST.ReferenceType].name}}.decoder(_iprot)"""
+
+  val readFieldTemplateText =
 """case {{id.toString}} => { /* {{name}} */
   _field.`type` match {
     case TType.{{constType(`type`)}} => {
-      val _list = _iprot.readListBegin()
-      val _{{name}} = new mutable.ListBuffer[{{scalaType(`type`.asInstanceOf[AST.ListType].tpe)}}]
-      var _i = 0
-      while (_i < _list.size) {
-        _{{name}} += _iprot.{{protocolReadMethod(`type`.asInstanceOf[AST.ListType].tpe)}}
-        _i += 1
-      }
-      _iprot.readListEnd()
-      {{name}} = _{{name}}.toList
+{{ structReadFieldTemplate(self)(self, scope).indent(3) }}
     }
     case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
 }
 """
-
-  val structReadFieldTemplateText =
-"""case {{id.toString}} => { /* {{name}} */
-  _field.`type` match {
-    case TType.{{constType(`type`)}} => {
-      {{name}} = {{`type`.asInstanceOf[AST.ReferenceType].name}}.decoder(_iprot)
-    }
-    case _ => TProtocolUtil.skip(_iprot, _field.`type`)
-  }
-}
- """
 
   val basicWriteFieldTemplateText =
 """oprot.writeFieldBegin({{writeFieldConst(name)}})
@@ -131,7 +124,7 @@ object {{name}} {
           _done = true
         } else {
           _field.id match {
-{{ fields.map { f => structReadFieldTemplate(f)(f, scope) }.indent(6) }}
+{{ fields.map { f => readFieldTemplate(f, scope) }.indent(6) }}
             case _ => TProtocolUtil.skip(_iprot, _field.`type`)
           }
           _iprot.readFieldEnd()
@@ -174,6 +167,9 @@ class ScalaGenerator {
   val constsTemplate = Template[ConstList](constsTemplateText)
   val constTemplate = Template[Const](constTemplateText)
   val structTemplate = Template[Struct](structTemplateText)
+
+  // readers
+  val readFieldTemplate = Template[Field](readFieldTemplateText)
 
   // Constants
   val stringTemplate = Template[StringConstant](""""{{value}}"""")
