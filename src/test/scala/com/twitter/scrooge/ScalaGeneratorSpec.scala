@@ -38,9 +38,9 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   def equal(a: TMap) = will(matchEqualsTMap(a))
 
   val protocol = mock[TProtocol]
+  val eval = new Eval
 
   "ScalaGenerator" should {
-    var eval = new Eval
 
     def invoke(code: String): Any = eval.inPlace[Any](code)
 
