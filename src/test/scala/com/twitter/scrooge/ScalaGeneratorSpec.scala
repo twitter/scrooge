@@ -19,7 +19,22 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
     def apply(v: => TField) = (v.equals(a), "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
   }
 
+  case class matchEqualsTList(a: TList) extends Matcher[TList]() {
+    def apply(v: => TList) = (v.elemType == a.elemType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  }
+
+  case class matchEqualsTSet(a: TSet) extends Matcher[TSet]() {
+    def apply(v: => TSet) = (v.elemType == a.elemType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  }
+
+  case class matchEqualsTMap(a: TMap) extends Matcher[TMap]() {
+    def apply(v: => TMap) = (v.keyType == a.keyType && v.valueType == a.valueType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  }
+
   def equal(a: TField) = will(matchEqualsTField(a))
+  def equal(a: TList) = will(matchEqualsTList(a))
+  def equal(a: TSet) = will(matchEqualsTSet(a))
+  def equal(a: TMap) = will(matchEqualsTMap(a))
 
   val protocol = mock[TProtocol]
 
@@ -251,21 +266,35 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
           val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Compound.decoder")
           decoder(protocol) mustEqual invoke("new awwYeah.Compound(List(10, 20), Set(44, 55), Map(\"wendy\" -> 500), List(Set(9)))")
         }
-/*
+
         "write" in {
           expect {
-            startWrite(protocol, new TField("alive", TType.BOOL, 1))
-            one(protocol).writeBool(false)
-            nextWrite(protocol, new TField("pi", TType.DOUBLE, 2))
-            one(protocol).writeDouble(6.28)
-            nextWrite(protocol, new TField("name", TType.STRING, 3))
-            one(protocol).writeString("fry")
+            startWrite(protocol, new TField("intlist", TType.LIST, 1))
+            one(protocol).writeListBegin(equal(new TList(TType.I32, 2)))
+            one(protocol).writeI32(10)
+            one(protocol).writeI32(20)
+            one(protocol).writeListEnd()
+            nextWrite(protocol, new TField("intset", TType.SET, 2))
+            one(protocol).writeSetBegin(equal(new TSet(TType.I32, 2)))
+            one(protocol).writeI32(44)
+            one(protocol).writeI32(55)
+            one(protocol).writeSetEnd()
+            nextWrite(protocol, new TField("namemap", TType.MAP, 3))
+            one(protocol).writeMapBegin(equal(new TMap(TType.STRING, TType.I32, 1)))
+            one(protocol).writeString("wendy")
+            one(protocol).writeI32(500)
+            one(protocol).writeMapEnd()
+            nextWrite(protocol, new TField("nested", TType.LIST, 4))
+            one(protocol).writeListBegin(equal(new TList(TType.SET, 1)))
+            one(protocol).writeSetBegin(equal(new TSet(TType.I32, 1)))
+            one(protocol).writeI32(9)
+            one(protocol).writeSetEnd()
+            one(protocol).writeListEnd()
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Misc(false, 6.28, \"fry\")").write(protocol)
+          eval.inPlace[ThriftStruct]("awwYeah.Compound(List(10, 20), Set(44, 55), Map(\"wendy\" -> 500), List(Set(9)))").write(protocol)
         }
-  */
       }
 
       "with required fields" in {
@@ -300,8 +329,21 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       "with default values" in {
         val struct = new Struct("DefaultValues", Array(
-          Field(1, "name", TString, Some(StringConstant("Wendy")), Requiredness.Optional)
+          Field(1, "name", TString, Some(StringConstant("leela")), Requiredness.Optional)
         ))
+
+        compile(gen(struct))
+
+        "read" in {
+          expect {
+            one(protocol).readStructBegin()
+            one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+            one(protocol).readStructEnd()
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.DefaultValues.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.DefaultValues(\"leela\")")
+        }
       }
 
       "simple" in {
