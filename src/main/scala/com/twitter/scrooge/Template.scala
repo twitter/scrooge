@@ -50,7 +50,7 @@ class Template[T: Manifest](text: String) {
   def execute(code: String, obj: T): String = execute[AnyRef](code, obj, null)
 
   def apply[A: Manifest](obj: T, scope: A): String = {
-    text.regexSub("\\{\\{(.*?)\\}\\}".r) { m =>
+    text.regexSub("(?s)\\{\\{(.*?)\\}\\}".r) { m =>
       execute(m.group(1), obj, scope)
     }
   }
