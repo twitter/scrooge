@@ -53,34 +53,70 @@ header + """object Constants {
 
   // ----- readers
 
-  val readBasicFieldTemplateText = """{{name}} = _iprot.{{ protocolReadMethod(`type`) }}"""
+  val readBasicTemplateText = """_iprot.{{ protocolReadMethod(self) }}()"""
 
-  val readBinaryFieldTemplateText =
-"""val _buffer = _iprot.readBinary
-{{name}} = new Array[Byte](_buffer.remaining)
-_buffer.get({{name}})
+  val readBinaryTemplateText =
+"""val _buffer = _iprot.readBinary()
+val _bytes = new Array[Byte](_buffer.remaining)
+_buffer.get(_bytes)
+_bytes
 """
 
-  val readListFieldTemplateText =
+  val readListTemplateText =
 """val _list = _iprot.readListBegin()
-val _{{name}} = new mutable.ListBuffer[{{scalaType(`type`.asInstanceOf[AST.ListType].tpe)}}]
+val _rv = new mutable.ListBuffer[{{ scalaType(self.asInstanceOf[AST.ListType].tpe) }}]
 var _i = 0
 while (_i < _list.size) {
-  _{{name}} += _iprot.{{protocolReadMethod(`type`.asInstanceOf[AST.ListType].tpe)}}
+  _rv += {
+{{ val t = self.asInstanceOf[AST.ListType].tpe; structReadTemplate(t)(t, scope).indent(2) }}
+  }
   _i += 1
 }
 _iprot.readListEnd()
-{{name}} = _{{name}}.toList
+_rv.toList
 """
 
-  val readStructFieldTemplateText =
-"""{{name}} = {{`type`.asInstanceOf[AST.ReferenceType].name}}.decoder(_iprot)"""
+  val readSetTemplateText =
+"""val _set = _iprot.readSetBegin()
+val _rv = new mutable.HashSet[{{ scalaType(self.asInstanceOf[AST.SetType].tpe) }}]
+var _i = 0
+while (_i < _set.size) {
+  _rv += {
+{{ val t = self.asInstanceOf[AST.SetType].tpe; structReadTemplate(t)(t, scope).indent(2) }}
+  }
+  _i += 1
+}
+_iprot.readSetEnd()
+_rv
+"""
+
+  val readMapTemplateText =
+"""val _map = _iprot.readMapBegin()
+val _rv = new mutable.HashMap[{{ val t = self.asInstanceOf[AST.MapType]; scalaType(t.keyType) + ", " + scalaType(t.valueType) }}]
+var _i = 0
+while (_i < _map.size) {
+  val _key = {
+{{ val t = self.asInstanceOf[AST.MapType].keyType; structReadTemplate(t)(t, scope).indent(2) }}
+  }
+  val _value = {
+{{ val t = self.asInstanceOf[AST.MapType].valueType; structReadTemplate(t)(t, scope).indent(2) }}
+  }
+  _rv(_key) = _value
+  _i += 1
+}
+_iprot.readMapEnd()
+_rv
+"""
+
+  val readStructTemplateText = """{{self.asInstanceOf[AST.ReferenceType].name}}.decoder(_iprot)"""
 
   val readFieldTemplateText =
 """case {{id.toString}} => { /* {{name}} */
   _field.`type` match {
     case TType.{{constType(`type`)}} => {
-{{ structReadFieldTemplate(self)(self, scope).indent(3) }}
+      {{name}} = {
+{{ structReadTemplate(`type`)(`type`, scope).indent(4) }}
+      }
     }
     case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
@@ -90,38 +126,58 @@ _iprot.readListEnd()
 
   // ----- writers
 
-  val writeBasicFieldTemplateText =
-"""oprot.writeFieldBegin({{writeFieldConst(name)}})
-oprot.{{protocolWriteMethod(`type`)}}({{name}})
-oprot.writeFieldEnd()"""
+  val writeBasicTemplateText = """oprot.{{protocolWriteMethod(self)}}(_item)"""
 
-  val writeStringFieldTemplateText =
-"""if ({{name}} ne null) {
-  oprot.writeFieldBegin({{writeFieldConst(name)}})
-  oprot.writeString({{name}})
-  oprot.writeFieldEnd()
-}"""
+  val writeBinaryTemplateText = """oprot.writeBinary(ByteBuffer.wrap(_item))"""
 
-  val writeBinaryFieldTemplateText =
-"""if ({{name}} ne null) {
-  oprot.writeFieldBegin({{writeFieldConst(name)}})
-  oprot.writeBinary(ByteBuffer.wrap({{name}}))
-  oprot.writeFieldEnd()
-}"""
+  val writeListTemplateText =
+"""oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].tpe)}}, _item.size))
+_item.foreach { _item =>
+{{ val t = self.asInstanceOf[AST.ListType].tpe; writeTemplate(t)(t, scope).indent(1) }}
+}
+oprot.writeListEnd()
+"""
 
-  val writeListFieldTemplateText =
-"""if ({{name}} ne null) {
-  oprot.writeListBegin(new TList(TType.{{constType(`type`.asInstanceOf[AST.ListType].tpe)}}, {{name}}.size))
-  {{name}}.foreach { oprot.{{protocolWriteMethod(`type`.asInstanceOf[AST.ListType].tpe)}}(_) }
-  oprot.writeFieldEnd()
-}"""
+  val writeSetTemplateText =
+"""oprot.writeSetBegin(new TSet(TType.{{constType(self.asInstanceOf[AST.SetType].tpe)}}, _item.size))
+_item.foreach { _item =>
+{{ val t = self.asInstanceOf[AST.SetType].tpe; writeTemplate(t)(t, scope).indent(1) }}
+}
+oprot.writeSetEnd()
+"""
 
-  val writeStructFieldTemplateText =
-"""if ({{name}} ne null) {
-  oprot.writeFieldBegin({{writeFieldConst(name)}})
-  {{name}}.write(oprot)
+  val writeMapTemplateText =
+"""oprot.writeMapBegin(new TMap(TType.{{constType(self.asInstanceOf[AST.MapType].keyType)}}, TType.{{constType(self.asInstanceOf[AST.MapType].valueType)}}, _item.size))
+_item.foreach { case (_key, _value) =>
+  {
+    val _item = _key
+{{ val t = self.asInstanceOf[AST.MapType].keyType; writeTemplate(t)(t, scope).indent(2) }}
+  }
+  {
+    val _item = _value
+{{ val t = self.asInstanceOf[AST.MapType].valueType; writeTemplate(t)(t, scope).indent(2) }}
+  }
+}
+oprot.writeMapEnd()
+"""
+
+  val writeStructTemplateText = """_item.write(oprot)"""
+
+  val writeFieldTemplateText =
+"""if ({{
+`type` match {
+  case AST.TBool | AST.TByte | AST.TI16 | AST.TI32 | AST.TI64 | AST.TDouble =>
+    "true"
+  case _ =>
+    name + " ne null"
+}
+}}) {
+  val _item = {{name}}
+  oprot.writeFieldBegin({{ writeFieldConst(name) }})
+{{ writeTemplate(`type`)(`type`, scope).indent(1) }}
   oprot.writeFieldEnd()
-}"""
+}
+"""
 
   val structTemplateText =
 header + """import java.nio.ByteBuffer
@@ -162,7 +218,7 @@ case class {{name}}({{fields.map { f => f.name + ": " + scalaType(f.`type`) }.mk
     validate()
 
     oprot.writeStructBegin(STRUCT_DESC)
-{{fields.map { f => structWriteFieldTemplate(f)(f, scope) }.indent(2) }}
+{{fields.map { f => writeFieldTemplate(f, scope) }.indent(2) }}
     oprot.writeFieldStop()
     oprot.writeStructEnd()
   }
@@ -187,18 +243,22 @@ class ScalaGenerator {
   val structTemplate = Template[Struct](structTemplateText)
 
   // readers
-  val readBasicFieldTemplate = Template[Field](readBasicFieldTemplateText)
-  val readBinaryFieldTemplate = Template[Field](readBinaryFieldTemplateText)
-  val readListFieldTemplate = Template[Field](readListFieldTemplateText)
-  val readStructFieldTemplate = Template[Field](readStructFieldTemplateText)
+  val readBasicTemplate = Template[FieldType](readBasicTemplateText)
+  val readBinaryTemplate = Template[FieldType](readBinaryTemplateText)
+  val readListTemplate = Template[FieldType](readListTemplateText)
+  val readSetTemplate = Template[FieldType](readSetTemplateText)
+  val readMapTemplate = Template[FieldType](readMapTemplateText)
+  val readStructTemplate = Template[FieldType](readStructTemplateText)
   val readFieldTemplate = Template[Field](readFieldTemplateText)
 
   // writers
-  val writeBasicFieldTemplate = Template[Field](writeBasicFieldTemplateText)
-  val writeStringFieldTemplate = Template[Field](writeStringFieldTemplateText)
-  val writeBinaryFieldTemplate = Template[Field](writeBinaryFieldTemplateText)
-  val writeListFieldTemplate = Template[Field](writeListFieldTemplateText)
-  val writeStructFieldTemplate = Template[Field](writeStructFieldTemplateText)
+  val writeBasicTemplate = Template[FieldType](writeBasicTemplateText)
+  val writeBinaryTemplate = Template[FieldType](writeBinaryTemplateText)
+  val writeListTemplate = Template[FieldType](writeListTemplateText)
+  val writeSetTemplate = Template[FieldType](writeSetTemplateText)
+  val writeMapTemplate = Template[FieldType](writeMapTemplateText)
+  val writeStructTemplate = Template[FieldType](writeStructTemplateText)
+  val writeFieldTemplate = Template[Field](writeFieldTemplateText)
 
   // Constants
   val stringTemplate = Template[StringConstant](""""{{value}}"""")
@@ -230,22 +290,25 @@ class ScalaGenerator {
 
   def writeFieldConst(name: String) = name.toUpperCase + "_FIELD_DESC"
 
-  def structWriteFieldTemplate(field: Field) = {
-    field.`type` match {
-      case TString => writeStringFieldTemplate
-      case TBinary => writeBinaryFieldTemplate
-      case _: ListType => writeListFieldTemplate
-      case _: ReferenceType => writeStructFieldTemplate
-      case _ => writeBasicFieldTemplate
+  def writeTemplate(t: FieldType): Template[FieldType] = {
+    t match {
+      case TBinary => writeBinaryTemplate
+      case _: ListType => writeListTemplate
+      case _: SetType => writeSetTemplate
+      case _: MapType => writeMapTemplate
+      case _: ReferenceType => writeStructTemplate
+      case _ => writeBasicTemplate
     }
   }
 
-  def structReadFieldTemplate(field: Field) = {
-    field.`type` match {
-      case TBinary => readBinaryFieldTemplate
-      case _: ListType => readListFieldTemplate
-      case _: ReferenceType => readStructFieldTemplate
-      case _ => readBasicFieldTemplate
+  def structReadTemplate(t: FieldType): Template[FieldType] = {
+    t match {
+      case TBinary => readBinaryTemplate
+      case _: ListType => readListTemplate
+      case _: SetType => readSetTemplate
+      case _: MapType => readMapTemplate
+      case _: ReferenceType => readStructTemplate
+      case _ => readBasicTemplate
     }
   }
 
@@ -253,6 +316,7 @@ class ScalaGenerator {
     field.`type` match {
       case TBool => "false"
       case TByte | TI16 | TI32 | TI64 => "0"
+      case TDouble => "0.0"
       case _ => "null"
     }
   }

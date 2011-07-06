@@ -1,16 +1,12 @@
 package com.twitter.scrooge
 
-import java.math.BigInteger
 import java.nio.ByteBuffer
-import java.security.MessageDigest
 import scala.collection.JavaConversions._
 import com.twitter.util.Eval
 import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
-import org.apache.thrift.protocol.{TStruct, TType, TField, TProtocol, TList}
-import javax.jws.Oneway
-import javax.management.openmbean.TabularType
+import org.apache.thrift.protocol._
 
 class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   import AST._
@@ -28,16 +24,12 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
 
   "ScalaGenerator" should {
-    var eval: Eval = new Eval//null
+    var eval = new Eval
 
     def invoke(code: String): Any = eval.inPlace[Any](code)
 
     def compile(code: String) {
       eval.compile(code)
-    }
-
-    doBefore {
-      //eval = new Eval
     }
 
     "generate an enum" in {
@@ -150,7 +142,6 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
           Field(2, "y", TBinary, None, Requiredness.Optional)
         ))
 
-        println(gen(struct))
         compile(gen(struct))
 
         "read" in {
@@ -181,10 +172,130 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         }
       }
 
+      "bool, double, string" in {
+        val struct = new Struct("Misc", Array(
+          Field(1, "alive", TBool, None, Requiredness.Optional),
+          Field(2, "pi", TDouble, None, Requiredness.Optional),
+          Field(3, "name", TString, None, Requiredness.Optional)
+        ))
+
+        compile(gen(struct))
+
+        "read" in {
+          expect {
+            startRead(protocol, new TField("alive", TType.BOOL, 1))
+            one(protocol).readBool() willReturn true
+            nextRead(protocol, new TField("pi", TType.DOUBLE, 2))
+            one(protocol).readDouble() willReturn 3.14
+            nextRead(protocol, new TField("name", TType.STRING, 3))
+            one(protocol).readString() willReturn "bender"
+            endRead(protocol)
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Misc.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.Misc(true, 3.14, \"bender\")")
+        }
+
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("alive", TType.BOOL, 1))
+            one(protocol).writeBool(false)
+            nextWrite(protocol, new TField("pi", TType.DOUBLE, 2))
+            one(protocol).writeDouble(6.28)
+            nextWrite(protocol, new TField("name", TType.STRING, 3))
+            one(protocol).writeString("fry")
+            endWrite(protocol)
+          }
+
+          eval.inPlace[ThriftStruct]("awwYeah.Misc(false, 6.28, \"fry\")").write(protocol)
+        }
+      }
+
+      "lists, sets, and maps" in {
+        val struct = new Struct("Compound", Array(
+          Field(1, "intlist", ListType(TI32, None), None, Requiredness.Default),
+          Field(2, "intset", SetType(TI32, None), None, Requiredness.Default),
+          Field(3, "namemap", MapType(TString, TI32, None), None, Requiredness.Default),
+          Field(4, "nested", ListType(SetType(TI32, None), None), None, Requiredness.Default)
+        ))
+
+        println(gen(struct))
+        compile(gen(struct))
+
+        "read" in {
+          expect {
+            startRead(protocol, new TField("intlist", TType.LIST, 1))
+            one(protocol).readListBegin() willReturn new TList(TType.I32, 2)
+            one(protocol).readI32() willReturn 10
+            one(protocol).readI32() willReturn 20
+            one(protocol).readListEnd()
+            nextRead(protocol, new TField("intset", TType.SET, 2))
+            one(protocol).readSetBegin() willReturn new TSet(TType.I32, 2)
+            one(protocol).readI32() willReturn 44
+            one(protocol).readI32() willReturn 55
+            one(protocol).readSetEnd()
+            nextRead(protocol, new TField("namemap", TType.MAP, 3))
+            one(protocol).readMapBegin() willReturn new TMap(TType.STRING, TType.I32, 1)
+            one(protocol).readString() willReturn "wendy"
+            one(protocol).readI32() willReturn 500
+            one(protocol).readMapEnd()
+            nextRead(protocol, new TField("nested", TType.LIST, 4))
+            one(protocol).readListBegin() willReturn new TList(TType.SET, 1)
+            one(protocol).readSetBegin() willReturn new TSet(TType.I32, 1)
+            one(protocol).readI32() willReturn 9
+            one(protocol).readSetEnd()
+            one(protocol).readListEnd()
+            endRead(protocol)
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Compound.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.Compound(List(10, 20), Set(44, 55), Map(\"wendy\" -> 500), List(Set(9)))")
+        }
+/*
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("alive", TType.BOOL, 1))
+            one(protocol).writeBool(false)
+            nextWrite(protocol, new TField("pi", TType.DOUBLE, 2))
+            one(protocol).writeDouble(6.28)
+            nextWrite(protocol, new TField("name", TType.STRING, 3))
+            one(protocol).writeString("fry")
+            endWrite(protocol)
+          }
+
+          eval.inPlace[ThriftStruct]("awwYeah.Misc(false, 6.28, \"fry\")").write(protocol)
+        }
+  */
+      }
+
       "with required fields" in {
         val struct = new Struct("Required", Array(
           Field(1, "size", TI32, None, Requiredness.Required)
         ))
+
+        compile(gen(struct))
+
+        "read" in {
+          expect {
+            startRead(protocol, new TField("size", TType.I32, 1))
+            one(protocol).readI32() willReturn 23
+            endRead(protocol)
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Required.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.Required(23)")
+        }
+
+        "read with missing field" in {
+          expect {
+            one(protocol).readStructBegin()
+            one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+            one(protocol).readStructEnd()
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Required.decoder")
+          decoder(protocol) must throwA[TProtocolException]
+        }
       }
 
       "with default values" in {
