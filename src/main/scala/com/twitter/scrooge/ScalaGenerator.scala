@@ -248,7 +248,7 @@ case class {{name}}({{fields.map { f => f.name + ": " + scalaFieldType(f) }.mkSt
 }
 
 // maybe should eventually go elsewhere.
-class ScalaGenerator {
+class ScalaGenerator extends Generator {
   import ScalaGenerator._
 
   var scalaNamespace: String = null
@@ -354,12 +354,12 @@ class ScalaGenerator {
       case TI32 => "I32"
       case TI64 => "I64"
       case TString => "STRING"
-      case TBinary => "STRING" // IDK why, but Binary fields are marked as String
+      case TBinary => "STRING" // thrift's idea of "string" is based on old broken c++ semantics.
       case ReferenceType(_) => "STRUCT" // FIXME could also be Enum
       case MapType(_, _, _) => "MAP"
       case SetType(_, _) => "SET"
       case ListType(_, _) => "LIST"
-      case x => "????" + x + "????"
+      case x => throw new InternalError("constType#" + t)
     }
   }
 
@@ -373,7 +373,7 @@ class ScalaGenerator {
       case TDouble => "readDouble"
       case TString => "readString"
       case TBinary => "readBinary"
-      case x => "????" + x + "????"
+      case x => throw new InternalError("protocolReadMethod#" + t)
     }
   }
 
@@ -387,7 +387,7 @@ class ScalaGenerator {
       case TDouble => "writeDouble"
       case TString => "writeString"
       case TBinary => "writeBinary"
-      case x => "????" + x + "????"
+      case x => throw new InternalError("protocolWriteMethod#" + t)
     }
   }
 
@@ -415,58 +415,6 @@ class ScalaGenerator {
     } else {
       scalaType(f.`type`)
     }
-  }
-
-  def javaType(t: FunctionType): String = {
-    t match {
-      case Void => "Void"
-      case TBool => "java.lang.Boolean"
-      case TByte => "java.lang.Byte"
-      case TI16 => "java.lang.Short"
-      case TI32 => "java.lang.Integer"
-      case TI64 => "java.lang.Long"
-      case TDouble => "java.lang.Double"
-      case TString => "String"
-      case TBinary => "ByteBuffer"
-      case ReferenceType(x) => x
-      case MapType(k, v, _) => "java.util.Map[" + javaType(k) + ", " + javaType(v) + "]"
-      case SetType(x, _) => "java.util.Set[" + javaType(x) + "]"
-      case ListType(x, _) => "java.util.List[" + javaType(x) + "]"
-    }
-  }
-
-  def javaize(name: String, t: FunctionType): String = {
-    t match {
-      case TBool => name + ".booleanValue"
-      case TByte => name + ".byteValue"
-      case TI16 => name + ".shortValue"
-      case TI32 => name + ".intValue"
-      case TI64 => name + ".longValue"
-      case TDouble => name + ".doubleValue"
-      case TString => name
-      case TBinary => name
-      case ReferenceType(x) => x + ".toThrift"
-      case MapType(k, v, _) => "asScalaMap(" + name + ").view.map { case (k, v) => (" + javaize("k", k) + ", " + javaize("v", v) + ") }"
-      case SetType(x, _) => "asScalaSet(" + name + ").view.map { x => " + javaize("x", x) + " }"
-      case ListType(x, _) => "asScalaBuffer(" + name + ").view.map { x => " + javaize("x", x) + " }"
-    }
-  }
-
-  def scalaize(name: String, t: FunctionType): String = {
-    "FIXME"
-  }
-
-  implicit def string2indent(underlying: String) = new Object {
-    def indent(level: Int = 1): String = underlying.split("\\n").map { ("  " * level) + _ }.mkString("\n")
-    def indent: String = indent(1)
-  }
-  implicit def seq2indent(underlying: Seq[String]) = new Object {
-    def indent(level: Int = 1): String = underlying.mkString("\n").indent(level)
-    def indent: String = indent(1)
-  }
-  implicit def array2indent(underlying: Array[String]) = new Object {
-    def indent(level: Int = 1): String = underlying.mkString("\n").indent(level)
-    def indent: String = indent(1)
   }
 
   def apply(enum: Enum): String = enumTemplate(enum, this)
