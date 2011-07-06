@@ -117,6 +117,13 @@ _rv
       {{name}} = {
 {{ structReadTemplate(`type`)(`type`, scope).indent(4) }}
       }
+{{
+if (requiredness == AST.Requiredness.Required) {
+  ("_got_" + name + " = true").indent(3)
+} else {
+  ""
+}
+}}
     }
     case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
@@ -189,6 +196,7 @@ object {{name}} {
     override def apply(_iprot: TProtocol) = {
       var _field: TField = null
 {{ fields.map { f => "var " + f.name + ": " + scalaType(f.`type`) + " = " + defaultValueTemplate(f) }.indent(3) }}
+{{ fields.filter { _.requiredness == AST.Requiredness.Required }.map { f => "var _got_" + f.name + " = false" }.indent(3) }}
 
       var _done = false
       _iprot.readStructBegin()
@@ -205,6 +213,11 @@ object {{name}} {
         }
       }
       _iprot.readStructEnd()
+{{
+fields.filter { _.requiredness == AST.Requiredness.Required }.map { f =>
+  "if (!_got_" + f.name + ") throw new TProtocolException(\"Required field '" + f.name + "' was not found in serialized data for struct " + name + "\")"
+}.indent(3)
+}}
       new {{name}}({{ fields.map { f => f.name }.mkString(", ") }})
     }
   }
