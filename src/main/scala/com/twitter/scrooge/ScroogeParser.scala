@@ -101,21 +101,25 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // fields
 
-  def field = opt(fieldId) ~ fieldReq ~ (fieldType ~ identifier) ~ (opt("=" ~> constant) <~
-    opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value =>
+  def field(argList: Boolean) = opt(fieldId) ~ fieldReq(argList) ~ (fieldType ~ identifier) ~
+    (opt("=" ~> constant) <~ opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value =>
     Field(fid.getOrElse(0), id.name, ftype, value, req)
   }
 
   def fieldId = intConstant <~ ":" ^^ { x => x.value.toInt }
-  def fieldReq = opt("required" | "optional") ^^ {
-    case Some("required") => Requiredness.Required
-    case Some("optional") => Requiredness.Optional
-    case None => Requiredness.Default
+  def fieldReq(argList: Boolean) = opt("required" | "optional") ^^ {
+    case Some("required") =>
+      Requiredness.Required
+    case Some("optional") =>
+      // ignore "optional" in arg lists. this is something weird that the official thrift codegen does.
+      if (argList) Requiredness.Default else Requiredness.Optional
+    case None =>
+      Requiredness.Default
   }
 
   // functions
 
-  def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
+  def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field(true)) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
     Function(id.name, ftype, fixFieldIds(args).toArray, oneway.isDefined,
       throws.map { fixFieldIds(_) }.getOrElse(Nil).toArray)
@@ -123,7 +127,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
-  def throws = "throws" ~> "(" ~> rep(field) <~ ")"
+  def throws = "throws" ~> "(" ~> rep(field(true)) <~ ")"
 
   // definitions
 
@@ -161,11 +165,11 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value }.toArray)
   }
 
-  def struct = (("struct" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
+  def struct = (("struct" ~> identifier) <~ "{") ~ rep(field(false)) <~ "}" ^^ {
     case id ~ fields => Struct(id.name, fixFieldIds(fields).toArray)
   }
 
-  def exception = (("exception" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
+  def exception = (("exception" ~> identifier) <~ "{") ~ rep(field(false)) <~ "}" ^^ {
     case id ~ fields => Exception_(id.name, fixFieldIds(fields).toArray)
   }
 

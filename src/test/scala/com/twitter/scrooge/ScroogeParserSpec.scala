@@ -57,7 +57,7 @@ class ScroogeParserSpec extends Specification {
         "list<string> get_tables(optional i32 id, 3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
         Function("get_tables", ListType(TString, None), Array(
-          Field(-1, "id", TI32, None, Requiredness.Optional),
+          Field(-1, "id", TI32, None, Requiredness.Default),
           Field(3, "name", TString, Some(StringConstant("cat")), Requiredness.Required)
         ), false, Array(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)))
     }
