@@ -313,11 +313,13 @@ class ScalaGenerator {
   }
 
   def defaultValueTemplate(field: Field) = {
-    field.`type` match {
-      case TBool => "false"
-      case TByte | TI16 | TI32 | TI64 => "0"
-      case TDouble => "0.0"
-      case _ => "null"
+    field.default.map { d => constantTemplate(field.`type`, d) }.getOrElse {
+      field.`type` match {
+        case TBool => "false"
+        case TByte | TI16 | TI32 | TI64 => "0"
+        case TDouble => "0.0"
+        case _ => "null"
+      }
     }
   }
 
