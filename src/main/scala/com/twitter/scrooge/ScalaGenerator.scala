@@ -114,7 +114,7 @@ _rv
 """case {{id.toString}} => { /* {{name}} */
   _field.`type` match {
     case TType.{{constType(`type`)}} => {
-      {{name}} = {
+      {{name}} = {{ if (requiredness == AST.Requiredness.Optional && default == None) "Some" else "" }}{
 {{ structReadTemplate(`type`)(`type`, scope).indent(4) }}
       }
 {{
@@ -172,14 +172,18 @@ oprot.writeMapEnd()
 
   val writeFieldTemplateText =
 """if ({{
-`type` match {
-  case AST.TBool | AST.TByte | AST.TI16 | AST.TI32 | AST.TI64 | AST.TDouble =>
-    "true"
-  case _ =>
-    name + " ne null"
+if (requiredness == AST.Requiredness.Optional && default == None) {
+  name + ".isDefined"
+} else {
+  `type` match {
+    case AST.TBool | AST.TByte | AST.TI16 | AST.TI32 | AST.TI64 | AST.TDouble =>
+      "true"
+    case _ =>
+      name + " ne null"
+  }
 }
 }}) {
-  val _item = {{name}}
+  val _item = {{name}}{{if (requiredness == AST.Requiredness.Optional && default == None) ".get" else ""}}
   oprot.writeFieldBegin({{ writeFieldConst(name) }})
 {{ writeTemplate(`type`)(`type`, scope).indent(1) }}
   oprot.writeFieldEnd()
@@ -195,7 +199,7 @@ object {{name}} {
   object decoder extends (TProtocol => ThriftStruct) {
     override def apply(_iprot: TProtocol) = {
       var _field: TField = null
-{{ fields.map { f => "var " + f.name + ": " + scalaType(f.`type`) + " = " + defaultValueTemplate(f) }.indent(3) }}
+{{ fields.map { f => "var " + f.name + ": " + scalaFieldType(f) + " = " + defaultValueTemplate(f) }.indent(3) }}
 {{ fields.filter { _.requiredness == AST.Requiredness.Required }.map { f => "var _got_" + f.name + " = false" }.indent(3) }}
 
       var _done = false
@@ -223,7 +227,7 @@ fields.filter { _.requiredness == AST.Requiredness.Required }.map { f =>
   }
 }
 
-case class {{name}}({{fields.map { f => f.name + ": " + scalaType(f.`type`) }.mkString(", ")}}) extends ThriftStruct {
+case class {{name}}({{fields.map { f => f.name + ": " + scalaFieldType(f) }.mkString(", ")}}) extends ThriftStruct {
   private val STRUCT_DESC = new TStruct("{{name}}")
 {{fields.map { f => "private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.indent}}
 
@@ -231,7 +235,7 @@ case class {{name}}({{fields.map { f => f.name + ": " + scalaType(f.`type`) }.mk
     validate()
 
     oprot.writeStructBegin(STRUCT_DESC)
-{{fields.map { f => writeFieldTemplate(f, scope) }.indent(2) }}
+{{ fields.map { f => writeFieldTemplate(f, scope) }.indent(2) }}
     oprot.writeFieldStop()
     oprot.writeStructEnd()
   }
@@ -327,11 +331,15 @@ class ScalaGenerator {
 
   def defaultValueTemplate(field: Field) = {
     field.default.map { d => constantTemplate(field.`type`, d) }.getOrElse {
-      field.`type` match {
-        case TBool => "false"
-        case TByte | TI16 | TI32 | TI64 => "0"
-        case TDouble => "0.0"
-        case _ => "null"
+      if (field.requiredness == Requiredness.Optional) {
+        "None"
+      } else {
+        field.`type` match {
+          case TBool => "false"
+          case TByte | TI16 | TI32 | TI64 => "0"
+          case TDouble => "0.0"
+          case _ => "null"
+        }
       }
     }
   }
@@ -398,6 +406,14 @@ class ScalaGenerator {
       case MapType(k, v, _) => "Map[" + scalaType(k) + ", " + scalaType(v) + "]"
       case SetType(x, _) => "Set[" + scalaType(x) + "]"
       case ListType(x, _) => "Seq[" + scalaType(x) + "]"
+    }
+  }
+
+  def scalaFieldType(f: Field): String = {
+    if (f.requiredness == Requiredness.Optional && f.default == None) {
+      "Option[" + scalaType(f.`type`) + "]"
+    } else {
+      scalaType(f.`type`)
     }
   }
 

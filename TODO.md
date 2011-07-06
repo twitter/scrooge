@@ -20,15 +20,3 @@ a field can be:
 "in": when read from a stream via decoder
 "out": when created via case class constructor
 
-in decoder:
-    if (!isSetNumerator()) {
-      throw new TProtocolException("Required field 'numerator' was not found in serialized data! Struct: " + toString())
-;
-    }
-    if (!isSetDenominator()) {
-      throw new TProtocolException("Required field 'denominator' was not found in serialized data! Struct: " + toString(
-));
-    }
-
-
-

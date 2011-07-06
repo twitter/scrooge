@@ -7,6 +7,7 @@ import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
+import javax.management.openmbean.TabularType
 
 class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   import AST._
@@ -114,9 +115,9 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       "ints" in {
         val struct = new Struct("Ints", Array(
-          Field(1, "baby", TI16, None, Requiredness.Optional),
-          Field(2, "mama", TI32, None, Requiredness.Optional),
-          Field(3, "papa", TI64, None, Requiredness.Optional)
+          Field(1, "baby", TI16, None, Requiredness.Default),
+          Field(2, "mama", TI32, None, Requiredness.Default),
+          Field(3, "papa", TI64, None, Requiredness.Default)
         ))
 
         compile(gen(struct))
@@ -153,8 +154,8 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       "bytes" in {
         val struct = new Struct("Bytes", Array(
-          Field(1, "x", TByte, None, Requiredness.Optional),
-          Field(2, "y", TBinary, None, Requiredness.Optional)
+          Field(1, "x", TByte, None, Requiredness.Default),
+          Field(2, "y", TBinary, None, Requiredness.Default)
         ))
 
         compile(gen(struct))
@@ -189,9 +190,9 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       "bool, double, string" in {
         val struct = new Struct("Misc", Array(
-          Field(1, "alive", TBool, None, Requiredness.Optional),
-          Field(2, "pi", TDouble, None, Requiredness.Optional),
-          Field(3, "name", TString, None, Requiredness.Optional)
+          Field(1, "alive", TBool, None, Requiredness.Default),
+          Field(2, "pi", TDouble, None, Requiredness.Default),
+          Field(3, "name", TString, None, Requiredness.Default)
         ))
 
         compile(gen(struct))
@@ -296,6 +297,61 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         }
       }
 
+      "with optional fields" in {
+        val struct = new Struct("Optional", Array(
+          Field(1, "name", TString, None, Requiredness.Default),
+          Field(2, "age", TI32, None, Requiredness.Optional)
+        ))
+
+        compile(gen(struct))
+
+        "read" in {
+          expect {
+            startRead(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString() willReturn "Commie"
+            nextRead(protocol, new TField("age", TType.I32, 2))
+            one(protocol).readI32() willReturn 14
+            endRead(protocol)
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Optional.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.Optional(\"Commie\", Some(14))")
+        }
+
+        "read with missing field" in {
+          expect {
+            startRead(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString() willReturn "Commie"
+            endRead(protocol)
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Optional.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.Optional(\"Commie\", None)")
+        }
+
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString("Commie")
+            nextWrite(protocol, new TField("age", TType.I32, 2))
+            one(protocol).writeI32(14)
+            endWrite(protocol)
+          }
+
+          eval.inPlace[ThriftStruct]("awwYeah.Optional(\"Commie\", Some(14))").write(protocol)
+        }
+
+        "write with missing field" in {
+          expect {
+            startWrite(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString("Commie")
+            endWrite(protocol)
+          }
+
+          eval.inPlace[ThriftStruct]("awwYeah.Optional(\"Commie\", None)").write(protocol)
+        }
+      }
+
       "with required fields" in {
         val struct = new Struct("Required", Array(
           Field(1, "size", TI32, None, Requiredness.Required)
@@ -347,42 +403,68 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
       "nested" in {
         val emperorStruct = new Struct("Emperor", Array(
-          Field(1, "name", TString, None, Requiredness.Optional),
-          Field(2, "age", TI32, None, Requiredness.Optional)
+          Field(1, "name", TString, None, Requiredness.Default),
+          Field(2, "age", TI32, None, Requiredness.Default)
         ))
         val struct = new Struct("Empire", Array(
-          Field(1, "name", TString, None, Requiredness.Optional),
-          Field(2, "provinces", ListType(TString, None), None, Requiredness.Optional),
-          Field(5, "emperor", ReferenceType("Emperor"), None, Requiredness.Optional)
+          Field(1, "name", TString, None, Requiredness.Default),
+          Field(2, "provinces", ListType(TString, None), None, Requiredness.Default),
+          Field(5, "emperor", ReferenceType("Emperor"), None, Requiredness.Default)
         ))
 
         compile(gen(emperorStruct))
         compile(gen(struct))
 
-        expect {
-          startRead(protocol, new TField("name", TType.STRING, 1))
-          one(protocol).readString() willReturn "United States of America"
-          nextRead(protocol, new TField("provinces", TType.LIST, 2))
-          one(protocol).readListBegin() willReturn new TList(TType.STRING, 2)
-          one(protocol).readString() willReturn "connecticut"
-          one(protocol).readString() willReturn "california"
-          one(protocol).readListEnd()
-          nextRead(protocol, new TField("emperor", TType.STRUCT, 5))
+        "read" in {
+          expect {
+            startRead(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString() willReturn "United States of America"
+            nextRead(protocol, new TField("provinces", TType.LIST, 2))
+            one(protocol).readListBegin() willReturn new TList(TType.STRING, 2)
+            one(protocol).readString() willReturn "connecticut"
+            one(protocol).readString() willReturn "california"
+            one(protocol).readListEnd()
+            nextRead(protocol, new TField("emperor", TType.STRUCT, 5))
 
-          /** Start of Emperor struct **/
-          startRead(protocol, new TField("name", TType.STRING, 1))
-          one(protocol).readString() willReturn "Bush"
-          nextRead(protocol, new TField("age", TType.I32, 2))
-          one(protocol).readI32() willReturn 42
-          endRead(protocol)
-          /** End of Emperor struct **/
+            /** Start of Emperor struct **/
+            startRead(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString() willReturn "Bush"
+            nextRead(protocol, new TField("age", TType.I32, 2))
+            one(protocol).readI32() willReturn 42
+            endRead(protocol)
+            /** End of Emperor struct **/
 
-          endRead(protocol)
+            endRead(protocol)
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Empire.decoder")
+          decoder(protocol) mustEqual
+            invoke("new awwYeah.Empire(\"United States of America\", List(\"connecticut\", \"california\"), awwYeah.Emperor(\"Bush\", 42))")
         }
 
-        val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Empire.decoder")
-        decoder(protocol) mustEqual
-          invoke("new awwYeah.Empire(\"United States of America\", List(\"connecticut\", \"california\"), awwYeah.Emperor(\"Bush\", 42))")
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString("Canada")
+            nextWrite(protocol, new TField("provinces", TType.LIST, 2))
+            one(protocol).writeListBegin(equal(new TList(TType.STRING, 2)))
+            one(protocol).writeString("Manitoba")
+            one(protocol).writeString("Alberta")
+            one(protocol).writeListEnd()
+            nextWrite(protocol, new TField("emperor", TType.STRUCT, 5))
+
+            // emperor
+            startWrite(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString("Larry")
+            nextWrite(protocol, new TField("age", TType.I32, 2))
+            one(protocol).writeI32(13)
+            endWrite(protocol)
+
+            endWrite(protocol)
+          }
+
+          eval.inPlace[ThriftStruct]("awwYeah.Empire(\"Canada\", List(\"Manitoba\", \"Alberta\"), awwYeah.Emperor(\"Larry\", 13))").write(protocol)
+        }
       }
     }
   }
