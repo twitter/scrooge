@@ -234,7 +234,6 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
           Field(4, "nested", ListType(SetType(TI32, None), None), None, Requiredness.Default)
         ))
 
-        println(gen(struct))
         compile(gen(struct))
 
         "read" in {
@@ -346,61 +345,6 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         }
       }
 
-      "simple" in {
-        val struct = new Struct("Foo", Array(
-          Field(1, "bar", TI32, None, Requiredness.Optional),
-          Field(2, "baz", TString, None, Requiredness.Optional),
-          Field(3, "alive", TBool, None, Requiredness.Required)
-        ))
-        val structString = gen(struct)
-        compile(structString)
-
-        expect {
-          one(protocol).readStructBegin()
-
-          one(protocol).readFieldBegin() willReturn new TField("bar", TType.I32, 1)
-          one(protocol).readI32() willReturn 1
-          one(protocol).readFieldEnd()
-
-          one(protocol).readFieldBegin() willReturn new TField("baz", TType.STRING, 2)
-          one(protocol).readString() willReturn "lala"
-          one(protocol).readFieldEnd()
-
-          one(protocol).readFieldBegin() willReturn new TField("alive", TType.BOOL, 3)
-          one(protocol).readBool() willReturn true
-          one(protocol).readFieldEnd()
-
-          one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
-          one(protocol).readStructEnd()
-        }
-
-        val s = capturingParam[TStruct]
-
-        val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Foo.decoder")
-        decoder(protocol) mustEqual invoke("new awwYeah.Foo(1, \"lala\", true)")
-
-        expect {
-          one(protocol).writeStructBegin(s.capture)
-
-          one(protocol).writeFieldBegin(equal(new TField("bar", TType.I32, 1)))
-          one(protocol).writeI32(1)
-          one(protocol).writeFieldEnd()
-
-          one(protocol).writeFieldBegin(equal(new TField("baz", TType.STRING, 2)))
-          one(protocol).writeString("lala")
-          one(protocol).writeFieldEnd()
-
-          one(protocol).writeFieldBegin(equal(new TField("alive", TType.BOOL, 3)))
-          one(protocol).writeBool(true)
-          one(protocol).writeFieldEnd()
-
-          one(protocol).writeFieldStop()
-          one(protocol).writeStructEnd()
-        }
-
-        eval.inPlace[ThriftStruct]("awwYeah.Foo(1, \"lala\", true)").write(protocol)
-      }
-
       "nested" in {
         val emperorStruct = new Struct("Emperor", Array(
           Field(1, "name", TString, None, Requiredness.Optional),
@@ -415,41 +359,25 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
         compile(gen(emperorStruct))
         compile(gen(struct))
 
-        val s = capturingParam[TStruct]
-
         expect {
-          one(protocol).readStructBegin()
-
-          one(protocol).readFieldBegin() willReturn new TField("name", TType.STRING, 1)
+          startRead(protocol, new TField("name", TType.STRING, 1))
           one(protocol).readString() willReturn "United States of America"
-          one(protocol).readFieldEnd()
-
-          one(protocol).readFieldBegin() willReturn new TField("provinces", TType.LIST, 2)
+          nextRead(protocol, new TField("provinces", TType.LIST, 2))
           one(protocol).readListBegin() willReturn new TList(TType.STRING, 2)
           one(protocol).readString() willReturn "connecticut"
           one(protocol).readString() willReturn "california"
           one(protocol).readListEnd()
-          one(protocol).readFieldEnd()
+          nextRead(protocol, new TField("emperor", TType.STRUCT, 5))
 
-          one(protocol).readFieldBegin() willReturn new TField("emperor", TType.STRUCT, 5)
           /** Start of Emperor struct **/
-          one(protocol).readStructBegin()
-
-          one(protocol).readFieldBegin() willReturn new TField("name", TType.STRING, 1)
+          startRead(protocol, new TField("name", TType.STRING, 1))
           one(protocol).readString() willReturn "Bush"
-          one(protocol).readFieldEnd()
-
-          one(protocol).readFieldBegin() willReturn new TField("age", TType.I32, 2)
+          nextRead(protocol, new TField("age", TType.I32, 2))
           one(protocol).readI32() willReturn 42
-          one(protocol).readFieldEnd()
-
-          one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
-          one(protocol).readStructEnd()
+          endRead(protocol)
           /** End of Emperor struct **/
-          one(protocol).readFieldEnd()
 
-          one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
-          one(protocol).readStructEnd()
+          endRead(protocol)
         }
 
         val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Empire.decoder")
