@@ -11,16 +11,18 @@ object Template {
   }
 
   def apply[T: Manifest](text: String) = new Template[T](text)
+
+  val eval = new Eval()
 }
 
 class Template[T: Manifest](text: String) {
-  val eval = new Eval()
+  import Template._
 
   def getName(klazz: Class[_]): String = {
     if (klazz.isArray()) {
       "Array[" + getName(klazz.getComponentType) + "]"
     } else {
-      klazz.getName + klazz.getTypeParameters.map {_.getName}.mkString(",")
+      klazz.getName + klazz.getTypeParameters.map { _.getName }.mkString(",")
     }.replaceAll("\\$", ".")
   }
 
