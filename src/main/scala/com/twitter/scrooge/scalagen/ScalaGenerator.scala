@@ -7,7 +7,8 @@ trait ScalaTemplate {
   val paths = List(
     "com.twitter.scrooge",
     "com.twitter.scrooge.scalagen",
-    "com.twitter.scrooge.scalagen.ReaderTemplate"
+    "com.twitter.scrooge.scalagen.ReaderTemplate",
+    "com.twitter.scrooge.scalagen.WriterTemplate"
   )
   def template[A: Manifest](text: String) = Template[A](text, paths)
 }
@@ -53,66 +54,6 @@ header + """object Constants {
 """
 
   val constTemplateText = "val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}"
-
-
-  // ----- writers
-
-  val writeBasicTemplateText = """oprot.{{protocolWriteMethod(self)}}(_item)"""
-
-  val writeBinaryTemplateText = """oprot.writeBinary(ByteBuffer.wrap(_item))"""
-
-  val writeListTemplateText =
-"""oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].tpe)}}, _item.size))
-_item.foreach { _item =>
-{{ val t = self.asInstanceOf[AST.ListType].tpe; writeTemplate(t)(t, scope).indent(1) }}
-}
-oprot.writeListEnd()
-"""
-
-  val writeSetTemplateText =
-"""oprot.writeSetBegin(new TSet(TType.{{constType(self.asInstanceOf[AST.SetType].tpe)}}, _item.size))
-_item.foreach { _item =>
-{{ val t = self.asInstanceOf[AST.SetType].tpe; writeTemplate(t)(t, scope).indent(1) }}
-}
-oprot.writeSetEnd()
-"""
-
-  val writeMapTemplateText =
-"""oprot.writeMapBegin(new TMap(TType.{{constType(self.asInstanceOf[AST.MapType].keyType)}}, TType.{{constType(self.asInstanceOf[AST.MapType].valueType)}}, _item.size))
-_item.foreach { case (_key, _value) =>
-  {
-    val _item = _key
-{{ val t = self.asInstanceOf[AST.MapType].keyType; writeTemplate(t)(t, scope).indent(2) }}
-  }
-  {
-    val _item = _value
-{{ val t = self.asInstanceOf[AST.MapType].valueType; writeTemplate(t)(t, scope).indent(2) }}
-  }
-}
-oprot.writeMapEnd()
-"""
-
-  val writeStructTemplateText = """_item.write(oprot)"""
-
-  val writeFieldTemplateText =
-"""if ({{
-if (requiredness == AST.Requiredness.Optional && default == None) {
-  name + ".isDefined"
-} else {
-  `type` match {
-    case AST.TBool | AST.TByte | AST.TI16 | AST.TI32 | AST.TI64 | AST.TDouble =>
-      "true"
-    case _ =>
-      name + " ne null"
-  }
-}
-}}) {
-  val _item = {{name}}{{if (requiredness == AST.Requiredness.Optional && default == None) ".get" else ""}}
-  oprot.writeFieldBegin({{ writeFieldConst(name) }})
-{{ writeTemplate(`type`)(`type`, scope).indent(1) }}
-  oprot.writeFieldEnd()
-}
-"""
 
   val structTemplateText =
 header + """import java.nio.ByteBuffer
@@ -183,15 +124,6 @@ class ScalaGenerator extends Generator {
   val constTemplate = Template[Const](constTemplateText)
   val structTemplate = template[Struct](structTemplateText)
 
-  // writers
-  val writeBasicTemplate = template[FieldType](writeBasicTemplateText)
-  val writeBinaryTemplate = template[FieldType](writeBinaryTemplateText)
-  val writeListTemplate = template[FieldType](writeListTemplateText)
-  val writeSetTemplate = template[FieldType](writeSetTemplateText)
-  val writeMapTemplate = template[FieldType](writeMapTemplateText)
-  val writeStructTemplate = template[FieldType](writeStructTemplateText)
-  val writeFieldTemplate = template[Field](writeFieldTemplateText)
-
   // Constants
   val stringTemplate = Template[StringConstant](""""{{value}}"""")
   val doubleTemplate = Template[DoubleConstant]("{{value.toString}}")
@@ -221,17 +153,6 @@ class ScalaGenerator extends Generator {
   }
 
   def writeFieldConst(name: String) = name.toUpperCase + "_FIELD_DESC"
-
-  def writeTemplate(t: FieldType): Template[FieldType] = {
-    t match {
-      case TBinary => writeBinaryTemplate
-      case _: ListType => writeListTemplate
-      case _: SetType => writeSetTemplate
-      case _: MapType => writeMapTemplate
-      case _: ReferenceType => writeStructTemplate
-      case _ => writeBasicTemplate
-    }
-  }
 
   def defaultValueTemplate(field: Field) = {
     field.default.map { d => constantTemplate(field.`type`, d) }.getOrElse {
