@@ -2,17 +2,21 @@ package com.twitter.scrooge
 package scalagen
 
 import java.nio.ByteBuffer
+import scala.collection.mutable
 import scala.collection.JavaConversions._
 import com.twitter.util.Eval
 import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
-import javax.management.openmbean.TabularType
+import java.security.MessageDigest
+import java.math.BigInteger
 
 class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   import AST._
   import ScalaGenerator._
+
+  var eval = new Eval
 
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
@@ -39,10 +43,8 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
   def equal(a: TMap) = will(matchEqualsTMap(a))
 
   val protocol = mock[TProtocol]
-  val eval = new Eval
 
   "ScalaGenerator" should {
-
     def invoke(code: String): Any = eval.inPlace[Any](code)
 
     def compile(code: String) {
