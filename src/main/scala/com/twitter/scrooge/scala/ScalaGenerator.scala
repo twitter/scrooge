@@ -1,11 +1,7 @@
 package com.twitter.scrooge
+package scalagen
 
-import com.twitter.scrooge.AST._
-import org.apache.thrift.protocol.TProtocol
-
-trait ThriftStruct {
-  def write(oprot: TProtocol)
-}
+import AST._
 
 object ScalaGenerator {
 

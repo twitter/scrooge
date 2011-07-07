@@ -1,5 +1,14 @@
 package com.twitter.scrooge
 
+import org.apache.thrift.protocol.TProtocol
+
+/**
+ * FIXME This should go elsewhere.
+ */
+trait ThriftStruct {
+  def write(oprot: TProtocol)
+}
+
 /**
  * Useful common code for generating templated code out of the thrift AST.
  */

@@ -1,4 +1,5 @@
 package com.twitter.scrooge
+package scalagen
 
 import java.nio.ByteBuffer
 import scala.collection.JavaConversions._
