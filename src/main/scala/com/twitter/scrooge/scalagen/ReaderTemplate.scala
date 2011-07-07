@@ -19,7 +19,7 @@ val _rv = new mutable.ListBuffer[{{ scalaType(self.asInstanceOf[AST.ListType].tp
 var _i = 0
 while (_i < _list.size) {
   _rv += {
-{{ val t = self.asInstanceOf[AST.ListType].tpe; structReadTemplate(t)(t, scope).indent(2) }}
+{{ val t = self.asInstanceOf[AST.ListType].tpe; readTemplate(t)(t, scope).indent(2) }}
   }
   _i += 1
 }
@@ -33,7 +33,7 @@ val _rv = new mutable.HashSet[{{ scalaType(self.asInstanceOf[AST.SetType].tpe) }
 var _i = 0
 while (_i < _set.size) {
   _rv += {
-{{ val t = self.asInstanceOf[AST.SetType].tpe; structReadTemplate(t)(t, scope).indent(2) }}
+{{ val t = self.asInstanceOf[AST.SetType].tpe; readTemplate(t)(t, scope).indent(2) }}
   }
   _i += 1
 }
@@ -47,10 +47,10 @@ val _rv = new mutable.HashMap[{{ val t = self.asInstanceOf[AST.MapType]; scalaTy
 var _i = 0
 while (_i < _map.size) {
   val _key = {
-{{ val t = self.asInstanceOf[AST.MapType].keyType; structReadTemplate(t)(t, scope).indent(2) }}
+{{ val t = self.asInstanceOf[AST.MapType].keyType; readTemplate(t)(t, scope).indent(2) }}
   }
   val _value = {
-{{ val t = self.asInstanceOf[AST.MapType].valueType; structReadTemplate(t)(t, scope).indent(2) }}
+{{ val t = self.asInstanceOf[AST.MapType].valueType; readTemplate(t)(t, scope).indent(2) }}
   }
   _rv(_key) = _value
   _i += 1
