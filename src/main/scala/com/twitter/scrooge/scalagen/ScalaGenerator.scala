@@ -55,7 +55,7 @@ header + """object Constants {
 
   val constTemplateText = "val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}"
 
-  val structTemplateText =
+  val structTemplate = template[Struct](
 header + """import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import com.twitter.scrooge.ThriftStruct
@@ -106,7 +106,7 @@ case class {{name}}({{fields.map { f => f.name + ": " + scalaFieldType(f) }.mkSt
   }
 
   def validate() = true //TODO: Implement this
-}"""
+}""")
 
   case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
   case class ConstList(constList: Array[Const])
@@ -122,7 +122,6 @@ class ScalaGenerator extends Generator {
   val enumTemplate = Template[Enum](enumTemplateText)
   val constsTemplate = Template[ConstList](constsTemplateText)
   val constTemplate = Template[Const](constTemplateText)
-  val structTemplate = template[Struct](structTemplateText)
 
   // Constants
   val stringTemplate = Template[StringConstant](""""{{value}}"""")
