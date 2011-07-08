@@ -8,8 +8,7 @@ trait ScalaTemplate {
     "com.twitter.scrooge",
     "com.twitter.scrooge.scalagen",
     "com.twitter.scrooge.scalagen.ScalaGenerator",
-    "com.twitter.scrooge.scalagen.ReaderTemplate",
-    "com.twitter.scrooge.scalagen.WriterTemplate"
+    "com.twitter.scrooge.scalagen.StructTemplate"
   )
   def template[A: Manifest](text: String) = Template[A](text, paths)
 }
@@ -114,6 +113,24 @@ case class {{name}}({{fields.map { f => f.name + ": " + scalaFieldType(f) }.mkSt
 
   def validate() = true //TODO: Implement this
 }""")
+
+  val functionThrowsTemplate = template[Field]("@throws(classOf[{{ scalaType(`type`) }}])")
+
+  val functionArgTemplate = template[Field]("{{name}}: {{scalaFieldType(self)}}")
+
+  val functionDeclarationTemplate = template[Function](
+"""def {{name}}({{ args.map { a => functionArgTemplate(a, scope) }.mkString(", ") }}): {{scalaType(`type`)}}""")
+
+  val functionTemplate = template[Function](
+"""{{ throws.map { t => functionThrowsTemplate(t, scope) }.mkString("", "\n", "\n") }}{{ functionDeclarationTemplate(self) }}""")
+
+  val serviceTemplate = template[Service](
+"""object {{name}} {
+  trait Iface {{ parent.map { "extends " + _ } }}{
+{{ functions.foreach { f => functionTemplate(f).indent(2) } }}
+  }
+}
+""")
 
   case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
   case class ConstList(constList: Array[Const])
