@@ -8,7 +8,8 @@ trait ScalaTemplate {
     "com.twitter.scrooge",
     "com.twitter.scrooge.scalagen",
     "com.twitter.scrooge.scalagen.ScalaGenerator",
-    "com.twitter.scrooge.scalagen.StructTemplate"
+    "com.twitter.scrooge.scalagen.StructTemplate",
+    "com.twitter.scrooge.scalagen.ServiceTemplate"
   )
   def template[A: Manifest](text: String) = Template[A](text, paths)
 }
@@ -64,32 +65,35 @@ object Constants {
   val constTemplate = template[Const](
 """val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}""")
 
+  case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
+  case class ConstList(constList: Array[Const])
+}
+
+object ServiceTemplate extends ScalaTemplate {
   val functionThrowsTemplate = template[Field]("@throws(classOf[{{ scalaType(`type`) }}])")
 
-  val functionArgTemplate = template[Field]("{{name}}: {{scalaFieldType(self)}}")
+  val functionArgTemplate = template[Field]("{{name}}: {{ scalaFieldType(self) }}")
 
   val functionDeclarationTemplate = template[Function](
 """def {{name}}({{ args.map { a => functionArgTemplate(a, scope) }.mkString(", ") }}): {{scalaType(`type`)}}""")
 
   val functionTemplate = template[Function](
-"""{{ throws.map { t => functionThrowsTemplate(t, scope) }.mkString("", "\n", "\n") }}{{ functionDeclarationTemplate(self) }}""")
+"""{{ throws.map { t => functionThrowsTemplate(t, scope) + "\n" }.mkString }}{{ functionDeclarationTemplate(self, scope) }}""")
 
   val serviceTemplate = template[Service](
 """object {{name}} {
-  trait Iface {{ parent.map { "extends " + _ } }}{
-{{ functions.foreach { f => functionTemplate(f).indent(2) } }}
+  trait Iface {{ parent.map { "extends " + _ }.getOrElse("") }}{
+{{ functions.map { f => functionTemplate(f, scope).indent(2) }.mkString("\n") }}
   }
 }
 """)
-
-  case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
-  case class ConstList(constList: Array[Const])
 }
 
 // maybe should eventually go elsewhere.
 class ScalaGenerator extends Generator {
   import ScalaGenerator._
   import StructTemplate._
+  import ServiceTemplate._
 
   var scalaNamespace: String = null
   var javaNamespace: String = null
@@ -216,6 +220,7 @@ class ScalaGenerator extends Generator {
   def apply(enum: Enum): String = header("", this) + enumTemplate(enum, this)
   def apply(consts: ConstList): String = header("", this) + constsTemplate(consts, this)
   def apply(struct: Struct): String = header("", this) + structTemplate(struct, this)
+  def apply(service: Service): String = header("", this) + serviceTemplate(service, this)
 
   def apply(doc: Document): String = {
     javaNamespace = doc.headers.collect {
