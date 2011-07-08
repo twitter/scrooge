@@ -163,4 +163,56 @@ if (requiredness == AST.Requiredness.Optional && default == None) {
   oprot.writeFieldEnd()
 }
 """)
+
+  // ----- struct
+
+  val structTemplate = template[Struct](
+"""
+object {{name}} {
+  object decoder extends (TProtocol => ThriftStruct) {
+    override def apply(_iprot: TProtocol) = {
+      var _field: TField = null
+{{ fields.map { f => "var " + f.name + ": " + scalaFieldType(f) + " = " + defaultValueTemplate(f) }.indent(3) }}
+{{ fields.filter { _.requiredness == AST.Requiredness.Required }.map { f => "var _got_" + f.name + " = false" }.indent(3) }}
+
+      var _done = false
+      _iprot.readStructBegin()
+      while (!_done) {
+        _field = _iprot.readFieldBegin
+        if (_field.`type` == TType.STOP) {
+          _done = true
+        } else {
+          _field.id match {
+{{ fields.map { f => readFieldTemplate(f, scope) }.indent(6) }}
+            case _ => TProtocolUtil.skip(_iprot, _field.`type`)
+          }
+          _iprot.readFieldEnd()
+        }
+      }
+      _iprot.readStructEnd()
+{{
+fields.filter { _.requiredness == AST.Requiredness.Required }.map { f =>
+  "if (!_got_" + f.name + ") throw new TProtocolException(\"Required field '" + f.name + "' was not found in serialized data for struct " + name + "\")"
+}.indent(3)
+}}
+      new {{name}}({{ fields.map { f => f.name }.mkString(", ") }})
+    }
+  }
+}
+
+case class {{name}}({{fields.map { f => f.name + ": " + scalaFieldType(f) }.mkString(", ")}}) extends ThriftStruct {
+  private val STRUCT_DESC = new TStruct("{{name}}")
+{{fields.map { f => "private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.indent}}
+
+  override def write(oprot: TProtocol) {
+    validate()
+
+    oprot.writeStructBegin(STRUCT_DESC)
+{{ fields.map { f => writeFieldTemplate(f, scope) }.indent(2) }}
+    oprot.writeFieldStop()
+    oprot.writeStructEnd()
+  }
+
+  def validate() = true //TODO: Implement this
+}""")
 }
