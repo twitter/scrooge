@@ -40,4 +40,37 @@ trait EvalHelper { self: JMocker =>
   def compile(code: String) {
     eval.compile(code)
   }
+
+  def startRead(protocol: TProtocol, field: TField) {
+    one(protocol).readStructBegin()
+    one(protocol).readFieldBegin() willReturn field
+  }
+
+  def nextRead(protocol: TProtocol, field: TField) {
+    one(protocol).readFieldEnd()
+    one(protocol).readFieldBegin() willReturn field
+  }
+
+  def endRead(protocol: TProtocol) {
+    one(protocol).readFieldEnd()
+    one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+    one(protocol).readStructEnd()
+  }
+
+  def startWrite(protocol: TProtocol, field: TField) {
+    val s = capturingParam[TStruct]
+    one(protocol).writeStructBegin(s.capture)
+    one(protocol).writeFieldBegin(equal(field))
+  }
+
+  def nextWrite(protocol: TProtocol, field: TField) {
+    one(protocol).writeFieldEnd()
+    one(protocol).writeFieldBegin(equal(field))
+  }
+
+  def endWrite(protocol: TProtocol) {
+    one(protocol).writeFieldEnd()
+    one(protocol).writeFieldStop()
+    one(protocol).writeStructEnd()
+  }
 }

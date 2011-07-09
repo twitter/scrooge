@@ -26,6 +26,7 @@ package {{scalaNamespace}}
 import java.nio.ByteBuffer
 import scala.collection._
 import com.twitter.scrooge.ThriftStruct
+import com.twitter.util.Future
 import org.apache.thrift.TEnum
 import org.apache.thrift.protocol._
 
@@ -67,26 +68,6 @@ object Constants {
 
   case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
   case class ConstList(constList: Array[Const])
-}
-
-object ServiceTemplate extends ScalaTemplate {
-  val functionThrowsTemplate = template[Field]("@throws(classOf[{{ scalaType(`type`) }}])")
-
-  val functionArgTemplate = template[Field]("{{name}}: {{ scalaFieldType(self) }}")
-
-  val functionDeclarationTemplate = template[Function](
-"""def {{name}}({{ args.map { a => functionArgTemplate(a, scope) }.mkString(", ") }}): {{scalaType(`type`)}}""")
-
-  val functionTemplate = template[Function](
-"""{{ throws.map { t => functionThrowsTemplate(t, scope) + "\n" }.mkString }}{{ functionDeclarationTemplate(self, scope) }}""")
-
-  val serviceTemplate = template[Service](
-"""object {{name}} {
-  trait Iface {{ parent.map { "extends " + _ }.getOrElse("") }}{
-{{ functions.map { f => functionTemplate(f, scope).indent(2) }.mkString("\n") }}
-  }
-}
-""")
 }
 
 // maybe should eventually go elsewhere.
