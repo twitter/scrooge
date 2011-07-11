@@ -18,6 +18,11 @@ object ServiceTemplate extends ScalaTemplate {
   val futureFunctionTemplate = template[Function](
 """{{ throws.map { t => functionThrowsTemplate(t, scope) + "\n" }.mkString }}{{ futureFunctionDeclarationTemplate(self, scope) }}""")
 
+  def serviceFunctionResultStruct(f: Function) = {
+    val resultField = AST.Field(0, "success", f.`type`.asInstanceOf[FieldType], None, AST.Requiredness.Optional)
+    AST.Struct(f.name + "_result", (resultField :: f.throws.toList).toArray)
+  }
+
   val serviceTemplate = template[Service](
 """object {{name}} {
   trait Iface {{ parent.map { "extends " + _ }.getOrElse("") }}{
@@ -32,7 +37,7 @@ object ServiceTemplate extends ScalaTemplate {
 functions.map { f =>
   // generate a Struct for each function's args & retval
   structTemplate(AST.Struct(f.name + "_args", f.args), scope) + "\n" +
-    structTemplate(AST.Struct(f.name + "_result", Array(AST.Field(0, "success", f.`type`.asInstanceOf[AST.FieldType], None, AST.Requiredness.Required))), scope)
+    structTemplate(serviceFunctionResultStruct(f), scope)
 }.mkString("\n").indent
 }}
 }

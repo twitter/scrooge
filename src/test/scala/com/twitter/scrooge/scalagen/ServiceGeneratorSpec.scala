@@ -82,7 +82,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
 
       val decoder2 = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Delivery.deliver_result.decoder")
       val obj2 = decoder2(protocol)
-      obj2.getClass.getMethod("success").invoke(obj2) mustEqual 13
+      obj2.getClass.getMethod("success").invoke(obj2) mustEqual Some(13)
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -90,7 +90,56 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(24)").write(protocol)
+      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(Some(24))").write(protocol)
+    }
+
+    "generate exception return values" in {
+      val exception1 = Exception_("Error", Array(
+        Field(1, "description", TString, None, Requiredness.Default)
+      ))
+
+      compile(gen(exception1))
+
+      val service = Service("Delivery", None, Array(
+        Function("deliver", TI32, Array(
+          Field(1, "where", TString, None, Requiredness.Default)
+        ), false, Array(
+          Field(3, "ex1", ReferenceType("Error"), None, Requiredness.Default)
+        ))
+      ))
+
+      compile(gen(service))
+
+      expect {
+        startRead(protocol, new TField("ex1", TType.STRUCT, 3))
+        startRead(protocol, new TField("description", TType.STRING, 1))
+        one(protocol).readString() willReturn "silly"
+        endRead(protocol)
+        endRead(protocol)
+      }
+
+      val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Delivery.deliver_result.decoder")
+      val obj = decoder(protocol)
+      val ex1 = obj.getClass.getMethod("ex1").invoke(obj)
+      ex1.getClass.getMethod("description").invoke(ex1) mustEqual "silly"
+
+      expect {
+        startWrite(protocol, new TField("success", TType.I32, 0))
+        one(protocol).writeI32(24)
+        endWrite(protocol)
+      }
+
+      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(Some(24), null)").write(protocol)
+
+      expect {
+        startWrite(protocol, new TField("ex1", TType.STRUCT, 3))
+        startWrite(protocol, new TField("description", TType.STRING, 1))
+        one(protocol).writeString("silly")
+        endWrite(protocol)
+        endWrite(protocol)
+      }
+
+      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(None, new awwYeah.Error(\"silly\"))").write(protocol)
     }
   }
 }
