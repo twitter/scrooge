@@ -6,13 +6,11 @@ import AST._
 object ServiceTemplate extends ScalaTemplate {
   val functionThrowsTemplate = template[Field]("@throws(classOf[{{ scalaType(`type`) }}])")
 
-  val functionArgTemplate = template[Field]("{{name}}: {{ scalaFieldType(self) }}")
-
   val functionDeclarationTemplate = template[Function](
-"""def {{name}}({{ args.map { a => functionArgTemplate(a, scope) }.mkString(", ") }}): {{scalaType(`type`)}}""")
+"""def {{name}}({{ fieldArgs(args) }}): {{scalaType(`type`)}}""")
 
   val futureFunctionDeclarationTemplate = template[Function](
-"""def {{name}}({{ args.map { a => functionArgTemplate(a, scope) }.mkString(", ") }}): Future[{{scalaType(`type`)}}]""")
+"""def {{name}}({{ fieldArgs(args) }}): Future[{{scalaType(`type`)}}]""")
 
   val functionTemplate = template[Function](
 """{{ throws.map { t => functionThrowsTemplate(t, scope) + "\n" }.mkString }}{{ functionDeclarationTemplate(self, scope) }}""")

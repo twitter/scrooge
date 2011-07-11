@@ -166,7 +166,7 @@ if (requiredness == AST.Requiredness.Optional && default == None) {
 
   // ----- struct
 
-  val structTemplate = template[Struct](
+  val structTemplate = template[StructLike](
 """
 object {{name}} {
   object decoder extends (TProtocol => ThriftStruct) {
@@ -200,7 +200,12 @@ fields.filter { _.requiredness == AST.Requiredness.Required }.map { f =>
   }
 }
 
-case class {{name}}({{fields.map { f => f.name + ": " + scalaFieldType(f) }.mkString(", ")}}) extends ThriftStruct {
+case class {{name}}({{ fieldArgs(fields) }}) extends {{
+  self match {
+    case AST.Struct(_, _) => "ThriftStruct"
+    case AST.Exception_(_, _) => "Exception with ThriftStruct"
+  }
+}} {
   private val STRUCT_DESC = new TStruct("{{name}}")
 {{fields.map { f => "private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.indent}}
 

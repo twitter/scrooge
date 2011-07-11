@@ -405,6 +405,15 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           eval.inPlace[ThriftStruct]("awwYeah.Empire(\"Canada\", List(\"Manitoba\", \"Alberta\"), awwYeah.Emperor(\"Larry\", 13))").write(protocol)
         }
       }
+
+      "exception" in {
+        val error = new Exception_("Error", Array(
+          Field(1, "description", TString, None, Requiredness.Default)
+        ))
+
+        compile(gen(error))
+        invoke("new awwYeah.Error(\"silly\").getStackTrace") must haveClass[Array[StackTraceElement]]
+      }
     }
   }
 }

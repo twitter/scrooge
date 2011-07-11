@@ -197,10 +197,14 @@ class ScalaGenerator extends Generator {
     }
   }
 
+  def fieldArgs(args: Array[Field]): String = {
+    args.map { f => f.name + ": " + scalaFieldType(f) }.mkString(", ")
+  }
+
   // deprecated (for tests)
   def apply(enum: Enum): String = header("", this) + enumTemplate(enum, this)
   def apply(consts: ConstList): String = header("", this) + constsTemplate(consts, this)
-  def apply(struct: Struct): String = header("", this) + structTemplate(struct, this)
+  def apply(struct: StructLike): String = header("", this) + structTemplate(struct, this)
   def apply(service: Service): String = header("", this) + serviceTemplate(service, this)
 
   def apply(doc: Document): String = {
@@ -231,12 +235,18 @@ class ScalaGenerator extends Generator {
     }
 
     val structs = doc.defs.collect {
-      case s @ Struct(_, _) => s
+      case s: StructLike => s
     }
     val structSections = structs.map { x => structTemplate(x, this) }
-    val structSection = structSections.mkString("\n\n")
+    val structSection = structSections.mkString("", "\n\n", "\n\n")
 
-    // TODO: Typedef, Senum, Exception_, Service
+    val services = doc.defs.collect {
+      case s @ Service(_, _, _) => s
+    }
+    val serviceSections = services.map { x => serviceTemplate(x, this) }
+    val serviceSection = serviceSections.mkString("", "\n\n", "\n\n")
+
+    // TODO: Typedef, Senum
 
     /*
     doc.defs.foreach {
@@ -247,6 +257,6 @@ class ScalaGenerator extends Generator {
     }
     */
 
-    header("", this) + constSection + enumSection + structSection
+    header("", this) + constSection + enumSection + structSection + serviceSection
   }
 }
