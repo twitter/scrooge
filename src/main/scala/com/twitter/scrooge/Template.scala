@@ -10,12 +10,13 @@ object Template {
     implicit def noneToString(wrapped: None.type): String = ""
   }
 
-  def apply[T: Manifest](text: String) = new Template[T](text)
+  def apply[T: Manifest](text: String) = new Template[T](text, Nil)
+  def apply[T: Manifest](text: String, importPaths: Seq[String]) = new Template[T](text, importPaths)
 
   val eval = new Eval()
 }
 
-class Template[T: Manifest](text: String) {
+class Template[T: Manifest](text: String, importPaths: Seq[String]) {
   import Template._
 
   def getName(klazz: Class[_]): String = {
@@ -32,6 +33,7 @@ class Template[T: Manifest](text: String) {
   (self: """ + getName(manifest[T].erasure) + ", scope: " + getName(manifest[A].erasure) + """) => {
     import self._
     import scope._
+""" + importPaths.map { "    import " + _ + "._" }.mkString("\n") + """
     import com.twitter.scrooge._
     val __rv = {
       """ + code + """

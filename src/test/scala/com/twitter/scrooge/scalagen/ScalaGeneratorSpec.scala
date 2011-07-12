@@ -1,53 +1,25 @@
 package com.twitter.scrooge
+package scalagen
 
 import java.nio.ByteBuffer
+import scala.collection.mutable
 import scala.collection.JavaConversions._
 import com.twitter.util.Eval
+import org.apache.thrift.protocol._
 import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
-import org.apache.thrift.protocol._
-import javax.management.openmbean.TabularType
 
-class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
+class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
   import ScalaGenerator._
 
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
 
-  case class matchEqualsTField(a: TField) extends Matcher[TField]() {
-    def apply(v: => TField) = (v.equals(a), "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
-  }
-
-  case class matchEqualsTList(a: TList) extends Matcher[TList]() {
-    def apply(v: => TList) = (v.elemType == a.elemType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
-  }
-
-  case class matchEqualsTSet(a: TSet) extends Matcher[TSet]() {
-    def apply(v: => TSet) = (v.elemType == a.elemType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
-  }
-
-  case class matchEqualsTMap(a: TMap) extends Matcher[TMap]() {
-    def apply(v: => TMap) = (v.keyType == a.keyType && v.valueType == a.valueType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
-  }
-
-  def equal(a: TField) = will(matchEqualsTField(a))
-  def equal(a: TList) = will(matchEqualsTList(a))
-  def equal(a: TSet) = will(matchEqualsTSet(a))
-  def equal(a: TMap) = will(matchEqualsTMap(a))
-
   val protocol = mock[TProtocol]
-  val eval = new Eval
 
   "ScalaGenerator" should {
-
-    def invoke(code: String): Any = eval.inPlace[Any](code)
-
-    def compile(code: String) {
-      eval.compile(code)
-    }
-
     "generate an enum" in {
       val enum = Enum("SomeEnum", Array(EnumValue("FOO", 1), EnumValue("BAR", 2)))
       compile(gen(enum))
@@ -80,39 +52,6 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
     }
 
     "generate a struct" in {
-      def startRead(protocol: TProtocol, field: TField) {
-        one(protocol).readStructBegin()
-        one(protocol).readFieldBegin() willReturn field
-      }
-
-      def nextRead(protocol: TProtocol, field: TField) {
-        one(protocol).readFieldEnd()
-        one(protocol).readFieldBegin() willReturn field
-      }
-
-      def endRead(protocol: TProtocol) {
-        one(protocol).readFieldEnd()
-        one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
-        one(protocol).readStructEnd()
-      }
-
-      def startWrite(protocol: TProtocol, field: TField) {
-        val s = capturingParam[TStruct]
-        one(protocol).writeStructBegin(s.capture)
-        one(protocol).writeFieldBegin(equal(field))
-      }
-
-      def nextWrite(protocol: TProtocol, field: TField) {
-        one(protocol).writeFieldEnd()
-        one(protocol).writeFieldBegin(equal(field))
-      }
-
-      def endWrite(protocol: TProtocol) {
-        one(protocol).writeFieldEnd()
-        one(protocol).writeFieldStop()
-        one(protocol).writeStructEnd()
-      }
-
       "ints" in {
         val struct = new Struct("Ints", Array(
           Field(1, "baby", TI16, None, Requiredness.Default),
@@ -465,6 +404,15 @@ class ScalaGeneratorSpec extends Specification with JMocker with ClassMocker {
 
           eval.inPlace[ThriftStruct]("awwYeah.Empire(\"Canada\", List(\"Manitoba\", \"Alberta\"), awwYeah.Emperor(\"Larry\", 13))").write(protocol)
         }
+      }
+
+      "exception" in {
+        val error = new Exception_("Error", Array(
+          Field(1, "description", TString, None, Requiredness.Default)
+        ))
+
+        compile(gen(error))
+        invoke("new awwYeah.Error(\"silly\").getStackTrace") must haveClass[Array[StackTraceElement]]
       }
     }
   }
