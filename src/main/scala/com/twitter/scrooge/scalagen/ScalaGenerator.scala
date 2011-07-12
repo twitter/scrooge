@@ -27,6 +27,7 @@ import java.nio.ByteBuffer
 import scala.collection._
 import com.twitter.scrooge.ThriftStruct
 import com.twitter.util.Future
+import org.apache.thrift.TApplicationException
 import org.apache.thrift.TEnum
 import org.apache.thrift.protocol._
 

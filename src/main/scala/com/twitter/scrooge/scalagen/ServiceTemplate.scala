@@ -23,6 +23,57 @@ object ServiceTemplate extends ScalaTemplate {
     AST.Struct(f.name + "_result", (resultField :: f.throws.toList).toArray)
   }
 
+  def serviceFinagleFunctionExceptionFilter(f: Function, name: String, fill: String) = {
+    if (f.throws.isEmpty) {
+      ""
+    } else {
+      ", " + f.throws.map { t =>
+        if (t.name == name) fill else "null"
+      }.mkString(", ")
+    }
+  }
+
+  def serviceFinagleFunctionException(function: Function, exceptionType: String, field: Field) = {
+    "case e: " + exceptionType + " =>\n" +
+      "  reply(\"" + function.name + "\", seqid, new " + function.name + "_result(None" +
+      serviceFinagleFunctionExceptionFilter(function, field.name, "e") + "))\n"
+  }
+
+  val serviceFinagleFunctionTemplate = template[Function](
+"""functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
+  try {
+    val args = {{name}}_args.decoder(iprot)
+    iprot.readMessageEnd()
+    (try {
+      iface.{{name}}({{ args.map { a => "args." + a.name }.mkString(", ") }})
+    } catch {
+      case e: Exception =>
+        Future.exception(e)
+    }).flatMap { value: {{scalaType(`type`)}} =>
+      reply("{{name}}", seqid, new {{name}}_result(Some(value){{ serviceFinagleFunctionExceptionFilter(self, "", "") }}))
+    }.rescue {
+{{ throws.map { t => serviceFinagleFunctionException(self, scalaType(t.`type`), t).indent(3) }.mkString("\n") }}
+      case e: Throwable =>
+        exception("{{name}}", seqid, TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}")
+    }
+  } catch {
+    case e: TProtocolException =>
+      iprot.readMessageEnd()
+      exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage)
+    case e: Exception =>
+      Future.exception(e)
+  }
+}
+""")
+
+  val serviceFinagleTemplate = template[Service](
+"""import com.twitter.scrooge.FinagleThriftService
+
+class FinagledService(iface: FutureIface, val protocolFactory: TProtocolFactory) extends FinagleThriftService {
+{{ functions.map { f => serviceFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
+}
+""")
+
   val serviceTemplate = template[Service](
 """object {{name}} {
   trait Iface {{ parent.map { "extends " + _ }.getOrElse("") }}{
@@ -40,6 +91,8 @@ functions.map { f =>
     structTemplate(serviceFunctionResultStruct(f), scope)
 }.mkString("\n").indent
 }}
+
+{{ serviceFinagleTemplate(self, scope).indent }}
 }
 """)
 }
