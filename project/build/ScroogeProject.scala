@@ -17,7 +17,9 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val utilVersion = "1.10.1"
   val util_core = "com.twitter" % "util-core" % utilVersion
   val util_eval = "com.twitter" % "util-eval" % utilVersion
-  val finagleCore = "com.twitter" % "finagle-core" % "1.6.3"
+
+  // projects that use finagle will provide their own dependent jar.
+  val finagleCore = "com.twitter" % "finagle-core" % "1.6.3" % "provided"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
 

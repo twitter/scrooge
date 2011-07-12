@@ -67,32 +67,34 @@ object ServiceTemplate extends ScalaTemplate {
 """)
 
   val serviceFinagleTemplate = template[Service](
-"""import com.twitter.scrooge.FinagleThriftService
+"""// ----- finagle service
+
+import com.twitter.scrooge.FinagleThriftService
 
 class FinagledService(iface: FutureIface, val protocolFactory: TProtocolFactory) extends FinagleThriftService {
 {{ functions.map { f => serviceFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
 }
 """)
 
-  val serviceTemplate = template[Service](
-"""object {{name}} {
-  trait Iface {{ parent.map { "extends " + _ }.getOrElse("") }}{
-{{ functions.map { f => functionTemplate(f, scope).indent(2) }.mkString("\n") }}
+  val serviceTemplate = template[ScalaService](
+"""object {{service.name}} {
+  trait Iface {{ service.parent.map { "extends " + _ }.getOrElse("") }}{
+{{ service.functions.map { f => functionTemplate(f, scope).indent(2) }.mkString("\n") }}
   }
 
-  trait FutureIface {{ parent.map { "extends " + _ }.getOrElse("") }}{
-{{ functions.map { f => futureFunctionTemplate(f, scope).indent(2) }.mkString("\n") }}
+  trait FutureIface {{ service.parent.map { "extends " + _ }.getOrElse("") }}{
+{{ service.functions.map { f => futureFunctionTemplate(f, scope).indent(2) }.mkString("\n") }}
   }
 
 {{
-functions.map { f =>
+service.functions.map { f =>
   // generate a Struct for each function's args & retval
   structTemplate(AST.Struct(f.name + "_args", f.args), scope) + "\n" +
     structTemplate(serviceFunctionResultStruct(f), scope)
 }.mkString("\n").indent
 }}
 
-{{ serviceFinagleTemplate(self, scope).indent }}
+{{ if (options contains WithFinagle) serviceFinagleTemplate(service, scope).indent else "" }}
 }
 """)
 }

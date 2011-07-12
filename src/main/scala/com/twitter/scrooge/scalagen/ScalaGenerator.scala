@@ -67,9 +67,15 @@ object Constants {
   val constTemplate = template[Const](
 """val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}""")
 
-  case class ScalaService(scalaNamespace: String, javaNamespace: String, service: Service)
   case class ConstList(constList: Array[Const])
 }
+
+
+abstract sealed class ScalaServiceOption
+case object WithFinagle extends ScalaServiceOption
+
+case class ScalaService(service: Service, options: Set[ScalaServiceOption])
+
 
 // maybe should eventually go elsewhere.
 class ScalaGenerator extends Generator {
@@ -206,7 +212,7 @@ class ScalaGenerator extends Generator {
   def apply(enum: Enum): String = header("", this) + enumTemplate(enum, this)
   def apply(consts: ConstList): String = header("", this) + constsTemplate(consts, this)
   def apply(struct: StructLike): String = header("", this) + structTemplate(struct, this)
-  def apply(service: Service): String = header("", this) + serviceTemplate(service, this)
+  def apply(service: Service): String = header("", this) + serviceTemplate(ScalaService(service, Set()), this)
 
   def apply(doc: Document): String = {
     javaNamespace = doc.headers.collect {
@@ -244,7 +250,7 @@ class ScalaGenerator extends Generator {
     val services = doc.defs.collect {
       case s @ Service(_, _, _) => s
     }
-    val serviceSections = services.map { x => serviceTemplate(x, this) }
+    val serviceSections = services.map { x => serviceTemplate(ScalaService(x, Set(WithFinagle)), this) }
     val serviceSection = serviceSections.mkString("", "\n\n", "\n\n")
 
     // TODO: Typedef, Senum
