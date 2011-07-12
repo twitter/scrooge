@@ -14,13 +14,13 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with DefaultRepos
   with SubversionPublisher
 {
-  val utilVersion = "1.8.12"
+  val utilVersion = "1.10.1"
   val util_core = "com.twitter" % "util-core" % utilVersion
   val util_eval = "com.twitter" % "util-eval" % utilVersion
+  val finagleCore = "com.twitter" % "finagle-core" % "1.6.3"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
 
-  // for tests
   val specs = "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test" withSources()
   val jmock = "org.jmock" % "jmock" % "2.4.0" % "test"
   val hamcrest_all = "org.hamcrest" % "hamcrest-all" % "1.1" % "test"
