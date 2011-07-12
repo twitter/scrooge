@@ -23,8 +23,11 @@ object ScalaGenerator extends ScalaTemplate {
 
 package {{scalaNamespace}}
 
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import scala.collection._
+import scala.collection.{Map, Set}
+import scala.collection.mutable
+import com.twitter.conversions.time._
 import com.twitter.scrooge.ThriftStruct
 import com.twitter.util.Future
 import org.apache.thrift.TApplicationException
@@ -73,6 +76,7 @@ object Constants {
 
 abstract sealed class ScalaServiceOption
 case object WithFinagle extends ScalaServiceOption
+case object WithOstrich extends ScalaServiceOption
 
 case class ScalaService(service: Service, options: Set[ScalaServiceOption])
 
@@ -250,7 +254,7 @@ class ScalaGenerator extends Generator {
     val services = doc.defs.collect {
       case s @ Service(_, _, _) => s
     }
-    val serviceSections = services.map { x => serviceTemplate(ScalaService(x, Set(WithFinagle)), this) }
+    val serviceSections = services.map { x => serviceTemplate(ScalaService(x, Set(WithFinagle, WithOstrich)), this) }
     val serviceSection = serviceSections.mkString("", "\n\n", "\n\n")
 
     // TODO: Typedef, Senum
