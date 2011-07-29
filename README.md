@@ -35,7 +35,7 @@ The state (as of July 2011):
 
 - To run the code generator, just do:
 
-      $ ./scrooge <thrift-file>
+      $ ./scrooge \<thrift-file\>
 
   and it will spew all the generated code to stdout. This is not intended to
   be the final behavior -- just a stopgap. It really should take some options
