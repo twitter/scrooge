@@ -1,7 +1,11 @@
 package com.twitter.scrooge
 
 object AST {
-  sealed abstract class Requiredness
+  sealed abstract class Requiredness {
+    def isOptional = this eq Requiredness.Optional
+    def isRequired = this eq Requiredness.Required
+    def isDefault = this eq Requiredness.Default
+  }
   object Requiredness {
     case object Optional extends Requiredness
     case object Required extends Requiredness
@@ -12,7 +16,7 @@ object AST {
   case class BoolConstant(value: Boolean) extends Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
-  case class ListConstant(elems: Array[Constant]) extends Constant
+  case class ListConstant(elems: Seq[Constant]) extends Constant
   case class MapConstant(elems: Map[Constant, Constant]) extends Constant
   case class StringConstant(value: String) extends Constant
   case class Identifier(name: String) extends Constant
@@ -38,26 +42,24 @@ object AST {
   case class SetType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
   case class ListType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
 
-  case class Field(id: Int, name: String, `type`: FieldType, default: Option[Constant],
-    requiredness: Requiredness) {
+  case class Field(
+    id: Int,
+    name: String,
+    `type`: FieldType,
+    default: Option[Constant] = None,
+    requiredness: Requiredness = Requiredness.Default)
+  {
     def camelize = copy(name = camelCase(name))
   }
 
-  case class Function(name: String, `type`: FunctionType, args: Array[Field], oneway: Boolean,
-    throws: Array[Field]) {
+  case class Function(
+    name: String, 
+    `type`: FunctionType, 
+    args: Seq[Field], 
+    oneway: Boolean,
+    throws: Seq[Field]) 
+  {
     def camelize = copy(name = camelCase(name))
-    override def equals(other: Any) = {
-      other match {
-        case Function(oName, oType, oArgs, oOneWay, oThrows) => {
-          name == oName &&
-          `type` == oType &&
-          args.toList == oArgs.toList &&
-          oneway == oOneWay &&
-          throws.toList == oThrows.toList
-        }
-        case _ => false
-      }
-    }
   }
 
   sealed abstract class Definition {
@@ -69,64 +71,26 @@ object AST {
 
   case class Typedef(name: String, `type`: DefinitionType) extends Definition
 
-  case class Enum(name: String, values: Array[EnumValue]) extends Definition {
-    override def equals(other: Any) = {
-      other match {
-        case Enum(oName, oValues) => {
-          name == oName &&
-          values.toList == oValues.toList
-        }
-        case _ => false
-      }
-    }
-  }
+  case class Enum(name: String, values: Seq[EnumValue]) extends Definition
 
   case class EnumValue(name: String, value: Int)
 
-  case class Senum(name: String, values: Array[String]) extends Definition {
-    override def equals(other: Any) = {
-      other match {
-        case Senum(oName, oValues) => {
-          name == oName &&
-          values.toList == oValues.toList
-        }
-        case _ => false
-      }
-    }
-  }
+  case class Senum(name: String, values: Seq[String]) extends Definition
 
   sealed abstract class StructLike extends Definition {
-    val fields: Array[Field]
+    val fields: Seq[Field]
   }
 
-  case class Struct(name: String, fields: Array[Field]) extends StructLike {
+  case class Struct(name: String, fields: Seq[Field]) extends StructLike {
     override def camelize = copy(fields = fields.map(_.camelize))
-    override def equals(other: Any) = {
-      other match {
-        case Struct(oName, oFields) => name == oName && fields.toList == oFields.toList
-        case _ => false
-      }
-    }
   }
 
-  case class Exception_(name: String, fields: Array[Field]) extends StructLike {
+  case class Exception_(name: String, fields: Seq[Field]) extends StructLike {
     override def camelize = copy(fields = fields.map(_.camelize))
-    override def equals(other: Any) = {
-      other match {
-        case Exception_(oName, oFields) => name == oName && fields.toList == oFields.toList
-        case _ => false
-      }
-    }
   }
 
-  case class Service(name: String, parent: Option[String], functions: Array[Function]) extends Definition {
+  case class Service(name: String, parent: Option[String], functions: Seq[Function]) extends Definition {
     override def camelize = copy(functions = functions.map(_.camelize))
-    override def equals(other: Any) = {
-      other match {
-        case Service(oName, oParent, oFunctions) => name == oName && parent == oParent && functions.toList == oFunctions.toList
-        case _ => false
-      }
-    }
   }
 
   sealed abstract class Header
@@ -134,14 +98,8 @@ object AST {
   case class CppInclude(file: String) extends Header
   case class Namespace(scope: String, name: String) extends Header
 
-  case class Document(headers: Array[Header], defs: Array[Definition]) {
+  case class Document(headers: Seq[Header], defs: Seq[Definition]) {
     def camelize = copy(defs = defs.map(_.camelize))
-    override def equals(other: Any) = {
-      other match {
-        case Document(oHeaders, oDefs) => headers.toList == oHeaders.toList && defs.toList == oDefs.toList
-        case _ => false
-      }
-    }
   }
 
   implicit def camelCase(str: String) = {

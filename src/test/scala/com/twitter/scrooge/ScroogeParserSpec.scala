@@ -50,9 +50,9 @@ class ScroogeParserSpec extends Specification {
     }
 
     "functions" in {
-      parser.parse("void go()", parser.function) mustEqual Function("go", Void, Array(), false, Array())
+      parser.parse("void go()", parser.function) mustEqual Function("go", Void, Seq(), false, Seq())
       parser.parse("oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
-        TI32, Array(Field(1, "n", TI32, None, Requiredness.Default)), true, Array())
+        TI32, Array(Field(1, "n", TI32, None, Requiredness.Default)), true, Seq())
       parser.parse(
         "list<string> get_tables(optional i32 id, 3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
@@ -132,14 +132,14 @@ class ScroogeParserSpec extends Specification {
         Function("put", Void, Array(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "value", TBinary, None, Requiredness.Default)
-        ), false, Array()),
+        ), false, Seq()),
         Function("get", TBinary, Array(
           Field(1, "name", TString, None, Requiredness.Default)
         ), false, Array(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)))
       ))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
-        Service("LeechCache", Some("Cache"), Array())
+        Service("LeechCache", Some("Cache"), Seq())
     }
 
     "document" in {
@@ -154,7 +154,7 @@ class ScroogeParserSpec extends Specification {
       parser.parse(code, parser.document) mustEqual Document(
         Array(Namespace("java", "com.example"), Namespace("*", "example")),
         Array(Service("NullService", None, Array(
-          Function("doNothing", Void, Array(), false, Array())
+          Function("doNothing", Void, Seq(), false, Seq())
         )))
       )
     }

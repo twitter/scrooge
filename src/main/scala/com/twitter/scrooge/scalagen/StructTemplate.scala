@@ -17,7 +17,7 @@ _bytes
 
   val readListTemplate = template[FieldType](
 """val _list = _iprot.readListBegin()
-val _rv = new mutable.ListBuffer[{{ scalaType(self.asInstanceOf[AST.ListType].tpe) }}]
+val _rv = new mutable.ArrayBuffer[{{ scalaType(self.asInstanceOf[AST.ListType].tpe) }}](_list.size)
 var _i = 0
 while (_i < _list.size) {
   _rv += {
@@ -26,7 +26,7 @@ while (_i < _list.size) {
   _i += 1
 }
 _iprot.readListEnd()
-_rv.toList
+_rv.toSeq
 """)
 
   val readSetTemplate = template[FieldType](
@@ -78,11 +78,11 @@ _rv
 """case {{id.toString}} => { /* {{name}} */
   _field.`type` match {
     case TType.{{constType(`type`)}} => {
-      {{name}} = {{ if (requiredness == AST.Requiredness.Optional && default == None) "Some" else "" }}{
+      {{name}} = {{ if (requiredness.isOptional && default == None) "Some" else "" }}{
 {{ readTemplate(`type`)(`type`, scope).indent(4) }}
       }
 {{
-if (requiredness == AST.Requiredness.Required) {
+if (requiredness.isRequired) {
   ("_got_" + name + " = true").indent(3)
 } else {
   ""
@@ -96,28 +96,28 @@ if (requiredness == AST.Requiredness.Required) {
 
   // ----- writers
 
-  val writeBasicTemplate = template[FieldType]("""oprot.{{protocolWriteMethod(self)}}(_item)""")
+  val writeBasicTemplate = template[FieldType]("""_oprot.{{protocolWriteMethod(self)}}(_item)""")
 
-  val writeBinaryTemplate = template[FieldType]("""oprot.writeBinary(ByteBuffer.wrap(_item))""")
+  val writeBinaryTemplate = template[FieldType]("""_oprot.writeBinary(ByteBuffer.wrap(_item))""")
 
   val writeListTemplate = template[FieldType](
-"""oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].tpe)}}, _item.size))
+"""_oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].tpe)}}, _item.size))
 _item.foreach { _item =>
 {{ val t = self.asInstanceOf[AST.ListType].tpe; writeTemplate(t)(t, scope).indent(1) }}
 }
-oprot.writeListEnd()
+_oprot.writeListEnd()
 """)
 
   val writeSetTemplate = template[FieldType](
-"""oprot.writeSetBegin(new TSet(TType.{{constType(self.asInstanceOf[AST.SetType].tpe)}}, _item.size))
+"""_oprot.writeSetBegin(new TSet(TType.{{constType(self.asInstanceOf[AST.SetType].tpe)}}, _item.size))
 _item.foreach { _item =>
 {{ val t = self.asInstanceOf[AST.SetType].tpe; writeTemplate(t)(t, scope).indent(1) }}
 }
-oprot.writeSetEnd()
+_oprot.writeSetEnd()
 """)
 
   val writeMapTemplate = template[FieldType](
-"""oprot.writeMapBegin(new TMap(TType.{{constType(self.asInstanceOf[AST.MapType].keyType)}}, TType.{{constType(self.asInstanceOf[AST.MapType].valueType)}}, _item.size))
+"""_oprot.writeMapBegin(new TMap(TType.{{constType(self.asInstanceOf[AST.MapType].keyType)}}, TType.{{constType(self.asInstanceOf[AST.MapType].valueType)}}, _item.size))
 _item.foreach { case (_key, _value) =>
   {
     val _item = _key
@@ -128,10 +128,10 @@ _item.foreach { case (_key, _value) =>
 {{ val t = self.asInstanceOf[AST.MapType].valueType; writeTemplate(t)(t, scope).indent(2) }}
   }
 }
-oprot.writeMapEnd()
+_oprot.writeMapEnd()
 """)
 
-  val writeStructTemplate = template[FieldType]("""_item.write(oprot)""")
+  val writeStructTemplate = template[FieldType]("""_item.write(_oprot)""")
 
   def writeTemplate(t: FieldType): Template[FieldType] = {
     t match {
@@ -146,7 +146,7 @@ oprot.writeMapEnd()
 
   val writeFieldTemplate = template[Field](
 """if ({{
-if (requiredness == AST.Requiredness.Optional && default == None) {
+if (requiredness.isOptional && default == None) {
   name + ".isDefined"
 } else {
   `type` match {
@@ -157,10 +157,10 @@ if (requiredness == AST.Requiredness.Optional && default == None) {
   }
 }
 }}) {
-  val _item = {{name}}{{if (requiredness == AST.Requiredness.Optional && default == None) ".get" else ""}}
-  oprot.writeFieldBegin({{ writeFieldConst(name) }})
+  val _item = {{name}}{{if (requiredness.isOptional && default == None) ".get" else ""}}
+  _oprot.writeFieldBegin({{ writeFieldConst(name) }})
 {{ writeTemplate(`type`)(`type`, scope).indent(1) }}
-  oprot.writeFieldEnd()
+  _oprot.writeFieldEnd()
 }
 """)
 
@@ -169,12 +169,14 @@ if (requiredness == AST.Requiredness.Optional && default == None) {
   val structTemplate = template[StructLike](
 """
 object {{name}} {
-  object decoder extends (TProtocol => ThriftStruct) {
+  private val STRUCT_DESC = new TStruct("{{name}}")
+{{fields.map { f => "private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.indent}}
+
+  object decoder extends (TProtocol => {{name}}) {
     override def apply(_iprot: TProtocol) = {
       var _field: TField = null
 {{ fields.map { f => "var " + f.name + ": " + scalaFieldType(f) + " = " + defaultValueTemplate(f) }.indent(3) }}
-{{ fields.filter { _.requiredness == AST.Requiredness.Required }.map { f => "var _got_" + f.name + " = false" }.indent(3) }}
-
+{{ fields.filter { _.requiredness.isRequired }.map { f => "var _got_" + f.name + " = false" }.indent(3) }}
       var _done = false
       _iprot.readStructBegin()
       while (!_done) {
@@ -191,11 +193,11 @@ object {{name}} {
       }
       _iprot.readStructEnd()
 {{
-fields.filter { _.requiredness == AST.Requiredness.Required }.map { f =>
+fields.filter { _.requiredness.isRequired }.map { f =>
   "if (!_got_" + f.name + ") throw new TProtocolException(\"Required field '" + f.name + "' was not found in serialized data for struct " + name + "\")"
 }.indent(3)
 }}
-      new {{name}}({{ fields.map { f => f.name }.mkString(", ") }})
+      {{name}}({{ fields.map { f => f.name }.mkString(", ") }})
     }
   }
 }
@@ -206,16 +208,15 @@ case class {{name}}({{ fieldArgs(fields) }}) extends {{
     case AST.Exception_(_, _) => "Exception with ThriftStruct"
   }
 }} {
-  private val STRUCT_DESC = new TStruct("{{name}}")
-{{fields.map { f => "private val " + writeFieldConst(f.name) + " = new TField(\"" + f.name + "\", TType." + constType(f.`type`) + ", " + f.id.toString + ")"}.indent}}
+  import {{name}}._
 
-  override def write(oprot: TProtocol) {
+  override def write(_oprot: TProtocol) {
     validate()
 
-    oprot.writeStructBegin(STRUCT_DESC)
+    _oprot.writeStructBegin(STRUCT_DESC)
 {{ fields.map { f => writeFieldTemplate(f, scope) }.indent(2) }}
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
+    _oprot.writeFieldStop()
+    _oprot.writeStructEnd()
   }
 
   def validate() = true //TODO: Implement this

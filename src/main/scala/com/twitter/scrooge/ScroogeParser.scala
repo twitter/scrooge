@@ -54,7 +54,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def listSeparator = "[,;]?".r
   def listConstant = "[" ~> repsep(constant, listSeparator) <~ "]" ^^ { list =>
-    ListConstant(list.toArray)
+    ListConstant(list)
   }
 
   def mapConstant = "{" ~> repsep(constant ~ ":" ~ constant, listSeparator) <~ "}" ^^ { list =>
@@ -129,8 +129,8 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field(true)) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
-    Function(id.name, ftype, fixFieldIds(args).toArray, oneway.isDefined,
-      throws.map { fixFieldIds(_) }.getOrElse(Nil).toArray)
+    Function(id.name, ftype, fixFieldIds(args), oneway.isDefined,
+      throws.map { fixFieldIds(_) }.getOrElse(Nil))
   }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
@@ -165,31 +165,31 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     if (failed.isDefined) {
       throw new ParseException("Repeating enum value in " + id.name + ": " + failed.get)
     } else {
-      Enum(id.name, values.toList.toArray)
+      Enum(id.name, values.toList)
     }
   }
 
   def senum = (("senum" ~> identifier) <~ "{") ~ rep(stringConstant <~ opt(listSeparator)) <~
-    "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value }.toArray)
+    "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value })
   }
 
   def struct = (("struct" ~> identifier) <~ "{") ~ rep(field(false)) <~ "}" ^^ {
-    case id ~ fields => Struct(id.name, fixFieldIds(fields).toArray)
+    case id ~ fields => Struct(id.name, fixFieldIds(fields))
   }
 
   def exception = (("exception" ~> identifier) <~ "{") ~ rep(field(false)) <~ "}" ^^ {
-    case id ~ fields => Exception_(id.name, fixFieldIds(fields).toArray)
+    case id ~ fields => Exception_(id.name, fixFieldIds(fields))
   }
 
   def service = ("service" ~> identifier) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
     "}") ^^ {
-    case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions.toArray)
+    case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions)
   }
 
   // document
 
   def document: Parser[Document] = rep(header) ~ rep(definition) ^^ {
-    case hs ~ ds => Document(hs.toArray, ds.toArray)
+    case hs ~ ds => Document(hs, ds)
   }
 
   def header: Parser[Header] = include | cppInclude | namespace

@@ -22,8 +22,8 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
 
   "ScalaGenerator service" should {
     "generate a service interface" in {
-      val service = Service("Delivery", None, Array(
-        Function("deliver", TI32, Array(Field(1, "where", TString, None, Requiredness.Default)), false, Array())
+      val service = Service("Delivery", None, Seq(
+        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
       ))
       compile(gen(service))
 
@@ -34,8 +34,8 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
     }
 
     "generate a future-based service interface" in {
-      val service = Service("Delivery", None, Array(
-        Function("deliver", TI32, Array(Field(1, "where", TString, None, Requiredness.Default)), false, Array())
+      val service = Service("Delivery", None, Seq(
+        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
       ))
       compile(gen(service))
 
@@ -47,8 +47,8 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
     }
 
     "generate structs for args and return value" in {
-      val service = Service("Delivery", None, Array(
-        Function("deliver", TI32, Array(Field(1, "where", TString, None, Requiredness.Default)), false, Array())
+      val service = Service("Delivery", None, Seq(
+        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
       ))
 
       compile(gen(service))
@@ -94,17 +94,15 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
     }
 
     "generate exception return values" in {
-      val exception1 = Exception_("Error", Array(
-        Field(1, "description", TString, None, Requiredness.Default)
-      ))
+      val exception1 = Exception_("Error", Seq(Field(1, "description", TString)))
 
       compile(gen(exception1))
 
-      val service = Service("Delivery", None, Array(
-        Function("deliver", TI32, Array(
-          Field(1, "where", TString, None, Requiredness.Default)
-        ), false, Array(
-          Field(3, "ex1", ReferenceType("Error"), None, Requiredness.Default)
+      val service = Service("Delivery", None, Seq(
+        Function("deliver", TI32, Seq(
+          Field(1, "where", TString)
+        ), false, Seq(
+          Field(3, "ex1", ReferenceType("Error"))
         ))
       ))
 
@@ -140,6 +138,14 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       }
 
       eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(None, new awwYeah.Error(\"silly\"))").write(protocol)
+    }
+
+    "generate service and client" in {
+      val service = Service("Delivery", None, Seq(
+        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
+      ))
+      val doc = Document(Nil, Seq(service))
+      compile(gen(doc)) must not(throwA[Exception])
     }
   }
 }

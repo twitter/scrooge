@@ -70,7 +70,7 @@ object Constants {
   val constTemplate = template[Const](
 """val {{name}}: {{scalaType(`type`)}} = {{constantTemplate(`type`, value)}}""")
 
-  case class ConstList(constList: Array[Const])
+  case class ConstList(constList: Seq[Const])
 }
 
 
@@ -126,7 +126,7 @@ class ScalaGenerator extends Generator {
 
   def defaultValueTemplate(field: Field) = {
     field.default.map { d => constantTemplate(field.`type`, d) }.getOrElse {
-      if (field.requiredness == Requiredness.Optional) {
+      if (field.requiredness.isOptional) {
         "None"
       } else {
         field.`type` match {
@@ -205,14 +205,14 @@ class ScalaGenerator extends Generator {
   }
 
   def scalaFieldType(f: Field): String = {
-    if (f.requiredness == Requiredness.Optional && f.default == None) {
+    if (f.requiredness.isOptional && f.default == None) {
       "Option[" + scalaType(f.`type`) + "]"
     } else {
       scalaType(f.`type`)
     }
   }
 
-  def fieldArgs(args: Array[Field]): String = {
+  def fieldArgs(args: Seq[Field]): String = {
     args.map { f =>
       val prefix = f.name + ": " + scalaFieldType(f)
       val suffix = f.default.map { d => constantTemplate(f.`type`, d) } orElse {
@@ -268,7 +268,9 @@ class ScalaGenerator extends Generator {
     val services = doc.defs.collect {
       case s @ Service(_, _, _) => s
     }
-    val serviceSections = services.map { x => serviceTemplate(ScalaService(x, Set(WithFinagle, WithOstrich)), this) }
+    val serviceSections = services.map { x =>
+      serviceTemplate(ScalaService(x, Set(WithFinagle, WithOstrich)), this)
+    }
     val serviceSection = serviceSections.mkString("", "\n\n", "\n\n")
 
     // TODO: Typedef, Senum

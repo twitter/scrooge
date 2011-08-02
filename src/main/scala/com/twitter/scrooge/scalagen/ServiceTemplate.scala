@@ -20,7 +20,7 @@ object ServiceTemplate extends ScalaTemplate {
 
   def serviceFunctionResultStruct(f: Function) = {
     val resultField = AST.Field(0, "success", f.`type`.asInstanceOf[FieldType], None, AST.Requiredness.Optional)
-    AST.Struct(f.name + "_result", (resultField :: f.throws.toList).toArray)
+    AST.Struct(f.name + "_result", (resultField :: f.throws.toList))
   }
 
   def serviceFinagleFunctionExceptionFilter(f: Function, name: String, fill: String) = {
@@ -35,9 +35,42 @@ object ServiceTemplate extends ScalaTemplate {
 
   def serviceFinagleFunctionException(function: Function, exceptionType: String, field: Field) = {
     "case e: " + exceptionType + " =>\n" +
-      "  reply(\"" + function.name + "\", seqid, new " + function.name + "_result(None" +
+      "  reply(\"" + function.name + "\", seqid, " + function.name + "_result(None" +
       serviceFinagleFunctionExceptionFilter(function, field.name, "e") + "))\n"
   }
+
+  def clientFinagleFunctionTemplate = template[Function](
+"""{{ futureFunctionTemplate(self, scope) }} = {
+  encodeRequest("{{name}}", {{name}}_args({{ args.map(_.name).mkString(", ") }})) flatMap { this.service } flatMap {
+    decodeResponse(_, {{name}}_result.decoder)
+  } flatMap { result =>
+    result.success.map(Future.value) getOrElse {
+      Future.exception {
+        {{ if (throws.isEmpty) "" else throws map { t => "Option(result." + t.name + ")" } mkString("", " orElse ", " getOrElse") }} { missingResult("{{name}}") }
+      }
+    }
+  }
+}
+"""
+  )
+
+  val clientFinagleTemplate = template[Service](
+"""// ----- finagle client
+
+import com.twitter.scrooge.FinagleThriftClient
+import com.twitter.finagle.{Service => FinagleService}
+import com.twitter.finagle.thrift.ThriftClientRequest
+
+class FinagledClient(
+  val service: FinagleService[ThriftClientRequest, Array[Byte]],
+  val protocolFactory: TProtocolFactory)
+  extends FinagleThriftClient
+  with FutureIface
+{
+{{ functions.map { f => clientFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
+}
+"""
+  )
 
   val serviceFinagleFunctionTemplate = template[Function](
 """functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
@@ -47,11 +80,10 @@ object ServiceTemplate extends ScalaTemplate {
     (try {
       iface.{{name}}({{ args.map { a => "args." + a.name }.mkString(", ") }})
     } catch {
-      case e: Exception =>
-        Future.exception(e)
-    }).flatMap { value: {{scalaType(`type`)}} =>
-      reply("{{name}}", seqid, new {{name}}_result(Some(value){{ serviceFinagleFunctionExceptionFilter(self, "", "") }}))
-    }.rescue {
+      case e: Exception => Future.exception(e)
+    }) flatMap { value: {{scalaType(`type`)}} =>
+      reply("{{name}}", seqid, {{name}}_result(Some(value){{ serviceFinagleFunctionExceptionFilter(self, "", "") }}))
+    } rescue {
 {{ throws.map { t => serviceFinagleFunctionException(self, scalaType(t.`type`), t).indent(3) }.mkString("\n") }}
       case e: Throwable =>
         exception("{{name}}", seqid, TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}")
@@ -128,6 +160,8 @@ service.functions.map { f =>
     structTemplate(serviceFunctionResultStruct(f), scope)
 }.mkString("\n").indent
 }}
+
+{{ if (options contains WithFinagle) clientFinagleTemplate(service, scope).indent else "" }}
 
 {{ if (options contains WithFinagle) serviceFinagleTemplate(service, scope).indent else "" }}
 

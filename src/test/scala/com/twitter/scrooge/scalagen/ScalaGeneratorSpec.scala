@@ -21,7 +21,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
 
   "ScalaGenerator" should {
     "generate an enum" in {
-      val enum = Enum("SomeEnum", Array(EnumValue("FOO", 1), EnumValue("BAR", 2)))
+      val enum = Enum("SomeEnum", Seq(EnumValue("FOO", 1), EnumValue("BAR", 2)))
       compile(gen(enum))
       invoke("awwYeah.SomeEnum.FOO.value") mustEqual 1
       invoke("awwYeah.SomeEnum.BAR.value") mustEqual 2
@@ -31,11 +31,11 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
     }
 
     "generate a constant" in {
-      val constList = ConstList(Array(
+      val constList = ConstList(Seq(
         Const("name", TString, StringConstant("Columbo")),
         Const("someInt", TI32, IntConstant(1)),
         Const("someDouble", TDouble, DoubleConstant(3.0)),
-        Const("someList", ListType(TString, None), ListConstant(Array(StringConstant("piggy")))),
+        Const("someList", ListType(TString, None), ListConstant(Seq(StringConstant("piggy")))),
         Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar")))),
         Const("alias", ReferenceType("FakeEnum"), Identifier("FOO"))
       ))
@@ -53,7 +53,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
 
     "generate a struct" in {
       "ints" in {
-        val struct = new Struct("Ints", Array(
+        val struct = new Struct("Ints", Seq(
           Field(1, "baby", TI16, None, Requiredness.Default),
           Field(2, "mama", TI32, None, Requiredness.Default),
           Field(3, "papa", TI64, None, Requiredness.Default)
@@ -92,7 +92,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "bytes" in {
-        val struct = new Struct("Bytes", Array(
+        val struct = new Struct("Bytes", Seq(
           Field(1, "x", TByte, None, Requiredness.Default),
           Field(2, "y", TBinary, None, Requiredness.Default)
         ))
@@ -128,7 +128,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "bool, double, string" in {
-        val struct = new Struct("Misc", Array(
+        val struct = new Struct("Misc", Seq(
           Field(1, "alive", TBool, None, Requiredness.Default),
           Field(2, "pi", TDouble, None, Requiredness.Default),
           Field(3, "name", TString, None, Requiredness.Default)
@@ -167,7 +167,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "lists, sets, and maps" in {
-        val struct = new Struct("Compound", Array(
+        val struct = new Struct("Compound", Seq(
           Field(1, "intlist", ListType(TI32, None), None, Requiredness.Default),
           Field(2, "intset", SetType(TI32, None), None, Requiredness.Default),
           Field(3, "namemap", MapType(TString, TI32, None), None, Requiredness.Default),
@@ -237,7 +237,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "with optional fields" in {
-        val struct = new Struct("Optional", Array(
+        val struct = new Struct("Optional", Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "age", TI32, None, Requiredness.Optional)
         ))
@@ -292,7 +292,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "with required fields" in {
-        val struct = new Struct("Required", Array(
+        val struct = new Struct("Required", Seq(
           Field(1, "size", TI32, None, Requiredness.Required)
         ))
 
@@ -322,7 +322,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "with default values" in {
-        val struct = new Struct("DefaultValues", Array(
+        val struct = new Struct("DefaultValues", Seq(
           Field(1, "name", TString, Some(StringConstant("leela")), Requiredness.Optional)
         ))
 
@@ -341,11 +341,11 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "nested" in {
-        val emperorStruct = new Struct("Emperor", Array(
+        val emperorStruct = new Struct("Emperor", Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "age", TI32, None, Requiredness.Default)
         ))
-        val struct = new Struct("Empire", Array(
+        val struct = new Struct("Empire", Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "provinces", ListType(TString, None), None, Requiredness.Default),
           Field(5, "emperor", ReferenceType("Emperor"), None, Requiredness.Default)
@@ -407,7 +407,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       }
 
       "exception" in {
-        val error = new Exception_("Error", Array(
+        val error = new Exception_("Error", Seq(
           Field(1, "description", TString, None, Requiredness.Default)
         ))
 
