@@ -92,6 +92,7 @@ class ScalaGenerator extends Generator {
 
   // Constants
   val stringTemplate = Template[StringConstant](""""{{value}}"""")
+  val boolTemplate = Template[BoolConstant]("{{value.toString}}")
   val doubleTemplate = Template[DoubleConstant]("{{value.toString}}")
   val intTemplate = Template[IntConstant]("{{value.toString}}")
   val listTemplate = Template[ListConstant](
@@ -99,6 +100,7 @@ class ScalaGenerator extends Generator {
   )
   val mapTemplate =  Template[MapConstant](
     """Map({{elems.asInstanceOf[Map[com.twitter.scrooge.AST.Constant, com.twitter.scrooge.AST.Constant]].map { case (x, y) => constantTemplate(null, x) + " -> " + constantTemplate(null, y) }.mkString(",\n")}})"""
+    // """ fix texmate colorization
   )
 
   def constantTemplate(`type`: FieldType, constant: Constant): String = {
@@ -109,6 +111,8 @@ class ScalaGenerator extends Generator {
         doubleTemplate(c, this)
       case c @ IntConstant(_) =>
         intTemplate(c, this)
+      case c @ BoolConstant(_) =>
+        boolTemplate(c, this)
       case c @ ListConstant(_) =>
         listTemplate(c, this)
       case c @ MapConstant(_) =>
@@ -209,7 +213,16 @@ class ScalaGenerator extends Generator {
   }
 
   def fieldArgs(args: Array[Field]): String = {
-    args.map { f => f.name + ": " + scalaFieldType(f) }.mkString(", ")
+    args.map { f =>
+      val prefix = f.name + ": " + scalaFieldType(f)
+      val suffix = f.default.map { d => constantTemplate(f.`type`, d) } orElse {
+        f.requiredness match {
+          case Requiredness.Optional => Some("None")
+          case _ => None
+        }
+      } map { " = " + _ }
+      prefix + suffix.getOrElse("")
+    }.mkString(", ")
   }
 
   // deprecated (for tests)
@@ -218,7 +231,8 @@ class ScalaGenerator extends Generator {
   def apply(struct: StructLike): String = header("", this) + structTemplate(struct, this)
   def apply(service: Service): String = header("", this) + serviceTemplate(ScalaService(service, Set()), this)
 
-  def apply(doc: Document): String = {
+  def apply(_doc: Document): String = {
+    val doc = _doc.camelize
     javaNamespace = doc.headers.collect {
       case Namespace("java", x) => x
     }.headOption.getOrElse("thrift")

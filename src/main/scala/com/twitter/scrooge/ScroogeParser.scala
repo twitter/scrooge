@@ -102,8 +102,16 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   // fields
 
   def field(argList: Boolean) = opt(fieldId) ~ fieldReq(argList) ~ (fieldType ~ identifier) ~
-    (opt("=" ~> constant) <~ opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value =>
-    Field(fid.getOrElse(0), id.name, ftype, value, req)
+    (opt("=" ~> constant) <~ opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value => {
+      val transformedVal = ftype match {
+        case TBool => value map {
+          case IntConstant(0) => BoolConstant(false)
+          case _ => BoolConstant(true)
+        }
+        case _ => value
+      }
+      Field(fid.getOrElse(0), id.name, ftype, transformedVal, req)
+    }
   }
 
   def fieldId = intConstant <~ ":" ^^ { x => x.value.toInt }
