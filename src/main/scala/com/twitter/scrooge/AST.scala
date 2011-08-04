@@ -21,13 +21,10 @@ object AST {
   case class StringConstant(value: String) extends Constant
   case class Identifier(name: String) extends Constant
 
-  abstract class FunctionType
+  sealed trait FunctionType
   case object Void extends FunctionType
-  abstract class FieldType extends FunctionType
-  abstract class DefinitionType extends FieldType
-  abstract class BaseType extends DefinitionType
-  case class ReferenceType(name: String) extends FieldType
-
+  sealed trait FieldType extends FunctionType
+  sealed trait BaseType extends FieldType
   case object TBool extends BaseType
   case object TByte extends BaseType
   case object TI16 extends BaseType
@@ -37,10 +34,24 @@ object AST {
   case object TString extends BaseType
   case object TBinary extends BaseType
 
-  sealed abstract class ContainerType(cppType: Option[String]) extends DefinitionType
+  trait NamedType extends FieldType {
+    def name: String
+  }
+
+  case class ReferenceType(name: String) extends NamedType
+
+  case class StructType(struct: StructLike) extends NamedType {
+    def name = struct.name
+  }
+
+  case class EnumType(enum: Enum) extends NamedType {
+    def name = enum.name
+  }
+
+  sealed abstract class ContainerType(cppType: Option[String]) extends FieldType
   case class MapType(keyType: FieldType, valueType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
-  case class SetType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
-  case class ListType(tpe: FieldType, cppType: Option[String]) extends ContainerType(cppType)
+  case class SetType(eltType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
+  case class ListType(eltType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
 
   case class Field(
     id: Int,
@@ -53,11 +64,11 @@ object AST {
   }
 
   case class Function(
-    name: String, 
-    `type`: FunctionType, 
-    args: Seq[Field], 
+    name: String,
+    `type`: FunctionType,
+    args: Seq[Field],
     oneway: Boolean,
-    throws: Seq[Field]) 
+    throws: Seq[Field])
   {
     def camelize = copy(name = camelCase(name))
   }
@@ -69,7 +80,7 @@ object AST {
 
   case class Const(name: String, `type`: FieldType, value: Constant) extends Definition
 
-  case class Typedef(name: String, `type`: DefinitionType) extends Definition
+  case class Typedef(name: String, `type`: FieldType) extends Definition
 
   case class Enum(name: String, values: Seq[EnumValue]) extends Definition
 

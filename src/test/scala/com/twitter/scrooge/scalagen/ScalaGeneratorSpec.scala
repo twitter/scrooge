@@ -25,9 +25,12 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       compile(gen(enum))
       invoke("awwYeah.SomeEnum.FOO.value") mustEqual 1
       invoke("awwYeah.SomeEnum.BAR.value") mustEqual 2
-      invoke("awwYeah.SomeEnum.apply(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
-      invoke("awwYeah.SomeEnum.apply(2)") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
-      invoke("awwYeah.SomeEnum.apply(3)") mustEqual invoke("None")
+      invoke("awwYeah.SomeEnum.get(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
+      invoke("awwYeah.SomeEnum.get(2)") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
+      invoke("awwYeah.SomeEnum.get(3)") mustEqual invoke("None")
+      invoke("awwYeah.SomeEnum(1)") mustEqual invoke("awwYeah.SomeEnum.FOO")
+      invoke("awwYeah.SomeEnum(2)") mustEqual invoke("awwYeah.SomeEnum.BAR")
+      invoke("awwYeah.SomeEnum(3)") must throwA[NoSuchElementException]
     }
 
     "generate a constant" in {
@@ -348,7 +351,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
         val struct = new Struct("Empire", Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "provinces", ListType(TString, None), None, Requiredness.Default),
-          Field(5, "emperor", ReferenceType("Emperor"), None, Requiredness.Default)
+          Field(5, "emperor", StructType(emperorStruct), None, Requiredness.Default)
         ))
 
         compile(gen(emperorStruct))

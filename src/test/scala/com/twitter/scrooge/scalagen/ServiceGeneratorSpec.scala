@@ -102,7 +102,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         Function("deliver", TI32, Seq(
           Field(1, "where", TString)
         ), false, Seq(
-          Field(3, "ex1", ReferenceType("Error"))
+          Field(3, "ex1", StructType(exception1))
         ))
       ))
 

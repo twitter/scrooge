@@ -41,7 +41,14 @@ import org.apache.thrift.protocol._
 object {{name}} {
 {{values.map { v => "case object " + v.name + " extends " + name + "(" + v.value + ")"}.indent}}
 
-  def apply(value: Int): Option[{{name}}] = {
+  def apply(value: Int): {{name}} = {
+    value match {
+{{values.map { v => "case " + v.value + " => " + v.name }.indent(3)}}
+      case _ => throw new NoSuchElementException(value.toString)
+    }
+  }
+
+  def get(value: Int): Option[{{name}}] = {
     value match {
 {{values.map { v => "case " + v.value + " => Some(" + v.name + ")"}.indent(3)}}
       case _ => None
@@ -49,12 +56,8 @@ object {{name}} {
   }
 }
 
-abstract class {{name}}(val value: Int) {
-  def toThrift = new TEnum {
-    override def getValue = {
-      value
-    }
-  }
+abstract class {{name}}(val value: Int) extends TEnum {
+  def getValue = value
 }
 """)
 
@@ -118,7 +121,7 @@ class ScalaGenerator extends Generator {
       case c @ MapConstant(_) =>
         mapTemplate(c, this)
       case c @ Identifier(name) =>
-        `type`.asInstanceOf[ReferenceType].name + "." + name
+        `type`.asInstanceOf[NamedType].name + "." + name
     }
   }
 
@@ -150,7 +153,8 @@ class ScalaGenerator extends Generator {
       case TI64 => "I64"
       case TString => "STRING"
       case TBinary => "STRING" // thrift's idea of "string" is based on old broken c++ semantics.
-      case ReferenceType(_) => "STRUCT" // FIXME could also be Enum
+      case StructType(_) => "STRUCT"
+      case EnumType(_) => "I32" // enums are converted to ints
       case MapType(_, _, _) => "MAP"
       case SetType(_, _) => "SET"
       case ListType(_, _) => "LIST"
@@ -197,10 +201,10 @@ class ScalaGenerator extends Generator {
       case TDouble => "Double"
       case TString => "String"
       case TBinary => "Array[Byte]"
-      case ReferenceType(x) => x
       case MapType(k, v, _) => "Map[" + scalaType(k) + ", " + scalaType(v) + "]"
       case SetType(x, _) => "Set[" + scalaType(x) + "]"
       case ListType(x, _) => "Seq[" + scalaType(x) + "]"
+      case n: NamedType => n.name
     }
   }
 

@@ -17,11 +17,11 @@ _bytes
 
   val readListTemplate = template[FieldType](
 """val _list = _iprot.readListBegin()
-val _rv = new mutable.ArrayBuffer[{{ scalaType(self.asInstanceOf[AST.ListType].tpe) }}](_list.size)
+val _rv = new mutable.ArrayBuffer[{{ scalaType(self.asInstanceOf[AST.ListType].eltType) }}](_list.size)
 var _i = 0
 while (_i < _list.size) {
   _rv += {
-{{ val t = self.asInstanceOf[AST.ListType].tpe; readTemplate(t)(t, scope).indent(2) }}
+{{ val t = self.asInstanceOf[AST.ListType].eltType; readTemplate(t)(t, scope).indent(2) }}
   }
   _i += 1
 }
@@ -31,11 +31,11 @@ _rv.toSeq
 
   val readSetTemplate = template[FieldType](
 """val _set = _iprot.readSetBegin()
-val _rv = new mutable.HashSet[{{ scalaType(self.asInstanceOf[AST.SetType].tpe) }}]
+val _rv = new mutable.HashSet[{{ scalaType(self.asInstanceOf[AST.SetType].eltType) }}]
 var _i = 0
 while (_i < _set.size) {
   _rv += {
-{{ val t = self.asInstanceOf[AST.SetType].tpe; readTemplate(t)(t, scope).indent(2) }}
+{{ val t = self.asInstanceOf[AST.SetType].eltType; readTemplate(t)(t, scope).indent(2) }}
   }
   _i += 1
 }
@@ -61,7 +61,11 @@ _iprot.readMapEnd()
 _rv
 """)
 
-  val readStructTemplate = template[FieldType]("""{{self.asInstanceOf[AST.ReferenceType].name}}.decoder(_iprot)""")
+  val readStructTemplate = template[FieldType](
+    """{{self.asInstanceOf[AST.StructType].name}}.decoder(_iprot)""")
+  
+  val readEnumTemplate = template[FieldType](
+    """{{self.asInstanceOf[AST.EnumType].name}}(_iprot.readI32())""")
 
   def readTemplate(t: FieldType): Template[FieldType] = {
     t match {
@@ -69,8 +73,9 @@ _rv
       case _: ListType => readListTemplate
       case _: SetType => readSetTemplate
       case _: MapType => readMapTemplate
-      case _: ReferenceType => readStructTemplate
-      case _ => readBasicTemplate
+      case _: StructType => readStructTemplate
+      case _: EnumType => readEnumTemplate
+      case _: BaseType => readBasicTemplate
     }
   }
 
@@ -101,17 +106,17 @@ if (requiredness.isRequired) {
   val writeBinaryTemplate = template[FieldType]("""_oprot.writeBinary(ByteBuffer.wrap(_item))""")
 
   val writeListTemplate = template[FieldType](
-"""_oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].tpe)}}, _item.size))
+"""_oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].eltType)}}, _item.size))
 _item.foreach { _item =>
-{{ val t = self.asInstanceOf[AST.ListType].tpe; writeTemplate(t)(t, scope).indent(1) }}
+{{ val t = self.asInstanceOf[AST.ListType].eltType; writeTemplate(t)(t, scope).indent(1) }}
 }
 _oprot.writeListEnd()
 """)
 
   val writeSetTemplate = template[FieldType](
-"""_oprot.writeSetBegin(new TSet(TType.{{constType(self.asInstanceOf[AST.SetType].tpe)}}, _item.size))
+"""_oprot.writeSetBegin(new TSet(TType.{{constType(self.asInstanceOf[AST.SetType].eltType)}}, _item.size))
 _item.foreach { _item =>
-{{ val t = self.asInstanceOf[AST.SetType].tpe; writeTemplate(t)(t, scope).indent(1) }}
+{{ val t = self.asInstanceOf[AST.SetType].eltType; writeTemplate(t)(t, scope).indent(1) }}
 }
 _oprot.writeSetEnd()
 """)
@@ -132,6 +137,8 @@ _oprot.writeMapEnd()
 """)
 
   val writeStructTemplate = template[FieldType]("""_item.write(_oprot)""")
+  
+  val writeEnumTemplate = template[FieldType]("""_oprot.writeI32(_item.value)""")
 
   def writeTemplate(t: FieldType): Template[FieldType] = {
     t match {
@@ -139,8 +146,9 @@ _oprot.writeMapEnd()
       case _: ListType => writeListTemplate
       case _: SetType => writeSetTemplate
       case _: MapType => writeMapTemplate
-      case _: ReferenceType => writeStructTemplate
-      case _ => writeBasicTemplate
+      case _: StructType => writeStructTemplate
+      case _: EnumType => writeEnumTemplate
+      case _: BaseType => writeBasicTemplate
     }
   }
 

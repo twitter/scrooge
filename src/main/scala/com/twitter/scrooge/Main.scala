@@ -9,9 +9,9 @@ object Main {
     }
 
     val parser = new ScroogeParser(Importer.fileImporter())
-    val doc = parser.parseFile(args(0))
-
+    val doc = new TypeResolver()(parser.parseFile(args(0)))
     val gen = new scalagen.ScalaGenerator()
+
     println(gen(doc))
   }
 }
