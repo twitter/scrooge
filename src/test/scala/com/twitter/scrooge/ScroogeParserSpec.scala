@@ -12,6 +12,7 @@ class ScroogeParserSpec extends Specification {
       parser.parse("  300  ", parser.constant) mustEqual IntConstant(300)
       parser.parse("  // go away.\n 300", parser.constant) mustEqual IntConstant(300)
       parser.parse("  /*\n   * go away.\n   */\n 300", parser.constant) mustEqual IntConstant(300)
+      parser.parse("# hello\n 300", parser.constant) mustEqual IntConstant(300)
     }
 
     "constant" in {

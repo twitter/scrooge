@@ -25,14 +25,19 @@ package {{scalaNamespace}}
 
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
+import java.util.Arrays
 import scala.collection.{Map, Set}
 import scala.collection.mutable
 import com.twitter.conversions.time._
-import com.twitter.scrooge.ThriftStruct
 import com.twitter.util.Future
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.TEnum
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.{TMemoryInputTransport, TMemoryBuffer}
+
+trait ThriftStruct {
+  def write(oprot: TProtocol)
+}
 
 """)
 
@@ -122,6 +127,8 @@ class ScalaGenerator extends Generator {
         mapTemplate(c, this)
       case c @ Identifier(name) =>
         `type`.asInstanceOf[NamedType].name + "." + name
+      case NullConstant =>
+        "null"
     }
   }
 
@@ -192,7 +199,7 @@ class ScalaGenerator extends Generator {
 
   def scalaType(t: FunctionType): String = {
     t match {
-      case Void => "Void"
+      case Void => "Unit"
       case TBool => "Boolean"
       case TByte => "Byte"
       case TI16 => "Short"
@@ -200,7 +207,7 @@ class ScalaGenerator extends Generator {
       case TI64 => "Long"
       case TDouble => "Double"
       case TString => "String"
-      case TBinary => "Array[Byte]"
+      case TBinary => "ByteBuffer"
       case MapType(k, v, _) => "Map[" + scalaType(k) + ", " + scalaType(v) + "]"
       case SetType(x, _) => "Set[" + scalaType(x) + "]"
       case ListType(x, _) => "Seq[" + scalaType(x) + "]"

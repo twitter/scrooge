@@ -15,6 +15,8 @@ import java.math.BigInteger
 class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
 
+  type ThriftStruct = { def write(oprot: TProtocol) }
+
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
 
@@ -118,8 +120,12 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
 
       val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Delivery.deliver_result.decoder")
       val obj = decoder(protocol)
-      val ex1 = obj.getClass.getMethod("ex1").invoke(obj)
-      ex1.getClass.getMethod("description").invoke(ex1) mustEqual "silly"
+      val optEx1 = obj.getClass.getMethod("ex1").invoke(obj)
+      optEx1 must beLike {
+        case Some(ex1: AnyRef) =>
+          ex1.getClass.getMethod("description").invoke(ex1) mustEqual "silly"
+          true
+      }
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -127,7 +133,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(Some(24), null)").write(protocol)
+      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(Some(24), None)").write(protocol)
 
       expect {
         startWrite(protocol, new TField("ex1", TType.STRUCT, 3))
@@ -137,15 +143,20 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(None, new awwYeah.Error(\"silly\"))").write(protocol)
+      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(None, Some(new awwYeah.Error(\"silly\")))").write(protocol)
     }
 
     "generate service and client" in {
+      val ex = Exception_("Boom", Nil)
+      val exs = Seq(Field(1, "ex", StructType(ex)))
       val service = Service("Delivery", None, Seq(
-        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
+        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Nil),
+//        Function("deliver2", TI32, Seq(Field(1, "where", TString)), false, exs) // blows-up, why?
+        Function("execute", Void, Nil, false, Nil)
+//        Function("execute2", Void, Nil, false, exs) // blows-up, why?
       ))
-      val doc = Document(Nil, Seq(service))
-      compile(gen(doc)) must not(throwA[Exception])
+      val doc = Document(Nil, Seq(ex, service))
+      compile(gen(doc)) //must not(throwA[Exception])
     }
   }
 }

@@ -20,6 +20,7 @@ object AST {
   case class MapConstant(elems: Map[Constant, Constant]) extends Constant
   case class StringConstant(value: String) extends Constant
   case class Identifier(name: String) extends Constant
+  case object NullConstant extends Constant
 
   sealed trait FunctionType
   case object Void extends FunctionType

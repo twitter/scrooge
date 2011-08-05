@@ -8,12 +8,7 @@ object StructTemplate extends ScalaTemplate {
 
   val readBasicTemplate = template[FieldType]("_iprot.{{ protocolReadMethod(self) }}()")
 
-  val readBinaryTemplate = template[FieldType](
-"""val _buffer = _iprot.readBinary()
-val _bytes = new Array[Byte](_buffer.remaining)
-_buffer.get(_bytes)
-_bytes
-""")
+  val readBinaryTemplate = template[FieldType]("_iprot.readBinary()")
 
   val readListTemplate = template[FieldType](
 """val _list = _iprot.readListBegin()
@@ -103,7 +98,7 @@ if (requiredness.isRequired) {
 
   val writeBasicTemplate = template[FieldType]("""_oprot.{{protocolWriteMethod(self)}}(_item)""")
 
-  val writeBinaryTemplate = template[FieldType]("""_oprot.writeBinary(ByteBuffer.wrap(_item))""")
+  val writeBinaryTemplate = template[FieldType]("""_oprot.writeBinary(_item)""")
 
   val writeListTemplate = template[FieldType](
 """_oprot.writeListBegin(new TList(TType.{{constType(self.asInstanceOf[AST.ListType].eltType)}}, _item.size))

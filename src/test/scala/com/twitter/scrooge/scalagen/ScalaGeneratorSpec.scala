@@ -14,6 +14,8 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
   import AST._
   import ScalaGenerator._
 
+  type ThriftStruct = { def write(oprot: TProtocol) }
+
   val gen = new ScalaGenerator
   gen.scalaNamespace = "awwYeah"
 
@@ -114,7 +116,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Bytes.decoder")
           val obj = decoder(protocol)
           obj.getClass.getMethod("x").invoke(obj) mustEqual 3.toByte
-          new String(obj.getClass.getMethod("y").invoke(obj).asInstanceOf[Array[Byte]]) mustEqual "hello"
+          new String(obj.getClass.getMethod("y").invoke(obj).asInstanceOf[ByteBuffer].array) mustEqual "hello"
         }
 
         "write" in {
@@ -126,7 +128,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Bytes(16.toByte, \"goodbye\".getBytes)").write(protocol)
+          eval.inPlace[ThriftStruct]("awwYeah.Bytes(16.toByte, java.nio.ByteBuffer.wrap(\"goodbye\".getBytes))").write(protocol)
         }
       }
 
