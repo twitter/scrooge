@@ -19,7 +19,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val util_eval = "com.twitter" % "util-eval" % utilVersion
 
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "1.8.0"
+  val finagleVersion = "1.8.2-SNAPSHOT"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
 
@@ -29,8 +29,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val cglib = "cglib" % "cglib" % "2.1_3" % "test"
   val asm = "asm" % "asm" % "1.5.3" % "test"
   val objenesis = "org.objenesis" % "objenesis" % "1.1" % "test"
-  val finagleOstrich4 = "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
-  val finagleThrift = "com.twitter" % "finagle-thrift" % finagleVersion % "test"
+  val finagleScrooge = "com.twitter" % "finagle-scrooge" % finagleVersion % "test"
 
   override def mainClass = Some("com.twitter.scrooge.Main")
 

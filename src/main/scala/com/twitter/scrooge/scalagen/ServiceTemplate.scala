@@ -53,54 +53,16 @@ object ServiceTemplate extends ScalaTemplate {
 
 import com.twitter.finagle.{Service => FinagleService}
 import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.finagle.scrooge.FinagleThriftClient
 
 class FinagledClient(
   val service: FinagleService[ThriftClientRequest, Array[Byte]],
   val protocolFactory: TProtocolFactory)
-  extends FutureIface
+  extends FinagleThriftClient with FutureIface
 {
 {{ functions.map { f => clientFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
-
-  protected def encodeRequest(name: String, args: ThriftStruct): Future[ThriftClientRequest] = {
-    Future {
-      val buf = new TMemoryBuffer(512)
-      val oprot = this.protocolFactory.getProtocol(buf)
-
-      oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
-      args.write(oprot)
-      oprot.writeMessageEnd()
-
-      val bytes = Arrays.copyOfRange(buf.getArray, 0, buf.length)
-      new ThriftClientRequest(bytes, false)
-    }
-  }
-
-  protected def decodeResponse[T](resBytes: Array[Byte], decoder: TProtocol => T): Future[T] = {
-    Future {
-      val iprot = protocolFactory.getProtocol(new TMemoryInputTransport(resBytes))
-      val msg = iprot.readMessageBegin()
-      try {
-        if (msg.`type` == TMessageType.EXCEPTION) {
-          throw TApplicationException.read(iprot)
-        } else {
-          decoder(iprot)
-        }
-      } finally {
-        iprot.readMessageEnd()
-      }
-    }
-  }
-
-  protected def missingResult(name: String): Future[Nothing] = {
-    Future.exception {
-      new TApplicationException(
-        TApplicationException.MISSING_RESULT,
-        "`" + name + "` failed: unknown result")
-    }
-  }
 }
-"""
-  )
+""")
 
   val serviceFinagleFunctionTemplate = template[Function](
 """functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
@@ -131,62 +93,14 @@ class FinagledClient(
   val serviceFinagleTemplate = template[Service](
 """// ----- finagle service
 
-import com.twitter.finagle.{Service => FinagleService}
+import com.twitter.finagle.scrooge.FinagleThriftService
 
 class FinagledService(
   iface: FutureIface,
   val protocolFactory: TProtocolFactory)
-  extends FinagleService[Array[Byte], Array[Byte]]
+  extends FinagleThriftService
 {
-  protected val functionMap = new mutable.HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
-
 {{ functions.map { f => serviceFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
-
-  def exception(name: String, seqid: Int, code: Int, message: String): Future[Array[Byte]] = {
-    Future {
-      val x = new TApplicationException(code, message)
-      val memoryBuffer = new TMemoryBuffer(512)
-      val oprot = protocolFactory.getProtocol(memoryBuffer)
-
-      oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid))
-      x.write(oprot)
-      oprot.writeMessageEnd()
-      oprot.getTransport.flush()
-      Arrays.copyOfRange(memoryBuffer.getArray, 0, memoryBuffer.length)
-    }
-  }
-
-  def reply(name: String, seqid: Int, result: ThriftStruct): Future[Array[Byte]] = {
-    Future {
-      val memoryBuffer = new TMemoryBuffer(512)
-      val oprot = protocolFactory.getProtocol(memoryBuffer)
-
-      oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid))
-      result.write(oprot)
-      oprot.writeMessageEnd()
-
-      Arrays.copyOfRange(memoryBuffer.getArray, 0, memoryBuffer.length)
-    }
-  }
-
-  def apply(request: Array[Byte]): Future[Array[Byte]] = {
-    val inputTransport = new TMemoryInputTransport(request)
-    val iprot = protocolFactory.getProtocol(inputTransport)
-
-    try {
-      val msg = iprot.readMessageBegin()
-      functionMap.get(msg.name) match {
-        case Some(f) =>
-          f(iprot, msg.seqid)
-        case None =>
-          TProtocolUtil.skip(iprot, TType.STRUCT)
-          iprot.readMessageEnd()
-          exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD, "Invalid method name: '" + msg.name + "'")
-      }
-    } catch {
-      case e: Exception => Future.exception(e)
-    }
-  }
 }
 """)
 

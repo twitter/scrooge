@@ -29,15 +29,12 @@ import java.util.Arrays
 import scala.collection.{Map, Set}
 import scala.collection.mutable
 import com.twitter.conversions.time._
+import com.twitter.finagle.scrooge.ThriftStruct
 import com.twitter.util.Future
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.TEnum
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryInputTransport, TMemoryBuffer}
-
-trait ThriftStruct {
-  def write(oprot: TProtocol)
-}
 
 """)
 
