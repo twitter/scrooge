@@ -14,12 +14,12 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with DefaultRepos
   with SubversionPublisher
 {
-  val utilVersion = "1.11.0"
+  val utilVersion = "1.11.1"
   val util_core = "com.twitter" % "util-core" % utilVersion
   val util_eval = "com.twitter" % "util-eval" % utilVersion
 
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "1.8.2-SNAPSHOT"
+  val finagleVersion = "1.8.2"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
 
@@ -30,6 +30,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val asm = "asm" % "asm" % "1.5.3" % "test"
   val objenesis = "org.objenesis" % "objenesis" % "1.1" % "test"
   val finagleScrooge = "com.twitter" % "finagle-scrooge" % finagleVersion % "test"
+  val finagleOstrich4 = "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
 
   override def mainClass = Some("com.twitter.scrooge.Main")
 
