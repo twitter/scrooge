@@ -53,7 +53,7 @@ object ServiceTemplate extends ScalaTemplate {
 
 import com.twitter.finagle.{Service => FinagleService}
 import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.finagle.scrooge.FinagleThriftClient
+import com.twitter.scrooge.FinagleThriftClient
 
 class FinagledClient(
   val service: FinagleService[ThriftClientRequest, Array[Byte]],
@@ -93,7 +93,7 @@ class FinagledClient(
   val serviceFinagleTemplate = template[Service](
 """// ----- finagle service
 
-import com.twitter.finagle.scrooge.FinagleThriftService
+import com.twitter.scrooge.FinagleThriftService
 
 class FinagledService(
   iface: FutureIface,
@@ -157,11 +157,11 @@ service.functions.map { f =>
 }.mkString("\n").indent
 }}
 
-{{ if (options contains WithFinagle) clientFinagleTemplate(service, scope).indent else "" }}
+{{ if (options contains WithFinagleClient) clientFinagleTemplate(service, scope).indent else "" }}
 
-{{ if (options contains WithFinagle) serviceFinagleTemplate(service, scope).indent else "" }}
+{{ if (options contains WithFinagleService) serviceFinagleTemplate(service, scope).indent else "" }}
 
-{{ if (options contains WithOstrich) serviceOstrichTemplate(service, scope).indent else "" }}
+{{ if (options contains WithOstrichServer) serviceOstrichTemplate(service, scope).indent else "" }}
 }
 """)
 }

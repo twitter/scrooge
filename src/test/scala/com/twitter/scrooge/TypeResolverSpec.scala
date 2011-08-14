@@ -20,7 +20,7 @@ object TypeResolverSpec extends Specification {
     val ex = Exception_("Boom", Seq(Field(1, "msg", enumRef)))
     val exType = StructType(ex)
     val exRef = ReferenceType(ex.name)
-    val resolver = new TypeResolver()
+    val resolver = TypeResolver()
       .define(enum.name, enumType)
       .define(struct.name, structType)
       .define(ex.name, exType)
@@ -34,15 +34,19 @@ object TypeResolverSpec extends Specification {
     }
 
     "resolve dependent types" in {
-      new TypeResolver().define(enum) must beLike {
-        case (resolver2, enum2) =>
-          resolver2.define(struct) must beLike {
-            case (_, struct2: Struct) =>
+      TypeResolver().resolve(enum) must beLike {
+        case ResolvedDefinition(enum2, resolver2) =>
+          resolver2.resolve(struct) must beLike {
+            case ResolvedDefinition(struct2: Struct, _) =>
               struct2.fields(3).`type` mustEqual enumType
               true
           }
           true
       }
+    }
+    
+    "resolve a scoped type" in {
+      
     }
 
     "transform MapType" in {

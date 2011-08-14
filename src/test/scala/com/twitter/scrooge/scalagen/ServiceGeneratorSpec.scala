@@ -18,7 +18,8 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
   type ThriftStruct = { def write(oprot: TProtocol) }
 
   val gen = new ScalaGenerator
-  gen.scalaNamespace = "awwYeah"
+  val namespace = Namespace("scala", "awwYeah")
+  val doc = Document(Seq(namespace), Nil)
 
   val protocol = mock[TProtocol]
 
@@ -27,7 +28,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       val service = Service("Delivery", None, Seq(
         Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
       ))
-      compile(gen(service))
+      compile(gen(doc, service))
 
       val impl = "class DeliveryImpl(n: Int) extends awwYeah.Delivery.Iface { def deliver(where: String) = n }"
       compile(impl)
@@ -39,7 +40,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       val service = Service("Delivery", None, Seq(
         Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
       ))
-      compile(gen(service))
+      compile(gen(doc, service))
 
       val impl = "import com.twitter.util.Future\n" +
         "class DeliveryImpl(n: Int) extends awwYeah.Delivery.FutureIface { def deliver(where: String) = Future(n) }"
@@ -53,7 +54,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
       ))
 
-      compile(gen(service))
+      compile(gen(doc, service))
 
       val impl = "class DeliveryImpl(n: Int) extends awwYeah.Delivery.Iface { def deliver(where: String) = n }"
       compile(impl)
@@ -98,7 +99,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
     "generate exception return values" in {
       val exception1 = Exception_("Error", Seq(Field(1, "description", TString)))
 
-      compile(gen(exception1))
+      compile(gen(doc, exception1))
 
       val service = Service("Delivery", None, Seq(
         Function("deliver", TI32, Seq(
@@ -108,7 +109,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         ))
       ))
 
-      compile(gen(service))
+      compile(gen(doc, service))
 
       expect {
         startRead(protocol, new TField("ex1", TType.STRUCT, 3))
@@ -156,7 +157,8 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
 //        Function("execute2", Void, Nil, false, exs) // blows-up, why?
       ))
       val doc = Document(Nil, Seq(ex, service))
-      compile(gen(doc)) //must not(throwA[Exception])
+      val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
+      compile(gen(doc, genOptions)) must not(throwA[Exception])
     }
   }
 }

@@ -53,14 +53,14 @@ class ScroogeParserSpec extends Specification {
     "functions" in {
       parser.parse("void go()", parser.function) mustEqual Function("go", Void, Seq(), false, Seq())
       parser.parse("oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
-        TI32, Array(Field(1, "n", TI32, None, Requiredness.Default)), true, Seq())
+        TI32, Seq(Field(1, "n", TI32, None, Requiredness.Default)), true, Seq())
       parser.parse(
         "list<string> get_tables(optional i32 id, 3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
-        Function("get_tables", ListType(TString, None), Array(
-          Field(-1, "id", TI32, None, Requiredness.Default),
+        Function("get_tables", ListType(TString, None), Seq(
+          Field(-1, "id", TI32, None, Requiredness.Optional),
           Field(3, "name", TString, Some(StringConstant("cat")), Requiredness.Required)
-        ), false, Array(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)))
+        ), false, Seq(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)))
     }
 
     "const" in {
@@ -79,7 +79,7 @@ class ScroogeParserSpec extends Specification {
           NORTH, SOUTH, EAST=90, WEST, UP, DOWN=5
         }
         """
-      parser.parse(code, parser.definition) mustEqual Enum("Direction", Array(
+      parser.parse(code, parser.definition) mustEqual Enum("Direction", Seq(
         EnumValue("NORTH", 1),
         EnumValue("SOUTH", 2),
         EnumValue("EAST", 90),
@@ -94,7 +94,7 @@ class ScroogeParserSpec extends Specification {
     "senum" in {
       // wtf is senum?!
       parser.parse("senum Cities { 'Milpitas', 'Mayfield' }", parser.definition) mustEqual
-        Senum("Cities", Array("Milpitas", "Mayfield"))
+        Senum("Cities", Seq("Milpitas", "Mayfield"))
     }
 
     "struct" in {
@@ -105,7 +105,7 @@ class ScroogeParserSpec extends Specification {
           3: Color color = BLUE
         }
         """
-      parser.parse(code, parser.definition) mustEqual Struct("Point", Array(
+      parser.parse(code, parser.definition) mustEqual Struct("Point", Seq(
         Field(1, "x", TDouble, None, Requiredness.Default),
         Field(2, "y", TDouble, None, Requiredness.Default),
         Field(3, "color", ReferenceType("Color"), Some(Identifier("BLUE")), Requiredness.Default)
@@ -114,9 +114,9 @@ class ScroogeParserSpec extends Specification {
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
-        Exception_("BadError", Array(Field(1, "message", TString, None, Requiredness.Default)))
+        Exception_("BadError", Seq(Field(1, "message", TString, None, Requiredness.Default)))
       parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
-        Exception_("E", Array(
+        Exception_("E", Seq(
           Field(-1, "message", TString, None, Requiredness.Default),
           Field(-2, "reason", TString, None, Requiredness.Default)
         ))
@@ -129,14 +129,14 @@ class ScroogeParserSpec extends Specification {
           binary get(1: string name) throws (1: NotFoundException ex);
         }
         """
-      parser.parse(code, parser.definition) mustEqual Service("Cache", None, Array(
-        Function("put", Void, Array(
+      parser.parse(code, parser.definition) mustEqual Service("Cache", None, Seq(
+        Function("put", Void, Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "value", TBinary, None, Requiredness.Default)
         ), false, Seq()),
-        Function("get", TBinary, Array(
+        Function("get", TBinary, Seq(
           Field(1, "name", TString, None, Requiredness.Default)
-        ), false, Array(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)))
+        ), false, Seq(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)))
       ))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
@@ -153,8 +153,8 @@ class ScroogeParserSpec extends Specification {
         }
         """
       parser.parse(code, parser.document) mustEqual Document(
-        Array(Namespace("java", "com.example"), Namespace("*", "example")),
-        Array(Service("NullService", None, Array(
+        Seq(Namespace("java", "com.example"), Namespace("*", "example")),
+        Seq(Service("NullService", None, Seq(
           Function("doNothing", Void, Seq(), false, Seq())
         )))
       )

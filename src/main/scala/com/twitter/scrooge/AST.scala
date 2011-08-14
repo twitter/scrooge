@@ -1,5 +1,7 @@
 package com.twitter.scrooge
 
+import java.io.File
+
 object AST {
   sealed abstract class Requiredness {
     def isOptional = this eq Requiredness.Optional
@@ -106,15 +108,26 @@ object AST {
   }
 
   sealed abstract class Header
-  case class Include(filename: String, document: Document) extends Header
+
+  case class Include(filename: String, document: Document) extends Header {
+    lazy val prefix = stripExtension(filename)
+  }
+
   case class CppInclude(file: String) extends Header
+
   case class Namespace(scope: String, name: String) extends Header
 
   case class Document(headers: Seq[Header], defs: Seq[Definition]) {
     def camelize = copy(defs = defs.map(_.camelize))
+
+    lazy val scalaNamespace = {
+      val scala = headers.collect { case Namespace("scala", x) => x }.headOption
+      val java = headers.collect { case Namespace("java", x) => x }.headOption
+      (scala orElse java).getOrElse("thrift")
+    }
   }
 
-  implicit def camelCase(str: String) = {
+  def camelCase(str: String) = {
     val sb = new StringBuilder(str.length)
     var up = false
     for (c <- str) {
@@ -128,5 +141,12 @@ object AST {
       }
     }
     sb.toString
+  }
+
+  def stripExtension(filename: String) = {
+    filename.indexOf('.') match {
+      case -1 => filename
+      case dot => filename.substring(0, dot)
+    }
   }
 }

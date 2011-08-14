@@ -101,7 +101,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // fields
 
-  def field(argList: Boolean) = opt(fieldId) ~ fieldReq(argList) ~ (fieldType ~ identifier) ~
+  def field = opt(fieldId) ~ fieldReq ~ (fieldType ~ identifier) ~
     (opt("=" ~> constant) <~ opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value => {
       val transformedVal = ftype match {
         case TBool => value map {
@@ -115,19 +115,15 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   }
 
   def fieldId = intConstant <~ ":" ^^ { x => x.value.toInt }
-  def fieldReq(argList: Boolean) = opt("required" | "optional") ^^ {
-    case Some("required") =>
-      Requiredness.Required
-    case Some("optional") =>
-      // ignore "optional" in arg lists. this is something weird that the official thrift codegen does.
-      if (argList) Requiredness.Default else Requiredness.Optional
-    case None =>
-      Requiredness.Default
+  def fieldReq = opt("required" | "optional") ^^ {
+    case Some("required") => Requiredness.Required
+    case Some("optional") => Requiredness.Optional
+    case None => Requiredness.Default
   }
 
   // functions
 
-  def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field(true)) <~ ")") ~
+  def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
     Function(id.name, ftype, fixFieldIds(args), oneway.isDefined,
       throws.map { fixFieldIds(_) }.getOrElse(Nil))
@@ -135,7 +131,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
-  def throws = "throws" ~> "(" ~> rep(field(true)) <~ ")"
+  def throws = "throws" ~> "(" ~> rep(field) <~ ")"
 
   // definitions
 
@@ -173,11 +169,11 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value })
   }
 
-  def struct = (("struct" ~> identifier) <~ "{") ~ rep(field(false)) <~ "}" ^^ {
+  def struct = (("struct" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
     case id ~ fields => Struct(id.name, fixFieldIds(fields))
   }
 
-  def exception = (("exception" ~> identifier) <~ "{") ~ rep(field(false)) <~ "}" ^^ {
+  def exception = (("exception" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
     case id ~ fields => Exception_(id.name, fixFieldIds(fields))
   }
 

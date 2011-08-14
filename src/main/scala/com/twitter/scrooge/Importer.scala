@@ -8,7 +8,7 @@ import scala.io.Source
 trait Importer extends (String => String)
 
 object Importer {
-  def fileImporter(importPaths: String*) = new Importer {
+  def fileImporter(importPaths: Seq[String]) = new Importer {
     val paths = List(".") ++ importPaths
 
     // find the requested file, and load it into a string.

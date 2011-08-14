@@ -17,14 +17,13 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
   type ThriftStruct = { def write(oprot: TProtocol) }
 
   val gen = new ScalaGenerator
-  gen.scalaNamespace = "awwYeah"
-
+  val doc = new Document(Seq(Namespace("scala", "awwYeah")), Nil)
   val protocol = mock[TProtocol]
 
   "ScalaGenerator" should {
     "generate an enum" in {
       val enum = Enum("SomeEnum", Seq(EnumValue("FOO", 1), EnumValue("BAR", 2)))
-      compile(gen(enum))
+      compile(gen(doc, enum))
       invoke("awwYeah.SomeEnum.FOO.value") mustEqual 1
       invoke("awwYeah.SomeEnum.BAR.value") mustEqual 2
       invoke("awwYeah.SomeEnum.get(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
@@ -45,7 +44,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
         Const("alias", ReferenceType("FakeEnum"), Identifier("FOO"))
       ))
       // add a definition for SomeEnum2.FOO so it will compile.
-      val code = gen(constList) + "\n\nclass FakeEnum()\nobject FakeEnum { val FOO = new FakeEnum() }\n"
+      val code = gen(doc, constList) + "\n\nclass FakeEnum()\nobject FakeEnum { val FOO = new FakeEnum() }\n"
       compile(code)
 
       invoke("awwYeah.Constants.name") mustEqual "Columbo"
@@ -64,7 +63,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(3, "papa", TI64, None, Requiredness.Default)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -102,7 +101,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(2, "y", TBinary, None, Requiredness.Default)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -139,7 +138,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(3, "name", TString, None, Requiredness.Default)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -179,7 +178,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(4, "nested", ListType(SetType(TI32, None), None), None, Requiredness.Default)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -247,7 +246,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(2, "age", TI32, None, Requiredness.Optional)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -301,7 +300,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(1, "size", TI32, None, Requiredness.Required)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -331,7 +330,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(1, "name", TString, Some(StringConstant("leela")), Requiredness.Optional)
         ))
 
-        compile(gen(struct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -356,8 +355,8 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(5, "emperor", StructType(emperorStruct), None, Requiredness.Default)
         ))
 
-        compile(gen(emperorStruct))
-        compile(gen(struct))
+        compile(gen(doc, emperorStruct))
+        compile(gen(doc, struct))
 
         "read" in {
           expect {
@@ -416,7 +415,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           Field(1, "description", TString, None, Requiredness.Default)
         ))
 
-        compile(gen(error))
+        compile(gen(doc, error))
         invoke("new awwYeah.Error(\"silly\").getStackTrace") must haveClass[Array[StackTraceElement]]
       }
     }
