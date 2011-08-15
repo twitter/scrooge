@@ -125,6 +125,11 @@ object AST {
       val java = headers.collect { case Namespace("java", x) => x }.headOption
       (scala orElse java).getOrElse("thrift")
     }
+
+    def consts = defs.collect { case c: Const => c }
+    def enums = defs.collect { case e: Enum => e }
+    def structs = defs.collect { case s: StructLike => s }
+    def services = defs.collect { case s: Service => s }
   }
 
   def camelCase(str: String) = {
