@@ -1,5 +1,4 @@
-
-## scrooge
+# scrooge
 
 Scrooge is a thrift code generator for scala.
 
@@ -12,14 +11,14 @@ It also uses scala syntax so the generated code is much smaller.
 The generated code still depends on libthrift.
 
 
-# Building
+## Building
 
 To build scrooge, use sbt:
 
     $ sbt package-dist
 
 
-# Work in progress
+## Work in progress
 
 This is still a work in progress, so patches and help are gleefully accepted.
 
@@ -33,12 +32,26 @@ The state (as of July 2011):
   The "master" branch uses sbt-thrift (apache thrift with scala wrappers) and
   the "scrooge" branch uses scrooge.
 
-- To run the code generator, just do:
-
-      $ ./scrooge \<thrift-file\>
-
-  and it will spew all the generated code to stdout. This is not intended to
-  be the final behavior -- just a stopgap. It really should take some options
-  and write out several files to a single path.
-
 - There's no sbt plugin yet, but there should be.
+
+## Running Scrooge
+
+This assumes that you have a script named "scrooge" in your path.
+
+- To get command line help:
+
+    `$ ./scrooge -?`
+    
+- To generate source with content written to the current directory:
+
+    `$ ./scrooge <thrift-file1> [<thrift-file2> ...]`
+    
+- To generate source with content written to a specified directory:
+
+    `$ ./scrooge -d <target-dir> <thrift-file1> [<thrift-file2> ...]`
+    
+- To specify additional include paths:
+
+    `$ ./scrooge -i <include-path> <thrift-file1> [<thrift-file2> ...]`
+    
+    Where include-path is a list of directory, separated by the platform specified path separator (':' on unix, ';' on windows)

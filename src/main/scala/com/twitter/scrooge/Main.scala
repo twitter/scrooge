@@ -7,16 +7,13 @@ object Main {
   object Options extends CommandLineParser {
     val version = Flag("v", "version", "Print version number and quit")
     val help = Flag("?", "help", "Print help and quit")
-    val genClient = Flag("c", "generate-client", "Generate finagle client")
-    val genService = Flag("s", "generate-service", "Generate finagle service")
-    val genServer = Flag("o", "generate-server", "Generate ostrich server")
     val outputDir = StringOption("d", "output-dir", "path", "path of the directory to write files to")
     val outputFile = StringOption("o", "output-file", "filename", "name of file to write output to")
     val importPath = StringOption("i", "import-path", "path", "path-separator separated list of paths")
     val inputFiles = NakedArgument("inputFiles", true, true, "The name of the thrift files to process")
     val versionMode = %(version)
     val helpMode = %(help)
-    val genMode = %(importPath.? ~ (outputFile | outputDir).? ~ genClient.? ~ genService.? ~ genServer.?, inputFiles)
+    val genMode = %(importPath.? ~ (outputFile | outputDir).?, inputFiles)
     val spec = %%(versionMode, helpMode, genMode)
   }
 
@@ -34,14 +31,10 @@ object Main {
 
       case Right((Options.genMode, cmdLine)) =>
         val importPath = cmdLine(Options.importPath).map(_.split(File.pathSeparator).toSeq).getOrElse(Nil)
-        val genClient = cmdLine(Options.genClient)
-        val genService = cmdLine(Options.genService)
-        val genServer = cmdLine(Options.genServer)
-        val genAll = !genClient && !genService && !genServer // default to all if none-specified
-        val genOptions = Set[scalagen.ScalaServiceOption]() ++
-          (if (genClient || genAll) Set(scalagen.WithFinagleClient) else Set()) ++
-          (if (genService || genAll) Set(scalagen.WithFinagleService) else Set()) ++
-          (if (genServer || genAll) Set(scalagen.WithOstrichServer) else Set())
+        val genOptions = Set[scalagen.ScalaServiceOption](
+          scalagen.WithFinagleClient,
+          scalagen.WithFinagleService,
+          scalagen.WithOstrichServer)
 
         for (inputFile <- cmdLine(Options.inputFiles)) {
           val inputFileDir = new File(inputFile).getParent()
