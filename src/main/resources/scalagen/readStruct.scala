@@ -1,0 +1,1 @@
+{{name}}.decoder(_iprot)

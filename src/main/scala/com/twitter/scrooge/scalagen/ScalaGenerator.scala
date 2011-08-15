@@ -6,16 +6,8 @@ import AST._
 import org.monkey.mustache.Dictionary
 
 trait ScalaTemplate {
-  val paths = List(
-    "com.twitter.scrooge",
-    "com.twitter.scrooge.scalagen",
-    "com.twitter.scrooge.scalagen.StructTemplate",
-    "com.twitter.scrooge.scalagen.ServiceTemplate"
-  )
-  def template[A: Manifest](text: String) = Template[A](text, paths)
-
   def handlebar[T](name: String)(f: T => Dictionary)(implicit loader: MustacheLoader) =
-    new Handlebar(loader(name), f)
+    new HandlebarMustache(loader(name), f)
 }
 
 
@@ -29,11 +21,7 @@ case object WithOstrichServer extends ScalaServiceOption
 case class ScalaService(service: Service, options: Set[ScalaServiceOption])
 
 
-// maybe should eventually go elsewhere.
-class ScalaGenerator extends Generator with ScalaTemplate {
-  import StructTemplate._
-  import ServiceTemplate._
-
+class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate with ServiceTemplate {
   implicit val mustaches = new MustacheLoader("/scalagen/")
 
   val header = handlebar[Document]("header"){ doc =>
@@ -57,7 +45,7 @@ class ScalaGenerator extends Generator with ScalaTemplate {
   }
 
   val enumsTemplate = handlebar[Seq[Enum]]("enums"){ enums =>
-    val enumDictionaries = enums.map(enumTemplate.f)
+    val enumDictionaries = enums.map(enumTemplate.mkDictionary)
     Dictionary()
       .bool("hasEnums", enumDictionaries.nonEmpty)
       .dictionaries("enums", enumDictionaries)
@@ -224,18 +212,17 @@ class ScalaGenerator extends Generator with ScalaTemplate {
   // deprecated (for tests)
   def apply(doc: Document, enum: Enum): String = header(doc) + enumTemplate(enum)
   def apply(doc: Document, consts: ConstList): String = header(doc) + constsTemplate(consts)
-  def apply(doc: Document, struct: StructLike): String = header(doc) + structTemplate(struct, this)
-  def apply(doc: Document, service: Service): String = header(doc) + serviceTemplate(ScalaService(service, Set()), this)
+  def apply(doc: Document, struct: StructLike): String = header(doc) + structTemplate(struct)
+  def apply(doc: Document, service: Service): String = header(doc) + serviceTemplate(ScalaService(service, Set()))
 
   def apply(_doc: Document, serviceOptions: Set[ScalaServiceOption]): String = {
     val doc = _doc.camelize
 
     val constSection = constsTemplate(ConstList(doc.consts))
     val enumSection = enumsTemplate(doc.enums)
-    val structSections = doc.structs map { x => structTemplate(x, this) }
-    val structSection = structSections.mkString("", "\n\n", "\n\n")
+    val structSection = doc.structs map { x => structTemplate(x) } mkString("", "\n\n", "\n\n")
     val serviceSections = doc.services.map { x =>
-      serviceTemplate(ScalaService(x, serviceOptions), this)
+      serviceTemplate(ScalaService(x, serviceOptions))
     }
     val serviceSection = serviceSections.mkString("", "\n\n", "\n\n")
 

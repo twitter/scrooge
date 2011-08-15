@@ -13,8 +13,6 @@ import org.specs.mock.{ClassMocker, JMocker}
 class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
 
-  type ThriftStruct = { def write(oprot: TProtocol) }
-
   val gen = new ScalaGenerator
   val doc = new Document(Seq(Namespace("scala", "awwYeah")), Nil)
   val protocol = mock[TProtocol]

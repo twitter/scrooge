@@ -38,7 +38,11 @@ trait EvalHelper { self: JMocker =>
   def invoke(code: String): Any = eval.inPlace[Any](code)
 
   def compile(code: String) {
-    eval.compile(code)
+    try eval.compile(code) catch {
+      case ex =>
+        Console.println(code)
+        throw ex
+    }
   }
 
   def startRead(protocol: TProtocol, field: TField) {

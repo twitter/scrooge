@@ -2,166 +2,105 @@ package com.twitter.scrooge
 package scalagen
 
 import AST._
+import org.monkey.mustache.Dictionary
 
-object ServiceTemplate extends ScalaTemplate {
-  val functionThrowsTemplate = template[Field]("@throws(classOf[{{ scalaType(`type`) }}])")
+trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerator =>
+  def toDictionary(function: Function, async: Boolean): Dictionary = {
+    val throwsDictionaries = function.throws map { t =>
+      Dictionary().data("scalaType", scalaType(t.`type`))
+    }
+    val baseReturnType = scalaType(function.`type`)
+    val returnType = if (async) "Future[" + baseReturnType + "]" else baseReturnType
+    Dictionary()
+      .dictionaries("throws", throwsDictionaries)
+      .data("name", function.name)
+      .data("scalaType", returnType)
+      .data("fieldArgs", fieldArgs(function.args))
+  }
 
-  val functionDeclarationTemplate = template[Function](
-"""def {{name}}({{ fieldArgs(args) }}): {{scalaType(`type`)}}""")
+  lazy val functionTemplate = handlebar[Function]("function")(toDictionary(_, false))
+  lazy val futureFunctionTemplate = handlebar[Function]("function")(toDictionary(_, true))
 
-  val futureFunctionDeclarationTemplate = template[Function](
-"""def {{name}}({{ fieldArgs(args) }}): Future[{{scalaType(`type`)}}]""")
+  def serviceFunctionArgsStruct(f: Function): Struct = {
+    Struct(f.name + "_args", f.args)
+  }
 
-  val functionTemplate = template[Function](
-"""{{ throws.map { t => functionThrowsTemplate(t, scope) + "\n" }.mkString }}{{ functionDeclarationTemplate(self, scope) }}""")
-
-  val futureFunctionTemplate = template[Function](
-"""{{ throws.map { t => functionThrowsTemplate(t, scope) + "\n" }.mkString }}{{ futureFunctionDeclarationTemplate(self, scope) }}""")
-
-  def serviceFunctionResultStruct(f: Function) = {
+  def serviceFunctionResultStruct(f: Function): Struct = {
     val throws = f.throws map { _.copy(requiredness = Requiredness.Optional) }
     val success = f.`type` match {
       case Void => Nil
       case fieldType: FieldType =>
-        Seq(AST.Field(0, "success", fieldType, None, AST.Requiredness.Optional))
+        Seq(Field(0, "success", fieldType, None, Requiredness.Optional))
     }
-    AST.Struct(f.name + "_result", success ++ throws)
+    Struct(f.name + "_result", success ++ throws)
   }
 
-  def serviceFinagleFunctionException(function: Function, exceptionType: String, field: Field) = {
-    "case e: " + exceptionType + " =>\n" +
-      "  reply(\"" + function.name + "\", seqid, " + function.name + "_result(" +
-      field.name + " = Some(e)))"
+  def finagleServiceFunctionException(function: Function, exceptionType: String, field: Field) = {
   }
 
-  def clientFinagleFunctionTemplate = template[Function](
-"""{{ futureFunctionTemplate(self, scope) }} = {
-  encodeRequest("{{name}}", {{name}}_args({{ args.map(_.name).mkString(", ") }})) flatMap { this.service } flatMap {
-    decodeResponse(_, {{name}}_result.decoder)
-  } flatMap { result =>
-    {{ if (throws.isEmpty) "" else
-         throws.map { "result." + _.name } mkString("(", " orElse ", ").map(Future.exception) getOrElse")
-    }} {{ if (`type` eq AST.Void) "Future.Done" else
-         "(result.success.map(Future.value) getOrElse missingResult(\""+name+"\"))" }}
-  }
-}
-"""
-  )
-
-  val clientFinagleTemplate = template[Service](
-"""// ----- finagle client
-
-import com.twitter.finagle.{Service => FinagleService}
-import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.scrooge.FinagleThriftClient
-
-class FinagledClient(
-  val service: FinagleService[ThriftClientRequest, Array[Byte]],
-  val protocolFactory: TProtocolFactory)
-  extends FinagleThriftClient with FutureIface
-{
-{{ functions.map { f => clientFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
-}
-""")
-
-  val serviceFinagleFunctionTemplate = template[Function](
-"""functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
-  try {
-    val args = {{name}}_args.decoder(iprot)
-    iprot.readMessageEnd()
-    (try {
-      iface.{{name}}({{ args.map { a => "args." + a.name }.mkString(", ") }})
-    } catch {
-      case e: Exception => Future.exception(e)
-    }) flatMap { value: {{scalaType(`type`)}} =>
-      reply("{{name}}", seqid, {{name}}_result({{ if (`type` ne AST.Void) "success = Some(value)" else "" }}))
-    } rescue {
-{{ throws.map { t => serviceFinagleFunctionException(self, scalaType(t.`type`), t).indent(3) }.mkString("\n") }}
-      case e: Throwable =>
-        exception("{{name}}", seqid, TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}")
+  lazy val finagleClientFunctionTemplate = handlebar[Function]("finagleClientFunction") { self =>
+    val resultUnwrapper = {
+      val exceptions = if (self.throws.isEmpty) "" else
+         self.throws.map { "result." + _.name } mkString("(", " orElse ", ").map(Future.exception) getOrElse")
+      val result = if (self.`type` eq AST.Void) "Future.Done" else
+         "(result.success.map(Future.value) getOrElse missingResult(\""+self.name+"\"))"
+      exceptions + result
     }
-  } catch {
-    case e: TProtocolException =>
-      iprot.readMessageEnd()
-      exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage)
-    case e: Exception =>
-      Future.exception(e)
-  }
-}
-""")
-
-  val serviceFinagleTemplate = template[Service](
-"""// ----- finagle service
-
-import com.twitter.scrooge.FinagleThriftService
-
-class FinagledService(
-  iface: FutureIface,
-  val protocolFactory: TProtocolFactory)
-  extends FinagleThriftService
-{
-{{ functions.map { f => serviceFinagleFunctionTemplate(f, scope).indent }.mkString("\n") }}
-}
-""")
-
-  var serviceOstrichTemplate = template[Service](
-"""// ----- ostrich service
-
-import com.twitter.finagle.builder.{Server, ServerBuilder}
-import com.twitter.finagle.stats.OstrichStatsReceiver
-import com.twitter.finagle.thrift.ThriftServerFramedCodec
-import com.twitter.logging.Logger
-import com.twitter.ostrich.admin.Service
-
-trait ThriftServer extends Service with FutureIface {
-  val log = Logger.get(getClass)
-
-  def thriftCodec = ThriftServerFramedCodec()
-  val thriftProtocolFactory = new TBinaryProtocol.Factory()
-  val thriftPort: Int
-  val serverName: String
-
-  var server: Server = null
-
-  def start() {
-    val thriftImpl = new FinagledService(this, thriftProtocolFactory)
-    val serverAddr = new InetSocketAddress(thriftPort)
-    server = ServerBuilder().codec(thriftCodec).name(serverName).reportTo(new OstrichStatsReceiver).bindTo(serverAddr).build(thriftImpl)
+    Dictionary()
+      .data("functionDecl", futureFunctionTemplate(self))
+      .data("name", self.name)
+      .data("argNames", self.args.map(_.name).mkString(", "))
+      .data("resultUnwrapper", resultUnwrapper)
   }
 
-  def shutdown() {
-    synchronized {
-      if (server != null) {
-        server.close(0.seconds)
-      }
+  lazy val finagleClientTemplate = handlebar[Service]("finagleClient") { self =>
+    val functionDictionaries = self.functions map { f =>
+      Dictionary().data("function", finagleClientFunctionTemplate(f).indent())
     }
-  }
-}
-""")
-
-  val serviceTemplate = template[ScalaService](
-"""object {{service.name}} {
-  trait Iface {{ service.parent.map { "extends " + _ }.getOrElse("") }}{
-{{ service.functions.map { f => functionTemplate(f, scope).indent(2) }.mkString("\n") }}
+    Dictionary().dictionaries("functions", functionDictionaries)
   }
 
-  trait FutureIface {{ service.parent.map { "extends " + _ }.getOrElse("") }}{
-{{ service.functions.map { f => futureFunctionTemplate(f, scope).indent(2) }.mkString("\n") }}
+  lazy val finagleServiceFunctionTemplate = handlebar[Function]("finagleServiceFunction") { self =>
+    val exceptionDictionaries = self.throws map { t =>
+      Dictionary()
+        .data("exceptionType", scalaType(t.`type`))
+        .data("fieldName", t.name)
+    }
+    Dictionary()
+      .data("name", self.name)
+      .data("argNames", self.args map { "args." + _.name } mkString(", "))
+      .data("scalaType", scalaType(self.`type`))
+      .data("resultNamedArg", if (self.`type` ne Void) "success = Some(value)" else "")
+      .dictionaries("exceptions", exceptionDictionaries)
   }
 
-{{
-service.functions.map { f =>
-  // generate a Struct for each function's args & retval
-  structTemplate(AST.Struct(f.name + "_args", f.args), scope) + "\n" +
-    structTemplate(serviceFunctionResultStruct(f), scope)
-}.mkString("\n").indent
-}}
+  lazy val finagleServiceTemplate = handlebar[Service]("finagleService"){ self =>
+    val functionDictionaries = self.functions map { f =>
+      Dictionary().data("function", finagleServiceFunctionTemplate(f).indent())
+    }
+    Dictionary().dictionaries("functions", functionDictionaries)
+  }
 
-{{ if (options contains WithFinagleClient) clientFinagleTemplate(service, scope).indent else "" }}
+  lazy val ostrichServiceTemplate = handlebar[Service]("ostrichService") { _ => Dictionary() }
 
-{{ if (options contains WithFinagleService) serviceFinagleTemplate(service, scope).indent else "" }}
-
-{{ if (options contains WithOstrichServer) serviceOstrichTemplate(service, scope).indent else "" }}
-}
-""")
+  lazy val serviceTemplate = handlebar[ScalaService]("service") { self =>
+    val service = self.service
+    val functionStructs = service.functions flatMap { f =>
+      Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
+    } map(structTemplate.mkDictionary)
+    Dictionary()
+      .data("name", service.name)
+      .data("extends", service.parent.map { "extends " + _ }.getOrElse(""))
+      .dictionaries("syncFunctions", service.functions.map(toDictionary(_, false)))
+      .dictionaries("asyncFunctions", service.functions.map(toDictionary(_, true)))
+      .dictionaries("functionStructs", functionStructs)
+      .data("finagleClient", 
+        if (self.options contains WithFinagleClient) finagleClientTemplate(service).indent else "")
+      .data("finagleService", 
+        if (self.options contains WithFinagleService) finagleServiceTemplate(service).indent else "")
+      .data("ostrichServer", 
+        if (self.options contains WithOstrichServer) ostrichServiceTemplate(service).indent else "")
+      .partial("function", functionTemplate.mustache)
+      .partial("struct", structTemplate.mustache)
+  }
 }
