@@ -1,20 +1,13 @@
 object {{name}} {
   trait Iface {{extends}}{
-  {{#syncFunctions}}
-    {{> function}}
-  {{/syncFunctions}}
+{{syncFunctions}}
   }
 
   trait FutureIface {{extends}}{
-  {{#asyncFunctions}}
-    {{> function}}
-  {{/asyncFunctions}}
+{{asyncFunctions}}
   }
 
-{{#functionStructs}}
-  {{> struct}}
-{{/functionStructs}}
-
+{{functionStructs}}
 {{finagleClient}}
 {{finagleService}}
 {{ostrichServer}}

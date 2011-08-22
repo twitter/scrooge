@@ -152,9 +152,9 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       val exs = Seq(Field(1, "ex", StructType(ex)))
       val service = Service("Delivery", None, Seq(
         Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Nil),
-//        Function("deliver2", TI32, Seq(Field(1, "where", TString)), false, exs) // blows-up, why?
-        Function("execute", Void, Nil, false, Nil)
-//        Function("execute2", Void, Nil, false, exs) // blows-up, why?
+        Function("deliver2", TI32, Seq(Field(1, "where", TString)), false, exs), // blows-up, why?
+        Function("execute", Void, Nil, false, Nil),
+        Function("execute2", Void, Nil, false, exs) // blows-up, why?
       ))
       val doc = Document(Nil, Seq(ex, service))
       val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)

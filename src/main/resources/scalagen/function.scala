@@ -1,3 +1,2 @@
-{{#throws}}
-@throws(classOf[{{scalaType}}])
-{{/throws}}def {{name}}({{fieldArgs}}): {{scalaType}}
+{{#throws}}@throws(classOf[{{scalaType}}]) {{/throws}}
+def {{name}}({{fieldArgs}}): {{scalaType}}

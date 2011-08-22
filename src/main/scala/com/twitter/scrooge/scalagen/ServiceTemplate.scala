@@ -35,15 +35,12 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     Struct(f.name + "_result", success ++ throws)
   }
 
-  def finagleServiceFunctionException(function: Function, exceptionType: String, field: Field) = {
-  }
-
   lazy val finagleClientFunctionTemplate = handlebar[Function]("finagleClientFunction") { self =>
     val resultUnwrapper = {
       val exceptions = if (self.throws.isEmpty) "" else
          self.throws.map { "result." + _.name } mkString("(", " orElse ", ").map(Future.exception) getOrElse")
-      val result = if (self.`type` eq AST.Void) "Future.Done" else
-         "(result.success.map(Future.value) getOrElse missingResult(\""+self.name+"\"))"
+      val result = if (self.`type` eq AST.Void) " Future.Done" else
+         "{ result.success.map(Future.value) getOrElse missingResult(\""+self.name+"\") }"
       exceptions + result
     }
     Dictionary()
@@ -85,22 +82,22 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
 
   lazy val serviceTemplate = handlebar[ScalaService]("service") { self =>
     val service = self.service
+    val syncFunctions = service.functions.map(functionTemplate(_).indent(2)).mkString("\n")
+    val asyncFunctions = service.functions.map(futureFunctionTemplate(_).indent(2)).mkString("\n")
     val functionStructs = service.functions flatMap { f =>
       Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-    } map(structTemplate.mkDictionary)
+    } map { structTemplate(_).indent } mkString("\n")
     Dictionary()
       .data("name", service.name)
       .data("extends", service.parent.map { "extends " + _ }.getOrElse(""))
-      .dictionaries("syncFunctions", service.functions.map(toDictionary(_, false)))
-      .dictionaries("asyncFunctions", service.functions.map(toDictionary(_, true)))
-      .dictionaries("functionStructs", functionStructs)
-      .data("finagleClient", 
+      .data("syncFunctions", syncFunctions)
+      .data("asyncFunctions", asyncFunctions)
+      .data("functionStructs", functionStructs)
+      .data("finagleClient",
         if (self.options contains WithFinagleClient) finagleClientTemplate(service).indent else "")
-      .data("finagleService", 
+      .data("finagleService",
         if (self.options contains WithFinagleService) finagleServiceTemplate(service).indent else "")
-      .data("ostrichServer", 
+      .data("ostrichServer",
         if (self.options contains WithOstrichServer) ostrichServiceTemplate(service).indent else "")
-      .partial("function", functionTemplate.mustache)
-      .partial("struct", structTemplate.mustache)
   }
 }

@@ -15,6 +15,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with SubversionPublisher
 {
   val scala0Repo = "scala0.net" at "http://scala0.net/repositories/"
+  val monkeyRepo = "monkey.org" at "http://monkey.org/~marius/maven"
 
   // projects that use finagle will provide their own dependent jar.
   val finagleVersion = "1.8.2"
@@ -22,7 +23,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
   val cmdLine = "net.scala0" % "scala0.cmdline_2.8.1" % "1.1.1"
-  val mustache = "org.monkey" % "mustache" % "1.0.1-SNAPSHOT"
+  val mustache = "org.monkey" % "mustache" % "1.0.3"
 
   val specs = "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test" withSources()
   val jmock = "org.jmock" % "jmock" % "2.4.0" % "test"
