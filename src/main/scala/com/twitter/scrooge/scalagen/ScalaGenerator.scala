@@ -57,7 +57,7 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
       Dictionary()
         .data("name", c.name)
         .data("type", scalaType(c.`type`))
-        .data("value", constantValue(c.`type`, c.value))
+        .data("value", constantValue(c.value))
     }
     Dictionary()
       .bool("hasConstants", constants.nonEmpty)
@@ -80,17 +80,17 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
   }
 
   def listValue(list: ListConstant): String = {
-    "List(" + list.elems.map(constantValue(null, _)).mkString(", ") + ")"
+    "List(" + list.elems.map(constantValue).mkString(", ") + ")"
   }
 
   def mapValue(map: MapConstant): String = {
     "Map(" + (map.elems.map {
       case (k, v) =>
-        constantValue(null, k) + " -> " + constantValue(null, v)
+        constantValue(k) + " -> " + constantValue(v)
     } mkString(", ")) + ")"
   }
 
-  def constantValue(`type`: FieldType, constant: Constant): String = {
+  def constantValue(constant: Constant): String = {
     constant match {
       case NullConstant => "null"
       case StringConstant(value) => quote(value)
@@ -99,16 +99,15 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
       case BoolConstant(value) => value.toString
       case c @ ListConstant(_) => listValue(c)
       case c @ MapConstant(_) => mapValue(c)
-      case c @ Identifier(name) =>
-        val prefix = `type`.asInstanceOf[NamedType].name + "."
-        if (name startsWith prefix) name else prefix + name
+      case EnumValueConstant(enum, value) => enum.name + "." + value.name
+      case Identifier(name) => name
     }
   }
 
   def writeFieldConst(name: String) = name.toUpperCase + "_FIELD_DESC"
 
   def defaultValueTemplate(field: Field) = {
-    field.default.map { d => constantValue(field.`type`, d) }.getOrElse {
+    field.default.map(constantValue).getOrElse {
       if (field.requiredness.isOptional) {
         "None"
       } else {
@@ -199,7 +198,7 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
   def fieldArgs(args: Seq[Field]): String = {
     args.map { f =>
       val prefix = f.name + ": " + scalaFieldType(f)
-      val suffix = f.default.map { d => constantValue(f.`type`, d) } orElse {
+      val suffix = f.default.map(constantValue) orElse {
         f.requiredness match {
           case Requiredness.Optional => Some("None")
           case _ => None

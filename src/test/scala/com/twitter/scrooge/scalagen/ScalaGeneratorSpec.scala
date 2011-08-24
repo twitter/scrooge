@@ -32,13 +32,14 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
     }
 
     "generate a constant" in {
+      val fakeEnum = Enum("FakeEnum", Seq(EnumValue("FOO", 42)))
       val constList = ConstList(Seq(
         Const("name", TString, StringConstant("Columbo")),
         Const("someInt", TI32, IntConstant(1)),
         Const("someDouble", TDouble, DoubleConstant(3.0)),
         Const("someList", ListType(TString, None), ListConstant(Seq(StringConstant("piggy")))),
         Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar")))),
-        Const("alias", ReferenceType("FakeEnum"), Identifier("FOO"))
+        Const("alias", EnumType(fakeEnum), EnumValueConstant(fakeEnum, fakeEnum.values.head))
       ))
       // add a definition for SomeEnum2.FOO so it will compile.
       val code = gen(doc, constList) + "\n\nclass FakeEnum()\nobject FakeEnum { val FOO = new FakeEnum() }\n"

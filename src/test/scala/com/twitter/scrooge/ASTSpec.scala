@@ -7,14 +7,21 @@ object ASTSpec extends Specification {
 
   "camelCase" should {
     val cases = List(
-      "hello" -> "hello",
-      "hello_world" -> "helloWorld",
-      "a_b_c_d" -> "aBCD"
+      "hello" -> ("hello", "Hello"),
+      "hello_world" -> ("helloWorld", "HelloWorld"),
+      "a_b_c_d" -> ("aBCD", "ABCD"),
+      "HELLO_WORLD" -> ("helloWorld", "HelloWorld")
     )
+
     cases foreach {
-      case (input, expected) =>
+      case (input, (down, up)) =>
         input in {
-          camelCase(input) mustEqual expected
+          "first char down" in {
+            camelCase(input) mustEqual down
+          }
+          "first char up" in {
+            camelCase(input, true) mustEqual up
+          }
         }
     }
   }
@@ -33,6 +40,35 @@ object ASTSpec extends Specification {
     "generate default scalaNamespace" in {
       val doc = Document(Nil, Nil)
       doc.scalaNamespace mustEqual "thrift"
+    }
+
+    "map namespaces" in {
+      val javaOatmealNs = Namespace("java", "com.twitter.oatmeal")
+      val javaGranolaNs = Namespace("java", "com.twitter.granola")
+      val rbOatmealNs = Namespace("rb", "Oatmeal")
+      val doc = Document(Seq(javaOatmealNs, rbOatmealNs), Nil)
+      val namespaceMap = Map(javaOatmealNs.name -> javaGranolaNs.name)
+      doc.mapNamespaces(namespaceMap) mustEqual
+        Document(Seq(javaGranolaNs, rbOatmealNs), Nil)
+    }
+  }
+
+  "Identifier" should {
+    "camelize to title-case" in {
+      Identifier("HELLO_WORLD").camelize mustEqual Identifier("HelloWorld")
+    }
+  }
+
+  "EnumValue" should {
+    "camelize to title-case" in {
+      EnumValue("HELLO_WORLD", 3).camelize mustEqual EnumValue("HelloWorld", 3)
+    }
+  }
+
+  "Enum" should {
+    "camelize values" in {
+      Enum("Greeting", Seq(EnumValue("HELLO_WORLD", 3))).camelize mustEqual
+        Enum("Greeting", Seq(EnumValue("HelloWorld", 3)))
     }
   }
 }

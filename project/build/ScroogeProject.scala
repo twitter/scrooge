@@ -2,13 +2,6 @@ import sbt._
 import Process._
 import com.twitter.sbt._
 
-/**
- * Sbt project files are written in a DSL in scala.
- *
- * The % operator is just turning strings into maven dependency declarations, so lines like
- *     val example = "com.example" % "exampleland" % "1.0.3"
- * mean to add a dependency on exampleland version 1.0.3 from provider "com.example".
- */
 class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with NoisyDependencies
   with DefaultRepos
@@ -31,7 +24,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val cglib = "cglib" % "cglib" % "2.1_3" % "test"
   val asm = "asm" % "asm" % "1.5.3" % "test"
   val objenesis = "org.objenesis" % "objenesis" % "1.1" % "test"
-  val scroogeRuntime = "com.twitter" % "scrooge-runtime" % "1.0.0" % "test"
+  val scroogeRuntime = "com.twitter" % "scrooge-runtime" % "1.0.1" % "test"
   val util_eval = "com.twitter" % "util-eval" % utilVersion % "test"
   val finagleOstrich4 = "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
 

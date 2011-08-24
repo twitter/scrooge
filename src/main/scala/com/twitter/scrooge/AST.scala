@@ -14,14 +14,21 @@ object AST {
     case object Default extends Requiredness
   }
 
-  sealed abstract class Constant
+  sealed abstract class Constant {
+    def camelize = this
+  }
   case class BoolConstant(value: Boolean) extends Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
   case class ListConstant(elems: Seq[Constant]) extends Constant
   case class MapConstant(elems: Map[Constant, Constant]) extends Constant
   case class StringConstant(value: String) extends Constant
-  case class Identifier(name: String) extends Constant
+  case class Identifier(name: String) extends Constant {
+    override lazy val camelize = copy(name = camelCase(name, true))
+  }
+  case class EnumValueConstant(enum: Enum, value: EnumValue) extends Constant {
+    override lazy val camelize = copy(enum = enum.camelize, value = value.camelize)
+  }
   case object NullConstant extends Constant
 
   sealed trait FunctionType
@@ -63,7 +70,7 @@ object AST {
     default: Option[Constant] = None,
     requiredness: Requiredness = Requiredness.Default)
   {
-    def camelize = copy(name = camelCase(name))
+    lazy val camelize = copy(name = camelCase(name), default = default.map(_.camelize))
   }
 
   case class Function(
@@ -73,7 +80,7 @@ object AST {
     oneway: Boolean,
     throws: Seq[Field])
   {
-    def camelize = copy(name = camelCase(name))
+    lazy val camelize = copy(name = camelCase(name))
   }
 
   sealed abstract class Definition {
@@ -81,13 +88,19 @@ object AST {
     def camelize: Definition = this
   }
 
-  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition
+  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition {
+    override lazy val camelize = copy(value = value.camelize)
+  }
 
   case class Typedef(name: String, `type`: FieldType) extends Definition
 
-  case class Enum(name: String, values: Seq[EnumValue]) extends Definition
+  case class Enum(name: String, values: Seq[EnumValue]) extends Definition {
+    override lazy val camelize = copy(values = values.map(_.camelize))
+  }
 
-  case class EnumValue(name: String, value: Int)
+  case class EnumValue(name: String, value: Int) {
+    lazy val camelize = copy(name = camelCase(name, true))
+  }
 
   case class Senum(name: String, values: Seq[String]) extends Definition
 
@@ -96,15 +109,15 @@ object AST {
   }
 
   case class Struct(name: String, fields: Seq[Field]) extends StructLike {
-    override def camelize = copy(fields = fields.map(_.camelize))
+    override lazy val camelize = copy(fields = fields.map(_.camelize))
   }
 
   case class Exception_(name: String, fields: Seq[Field]) extends StructLike {
-    override def camelize = copy(fields = fields.map(_.camelize))
+    override lazy val camelize = copy(fields = fields.map(_.camelize))
   }
 
   case class Service(name: String, parent: Option[String], functions: Seq[Function]) extends Definition {
-    override def camelize = copy(functions = functions.map(_.camelize))
+    override lazy val camelize = copy(functions = functions.map(_.camelize))
   }
 
   sealed abstract class Header
@@ -126,15 +139,29 @@ object AST {
       (scala orElse java).getOrElse("thrift")
     }
 
+    def mapNamespaces(namespaceMap: Map[String,String]): Document = {
+      copy(
+        headers = headers map {
+          case header @ Namespace(_, ns) =>
+            namespaceMap.get(ns) map {
+              newNs => header.copy(name = newNs)
+            } getOrElse(header)
+          case header => header
+        }
+      )
+    }
+
     def consts = defs.collect { case c: Const => c }
     def enums = defs.collect { case e: Enum => e }
     def structs = defs.collect { case s: StructLike => s }
     def services = defs.collect { case s: Service => s }
   }
 
-  def camelCase(str: String) = {
+  def camelCase(str: String): String = camelCase(str, false)
+
+  def camelCase(str: String, firstCharUp: Boolean): String = {
     val sb = new StringBuilder(str.length)
-    var up = false
+    var up = firstCharUp
     for (c <- str) {
       if (up) {
         sb.append(c.toUpper)
@@ -142,7 +169,7 @@ object AST {
       } else if (c == '_') {
         up = true
       } else {
-        sb.append(c)
+        sb.append(c.toLower)
       }
     }
     sb.toString

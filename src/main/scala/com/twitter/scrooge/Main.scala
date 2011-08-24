@@ -10,10 +10,11 @@ object Main {
     val outputDir = StringOption("d", "output-dir", "path", "path of the directory to write files to")
     val outputFile = StringOption("o", "output-file", "filename", "name of file to write output to")
     val importPath = StringOption("i", "import-path", "path", "path-separator separated list of paths")
+    val namespaceMappings = StringOption("n", "namespace-mappings", "mappings", "comma-separated list of oldNamespace->newNamespace")
     val inputFiles = NakedArgument("inputFiles", true, true, "The name of the thrift files to process")
     val versionMode = %(version)
     val helpMode = %(help)
-    val genMode = %(importPath.? ~ (outputFile | outputDir).?, inputFiles)
+    val genMode = %(importPath.? ~ (outputFile | outputDir).? ~ namespaceMappings.?, inputFiles)
     val spec = %%(versionMode, helpMode, genMode)
   }
 
@@ -35,12 +36,19 @@ object Main {
           scalagen.WithFinagleClient,
           scalagen.WithFinagleService,
           scalagen.WithOstrichServer)
+        val namespaceMap = cmdLine(Options.namespaceMappings) map { str =>
+          str.split(",").toSeq map {
+            _.split("->") match {
+              case Array(from, to) => (from, to)
+            }
+          } toMap
+        } getOrElse(Map())
 
         for (inputFile <- cmdLine(Options.inputFiles)) {
           val inputFileDir = new File(inputFile).getParent()
           val importer = Importer.fileImporter(inputFileDir +: importPath)
           val parser = new ScroogeParser(importer)
-          val doc = TypeResolver().resolve(parser.parseFile(inputFile)).document
+          val doc = TypeResolver().resolve(parser.parseFile(inputFile)).document.mapNamespaces(namespaceMap)
           val gen = new scalagen.ScalaGenerator()
           val content = gen(doc, genOptions)
           val outputFile = cmdLine(Options.outputFile) map { new File(_) } getOrElse {

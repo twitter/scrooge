@@ -15,9 +15,9 @@ object {{enum}} {
   def get(value: Int): Option[{{enum}}] = {
     value match {
       {{#values}}
-      case {{value}} => Some({{name}})
+      case {{value}} => scala.Some({{name}})
       {{/values}}
-      case _ => None
+      case _ => scala.None
     }
   }
 }

@@ -6,7 +6,9 @@ object TypeResolverSpec extends Specification {
   import AST._
 
   "TypeResolve" should {
-    val enum = Enum("SomeEnum", Seq(EnumValue("FOO", 1), EnumValue("BAR", 2)))
+    val foo = EnumValue("FOO", 1)
+    val bar = EnumValue("BAR", 2)
+    val enum = Enum("SomeEnum", Seq(foo, bar))
     val enumType = EnumType(enum)
     val enumRef = ReferenceType(enum.name)
     val struct = Struct("BlahBlah", Seq(
@@ -44,9 +46,9 @@ object TypeResolverSpec extends Specification {
           true
       }
     }
-    
+
     "resolve a scoped type" in {
-      
+
     }
 
     "transform MapType" in {
@@ -76,6 +78,12 @@ object TypeResolverSpec extends Specification {
       resolver(field) mustEqual field.copy(`type` = structType)
     }
 
+    "transform a Field with enum constant default" in {
+      val field = Field(1, "foo", enumRef, Some(Identifier("FOO")))
+      resolver(field) mustEqual
+        Field(1, "foo", enumType, Some(EnumValueConstant(enum, foo)))
+    }
+
     "transform a Function" in {
       val field = Field(1, "foo", structRef)
       val ex = Field(2, "ex", structRef)
@@ -99,7 +107,7 @@ object TypeResolverSpec extends Specification {
 
     "transform a Const" in {
       val const = Const("foo", enumRef, Identifier("FOO"))
-      resolver(const) mustEqual const.copy(`type` = enumType)
+      resolver(const) mustEqual Const("foo", enumType, EnumValueConstant(enum, enum.values.head))
     }
 
     "transform a Service" in {
