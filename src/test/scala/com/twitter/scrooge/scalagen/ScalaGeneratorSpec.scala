@@ -330,7 +330,17 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
 
         compile(gen(doc, struct))
 
-        "read" in {
+        "set by default" in {
+          invoke("new awwYeah.DefaultValues().name") mustEqual Some("leela")
+          invoke("new awwYeah.DefaultValues().nameOrDefault") mustEqual "leela"
+        }
+
+        "when not set" in {
+          invoke("new awwYeah.DefaultValues(None).name") mustEqual None
+          invoke("new awwYeah.DefaultValues(None).nameOrDefault") mustEqual "leela"
+        }
+
+        "read with value missing" in {
           expect {
             one(protocol).readStructBegin()
             one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
@@ -338,7 +348,20 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
           }
 
           val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.DefaultValues.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.DefaultValues(\"leela\")")
+          decoder(protocol) mustEqual invoke("new awwYeah.DefaultValues(None)")
+        }
+
+        "read with value present" in {
+          expect {
+            one(protocol).readStructBegin()
+            nextRead(protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString() willReturn "delilah"
+            one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+            one(protocol).readStructEnd()
+          }
+
+          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.DefaultValues.decoder")
+          decoder(protocol) mustEqual invoke("new awwYeah.DefaultValues(Some(\"delilah\"))")
         }
       }
 

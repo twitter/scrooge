@@ -68,7 +68,7 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
       .data("id", self.id.toString)
       .data("name", self.name)
       .data("constType", constType(self.`type`))
-      .data("optionality", if (self.requiredness.isOptional && self.default == None) "Some" else "")
+      .data("optionality", if (self.requiredness.isOptional) "Some" else "")
       .data("valueReader", readTemplate(self.`type`).indent(4))
       .bool("required", self.requiredness.isRequired)
   }
@@ -130,7 +130,7 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
   }
 
   lazy val writeFieldTemplate = handlebar[Field]("writeField") { self =>
-    val conditional = if (self.requiredness.isOptional && self.default == None) {
+    val conditional = if (self.requiredness.isOptional) {
       self.name + ".isDefined"
     } else {
       self.`type` match {
@@ -144,7 +144,7 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
       .data("name", self.name)
       .data("conditional", conditional)
       .data("fieldConst", writeFieldConst(self.name))
-      .data("getter", if (self.requiredness.isOptional && self.default == None) ".get" else "")
+      .data("getter", if (self.requiredness.isOptional) ".get" else "")
       .data("valueWriter", writeTemplate(self.`type`).indent(1))
   }
 
@@ -158,11 +158,18 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
         .data("fieldConst", writeFieldConst(field.name))
         .data("constType", constType(field.`type`))
         .data("scalaType", scalaFieldType(field))
-        .data("defaultValue", defaultValueTemplate(field))
+        .data("defaultReadValue", defaultReadValue(field))
         .bool("required", field.requiredness.isRequired)
         .data("reader", readFieldTemplate(field).indent(6))
         .data("writer", writeFieldTemplate(field).indent(2))
         .data("struct", struct.name)
+    }
+    val optionalDefaultDictionaries = struct.fields.filter { f =>
+      f.requiredness.isOptional && f.default.isDefined
+    } map { f =>
+      Dictionary()
+        .data("name", f.name)
+        .data("value", constantValue(f.default.get))
     }
     val parentType = struct match {
       case AST.Struct(_, _) => "ThriftStruct"
@@ -174,5 +181,6 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
       .data("fieldArgs", fieldArgs(struct.fields))
       .data("parentType", parentType)
       .dictionaries("fields", fieldDictionaries)
+      .dictionaries("optionalDefaults", optionalDefaultDictionaries)
   }
 }

@@ -7,7 +7,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   val decoder = (_iprot: TProtocol) => {
     var _field: TField = null
     {{#fields}}
-    var {{name}}: {{scalaType}} = {{defaultValue}}
+    var {{name}}: {{scalaType}} = {{defaultReadValue}}
     {{#required}}var _got_{{name}} = false{{/required}}
     {{/fields}}
     var _done = false
@@ -40,6 +40,10 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 
 case class {{name}}({{fieldArgs}}) extends {{parentType}} {
   import {{name}}._
+
+  {{#optionalDefaults}}
+  def {{name}}OrDefault = {{name}} getOrElse {{value}}
+  {{/optionalDefaults}}
 
   override def write(_oprot: TProtocol) {
     validate()

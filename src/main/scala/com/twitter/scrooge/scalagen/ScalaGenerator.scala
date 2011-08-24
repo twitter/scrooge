@@ -106,17 +106,19 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
 
   def writeFieldConst(name: String) = name.toUpperCase + "_FIELD_DESC"
 
-  def defaultValueTemplate(field: Field) = {
-    field.default.map(constantValue).getOrElse {
-      if (field.requiredness.isOptional) {
-        "None"
-      } else {
-        field.`type` match {
-          case TBool => "false"
-          case TByte | TI16 | TI32 | TI64 => "0"
-          case TDouble => "0.0"
-          case _ => "null"
-        }
+  /**
+   * The default value for a field when deserializing the thrift struct
+   * and the field is not present.
+   */
+  def defaultReadValue(field: Field) = {
+    if (field.requiredness.isOptional) {
+      "None"
+    } else {
+      field.`type` match {
+        case TBool => "false"
+        case TByte | TI16 | TI32 | TI64 => "0"
+        case TDouble => "0.0"
+        case _ => "null"
       }
     }
   }
@@ -188,22 +190,25 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
   }
 
   def scalaFieldType(f: Field): String = {
-    if (f.requiredness.isOptional && f.default == None) {
+    if (f.requiredness.isOptional) {
       "Option[" + scalaType(f.`type`) + "]"
     } else {
       scalaType(f.`type`)
     }
   }
 
+  def defaultFieldValue(f: Field): Option[String] = {
+    f.default.map(constantValue).map { v =>
+      if (f.requiredness.isOptional) "Some(" + v + ")" else v
+    } orElse {
+      if (f.requiredness.isOptional) Some("None") else None
+    }
+  }
+
   def fieldArgs(args: Seq[Field]): String = {
     args.map { f =>
       val prefix = f.name + ": " + scalaFieldType(f)
-      val suffix = f.default.map(constantValue) orElse {
-        f.requiredness match {
-          case Requiredness.Optional => Some("None")
-          case _ => None
-        }
-      } map { " = " + _ }
+      val suffix = defaultFieldValue(f) map { " = " + _ }
       prefix + suffix.getOrElse("")
     }.mkString(", ")
   }
