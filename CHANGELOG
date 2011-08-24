@@ -1,0 +1,7 @@
+1.1.1 - 8/24/2011
+===========================================================
+* scrooge-runtime-1.0.1
+* Each thrift struct companion object now extends ThriftStructCodec
+* Correctly resolving enum constants and Const values.
+* Title-casing enum value names.
+* Added support for namespace renaming from the command line.
