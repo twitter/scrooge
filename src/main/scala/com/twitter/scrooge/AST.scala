@@ -24,7 +24,7 @@ object AST {
   case class MapConstant(elems: Map[Constant, Constant]) extends Constant
   case class StringConstant(value: String) extends Constant
   case class Identifier(name: String) extends Constant {
-    override lazy val camelize = copy(name = camelCase(name, true))
+    override lazy val camelize = copy(name = TitleCase(name))
   }
   case class EnumValueConstant(enum: Enum, value: EnumValue) extends Constant {
     override lazy val camelize = copy(enum = enum.camelize, value = value.camelize)
@@ -70,7 +70,7 @@ object AST {
     default: Option[Constant] = None,
     requiredness: Requiredness = Requiredness.Default)
   {
-    lazy val camelize = copy(name = camelCase(name), default = default.map(_.camelize))
+    lazy val camelize = copy(name = CamelCase(name), default = default.map(_.camelize))
   }
 
   case class Function(
@@ -80,7 +80,7 @@ object AST {
     oneway: Boolean,
     throws: Seq[Field])
   {
-    lazy val camelize = copy(name = camelCase(name))
+    lazy val camelize = copy(name = CamelCase(name))
   }
 
   sealed abstract class Definition {
@@ -99,7 +99,7 @@ object AST {
   }
 
   case class EnumValue(name: String, value: Int) {
-    lazy val camelize = copy(name = camelCase(name, true))
+    lazy val camelize = copy(name = TitleCase(name))
   }
 
   case class Senum(name: String, values: Seq[String]) extends Definition
@@ -155,24 +155,6 @@ object AST {
     def enums = defs.collect { case e: Enum => e }
     def structs = defs.collect { case s: StructLike => s }
     def services = defs.collect { case s: Service => s }
-  }
-
-  def camelCase(str: String): String = camelCase(str, false)
-
-  def camelCase(str: String, firstCharUp: Boolean): String = {
-    val sb = new StringBuilder(str.length)
-    var up = firstCharUp
-    for (c <- str) {
-      if (up) {
-        sb.append(c.toUpper)
-        up = false
-      } else if (c == '_') {
-        up = true
-      } else {
-        sb.append(c.toLower)
-      }
-    }
-    sb.toString
   }
 
   def stripExtension(filename: String) = {

@@ -5,27 +5,6 @@ import org.specs.Specification
 object ASTSpec extends Specification {
   import AST._
 
-  "camelCase" should {
-    val cases = List(
-      "hello" -> ("hello", "Hello"),
-      "hello_world" -> ("helloWorld", "HelloWorld"),
-      "a_b_c_d" -> ("aBCD", "ABCD"),
-      "HELLO_WORLD" -> ("helloWorld", "HelloWorld")
-    )
-
-    cases foreach {
-      case (input, (down, up)) =>
-        input in {
-          "first char down" in {
-            camelCase(input) mustEqual down
-          }
-          "first char up" in {
-            camelCase(input, true) mustEqual up
-          }
-        }
-    }
-  }
-
   "Document" should {
     "generate correct scalaNamespace from java" in {
       val doc = Document(Seq(Namespace("java", "com.twitter.oatmeal")), Nil)
