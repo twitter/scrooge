@@ -160,7 +160,7 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
         .data("scalaType", scalaFieldType(field))
         .data("defaultReadValue", defaultReadValue(field))
         .bool("required", field.requiredness.isRequired)
-        .data("reader", readFieldTemplate(field).indent(6))
+        .data("reader", readFieldTemplate(field).indent(5))
         .data("writer", writeFieldTemplate(field).indent(2))
         .data("struct", struct.name)
     }

@@ -4,7 +4,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   val {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, {{id}})
   {{/fields}}
 
-  val decoder = (_iprot: TProtocol) => {
+  val decoder = { (_iprot: TProtocol) =>
     var _field: TField = null
     {{#fields}}
     var {{name}}: {{scalaType}} = {{defaultReadValue}}
@@ -35,7 +35,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
     {{name}}({{fieldNames}})
   }
 
-  val encoder = (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto)
+  val encoder = { (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto) }
 }
 
 case class {{name}}({{fieldArgs}}) extends {{parentType}} {
