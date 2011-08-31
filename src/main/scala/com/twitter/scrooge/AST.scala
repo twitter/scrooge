@@ -80,7 +80,10 @@ object AST {
     oneway: Boolean,
     throws: Seq[Field])
   {
-    lazy val camelize = copy(name = CamelCase(name))
+    lazy val camelize = copy(
+      name = CamelCase(name),
+      args = args.map(_.camelize),
+      throws = throws.map(_.camelize))
   }
 
   sealed abstract class Definition {

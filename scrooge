@@ -2,4 +2,4 @@
 
 HERE=`dirname $0`
 
-java -jar $HERE/dist/scrooge/scrooge-1.0.0-SNAPSHOT.jar "$@"
+java -jar $HERE/dist/scrooge/scrooge-1.1.2-SNAPSHOT.jar "$@"
