@@ -8,3 +8,6 @@ project/plugins/src_managed/
 lib_managed/
 *.iml
 .idea/
+.classpath
+.project
+.scala_dependencies
