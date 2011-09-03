@@ -86,7 +86,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     val asyncFunctions = service.functions.map(futureFunctionTemplate(_).indent(2)).mkString("\n")
     val functionStructs = service.functions flatMap { f =>
       Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-    } map { structTemplate(_).indent } mkString("\n")
+    } map { structTemplate(_).indent } mkString("", "\n\n", "\n")
     Dictionary()
       .data("name", service.name)
       .data("extends", service.parent.map { "extends " + _ }.getOrElse(""))
@@ -94,10 +94,10 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
       .data("asyncFunctions", asyncFunctions)
       .data("functionStructs", functionStructs)
       .data("finagleClient",
-        if (self.options contains WithFinagleClient) finagleClientTemplate(service).indent else "")
+        if (self.options contains WithFinagleClient) (finagleClientTemplate(service).indent + "\n") else "")
       .data("finagleService",
-        if (self.options contains WithFinagleService) finagleServiceTemplate(service).indent else "")
+        if (self.options contains WithFinagleService) (finagleServiceTemplate(service).indent + "\n") else "")
       .data("ostrichServer",
-        if (self.options contains WithOstrichServer) ostrichServiceTemplate(service).indent else "")
+        if (self.options contains WithOstrichServer) (ostrichServiceTemplate(service).indent + "\n") else "")
   }
 }

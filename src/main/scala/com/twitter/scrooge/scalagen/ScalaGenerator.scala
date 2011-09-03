@@ -225,11 +225,10 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
     val constSection = constsTemplate(ConstList(doc.consts))
     val enumSection = enumsTemplate(doc.enums)
     val structSection = doc.structs map { x => structTemplate(x) } mkString("", "\n\n", "\n\n")
-    val serviceSections = doc.services.map { x =>
+    val serviceSection = doc.services.map { x =>
       serviceTemplate(ScalaService(x, serviceOptions))
-    }
-    val serviceSection = serviceSections.mkString("", "\n\n", "\n\n")
+    } mkString("", "\n\n", "\n\n")
 
-    header(doc) + constSection + enumSection + structSection + serviceSection
+    header(doc) + "\n" + constSection + enumSection + structSection + serviceSection
   }
 }

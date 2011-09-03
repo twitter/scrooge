@@ -1,3 +1,5 @@
+// ----- {{name}}
+
 object {{name}} {
   trait Iface {{extends}}{
 {{syncFunctions}}

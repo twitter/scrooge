@@ -1,3 +1,5 @@
+// ----- {{name}}
+
 object {{name}} extends ThriftStructCodec[{{name}}] {
   val STRUCT_DESC = new TStruct("{{name}}")
   {{#fields}}
