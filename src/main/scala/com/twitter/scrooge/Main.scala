@@ -1,74 +1,87 @@
 package com.twitter.scrooge
 
 import java.io.{File, FileWriter}
-import net.scala0.cmdline._
+import java.util.Properties
+import scala.collection.mutable
+import scopt.OptionParser
 
 object Main {
-  object Options extends CommandLineParser {
-    val version = Flag("v", "version", "Print version number and quit")
-    val help = Flag("?", "help", "Print help and quit")
-    val outputDir = StringOption("d", "output-dir", "path", "path of the directory to write files to")
-    val outputFile = StringOption("o", "output-file", "filename", "name of file to write output to")
-    val importPath = StringOption("i", "import-path", "path", "path-separator separated list of paths")
-    val namespaceMappings = StringOption("n", "namespace-mappings", "mappings", "comma-separated list of oldNamespace->newNamespace")
-    val inputFiles = NakedArgument("inputFiles", true, true, "The name of the thrift files to process")
-    val skip = Flag("s", "skip-unchanged", "Don't re-generate if target is newer than input")
-    val versionMode = %(version)
-    val helpMode = %(help)
-    val genMode = %(importPath.? ~ (outputFile | outputDir).? ~ namespaceMappings.? ~ skip.?, inputFiles)
-    val spec = %%(versionMode, helpMode, genMode)
-  }
+  var destFolder: String = "."
+  val importPaths = new mutable.ListBuffer[String]
+  val thriftFiles = new mutable.ListBuffer[String]
+  var outputFilename: Option[String] = None
+  val flags = new mutable.HashSet[scalagen.ScalaServiceOption]
+  val namespaceMappings = new mutable.HashMap[String, String]
+  var verbose = false
+  var skipUnchanged = false
 
   def main(args: Array[String]) {
-    Options(args) match {
-      case Left(error) =>
-        Console.err.println(error)
-        Options.printHelp("scrooge")
+    val buildProperties = new Properties
+    buildProperties.load(getClass.getResource("build.properties").openStream)
 
-      case Right((Options.versionMode, _)) =>
-        Console.out.println("Version 1.0")
-
-      case Right((Options.helpMode, _)) =>
-        Options.printHelp("scrooge")
-
-      case Right((Options.genMode, cmdLine)) =>
-        val importPath = cmdLine(Options.importPath).map(_.split(File.pathSeparator).toSeq).getOrElse(Nil)
-        val genOptions = Set[scalagen.ScalaServiceOption](
-          scalagen.WithFinagleClient,
-          scalagen.WithFinagleService,
-          scalagen.WithOstrichServer)
-        val namespaceMap = cmdLine(Options.namespaceMappings) map { str =>
-          str.split(",").toSeq map {
-            _.split("->") match {
-              case Array(from, to) => (from, to)
-            }
-          } toMap
-        } getOrElse(Map())
-        val skipUnchanged = cmdLine(Options.skip)
-
-        for (inputFile <- cmdLine(Options.inputFiles)) {
-          val inputFileDir = new File(inputFile).getParent()
-          val importer = Importer.fileImporter(inputFileDir +: importPath)
-          val parser = new ScroogeParser(importer)
-          val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMap)
-          val outputFile = cmdLine(Options.outputFile) map { new File(_) } getOrElse {
-            val outputDir = cmdLine(Options.outputDir) map { new File(_) } getOrElse { new File(".") }
-            val packageDir = new File(outputDir, doc0.scalaNamespace.replace('.', File.separatorChar))
-            val baseName = AST.stripExtension(new File(inputFile).getName())
-            new File(packageDir, baseName + ".scala")
-          }
-          val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
-          if (!(isUnchanged(outputFile, lastModified) && skipUnchanged)) {
-            val doc1 = TypeResolver().resolve(doc0).document
-            val gen = new scalagen.ScalaGenerator()
-            val content = gen(doc1, genOptions)
-
-            outputFile.getParentFile().mkdirs()
-            val out = new FileWriter(outputFile)
-            out.write(content)
-            out.close()
-          }
+    val parser = new OptionParser("scrooge") {
+      help(None, "help", "show this help screen")
+      opt("V", "version", "print version and quit", {
+        println("scrooge " + buildProperties.getProperty("version", "0.0"))
+        println("    build " + buildProperties.getProperty("build_name", "unknown"))
+        println("    git revision " + buildProperties.getProperty("build_revision", "unknown"))
+        System.exit(0)
+        ()
+      })
+      opt("v", "verbose", "log verbose messages about progress", { verbose = true; () })
+      opt("d", "dest", "<path>",
+          "write generated code to a folder (default: %s)".format(destFolder), { x: String =>
+        destFolder = x
+      })
+      opt("i", "import-path", "<path>", "path(s) to search for imported thrift files (may be used multiple times)", { path: String =>
+        importPaths ++= path.split(File.pathSeparator); ()
+      })
+      opt("o", "output-file", "<filename>", "name of the file to write generated code to", { filename: String =>
+        outputFilename = Some(filename); ()
+      })
+      opt("n", "namespace-map", "<oldname>=<newname>", "map old namespace to new (may be used multiple times)", { mapping: String =>
+        mapping.split("=") match {
+          case Array(from, to) => namespaceMappings(from) = to
         }
+        ()
+      })
+      opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
+
+      opt("finagle", "generate finagle classes", {
+        flags += scalagen.WithFinagleService
+        flags += scalagen.WithFinagleClient
+        ()
+      })
+      opt("ostrich", "generate ostrich server interface", { flags += scalagen.WithOstrichServer; () })
+      arglist("<files...>", "thrift files to compile", { thriftFiles += _ })
+    }
+    if (!parser.parse(args)) {
+      System.exit(1)
+    }
+
+    for (inputFile <- thriftFiles) {
+      if (verbose) println("+ Compiling %s".format(inputFile))
+      val inputFileDir = new File(inputFile).getParent()
+      val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
+      val parser = new ScroogeParser(importer)
+      val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
+
+      val outputFile = outputFilename map { new File(_) } getOrElse {
+        val packageDir = new File(destFolder, doc0.scalaNamespace.replace('.', File.separatorChar))
+        val baseName = AST.stripExtension(new File(inputFile).getName())
+        new File(packageDir, baseName + ".scala")
+      }
+      val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
+      if (!(skipUnchanged && isUnchanged(outputFile, lastModified))) {
+        val doc1 = TypeResolver().resolve(doc0).document
+        val gen = new scalagen.ScalaGenerator()
+        val content = gen(doc1, flags.toSet)
+
+        Option(outputFile.getParentFile()).map { _.mkdirs() }
+        val out = new FileWriter(outputFile)
+        out.write(content)
+        out.close()
+      }
     }
   }
 

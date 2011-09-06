@@ -1,5 +1,6 @@
 #!/bin/bash
 
 HERE=`dirname $0`
+VERSION=1.1.2
 
-java -jar $HERE/dist/scrooge/scrooge-1.1.2-SNAPSHOT.jar "$@"
+java -jar $HERE/dist/scrooge/scrooge-$VERSION-SNAPSHOT.jar "$@"
