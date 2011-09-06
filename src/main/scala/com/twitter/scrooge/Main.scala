@@ -13,6 +13,7 @@ object Main {
   val flags = new mutable.HashSet[scalagen.ScalaServiceOption]
   val namespaceMappings = new mutable.HashMap[String, String]
   var verbose = false
+  var skipUnchanged = false
 
   def main(args: Array[String]) {
     val buildProperties = new Properties
@@ -44,6 +45,8 @@ object Main {
         }
         ()
       })
+      opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
+
       opt("finagle", "generate finagle classes", {
         flags += scalagen.WithFinagleService
         flags += scalagen.WithFinagleClient
@@ -60,20 +63,29 @@ object Main {
       if (verbose) println("+ Compiling %s".format(inputFile))
       val inputFileDir = new File(inputFile).getParent()
       val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
-      val scrooge = new ScroogeParser(importer)
-      val doc = TypeResolver().resolve(scrooge.parseFile(inputFile)).document.mapNamespaces(namespaceMappings.toMap)
-      val gen = new scalagen.ScalaGenerator()
-      val content = gen(doc, flags.toSet)
+      val parser = new ScroogeParser(importer)
+      val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       val outputFile = outputFilename map { new File(_) } getOrElse {
-        val packageDir = new File(destFolder, doc.scalaNamespace.replace('.', File.separatorChar))
+        val packageDir = new File(destFolder, doc0.scalaNamespace.replace('.', File.separatorChar))
         val baseName = AST.stripExtension(new File(inputFile).getName())
         new File(packageDir, baseName + ".scala")
       }
-      Option(outputFile.getParentFile()).map { _.mkdirs() }
-      val out = new FileWriter(outputFile)
-      out.write(content)
-      out.close()
+      val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
+      if (!(skipUnchanged && isUnchanged(outputFile, lastModified))) {
+        val doc1 = TypeResolver().resolve(doc0).document
+        val gen = new scalagen.ScalaGenerator()
+        val content = gen(doc1, flags.toSet)
+
+        Option(outputFile.getParentFile()).map { _.mkdirs() }
+        val out = new FileWriter(outputFile)
+        out.write(content)
+        out.close()
+      }
     }
+  }
+
+  def isUnchanged(file: File, sourceLastModified: Long): Boolean = {
+    file.exists && file.lastModified >= sourceLastModified
   }
 }

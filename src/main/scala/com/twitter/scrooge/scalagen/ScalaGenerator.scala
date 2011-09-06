@@ -4,6 +4,7 @@ package scalagen
 import java.io.File
 import AST._
 import org.monkey.mustache.Dictionary
+import com.twitter.conversions.string._
 
 trait ScalaTemplate {
   def handlebar[T](name: String)(f: T => Dictionary)(implicit loader: MustacheLoader) =
@@ -64,20 +65,7 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
       .dictionaries("constants", constants)
   }
 
-  // Constants
-  def quote(str: String) = {
-    val sb = new StringBuilder(str.length + 20)
-    sb.append("\"")
-    str foreach {
-      case '"' => sb.append("\\\"")
-      case '\\' => sb.append("\\")
-      case '\n' => sb.append("\\n")
-      case '\r' => sb.append("\\r")
-      case '\f' => sb.append("\\f")
-      case c => sb.append(c)
-    }
-    sb.append("\"").toString
-  }
+  def quote(str: String) = "\"" + str.quoteC() + "\""
 
   def listValue(list: ListConstant): String = {
     "List(" + list.elems.map(constantValue).mkString(", ") + ")"
