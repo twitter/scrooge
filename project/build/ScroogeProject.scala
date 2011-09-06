@@ -32,5 +32,5 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
 
   override def mainClass = Some("com.twitter.scrooge.Main")
 
-  override def subversionRepository = Some("http://svn.local.twitter.com/maven")
+  override def subversionRepository = Some("http://svn.local.twitter.com/maven-public")
 }
