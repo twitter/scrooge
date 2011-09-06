@@ -33,4 +33,16 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   override def mainClass = Some("com.twitter.scrooge.Main")
 
   override def subversionRepository = Some("http://svn.local.twitter.com/maven-public")
+  override def releaseBuild = true
+
+  // publish the combined distribution zip, too.
+  def publishZipAction = packageDistTask && task {
+    FileUtilities.copyFile(("dist" / distZipName), outputRootPath / distZipName, log)
+  }
+  lazy val publishZip = publishZipAction
+
+  override def artifacts = super.artifacts ++ Set(Artifact("scrooge", "zip", "zip"))
+
+  override lazy val publishLocal = publishZipAction && publishLocalAction
+  override lazy val publish = publishZipAction && publishAction
 }
