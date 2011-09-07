@@ -60,7 +60,6 @@ object Main {
     }
 
     for (inputFile <- thriftFiles) {
-      if (verbose) println("+ Compiling %s".format(inputFile))
       val inputFileDir = new File(inputFile).getParent()
       val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
       val parser = new ScroogeParser(importer)
@@ -73,6 +72,7 @@ object Main {
       }
       val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
       if (!(skipUnchanged && isUnchanged(outputFile, lastModified))) {
+        if (verbose) println("+ Compiling %s".format(inputFile))
         val doc1 = TypeResolver().resolve(doc0).document
         val gen = new scalagen.ScalaGenerator()
         val content = gen(doc1, flags.toSet)
