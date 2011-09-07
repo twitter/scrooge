@@ -38,7 +38,10 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
 
   val enumTemplate = handlebar[Enum]("enum"){ enum =>
     val values = enum.values map { value =>
-      Dictionary().data("name", value.name).data("value", value.value.toString)
+      Dictionary()
+        .data("name", value.name)
+        .data("nameLowerCase", value.name.toLowerCase)
+        .data("value", value.value.toString)
     }
     Dictionary()
       .data("enum", enum.name)
