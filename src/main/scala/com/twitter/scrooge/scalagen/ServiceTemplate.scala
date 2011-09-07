@@ -54,7 +54,10 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     val functionDictionaries = self.functions map { f =>
       Dictionary().data("function", finagleClientFunctionTemplate(f).indent())
     }
-    Dictionary().dictionaries("functions", functionDictionaries)
+    Dictionary()
+      .data("override", self.parent.map { _ => "override " }.getOrElse(""))
+      .data("extends", self.parent.map { _ + ".FinagledClient(service, protocolFactory)" }.getOrElse("FinagleThriftClient"))
+      .dictionaries("functions", functionDictionaries)
   }
 
   lazy val finagleServiceFunctionTemplate = handlebar[Function]("finagleServiceFunction") { self =>
@@ -77,6 +80,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
         .data("function", finagleServiceFunctionTemplate(f).indent())
     }
     Dictionary()
+      .data("override", self.parent.map { _ => "override " }.getOrElse(""))
       .data("extends", self.parent.map { _ + ".FinagledService(iface, protocolFactory)" }.getOrElse("FinagleThriftService"))
       .dictionaries("functions", functionDictionaries)
   }
