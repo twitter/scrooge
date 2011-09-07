@@ -11,9 +11,9 @@ case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
 case class TypeResolver(
-  typeMap: Map[String,FieldType] = Map(),
-  constMap: Map[String,Const] = Map(),
-  includeMap: Map[String,ResolvedDocument] = Map())
+  typeMap: Map[String, FieldType] = Map(),
+  constMap: Map[String, Const] = Map(),
+  includeMap: Map[String, ResolvedDocument] = Map())
 {
   /**
    * Resolves all types in the given document.
@@ -53,6 +53,7 @@ case class TypeResolver(
     apply(definition) match {
       case d @ Typedef(name, t) => ResolvedDefinition(d, define(name, t))
       case e @ Enum(name, _) => ResolvedDefinition(e, define(name, EnumType(e)))
+      case s @ Senum(name, _) => ResolvedDefinition(s, define(name, TString))
       case s @ Struct(name, _) => ResolvedDefinition(s, define(name, StructType(s)))
       case e @ Exception_(name, _) => ResolvedDefinition(e, define(e.name, StructType(e)))
       case c @ Const(_, _, v) => ResolvedDefinition(c, define(c))
