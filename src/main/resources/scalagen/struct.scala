@@ -9,7 +9,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   val decoder = { (_iprot: TProtocol) =>
     var _field: TField = null
     {{#fields}}
-    var {{name}}: {{scalaType}} = {{defaultReadValue}}
+    var `{{name}}`: {{scalaType}} = {{defaultReadValue}}
     {{#required}}var _got_{{name}} = false{{/required}}
     {{/fields}}
     var _done = false

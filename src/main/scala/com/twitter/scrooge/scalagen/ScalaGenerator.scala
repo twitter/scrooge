@@ -198,7 +198,7 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
 
   def fieldArgs(args: Seq[Field]): String = {
     args.map { f =>
-      val prefix = f.name + ": " + scalaFieldType(f)
+      val prefix = "`" + f.name + "`: " + scalaFieldType(f)
       val suffix = defaultFieldValue(f) map { " = " + _ }
       prefix + suffix.getOrElse("")
     }.mkString(", ")

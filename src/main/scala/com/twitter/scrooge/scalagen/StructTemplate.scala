@@ -131,13 +131,13 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
 
   lazy val writeFieldTemplate = handlebar[Field]("writeField") { self =>
     val conditional = if (self.requiredness.isOptional) {
-      self.name + ".isDefined"
+      "`" + self.name + "`.isDefined"
     } else {
       self.`type` match {
         case AST.TBool | AST.TByte | AST.TI16 | AST.TI32 | AST.TI64 | AST.TDouble =>
           "true"
         case _ =>
-          self.name + " ne null"
+          "`" + self.name + "` ne null"
       }
     }
     Dictionary()
@@ -177,7 +177,7 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
     }
     Dictionary()
       .data("name", struct.name)
-      .data("fieldNames", struct.fields.map { f => f.name }.mkString(", "))
+      .data("fieldNames", struct.fields.map { f => "`" + f.name + "`" }.mkString(", "))
       .data("fieldArgs", fieldArgs(struct.fields))
       .data("parentType", parentType)
       .dictionaries("fields", fieldDictionaries)
