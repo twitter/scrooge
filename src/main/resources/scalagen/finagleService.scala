@@ -4,9 +4,8 @@ import com.twitter.scrooge.FinagleThriftService
 
 class FinagledService(
   iface: FutureIface,
-  val protocolFactory: TProtocolFactory)
-  extends FinagleThriftService
-{
+  {{override}}val protocolFactory: TProtocolFactory
+) extends {{extends}} {
 {{#functions}}
 {{function}}
 {{/function}}

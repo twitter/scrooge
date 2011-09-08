@@ -54,7 +54,10 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     val functionDictionaries = self.functions map { f =>
       Dictionary().data("function", finagleClientFunctionTemplate(f).indent())
     }
-    Dictionary().dictionaries("functions", functionDictionaries)
+    Dictionary()
+      .data("override", self.parent.map { _ => "override " }.getOrElse(""))
+      .data("extends", self.parent.map { _ + ".FinagledClient(service, protocolFactory)" }.getOrElse("FinagleThriftClient"))
+      .dictionaries("functions", functionDictionaries)
   }
 
   lazy val finagleServiceFunctionTemplate = handlebar[Function]("finagleServiceFunction") { self =>
@@ -73,9 +76,13 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
 
   lazy val finagleServiceTemplate = handlebar[Service]("finagleService"){ self =>
     val functionDictionaries = self.functions map { f =>
-      Dictionary().data("function", finagleServiceFunctionTemplate(f).indent())
+      Dictionary()
+        .data("function", finagleServiceFunctionTemplate(f).indent())
     }
-    Dictionary().dictionaries("functions", functionDictionaries)
+    Dictionary()
+      .data("override", self.parent.map { _ => "override " }.getOrElse(""))
+      .data("extends", self.parent.map { _ + ".FinagledService(iface, protocolFactory)" }.getOrElse("FinagleThriftService"))
+      .dictionaries("functions", functionDictionaries)
   }
 
   lazy val ostrichServiceTemplate = handlebar[Service]("ostrichService") { _ => Dictionary() }
@@ -89,7 +96,8 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     } map { structTemplate(_).indent } mkString("", "\n\n", "\n")
     Dictionary()
       .data("name", service.name)
-      .data("extends", service.parent.map { "extends " + _ }.getOrElse(""))
+      .data("syncExtends", service.parent.map { "extends " + _ + ".Iface " }.getOrElse(""))
+      .data("asyncExtends", service.parent.map { "extends " + _ + ".FutureIface " }.getOrElse(""))
       .data("syncFunctions", syncFunctions)
       .data("asyncFunctions", asyncFunctions)
       .data("functionStructs", functionStructs)

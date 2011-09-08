@@ -20,6 +20,15 @@ object {{enum}} {
       case _ => scala.None
     }
   }
+
+  def valueOf(name: String): Option[{{enum}}] = {
+    name.toLowerCase match {
+      {{#values}}
+      case "{{nameLowerCase}}" => scala.Some({{enum}}.{{name}})
+      {{/values}}
+      case _ => scala.None
+    }
+  }
 }
 
 abstract class {{enum}}(val value: Int) extends TEnum {

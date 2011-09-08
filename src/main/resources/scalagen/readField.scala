@@ -1,7 +1,7 @@
 case {{id}} => { /* {{name}} */
   _field.`type` match {
     case TType.{{constType}} => {
-      {{name}} = {{optionality}}{
+      `{{name}}` = {{optionality}}{
 {{valueReader}}
       }
       {{#required}}_got_{{name}} = true{{/required}}

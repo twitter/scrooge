@@ -158,7 +158,55 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       ))
       val doc = Document(Nil, Seq(ex, service))
       val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
-      compile(gen(doc, genOptions)) //must not(throwA[Exception])
+      compile(gen(doc, genOptions)) must not(throwA[Exception])
+    }
+
+    "correctly inherit traits across services" in {
+      val service1 = Service("ReadOnlyService", None, Seq(
+        Function("getName", TString, Nil, false, Nil)
+      ))
+      val service2 = Service("ReadWriteService", Some("ReadOnlyService"), Seq(
+        Function("setName", Void, Seq(Field(1, "name", TString)), false, Nil)
+      ))
+      val doc = Document(Seq(Namespace("scala", "test")), Seq(service1, service2))
+      val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
+      compile(gen(doc, genOptions))
+
+      "synchronous" in {
+        val impl = """
+          class BasicImpl extends test.ReadWriteService.Iface {
+            def getName() = "Rus"
+            def setName(name: String) { }
+          }
+          """
+        compile(impl)
+        invoke("(new BasicImpl).isInstanceOf[test.ReadOnlyService.Iface]") mustEqual true
+        invoke("(new BasicImpl).isInstanceOf[test.ReadWriteService.Iface]") mustEqual true
+      }
+
+      "future-based" in {
+        val impl = """
+          import com.twitter.util.Future
+
+          class FutureImpl extends test.ReadWriteService.FutureIface {
+            def getName() = Future("Rus")
+            def setName(name: String) = Future.Unit
+          }
+          """
+        compile(impl)
+        invoke("(new FutureImpl).isInstanceOf[test.ReadOnlyService.FutureIface]") mustEqual true
+        invoke("(new FutureImpl).isInstanceOf[test.ReadWriteService.FutureIface]") mustEqual true
+      }
+
+      "finagle" in {
+        val service = "new test.ReadWriteService.FinagledService(null, null)"
+        invoke(service + ".isInstanceOf[test.ReadOnlyService.FinagledService]") mustEqual true
+
+        val client = "new test.ReadWriteService.FinagledClient(null, null)"
+        invoke(client + ".isInstanceOf[test.ReadOnlyService.FinagledClient]") mustEqual true
+        invoke(client + ".isInstanceOf[test.ReadOnlyService.FutureIface]") mustEqual true
+        invoke(client + ".isInstanceOf[test.ReadWriteService.FutureIface]") mustEqual true
+      }
     }
   }
 }

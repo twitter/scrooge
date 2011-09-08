@@ -29,6 +29,9 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       invoke("awwYeah.SomeEnum(1)") mustEqual invoke("awwYeah.SomeEnum.FOO")
       invoke("awwYeah.SomeEnum(2)") mustEqual invoke("awwYeah.SomeEnum.BAR")
       invoke("awwYeah.SomeEnum(3)") must throwA[NoSuchElementException]
+      invoke("""awwYeah.SomeEnum.valueOf("FOO")""") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
+      invoke("""awwYeah.SomeEnum.valueOf("bar")""") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
+      invoke("""awwYeah.SomeEnum.valueOf("nonexistent")""") mustEqual invoke("None")
     }
 
     "generate a constant" in {
@@ -438,6 +441,16 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
 
         compile(gen(doc, error))
         invoke("new awwYeah.Error(\"silly\").getStackTrace") must haveClass[Array[StackTraceElement]]
+      }
+
+      "funky names that scala doesn't like" in {
+        val struct = new Struct("Naughty", Seq(
+          Field(1, "type", TString, None, Requiredness.Default),
+          Field(2, "def", TI32, None, Requiredness.Default)
+        ))
+
+        compile(gen(doc, struct))
+        invoke("""new awwYeah.Naughty("car", 100).`def`""") mustEqual 100
       }
     }
   }

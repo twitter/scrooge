@@ -1,11 +1,11 @@
 // ----- {{name}}
 
 object {{name}} {
-  trait Iface {{extends}}{
+  trait Iface {{syncExtends}}{
 {{syncFunctions}}
   }
 
-  trait FutureIface {{extends}}{
+  trait FutureIface {{asyncExtends}}{
 {{asyncFunctions}}
   }
 
