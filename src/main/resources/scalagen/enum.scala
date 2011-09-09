@@ -1,6 +1,6 @@
 object {{enum}} {
 {{#values}}
-  case object {{name}} extends {{enum}}({{value}})
+  case object {{name}} extends {{enum}}({{value}}, "{{name}}")
 {{/values}}
 
   def apply(value: Int): {{enum}} = {
@@ -31,6 +31,6 @@ object {{enum}} {
   }
 }
 
-abstract class {{enum}}(val value: Int) extends TEnum {
+abstract class {{enum}}(val value: Int, val name: String) extends TEnum {
   def getValue = value
 }

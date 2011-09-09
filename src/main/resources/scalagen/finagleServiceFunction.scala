@@ -1,17 +1,17 @@
 functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
   try {
-    val args = {{name}}_args.decoder(iprot)
+    val args = {{localName}}_args.decoder(iprot)
     iprot.readMessageEnd()
     (try {
-      iface.{{name}}({{argNames}})
+      iface.{{localName}}({{argNames}})
     } catch {
       case e: Exception => Future.exception(e)
     }) flatMap { value: {{scalaType}} =>
-      reply("{{name}}", seqid, {{name}}_result({{resultNamedArg}}))
+      reply("{{name}}", seqid, {{localName}}_result({{resultNamedArg}}))
     } rescue {
       {{#exceptions}}
       case e: {{exceptionType}} =>
-        reply("{{name}}", seqid, {{name}}_result({{fieldName}} = Some(e)))
+        reply("{{name}}", seqid, {{localName}}_result({{fieldName}} = Some(e)))
       {{/exception}}
       case e: Throwable =>
         exception("{{name}}", seqid, TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}")

@@ -208,6 +208,21 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         invoke(client + ".isInstanceOf[test.ReadWriteService.FutureIface]") mustEqual true
       }
     }
+
+    "camelize names only in the scala bindings" in {
+      val service1 = Service("Capsly", None, Seq(
+        Function("Bad_Name", TString, Nil, false, Nil)
+      ))
+      val doc = Document(Seq(Namespace("scala", "test")), Seq(service1))
+      val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
+      compile(gen(doc, genOptions))
+
+      val impl = "class MyCapsly extends test.Capsly.Iface { def badName = \"foo\" }"
+      compile(impl)
+
+      invoke("(new MyCapsly).badName") mustEqual "foo"
+      invoke("(new test.Capsly.FinagledService(null, null) { def x = functionMap }).x.keys.toList") mustEqual List("Bad_Name")
+    }
   }
 }
 

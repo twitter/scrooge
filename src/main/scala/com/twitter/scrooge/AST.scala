@@ -75,15 +75,28 @@ object AST {
 
   case class Function(
     name: String,
+    localName: String,
     `type`: FunctionType,
     args: Seq[Field],
     oneway: Boolean,
     throws: Seq[Field])
   {
     lazy val camelize = copy(
-      name = CamelCase(name),
+      localName = CamelCase(localName),
       args = args.map(_.camelize),
       throws = throws.map(_.camelize))
+  }
+
+  object Function {
+    def apply(
+      name: String,
+      `type`: FunctionType,
+      args: Seq[Field],
+      oneway: Boolean,
+      throws: Seq[Field]
+    ) = {
+      new Function(name, name, `type`, args, oneway, throws)
+    }
   }
 
   sealed abstract class Definition {

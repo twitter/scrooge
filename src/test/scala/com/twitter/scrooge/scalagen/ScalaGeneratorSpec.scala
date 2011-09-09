@@ -23,6 +23,8 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
       compile(gen(doc, enum))
       invoke("awwYeah.SomeEnum.FOO.value") mustEqual 1
       invoke("awwYeah.SomeEnum.BAR.value") mustEqual 2
+      invoke("awwYeah.SomeEnum.FOO.name") mustEqual "FOO"
+      invoke("awwYeah.SomeEnum.BAR.name") mustEqual "BAR"
       invoke("awwYeah.SomeEnum.get(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
       invoke("awwYeah.SomeEnum.get(2)") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
       invoke("awwYeah.SomeEnum.get(3)") mustEqual invoke("None")
