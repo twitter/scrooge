@@ -89,7 +89,7 @@ case class TypeResolver(
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, t, as, _, ts) =>
+    case Function(_, _, t, as, _, ts) =>
       f.copy(`type` = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 

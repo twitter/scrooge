@@ -212,9 +212,3 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def parseFile(filename: String) = parse(importer(filename), document)
 }
-
-
-/*
-  override def transformFields(fs: List[Field]): List[Field] = {
-  }
-*/

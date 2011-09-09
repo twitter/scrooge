@@ -13,7 +13,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     val returnType = if (async) "Future[" + baseReturnType + "]" else baseReturnType
     Dictionary()
       .dictionaries("throws", throwsDictionaries)
-      .data("name", function.name)
+      .data("name", function.localName)
       .data("scalaType", returnType)
       .data("fieldArgs", fieldArgs(function.args))
   }
@@ -22,7 +22,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
   lazy val futureFunctionTemplate = handlebar[Function]("function")(toDictionary(_, true))
 
   def serviceFunctionArgsStruct(f: Function): Struct = {
-    Struct(f.name + "_args", f.args)
+    Struct(f.localName + "_args", f.args)
   }
 
   def serviceFunctionResultStruct(f: Function): Struct = {
@@ -32,7 +32,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
       case fieldType: FieldType =>
         Seq(Field(0, "success", fieldType, None, Requiredness.Optional))
     }
-    Struct(f.name + "_result", success ++ throws)
+    Struct(f.localName + "_result", success ++ throws)
   }
 
   lazy val finagleClientFunctionTemplate = handlebar[Function]("finagleClientFunction") { self =>
@@ -46,6 +46,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     Dictionary()
       .data("functionDecl", futureFunctionTemplate(self))
       .data("name", self.name)
+      .data("localName", self.localName)
       .data("argNames", self.args.map(_.name).mkString(", "))
       .data("resultUnwrapper", resultUnwrapper)
   }
@@ -68,6 +69,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     }
     Dictionary()
       .data("name", self.name)
+      .data("localName", self.localName)
       .data("argNames", self.args map { "args." + _.name } mkString(", "))
       .data("scalaType", scalaType(self.`type`))
       .data("resultNamedArg", if (self.`type` ne Void) "success = Some(value)" else "")
