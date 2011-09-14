@@ -8,7 +8,7 @@ Since scala is API-compatible with java, you can use the apache thrift code
 generator to generate java files and use them from within scala, but the
 overhead of converting to/from java containers can sometimes be annoying.
 This is an attempt to bypass the problem by generating scala code directly.
-It also uses scala syntax so the generated code is much smaller.
+It also uses scala syntax so the generated code is *much* smaller.
 
 The generated code still depends on libthrift.
 
@@ -41,20 +41,20 @@ write your own.
 
 - To get command line help:
 
-    $ scrooge --help
+      $ scrooge --help
 
 - To generate source with content written to the current directory:
 
-    $ ./scrooge <thrift-file1> [<thrift-file2> ...]
+      $ ./scrooge <thrift-file1> [<thrift-file2> ...]
 
 - To generate source with content written to a specified directory, using
   extra include paths, rebuilding only those files that have changed:
 
-    $ ./scrooge
-        -d <target-dir>
-        -i <include-path>
+      $ ./scrooge
+        -d \<target-dir>
+        -i \<include-path>
         -s
-        <thrift-file1> [<thrift-file2> ...]
+        \<thrift-file1> [\<thrift-file2> ...]
 
 
 ## SBT Plugin
