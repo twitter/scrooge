@@ -51,10 +51,10 @@ To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:
 
     $ ./scrooge
-      -d \<target-dir>
-      -i \<include-path>
+      -d <target-dir>
+      -i <include-path>
       -s
-      \<thrift-file1> [\<thrift-file2> ...]
+      <thrift-file1> [<thrift-file2> ...]
 
 
 ## SBT Plugin
