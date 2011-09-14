@@ -45,12 +45,12 @@ To get command line help:
 
 To generate source with content written to the current directory:
 
-    $ ./scrooge <thrift-file1> [<thrift-file2> ...]
+    $ scrooge <thrift-file1> [<thrift-file2> ...]
 
 To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:
 
-    $ ./scrooge
+    $ scrooge
       -d <target-dir>
       -i <include-path>
       -s
