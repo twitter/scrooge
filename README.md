@@ -2,6 +2,8 @@
 
 Scrooge is a thrift code generator for scala.
 
+It's meant to be a drop-in replacement for the apache thrift code generator.
+
 Since scala is API-compatible with java, you can use the apache thrift code
 generator to generate java files and use them from within scala, but the
 overhead of converting to/from java containers can sometimes be annoying.
@@ -9,6 +11,9 @@ This is an attempt to bypass the problem by generating scala code directly.
 It also uses scala syntax so the generated code is much smaller.
 
 The generated code still depends on libthrift.
+
+There is a fairly comprehensive set of unit tests, which actually generate
+code, compile it, and execute it to verify expectations.
 
 
 ## Building
@@ -18,40 +23,63 @@ To build scrooge, use sbt:
     $ sbt package-dist
 
 
-## Work in progress
+## Features
 
-This is still a work in progress, so patches and help are gleefully accepted.
+- Generates native scala thrift codecs, using case classes and functions.
 
-The state (as of July 2011):
+- Generated code is templated using a mustache variant, making it easy to
+  edit.
 
-- The code generator is basically complete, and has been used to generate the
-  thrift interface for a test server. You can find that server here:
+- Finagle client/server adaptors, and Ostrich wrappers, can be optionally
+  generated at the same time.
 
-      git clone http://code.lag.net/sqrt2
-
-  The "master" branch uses sbt-thrift (apache thrift with scala wrappers) and
-  the "scrooge" branch uses scrooge.
-
-- There's no sbt plugin yet, but there should be.
 
 ## Running Scrooge
 
-This assumes that you have a script named "scrooge" in your path.
+A starter script is built into `dist/scrooge/scripts`. You can run that or
+write your own.
 
 - To get command line help:
 
-    `$ ./scrooge -?`
-    
+    $ scrooge --help
+
 - To generate source with content written to the current directory:
 
-    `$ ./scrooge <thrift-file1> [<thrift-file2> ...]`
-    
-- To generate source with content written to a specified directory:
+    $ ./scrooge <thrift-file1> [<thrift-file2> ...]
 
-    `$ ./scrooge -d <target-dir> <thrift-file1> [<thrift-file2> ...]`
-    
-- To specify additional include paths:
+- To generate source with content written to a specified directory, using
+  extra include paths, rebuilding only those files that have changed:
 
-    `$ ./scrooge -i <include-path> <thrift-file1> [<thrift-file2> ...]`
-    
-    Where include-path is a list of directory, separated by the platform specified path separator (':' on unix, ';' on windows)
+    $ ./scrooge
+        -d <target-dir>
+        -i <include-path>
+        -s
+        <thrift-file1> [<thrift-file2> ...]
+
+
+## SBT Plugin
+
+There's a plugin for SBT (0.7.x) which is meant to be a drop-in replacement
+for sbt-thrift:
+
+    https://github.com/twitter/sbt-scrooge
+
+To use it, replace the "sbt-thrift" line in your `Plugins.scala` file with:
+
+    val sbtScrooge = "com.twitter" % "sbt-scrooge" % "1.1.0"
+
+(or whatever the current version is)
+
+
+## License
+
+Scrooge is licensed under the Apache 2 license, which you can find in the
+included file `LICENSE`.
+
+
+## Credits / Thanks
+
+- Jorge Ortiz
+- Robey Pointer
+- Ian Ownbey
+- Jeremy Cloud
