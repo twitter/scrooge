@@ -68,7 +68,9 @@ To use it, replace the "sbt-thrift" line in your `Plugins.scala` file with:
 
     val sbtScrooge = "com.twitter" % "sbt-scrooge" % "1.1.0"
 
-(or whatever the current version is)
+(or whatever the current version is) and add `with CompileThriftScroogeMixin`
+or `with CompileThriftScrooge` to your project's mixin list. More details are
+in the sbt-scrooge `README`.
 
 
 ## License
