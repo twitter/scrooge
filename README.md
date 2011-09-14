@@ -62,7 +62,7 @@ extra include paths, rebuilding only those files that have changed:
 There's a plugin for SBT (0.7.x) which is meant to be a drop-in replacement
 for sbt-thrift:
 
-    [https://github.com/twitter/sbt-scrooge](https://github.com/twitter/sbt-scrooge)
+[https://github.com/twitter/sbt-scrooge](https://github.com/twitter/sbt-scrooge)
 
 To use it, replace the "sbt-thrift" line in your `Plugins.scala` file with:
 
