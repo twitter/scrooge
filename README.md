@@ -39,22 +39,22 @@ To build scrooge, use sbt:
 A starter script is built into `dist/scrooge/scripts`. You can run that or
 write your own.
 
-- To get command line help:
+To get command line help:
 
-      $ scrooge --help
+    $ scrooge --help
 
-- To generate source with content written to the current directory:
+To generate source with content written to the current directory:
 
-      $ ./scrooge <thrift-file1> [<thrift-file2> ...]
+    $ ./scrooge <thrift-file1> [<thrift-file2> ...]
 
-- To generate source with content written to a specified directory, using
-  extra include paths, rebuilding only those files that have changed:
+To generate source with content written to a specified directory, using
+extra include paths, rebuilding only those files that have changed:
 
-      $ ./scrooge
-        -d \<target-dir>
-        -i \<include-path>
-        -s
-        \<thrift-file1> [\<thrift-file2> ...]
+    $ ./scrooge
+      -d \<target-dir>
+      -i \<include-path>
+      -s
+      \<thrift-file1> [\<thrift-file2> ...]
 
 
 ## SBT Plugin
