@@ -57,6 +57,14 @@ extra include paths, rebuilding only those files that have changed:
       <thrift-file1> [<thrift-file2> ...]
 
 
+## Runtime dependency
+
+There are a couple of classes needed by the generated code. These have been
+moved out of scrooge into a separate jar to keep dependencies small:
+
+    val scrooge_runtime = "com.twitter" % "scrooge-runtime" % "1.0.2"
+
+
 ## SBT Plugin
 
 There's a plugin for SBT (0.7.x) which is meant to be a drop-in replacement
