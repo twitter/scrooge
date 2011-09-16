@@ -62,7 +62,7 @@ extra include paths, rebuilding only those files that have changed:
 There are a couple of classes needed by the generated code. These have been
 moved out of scrooge into a separate jar to keep dependencies small:
 
-    val scrooge_runtime = "com.twitter" % "scrooge-runtime" % "1.0.2"
+    val scrooge_runtime = "com.twitter" % "scrooge-runtime" % "1.0.3"
 
 
 ## SBT Plugin
