@@ -14,7 +14,7 @@ functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
         reply("{{name}}", seqid, {{localName}}_result({{fieldName}} = Some(e)))
       {{/exception}}
       case e: Throwable =>
-        exception("{{name}}", seqid, TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}")
+        exception("{{name}}", seqid, TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}: " + e.toString)
     }
   } catch {
     case e: TProtocolException =>
