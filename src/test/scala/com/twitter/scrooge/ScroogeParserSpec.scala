@@ -80,8 +80,8 @@ class ScroogeParserSpec extends Specification {
         }
         """
       parser.parse(code, parser.definition) mustEqual Enum("Direction", Seq(
-        EnumValue("NORTH", 1),
-        EnumValue("SOUTH", 2),
+        EnumValue("NORTH", 0),
+        EnumValue("SOUTH", 1),
         EnumValue("EAST", 90),
         EnumValue("WEST", 91),
         EnumValue("UP", 92),

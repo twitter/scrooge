@@ -149,7 +149,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     opt(listSeparator)) <~ "}" ^^ { case id ~ items =>
     var failed: Option[Int] = None
     val seen = new mutable.HashSet[Int]
-    var nextValue = 1
+    var nextValue = 0
     val values = new mutable.ListBuffer[EnumValue]
     items.foreach { case k ~ v =>
       val value = v.map { _.value.toInt }.getOrElse(nextValue)
