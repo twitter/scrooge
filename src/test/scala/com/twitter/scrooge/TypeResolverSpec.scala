@@ -115,5 +115,21 @@ object TypeResolverSpec extends Specification {
       val service = Service("Glurb", None, Seq(fun))
       resolver(service) mustEqual service.copy(functions = Seq(resolver(fun)))
     }
+
+    "resolve a service parent from same scope" in {
+      val service1 = Service("Super", None, Nil)
+      val service2 = Service("Sub", Some(ServiceParent("Super")), Nil)
+      val resolver = TypeResolver().define(service1)
+      resolver(service2) mustEqual service2.copy(parent = Some(ServiceParent(service1)))
+    }
+
+    "resolve a service parent from an included scope" in {
+      val service1 = Service("Super", None, Nil)
+      val otherDoc = Document(Nil, Seq(service1))
+      val include = Include("other.thrift", otherDoc)
+      val service2 = Service("Sub", Some(ServiceParent("other.Super")), Nil)
+      val resolver = TypeResolver().include(include)
+      resolver(service2) mustEqual service2.copy(parent = Some(ServiceParent("other.Super", Some(service1))))
+    }
   }
 }

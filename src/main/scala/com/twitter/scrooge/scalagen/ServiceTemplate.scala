@@ -55,9 +55,10 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     val functionDictionaries = self.functions map { f =>
       Dictionary().data("function", finagleClientFunctionTemplate(f).indent())
     }
+    val parentName = self.parent.flatMap(_.service).map(_.name)
     Dictionary()
-      .data("override", self.parent.map { _ => "override " }.getOrElse(""))
-      .data("extends", self.parent.map { _ + ".FinagledClient(service, protocolFactory)" }.getOrElse("FinagleThriftClient"))
+      .data("override", if (parentName.nonEmpty) "override " else "")
+      .data("extends", parentName.map { _ + ".FinagledClient(service, protocolFactory)" }.getOrElse("FinagleThriftClient"))
       .dictionaries("functions", functionDictionaries)
   }
 
@@ -81,9 +82,10 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
       Dictionary()
         .data("function", finagleServiceFunctionTemplate(f).indent())
     }
+    val parentName = self.parent.flatMap(_.service).map(_.name)
     Dictionary()
-      .data("override", self.parent.map { _ => "override " }.getOrElse(""))
-      .data("extends", self.parent.map { _ + ".FinagledService(iface, protocolFactory)" }.getOrElse("FinagleThriftService"))
+      .data("override", if (parentName.nonEmpty) "override " else "")
+      .data("extends", parentName.map { _ + ".FinagledService(iface, protocolFactory)" }.getOrElse("FinagleThriftService"))
       .dictionaries("functions", functionDictionaries)
   }
 
@@ -96,10 +98,11 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     val functionStructs = service.functions flatMap { f =>
       Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
     } map { structTemplate(_).indent } mkString("", "\n\n", "\n")
+    val parentName = service.parent.flatMap(_.service).map(_.name)
     Dictionary()
       .data("name", service.name)
-      .data("syncExtends", service.parent.map { "extends " + _ + ".Iface " }.getOrElse(""))
-      .data("asyncExtends", service.parent.map { "extends " + _ + ".FutureIface " }.getOrElse(""))
+      .data("syncExtends", parentName.map { "extends " + _ + ".Iface " }.getOrElse(""))
+      .data("asyncExtends", parentName.map { "extends " + _ + ".FutureIface " }.getOrElse(""))
       .data("syncFunctions", syncFunctions)
       .data("asyncFunctions", asyncFunctions)
       .data("functionStructs", functionStructs)

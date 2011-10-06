@@ -10,11 +10,56 @@ class TypeMismatchException(name: String) extends Exception(name)
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
+object TypeResolver {
+  class EntityResolver[T](
+    typeMap: Map[String,T],
+    includeMap: Map[String, ResolvedDocument],
+    next: TypeResolver => EntityResolver[T])
+  {
+    def apply(name: String): T = {
+      name match {
+        case QualifiedName(prefix, suffix) =>
+          apply(prefix, suffix)
+        case _ =>
+          typeMap.get(name).getOrElse(throw new TypeNotFoundException(name))
+      }
+    }
+
+    def apply(scope: String, name: String): T = {
+      val include = includeMap.get(scope).getOrElse(throw new UndefinedSymbolException(name))
+      try {
+        next(include.resolver)(name)
+      } catch {
+        case ex: TypeNotFoundException =>
+          // don't lose context
+          throw new TypeNotFoundException(scope + "." + name)
+      }
+    }
+  }
+
+  object QualifiedName {
+    def unapply(str: String): Option[(String, String)] = {
+      str.indexOf('.') match {
+        case -1 => None
+        case dot => Some((str.substring(0, dot), str.substring(dot + 1)))
+      }
+    }
+  }
+}
+
 case class TypeResolver(
   typeMap: Map[String, FieldType] = Map(),
   constMap: Map[String, Const] = Map(),
+  serviceMap: Map[String, Service] = Map(),
   includeMap: Map[String, ResolvedDocument] = Map())
 {
+  import TypeResolver._
+
+  lazy val fieldTypeResolver: EntityResolver[FieldType] =
+    new EntityResolver(typeMap, includeMap, _.fieldTypeResolver)
+  lazy val serviceResolver: EntityResolver[Service] =
+    new EntityResolver(serviceMap, includeMap, _.serviceResolver)
+
   /**
    * Resolves all types in the given document.
    */
@@ -57,6 +102,7 @@ case class TypeResolver(
       case s @ Struct(name, _) => ResolvedDefinition(s, define(name, StructType(s)))
       case e @ Exception_(name, _) => ResolvedDefinition(e, define(e.name, StructType(e)))
       case c @ Const(_, _, v) => ResolvedDefinition(c, define(c))
+      case s @ Service(name, _, _) => ResolvedDefinition(s, define(s))
       case d => ResolvedDefinition(d, this)
     }
   }
@@ -75,6 +121,13 @@ case class TypeResolver(
     copy(constMap = constMap + (const.name -> const))
   }
 
+  /**
+   * Returns a new TypeResolver with the given service added.
+   */
+  def define(service: Service): TypeResolver = {
+    copy(serviceMap = serviceMap + (service.name -> service))
+  }
+
   def apply(definition: Definition): Definition = {
     definition match {
       case d @ Typedef(name, t) => d.copy(`type` = apply(t))
@@ -83,7 +136,7 @@ case class TypeResolver(
       case c @ Const(_, t, _) =>
         val `type` = apply(t)
         c.copy(`type` = `type`, value = apply(c.value, `type`))
-      case s @ Service(_, _, fs) => s.copy(functions = fs.map(apply))
+      case s @ Service(_, p, fs) => s.copy(parent = p.map(apply), functions = fs.map(apply))
       case d => d
     }
   }
@@ -130,7 +183,7 @@ case class TypeResolver(
         case EnumType(enum) =>
           val valueName = name match {
             case QualifiedName(scope, QualifiedName(enumName, valueName)) =>
-              if (apply(scope, enumName) != fieldType) {
+              if (fieldTypeResolver(scope, enumName) != fieldType) {
                 throw new UndefinedSymbolException(scope + "." + enumName)
               } else {
                 valueName
@@ -152,32 +205,9 @@ case class TypeResolver(
     case _ => c
   }
 
-  def apply(name: String): FieldType = {
-    name match {
-      case QualifiedName(prefix, suffix) =>
-        apply(prefix, suffix)
-      case _ =>
-        typeMap.get(name).getOrElse(throw new TypeNotFoundException(name))
-    }
+  def apply(parent: ServiceParent): ServiceParent = {
+    parent.copy(service = Some(serviceResolver(parent.name)))
   }
 
-  def apply(scope: String, name: String): FieldType = {
-    val include = includeMap.get(scope).getOrElse(throw new UndefinedSymbolException(name))
-    try {
-      include.resolver(name)
-    } catch {
-      case ex: TypeNotFoundException =>
-        // don't lose context
-        throw new TypeNotFoundException(scope + "." + name)
-    }
-  }
-
-  object QualifiedName {
-    def unapply(str: String): Option[(String, String)] = {
-      str.indexOf('.') match {
-        case -1 => None
-        case dot => Some((str.substring(0, dot), str.substring(dot + 1)))
-      }
-    }
-  }
+  def apply(name: String): FieldType = fieldTypeResolver(name)
 }

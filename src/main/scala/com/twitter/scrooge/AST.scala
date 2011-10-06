@@ -132,7 +132,17 @@ object AST {
     override lazy val camelize = copy(fields = fields.map(_.camelize))
   }
 
-  case class Service(name: String, parent: Option[String], functions: Seq[Function]) extends Definition {
+  object ServiceParent {
+    def apply(service: Service): ServiceParent = ServiceParent(service.name, Some(service))
+  }
+
+  case class ServiceParent(name: String, service: Option[Service] = None)
+
+  case class Service(
+    name: String,
+    parent: Option[ServiceParent],
+    functions: Seq[Function]) extends Definition
+  {
     override lazy val camelize = copy(functions = functions.map(_.camelize))
   }
 

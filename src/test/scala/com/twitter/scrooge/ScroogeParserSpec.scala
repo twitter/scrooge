@@ -140,7 +140,7 @@ class ScroogeParserSpec extends Specification {
       ))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
-        Service("LeechCache", Some("Cache"), Seq())
+        Service("LeechCache", Some(ServiceParent("Cache")), Seq())
     }
 
     "document" in {

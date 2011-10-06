@@ -179,7 +179,8 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def service = ("service" ~> identifier) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
     "}") ^^ {
-    case id ~ extend ~ functions => Service(id.name, extend.map { _.name }, functions)
+    case id ~ extend ~ functions =>
+      Service(id.name, extend.map { id => ServiceParent(id.name) }, functions)
   }
 
   // document
