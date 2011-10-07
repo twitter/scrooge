@@ -5,3 +5,12 @@
 * Correctly resolving enum constants and Const values.
 * Title-casing enum value names.
 * Added support for namespace renaming from the command line.
+
+2.0.0 
+===========================================================
+* fixes a bug with enum in which the first value was wrong.
+
+2.0.1
+===========================================================
+* fixes a bug in which qualified service names from imported
+  thrift files were not resolved properly.
