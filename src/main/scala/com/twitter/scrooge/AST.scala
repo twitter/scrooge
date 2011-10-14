@@ -172,6 +172,8 @@ object AST {
             namespaceMap.get(ns) map {
               newNs => header.copy(name = newNs)
             } getOrElse(header)
+          case include @ Include(_, doc) =>
+            include.copy(document = doc.mapNamespaces(namespaceMap))
           case header => header
         }
       )
