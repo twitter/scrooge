@@ -7,7 +7,6 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with DefaultRepos
   with SubversionPublisher
 {
-  val scala0Repo = "scala0.net" at "http://scala0.net/repositories/"
   val monkeyRepo = "monkey.org" at "http://monkey.org/~marius/maven"
 
   // projects that use finagle will provide their own dependent jar.
@@ -32,7 +31,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
 
   override def mainClass = Some("com.twitter.scrooge.Main")
 
-  override def subversionRepository = Some("https://svn.local.twitter.com/maven-public")
+  override def subversionRepository = Some("https://svn.twitter.biz/maven-public")
 
   override def releaseBuild = !(projectVersion.toString contains "SNAPSHOT")
 
