@@ -10,7 +10,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val monkeyRepo = "monkey.org" at "http://monkey.org/~marius/maven"
 
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "1.9.0"
+  val finagleVersion = "1.9.5"
   val utilVersion = "1.11.1"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
