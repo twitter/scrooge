@@ -6,7 +6,7 @@ import com.twitter.scrooge.FinagleThriftClient
 
 class FinagledClient(
   {{override}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
-  {{override}}val protocolFactory: TProtocolFactory)
+  {{override}}val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory)
   extends {{extends}} with FutureIface
 {
 {{#functions}}

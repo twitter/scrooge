@@ -21,15 +21,20 @@ trait ThriftServer extends Service with FutureIface {
 
   def start() {
     val thriftImpl = new FinagledService(this, thriftProtocolFactory)
-    val serverAddr = new InetSocketAddress(thriftPort)
-    server = ServerBuilder()
+    server = serverBuilder.build(thriftImpl)
+  }
+
+  /**
+   * You can override this to provide addition configuration
+   * to the ServerBuilder.
+   */
+  def serverBuilder =
+    ServerBuilder()
       .codec(thriftCodec)
       .name(serverName)
       .reportTo(statsReceiver)
-      .bindTo(serverAddr)
+      .bindTo(new InetSocketAddress(thriftPort))
       .tracerFactory(tracerFactory)
-      .build(thriftImpl)
-  }
 
   def shutdown() {
     synchronized {
