@@ -25,7 +25,7 @@ trait ThriftServer extends Service with FutureIface {
   }
 
   /**
-   * You can override this to provide addition configuration
+   * You can override this to provide additional configuration
    * to the ServerBuilder.
    */
   def serverBuilder =
