@@ -1,3 +1,17 @@
+2.3.0 - 11/24/2011
+===========================================================
+* You can now override serverBuilder in ThriftServer to provide
+  additional server configuration
+* The protocol factory to the FinagledClient now has a default
+  value of TBinaryProtocol.Factory, which means you don't have
+  to specify it when using the default.
+
+
+2.2.0 - 11/04/2011
+===========================================================
+* tracerFactory support in ThriftServer.
+
+
 2.1.0 - 10/23/2011
 ===========================================================
 * Support for tracing in server.
