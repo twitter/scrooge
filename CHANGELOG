@@ -1,3 +1,10 @@
+2.3.1 - 11/28/2011
+===========================================================
+* thriftProtocolFactory in generated ThriftServer now has
+  type of TProtocolFactory, so you can override it with other
+  protocol factories.
+
+
 2.3.0 - 11/24/2011
 ===========================================================
 * You can now override serverBuilder in ThriftServer to provide
