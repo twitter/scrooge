@@ -13,7 +13,7 @@ trait ThriftServer extends Service with FutureIface {
   def thriftCodec = ThriftServerFramedCodec()
   def statsReceiver: StatsReceiver = new OstrichStatsReceiver
   def tracerFactory: Tracer.Factory = NullTracer.factory
-  val thriftProtocolFactory = new TBinaryProtocol.Factory()
+  val thriftProtocolFactory: TProtocolFactory = new TBinaryProtocol.Factory()
   val thriftPort: Int
   val serverName: String
 
