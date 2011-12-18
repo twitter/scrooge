@@ -15,7 +15,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
   val scopt = "com.github.scopt" %% "scopt" % "1.1.1"
-  val mustache = "org.monkey" % "mustache" % "1.0.3"
+  var handlebar = "com.twitter" % "handlebar" % "1.0.0-SNAPSHOT"
   val util_core = "com.twitter" % "util-core" % utilVersion
 
   // for tests:

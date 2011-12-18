@@ -2,24 +2,27 @@ package com.twitter.scrooge
 package scalagen
 
 import AST._
-import org.monkey.mustache.Dictionary
+import com.twitter.handlebar.{Dictionary, Handlebar}
 
-trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerator =>
+trait ServiceTemplate extends Generator { self: ScalaGenerator =>
+  import Dictionary._
+
   def toDictionary(function: Function, async: Boolean): Dictionary = {
     val throwsDictionaries = function.throws map { t =>
-      Dictionary().data("scalaType", scalaType(t.`type`))
+      Dictionary("scalaType" -> v(scalaType(t.`type`)))
     }
     val baseReturnType = scalaType(function.`type`)
     val returnType = if (async) "Future[" + baseReturnType + "]" else baseReturnType
-    Dictionary()
-      .dictionaries("throws", throwsDictionaries)
-      .data("name", function.localName)
-      .data("scalaType", returnType)
-      .data("fieldArgs", fieldArgs(function.args))
+    Dictionary(
+      "throws" -> v(throwsDictionaries),
+      "name" -> v(function.localName),
+      "scalaType" -> v(returnType),
+      "fieldArgs" -> v(fieldArgs(function.args))
+    )
   }
 
-  lazy val functionTemplate = handlebar[Function]("function")(toDictionary(_, false))
-  lazy val futureFunctionTemplate = handlebar[Function]("function")(toDictionary(_, true))
+  lazy val functionTemplate = templates("function") { f: Function => toDictionary(f, false) }
+  lazy val futureFunctionTemplate = templates("function") { f: Function => toDictionary(f, true) }
 
   def serviceFunctionArgsStruct(f: Function): Struct = {
     Struct(f.localName + "_args", f.args)
@@ -35,82 +38,92 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
     Struct(f.localName + "_result", success ++ throws)
   }
 
-  lazy val finagleClientFunctionTemplate = handlebar[Function]("finagleClientFunction") { self =>
+  lazy val finagleClientFunctionTemplate = templates("finagleClientFunction") { f: Function =>
     val resultUnwrapper = {
-      val exceptions = if (self.throws.isEmpty) "" else
-         self.throws.map { "result." + _.name } mkString("(", " orElse ", ").map(Future.exception) getOrElse")
-      val result = if (self.`type` eq AST.Void) " Future.Done" else
-         "{ result.success.map(Future.value) getOrElse missingResult(\""+self.name+"\") }"
+      val exceptions = if (f.throws.isEmpty) "" else
+         f.throws.map { "result." + _.name } mkString("(", " orElse ", ").map(Future.exception) getOrElse ")
+      val result = if (f.`type` eq AST.Void) "Future.Done" else
+         "{ result.success.map(Future.value) getOrElse missingResult(\"" + f.name + "\") }"
       exceptions + result
     }
-    Dictionary()
-      .data("functionDecl", futureFunctionTemplate(self))
-      .data("name", self.name)
-      .data("localName", self.localName)
-      .data("argNames", self.args.map(_.name).mkString(", "))
-      .data("resultUnwrapper", resultUnwrapper)
+    Dictionary(
+      "functionDecl" -> v(futureFunctionTemplate(f)),
+      "name" -> v(f.name),
+      "localName" -> v(f.localName),
+      "argNames" -> v(f.args.map(_.name).mkString(", ")),
+      "resultUnwrapper" -> v(resultUnwrapper)
+    )
   }
 
-  lazy val finagleClientTemplate = handlebar[Service]("finagleClient") { self =>
-    val functionDictionaries = self.functions map { f =>
-      Dictionary().data("function", finagleClientFunctionTemplate(f).indent())
+  lazy val finagleClientTemplate = templates("finagleClient") { s: Service =>
+    val functionDictionaries = s.functions map { f =>
+      Dictionary("function" -> v(finagleClientFunctionTemplate(f).indent() + "\n"))
     }
-    val parentName = self.parent.flatMap(_.service).map(_.name)
-    Dictionary()
-      .data("override", if (parentName.nonEmpty) "override " else "")
-      .data("extends", parentName.map { _ + ".FinagledClient(service, protocolFactory)" }.getOrElse("FinagleThriftClient"))
-      .dictionaries("functions", functionDictionaries)
+    val parentName = s.parent.flatMap(_.service).map(_.name)
+    Dictionary(
+      "override" -> v(if (parentName.nonEmpty) "override " else ""),
+      "extends" -> v(parentName.map { _ + ".FinagledClient(service, protocolFactory)" }.getOrElse("FinagleThriftClient")),
+      "functions" -> v(functionDictionaries)
+    )
   }
 
-  lazy val finagleServiceFunctionTemplate = handlebar[Function]("finagleServiceFunction") { self =>
-    val exceptionDictionaries = self.throws map { t =>
-      Dictionary()
-        .data("exceptionType", scalaType(t.`type`))
-        .data("fieldName", t.name)
+  lazy val finagleServiceFunctionTemplate = templates("finagleServiceFunction") { f: Function =>
+    val exceptionDictionaries = f.throws map { t =>
+      Dictionary(
+        "exceptionType" -> v(scalaType(t.`type`)),
+        "fieldName" -> v(t.name)
+      )
     }
-    Dictionary()
-      .data("name", self.name)
-      .data("localName", self.localName)
-      .data("argNames", self.args map { "args." + _.name } mkString(", "))
-      .data("scalaType", scalaType(self.`type`))
-      .data("resultNamedArg", if (self.`type` ne Void) "success = Some(value)" else "")
-      .dictionaries("exceptions", exceptionDictionaries)
+    Dictionary(
+      "name" -> v(f.name),
+      "localName" -> v(f.localName),
+      "argNames" -> v(f.args map { "args." + _.name } mkString(", ")),
+      "scalaType" -> v(scalaType(f.`type`)),
+      "resultNamedArg" -> v(if (f.`type` ne Void) "success = Some(value)" else ""),
+      "exceptions" -> v(exceptionDictionaries)
+    )
   }
 
-  lazy val finagleServiceTemplate = handlebar[Service]("finagleService"){ self =>
-    val functionDictionaries = self.functions map { f =>
-      Dictionary()
-        .data("function", finagleServiceFunctionTemplate(f).indent())
+  lazy val finagleServiceTemplate = templates("finagleService") { s: Service =>
+    val functionDictionaries = s.functions map { f =>
+      Dictionary(
+        "function" -> v(finagleServiceFunctionTemplate(f).indent() + "\n")
+      )
     }
-    val parentName = self.parent.flatMap(_.service).map(_.name)
-    Dictionary()
-      .data("override", if (parentName.nonEmpty) "override " else "")
-      .data("extends", parentName.map { _ + ".FinagledService(iface, protocolFactory)" }.getOrElse("FinagleThriftService"))
-      .dictionaries("functions", functionDictionaries)
+    val parentName = s.parent.flatMap(_.service).map(_.name)
+    Dictionary(
+      "override" -> v(if (parentName.nonEmpty) "override " else ""),
+      "extends" -> v(parentName.map { _ + ".FinagledService(iface, protocolFactory)" }.getOrElse("FinagleThriftService")),
+      "functions" -> v(functionDictionaries)
+    )
   }
 
-  lazy val ostrichServiceTemplate = handlebar[Service]("ostrichService") { _ => Dictionary() }
+  lazy val ostrichServiceTemplate = templates("ostrichService") { s: Service => Dictionary() }
 
-  lazy val serviceTemplate = handlebar[ScalaService]("service") { self =>
-    val service = self.service
-    val syncFunctions = service.functions.map(functionTemplate(_).indent(2)).mkString("\n")
-    val asyncFunctions = service.functions.map(futureFunctionTemplate(_).indent(2)).mkString("\n")
+  lazy val serviceTemplate = templates("service") { s: ScalaService =>
+    val service = s.service
+    val syncFunctions = service.functions.map(functionTemplate(_).indent(2)).mkString("\n\n")
+    val asyncFunctions = service.functions.map(futureFunctionTemplate(_).indent(2)).mkString("\n\n")
     val functionStructs = service.functions flatMap { f =>
       Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
     } map { structTemplate(_).indent } mkString("", "\n\n", "\n")
     val parentName = service.parent.flatMap(_.service).map(_.name)
-    Dictionary()
-      .data("name", service.name)
-      .data("syncExtends", parentName.map { "extends " + _ + ".Iface " }.getOrElse(""))
-      .data("asyncExtends", parentName.map { "extends " + _ + ".FutureIface " }.getOrElse(""))
-      .data("syncFunctions", syncFunctions)
-      .data("asyncFunctions", asyncFunctions)
-      .data("functionStructs", functionStructs)
-      .data("finagleClient",
-        if (self.options contains WithFinagleClient) (finagleClientTemplate(service).indent + "\n") else "")
-      .data("finagleService",
-        if (self.options contains WithFinagleService) (finagleServiceTemplate(service).indent + "\n") else "")
-      .data("ostrichServer",
-        if (self.options contains WithOstrichServer) (ostrichServiceTemplate(service).indent + "\n") else "")
+    Dictionary(
+      "name" -> v(service.name),
+      "syncExtends" -> v(parentName.map { "extends " + _ + ".Iface " }.getOrElse("")),
+      "asyncExtends" -> v(parentName.map { "extends " + _ + ".FutureIface " }.getOrElse("")),
+      "syncFunctions" -> v(syncFunctions),
+      "asyncFunctions" -> v(asyncFunctions),
+      "functionStructs" -> v(functionStructs),
+      "finagleClient" -> v(
+        if (s.options contains WithFinagleClient) (finagleClientTemplate(service).indent + "\n") else ""
+      ),
+      "finagleService" -> v(
+        if (s.options contains WithFinagleService) (finagleServiceTemplate(service).indent + "\n") else ""
+      ),
+      "ostrichServer" -> v(
+        if (s.options contains WithOstrichServer) (ostrichServiceTemplate(service).indent + "\n") else ""
+      )
+    )
   }
 }

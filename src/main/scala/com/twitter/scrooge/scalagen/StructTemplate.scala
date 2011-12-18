@@ -2,185 +2,183 @@ package com.twitter.scrooge
 package scalagen
 
 import AST._
-import org.monkey.mustache.Dictionary
+import com.twitter.handlebar.{Dictionary, Handlebar}
 
-trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator =>
+trait StructTemplate extends Generator { self: ScalaGenerator =>
+  import Dictionary._
+
   // ----- readers
 
-  lazy val readBasicTemplate = handlebar[FieldType]("readBasic") { self =>
-    Dictionary().data("protocolReadMethod", protocolReadMethod(self))
+  lazy val readBasicTemplate = templates("readBasic") { t: FieldType =>
+    Dictionary(
+      "protocolReadMethod" -> protocolReadMethod(t)
+    )
   }
 
-  lazy val readListTemplate = handlebar[FieldType]("readList") {
-    case self: ListType =>
-      Dictionary()
-        .data("eltType", scalaType(self.eltType))
-        .data("eltReader", readTemplate(self.eltType).indent(2))
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val readListTemplate = templates("readList") { t: ListType =>
+    Dictionary(
+      // FIXME remove corba "elt" jargon
+      "eltType" -> v(scalaType(t.eltType)),
+      "eltReader" -> v(readTemplate(t.eltType).indent(2))
+    )
   }
 
-  lazy val readSetTemplate = handlebar[FieldType]("readSet") {
-    case self: SetType =>
-      Dictionary()
-        .data("eltType", scalaType(self.eltType))
-        .data("eltReader", readTemplate(self.eltType).indent(2))
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val readSetTemplate = templates("readSet") { t: SetType =>
+    Dictionary(
+      "eltType" -> v(scalaType(t.eltType)),
+      "eltReader" -> v(readTemplate(t.eltType).indent(2))
+    )
   }
 
-  lazy val readMapTemplate = handlebar[FieldType]("readMap") {
-    case self: MapType =>
-      Dictionary()
-        .data("keyType", scalaType(self.keyType))
-        .data("valueType", scalaType(self.valueType))
-        .data("keyReader", readTemplate(self.keyType).indent(2))
-        .data("valueReader", readTemplate(self.valueType).indent(2))
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val readMapTemplate = templates("readMap") { t: MapType =>
+    Dictionary(
+      "keyType" -> v(scalaType(t.keyType)),
+      "valueType" -> v(scalaType(t.valueType)),
+      "keyReader" -> v(readTemplate(t.keyType).indent(2)),
+      "valueReader" -> v(readTemplate(t.valueType).indent(2))
+    )
   }
 
-  lazy val readStructTemplate = handlebar[FieldType]("readStruct") {
-    case self: StructType =>
-      Dictionary().data("name", self.name)
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val readStructTemplate = templates("readStruct") { t: StructType =>
+    Dictionary(
+      "name" -> v(t.name)
+    )
   }
 
-  lazy val readEnumTemplate = handlebar[FieldType]("readEnum") {
-    case self: EnumType =>
-      Dictionary().data("name", self.name)
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val readEnumTemplate = templates("readEnum") { t: EnumType =>
+    Dictionary(
+      "name" -> v(t.name)
+    )
   }
 
-  lazy val readTemplate: Handlebar[FieldType] = new Handlebar[FieldType] {
-    def apply(t: FieldType) = {
-      val template: Handlebar[FieldType] = t match {
-        case _: ListType => readListTemplate
-        case _: SetType => readSetTemplate
-        case _: MapType => readMapTemplate
-        case _: StructType => readStructTemplate
-        case _: EnumType => readEnumTemplate
-        case _: BaseType => readBasicTemplate
-      }
-      template(t)
+  def readTemplate(t: FieldType): String = {
+    t match {
+      case x: ListType => readListTemplate(x)
+      case x: SetType => readSetTemplate(x)
+      case x: MapType => readMapTemplate(x)
+      case x: StructType => readStructTemplate(x)
+      case x: EnumType => readEnumTemplate(x)
+      case x: BaseType => readBasicTemplate(x)
     }
   }
 
-  lazy val readFieldTemplate = handlebar[Field]("readField") { self =>
-    Dictionary()
-      .data("id", self.id.toString)
-      .data("name", self.name)
-      .data("constType", constType(self.`type`))
-      .data("optionality", if (self.requiredness.isOptional) "Some" else "")
-      .data("valueReader", readTemplate(self.`type`).indent(4))
-      .bool("required", self.requiredness.isRequired)
+  lazy val readFieldTemplate = templates("readField") { f: Field =>
+    Dictionary(
+      "id" -> v(f.id.toString),
+      "name" -> v(f.name),
+      "constType" -> v(constType(f.`type`)),
+      "optionality" -> v(if (f.requiredness.isOptional) "Some" else ""),
+      "valueReader" -> v(readTemplate(f.`type`).indent(4)),
+      "required" -> v(f.requiredness.isRequired)
+    )
   }
 
   // ----- writers
 
-  lazy val writeBasicTemplate = handlebar[FieldType]("writeBasic") { self =>
-    Dictionary().data("protocolWriteMethod", protocolWriteMethod(self))
+  lazy val writeBasicTemplate = templates("writeBasic") { t: FieldType =>
+    Dictionary(
+      "protocolWriteMethod" -> v(protocolWriteMethod(t))
+    )
   }
 
-  lazy val writeListTemplate = handlebar[FieldType]("writeList") {
-    case self: ListType =>
-      Dictionary()
-        .data("eltType", constType(self.eltType))
-        .data("eltWriter", writeTemplate(self.eltType).indent(1))
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val writeListTemplate = templates("writeList") { t: ListType =>
+    Dictionary(
+      "eltType" -> v(constType(t.eltType)),
+      "eltWriter" -> v(writeTemplate(t.eltType).indent(1))
+    )
   }
 
-  lazy val writeSetTemplate = handlebar[FieldType]("writeSet") {
-    case self: SetType =>
-      Dictionary()
-        .data("eltType", constType(self.eltType))
-        .data("eltWriter", writeTemplate(self.eltType).indent(1))
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val writeSetTemplate = templates("writeSet") { t: SetType =>
+    Dictionary(
+      "eltType" -> v(constType(t.eltType)),
+      "eltWriter" -> v(writeTemplate(t.eltType).indent(1))
+    )
   }
 
-  lazy val writeMapTemplate = handlebar[FieldType]("writeMap") {
-    case self: MapType =>
-      Dictionary()
-        .data("keyType", constType(self.keyType))
-        .data("valueType", constType(self.valueType))
-        .data("keyWriter", writeTemplate(self.keyType).indent(2))
-        .data("valueWriter", writeTemplate(self.valueType).indent(2))
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val writeMapTemplate = templates("writeMap") { t: MapType =>
+    Dictionary(
+      "keyType" -> v(constType(t.keyType)),
+      "valueType" -> v(constType(t.valueType)),
+      "keyWriter" -> v(writeTemplate(t.keyType).indent(2)),
+      "valueWriter" -> v(writeTemplate(t.valueType).indent(2))
+    )
   }
 
-  lazy val writeStructTemplate = handlebar[FieldType]("writeStruct") {
-    case self: StructType => Dictionary()
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val writeStructTemplate = templates("writeStruct") { t: StructType =>
+    Dictionary()
   }
 
-  lazy val writeEnumTemplate = handlebar[FieldType]("writeEnum") {
-    case self: EnumType => Dictionary()
-    case wtf => throw new InternalError("unexpected type: " + wtf)
+  lazy val writeEnumTemplate = templates("writeEnum") { t: EnumType =>
+    Dictionary()
   }
 
-  lazy val writeTemplate: Handlebar[FieldType] = new Handlebar[FieldType] {
-    def apply(self: FieldType): String = {
-      val template = self match {
-        case _: ListType => writeListTemplate
-        case _: SetType => writeSetTemplate
-        case _: MapType => writeMapTemplate
-        case _: StructType => writeStructTemplate
-        case _: EnumType => writeEnumTemplate
-        case _: BaseType => writeBasicTemplate
-      }
-      template(self)
+  def writeTemplate(t: FieldType): String = {
+    t match {
+      case x: ListType => writeListTemplate(x)
+      case x: SetType => writeSetTemplate(x)
+      case x: MapType => writeMapTemplate(x)
+      case x: StructType => writeStructTemplate(x)
+      case x: EnumType => writeEnumTemplate(x)
+      case x: BaseType => writeBasicTemplate(x)
     }
   }
 
-  lazy val writeFieldTemplate = handlebar[Field]("writeField") { self =>
-    val conditional = if (self.requiredness.isOptional) {
-      "`" + self.name + "`.isDefined"
+  lazy val writeFieldTemplate = templates("writeField") { f: Field =>
+    val conditional = if (f.requiredness.isOptional) {
+      "`" + f.name + "`.isDefined"
     } else {
-      self.`type` match {
+      f.`type` match {
         case AST.TBool | AST.TByte | AST.TI16 | AST.TI32 | AST.TI64 | AST.TDouble =>
           "true"
         case _ =>
-          "`" + self.name + "` ne null"
+          "`" + f.name + "` ne null"
       }
     }
-    Dictionary()
-      .data("name", self.name)
-      .data("conditional", conditional)
-      .data("fieldConst", writeFieldConst(self.name))
-      .data("getter", if (self.requiredness.isOptional) ".get" else "")
-      .data("valueWriter", writeTemplate(self.`type`).indent(1))
+    Dictionary(
+      "name" -> v(f.name),
+      "conditional" -> v(conditional),
+      "fieldConst" -> v(writeFieldConst(f.name)),
+      "getter" -> v(if (f.requiredness.isOptional) ".get" else ""),
+      "valueWriter" -> v(writeTemplate(f.`type`).indent(1))
+    )
   }
 
   // ----- struct
 
-  lazy val structTemplate = handlebar[StructLike]("struct"){ struct =>
+  lazy val structTemplate = templates("struct") { struct: StructLike =>
     val fieldDictionaries = struct.fields map { field =>
-      Dictionary()
-        .data("name", field.name)
-        .data("id", field.id.toString)
-        .data("fieldConst", writeFieldConst(field.name))
-        .data("constType", constType(field.`type`))
-        .data("scalaType", scalaFieldType(field))
-        .data("defaultReadValue", defaultReadValue(field))
-        .bool("required", field.requiredness.isRequired)
-        .data("reader", readFieldTemplate(field).indent(5))
-        .data("writer", writeFieldTemplate(field).indent(2))
-        .data("struct", struct.name)
+      Dictionary(
+        "name" -> v(field.name),
+        "id" -> v(field.id.toString),
+        "fieldConst" -> v(writeFieldConst(field.name)),
+        "constType" -> v(constType(field.`type`)),
+        "scalaType" -> v(scalaFieldType(field)),
+        "defaultReadValue" -> v(defaultReadValue(field)),
+        "required" -> v(field.requiredness.isRequired),
+        "reader" -> v(readFieldTemplate(field).indent(5)),
+        "writer" -> v(writeFieldTemplate(field).indent(2)),
+        "struct" -> v(struct.name)
+      )
     }
     val optionalDefaultDictionaries = struct.fields.filter { f =>
       f.requiredness.isOptional && f.default.isDefined
     } map { f =>
-      Dictionary()
-        .data("name", f.name)
-        .data("value", constantValue(f.default.get))
+      Dictionary(
+        "name" -> v(f.name),
+        "value" -> v(constantValue(f.default.get))
+      )
     }
     val parentType = struct match {
       case AST.Struct(_, _) => "ThriftStruct"
       case AST.Exception_(_, _) => "Exception with ThriftStruct"
     }
-    Dictionary()
-      .data("name", struct.name)
-      .data("fieldNames", struct.fields.map { f => "`" + f.name + "`" }.mkString(", "))
-      .data("fieldArgs", fieldArgs(struct.fields))
-      .data("parentType", parentType)
-      .dictionaries("fields", fieldDictionaries)
-      .dictionaries("optionalDefaults", optionalDefaultDictionaries)
+    Dictionary(
+      "name" -> v(struct.name),
+      "fieldNames" -> v(struct.fields.map { f => "`" + f.name + "`" }.mkString(", ")),
+      "fieldArgs" -> v(fieldArgs(struct.fields)),
+      "parentType" -> v(parentType),
+      "fields" -> v(fieldDictionaries),
+      "optionalDefaults" -> v(optionalDefaultDictionaries)
+    )
   }
 }

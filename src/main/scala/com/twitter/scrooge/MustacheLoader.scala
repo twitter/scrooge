@@ -1,14 +1,14 @@
 package com.twitter.scrooge
 
 import com.twitter.conversions.string._
-import org.monkey.mustache.Mustache
+import com.twitter.handlebar.Handlebar
 import scala.collection.mutable.HashMap
 import scala.io.Source
 
-class MustacheLoader(prefix: String, suffix: String = ".scala") {
-  private val cache = new HashMap[String, Mustache]
+class HandlebarLoader(prefix: String, suffix: String = ".scala") {
+  private val cache = new HashMap[String, Handlebar]
 
-  def apply(name: String): Mustache = {
+  def apply(name: String): Handlebar = {
     val fullName = prefix + name + suffix
     cache.getOrElseUpdate(name,
       getClass.getResourceAsStream(fullName) match {
@@ -16,11 +16,7 @@ class MustacheLoader(prefix: String, suffix: String = ".scala") {
           throw new NoSuchElementException("template not found: " + fullName)
         }
         case inputStream => {
-          val data = Source.fromInputStream(inputStream).getLines().mkString("\n")
-          val flattenedData = data.regexSub("""(?s)\n\s*(\{\{[\#^/!][^}]+\}\})\n(?!\})""".r) { m =>
-            "\n" + m.group(1)
-          }
-          new Mustache(flattenedData)
+          new Handlebar(Source.fromInputStream(inputStream).getLines().mkString("\n"))
         }
       }
     )
