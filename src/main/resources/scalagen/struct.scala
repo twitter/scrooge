@@ -2,16 +2,19 @@
 
 object {{name}} extends ThriftStructCodec[{{name}}] {
   val STRUCT_DESC = new TStruct("{{name}}")
-  {{#fields}}
+{{#fields}}
   val {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, {{id}})
-  {{/fields}}
+{{/fields}}
 
   val decoder = { (_iprot: TProtocol) =>
-    var _field: TField = null
-    {{#fields}}
+{{#fields}}
     var `{{name}}`: {{scalaType}} = {{defaultReadValue}}
-    {{#required}}var _got_{{name}} = false{{/required}}
-    {{/fields}}
+{{#required}}
+    var _got_{{name}} = false
+{{/required}}
+{{/fields}}
+
+    var _field: TField = null
     var _done = false
     _iprot.readStructBegin()
     while (!_done) {
@@ -20,20 +23,20 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
         _done = true
       } else {
         _field.id match {
-        {{#fields}}
+{{#fields}}
 {{reader}}
-        {{/fields}}
+{{/fields}}
           case _ => TProtocolUtil.skip(_iprot, _field.`type`)
         }
         _iprot.readFieldEnd()
       }
     }
     _iprot.readStructEnd()
-    {{#fields}}
-    {{#required}}
+{{#fields}}
+{{#required}}
     if (!_got_{{name}}) throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{struct}}")
-    {{/required}}
-    {{/fields}}
+{{/required}}
+{{/fields}}
     {{name}}({{fieldNames}})
   }
 
@@ -43,16 +46,16 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 case class {{name}}({{fieldArgs}}) extends {{parentType}} {
   import {{name}}._
 
-  {{#optionalDefaults}}
+{{#optionalDefaults}}
   def {{name}}OrDefault = {{name}} getOrElse {{value}}
-  {{/optionalDefaults}}
 
+{{/optionalDefaults}}
   override def write(_oprot: TProtocol) {
     validate()
     _oprot.writeStructBegin(STRUCT_DESC)
-    {{#fields}}
+{{#fields}}
 {{writer}}
-    {{/fields}}
+{{/fields}}
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }

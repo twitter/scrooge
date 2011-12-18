@@ -39,3 +39,4 @@ trait ThriftServer extends Service with FutureIface {
     }
   }
 }
+
