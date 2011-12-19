@@ -165,7 +165,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       val service1 = Service("ReadOnlyService", None, Seq(
         Function("getName", TString, Nil, false, Nil)
       ))
-      val service2 = Service("ReadWriteService", Some("ReadOnlyService"), Seq(
+      val service2 = Service("ReadWriteService", Some(ServiceParent(service1)), Seq(
         Function("setName", Void, Seq(Field(1, "name", TString)), false, Nil)
       ))
       val doc = Document(Seq(Namespace("scala", "test")), Seq(service1, service2))

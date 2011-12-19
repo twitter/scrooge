@@ -30,6 +30,19 @@ object ASTSpec extends Specification {
       doc.mapNamespaces(namespaceMap) mustEqual
         Document(Seq(javaGranolaNs, rbOatmealNs), Nil)
     }
+
+    "map namespaces recursively" in {
+      val javaOatmealNs = Namespace("java", "com.twitter.oatmeal")
+      val javaGranolaNs = Namespace("java", "com.twitter.granola")
+      val doc1 = Document(Seq(javaOatmealNs), Nil)
+      val doc2 = Document(Seq(javaOatmealNs, Include("other", doc1)), Nil)
+      val namespaceMap = Map(javaOatmealNs.name -> javaGranolaNs.name)
+      doc2.mapNamespaces(namespaceMap) must beLike {
+        case Document(Seq(`javaGranolaNs`, Include(_, included)), Nil) =>
+          included mustEqual Document(Seq(javaGranolaNs), Nil)
+          true
+      }
+    }
   }
 
   "Identifier" should {

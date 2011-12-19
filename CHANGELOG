@@ -1,3 +1,25 @@
+2.1.0 - 10/23/2011
+===========================================================
+* Support for tracing in server.
+
+
+2.0.2
+===========================================================
+* fixes a bug in which namespace mapping was not applied
+  recursively to included documents.
+
+
+2.0.1
+===========================================================
+* fixes a bug in which qualified service names from imported
+  thrift files were not resolved properly.
+
+
+2.0.0
+===========================================================
+* fixes a bug with enum in which the first value was wrong.
+
+
 1.1.1 - 8/24/2011
 ===========================================================
 * scrooge-runtime-1.0.1
