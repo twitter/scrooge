@@ -15,7 +15,7 @@ trait ServiceTemplate extends Generator with ScalaTemplate { self: ScalaGenerato
       .dictionaries("throws", throwsDictionaries)
       .data("name", function.localName)
       .data("scalaType", returnType)
-      .data("fieldArgs", fieldArgs(function.args))
+      .data("fieldParams", fieldParams(function.args))
   }
 
   lazy val functionTemplate = handlebar[Function]("function")(toDictionary(_, false))

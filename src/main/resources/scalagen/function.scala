@@ -1,2 +1,2 @@
 {{#throws}}@throws(classOf[{{scalaType}}]) {{/throws}}
-def {{name}}({{fieldArgs}}): {{scalaType}}
+def {{name}}({{fieldParams}}): {{scalaType}}

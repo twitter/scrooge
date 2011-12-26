@@ -151,8 +151,11 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
   // ----- struct
 
   lazy val structTemplate = handlebar[StructLike]("struct"){ struct =>
-    val fieldDictionaries = struct.fields map { field =>
+    val isBig = struct.fields.size > 22
+    val fieldNames = struct.fields.map { f => "`" + f.name + "`" }
+    val fieldDictionaries = struct.fields.zipWithIndex map { case (field, index) =>
       Dictionary()
+        .data("index", index.toString)
         .data("name", field.name)
         .data("id", field.id.toString)
         .data("fieldConst", writeFieldConst(field.name))
@@ -175,12 +178,24 @@ trait StructTemplate extends Generator with ScalaTemplate { self: ScalaGenerator
       case AST.Struct(_, _) => "ThriftStruct"
       case AST.Exception_(_, _) => "Exception with ThriftStruct"
     }
-    Dictionary()
+    val baseDict = Dictionary()
       .data("name", struct.name)
-      .data("fieldNames", struct.fields.map { f => "`" + f.name + "`" }.mkString(", "))
-      .data("fieldArgs", fieldArgs(struct.fields))
+      .data("fieldNames", fieldNames.mkString(", "))
+      .data("fieldParams", fieldParams(struct.fields, isBig))
       .data("parentType", parentType)
       .dictionaries("fields", fieldDictionaries)
       .dictionaries("optionalDefaults", optionalDefaultDictionaries)
+      .bool("big", isBig)
+
+    if (!isBig) {
+      baseDict
+    } else {
+      baseDict
+        .data("applyParams", fieldParams(struct.fields))
+        .data("ctorArgs", fieldNames.map { name => name + " = " + name }.mkString(", "))
+        .data("copyParams", copyParams(struct.fields))
+        .data("fieldsEqual", fieldNames.map { name => "this." + name + " == _that." + name}.mkString(" && "))
+        .data("arity", struct.fields.size.toString)
+    }
   }
 }

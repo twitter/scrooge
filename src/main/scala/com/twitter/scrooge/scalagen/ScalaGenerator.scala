@@ -196,11 +196,18 @@ class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate wi
     }
   }
 
-  def fieldArgs(args: Seq[Field]): String = {
-    args.map { f =>
-      val prefix = "`" + f.name + "`: " + scalaFieldType(f)
-      val suffix = defaultFieldValue(f) map { " = " + _ }
-      prefix + suffix.getOrElse("")
+  def fieldParams(fields: Seq[Field], asVal: Boolean = false): String = {
+    fields.map { f =>
+      val valPrefix = if (asVal) "val " else ""
+      val nameAndType = "`" + f.name + "`: " + scalaFieldType(f)
+      val defaultValue = defaultFieldValue(f) map { " = " + _ }
+      valPrefix + nameAndType + defaultValue.getOrElse("")
+    }.mkString(", ")
+  }
+
+  def copyParams(fields: Seq[Field]): String = {
+    fields.map { f =>
+      "`" + f.name + "`: " + scalaFieldType(f) + " = this.`" + f.name + "`"
     }.mkString(", ")
   }
 
