@@ -29,12 +29,20 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     }
     val baseReturnType = scalaType(function.`type`)
     val returnType = if (async) "Future[" + baseReturnType + "]" else baseReturnType
+<<<<<<< HEAD
     Dictionary(
       "throws" -> v(throwsDictionaries),
       "name" -> v(function.localName),
       "scalaType" -> v(returnType),
-      "fieldParams" -> v(fieldParams(function.args))
+      "fieldArgs" -> v(fieldArgs(function.args))
     )
+=======
+    Dictionary()
+      .dictionaries("throws", throwsDictionaries)
+      .data("name", function.localName)
+      .data("scalaType", returnType)
+      .data("fieldParams", fieldParams(function.args))
+>>>>>>> master
   }
 
   lazy val functionTemplate = templates("function").generate { f: Function => toDictionary(f, false) }

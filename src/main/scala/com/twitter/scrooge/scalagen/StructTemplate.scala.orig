@@ -161,12 +161,10 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
 
   // ----- struct
 
+<<<<<<< HEAD
   lazy val structTemplate = templates("struct").generate { struct: StructLike =>
-    val isBig = struct.fields.size > 22
-    val fieldNames = struct.fields.map { f => "`" + f.name + "`" }
-    val fieldDictionaries = struct.fields.zipWithIndex map { case (field, index) =>
+    val fieldDictionaries = struct.fields map { field =>
       Dictionary(
-        "index" -> v(index.toString),
         "name" -> v(field.name),
         "id" -> v(field.id.toString),
         "fieldConst" -> v(writeFieldConst(field.name)),
@@ -178,6 +176,24 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
         "writer" -> v(writeFieldTemplate(field).indent(2)),
         "struct" -> v(struct.name)
       )
+=======
+  lazy val structTemplate = handlebar[StructLike]("struct"){ struct =>
+    val isBig = struct.fields.size > 22
+    val fieldNames = struct.fields.map { f => "`" + f.name + "`" }
+    val fieldDictionaries = struct.fields.zipWithIndex map { case (field, index) =>
+      Dictionary()
+        .data("index", index.toString)
+        .data("name", field.name)
+        .data("id", field.id.toString)
+        .data("fieldConst", writeFieldConst(field.name))
+        .data("constType", constType(field.`type`))
+        .data("scalaType", scalaFieldType(field))
+        .data("defaultReadValue", defaultReadValue(field))
+        .bool("required", field.requiredness.isRequired)
+        .data("reader", readFieldTemplate(field).indent(5))
+        .data("writer", writeFieldTemplate(field).indent(2))
+        .data("struct", struct.name)
+>>>>>>> master
     }
     val optionalDefaultDictionaries = struct.fields.filter { f =>
       f.requiredness.isOptional && f.default.isDefined
@@ -191,23 +207,35 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
       case AST.Struct(_, _) => "ThriftStruct"
       case AST.Exception_(_, _) => "Exception with ThriftStruct"
     }
-    val baseDict = Dictionary(
+<<<<<<< HEAD
+    Dictionary(
       "name" -> v(struct.name),
-      "fieldNames" -> v(fieldNames.mkString(", ")),
-      "fieldParams" -> v(fieldParams(struct.fields, isBig)),
+      "fieldNames" -> v(struct.fields.map { f => "`" + f.name + "`" }.mkString(", ")),
+      "fieldArgs" -> v(fieldArgs(struct.fields)),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
-      "optionalDefaults" -> v(optionalDefaultDictionaries),
-      "big" -> v(isBig)
+      "optionalDefaults" -> v(optionalDefaultDictionaries)
     )
+=======
+    val baseDict = Dictionary()
+      .data("name", struct.name)
+      .data("fieldNames", fieldNames.mkString(", "))
+      .data("fieldParams", fieldParams(struct.fields, isBig))
+      .data("parentType", parentType)
+      .dictionaries("fields", fieldDictionaries)
+      .dictionaries("optionalDefaults", optionalDefaultDictionaries)
+      .bool("big", isBig)
 
-    if (isBig) {
-      baseDict("applyParams") = fieldParams(struct.fields)
-      baseDict("ctorArgs") = fieldNames.map { name => name + " = " + name }.mkString(", ")
-      baseDict("copyParams") = copyParams(struct.fields)
-      baseDict("fieldsEqual") = fieldNames.map { name => "this." + name + " == _that." + name}.mkString(" && ")
-      baseDict("arity") =  struct.fields.size.toString
+    if (!isBig) {
+      baseDict
+    } else {
+      baseDict
+        .data("applyParams", fieldParams(struct.fields))
+        .data("ctorArgs", fieldNames.map { name => name + " = " + name }.mkString(", "))
+        .data("copyParams", copyParams(struct.fields))
+        .data("fieldsEqual", fieldNames.map { name => "this." + name + " == _that." + name}.mkString(" && "))
+        .data("arity", struct.fields.size.toString)
     }
-    baseDict
+>>>>>>> master
   }
 }

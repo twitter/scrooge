@@ -1,27 +1,58 @@
+2.4.0 - 01/03/2012
+===============================================================================
+* added support for structs with more than 22 fields, which previously was the
+  limit as that is the max case-class size in scala.  For structs larger than
+  this, instead of using case-classes, normal classes are used but with most of
+  the case-class boilerplate support code also generated, allowing these structs
+  to be used as if they were case-classes.  The only exception is that there is
+  no unapply method; but do you really want to unapply 23+ fields in a match
+  statement?
+
+2.3.1 - 11/28/2011
+===============================================================================
+* thriftProtocolFactory in generated ThriftServer now has
+  type of TProtocolFactory, so you can override it with other
+  protocol factories.
+
+
+2.3.0 - 11/24/2011
+===============================================================================
+* You can now override serverBuilder in ThriftServer to provide
+  additional server configuration
+* The protocol factory to the FinagledClient now has a default
+  value of TBinaryProtocol.Factory, which means you don't have
+  to specify it when using the default.
+
+
+2.2.0 - 11/04/2011
+===============================================================================
+* tracerFactory support in ThriftServer.
+
+
 2.1.0 - 10/23/2011
-===========================================================
+===============================================================================
 * Support for tracing in server.
 
 
 2.0.2
-===========================================================
+===============================================================================
 * fixes a bug in which namespace mapping was not applied
   recursively to included documents.
 
 
 2.0.1
-===========================================================
+===============================================================================
 * fixes a bug in which qualified service names from imported
   thrift files were not resolved properly.
 
 
 2.0.0
-===========================================================
+===============================================================================
 * fixes a bug with enum in which the first value was wrong.
 
 
 1.1.1 - 8/24/2011
-===========================================================
+===============================================================================
 * scrooge-runtime-1.0.1
 * Each thrift struct companion object now extends ThriftStructCodec
 * Correctly resolving enum constants and Const values.

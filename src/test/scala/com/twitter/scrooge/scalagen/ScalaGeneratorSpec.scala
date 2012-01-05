@@ -454,6 +454,40 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
         compile(gen(doc, struct))
         invoke("""new awwYeah.Naughty("car", 100).`def`""") mustEqual 100
       }
+
+      "with more than 22 fields" in {
+        val fields = (1 to 25).toSeq map { i =>
+          Field(i, "num" + i, TI32, Some(IntConstant(i)), Requiredness.Default)
+        }
+        val struct = new Struct("Biggie", fields)
+
+        compile(gen(doc, struct))
+
+        "apply" in {
+          invoke("""awwYeah.Biggie().`num25`""") mustEqual 25
+        }
+
+        "two default object must be equal" in {
+          invoke("awwYeah.Biggie() == awwYeah.Biggie()") mustEqual true
+        }
+
+        "copy and equals" in {
+          invoke("awwYeah.Biggie().copy(num10 = -5)") mustEqual invoke("awwYeah.Biggie(num10 = -5)")
+        }
+
+        "hashCode is the same for two similar objects" in {
+          invoke("awwYeah.Biggie().hashCode") mustEqual invoke("awwYeah.Biggie().hashCode")
+          invoke("awwYeah.Biggie(num10 = -5).hashCode") mustEqual invoke("awwYeah.Biggie(num10 = -5).hashCode")
+        }
+
+        "hashCode is different for two different objects" in {
+          invoke("awwYeah.Biggie(num10 = -5).hashCode") mustNot beEqual(invoke("awwYeah.Biggie().hashCode"))
+        }
+
+        "toString" in {
+          invoke("awwYeah.Biggie().toString") mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
+        }
+      }
     }
   }
 }
