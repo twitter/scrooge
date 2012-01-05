@@ -25,21 +25,21 @@ class HandlebarSpec extends Spec {
   describe("Handlebar") {
     it("without directives") {
       val template = "there are no directives here"
-      assert(Handlebar(template, Dictionary()) === template)
+      assert(Handlebar.generate(template, Dictionary()) === template)
     }
 
     it("simple interpolation") {
       val template = "Hello {{name}}!\nYou're looking {{how}} today."
-      assert(Handlebar(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) ===
+      assert(Handlebar.generate(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) ===
         "Hello Mary!\nYou're looking sad today.")
     }
 
     it("optional blocks") {
       val template = "You {{#money}}have ${{money}}{{/money}}{{^money}}are broke{{/money}}."
-      assert(Handlebar(template, Dictionary("money" -> v("5"))) === "You have $5.")
-      assert(Handlebar(template, Dictionary()) === "You are broke.")
-      assert(Handlebar(template, Dictionary("money" -> v(true))) === "You have $true.")
-      assert(Handlebar(template, Dictionary("money" -> v(false))) === "You are broke.")
+      assert(Handlebar.generate(template, Dictionary("money" -> v("5"))) === "You have $5.")
+      assert(Handlebar.generate(template, Dictionary()) === "You are broke.")
+      assert(Handlebar.generate(template, Dictionary("money" -> v(true))) === "You have $true.")
+      assert(Handlebar.generate(template, Dictionary("money" -> v(false))) === "You are broke.")
     }
 
     it("iterates items") {
@@ -49,7 +49,7 @@ class HandlebarSpec extends Spec {
         Dictionary("name" -> "Lexi")
       )
       val template = "The cats are named: {{#cats}}'{{name}}' {{/cats}}."
-      assert(Handlebar(template, Dictionary("cats" -> v(cats))) ===
+      assert(Handlebar.generate(template, Dictionary("cats" -> v(cats))) ===
         "The cats are named: 'Commie' 'Lola' 'Lexi' .")
     }
 
@@ -61,7 +61,7 @@ class HandlebarSpec extends Spec {
       val cityTemplate = new Handlebar("{{city}}, {{state}}")
       val dictionary = Dictionary("cities" -> v(cities), "description" -> v(cityTemplate))
       val template = "We have these cities:\n{{#cities}}\n{{>description}}\n{{/cities}}\n"
-      assert(Handlebar(template, dictionary) ===
+      assert(Handlebar.generate(template, dictionary) ===
         "We have these cities:\nNew York, NY\nAtlanta, GA\n")
     }
 
@@ -91,7 +91,7 @@ One of our students is {{name}}.
 {{name}} has a cat that lives in {{city}}.
 {{/cats}}
 {{/students}}"""
-      val rv = Handlebar(template, Dictionary("students" -> v(students)))
+      val rv = Handlebar.generate(template, Dictionary("students" -> v(students)))
       val expect = """My book report:
 One of our students is Taro.
 Taro has a cat that lives in Anchorage.

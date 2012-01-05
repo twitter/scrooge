@@ -21,16 +21,17 @@ case class Unpacker[T](
   unpacker: T => Dictionary,
   handlebar: Handlebar
 ) extends (T => String) {
-  def apply(item: T) = Handlebar(document, unpacker(item))
+  def apply(item: T) = Handlebar.generate(document, unpacker(item))
 }
 
 object Handlebar {
   import AST._
   import Dictionary._
 
-  def apply(template: String, dictionary: Dictionary): String = apply(Parser(template), dictionary)
+  def generate(template: String, dictionary: Dictionary): String =
+    generate(Parser(template), dictionary)
 
-  def apply(document: Document, dictionary: Dictionary): String = {
+  def generate(document: Document, dictionary: Dictionary): String = {
     document.segments.map { segment => process(segment, dictionary) }.mkString
   }
 
@@ -41,17 +42,17 @@ object Handlebar {
       case Section(name, document, reversed) => {
         dictionary(name) match {
           case ListValue(items) => {
-            if (reversed) "" else items.map { d => apply(document, d) }.mkString
+            if (reversed) "" else items.map { d => generate(document, d) }.mkString
           }
           case other => {
             val expose = if (reversed) !other.toBoolean else other.toBoolean
-            if (expose) apply(document, dictionary) else ""
+            if (expose) generate(document, dictionary) else ""
           }
         }
       }
       case Partial(name) => {
         dictionary(name) match {
-          case PartialValue(handlebar) => handlebar(dictionary)
+          case PartialValue(handlebar) => handlebar.generate(dictionary)
           case other => ""
         }
       }
@@ -65,12 +66,12 @@ case class Handlebar(document: AST.Document) {
   /**
    * Create a string out of a template, using a dictionary to fill in the blanks.
    */
-  def apply(dictionary: Dictionary) = Handlebar(document, dictionary)
+  def generate(dictionary: Dictionary) = Handlebar.generate(document, dictionary)
 
   /**
    * Given an `unpacker` function that can turn objects of type `T` into dictionaries, return a
    * new function of `T => String` that unpacks items of type `T` and runs them through the
    * template.
    */
-  def apply[T](unpacker: T => Dictionary) = new Unpacker[T](document, unpacker, this)
+  def generate[T](unpacker: T => Dictionary) = new Unpacker[T](document, unpacker, this)
 }

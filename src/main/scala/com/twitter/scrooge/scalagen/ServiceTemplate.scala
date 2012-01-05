@@ -37,8 +37,8 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val functionTemplate = templates("function") { f: Function => toDictionary(f, false) }
-  lazy val futureFunctionTemplate = templates("function") { f: Function => toDictionary(f, true) }
+  lazy val functionTemplate = templates("function").generate { f: Function => toDictionary(f, false) }
+  lazy val futureFunctionTemplate = templates("function").generate { f: Function => toDictionary(f, true) }
 
   def serviceFunctionArgsStruct(f: Function): Struct = {
     Struct(f.localName + "_args", f.args)
@@ -54,7 +54,7 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     Struct(f.localName + "_result", success ++ throws)
   }
 
-  lazy val finagleClientFunctionTemplate = templates("finagleClientFunction") { f: Function =>
+  lazy val finagleClientFunctionTemplate = templates("finagleClientFunction").generate { f: Function =>
     val resultUnwrapper = {
       val exceptions = if (f.throws.isEmpty) "" else
          f.throws.map { "result." + _.name } mkString("(", " orElse ", ").map(Future.exception) getOrElse ")
@@ -71,7 +71,7 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val finagleClientTemplate = templates("finagleClient") { s: Service =>
+  lazy val finagleClientTemplate = templates("finagleClient").generate { s: Service =>
     val functionDictionaries = s.functions map { f =>
       Dictionary("function" -> v(finagleClientFunctionTemplate(f).indent() + "\n"))
     }
@@ -83,7 +83,7 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val finagleServiceFunctionTemplate = templates("finagleServiceFunction") { f: Function =>
+  lazy val finagleServiceFunctionTemplate = templates("finagleServiceFunction").generate { f: Function =>
     val exceptionDictionaries = f.throws map { t =>
       Dictionary(
         "exceptionType" -> v(scalaType(t.`type`)),
@@ -100,7 +100,7 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val finagleServiceTemplate = templates("finagleService") { s: Service =>
+  lazy val finagleServiceTemplate = templates("finagleService").generate { s: Service =>
     val functionDictionaries = s.functions map { f =>
       Dictionary(
         "function" -> v(finagleServiceFunctionTemplate(f).indent() + "\n")
@@ -114,9 +114,9 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val ostrichServiceTemplate = templates("ostrichService") { s: Service => Dictionary() }
+  lazy val ostrichServiceTemplate = templates("ostrichService").generate { s: Service => Dictionary() }
 
-  lazy val serviceTemplate = templates("service") { s: ScalaService =>
+  lazy val serviceTemplate = templates("service").generate { s: ScalaService =>
     val service = s.service
     val syncFunctions = service.functions.map(functionTemplate(_).indent(2)).mkString("\n\n")
     val asyncFunctions = service.functions.map(futureFunctionTemplate(_).indent(2)).mkString("\n\n")

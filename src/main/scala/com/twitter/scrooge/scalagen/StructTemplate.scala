@@ -25,13 +25,13 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
 
   // ----- readers
 
-  lazy val readBasicTemplate = templates("readBasic") { t: FieldType =>
+  lazy val readBasicTemplate = templates("readBasic").generate { t: FieldType =>
     Dictionary(
       "protocolReadMethod" -> protocolReadMethod(t)
     )
   }
 
-  lazy val readListTemplate = templates("readList") { t: ListType =>
+  lazy val readListTemplate = templates("readList").generate { t: ListType =>
     Dictionary(
       // FIXME remove corba "elt" jargon
       "eltType" -> v(scalaType(t.eltType)),
@@ -39,14 +39,14 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val readSetTemplate = templates("readSet") { t: SetType =>
+  lazy val readSetTemplate = templates("readSet").generate { t: SetType =>
     Dictionary(
       "eltType" -> v(scalaType(t.eltType)),
       "eltReader" -> v(readTemplate(t.eltType).indent(2))
     )
   }
 
-  lazy val readMapTemplate = templates("readMap") { t: MapType =>
+  lazy val readMapTemplate = templates("readMap").generate { t: MapType =>
     Dictionary(
       "keyType" -> v(scalaType(t.keyType)),
       "valueType" -> v(scalaType(t.valueType)),
@@ -55,13 +55,13 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val readStructTemplate = templates("readStruct") { t: StructType =>
+  lazy val readStructTemplate = templates("readStruct").generate { t: StructType =>
     Dictionary(
       "name" -> v(t.name)
     )
   }
 
-  lazy val readEnumTemplate = templates("readEnum") { t: EnumType =>
+  lazy val readEnumTemplate = templates("readEnum").generate { t: EnumType =>
     Dictionary(
       "name" -> v(t.name)
     )
@@ -78,7 +78,7 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
     }
   }
 
-  lazy val readFieldTemplate = templates("readField") { f: Field =>
+  lazy val readFieldTemplate = templates("readField").generate { f: Field =>
     Dictionary(
       "id" -> v(f.id.toString),
       "name" -> v(f.name),
@@ -91,27 +91,27 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
 
   // ----- writers
 
-  lazy val writeBasicTemplate = templates("writeBasic") { t: FieldType =>
+  lazy val writeBasicTemplate = templates("writeBasic").generate { t: FieldType =>
     Dictionary(
       "protocolWriteMethod" -> v(protocolWriteMethod(t))
     )
   }
 
-  lazy val writeListTemplate = templates("writeList") { t: ListType =>
+  lazy val writeListTemplate = templates("writeList").generate { t: ListType =>
     Dictionary(
       "eltType" -> v(constType(t.eltType)),
       "eltWriter" -> v(writeTemplate(t.eltType).indent(1))
     )
   }
 
-  lazy val writeSetTemplate = templates("writeSet") { t: SetType =>
+  lazy val writeSetTemplate = templates("writeSet").generate { t: SetType =>
     Dictionary(
       "eltType" -> v(constType(t.eltType)),
       "eltWriter" -> v(writeTemplate(t.eltType).indent(1))
     )
   }
 
-  lazy val writeMapTemplate = templates("writeMap") { t: MapType =>
+  lazy val writeMapTemplate = templates("writeMap").generate { t: MapType =>
     Dictionary(
       "keyType" -> v(constType(t.keyType)),
       "valueType" -> v(constType(t.valueType)),
@@ -120,11 +120,11 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
     )
   }
 
-  lazy val writeStructTemplate = templates("writeStruct") { t: StructType =>
+  lazy val writeStructTemplate = templates("writeStruct").generate { t: StructType =>
     Dictionary()
   }
 
-  lazy val writeEnumTemplate = templates("writeEnum") { t: EnumType =>
+  lazy val writeEnumTemplate = templates("writeEnum").generate { t: EnumType =>
     Dictionary()
   }
 
@@ -139,7 +139,7 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
     }
   }
 
-  lazy val writeFieldTemplate = templates("writeField") { f: Field =>
+  lazy val writeFieldTemplate = templates("writeField").generate { f: Field =>
     val conditional = if (f.requiredness.isOptional) {
       "`" + f.name + "`.isDefined"
     } else {
@@ -161,7 +161,7 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
 
   // ----- struct
 
-  lazy val structTemplate = templates("struct") { struct: StructLike =>
+  lazy val structTemplate = templates("struct").generate { struct: StructLike =>
     val fieldDictionaries = struct.fields map { field =>
       Dictionary(
         "name" -> v(field.name),

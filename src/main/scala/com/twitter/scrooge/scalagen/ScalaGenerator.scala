@@ -36,7 +36,7 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
 
   implicit val templates = new HandlebarLoader("/scalagen/")
 
-  val header = templates("header") { doc: Document =>
+  val header = templates("header").generate { doc: Document =>
     val imports = doc.headers.collect {
       case AST.Include(_, doc) => doc.scalaNamespace
     } filter(_ != doc.scalaNamespace) map { ns =>
@@ -48,7 +48,7 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
     )
   }
 
-  val enumTemplate = templates("enum") { enum: Enum =>
+  val enumTemplate = templates("enum").generate { enum: Enum =>
     val values = enum.values map { value =>
       Dictionary(
         "name" -> v(value.name),
@@ -62,7 +62,7 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
     )
   }
 
-  val enumsTemplate = templates("enums") { enums: Seq[Enum] =>
+  val enumsTemplate = templates("enums").generate { enums: Seq[Enum] =>
     val enumDictionaries = enums.map(enumTemplate.unpacker)
     Dictionary(
       "hasEnums" -> v(enumDictionaries.nonEmpty),
@@ -71,7 +71,7 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
     )
   }
 
-  val constsTemplate = templates("consts") { consts: ConstList =>
+  val constsTemplate = templates("consts").generate { consts: ConstList =>
     val constants = consts.constList map { c =>
       Dictionary(
         "name" -> v(c.name),
