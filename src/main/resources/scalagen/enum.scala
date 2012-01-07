@@ -1,36 +1,37 @@
-object {{enum}} {
+object {{enum_name}} {
 {{#values}}
-  case object {{name}} extends {{enum}}({{value}}, "{{name}}")
+  case object {{name}} extends {{enum_name}}({{value}}, "{{name}}")
 {{/values}}
 
-  def apply(value: Int): {{enum}} = {
+  def apply(value: Int): {{enum_name}} = {
     value match {
-      {{#values}}
+{{#values}}
       case {{value}} => {{name}}
-      {{/values}}
+{{/values}}
       case _ => throw new NoSuchElementException(value.toString)
     }
   }
 
-  def get(value: Int): Option[{{enum}}] = {
+  def get(value: Int): Option[{{enum_name}}] = {
     value match {
-      {{#values}}
+{{#values}}
       case {{value}} => scala.Some({{name}})
-      {{/values}}
+{{/values}}
       case _ => scala.None
     }
   }
 
-  def valueOf(name: String): Option[{{enum}}] = {
+  def valueOf(name: String): Option[{{enum_name}}] = {
     name.toLowerCase match {
-      {{#values}}
-      case "{{nameLowerCase}}" => scala.Some({{enum}}.{{name}})
-      {{/values}}
+{{#values}}
+      case "{{nameLowerCase}}" => scala.Some({{enum_name}}.{{name}})
+{{/values}}
       case _ => scala.None
     }
   }
 }
 
-abstract class {{enum}}(val value: Int, val name: String) extends TEnum {
+abstract class {{enum_name}}(val value: Int, val name: String) extends TEnum {
   def getValue = value
 }
+

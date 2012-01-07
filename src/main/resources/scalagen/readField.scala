@@ -4,7 +4,9 @@ case {{id}} => { /* {{name}} */
       `{{name}}` = {{optionality}}{
 {{valueReader}}
       }
-      {{#required}}_got_{{name}} = true{{/required}}
+{{#required}}
+      _got_{{name}} = true
+{{/required}}
     }
     case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }

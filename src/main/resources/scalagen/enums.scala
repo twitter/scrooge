@@ -2,6 +2,6 @@
 // ----- enums
 
 {{#enums}}
-{{> enum}}
+{{>enum}}
 {{/enums}}
 {{/hasEnums}}

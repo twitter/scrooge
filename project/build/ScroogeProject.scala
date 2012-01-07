@@ -7,19 +7,17 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with DefaultRepos
   with SubversionPublisher
 {
-  val monkeyRepo = "monkey.org" at "http://monkey.org/~marius/maven"
-
   // projects that use finagle will provide their own dependent jar.
   val finagleVersion = "1.9.6"
   val utilVersion = "1.12.4"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
   val scopt = "com.github.scopt" %% "scopt" % "1.1.1"
-  val mustache = "org.monkey" % "mustache" % "1.0.3"
   val util_core = "com.twitter" % "util-core" % utilVersion
 
   // for tests:
   val specs = "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test" withSources()
+  val scalatest = "org.scalatest" % "scalatest_2.8.1" % "1.5.1" % "test"
   val jmock = "org.jmock" % "jmock" % "2.4.0" % "test"
   val hamcrest_all = "org.hamcrest" % "hamcrest-all" % "1.1" % "test"
   val cglib = "cglib" % "cglib" % "2.1_3" % "test"

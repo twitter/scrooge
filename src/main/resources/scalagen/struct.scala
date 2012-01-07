@@ -7,11 +7,14 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 {{/fields}}
 
   val decoder = { (_iprot: TProtocol) =>
-    var _field: TField = null
 {{#fields}}
     var `{{name}}`: {{scalaType}} = {{defaultReadValue}}
-    {{#required}}var _got_{{name}} = false{{/required}}
+{{#required}}
+    var _got_{{name}} = false
+{{/required}}
 {{/fields}}
+
+    var _field: TField = null
     var _done = false
     _iprot.readStructBegin()
     while (!_done) {
@@ -50,8 +53,8 @@ with Product with java.io.Serializable {{/big}}{
 
 {{#optionalDefaults}}
   def {{name}}OrDefault = {{name}} getOrElse {{value}}
-{{/optionalDefaults}}
 
+{{/optionalDefaults}}
   override def write(_oprot: TProtocol) {
     validate()
     _oprot.writeStructBegin(STRUCT_DESC)

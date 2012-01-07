@@ -1,16 +1,26 @@
+/*
+ * Copyright 2011 Twitter, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.twitter.scrooge
 package scalagen
 
 import java.io.File
-import AST._
-import org.monkey.mustache.Dictionary
 import com.twitter.conversions.string._
-
-trait ScalaTemplate {
-  def handlebar[T](name: String)(f: T => Dictionary)(implicit loader: MustacheLoader) =
-    new HandlebarMustache(loader(name), f)
-}
-
+import com.twitter.handlebar.{Dictionary, Handlebar}
+import AST._
 
 case class ConstList(constList: Seq[Const])
 
@@ -21,51 +31,58 @@ case object WithOstrichServer extends ScalaServiceOption
 
 case class ScalaService(service: Service, options: Set[ScalaServiceOption])
 
+class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate {
+  import Dictionary._
 
-class ScalaGenerator extends Generator with ScalaTemplate with StructTemplate with ServiceTemplate {
-  implicit val mustaches = new MustacheLoader("/scalagen/")
+  implicit val templates = new HandlebarLoader("/scalagen/")
 
-  val header = handlebar[Document]("header"){ doc =>
+  val header = templates("header").generate { doc: Document =>
     val imports = doc.headers.collect {
       case AST.Include(_, doc) => doc.scalaNamespace
     } filter(_ != doc.scalaNamespace) map { ns =>
-      Dictionary().data("namespace", ns)
+      Dictionary("namespace" -> ns)
     }
-    Dictionary()
-      .data("scalaNamespace", doc.scalaNamespace)
-      .dictionaries("imports", imports)
+    Dictionary(
+      "scalaNamespace" -> v(doc.scalaNamespace),
+      "imports" -> v(imports)
+    )
   }
 
-  val enumTemplate = handlebar[Enum]("enum"){ enum =>
+  val enumTemplate = templates("enum").generate { enum: Enum =>
     val values = enum.values map { value =>
-      Dictionary()
-        .data("name", value.name)
-        .data("nameLowerCase", value.name.toLowerCase)
-        .data("value", value.value.toString)
+      Dictionary(
+        "name" -> v(value.name),
+        "nameLowerCase" -> v(value.name.toLowerCase),
+        "value" -> v(value.value.toString)
+      )
     }
-    Dictionary()
-      .data("enum", enum.name)
-      .dictionaries("values", values)
+    Dictionary(
+      "enum_name" -> v(enum.name),
+      "values" -> v(values)
+    )
   }
 
-  val enumsTemplate = handlebar[Seq[Enum]]("enums"){ enums =>
-    val enumDictionaries = enums.map(enumTemplate.mkDictionary)
-    Dictionary()
-      .bool("hasEnums", enumDictionaries.nonEmpty)
-      .dictionaries("enums", enumDictionaries)
-      .partial("enum", enumTemplate.mustache)
+  val enumsTemplate = templates("enums").generate { enums: Seq[Enum] =>
+    val enumDictionaries = enums.map(enumTemplate.unpacker)
+    Dictionary(
+      "hasEnums" -> v(enumDictionaries.nonEmpty),
+      "enums" -> v(enumDictionaries),
+      "enum" -> v(enumTemplate.handlebar)
+    )
   }
 
-  val constsTemplate = handlebar[ConstList]("consts"){ consts =>
+  val constsTemplate = templates("consts").generate { consts: ConstList =>
     val constants = consts.constList map { c =>
-      Dictionary()
-        .data("name", c.name)
-        .data("type", scalaType(c.`type`))
-        .data("value", constantValue(c.value))
+      Dictionary(
+        "name" -> v(c.name),
+        "type" -> v(scalaType(c.`type`)),
+        "value" -> v(constantValue(c.value))
+      )
     }
-    Dictionary()
-      .bool("hasConstants", constants.nonEmpty)
-      .dictionaries("constants", constants)
+    Dictionary(
+      "hasConstants" -> v(constants.nonEmpty),
+      "constants" -> v(constants)
+    )
   }
 
   def quote(str: String) = "\"" + str.quoteC() + "\""

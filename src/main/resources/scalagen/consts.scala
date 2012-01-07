@@ -2,8 +2,9 @@
 // ----- constants
 
 object Constants {
-  {{#constants}}
+{{#constants}}
   val {{name}}: {{type}} = {{value}}
-  {{/constants}}
+{{/constants}}
 }
+
 {{/hasConstants}}
