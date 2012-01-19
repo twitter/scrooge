@@ -189,7 +189,7 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
     }
     val parentType = struct match {
       case AST.Struct(_, _) => "ThriftStruct"
-      case AST.Exception_(_, _) => "Exception with ThriftStruct"
+      case AST.Exception_(_, _) => "Exception with ThriftStruct with SourcedException"
     }
     val baseDict = Dictionary(
       "name" -> v(struct.name),
