@@ -8,8 +8,8 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   with SubversionPublisher
 {
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "1.9.12"
-  val utilVersion = "1.12.4"
+  val finagleVersion = "1.10.0"
+  val utilVersion = "1.12.12"
 
   val libThrift = "thrift" % "libthrift" % "0.5.0"
   val scopt = "com.github.scopt" %% "scopt" % "1.1.1"
@@ -23,7 +23,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val cglib = "cglib" % "cglib" % "2.1_3" % "test"
   val asm = "asm" % "asm" % "1.5.3" % "test"
   val objenesis = "org.objenesis" % "objenesis" % "1.1" % "test"
-  val scroogeRuntime = "com.twitter" % "scrooge-runtime" % "1.0.3" % "test"
+  val scroogeRuntime = "com.twitter" % "scrooge-runtime" % "1.1.2" % "test"
   val util_eval = "com.twitter" % "util-eval" % utilVersion % "test"
   val finagleCore = "com.twitter" % "finagle-core" % finagleVersion % "test"
   val finagleOstrich4 = "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
