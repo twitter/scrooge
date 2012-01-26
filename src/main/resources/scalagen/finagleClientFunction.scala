@@ -3,5 +3,9 @@
     decodeResponse(_, {{localName}}_result.decoder)
   } flatMap { result =>
     {{resultUnwrapper}}
+  } rescue {
+    case e: SourcedException =>
+      serviceName foreach { e.serviceName = _ }
+      Future.exception(e)
   }
 }
