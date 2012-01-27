@@ -24,7 +24,7 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
   import Dictionary._
 
   def toDictionary(function: Function, async: Boolean): Dictionary = {
-    val throwsDictionaries = function.throws map { t =>
+    val throwsDictionaries = if (async) Nil else function.throws map { t =>
       Dictionary("scalaType" -> v(scalaType(t.`type`)))
     }
     val baseReturnType = scalaType(function.`type`)
@@ -40,18 +40,18 @@ trait ServiceTemplate extends Generator { self: ScalaGenerator =>
   lazy val functionTemplate = templates("function").generate { f: Function => toDictionary(f, false) }
   lazy val futureFunctionTemplate = templates("function").generate { f: Function => toDictionary(f, true) }
 
-  def serviceFunctionArgsStruct(f: Function): Struct = {
-    Struct(f.localName + "_args", f.args)
+  def serviceFunctionArgsStruct(f: Function): FunctionArgs = {
+    FunctionArgs(f.localName + "_args", f.args)
   }
 
-  def serviceFunctionResultStruct(f: Function): Struct = {
+  def serviceFunctionResultStruct(f: Function): FunctionResult = {
     val throws = f.throws map { _.copy(requiredness = Requiredness.Optional) }
     val success = f.`type` match {
       case Void => Nil
       case fieldType: FieldType =>
         Seq(Field(0, "success", fieldType, None, Requiredness.Optional))
     }
-    Struct(f.localName + "_result", success ++ throws)
+    FunctionResult(f.localName + "_result", success ++ throws)
   }
 
   lazy val finagleClientFunctionTemplate = templates("finagleClientFunction").generate { f: Function =>

@@ -33,7 +33,9 @@ object Main {
 
   def main(args: Array[String]) {
     val buildProperties = new Properties
-    buildProperties.load(getClass.getResource("build.properties").openStream)
+    Option(getClass.getResource("build.properties")) foreach { resource =>
+      buildProperties.load(resource.openStream)
+    }
 
     val parser = new OptionParser("scrooge") {
       help(None, "help", "show this help screen")

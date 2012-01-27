@@ -8,4 +8,4 @@ while (_i < _list.size) {
   _i += 1
 }
 _iprot.readListEnd()
-_rv.toSeq
+_rv

@@ -103,48 +103,91 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
 
   def quote(str: String) = "\"" + str.quoteC() + "\""
 
-  def listValue(list: ListConstant): String = {
-    "List(" + list.elems.map(constantValue).mkString(", ") + ")"
-  }
-
-  def mapValue(map: MapConstant): String = {
-    "Map(" + (map.elems.map {
-      case (k, v) =>
-        constantValue(k) + " -> " + constantValue(v)
-    } mkString(", ")) + ")"
-  }
-
-  def constantValue(constant: Constant): String = {
+  def constantValue(constant: Constant, mutable: Boolean = false): String = {
     constant match {
       case NullConstant => "null"
       case StringConstant(value) => quote(value)
       case DoubleConstant(value) => value.toString
       case IntConstant(value) => value.toString
       case BoolConstant(value) => value.toString
-      case c @ ListConstant(_) => listValue(c)
-      case c @ MapConstant(_) => mapValue(c)
+      case c @ ListConstant(_) => listValue(c, mutable)
+      case c @ SetConstant(_) => setValue(c, mutable)
+      case c @ MapConstant(_) => mapValue(c, mutable)
       case EnumValueConstant(enum, value) => enum.name + "." + value.name
       case Identifier(name) => name
     }
   }
 
-  def writeFieldConst(name: String) = name.toUpperCase + "_FIELD_DESC"
+  def listValue(list: ListConstant, mutable: Boolean = false): String = {
+    (if (mutable) "mutable.Buffer(" else "Seq(") +
+      list.elems.map(constantValue(_)).mkString(", ") + ")"
+  }
+
+  def setValue(set: SetConstant, mutable: Boolean = false): String = {
+    (if (mutable) "mutable.Set(" else "Set(") +
+      set.elems.map(constantValue(_)).mkString(", ") + ")"
+  }
+
+  def mapValue(map: MapConstant, mutable: Boolean = false): String = {
+    (if (mutable) "mutable.Map(" else "Map(") + (map.elems.map {
+      case (k, v) =>
+        constantValue(k) + " -> " + constantValue(v)
+    } mkString(", ")) + ")"
+  }
+
+  def writeFieldConst(name: String) = TitleCase(name) + "Field"
 
   /**
-   * The default value for a field when deserializing the thrift struct
-   * and the field is not present.
+   * The default value for the specified type and mutability.
    */
-  def defaultReadValue(field: Field) = {
-    if (field.requiredness.isOptional) {
-      "None"
+  def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
+    `type` match {
+      case TBool => "false"
+      case TByte | TI16 | TI32 | TI64 => "0"
+      case TDouble => "0.0"
+      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
+        scalaType(`type`, mutable) + "()"
+      case _ => "null"
+    }
+  }
+
+  def defaultFieldValue(f: Field): Option[String] = {
+    if (f.requiredness.isOptional) {
+      Some("None")
     } else {
-      field.`type` match {
-        case TBool => "false"
-        case TByte | TI16 | TI32 | TI64 => "0"
-        case TDouble => "0.0"
-        case _ => "null"
+      f.default.map(constantValue(_, false)) orElse {
+        if (f.`type`.isInstanceOf[ContainerType]) {
+          Some(defaultValue(f.`type`))
+        } else {
+          None
+        }
       }
     }
+  }
+
+  def defaultReadValue(f: Field): String = {
+    defaultFieldValue(f) getOrElse {
+      defaultValue(f.`type`, false)
+    }
+  }
+
+  def defaultMutableFieldValue(f: Field): String = {
+    if (f.requiredness.isOptional) {
+      "None"
+    } else {
+      f.default.map(constantValue(_, true)) getOrElse {
+        defaultValue(f.`type`, true)
+      }
+    }
+  }
+
+  def isNullableType(t: FieldType, isOptional: Boolean = false) = {
+    !isOptional && (
+      t match {
+        case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
+        case _ => true
+      }
+    )
   }
 
   def constType(t: FunctionType): String = {
@@ -195,7 +238,62 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
     }
   }
 
-  def scalaType(t: FunctionType): String = {
+  /**
+   * Generates a suffix to append to a field expression that will
+   * convert the value to an immutable equivalent.
+   */
+  def toImmutable(t: FieldType): String = {
+    t match {
+      case MapType(_, _, _) => ".toMap"
+      case SetType(_, _) => ".toSet"
+      case ListType(_, _) => ".toList"
+      case _ => ""
+    }
+  }
+
+  /**
+   * Generates a suffix to append to a field expression that will
+   * convert the value to an immutable equivalent.
+   */
+  def toImmutable(f: Field): String = {
+    if (f.requiredness.isOptional) {
+      toImmutable(f.`type`) match {
+        case "" => ""
+        case underlyingToImmutable => ".map(_" + underlyingToImmutable + ")"
+      }
+    } else {
+      toImmutable(f.`type`)
+    }
+  }
+
+  /**
+   * Generates a prefix and suffix to wrap around a field expression that will
+   * convert the value to a mutable equivalent.
+   */
+  def toMutable(t: FieldType): (String, String)  = {
+    t match {
+      case MapType(_, _, _) | SetType(_, _) => (scalaType(t, true) + "() ++= ", "")
+      case ListType(_, _) => ("", ".toBuffer")
+      case _ => ("", "")
+    }
+  }
+
+  /**
+   * Generates a prefix and suffix to wrap around a field expression that will
+   * convert the value to a mutable equivalent.
+   */
+  def toMutable(f: Field): (String, String) = {
+    if (f.requiredness.isOptional) {
+      toMutable(f.`type`) match {
+        case ("", "") => ("", "")
+        case (prefix, suffix) => ("", ".map(" + prefix + "_" + suffix + ")")
+      }
+    } else {
+      toMutable(f.`type`)
+    }
+  }
+
+  def scalaType(t: FunctionType, mutable: Boolean = false): String = {
     t match {
       case Void => "Unit"
       case TBool => "Boolean"
@@ -206,26 +304,22 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
       case TDouble => "Double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case MapType(k, v, _) => "Map[" + scalaType(k) + ", " + scalaType(v) + "]"
-      case SetType(x, _) => "Set[" + scalaType(x) + "]"
-      case ListType(x, _) => "Seq[" + scalaType(x) + "]"
+      case MapType(k, v, _) =>
+        (if (mutable) "mutable." else "") + "Map[" + scalaType(k) + ", " + scalaType(v) + "]"
+      case SetType(x, _) =>
+        (if (mutable) "mutable." else "") + "Set[" + scalaType(x) + "]"
+      case ListType(x, _) =>
+        (if (mutable) "mutable.Buffer" else "Seq") + "[" + scalaType(x) + "]"
       case n: NamedType => n.name
     }
   }
 
-  def scalaFieldType(f: Field): String = {
+  def scalaFieldType(f: Field, mutable: Boolean = false): String = {
+    val baseType = scalaType(f.`type`, mutable)
     if (f.requiredness.isOptional) {
-      "Option[" + scalaType(f.`type`) + "]"
+      "Option[" + baseType + "]"
     } else {
-      scalaType(f.`type`)
-    }
-  }
-
-  def defaultFieldValue(f: Field): Option[String] = {
-    f.default.map(constantValue).map { v =>
-      if (f.requiredness.isOptional) "Some(" + v + ")" else v
-    } orElse {
-      if (f.requiredness.isOptional) Some("None") else None
+      baseType
     }
   }
 
@@ -235,12 +329,6 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
       val nameAndType = "`" + f.name + "`: " + scalaFieldType(f)
       val defaultValue = defaultFieldValue(f) map { " = " + _ }
       valPrefix + nameAndType + defaultValue.getOrElse("")
-    }.mkString(", ")
-  }
-
-  def copyParams(fields: Seq[Field]): String = {
-    fields.map { f =>
-      "`" + f.name + "`: " + scalaFieldType(f) + " = this.`" + f.name + "`"
     }.mkString(", ")
   }
 

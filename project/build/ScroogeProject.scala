@@ -24,7 +24,6 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val asm = "asm" % "asm" % "1.5.3" % "test"
   val objenesis = "org.objenesis" % "objenesis" % "1.1" % "test"
   val scroogeRuntime = "com.twitter" % "scrooge-runtime" % "1.1.2" % "test"
-  val util_eval = "com.twitter" % "util-eval" % utilVersion % "test"
   val finagleCore = "com.twitter" % "finagle-core" % finagleVersion % "test"
   val finagleOstrich4 = "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
 
@@ -44,4 +43,21 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
 
   override lazy val publishLocal = publishZipAction && publishLocalAction
   override lazy val publish = publishZipAction && publishAction
+
+  lazy val generateTestThrift =
+    runTask(
+      Some("com.twitter.scrooge.Main"),
+      runClasspath,
+      Array(
+        "--finagle",
+        "--ostrich",
+        "-d", "target/gen-scala",
+        "src/test/resources/test.thrift"
+      )
+    ) dependsOn(compile, copyResources)
+
+  def generateTestThriftAction = generateTestThrift
+
+  override def testSourceRoots = super.testSourceRoots +++ ("target" / "gen-scala" ##)
+  override def testCompileAction = super.testCompileAction dependsOn generateTestThrift
 }

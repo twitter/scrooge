@@ -126,7 +126,11 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
         }
         case _ => value
       }
-      Field(fid.getOrElse(0), id.name, ftype, transformedVal, req)
+      // if field is marked optional and a default is defined, ignore the optional part.
+      val transformedReq = {
+        if (transformedVal.isDefined && req.isOptional) Requiredness.Default else req
+      }
+      Field(fid.getOrElse(0), id.name, ftype, transformedVal, transformedReq)
     }
   }
 

@@ -2,72 +2,72 @@ package com.twitter.scrooge
 package scalagen
 
 import java.nio.ByteBuffer
-import scala.collection.mutable
-import scala.collection.JavaConversions._
-import com.twitter.util.Eval
 import org.apache.thrift.protocol._
-import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
+import org.specs.Specification
+import scala.collection.mutable
+import thrift.test._
 
 class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
 
-  val gen = new ScalaGenerator
-  val doc = new Document(Seq(Namespace("scala", "awwYeah")), Nil)
   val protocol = mock[TProtocol]
+
+  def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
 
   "ScalaGenerator" should {
     "generate an enum" in {
-      val enum = Enum("SomeEnum", Seq(EnumValue("FOO", 1), EnumValue("BAR", 2)))
-      compile(gen(doc, enum))
-      invoke("awwYeah.SomeEnum.FOO.value") mustEqual 1
-      invoke("awwYeah.SomeEnum.BAR.value") mustEqual 2
-      invoke("awwYeah.SomeEnum.FOO.name") mustEqual "FOO"
-      invoke("awwYeah.SomeEnum.BAR.name") mustEqual "BAR"
-      invoke("awwYeah.SomeEnum.get(1)") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
-      invoke("awwYeah.SomeEnum.get(2)") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
-      invoke("awwYeah.SomeEnum.get(3)") mustEqual invoke("None")
-      invoke("awwYeah.SomeEnum(1)") mustEqual invoke("awwYeah.SomeEnum.FOO")
-      invoke("awwYeah.SomeEnum(2)") mustEqual invoke("awwYeah.SomeEnum.BAR")
-      invoke("awwYeah.SomeEnum(3)") must throwA[NoSuchElementException]
-      invoke("""awwYeah.SomeEnum.valueOf("FOO")""") mustEqual invoke("Some(awwYeah.SomeEnum.FOO)")
-      invoke("""awwYeah.SomeEnum.valueOf("bar")""") mustEqual invoke("Some(awwYeah.SomeEnum.BAR)")
-      invoke("""awwYeah.SomeEnum.valueOf("nonexistent")""") mustEqual invoke("None")
+      "correct constants" in {
+        Numberz.One.value mustEqual 1
+        Numberz.Two.value mustEqual 2
+        Numberz.Three.value mustEqual 3
+        Numberz.Five.value mustEqual 5
+        Numberz.Six.value mustEqual 6
+        Numberz.Eight.value mustEqual 8
+      }
+
+      "apply" in {
+        Numberz(1) mustEqual Numberz.One
+        Numberz(2) mustEqual Numberz.Two
+        Numberz(3) mustEqual Numberz.Three
+        Numberz(5) mustEqual Numberz.Five
+        Numberz(6) mustEqual Numberz.Six
+        Numberz(8) mustEqual Numberz.Eight
+      }
+
+      "get" in {
+        Numberz.get(1) must beSome(Numberz.One)
+        Numberz.get(2) must beSome(Numberz.Two)
+        Numberz.get(3) must beSome(Numberz.Three)
+        Numberz.get(5) must beSome(Numberz.Five)
+        Numberz.get(6) must beSome(Numberz.Six)
+        Numberz.get(8) must beSome(Numberz.Eight)
+        Numberz.get(10) must beNone
+      }
+
+      "valueOf" in {
+        Numberz.valueOf("One") must beSome(Numberz.One)
+        Numberz.valueOf("Two") must beSome(Numberz.Two)
+        Numberz.valueOf("Three") must beSome(Numberz.Three)
+        Numberz.valueOf("Five") must beSome(Numberz.Five)
+        Numberz.valueOf("Six") must beSome(Numberz.Six)
+        Numberz.valueOf("Eight") must beSome(Numberz.Eight)
+        Numberz.valueOf("Ten") must beNone
+      }
     }
 
-    "generate a constant" in {
-      val fakeEnum = Enum("FakeEnum", Seq(EnumValue("FOO", 42)))
-      val constList = ConstList(Seq(
-        Const("name", TString, StringConstant("Columbo")),
-        Const("someInt", TI32, IntConstant(1)),
-        Const("someDouble", TDouble, DoubleConstant(3.0)),
-        Const("someList", ListType(TString, None), ListConstant(Seq(StringConstant("piggy")))),
-        Const("someMap", MapType(TString, TString, None), MapConstant(Map(StringConstant("foo") -> StringConstant("bar")))),
-        Const("alias", EnumType(fakeEnum), EnumValueConstant(fakeEnum, fakeEnum.values.head))
-      ))
-      // add a definition for SomeEnum2.FOO so it will compile.
-      val code = gen(doc, constList) + "\n\nclass FakeEnum()\nobject FakeEnum { val FOO = new FakeEnum() }\n"
-      compile(code)
-
-      invoke("awwYeah.Constants.name") mustEqual "Columbo"
-      invoke("awwYeah.Constants.someInt") mustEqual 1
-      invoke("awwYeah.Constants.someDouble") mustEqual 3.0
-      invoke("awwYeah.Constants.someList") mustEqual List("piggy")
-      invoke("awwYeah.Constants.someMap") mustEqual Map("foo" -> "bar")
-      invoke("awwYeah.Constants.alias") mustEqual invoke("awwYeah.FakeEnum.FOO")
+    "generate constants" in {
+      Constants.myNumberz mustEqual Numberz.One
+      Constants.name mustEqual "Columbo"
+      Constants.someInt mustEqual 1
+      Constants.someDouble mustEqual 3.0
+      Constants.someList mustEqual List("piggy")
+      Constants.someMap mustEqual Map("foo" -> "bar")
     }
 
-    "generate a struct" in {
+    "basic structs" in {
       "ints" in {
-        val struct = new Struct("Ints", Seq(
-          Field(1, "baby", TI16, None, Requiredness.Default),
-          Field(2, "mama", TI32, None, Requiredness.Default),
-          Field(3, "papa", TI64, None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, struct))
-
         "read" in {
           expect {
             startRead(protocol, new TField("baby", TType.I16, 1))
@@ -79,8 +79,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Ints.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.Ints(16, 32, 64L)")
+          Ints(protocol) mustEqual Ints(16, 32, 64L)
         }
 
         "write" in {
@@ -94,31 +93,23 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Ints(16, 32, 64L)").write(protocol)
+          Ints(16, 32, 64L).write(protocol) mustEqual ()
         }
       }
 
       "bytes" in {
-        val struct = new Struct("Bytes", Seq(
-          Field(1, "x", TByte, None, Requiredness.Default),
-          Field(2, "y", TBinary, None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, struct))
-
         "read" in {
           expect {
             startRead(protocol, new TField("x", TType.BYTE, 1))
             one(protocol).readByte() willReturn 3.toByte
             nextRead(protocol, new TField("y", TType.STRING, 2))
-            one(protocol).readBinary() willReturn ByteBuffer.wrap("hello".getBytes)
+            one(protocol).readBinary() willReturn stringToBytes("hello")
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Bytes.decoder")
-          val obj = decoder(protocol)
-          obj.getClass.getMethod("x").invoke(obj) mustEqual 3.toByte
-          new String(obj.getClass.getMethod("y").invoke(obj).asInstanceOf[ByteBuffer].array) mustEqual "hello"
+          val bytes = Bytes(protocol)
+          bytes.x mustEqual 3.toByte
+          new String(bytes.y.array) mustEqual "hello"
         }
 
         "write" in {
@@ -126,23 +117,15 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             startWrite(protocol, new TField("x", TType.BYTE, 1))
             one(protocol).writeByte(16.toByte)
             nextWrite(protocol, new TField("y", TType.STRING, 2))
-            one(protocol).writeBinary(ByteBuffer.wrap("goodbye".getBytes))
+            one(protocol).writeBinary(stringToBytes("goodbye"))
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Bytes(16.toByte, java.nio.ByteBuffer.wrap(\"goodbye\".getBytes))").write(protocol)
+          Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) mustEqual ()
         }
       }
 
       "bool, double, string" in {
-        val struct = new Struct("Misc", Seq(
-          Field(1, "alive", TBool, None, Requiredness.Default),
-          Field(2, "pi", TDouble, None, Requiredness.Default),
-          Field(3, "name", TString, None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, struct))
-
         "read" in {
           expect {
             startRead(protocol, new TField("alive", TType.BOOL, 1))
@@ -154,8 +137,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Misc.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.Misc(true, 3.14, \"bender\")")
+          Misc(protocol) mustEqual Misc(true, 3.14, "bender")
         }
 
         "write" in {
@@ -169,19 +151,16 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Misc(false, 6.28, \"fry\")").write(protocol)
+          Misc(false, 6.28, "fry").write(protocol) mustEqual ()
         }
       }
 
       "lists, sets, and maps" in {
-        val struct = new Struct("Compound", Seq(
-          Field(1, "intlist", ListType(TI32, None), None, Requiredness.Default),
-          Field(2, "intset", SetType(TI32, None), None, Requiredness.Default),
-          Field(3, "namemap", MapType(TString, TI32, None), None, Requiredness.Default),
-          Field(4, "nested", ListType(SetType(TI32, None), None), None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, struct))
+        val exemplar = Compound(
+          intlist = List(10, 20),
+          intset = Set(44, 55),
+          namemap = Map("wendy" -> 500),
+          nested = List(Set(9)))
 
         "read" in {
           expect {
@@ -209,8 +188,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Compound.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.Compound(List(10, 20), Set(44, 55), Map(\"wendy\" -> 500), List(Set(9)))")
+          Compound(protocol) mustEqual exemplar
         }
 
         "write" in {
@@ -239,18 +217,51 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Compound(List(10, 20), Set(44, 55), Map(\"wendy\" -> 500), List(Set(9)))").write(protocol)
+          exemplar.write(protocol) mustEqual ()
+        }
+      }
+    }
+
+    "complicated structs" in {
+      "with required fields" in {
+        "read" in {
+          expect {
+            startRead(protocol, new TField("string", TType.STRING, 1))
+            one(protocol).readString() willReturn "yo"
+            endRead(protocol)
+          }
+
+          RequiredString(protocol) mustEqual RequiredString("yo")
+        }
+
+        "missing required value throws exception during deserialization" in {
+          doBefore {
+            expect {
+              emptyRead(protocol)
+            }
+          }
+
+          "with no default value" in {
+            RequiredString(protocol) must throwA[TProtocolException]
+          }
+
+          "with default value" in {
+            RequiredStringWithDefault(protocol) must throwA[TProtocolException]
+          }
+        }
+
+        "null required value throws exception during serialization" in {
+          "with no default value" in {
+            RequiredString(value = null).write(protocol) must throwA[TProtocolException]
+          }
+
+          "with default value" in {
+            RequiredStringWithDefault(value = null).write(protocol) must throwA[TProtocolException]
+          }
         }
       }
 
       "with optional fields" in {
-        val struct = new Struct("Optional", Seq(
-          Field(1, "name", TString, None, Requiredness.Default),
-          Field(2, "age", TI32, None, Requiredness.Optional)
-        ))
-
-        compile(gen(doc, struct))
-
         "read" in {
           expect {
             startRead(protocol, new TField("name", TType.STRING, 1))
@@ -260,8 +271,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Optional.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.Optional(\"Commie\", Some(14))")
+          OptionalInt(protocol) mustEqual OptionalInt("Commie", Some(14))
         }
 
         "read with missing field" in {
@@ -271,8 +281,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Optional.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.Optional(\"Commie\", None)")
+          OptionalInt(protocol) mustEqual OptionalInt("Commie", None)
         }
 
         "write" in {
@@ -284,7 +293,7 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Optional(\"Commie\", Some(14))").write(protocol)
+          OptionalInt("Commie", Some(14)).write(protocol) mustEqual ()
         }
 
         "write with missing field" in {
@@ -294,66 +303,19 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Optional(\"Commie\", None)").write(protocol)
-        }
-      }
-
-      "with required fields" in {
-        val struct = new Struct("Required", Seq(
-          Field(1, "size", TI32, None, Requiredness.Required)
-        ))
-
-        compile(gen(doc, struct))
-
-        "read" in {
-          expect {
-            startRead(protocol, new TField("size", TType.I32, 1))
-            one(protocol).readI32() willReturn 23
-            endRead(protocol)
-          }
-
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Required.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.Required(23)")
-        }
-
-        "read with missing field" in {
-          expect {
-            one(protocol).readStructBegin()
-            one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
-            one(protocol).readStructEnd()
-          }
-
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Required.decoder")
-          decoder(protocol) must throwA[TProtocolException]
+          OptionalInt("Commie", None).write(protocol) mustEqual ()
         }
       }
 
       "with default values" in {
-        val struct = new Struct("DefaultValues", Seq(
-          Field(1, "name", TString, Some(StringConstant("leela")), Requiredness.Optional)
-        ))
-
-        compile(gen(doc, struct))
-
-        "set by default" in {
-          invoke("new awwYeah.DefaultValues().name") mustEqual Some("leela")
-          invoke("new awwYeah.DefaultValues().nameOrDefault") mustEqual "leela"
-        }
-
-        "when not set" in {
-          invoke("new awwYeah.DefaultValues(None).name") mustEqual None
-          invoke("new awwYeah.DefaultValues(None).nameOrDefault") mustEqual "leela"
-        }
-
-        "read with value missing" in {
+        "read with value missing, using default" in {
           expect {
             one(protocol).readStructBegin()
             one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
             one(protocol).readStructEnd()
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.DefaultValues.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.DefaultValues(None)")
+          DefaultValues(protocol) mustEqual DefaultValues("leela")
         }
 
         "read with value present" in {
@@ -365,25 +327,11 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             one(protocol).readStructEnd()
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.DefaultValues.decoder")
-          decoder(protocol) mustEqual invoke("new awwYeah.DefaultValues(Some(\"delilah\"))")
+          DefaultValues(protocol) mustEqual DefaultValues("delilah")
         }
       }
 
       "nested" in {
-        val emperorStruct = new Struct("Emperor", Seq(
-          Field(1, "name", TString, None, Requiredness.Default),
-          Field(2, "age", TI32, None, Requiredness.Default)
-        ))
-        val struct = new Struct("Empire", Seq(
-          Field(1, "name", TString, None, Requiredness.Default),
-          Field(2, "provinces", ListType(TString, None), None, Requiredness.Default),
-          Field(5, "emperor", StructType(emperorStruct), None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, emperorStruct))
-        compile(gen(doc, struct))
-
         "read" in {
           expect {
             startRead(protocol, new TField("name", TType.STRING, 1))
@@ -406,9 +354,10 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endRead(protocol)
           }
 
-          val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Empire.decoder")
-          decoder(protocol) mustEqual
-            invoke("new awwYeah.Empire(\"United States of America\", List(\"connecticut\", \"california\"), awwYeah.Emperor(\"Bush\", 42))")
+          Empire(protocol) mustEqual Empire(
+            "United States of America",
+            List("connecticut", "california"),
+            Emperor("Bush", 42))
         }
 
         "write" in {
@@ -432,60 +381,64 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             endWrite(protocol)
           }
 
-          eval.inPlace[ThriftStruct]("awwYeah.Empire(\"Canada\", List(\"Manitoba\", \"Alberta\"), awwYeah.Emperor(\"Larry\", 13))").write(protocol)
+          Empire(
+            "Canada",
+            List("Manitoba", "Alberta"),
+            Emperor("Larry", 13)
+          ).write(protocol) mustEqual ()
         }
       }
 
       "exception" in {
-        val error = new Exception_("Error", Seq(
-          Field(1, "description", TString, None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, error))
-        invoke("new awwYeah.Error(\"silly\").getStackTrace") must haveClass[Array[StackTraceElement]]
+        Xception(1, "boom") must haveSuperClass[Exception]
       }
 
       "funky names that scala doesn't like" in {
-        val struct = new Struct("Naughty", Seq(
-          Field(1, "type", TString, None, Requiredness.Default),
-          Field(2, "def", TI32, None, Requiredness.Default)
-        ))
-
-        compile(gen(doc, struct))
-        invoke("""new awwYeah.Naughty("car", 100).`def`""") mustEqual 100
+        Naughty("car", 100).`type` mustEqual "car"
+        Naughty("car", 100).`def` mustEqual 100
       }
 
       "with more than 22 fields" in {
-        val fields = (1 to 25).toSeq map { i =>
-          Field(i, "num" + i, TI32, Some(IntConstant(i)), Requiredness.Default)
-        }
-        val struct = new Struct("Biggie", fields)
-
-        compile(gen(doc, struct))
-
         "apply" in {
-          invoke("""awwYeah.Biggie().`num25`""") mustEqual 25
+          Biggie().num25 mustEqual 25
         }
 
         "two default object must be equal" in {
-          invoke("awwYeah.Biggie() == awwYeah.Biggie()") mustEqual true
+          Biggie() mustEqual Biggie()
         }
 
         "copy and equals" in {
-          invoke("awwYeah.Biggie().copy(num10 = -5)") mustEqual invoke("awwYeah.Biggie(num10 = -5)")
+          Biggie().copy(num10 = -5) mustEqual Biggie(num10 = -5)
         }
 
         "hashCode is the same for two similar objects" in {
-          invoke("awwYeah.Biggie().hashCode") mustEqual invoke("awwYeah.Biggie().hashCode")
-          invoke("awwYeah.Biggie(num10 = -5).hashCode") mustEqual invoke("awwYeah.Biggie(num10 = -5).hashCode")
+          Biggie().hashCode mustEqual Biggie().hashCode
+          Biggie(num10 = -5).hashCode mustEqual Biggie(num10 = -5).hashCode
         }
 
         "hashCode is different for two different objects" in {
-          invoke("awwYeah.Biggie(num10 = -5).hashCode") mustNot beEqual(invoke("awwYeah.Biggie().hashCode"))
+          Biggie(num10 = -5).hashCode mustNot beEqual(Biggie().hashCode)
         }
 
         "toString" in {
-          invoke("awwYeah.Biggie().toString") mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
+          Biggie().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
+        }
+      }
+
+      "unapply single field" in {
+        val struct: Any = RequiredString("hello")
+        struct match {
+          case RequiredString(value) =>
+            value mustEqual "hello"
+        }
+      }
+
+      "unapply multiple fields" in {
+        val struct: Any = OptionalInt("foo", Some(32))
+        struct match {
+          case OptionalInt(name, age) =>
+            name mustEqual "foo"
+            age must beSome(32)
         }
       }
     }

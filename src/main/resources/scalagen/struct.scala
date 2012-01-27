@@ -1,63 +1,121 @@
 // ----- {{name}}
 
 object {{name}} extends ThriftStructCodec[{{name}}] {
-  val STRUCT_DESC = new TStruct("{{name}}")
+  val Struct = new TStruct("{{name}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, {{id}})
 {{/fields}}
 
-  val decoder = { (_iprot: TProtocol) =>
+  val encoder = { (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto) }
+  val decoder: TProtocol => {{name}} = Immutable.decoder
+
+  def apply(_iprot: TProtocol): {{name}} = decoder(_iprot)
+
+  def apply(
 {{#fields}}
-    var `{{name}}`: {{scalaType}} = {{defaultReadValue}}
+    `{{name}}`: {{fieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{comma}}
+{{/fields}}
+  ): {{name}} = new Immutable(
+{{#fields}}
+    `{{name}}`{{comma}}
+{{/fields}}
+  )
+
+{{#arity0}}
+  def unapply(_item: {{name}}): Boolean = true
+{{/arity0}}
+{{#arity1}}
+  def unapply(_item: {{struct}}): Option[{{fieldType}}] = Some(_item.{{name}})
+{{/arity1}}
+{{#arityN}}
+  def unapply(_item: {{name}}): Option[{{product}}] = Some(_item)
+{{/arityN}}
+
+  object Immutable extends ThriftStructCodec[Immutable] {
+    val encoder = { (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto) }
+    val decoder = { _iprot: TProtocol =>
+{{#fields}}
+      var `{{name}}`: {{fieldType}} = {{defaultReadValue}}
+{{/fields}}
+{{#fields}}
 {{#required}}
-    var _got_{{name}} = false
+      var _got_{{name}} = false
 {{/required}}
 {{/fields}}
-
-    var _field: TField = null
-    var _done = false
-    _iprot.readStructBegin()
-    while (!_done) {
-      _field = _iprot.readFieldBegin
-      if (_field.`type` == TType.STOP) {
-        _done = true
-      } else {
-        _field.id match {
+      var _done = false
+      _iprot.readStructBegin()
+      while (!_done) {
+        val _field = _iprot.readFieldBegin()
+        if (_field.`type` == TType.STOP) {
+          _done = true
+        } else {
+          _field.id match {
 {{#fields}}
 {{reader}}
 {{/fields}}
-          case _ => TProtocolUtil.skip(_iprot, _field.`type`)
+            case _ => TProtocolUtil.skip(_iprot, _field.`type`)
+          }
+          _iprot.readFieldEnd()
         }
-        _iprot.readFieldEnd()
       }
-    }
-    _iprot.readStructEnd()
+      _iprot.readStructEnd()
 {{#fields}}
 {{#required}}
-    if (!_got_{{name}}) throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{struct}}")
+      if (!_got_{{name}}) throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{struct}}")
 {{/required}}
 {{/fields}}
-    {{name}}({{fieldNames}})
+      new Immutable(
+{{#fields}}
+        `{{name}}`{{comma}}
+{{/fields}}
+      )
+    }
   }
 
-  val encoder = { (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto) }
+  /**
+   * The default read-only implementation of {{name}}.  You typically should not need to
+   * directly reference this class, instead, use the {{name}}.apply method to construct
+   * new instances.
+   */
+  class Immutable(
+{{#fields}}
+    val `{{name}}`: {{fieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{comma}}
+{{/fields}}
+  ) extends {{name}}
 
-{{#big}}
-  def apply({{applyParams}}) = new {{name}}({{ctorArgs}})
-{{/big}}
+
+{{#withProxy}}
+  /**
+   * This Proxy trait allows you to extend the {{name}} trait with additional state or
+   * behavior and implement the read-only methods from {{name}} using an underlying
+   * instance.
+   */
+  trait Proxy extends {{name}} {
+    protected def _underlying{{name}}: {{name}}
+{{#fields}}
+    def `{{name}}`: {{fieldType}} = _underlying{{struct}}.`{{name}}`
+{{/fields}}
+  }
+{{/withProxy}}
 }
 
-{{^big}}case {{/big}}class {{name}}({{fieldParams}}) extends {{parentType}} {{#big}}
-with Product with java.io.Serializable {{/big}}{
+trait {{name}} extends {{parentType}}
+  with {{product}}
+  with java.io.Serializable
+{
   import {{name}}._
 
-{{#optionalDefaults}}
-  def {{name}}OrDefault = {{name}} getOrElse {{value}}
+{{#fields}}
+  def `{{name}}`: {{fieldType}}
+{{/fields}}
 
-{{/optionalDefaults}}
+{{#fields}}
+  def _{{indexP1}} = `{{name}}`
+{{/fields}}
+
   override def write(_oprot: TProtocol) {
     validate()
-    _oprot.writeStructBegin(STRUCT_DESC)
+    _oprot.writeStructBegin(Struct)
 {{#fields}}
 {{writer}}
 {{/fields}}
@@ -65,11 +123,30 @@ with Product with java.io.Serializable {{/big}}{
     _oprot.writeStructEnd()
   }
 
-  def validate() = true //TODO: Implement this
+  def copy(
+{{#fields}}
+    `{{name}}`: {{fieldType}} = this.`{{name}}`{{comma}}
+{{/fields}}
+  ): {{name}} = new Immutable(
+{{#fields}}
+    `{{name}}`{{comma}}
+{{/fields}}
+  )
 
-{{#big}}
-  def copy({{copyParams}}) =
-    new {{name}}({{ctorArgs}})
+  /**
+   * Checks that all required fields are non-null.
+   */
+  def validate() {
+{{#fields}}
+{{#required}}
+{{#nullable}}
+    if (`{{name}}` == null) throw new TProtocolException("Required field '{{name}}' cannot be null")
+{{/nullable}}
+{{/required}}
+{{/fields}}
+  }
+
+  def canEqual(other: Any) = other.isInstanceOf[{{name}}]
 
   override def equals(other: Any): Boolean = runtime.ScalaRunTime._equals(this, other)
 
@@ -77,16 +154,14 @@ with Product with java.io.Serializable {{/big}}{
 
   override def toString: String = runtime.ScalaRunTime._toString(this)
 
-  def canEqual(other: Any) = other.isInstanceOf[{{name}}]
+  override def productArity = {{arity}}
 
-  def productArity = {{arity}}
-
-  def productElement(n: Int): Any = n match {
+  override def productElement(n: Int): Any = n match {
 {{#fields}}
     case {{index}} => `{{name}}`
 {{/fields}}
+    case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
   override def productPrefix = "{{name}}"
-{{/big}}
 }

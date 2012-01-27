@@ -1,8 +1,10 @@
 package com.twitter.scrooge
 package scalagen
 
-import com.twitter.util.Eval
+import com.twitter.finagle.thrift.ThriftClientRequest
+import java.util.Arrays
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.JMocker
@@ -33,16 +35,10 @@ trait EvalHelper { self: JMocker =>
   def equal(a: TSet) = will(matchEqualsTSet(a))
   def equal(a: TMap) = will(matchEqualsTMap(a))
 
-  val eval = new Eval
-
-  def invoke(code: String): Any = eval.inPlace[Any](code)
-
-  def compile(code: String) {
-    try eval.compile(code) catch {
-      case ex =>
-        Console.println(code)
-        throw ex
-    }
+  def emptyRead(protocol: TProtocol) {
+    one(protocol).readStructBegin()
+    one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+    one(protocol).readStructEnd()
   }
 
   def startRead(protocol: TProtocol, field: TField) {
@@ -76,5 +72,28 @@ trait EvalHelper { self: JMocker =>
     one(protocol).writeFieldEnd()
     one(protocol).writeFieldStop()
     one(protocol).writeStructEnd()
+  }
+
+  def encodeRequest(name: String, args: ThriftStruct): ThriftClientRequest = {
+    val buf = new TMemoryBuffer(512)
+    val oprot = new TBinaryProtocol.Factory().getProtocol(buf)
+
+    oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
+    args.write(oprot)
+    oprot.writeMessageEnd()
+
+    val bytes = Arrays.copyOfRange(buf.getArray, 0, buf.length)
+    new ThriftClientRequest(bytes, false)
+  }
+
+  def encodeResponse(name: String, result: ThriftStruct): Array[Byte] = {
+    val buf = new TMemoryBuffer(512)
+    val oprot = new TBinaryProtocol.Factory().getProtocol(buf)
+
+    oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, 0))
+    result.write(oprot)
+    oprot.writeMessageEnd()
+
+    Arrays.copyOfRange(buf.getArray, 0, buf.length)
   }
 }

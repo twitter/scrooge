@@ -162,52 +162,82 @@ trait StructTemplate extends Generator { self: ScalaGenerator =>
   // ----- struct
 
   lazy val structTemplate = templates("struct").generate { struct: StructLike =>
-    val isBig = struct.fields.size > 22
-    val fieldNames = struct.fields.map { f => "`" + f.name + "`" }
     val fieldDictionaries = struct.fields.zipWithIndex map { case (field, index) =>
       Dictionary(
         "index" -> v(index.toString),
+        "indexP1" -> v((index + 1).toString),
         "name" -> v(field.name),
+        "Name" -> v(TitleCase(field.name)),
         "id" -> v(field.id.toString),
         "fieldConst" -> v(writeFieldConst(field.name)),
         "constType" -> v(constType(field.`type`)),
-        "scalaType" -> v(scalaFieldType(field)),
+        "fieldType" -> v(scalaFieldType(field, mutable = false)),
+        "hasDefaultValue" -> v(defaultFieldValue(field).isDefined),
+        "defaultFieldValue" -> v(defaultFieldValue(field).getOrElse("")),
         "defaultReadValue" -> v(defaultReadValue(field)),
         "required" -> v(field.requiredness.isRequired),
-        "reader" -> v(readFieldTemplate(field).indent(5)),
+        "optional" -> {
+          if (!field.requiredness.isOptional) {
+            v(false)
+          } else {
+            v(List(Dictionary("elementType" -> v(scalaType(field.`type`)))))
+          }
+        },
+        "nullable" -> v(isNullableType(field.`type`, field.requiredness.isOptional)),
+        "collection" -> v {
+          field.`type` match {
+            case ListType(eltType, _) => List(
+              Dictionary(
+                "elementType" -> v(scalaType(eltType))
+              )
+            )
+            case SetType(eltType, _) => List(
+              Dictionary(
+                "elementType" -> v(scalaType(eltType))
+              )
+            )
+            case MapType(keyType, valueType, _) => List(
+              Dictionary(
+                "elementType" ->
+                  v("(" + scalaType(keyType) + ", " + scalaType(valueType) + ")")
+              )
+            )
+            case _ => Nil
+          }
+        },
+        "reader" -> v(readFieldTemplate(field).indent(6)),
         "writer" -> v(writeFieldTemplate(field).indent(2)),
-        "struct" -> v(struct.name)
-      )
-    }
-    val optionalDefaultDictionaries = struct.fields.filter { f =>
-      f.requiredness.isOptional && f.default.isDefined
-    } map { f =>
-      Dictionary(
-        "name" -> v(f.name),
-        "value" -> v(constantValue(f.default.get))
+        "toImmutable" -> v(toImmutable(field)),
+        "toMutable" -> v {
+          toMutable(field) match {
+            case (prefix, suffix) => Seq(Dictionary("prefix" -> v(prefix), "suffix" -> v(suffix)))
+          }
+        },
+        "struct" -> v(struct.name),
+        "comma" -> v(if (index == struct.fields.size - 1) "" else ",")
       )
     }
     val parentType = struct match {
-      case AST.Struct(_, _) => "ThriftStruct"
-      case AST.Exception_(_, _) => "SourcedException with ThriftStruct"
+      case _: AST.Exception_ => "SourcedException with ThriftStruct"
+      case _ => "ThriftStruct"
     }
-    val baseDict = Dictionary(
+    val arity = struct.fields.size
+    val product = if (arity >= 1 && arity <= 22) {
+      val fieldTypes = struct.fields.map { f => scalaFieldType(f) }.mkString(", ")
+      "Product" + arity + "[" + fieldTypes + "]"
+    } else {
+      "Product"
+    }
+    Dictionary(
       "name" -> v(struct.name),
-      "fieldNames" -> v(fieldNames.mkString(", ")),
-      "fieldParams" -> v(fieldParams(struct.fields, isBig)),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
-      "optionalDefaults" -> v(optionalDefaultDictionaries),
-      "big" -> v(isBig)
+      "arity" -> arity.toString,
+      "product" -> v(product),
+      "arity0" -> v(arity == 0),
+      "arity1" -> (if (arity == 1) fieldDictionaries.take(1) else Nil),
+      "arityN" -> v(arity > 1 && arity <= 22),
+      "withProxy" -> v(struct.isInstanceOf[Struct])
     )
-
-    if (isBig) {
-      baseDict("applyParams") = fieldParams(struct.fields)
-      baseDict("ctorArgs") = fieldNames.map { name => name + " = " + name }.mkString(", ")
-      baseDict("copyParams") = copyParams(struct.fields)
-      baseDict("fieldsEqual") = fieldNames.map { name => "this." + name + " == _that." + name}.mkString(" && ")
-      baseDict("arity") =  struct.fields.size.toString
-    }
-    baseDict
   }
 }

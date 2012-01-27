@@ -2,72 +2,69 @@ package com.twitter.scrooge
 package scalagen
 
 import java.nio.ByteBuffer
+import java.util.Arrays
 import scala.collection.mutable
 import scala.collection.JavaConversions._
-import com.twitter.util.Eval
+import com.twitter.finagle
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.util.Future
 import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
 import java.security.MessageDigest
 import java.math.BigInteger
+import thrift.test._
 
 class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
 
   type ThriftStruct = { def write(oprot: TProtocol) }
 
-  val gen = new ScalaGenerator
-  val namespace = Namespace("scala", "awwYeah")
-  val doc = Document(Seq(namespace), Nil)
-
   val protocol = mock[TProtocol]
+
+  case class matchThriftClientRequest(r: ThriftClientRequest) extends Matcher[ThriftClientRequest]() {
+    def apply(v: => ThriftClientRequest) = (
+      areEqual(v, r),
+      "okMessage",
+      "no match")
+
+    def areEqual(a: ThriftClientRequest, b: ThriftClientRequest) =
+      Arrays.equals(a.message, b.message) && a.oneway == b.oneway
+  }
+
+  case class matchByteArray(bs: Array[Byte]) extends Matcher[Array[Byte]]() {
+    def apply(v: => Array[Byte]) = (
+      Arrays.equals(v, bs),
+      "okMessage",
+      "no match")
+  }
 
   "ScalaGenerator service" should {
     "generate a service interface" in {
-      val service = Service("Delivery", None, Seq(
-        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
-      ))
-      compile(gen(doc, service))
+      val service: SimpleService.Iface = new SimpleService.Iface {
+        def deliver(where: String) = 3
+      }
 
-      val impl = "class DeliveryImpl(n: Int) extends awwYeah.Delivery.Iface { def deliver(where: String) = n }"
-      compile(impl)
-
-      invoke("new DeliveryImpl(3).deliver(\"Boston\")") mustEqual 3
+      service.deliver("Boston") mustEqual 3
     }
 
     "generate a future-based service interface" in {
-      val service = Service("Delivery", None, Seq(
-        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
-      ))
-      compile(gen(doc, service))
+      val service: SimpleService.FutureIface = new SimpleService.FutureIface {
+        def deliver(where: String) = Future(3)
+      }
 
-      val impl = "import com.twitter.util.Future\n" +
-        "class DeliveryImpl(n: Int) extends awwYeah.Delivery.FutureIface { def deliver(where: String) = Future(n) }"
-      compile(impl)
-
-      invoke("new DeliveryImpl(3).deliver(\"Boston\")()") mustEqual 3
+      service.deliver("Boston")() mustEqual 3
     }
 
     "generate structs for args and return value" in {
-      val service = Service("Delivery", None, Seq(
-        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Seq())
-      ))
-
-      compile(gen(doc, service))
-
-      val impl = "class DeliveryImpl(n: Int) extends awwYeah.Delivery.Iface { def deliver(where: String) = n }"
-      compile(impl)
-
       expect {
         startRead(protocol, new TField("where", TType.STRING, 1))
         one(protocol).readString() willReturn "boston"
         endRead(protocol)
       }
 
-      val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Delivery.deliver_args.decoder")
-      val obj = decoder(protocol)
-      obj.getClass.getMethod("where").invoke(obj) mustEqual "boston"
+      SimpleService.deliver_args(protocol).where mustEqual "boston"
 
       expect {
         startWrite(protocol, new TField("where", TType.STRING, 1))
@@ -75,7 +72,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_args(\"atlanta\")").write(protocol)
+      SimpleService.deliver_args("atlanta").write(protocol) mustEqual ()
 
       expect {
         startRead(protocol, new TField("success", TType.I32, 0))
@@ -83,9 +80,7 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endRead(protocol)
       }
 
-      val decoder2 = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Delivery.deliver_result.decoder")
-      val obj2 = decoder2(protocol)
-      obj2.getClass.getMethod("success").invoke(obj2) mustEqual Some(13)
+      SimpleService.deliver_result(protocol).success mustEqual Some(13)
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -93,40 +88,24 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(Some(24))").write(protocol)
+      SimpleService.deliver_result(Some(24)).write(protocol) mustEqual ()
     }
 
     "generate exception return values" in {
-      val exception1 = Exception_("Error", Seq(Field(1, "description", TString)))
-
-      compile(gen(doc, exception1))
-
-      val service = Service("Delivery", None, Seq(
-        Function("deliver", TI32, Seq(
-          Field(1, "where", TString)
-        ), false, Seq(
-          Field(3, "ex1", StructType(exception1))
-        ))
-      ))
-
-      compile(gen(doc, service))
-
       expect {
-        startRead(protocol, new TField("ex1", TType.STRUCT, 3))
-        startRead(protocol, new TField("description", TType.STRING, 1))
+        startRead(protocol, new TField("ex", TType.STRUCT, 1))
+        startRead(protocol, new TField("errorCode", TType.I32, 1))
+        one(protocol).readI32() willReturn 1
+        nextRead(protocol, new TField("message", TType.STRING, 2))
         one(protocol).readString() willReturn "silly"
         endRead(protocol)
         endRead(protocol)
       }
 
-      val decoder = eval.inPlace[(TProtocol => ThriftStruct)]("awwYeah.Delivery.deliver_result.decoder")
-      val obj = decoder(protocol)
-      val optEx1 = obj.getClass.getMethod("ex1").invoke(obj)
-      optEx1 must beLike {
-        case Some(ex1: AnyRef) =>
-          ex1.getClass.getMethod("description").invoke(ex1) mustEqual "silly"
-          true
-      }
+      val res = ExceptionalService.deliver_result(protocol)
+      res.success must beNone
+      res.ex must beSome(Xception(1, "silly"))
+      res.ex2 must beNone
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -134,95 +113,118 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(Some(24), None)").write(protocol)
+      ExceptionalService.deliver_result(Some(24)).write(protocol) mustEqual ()
 
       expect {
-        startWrite(protocol, new TField("ex1", TType.STRUCT, 3))
-        startWrite(protocol, new TField("description", TType.STRING, 1))
+        startWrite(protocol, new TField("ex", TType.STRUCT, 1))
+        startWrite(protocol, new TField("errorCode", TType.I32, 1))
+        one(protocol).writeI32(1)
+        nextWrite(protocol, new TField("message", TType.STRING, 2))
         one(protocol).writeString("silly")
         endWrite(protocol)
         endWrite(protocol)
       }
 
-      eval.inPlace[ThriftStruct]("awwYeah.Delivery.deliver_result(None, Some(new awwYeah.Error(\"silly\")))").write(protocol)
+      ExceptionalService.deliver_result(None, Some(Xception(1, "silly"))).write(protocol) mustEqual ()
     }
 
-    "generate service and client" in {
-      val ex = Exception_("Boom", Nil)
-      val exs = Seq(Field(1, "ex", StructType(ex)))
-      val service = Service("Delivery", None, Seq(
-        Function("deliver", TI32, Seq(Field(1, "where", TString)), false, Nil),
-        Function("deliver2", TI32, Seq(Field(1, "where", TString)), false, exs), // blows-up, why?
-        Function("execute", Void, Nil, false, Nil),
-        Function("execute2", Void, Nil, false, exs) // blows-up, why?
-      ))
-      val doc = Document(Nil, Seq(ex, service))
-      val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
-      compile(gen(doc, genOptions)) must not(throwA[Exception])
+    "generate FinagledService" in {
+      val impl = mock[ExceptionalService.FutureIface]
+      val service = new ExceptionalService.FinagledService(impl, new TBinaryProtocol.Factory)
+
+      "success" in {
+        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston")).message
+        val response = encodeResponse("deliver", ExceptionalService.deliver_result(success = Some(42)))
+
+        expect {
+          one(impl).deliver("Boston") willReturn Future.value(42)
+        }
+
+        service(request)() must matchByteArray(response)
+      }
+
+      "exception" in {
+        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston")).message
+        val ex = Xception(1, "boom")
+        val response = encodeResponse("deliver", ExceptionalService.deliver_result(ex = Some(ex)))
+
+        expect {
+          one(impl).deliver("Boston") willReturn Future.exception(ex)
+        }
+
+        service(request)() must matchByteArray(response)
+      }
+    }
+
+    "generate FinagledClient" in {
+      val impl = mock[ExceptionalService.FutureIface]
+      val service = new ExceptionalService.FinagledService(impl, new TBinaryProtocol.Factory)
+      val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
+        def apply(req: ThriftClientRequest) = service(req.message)
+      }
+      val client = new ExceptionalService.FinagledClient(clientService)
+
+      "success" in {
+        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston"))
+        val response = encodeResponse("deliver", ExceptionalService.deliver_result(success = Some(42)))
+
+        expect {
+          one(impl).deliver("Boston") willReturn Future.value(42)
+        }
+
+        client.deliver("Boston")() mustEqual 42
+      }
+
+      "exception" in {
+        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston"))
+        val ex = Xception(1, "boom")
+        val response = encodeResponse("deliver", ExceptionalService.deliver_result(ex = Some(ex)))
+
+        expect {
+          one(impl).deliver("Boston") willReturn Future.exception(ex)
+        }
+
+        client.deliver("Boston")() must throwA(ex)
+      }
     }
 
     "correctly inherit traits across services" in {
-      val service1 = Service("ReadOnlyService", None, Seq(
-        Function("getName", TString, Nil, false, Nil)
-      ))
-      val service2 = Service("ReadWriteService", Some(ServiceParent(service1)), Seq(
-        Function("setName", Void, Seq(Field(1, "name", TString)), false, Nil)
-      ))
-      val doc = Document(Seq(Namespace("scala", "test")), Seq(service1, service2))
-      val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
-      compile(gen(doc, genOptions))
-
       "synchronous" in {
-        val impl = """
-          class BasicImpl extends test.ReadWriteService.Iface {
-            def getName() = "Rus"
-            def setName(name: String) { }
-          }
-          """
-        compile(impl)
-        invoke("(new BasicImpl).isInstanceOf[test.ReadOnlyService.Iface]") mustEqual true
-        invoke("(new BasicImpl).isInstanceOf[test.ReadWriteService.Iface]") mustEqual true
+        class BasicImpl extends ReadWriteService.Iface {
+          def getName() = "Rus"
+          def setName(name: String) { }
+        }
+
+        new BasicImpl() must haveSuperClass[ReadOnlyService.Iface]
+        new BasicImpl() must haveSuperClass[ReadWriteService.Iface]
       }
 
       "future-based" in {
-        val impl = """
-          import com.twitter.util.Future
+        class FutureImpl extends ReadWriteService.FutureIface {
+          def getName() = Future("Rus")
+          def setName(name: String) = Future.Unit
+        }
 
-          class FutureImpl extends test.ReadWriteService.FutureIface {
-            def getName() = Future("Rus")
-            def setName(name: String) = Future.Unit
-          }
-          """
-        compile(impl)
-        invoke("(new FutureImpl).isInstanceOf[test.ReadOnlyService.FutureIface]") mustEqual true
-        invoke("(new FutureImpl).isInstanceOf[test.ReadWriteService.FutureIface]") mustEqual true
+        new FutureImpl() must haveSuperClass[ReadOnlyService.FutureIface]
+        new FutureImpl() must haveSuperClass[ReadWriteService.FutureIface]
       }
 
       "finagle" in {
-        val service = "new test.ReadWriteService.FinagledService(null, null)"
-        invoke(service + ".isInstanceOf[test.ReadOnlyService.FinagledService]") mustEqual true
+        val service = new ReadWriteService.FinagledService(null, null)
+        service must haveSuperClass[ReadOnlyService.FinagledService]
 
-        val client = "new test.ReadWriteService.FinagledClient(null, null)"
-        invoke(client + ".isInstanceOf[test.ReadOnlyService.FinagledClient]") mustEqual true
-        invoke(client + ".isInstanceOf[test.ReadOnlyService.FutureIface]") mustEqual true
-        invoke(client + ".isInstanceOf[test.ReadWriteService.FutureIface]") mustEqual true
+        val client = new ReadWriteService.FinagledClient(null, null)
+        client must haveSuperClass[ReadOnlyService.FinagledClient]
+        client must haveSuperClass[ReadOnlyService.FutureIface]
+        client must haveSuperClass[ReadWriteService.FutureIface]
       }
     }
 
     "camelize names only in the scala bindings" in {
-      val service1 = Service("Capsly", None, Seq(
-        Function("Bad_Name", TString, Nil, false, Nil)
-      ))
-      val doc = Document(Seq(Namespace("scala", "test")), Seq(service1))
-      val genOptions = Set[ScalaServiceOption](WithFinagleClient, WithFinagleService, WithOstrichServer)
-      compile(gen(doc, genOptions))
-
-      val impl = "class MyCapsly extends test.Capsly.Iface { def badName = \"foo\" }"
-      compile(impl)
-
-      invoke("(new MyCapsly).badName") mustEqual "foo"
-      invoke("(new test.Capsly.FinagledService(null, null) { def x = functionMap }).x.keys.toList") mustEqual List("Bad_Name")
+      val service = new Capsly.FinagledService(null, null) {
+        def x = functionMap
+      }
+      service.x.keys.toList mustEqual List("Bad_Name")
     }
   }
 }
-

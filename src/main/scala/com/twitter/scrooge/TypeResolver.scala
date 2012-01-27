@@ -190,6 +190,7 @@ case class TypeResolver(
     case l @ ListConstant(elems) =>
       fieldType match {
         case ListType(eltType, _) => l.copy(elems = elems map { e => apply(e, eltType) } )
+        case SetType(eltType, _) => SetConstant(elems map { e => apply(e, eltType) } toSet)
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l)
       }
     case m @ MapConstant(elems) =>

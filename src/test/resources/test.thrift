@@ -49,10 +49,156 @@ enum Numberz
 }
 
 const Numberz myNumberz = Numberz.ONE;
-// the following is expected to fail:
-// const Numberz urNumberz = ONE;
+const string name = "Columbo";
+const i32 someInt = 1;
+const double someDouble = 3.0;
+const list<string> someList = ["piggy"];
+const map<string,string> someMap = {"foo": "bar"};
 
 typedef i64 UserId
+
+struct Ints {
+  1: i16 baby
+  2: i32 mama
+  3: i64 papa
+}
+
+struct Bytes {
+  1: byte x
+  2: binary y
+}
+
+struct Misc {
+  1: bool alive
+  2: double pi
+  3: string name
+}
+
+struct Compound {
+  1: list<i32> intlist
+  2: set<i32> intset
+  3: map<string, i32> namemap
+  4: list<set<i32>> nested
+}
+
+struct RequiredString {
+  1: required string value
+}
+
+struct RequiredStringWithDefault {
+  1: required string value = "yo"
+}
+
+struct OptionalInt {
+  1: string name
+  2: optional i32 age
+}
+
+struct DefaultValues {
+  1: string name = "leela"
+}
+
+struct Emperor {
+  1: string name
+  2: i32 age
+}
+
+struct Empire {
+  1: string name
+  2: list<string> provinces
+  5: Emperor emperor
+}
+
+struct Naughty {
+  1: string type
+  2: i32 def
+}
+
+struct Biggie {
+  1: i32 num1 = 1
+  2: i32 num2 = 2
+  3: i32 num3 = 3
+  4: i32 num4 = 4
+  5: i32 num5 = 5
+  6: i32 num6 = 6
+  7: i32 num7 = 7
+  8: i32 num8 = 8
+  9: i32 num9 = 9
+  10: i32 num10 = 10
+  11: i32 num11 = 11
+  12: i32 num12 = 12
+  13: i32 num13 = 13
+  14: i32 num14 = 14
+  15: i32 num15 = 15
+  16: i32 num16 = 16
+  17: i32 num17 = 17
+  18: i32 num18 = 18
+  19: i32 num19 = 19
+  20: i32 num20 = 20
+  21: i32 num21 = 21
+  22: i32 num22 = 22
+  23: i32 num23 = 23
+  24: i32 num24 = 24
+  25: i32 num25 = 25
+}
+
+struct OneOfEach {
+  1: bool z
+  2: byte b
+  3: i16 s
+  4: i32 i
+  5: i64 j
+  6: double d
+  7: string str
+  8: Numberz e
+  9: Misc ref
+  10: list<i32> i_list
+  11: set<i32> i_set
+  12: map<i32, i32> i_map
+}
+
+struct OneOfEachWithDefault {
+  1: bool z = 1
+  2: byte b = 1
+  3: i16 s = 1
+  4: i32 i = 1
+  5: i64 j = 1
+  6: double d = 1.0
+  7: string str = "yo"
+  8: Numberz e = Numberz.ONE
+  10: list<i32> i_list = [1]
+  11: set<i32> i_set = [1]
+  12: map<i32, i32> i_map = {1: 1}
+}
+
+struct OneOfEachOptional {
+  1: optional bool z
+  2: optional byte b
+  3: optional i16 s
+  4: optional i32 i
+  5: optional i64 j
+  6: optional double d
+  7: optional string str
+  8: optional Numberz e
+  9: optional Misc ref
+  10: optional list<i32> i_list
+  11: optional set<i32> i_set
+  12: optional map<i32, i32> i_map
+}
+
+struct OneOfEachOptionalWithDefault {
+  1: optional bool z = 1
+  2: optional byte b = 1
+  3: optional i16 s = 1
+  4: optional i32 i = 1
+  5: optional i64 j = 1
+  6: optional double d = 1.0
+  7: optional string str = "yo"
+  8: optional Numberz e = Numberz.ONE
+  10: optional list<i32> i_list = [1]
+  11: optional set<i32> i_set = [1]
+  12: optional map<i32, i32> i_map = {1: 1}
+}
 
 struct Bonk
 {
@@ -118,6 +264,17 @@ struct OneField {
   1: EmptyStruct field
 }
 
+service SimpleService {
+  i32 deliver(1: string where)
+}
+
+service ExceptionalService {
+  i32 deliver(1: string where) throws (
+    1: Xception ex
+    2: Xception2 ex2
+  )
+}
+
 service ThriftTest
 {
   void         testVoid(),
@@ -152,11 +309,6 @@ service ThriftTest
 
   /* Test oneway void */
   oneway void testOneway(1:i32 secondsToSleep)
-}
-
-service SecondService
-{
-  void blahBlah()
 }
 
 struct VersioningTestV1 {
@@ -206,4 +358,16 @@ struct LargeDeltas {
   2500: set<string> a_set2500,
   3000: VersioningTestV2 vertwo3000,
   4000: list<i32> big_numbers
+}
+
+service ReadOnlyService {
+  string getName()
+}
+
+service ReadWriteService extends ReadOnlyService {
+  void setName(1: string name)
+}
+
+service Capsly {
+  string Bad_Name()
 }
