@@ -1,4 +1,4 @@
-private[this] val _{{name}}Scope = stats.scope("{{name}}")
+private[this] val _{{name}}Scope = scopedStats.scope("{{name}}")
 private[this] val _{{name}}RequestsCounter = _{{name}}Scope.counter("requests")
 private[this] val _{{name}}SuccessCounter = _{{name}}Scope.counter("success")
 private[this] val _{{name}}FailuresCounter = _{{name}}Scope.counter("failures")

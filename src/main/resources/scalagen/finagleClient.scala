@@ -9,9 +9,9 @@ class FinagledClient(
   {{override}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
   {{override}}val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
   override val serviceName: Option[String] = None,
-  _stats: StatsReceiver = NullStatsReceiver
+  stats: StatsReceiver = NullStatsReceiver
 ) extends {{extends}} with FutureIface {
-  private[this] val stats = serviceName map { _stats.scope(_) } getOrElse _stats
+  private[this] val scopedStats = serviceName map { stats.scope(_) } getOrElse stats
 {{#functions}}
 {{function}}
 {{/function}}
