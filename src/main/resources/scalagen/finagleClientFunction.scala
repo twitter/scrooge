@@ -10,6 +10,10 @@ private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
     decodeResponse(_, {{localName}}_result.decoder)
   } flatMap { result =>
     {{resultUnwrapper}}
+  } rescue {
+    case e: SourcedException =>
+      serviceName foreach { e.serviceName = _ }
+      Future.exception(e)
   } onSuccess { _ =>
     _{{name}}SuccessCounter.incr()
   } onFailure { ex =>
