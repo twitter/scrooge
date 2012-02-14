@@ -12,6 +12,7 @@ functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
 {{#exceptions}}
       case e: {{exceptionType}} => {
         reply("{{name}}", seqid, {{localName}}_result({{fieldName}} = Some(e)))
+      }
 {{/exceptions}}
       case e => Future.exception(e)
     }
