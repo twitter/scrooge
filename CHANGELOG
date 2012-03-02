@@ -1,3 +1,7 @@
+2.5.3 - 03/02/2012
+===============================================================================
+* Minor bug fix for serviceName name class with.
+
 2.4.0 - 01/03/2012
 ===============================================================================
 * added support for structs with more than 22 fields, which previously was the
