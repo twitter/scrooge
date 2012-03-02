@@ -11,9 +11,9 @@ private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
   } flatMap { result =>
     {{resultUnwrapper}}
   } rescue {
-    case e: SourcedException =>
-      serviceName foreach { e.serviceName = _ }
-      Future.exception(e)
+    case ex: SourcedException =>
+      this.serviceName foreach { ex.serviceName = _ }
+      Future.exception(ex)
   } onSuccess { _ =>
     _{{name}}SuccessCounter.incr()
   } onFailure { ex =>
