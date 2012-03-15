@@ -36,11 +36,27 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
 
   implicit val templates = new HandlebarLoader("/scalagen/")
 
+  /**
+   * Decomposes a package name into the parent package name and the final sub-package name.
+   */
+  object PackageName {
+    def unapply(str: String): Option[(String, String)] = {
+      str.lastIndexOf('.') match {
+        case -1 => Some(("_root_", str))
+        case lastDot => Some((str.substring(0, lastDot), str.substring(lastDot + 1)))
+      }
+    }
+  }
+
   val header = templates("header").generate { doc: Document =>
     val imports = doc.headers.collect {
-      case AST.Include(_, doc) => doc.scalaNamespace
-    } filter(_ != doc.scalaNamespace) map { ns =>
-      Dictionary("namespace" -> ns)
+      case include @ AST.Include(_, doc) => (doc.scalaNamespace, include.prefix)
+    } map {
+      case (PackageName(parentPackage, subPackage), prefix) =>
+        Dictionary(
+          "parentPackage" -> parentPackage,
+          "subPackage" -> subPackage,
+          "alias" -> prefix)
     }
     Dictionary(
       "scalaNamespace" -> v(doc.scalaNamespace),
@@ -142,8 +158,8 @@ class ScalaGenerator extends Generator with StructTemplate with ServiceTemplate 
       case TI64 => "I64"
       case TString => "STRING"
       case TBinary => "STRING" // thrift's idea of "string" is based on old broken c++ semantics.
-      case StructType(_) => "STRUCT"
-      case EnumType(_) => "I32" // enums are converted to ints
+      case StructType(_, _) => "STRUCT"
+      case EnumType(_, _) => "I32" // enums are converted to ints
       case MapType(_, _, _) => "MAP"
       case SetType(_, _) => "SET"
       case ListType(_, _) => "LIST"

@@ -19,5 +19,5 @@ import org.apache.thrift.TEnum
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryInputTransport, TMemoryBuffer}
 {{#imports}}
-import {{namespace}}._
+import {{parentPackage}}.{ {{subPackage}} => _{{alias}}_ }
 {{/imports}}

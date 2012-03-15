@@ -62,16 +62,19 @@ object AST {
 
   trait NamedType extends FieldType {
     def name: String
+    protected def mkName(prefix: Option[String], base: String) = {
+      prefix.map(_ + ".").getOrElse("") + base
+    }
   }
 
   case class ReferenceType(name: String) extends NamedType
 
-  case class StructType(struct: StructLike) extends NamedType {
-    def name = struct.name
+  case class StructType(struct: StructLike, prefix: Option[String] = None) extends NamedType {
+    def name = mkName(prefix, struct.name)
   }
 
-  case class EnumType(enum: Enum) extends NamedType {
-    def name = enum.name
+  case class EnumType(enum: Enum, prefix: Option[String] = None) extends NamedType {
+    def name = mkName(prefix, enum.name)
   }
 
   sealed abstract class ContainerType(cppType: Option[String]) extends FieldType

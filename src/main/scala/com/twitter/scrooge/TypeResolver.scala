@@ -44,7 +44,11 @@ object TypeResolver {
     def apply(scope: String, name: String): T = {
       val include = includeMap.get(scope).getOrElse(throw new UndefinedSymbolException(name))
       try {
-        next(include.resolver)(name)
+        next(include.resolver)(name) match {
+          case st: StructType => st.copy(prefix = Some("_" + scope + "_")).asInstanceOf[T]
+          case et: EnumType => et.copy(prefix = Some("_" + scope + "_")).asInstanceOf[T]
+          case t => t
+        }
       } catch {
         case ex: TypeNotFoundException =>
           // don't lose context
@@ -196,7 +200,7 @@ case class TypeResolver(
       }
     case i @ Identifier(name) =>
       fieldType match {
-        case EnumType(enum) =>
+        case EnumType(enum, _) =>
           val valueName = name match {
             case QualifiedName(scope, QualifiedName(enumName, valueName)) =>
               if (fieldTypeResolver(scope, enumName) != fieldType) {
