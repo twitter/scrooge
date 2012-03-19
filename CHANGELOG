@@ -1,3 +1,9 @@
+2.5.4 - 03/19/2012
+===============================================================================
+* Addressed an issue where structs with the same name but from different
+  namespaces/packages would conflict.  Now using a package alias to
+  disambiguate.
+
 2.5.3 - 03/02/2012
 ===============================================================================
 * Minor bug fix for serviceName name class with.
