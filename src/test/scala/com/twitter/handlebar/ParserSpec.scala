@@ -109,5 +109,14 @@ class ParserSpec extends Spec {
         )), false)
       )))
     }
+
+    it("triple braces is fine") {
+      val text = "Hello, {{{foo}}}."
+      assert(Parser(text) === Document(Seq(
+        Data("Hello, {"),
+        Interpolation("foo"),
+        Data("}.")
+      )))
+    }
   }
 }
