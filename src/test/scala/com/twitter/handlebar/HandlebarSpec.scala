@@ -42,15 +42,24 @@ class HandlebarSpec extends Spec {
       assert(Handlebar.generate(template, Dictionary("money" -> v(false))) === "You are broke.")
     }
 
-    it("iterates items") {
+    describe("iterates items") {
       val cats = Seq(
         Dictionary("name" -> "Commie"),
         Dictionary("name" -> "Lola"),
         Dictionary("name" -> "Lexi")
       )
-      val template = "The cats are named: {{#cats}}'{{name}}' {{/cats}}."
-      assert(Handlebar.generate(template, Dictionary("cats" -> v(cats))) ===
-        "The cats are named: 'Commie' 'Lola' 'Lexi' .")
+
+      it("normally") {
+        val template = "The cats are named: {{#cats}}'{{name}}' {{/cats}}."
+        assert(Handlebar.generate(template, Dictionary("cats" -> v(cats))) ===
+          "The cats are named: 'Commie' 'Lola' 'Lexi' .")
+      }
+
+      it("with a joiner") {
+        val template = "The cats are named: {{#cats}}{{name}}{{/cats|, }}."
+        assert(Handlebar.generate(template, Dictionary("cats" -> v(cats))) ===
+          "The cats are named: Commie, Lola, Lexi.")
+      }
     }
 
     it("partial") {

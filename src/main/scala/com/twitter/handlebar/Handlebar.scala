@@ -39,10 +39,10 @@ object Handlebar {
     segment match {
       case Data(data) => data
       case Interpolation(name) => dictionary(name).toData
-      case Section(name, document, reversed) => {
+      case Section(name, document, reversed, joiner) => {
         dictionary(name) match {
           case ListValue(items) => {
-            if (reversed) "" else items.map { d => generate(document, d) }.mkString
+            if (reversed) "" else items.map { d => generate(document, d) }.mkString(joiner.getOrElse(""))
           }
           case other => {
             val expose = if (reversed) !other.toBoolean else other.toBoolean
