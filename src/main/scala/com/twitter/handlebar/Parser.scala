@@ -59,7 +59,7 @@ object Parser extends RegexParsers {
 
   def partial = "{{>" ~> id <~ "}}" ^^ { x => Some(Partial(x)) }
 
-  def data: Parser[Option[Segment]] = """([^{]+|\{(?!\{))+""".r ^^ { x => Some(Data(x)) }
+  def data: Parser[Option[Segment]] = """([^{]+|\{(?!\{)|\{(?=\{\{))+""".r ^^ { x => Some(Data(x)) }
 
   def id = """[A-Za-z0-9_\.]+""".r
 
