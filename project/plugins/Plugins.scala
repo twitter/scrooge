@@ -20,5 +20,5 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
   }
   override def ivyRepositories = Seq(Resolver.defaultLocal(None)) ++ repositories
 
-  val standardProject = "com.twitter" % "standard-project" % "1.0.1"
+  val standardProject = "com.twitter" % "standard-project" % "1.0.4"
 }
