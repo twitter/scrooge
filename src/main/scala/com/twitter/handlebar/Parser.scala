@@ -29,7 +29,7 @@ object AST {
   sealed trait Segment
   case class Data(data: String) extends Segment
   case class Interpolation(name: String) extends Segment
-  case class Section(name: String, document: Document, reversed: Boolean) extends Segment
+  case class Section(name: String, document: Document, reversed: Boolean, joiner: Option[String] = None) extends Segment
   case class Partial(name: String) extends Segment
 }
 
@@ -40,19 +40,19 @@ object Parser extends RegexParsers {
 
   def document: Parser[Document] = rep(directive | data) ^^ { x => Document(x.flatten) }
 
-  def directive: Parser[Option[Segment]] = interpolation | section | invertedSection | comment |
-    partial
+  def directive: Parser[Option[Segment]] = interpolation | section | comment | partial
 
   def interpolation = "{{" ~> id <~ "}}" ^^ { x => Some(Interpolation(x)) }
 
-  def section = ("{{#" ~> id <~ "}}") ~ document ~ ("{{/" ~> id <~ "}}") ^^ { case id1 ~ doc ~ id2 =>
-    if (id1 != id2) err("Expected " + id1 + ", got " + id2)
-    Some(Section(id1, doc, false))
+  def startSection = "{{" ~> """#|\^""".r ~ id <~ "}}" ^^ { case prefix ~ id =>
+    (prefix == "^", id)
   }
 
-  def invertedSection = ("{{^" ~> id <~ "}}") ~ document ~ ("{{/" ~> id <~ "}}") ^^ { case id1 ~ doc ~ id2 =>
+  def endSection = "{{/" ~> id ~ opt("|" ~> """([^}]|}(?!}))+""".r) <~ "}}"
+
+  def section = startSection ~ document ~ endSection ^^ { case (reversed, id1) ~ doc ~ (id2 ~ joiner) =>
     if (id1 != id2) err("Expected " + id1 + ", got " + id2)
-    Some(Section(id1, doc, true))
+    Some(Section(id1, doc, reversed, joiner))
   }
 
   def comment = """\{\{!(.*?)}}""".r ^^^ None
@@ -88,7 +88,7 @@ object CleanupWhitespace extends (AST.Document => AST.Document) {
         afterSectionHeader = false
         Data(data.substring(1))
       }
-      case x @ Section(_, _, _) => {
+      case x @ Section(_, _, _, _) => {
         afterSectionHeader = true
         apply(x)
       }
@@ -102,7 +102,8 @@ object CleanupWhitespace extends (AST.Document => AST.Document) {
 
   def apply(segment: Segment): Segment = {
     segment match {
-      case Section(name, document, reversed) => Section(name, apply(document), reversed)
+      case Section(name, document, reversed, joiner) =>
+        Section(name, apply(document), reversed, joiner)
       case x => x
     }
   }

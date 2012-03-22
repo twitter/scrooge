@@ -118,5 +118,15 @@ class ParserSpec extends Spec {
         Data("}.")
       )))
     }
+
+    it("section with joiner") {
+      val text = "Students: {{#students}}{{name}}{{/students|, }}"
+      assert(Parser(text) === Document(Seq(
+        Data("Students: "),
+        Section("students", Document(Seq(
+          Interpolation("name")
+        )), false, Some(", "))
+      )))
+    }
   }
 }
