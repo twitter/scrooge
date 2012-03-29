@@ -1,1 +1,1 @@
-{{name}}.decoder(_iprot)
+{{type}}.decoder(_iprot)

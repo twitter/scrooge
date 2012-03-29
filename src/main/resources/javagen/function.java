@@ -1,0 +1,1 @@
+public {{#async}}Future<{{/async}}{{typeName}}{{#async}}>{{/async}} {{name}}({{fieldParams}}){{#throws}} throws(classOf[{{typeName}}]){{/throws}}

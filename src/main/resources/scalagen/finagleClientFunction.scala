@@ -9,7 +9,15 @@ private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
   encodeRequest("{{name}}", {{localName}}_args({{argNames}})) flatMap { this.service } flatMap {
     decodeResponse(_, {{localName}}_result.decoder)
   } flatMap { result =>
-    {{resultUnwrapper}}
+    val exception =
+      {{#hasThrows}}({{#throws}}result.{{name}}{{/throws| orElse }}).map(Future.exception){{/hasThrows}}
+      {{^hasThrows}}None{{/hasThrows}}
+
+    {{#void}}Future.Done{{/void}}
+    {{^void}}
+      exception.orElse({{^void}}result.success.map(Future.value){{/void}})
+      .getOrElse(missingResult("{{name}}"))
+    {{/void}}
   } rescue {
     case ex: SourcedException =>
       this.serviceName foreach { ex.serviceName = _ }

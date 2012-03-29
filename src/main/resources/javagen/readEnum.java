@@ -1,0 +1,1 @@
+{{type}} {{name}} = {{type}}(_iprot.readI32());

@@ -16,8 +16,7 @@
 
 package com.twitter.handlebar
 
-import org.scalatest.{AbstractSuite, Spec, Suite}
-import org.scalatest.matchers.{Matcher, MatchResult, ShouldMatchers}
+import org.scalatest.Spec
 
 class HandlebarSpec extends Spec {
   import Dictionary._

@@ -1,10 +1,7 @@
 package com.twitter.scrooge
 package scalagen
 
-import java.nio.ByteBuffer
 import java.util.Arrays
-import scala.collection.mutable
-import scala.collection.JavaConversions._
 import com.twitter.finagle
 import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.util.Future
@@ -12,14 +9,10 @@ import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
-import java.security.MessageDigest
-import java.math.BigInteger
 import thrift.test._
 
 class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
-
-  type ThriftStruct = { def write(oprot: TProtocol) }
 
   val protocol = mock[TProtocol]
 

@@ -50,3 +50,7 @@ object CamelCase {
 object TitleCase {
   def apply(str: String) = CamelCase(str, true)
 }
+
+object UpperCase {
+  def apply(str: String) = str.toUpperCase
+}
