@@ -16,12 +16,11 @@
 
 package com.twitter.handlebar
 
-import org.scalatest.{AbstractSuite, Spec, Suite}
-import org.scalatest.matchers.{Matcher, MatchResult, ShouldMatchers}
+import org.scalatest._
 
 import Dictionary._
 
-class DictionarySpec extends Spec {
+class DictionarySpec extends FunSpec {
   describe("Dictionary") {
     it("can be empty") {
       val d = Dictionary()

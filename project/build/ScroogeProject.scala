@@ -11,7 +11,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   val finagleVersion = "1.11.0"
   val utilVersion = "1.12.13"
 
-  val libThrift = "thrift" % "libthrift" % "0.5.0"
+  val libThrift = "org.apache.thrift" % "libthrift" % "0.8.0"
   val scopt = "com.github.scopt" %% "scopt" % "1.1.3"
   val util_core = "com.twitter" % "util-core_2.9.1" % utilVersion
 
