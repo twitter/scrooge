@@ -16,12 +16,11 @@
 
 package com.twitter.handlebar
 
-import org.scalatest.{AbstractSuite, Spec, Suite}
-import org.scalatest.matchers.{Matcher, MatchResult, ShouldMatchers}
+import org.scalatest._
 
 import AST._
 
-class ParserSpec extends Spec {
+class ParserSpec extends FunSpec {
   describe("Parser") {
     it("all text") {
       assert(Parser("hello\nthere") === Document(Seq(Data("hello\nthere"))))
