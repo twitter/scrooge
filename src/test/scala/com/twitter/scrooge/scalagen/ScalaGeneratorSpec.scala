@@ -3,10 +3,8 @@ package scalagen
 
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
-import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.Specification
-import scala.collection.mutable
 import thrift.test._
 
 class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {

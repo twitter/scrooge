@@ -19,6 +19,8 @@ package com.twitter.scrooge
 import java.io.{File, FileWriter}
 import java.util.Properties
 import scala.collection.mutable
+import scalagen.ScalaGenerator
+import javagen.JavaGenerator
 import scopt.OptionParser
 
 object Main {
@@ -26,10 +28,11 @@ object Main {
   val importPaths = new mutable.ListBuffer[String]
   val thriftFiles = new mutable.ListBuffer[String]
   var outputFilename: Option[String] = None
-  val flags = new mutable.HashSet[scalagen.ScalaServiceOption]
+  val flags = new mutable.HashSet[ServiceOption]
   val namespaceMappings = new mutable.HashMap[String, String]
   var verbose = false
   var skipUnchanged = false
+  var generator: Generator = new ScalaGenerator
 
   def main(args: Array[String]) {
     val buildProperties = new Properties
@@ -64,13 +67,22 @@ object Main {
         ()
       })
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
-
-      opt("finagle", "generate finagle classes", {
-        flags += scalagen.WithFinagleService
-        flags += scalagen.WithFinagleClient
+      opt("l", "language", "name of language to generate code in ('java' and 'scala' are currently supported)", { languageString: String =>
+        languageString match {
+          case "scala" =>
+            generator = new ScalaGenerator
+          case "java" =>
+            generator = new JavaGenerator
+        }
         ()
       })
-      opt("ostrich", "generate ostrich server interface", { flags += scalagen.WithOstrichServer; () })
+
+      opt("finagle", "generate finagle classes", {
+        flags += WithFinagleService
+        flags += WithFinagleClient
+        ()
+      })
+      opt("ostrich", "generate ostrich server interface", { flags += WithOstrichServer; () })
       arglist("<files...>", "thrift files to compile", { thriftFiles += _ })
     }
     if (!parser.parse(args)) {
@@ -78,24 +90,19 @@ object Main {
     }
 
     for (inputFile <- thriftFiles) {
-      val inputFileDir = new File(inputFile).getParent()
+      val inputFileDir = new File(inputFile).getParent
       val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
       val parser = new ScroogeParser(importer)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
-      val outputFile = outputFilename map { new File(_) } getOrElse {
-        val packageDir = new File(destFolder, doc0.scalaNamespace.replace('.', File.separatorChar))
-        val baseName = AST.stripExtension(new File(inputFile).getName())
-        new File(packageDir, baseName + ".scala")
-      }
+      val outputFile = outputFilename map { new File(_) } getOrElse generator.outputFile(destFolder, doc0, inputFile)
       val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
       if (!(skipUnchanged && isUnchanged(outputFile, lastModified))) {
         if (verbose) println("+ Compiling %s".format(inputFile))
         val doc1 = TypeResolver().resolve(doc0).document
-        val gen = new scalagen.ScalaGenerator()
-        val content = gen(doc1, flags.toSet)
+        val content = generator(doc1, flags.toSet)
 
-        Option(outputFile.getParentFile()).map { _.mkdirs() }
+        Option(outputFile.getParentFile).foreach { _.mkdirs() }
         val out = new FileWriter(outputFile)
         out.write(content)
         out.close()

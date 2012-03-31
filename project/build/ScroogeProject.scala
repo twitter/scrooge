@@ -44,7 +44,7 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
   override lazy val publishLocal = publishZipAction && publishLocalAction
   override lazy val publish = publishZipAction && publishAction
 
-  lazy val generateTestThrift =
+  lazy val generateTestScalaThrift =
     runTask(
       Some("com.twitter.scrooge.Main"),
       runClasspath,
@@ -52,12 +52,27 @@ class ScroogeProject(info: ProjectInfo) extends StandardServiceProject(info)
         "--finagle",
         "--ostrich",
         "-d", "target/gen-scala",
+        "-l", "scala",
         "src/test/resources/test.thrift"
       )
     ) dependsOn(compile, copyResources)
 
+  lazy val generateTestJavaThrift =
+    runTask(
+      Some("com.twitter.scrooge.Main"),
+      runClasspath,
+      Array(
+        "--finagle",
+        "--ostrich",
+        "-d", "target/gen-java",
+        "-l", "java",
+        "src/test/resources/test.thrift"
+      )
+    ) dependsOn(compile, copyResources)
+
+  lazy val generateTestThrift = generateTestScalaThrift && generateTestJavaThrift
   def generateTestThriftAction = generateTestThrift
 
-  override def testSourceRoots = super.testSourceRoots +++ ("target" / "gen-scala" ##)
+  override def testSourceRoots = super.testSourceRoots +++ ("target" / "gen-scala" ##) // +++ ("target" / "gen-java" ##)
   override def testCompileAction = super.testCompileAction dependsOn generateTestThrift
 }

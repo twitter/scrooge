@@ -1,4 +1,4 @@
 {{#throws}}
-@throws(classOf[{{scalaType}}])
+@throws(classOf[{{typeName}}])
 {{/throws}}
-def {{name}}({{fieldParams}}): {{scalaType}}
+def {{name}}({{fieldParams}}): {{#async}}Future[{{/async}}{{typeName}}{{#async}}]{{/async}}

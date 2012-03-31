@@ -16,10 +16,9 @@
 
 package com.twitter.scrooge
 
-import java.io.File
-
 object AST {
-  sealed abstract class Requiredness {
+  sealed abstract class Node
+  sealed abstract class Requiredness extends Node {
     def isOptional = this eq Requiredness.Optional
     def isRequired = this eq Requiredness.Required
     def isDefault = this eq Requiredness.Default
@@ -30,9 +29,7 @@ object AST {
     case object Default extends Requiredness
   }
 
-  sealed abstract class Constant {
-    def camelize = this
-  }
+  sealed abstract class Constant extends Node
   case class BoolConstant(value: Boolean) extends Constant
   case class IntConstant(value: Long) extends Constant
   case class DoubleConstant(value: Double) extends Constant
@@ -40,15 +37,11 @@ object AST {
   case class SetConstant(elems: Set[Constant]) extends Constant
   case class MapConstant(elems: Map[Constant, Constant]) extends Constant
   case class StringConstant(value: String) extends Constant
-  case class Identifier(name: String) extends Constant {
-    override lazy val camelize = copy(name = TitleCase(name))
-  }
-  case class EnumValueConstant(enum: Enum, value: EnumValue) extends Constant {
-    override lazy val camelize = copy(enum = enum.camelize, value = value.camelize)
-  }
+  case class Identifier(name: String) extends Constant
+  case class EnumValueConstant(enum: Enum, value: EnumValue) extends Constant
   case object NullConstant extends Constant
 
-  sealed trait FunctionType
+  sealed trait FunctionType extends Node
   case object Void extends FunctionType
   sealed trait FieldType extends FunctionType
   sealed trait BaseType extends FieldType
@@ -89,9 +82,7 @@ object AST {
     `type`: FieldType,
     default: Option[Constant] = None,
     requiredness: Requiredness = Requiredness.Default)
-  {
-    lazy val camelize = copy(name = CamelCase(name), default = default.map(_.camelize))
-  }
+  extends Node
 
   case class Function(
     name: String,
@@ -100,12 +91,7 @@ object AST {
     args: Seq[Field],
     oneway: Boolean,
     throws: Seq[Field])
-  {
-    lazy val camelize = copy(
-      localName = CamelCase(localName),
-      args = args.map(_.camelize),
-      throws = throws.map(_.camelize))
-  }
+  extends Node
 
   object Function {
     def apply(
@@ -119,24 +105,17 @@ object AST {
     }
   }
 
-  sealed abstract class Definition {
+  sealed abstract class Definition extends Node {
     val name: String
-    def camelize: Definition = this
   }
 
-  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition {
-    override lazy val camelize = copy(value = value.camelize)
-  }
+  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition
 
   case class Typedef(name: String, `type`: FieldType) extends Definition
 
-  case class Enum(name: String, values: Seq[EnumValue]) extends Definition {
-    override lazy val camelize = copy(values = values.map(_.camelize))
-  }
+  case class Enum(name: String, values: Seq[EnumValue]) extends Definition
 
-  case class EnumValue(name: String, value: Int) {
-    lazy val camelize = copy(name = TitleCase(name))
-  }
+  case class EnumValue(name: String, value: Int) extends Node
 
   case class Senum(name: String, values: Seq[String]) extends Definition
 
@@ -144,21 +123,13 @@ object AST {
     val fields: Seq[Field]
   }
 
-  case class Struct(name: String, fields: Seq[Field]) extends StructLike {
-    override lazy val camelize = copy(fields = fields.map(_.camelize))
-  }
+  case class Struct(name: String, fields: Seq[Field]) extends StructLike
 
-  case class FunctionArgs(name: String, fields: Seq[Field]) extends StructLike {
-    override lazy val camelize = copy(fields = fields.map(_.camelize))
-  }
+  case class FunctionArgs(name: String, fields: Seq[Field]) extends StructLike
 
-  case class FunctionResult(name: String, fields: Seq[Field]) extends StructLike {
-    override lazy val camelize = copy(fields = fields.map(_.camelize))
-  }
+  case class FunctionResult(name: String, fields: Seq[Field]) extends StructLike
 
-  case class Exception_(name: String, fields: Seq[Field]) extends StructLike {
-    override lazy val camelize = copy(fields = fields.map(_.camelize))
-  }
+  case class Exception_(name: String, fields: Seq[Field]) extends StructLike
 
   object ServiceParent {
     def apply(service: Service): ServiceParent = ServiceParent(service.name, Some(service))
@@ -170,11 +141,8 @@ object AST {
     name: String,
     parent: Option[ServiceParent],
     functions: Seq[Function]) extends Definition
-  {
-    override lazy val camelize = copy(functions = functions.map(_.camelize))
-  }
 
-  sealed abstract class Header
+  sealed abstract class Header extends Node
 
   case class Include(filename: String, document: Document) extends Header {
     lazy val prefix = stripExtension(filename)
@@ -184,14 +152,8 @@ object AST {
 
   case class Namespace(scope: String, name: String) extends Header
 
-  case class Document(headers: Seq[Header], defs: Seq[Definition]) {
-    def camelize = copy(defs = defs.map(_.camelize))
-
-    lazy val scalaNamespace = {
-      val scala = headers.collect { case Namespace("scala", x) => x }.headOption
-      val java = headers.collect { case Namespace("java", x) => x }.headOption
-      (scala orElse java).getOrElse("thrift")
-    }
+  case class Document(headers: Seq[Header], defs: Seq[Definition]) extends Node {
+    def namespace(language: String) = headers.collect { case Namespace(l, x) if l == language => x }.headOption
 
     def mapNamespaces(namespaceMap: Map[String,String]): Document = {
       copy(

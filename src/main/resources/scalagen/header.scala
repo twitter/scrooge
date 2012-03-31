@@ -3,7 +3,7 @@
  * Edit this; I dare you.
  */
 
-package {{scalaNamespace}}
+package {{namespace}}
 
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer

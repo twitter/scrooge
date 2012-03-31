@@ -5,7 +5,6 @@ import com.twitter.finagle.thrift.ThriftClientRequest
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
-import org.specs.Specification
 import org.specs.matcher.Matcher
 import org.specs.mock.JMocker
 

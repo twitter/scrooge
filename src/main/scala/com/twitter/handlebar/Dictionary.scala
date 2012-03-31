@@ -17,6 +17,7 @@
 package com.twitter.handlebar
 
 import scala.collection.mutable
+import com.twitter.handlebar.AST.Document
 
 object Dictionary {
   sealed trait Value {
@@ -60,14 +61,7 @@ object Dictionary {
   implicit def v(data: Seq[Dictionary]): Value = ListValue(data)
   implicit def v(data: Handlebar): Value = PartialValue(data)
 
-  def apply(values: (String, Value)*) = {
-    val dictionary = new Dictionary()
-    dictionary.map ++= values.toMap mapValues {
-      case ListValue(data) => ListValue(data map { _.copy(parent = Some(dictionary)) })
-      case x => x
-    }
-    dictionary
-  }
+  def apply(values: (String, Value)*) = new Dictionary ++= (values: _*)
 }
 
 case class Dictionary private(
@@ -98,5 +92,13 @@ case class Dictionary private(
 
   def update(key: String, data: Handlebar) {
     map(key) = PartialValue(data)
+  }
+
+  def ++=(values: (String, Value)*) = {
+    map ++= values.toMap mapValues {
+      case ListValue(data) => ListValue(data map { _.copy(parent = Some(this)) })
+      case x => x
+    }
+    this
   }
 }

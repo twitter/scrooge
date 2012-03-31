@@ -16,13 +16,24 @@
 
 package com.twitter.scrooge
 
-import org.apache.thrift.protocol.TProtocol
+import java.io.File
+import com.twitter.scrooge.AST.{Service, Document}
+
+abstract sealed class ServiceOption
+
+case object WithFinagleClient extends ServiceOption
+case object WithFinagleService extends ServiceOption
+case object WithOstrichServer extends ServiceOption
+case class JavaService(service: Service, options: Set[ServiceOption])
 
 /**
  * Useful common code for generating templated code out of the thrift AST.
  */
 trait Generator {
   class InternalError(description: String) extends Exception(description)
+
+  def outputFile(destFolder: String, doc0: Document, inputFile: String): File
+  def apply(_doc: Document, serviceOptions: Set[ServiceOption]): String
 
   implicit def string2indent(underlying: String) = new Object {
     def indent(level: Int = 1): String = underlying.split("\\n").map { ("  " * level) + _ }.mkString("\n")

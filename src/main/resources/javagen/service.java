@@ -1,15 +1,15 @@
 // ----- {{name}}
 
-object {{name}} {
-  trait Iface {{syncExtends}}{
+public class {{name}} {
+  public interface Iface {{syncExtends}}{
 {{#syncFunctions}}
-    {{function}}
+    {{function}};
 {{/syncFunctions}}
   }
 
-  trait FutureIface {{asyncExtends}}{
+  interface FutureIface {{asyncExtends}}{
 {{#asyncFunctions}}
-    {{function}}
+    {{function}};
 {{/asyncFunctions}}
   }
 

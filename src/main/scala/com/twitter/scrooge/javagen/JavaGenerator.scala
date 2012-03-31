@@ -1,3 +1,6 @@
+package com.twitter.scrooge
+package javagen
+
 /*
  * Copyright 2011 Twitter, Inc.
  *
@@ -14,18 +17,15 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
-package scalagen
-
 import AST._
 import javalike.JavaLike
 
-class ScalaGenerator extends JavaLike {
-  val fileExtension = ".scala"
-  val templateDirName = "/scalagen/"
+class JavaGenerator extends JavaLike {
+  val fileExtension = ".java"
+  val templateDirName = "/javagen/"
 
   def namespace(doc: Document) =
-    doc.namespace("scala") orElse doc.namespace("java") getOrElse("thrift")
+    doc.namespace("java") getOrElse("thrift")
 
   def normalizeCase[N <: AST.Node](node: N) = {
     (node match {
@@ -49,7 +49,7 @@ class ScalaGenerator extends JavaLike {
       case e: Enum =>
         e.copy(values = e.values.map(normalizeCase(_)))
       case e: EnumValue =>
-        e.copy(name = TitleCase(e.name))
+        e.copy(name = UpperCase(e.name))
       case s: Struct =>
         s.copy(fields = s.fields.map(normalizeCase(_)))
       case f: FunctionArgs =>
@@ -65,28 +65,20 @@ class ScalaGenerator extends JavaLike {
   }
 
   def listValue(list: ListConstant, mutable: Boolean = false): String = {
-    (if (mutable) "mutable.Buffer(" else "Seq(") +
+    (if (mutable) "Utilities.makeList(" else "Utilities.makeList(") +
       list.elems.map(constantValue(_)).mkString(", ") + ")"
   }
 
   def setValue(set: SetConstant, mutable: Boolean = false): String = {
-    (if (mutable) "mutable.Set(" else "Set(") +
+    (if (mutable) "Utilities.makeSet(" else "Utilities.makeSet(") +
       set.elems.map(constantValue(_)).mkString(", ") + ")"
   }
 
   def mapValue(map: MapConstant, mutable: Boolean = false): String = {
-    (if (mutable) "mutable.Map(" else "Map(") + (map.elems.map {
+    (if (mutable) "Utilities.makeMap(" else "Utilities.makeMap(") + (map.elems.map {
       case (k, v) =>
-        constantValue(k) + " -> " + constantValue(v)
-    } mkString(", ")) + ")"
-  }
-
-  override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
-    `type` match {
-      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
-        typeName(`type`, mutable) + "()"
-      case _ => super.defaultValue(`type`, mutable)
-    }
+        "Utilities.makeTuple(" + constantValue(k) + ", " + constantValue(v) + ")"
+    } mkString (", ")) + ")"
   }
 
   /**
@@ -121,11 +113,19 @@ class ScalaGenerator extends JavaLike {
    * Generates a prefix and suffix to wrap around a field expression that will
    * convert the value to a mutable equivalent.
    */
-  def toMutable(t: FieldType): (String, String)  = {
+  def toMutable(t: FieldType): (String, String) = {
     t match {
       case MapType(_, _, _) | SetType(_, _) => (typeName(t, true) + "() ++= ", "")
       case ListType(_, _) => ("", ".toBuffer")
       case _ => ("", "")
+    }
+  }
+
+  override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
+    `type` match {
+      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
+        "new " + typeName(`type`, mutable) + "()"
+      case _ => super.defaultValue(`type`, mutable)
     }
   }
 
@@ -155,12 +155,9 @@ class ScalaGenerator extends JavaLike {
       case TDouble => "Double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case MapType(k, v, _) =>
-        (if (mutable) "mutable." else "") + "Map[" + typeName(k) + ", " + typeName(v) + "]"
-      case SetType(x, _) =>
-        (if (mutable) "mutable." else "") + "Set[" + typeName(x) + "]"
-      case ListType(x, _) =>
-        (if (mutable) "mutable.Buffer" else "Seq") + "[" + typeName(x) + "]"
+      case MapType(k, v, _) => "Map<" + typeName(k) + ", " + typeName(v) + ">"
+      case SetType(x, _) => "Set<" + typeName(x) + ">"
+      case ListType(x, _) => "List<" + typeName(x) + ">"
       case n: NamedType => n.name
     }
   }
@@ -168,18 +165,21 @@ class ScalaGenerator extends JavaLike {
   def fieldTypeName(f: Field, mutable: Boolean = false): String = {
     val baseType = typeName(f.`type`, mutable)
     if (f.requiredness.isOptional) {
-      "Option[" + baseType + "]"
+      "Utilities.Cell<" + baseType + ">"
     } else {
       baseType
     }
   }
 
   def fieldParams(fields: Seq[Field], asVal: Boolean = false): String = {
-    fields.map { f =>
-      val valPrefix = if (asVal) "val " else ""
-      val nameAndType = "`" + f.name + "`: " + fieldTypeName(f)
-      val defaultValue = defaultFieldValue(f) map { " = " + _ }
-      valPrefix + nameAndType + defaultValue.getOrElse("")
+    fields.map {
+      f =>
+        val valPrefix = if (asVal) "val " else ""
+        val nameAndType = fieldTypeName(f) + " " + f.name
+        val defaultValue = defaultFieldValue(f) map {
+          " = " + _
+        }
+        valPrefix + nameAndType + defaultValue.getOrElse("")
     }.mkString(", ")
   }
 }

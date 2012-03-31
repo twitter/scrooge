@@ -1,1 +1,1 @@
-{{name}}(_iprot.readI32())
+{{type}}(_iprot.readI32())

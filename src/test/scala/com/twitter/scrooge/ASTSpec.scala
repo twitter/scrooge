@@ -6,19 +6,14 @@ object ASTSpec extends Specification {
   import AST._
 
   "Document" should {
-    "generate correct scalaNamespace from java" in {
+    "generate correct namespace from java" in {
       val doc = Document(Seq(Namespace("java", "com.twitter.oatmeal")), Nil)
-      doc.scalaNamespace mustEqual "com.twitter.oatmeal"
+      doc.namespace("java") mustEqual Some("com.twitter.oatmeal")
     }
 
-    "generate correct scalaNamespace from scala" in {
-      val doc = Document(Seq(Namespace("scala", "com.twitter.oatmeal")), Nil)
-      doc.scalaNamespace mustEqual "com.twitter.oatmeal"
-    }
-
-    "generate default scalaNamespace" in {
-      val doc = Document(Nil, Nil)
-      doc.scalaNamespace mustEqual "thrift"
+    "generate correct namespace from scala" in {
+      val doc = Document(Seq(Namespace("warble", "com.twitter.oatmeal")), Nil)
+      doc.namespace("garble") mustEqual None
     }
 
     "map namespaces" in {
@@ -45,22 +40,22 @@ object ASTSpec extends Specification {
     }
   }
 
-  "Identifier" should {
-    "camelize to title-case" in {
-      Identifier("HELLO_WORLD").camelize mustEqual Identifier("HelloWorld")
-    }
-  }
-
-  "EnumValue" should {
-    "camelize to title-case" in {
-      EnumValue("HELLO_WORLD", 3).camelize mustEqual EnumValue("HelloWorld", 3)
-    }
-  }
-
-  "Enum" should {
-    "camelize values" in {
-      Enum("Greeting", Seq(EnumValue("HELLO_WORLD", 3))).camelize mustEqual
-        Enum("Greeting", Seq(EnumValue("HelloWorld", 3)))
-    }
-  }
+//  "Identifier" should {
+//    "camelize to title-case" in {
+//      Identifier("HELLO_WORLD").camelize mustEqual Identifier("HelloWorld")
+//    }
+//  }
+//
+//  "EnumValue" should {
+//    "camelize to title-case" in {
+//      EnumValue("HELLO_WORLD", 3).camelize mustEqual EnumValue("HelloWorld", 3)
+//    }
+//  }
+//
+//  "Enum" should {
+//    "camelize values" in {
+//      Enum("Greeting", Seq(EnumValue("HELLO_WORLD", 3))).camelize mustEqual
+//        Enum("Greeting", Seq(EnumValue("HelloWorld", 3)))
+//    }
+//  }
 }
