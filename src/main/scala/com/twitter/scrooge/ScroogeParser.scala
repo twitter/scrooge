@@ -20,7 +20,7 @@ import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
 import scala.util.parsing.input.{Positional, StreamReader}
-import java.io.{FileInputStream, InputStreamReader}
+import java.io.{FileInputStream, InputStreamReader, StringReader}
 
 class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
   def this(reason: String) = this(reason, null)
@@ -224,7 +224,6 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   def namespaceScope = "*" | (identifier ^^ { id => id.name })
 
   // rawr.
-
   def parse[T](in: StreamReader, parser: Parser[T]): T = {
     parseAll(parser, in) match {
       case Success(result, _) => result
@@ -232,6 +231,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
       case x @ Error(msg, _) => throw new ParseException(x.toString)
     }
   }
+  def parse[T](in: String, parser: Parser[T]): T = parse(StreamReader(new StringReader(in)), parser)
 
   def parseFile(filename: String) = parse(StreamReader(new InputStreamReader(new FileInputStream((filename)))), document)
 }

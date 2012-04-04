@@ -20,6 +20,7 @@ import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
 import scala.util.parsing.input.StreamReader
+import java.io.StringReader
 
 class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
   def this(reason: String) = this(reason, null)
@@ -74,6 +75,7 @@ object Parser extends RegexParsers {
       }
     }
   }
+  def apply(in: String): Document = apply(StreamReader(new StringReader(in)))
 }
 
 /**
