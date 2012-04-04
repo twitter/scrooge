@@ -19,6 +19,8 @@ package com.twitter.scrooge
 import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
+import scala.util.parsing.input.{Positional, StreamReader}
+import java.io.{FileInputStream, InputStreamReader}
 
 class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
   def this(reason: String) = this(reason, null)
@@ -81,21 +83,21 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // types
 
-  def fieldType: Parser[FieldType] = baseType | containerType | referenceType
+  def fieldType: Parser[FieldType] = positioned(baseType) | positioned(containerType) | positioned(referenceType)
 
   def referenceType = identifier ^^ { x => ReferenceType(x.name) }
 
   def definitionType = baseType | containerType
 
   def baseType: Parser[BaseType] = (
-    "bool" ^^^ TBool |
-    "byte" ^^^ TByte |
-    "i16" ^^^ TI16 |
-    "i32" ^^^ TI32 |
-    "i64" ^^^ TI64 |
-    "double" ^^^ TDouble |
-    "string" ^^^ TString |
-    "binary" ^^^ TBinary
+    positioned("bool" ^^^ TBool) |
+    positioned("byte" ^^^ TByte) |
+    positioned("i16" ^^^ TI16) |
+    positioned("i32" ^^^ TI32) |
+    positioned("i64" ^^^ TI64) |
+    positioned("double" ^^^ TDouble) |
+    positioned("string" ^^^ TString) |
+    positioned("binary" ^^^ TBinary)
   )
 
   def containerType: Parser[ContainerType] = mapType | setType | listType
@@ -223,7 +225,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // rawr.
 
-  def parse[T](in: String, parser: Parser[T]): T = {
+  def parse[T](in: StreamReader, parser: Parser[T]): T = {
     parseAll(parser, in) match {
       case Success(result, _) => result
       case x @ Failure(msg, z) => throw new ParseException(x.toString)
@@ -231,5 +233,5 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     }
   }
 
-  def parseFile(filename: String) = parse(importer(filename), document)
+  def parseFile(filename: String) = parse(StreamReader(new InputStreamReader(new FileInputStream((filename)))), document)
 }

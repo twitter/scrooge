@@ -20,6 +20,8 @@ import com.twitter.conversions.string._
 import com.twitter.handlebar.Handlebar
 import scala.collection.mutable.HashMap
 import scala.io.Source
+import scala.util.parsing.input.StreamReader
+import java.io.{FileInputStream, InputStreamReader}
 
 class HandlebarLoader(prefix: String, suffix: String = ".scala") {
   private val cache = new HashMap[String, Handlebar]
@@ -32,7 +34,7 @@ class HandlebarLoader(prefix: String, suffix: String = ".scala") {
           throw new NoSuchElementException("template not found: " + fullName)
         }
         case inputStream => {
-          new Handlebar(Source.fromInputStream(inputStream).getLines().mkString("\n"))
+          new Handlebar(StreamReader(new InputStreamReader(inputStream)))
         }
       }
     )

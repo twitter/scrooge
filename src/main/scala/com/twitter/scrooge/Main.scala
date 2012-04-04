@@ -95,6 +95,8 @@ object Main {
       val parser = new ScroogeParser(importer)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
+      println(doc0) // FIXME: remove this after debugging AST positional error output
+
       val outputFile = outputFilename map { new File(_) } getOrElse generator.outputFile(destFolder, doc0, inputFile)
       val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
       if (!(skipUnchanged && isUnchanged(outputFile, lastModified))) {

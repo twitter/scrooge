@@ -16,6 +16,8 @@
 
 package com.twitter.handlebar
 
+import scala.util.parsing.input.StreamReader
+
 case class Unpacker[T](
   document: AST.Document,
   unpacker: T => Dictionary,
@@ -28,7 +30,7 @@ object Handlebar {
   import AST._
   import Dictionary._
 
-  def generate(template: String, dictionary: Dictionary): String =
+  def generate(template: StreamReader, dictionary: Dictionary): String =
     generate(Parser(template), dictionary)
 
   def generate(document: Document, dictionary: Dictionary): String = {
@@ -61,7 +63,7 @@ object Handlebar {
 }
 
 case class Handlebar(document: AST.Document) {
-  def this(template: String) = this(Parser(template))
+  def this(template: StreamReader) = this(Parser(template))
 
   /**
    * Create a string out of a template, using a dictionary to fill in the blanks.
