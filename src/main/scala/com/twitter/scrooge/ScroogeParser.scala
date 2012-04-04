@@ -228,7 +228,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   def parse[T](in: StreamReader, parser: Parser[T]): T = {
     parseAll(parser, in) match {
       case Success(result, _) => result
-      case x @ Failure(msg, z) => throw new ParseException(x.toString)
+      case x @ Failure(msg, _) => throw new ParseException(x.toString)
       case x @ Error(msg, _) => throw new ParseException(x.toString)
     }
   }
