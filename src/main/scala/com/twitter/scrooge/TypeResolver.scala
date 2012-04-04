@@ -18,10 +18,17 @@ package com.twitter.scrooge
 
 import AST._
 import scala.collection.mutable.ArrayBuffer
+import scala.util.parsing.input.{Position, NoPosition}
 
-class TypeNotFoundException(name: String) extends Exception(name)
-class UndefinedSymbolException(name: String) extends Exception(name)
-class TypeMismatchException(name: String) extends Exception(name)
+class ExceptionAt(name: String) extends Exception(name) {
+  var pos: Position = NoPosition
+  // com.twitter.scrooge.ParseException: [64.3] failure: string matching regex `\z' expected but `C' found
+  override def toString: String = super.toString + ": " + pos
+}
+
+class TypeNotFoundException(name: String) extends ExceptionAt(name)
+class UndefinedSymbolException(name: String) extends ExceptionAt(name)
+class TypeMismatchException(name: String) extends ExceptionAt(name)
 
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
@@ -179,7 +186,17 @@ case class TypeResolver(
   }
 
   def apply(t: FieldType): FieldType = t match {
-    case ReferenceType(name) => apply(name)
+    case ReferenceType(name) => {
+      try {
+        apply(name)
+      } catch {
+        // add the node that threw this error (contains the positional information)
+        case ex: ExceptionAt => {
+          ex.pos = t.pos
+          throw ex
+        }
+      }
+    }
     case m @ MapType(k, v, _) => m.copy(keyType = apply(k), valueType = apply(v))
     case s @ SetType(e, _) => s.copy(eltType = apply(e))
     case l @ ListType(e, _) => l.copy(eltType = apply(e))
