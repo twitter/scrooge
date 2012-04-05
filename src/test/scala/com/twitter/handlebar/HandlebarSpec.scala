@@ -61,16 +61,36 @@ class HandlebarSpec extends FunSpec {
       }
     }
 
-    it("partial") {
+    describe("partial") {
       val cities = Seq(
         Dictionary("city" -> v("New York"), "state" -> v("NY")),
         Dictionary("city" -> v("Atlanta"), "state" -> v("GA"))
       )
-      val cityTemplate = new Handlebar("{{city}}, {{state}}")
+      val cityTemplate = new Handlebar("{{city}},\n{{state}}")
       val dictionary = Dictionary("cities" -> v(cities), "description" -> v(cityTemplate))
-      val template = "We have these cities:\n{{#cities}}\n{{>description}}\n{{/cities}}\n"
-      assert(Handlebar.generate(template, dictionary) ===
-        "We have these cities:\nNew York, NY\nAtlanta, GA\n")
+
+      it("works") {
+        val template = "We have these cities:\n{{#cities}}\n{{>description}}\n{{/cities}}\n"
+        assert(Handlebar.generate(template, dictionary) ===
+          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n")
+      }
+
+      it("indents") {
+        val template = "We have these cities:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n"
+        assert(Handlebar.generate(template, dictionary) ===
+          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n")
+      }
+
+      it("indents nestedly") {
+        val template = "We have these cities:\n  {{>header}}\n"
+        val headerTemplate = new Handlebar("Header:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n")
+        val dictionary = Dictionary(
+          "cities" -> v(cities),
+          "header" -> v(headerTemplate),
+          "description" -> v(cityTemplate))
+        assert(Handlebar.generate(template, dictionary) ===
+          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n")
+      }
     }
 
     it("nests") {

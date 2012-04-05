@@ -4,7 +4,7 @@ private Counter _{{name}}SuccessCounter = _{{name}}Scope.counter("success");
 private Counter _{{name}}FailuresCounter = _{{name}}Scope.counter("failures");
 private Counter _{{name}}FailuresScope = _{{name}}Scope.scope("failures");
 
-{{functionDecl}} {
+{{#headerInfo}}{{>header}}{{/headerInfo}} {
   _{{name}}RequestsCounter.incr();
   encodeRequest("deliver", deliver_args(where)).flatMap(new Function<ThriftStruct, Future<Array<Byte>>>() {
     public Future<Array<Byte>> apply(ThriftStruct request) {

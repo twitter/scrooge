@@ -28,36 +28,84 @@ object Handlebar {
   import AST._
   import Dictionary._
 
-  def generate(template: String, dictionary: Dictionary): String =
-    generate(Parser(template), dictionary)
+  private[this] val Space = " "
+  private[this] val OnlySpaces = """^\s+$""".r
 
-  def generate(document: Document, dictionary: Dictionary): String = {
-    document.segments.map { segment => process(segment, dictionary) }.mkString
+  def generate(template: String, dictionary: Dictionary): String =
+    generate(0, Parser(template), dictionary)
+
+  def generate(document: Document, dictionary: Dictionary): String =
+    generate(0, document, dictionary)
+
+  private[this] def generate(indentLevel0: Int, document: Document, dictionary: Dictionary): String = {
+    var indentLevel = indentLevel0
+    document.segments.map { segment =>
+      val (nextIndentLevel, processed) = process(indentLevel, segment, dictionary)
+      indentLevel = indentLevel0 + nextIndentLevel
+      processed
+    }.mkString
   }
 
-  private[this] def process(segment: Segment, dictionary: Dictionary): String = {
-    segment match {
-      case Data(data) => data
+  private[this] def process(indentLevel: Int, segment: Segment, dictionary: Dictionary): (Int, String) = {
+    var nextIndentLevel = 0
+    val processed = segment match {
+      case Data(data) => {
+        nextIndentLevel = {
+          val lastLine = data.split("\n").lastOption.getOrElse("")
+          if (OnlySpaces.findFirstIn(lastLine).isDefined) {
+            lastLine.length
+          } else {
+            0
+          }
+        }
+        data
+      }
       case Interpolation(name) => dictionary(name).toData
       case Section(name, document, reversed, joiner) => {
         dictionary(name) match {
           case ListValue(items) => {
-            if (reversed) "" else items.map { d => generate(document, d) }.mkString(joiner.getOrElse(""))
+            if (reversed) {
+              ""
+            } else {
+              items.map { d => generate(indentLevel, document, d) }.mkString(joiner.getOrElse(""))
+            }
           }
           case other => {
             val expose = if (reversed) !other.toBoolean else other.toBoolean
-            if (expose) generate(document, dictionary) else ""
+            if (expose) {
+              generate(indentLevel, document, dictionary)
+            } else {
+              ""
+            }
           }
         }
       }
       case Partial(name) => {
         dictionary(name) match {
-          case PartialValue(handlebar) => handlebar.generate(dictionary)
+          case PartialValue(handlebar) => {
+            val generated = handlebar.generate(dictionary)
+            if (indentLevel > 0) {
+              val indentation = Space * indentLevel
+              val indented =
+                generated.split("\n").zipWithIndex.map { case (line, i) =>
+                  if (i > 0 && !brittspace(line)) {
+                    indentation + line
+                  } else {
+                    line
+                  }
+                } mkString("\n")
+              indented
+            } else
+              generated
+          }
           case other => ""
         }
       }
     }
+    (nextIndentLevel, processed)
   }
+
+  private[this] def brittspace(line: String) = OnlySpaces.findFirstIn(line).isDefined
 }
 
 case class Handlebar(document: AST.Document) {

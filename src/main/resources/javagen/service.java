@@ -1,20 +1,24 @@
-// ----- {{name}}
-
 public class {{name}} {
   public interface Iface {{syncExtends}}{
 {{#syncFunctions}}
-    {{function}};
+    {{>function}};
 {{/syncFunctions}}
   }
 
-  interface FutureIface {{asyncExtends}}{
+  public interface FutureIface {{asyncExtends}}{
 {{#asyncFunctions}}
-    {{function}};
+    {{>function}};
 {{/asyncFunctions}}
   }
 
 {{functionStructs}}
-{{finagleClient}}
-{{finagleService}}
-{{ostrichServer}}
+{{#finagleClients}}
+  {{>finagleClient}}
+{{/finagleClients}}
+{{#finagleServices}}
+  {{>finagleService}}
+{{/finagleServices}}
+{{#ostrichServers}}
+  {{>ostrichServer}}
+{{/ostrichServers}}
 }

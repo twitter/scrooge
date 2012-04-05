@@ -4,7 +4,7 @@ private[this] val _{{name}}SuccessCounter = _{{name}}Scope.counter("success")
 private[this] val _{{name}}FailuresCounter = _{{name}}Scope.counter("failures")
 private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
 
-{{functionDecl}} = {
+{{#headerInfo}}{{>header}}{{/headerInfo}} = {
   _{{name}}RequestsCounter.incr()
   encodeRequest("{{name}}", {{localName}}_args({{argNames}})) flatMap { this.service } flatMap {
     decodeResponse(_, {{localName}}_result.decoder)

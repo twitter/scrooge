@@ -1,26 +1,28 @@
-functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
-  try {
-    val args = {{localName}}_args.decoder(iprot)
-    iprot.readMessageEnd()
-    (try {
-      iface.{{localName}}({{argNames}})
-    } catch {
-      case e: Exception => Future.exception(e)
-    }) flatMap { value: {{typeName}} =>
-      reply("{{name}}", seqid, {{localName}}_result({{resultNamedArg}}))
-    } rescue {
+functionMap.update("{{name}}", new Function2<TProtocol, Int, Future<{{typeName}}>>() {
+  public Future<{{typeName}}> apply(TProtocol iprot, Int seqid) {
+    try {
+      Args args = {{localName}}_args.decode(iprot);
+      iprot.readMessageEnd();
+      Future<{{typeName}}> result;
+      try {
+        result = iface.{{localName}}({{argNames}});
+        return result.flatMap(new Function<{{typeName}}, Future<{{typeName}}>>() {
+          public Future<{{typeName}}> apply({{typeName}} value){
+            return reply("{{name}}", seqid, {{localName}}_result({{resultNamedArg}}));
+          }
+        });
 {{#exceptions}}
-      case e: {{exceptionType}} => {
-        reply("{{name}}", seqid, {{localName}}_result({{fieldName}} = Some(e)))
-      }
+      } catch ({{exceptionType}} e) {
+        return reply("{{name}}", seqid, {{localName}}_result({{fieldName}} = new Some(e)));
 {{/exceptions}}
-      case e => Future.exception(e)
+      } catch (Throwable t) {
+        return Future.exception(e);
+      }
+    } catch (TProtocolException e) {
+      iprot.readMessageEnd();
+      return exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage);
+    } catch (Throwable t) {
+      return Future.exception(t);
     }
-  } catch {
-    case e: TProtocolException => {
-      iprot.readMessageEnd()
-      exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage)
-    }
-    case e: Exception => Future.exception(e)
   }
-}
+});

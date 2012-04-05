@@ -1,5 +1,14 @@
-// ----- {{name}}
+{{#public}}
+package {{package}}
 
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import org.apache.thrift.protocol._
+import java.nio.ByteBuffer
+import com.twitter.finagle.SourcedException
+import scala.collection.mutable
+import scala.collection.{Map, Set}
+
+{{/public}}
 object {{name}} extends ThriftStructCodec[{{name}}] {
   val Struct = new TStruct("{{name}}")
 {{#fields}}

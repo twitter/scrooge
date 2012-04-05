@@ -17,7 +17,6 @@
 package com.twitter.handlebar
 
 import scala.collection.mutable
-import com.twitter.handlebar.AST.Document
 
 object Dictionary {
   sealed trait Value {
@@ -56,6 +55,7 @@ object Dictionary {
     def children = Nil
   }
 
+  implicit def v(data: Dictionary): Value = ListValue(Seq(data))
   implicit def v(data: String): Value = StringValue(data)
   implicit def v(data: Boolean): Value = BooleanValue(data)
   implicit def v(data: Seq[Dictionary]): Value = ListValue(data)

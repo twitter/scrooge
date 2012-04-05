@@ -1,11 +1,4 @@
-// ----- finagle client
-
-//import com.twitter.finagle.{Service => FinagleService};
-//import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-//import com.twitter.finagle.thrift.ThriftClientRequest;
-//import com.twitter.scrooge.FinagleThriftClient;
-
-class FinagledClient extends {{extends}} implements FutureIface {
+public static class FinagledClient extends {{parent}} implements FutureIface {
   private FinagleService<ThriftClientRequest, Array<Byte>> service;
   private TProtocolFactory protocolFactory /* new TBinaryProtocol.Factory */;
   private StatsReceiver stats;
@@ -14,12 +7,15 @@ class FinagledClient extends {{extends}} implements FutureIface {
       FinagleService<ThriftClientRequest, Array<Byte>> service,
       TProtocolFactory protocolFactory /* new TBinaryProtocol.Factory */,
       StatsReceiver stats) {
+  {{#hasParent}}
+    super(service, protocolFactory, stats);
+  {{/hasParent}}
     this.service = service;
     this.protocolFactory = protocolFactory;
     this.stats = stats;
   }
 
 {{#functions}}
-{{function}}
+  {{>function}}
 {{/function}}
 }

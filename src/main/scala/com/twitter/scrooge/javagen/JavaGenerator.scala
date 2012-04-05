@@ -150,7 +150,7 @@ class JavaGenerator extends JavaLike {
       case TBool => "Boolean"
       case TByte => "Byte"
       case TI16 => "Short"
-      case TI32 => "Int"
+      case TI32 => "Integer"
       case TI64 => "Long"
       case TDouble => "Double"
       case TString => "String"
@@ -172,14 +172,8 @@ class JavaGenerator extends JavaLike {
   }
 
   def fieldParams(fields: Seq[Field], asVal: Boolean = false): String = {
-    fields.map {
-      f =>
-        val valPrefix = if (asVal) "val " else ""
-        val nameAndType = fieldTypeName(f) + " " + f.name
-        val defaultValue = defaultFieldValue(f) map {
-          " = " + _
-        }
-        valPrefix + nameAndType + defaultValue.getOrElse("")
+    fields.map { f =>
+      fieldTypeName(f) + " " + f.name
     }.mkString(", ")
   }
 }

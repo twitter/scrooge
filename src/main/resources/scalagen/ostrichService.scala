@@ -1,12 +1,3 @@
-// ----- ostrich service
-
-import com.twitter.finagle.builder.{Server, ServerBuilder}
-import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
-import com.twitter.finagle.thrift.ThriftServerFramedCodec
-import com.twitter.finagle.tracing.{NullTracer, Tracer}
-import com.twitter.logging.Logger
-import com.twitter.ostrich.admin.Service
-
 trait ThriftServer extends Service with FutureIface {
   val log = Logger.get(getClass)
 

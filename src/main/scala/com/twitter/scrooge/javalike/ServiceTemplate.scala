@@ -1,7 +1,7 @@
 package com.twitter.scrooge
 package javalike
 
-/*
+/**
  * Copyright 2011 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -20,33 +20,27 @@ package javalike
 import AST._
 import com.twitter.handlebar.Dictionary
 
-trait ServiceTemplate extends Generator {
-  self: JavaLike =>
-
+trait ServiceTemplate extends Generator { self: JavaLike =>
   import Dictionary._
 
   def toDictionary(function: Function, async: Boolean): Dictionary = {
+    val hasThrows = !async && function.throws.size > 0
     val throwsDictionaries =
-      if (async)
-        Nil
-      else
+      if (hasThrows) {
         function.throws map { t =>
           Dictionary("typeName" -> v(typeName(t.`type`)))
         }
+      } else {
+        Nil
+      }
     Dictionary(
       "async" -> v(async),
+      "hasThrows" -> v(hasThrows),
       "throws" -> v(throwsDictionaries),
       "name" -> v(function.localName),
       "typeName" -> v(typeName(function.`type`)),
       "fieldParams" -> v(fieldParams(function.args))
     )
-  }
-
-  lazy val functionTemplate = templates("function").generate {
-    f: Function => toDictionary(f, false)
-  }
-  lazy val futureFunctionTemplate = templates("function").generate {
-    f: Function => toDictionary(f, true)
   }
 
   def serviceFunctionArgsStruct(f: Function): FunctionArgs = {
@@ -65,115 +59,93 @@ trait ServiceTemplate extends Generator {
     FunctionResult(f.localName + "_result", success ++ throws)
   }
 
-  lazy val finagleClientFunctionTemplate = templates("finagleClientFunction").generate {
-    f: Function =>
-      Dictionary(
-        "functionDecl" -> v(futureFunctionTemplate(f)),
-        "name" -> v(f.name),
-        "type" -> v(typeName(f.`type`)),
-        "void" -> v(f.`type` eq AST.Void),
-        "localName" -> v(f.localName),
-        "argNames" -> v(f.args.map(_.name).mkString(", ")),
-        "hasThrows" -> v(f.throws.size > 0),
-        "throws" -> v(f.throws.map { thro => Dictionary("name" -> v(thro.name)) })
-      )
-  }
-
-  lazy val finagleClientTemplate = templates("finagleClient").generate {
-    s: Service =>
-      val functionDictionaries = s.functions map { f =>
-          Dictionary("function" -> v(finagleClientFunctionTemplate(f).indent() + "\n"))
-      }
-      val parentName = s.parent.flatMap(_.service).map(_.name)
-      Dictionary(
-        "override" -> v(if (parentName.nonEmpty) "override " else ""),
-        "extends" -> v(parentName.map {
-          _ + ".FinagledClient(service, protocolFactory)"
-        }.getOrElse("FinagleThriftClient")),
-        "functions" -> v(functionDictionaries)
-      )
-  }
-
-  lazy val finagleServiceFunctionTemplate = templates("finagleServiceFunction").generate {
-    f: Function =>
-      val exceptionDictionaries = f.throws map {
-        t =>
-          Dictionary(
-            "exceptionType" -> v(typeName(t.`type`)),
-            "fieldName" -> v(t.name)
-          )
-      }
-      Dictionary(
-        "name" -> v(f.name),
-        "localName" -> v(f.localName),
-        "argNames" -> v(f.args map {
-          "args." + _.name
-        } mkString (", ")),
-        "typeName" -> v(typeName(f.`type`)),
-        "resultNamedArg" -> v(if (f.`type` ne Void) "success = Some(value)" else ""),
-        "exceptions" -> v(exceptionDictionaries)
-      )
-  }
-
-  lazy val finagleServiceTemplate = templates("finagleService").generate {
-    s: Service =>
-      val functionDictionaries = s.functions map {
-        f =>
-          Dictionary(
-            "function" -> v(finagleServiceFunctionTemplate(f).indent() + "\n")
-          )
-      }
-      val parentName = s.parent.flatMap(_.service).map(_.name)
-      Dictionary(
-        "override" -> v(if (parentName.nonEmpty) "override " else ""),
-        "extends" -> v(parentName.map {
-          _ + ".FinagledService(iface, protocolFactory)"
-        }.getOrElse("FinagleThriftService")),
-        "functions" -> v(functionDictionaries)
-      )
-  }
-
-  lazy val ostrichServiceTemplate = templates("ostrichService").generate {
-    s: Service => Dictionary()
-  }
-
-  lazy val serviceTemplate = templates("service").generate {
-    s: JavaService =>
-      val service = s.service
-      val syncFunctions = service.functions map { f =>
-        Dictionary("function" -> v(functionTemplate(f)))
-      }
-      val asyncFunctions = service.functions map { f =>
-        Dictionary("function" -> v(futureFunctionTemplate(f)))
-      }
-
-      val functionStructs = service.functions flatMap {
-        f =>
-          Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-      } map {
-        structTemplate(_).indent
-      } mkString("", "\n\n", "\n")
-      val parentName = service.parent.flatMap(_.service).map(_.name)
-      Dictionary(
-        "name" -> v(service.name),
-        "syncExtends" -> v(parentName.map {
-          "extends " + _ + ".Iface "
-        }.getOrElse("")),
-        "asyncExtends" -> v(parentName.map {
-          "extends " + _ + ".FutureIface "
-        }.getOrElse("")),
-        "syncFunctions" -> syncFunctions,
-        "asyncFunctions" -> asyncFunctions,
-        "functionStructs" -> v(functionStructs),
-        "finagleClient" -> v(
-          if (s.options contains WithFinagleClient) (finagleClientTemplate(service).indent + "\n") else ""
-        ),
-        "finagleService" -> v(
-          if (s.options contains WithFinagleService) (finagleServiceTemplate(service).indent + "\n") else ""
-        ),
-        "ostrichServer" -> v(
-          if (s.options contains WithOstrichServer) (ostrichServiceTemplate(service).indent + "\n") else ""
+  def finagleClient(s: Service) = {
+    val parentName = s.parent.flatMap(_.service).map(_.name)
+    Dictionary(
+      "hasParent" -> v(parentName.nonEmpty),
+      "parent" -> v(parentName.map {
+        _ + ".FinagledClient"
+      }.getOrElse("FinagleThriftClient")),
+      "functions" -> v(s.functions.map { f =>
+        Dictionary(
+          "header"       -> templates("function"),
+          "headerInfo"   -> v(toDictionary(f, true)),
+          "name"         -> v(f.name),
+          "type"         -> v(typeName(f.`type`)),
+          "void"         -> v(f.`type` eq AST.Void),
+          "localName"    -> v(f.localName),
+          "argNames"     -> v(f.args.map(_.name).mkString(", ")),
+          "hasThrows"    -> v(f.throws.size > 0),
+          "throws"       -> v(f.throws.map { thro => Dictionary("name" -> v(thro.name)) })
         )
+      }),
+      "function" -> templates("finagleClientFunction")
+    )
+  }
+
+  def finagleService(s: Service) = {
+    val parentName = s.parent.flatMap(_.service).map(_.name)
+    Dictionary(
+      "hasParent" -> v(parentName.nonEmpty),
+      "parent" -> v(parentName.map { _ + ".FinagledService"}.getOrElse("FinagleThriftService")),
+      "function" -> templates("finagleServiceFunction"),
+      "functions" -> v(s.functions map { f =>
+        Dictionary(
+          "name" -> v(f.name),
+          "localName" -> v(f.localName),
+          "argNames" ->
+            v(f.args map { "args." + _.name} mkString (", ")),
+          "typeName" -> v(typeName(f.`type`)),
+          "resultNamedArg" -> v(if (f.`type` ne Void) "success = Some(value)" else ""),
+          "exceptions" -> v(f.throws map { t =>
+            Dictionary(
+              "exceptionType" -> v(typeName(t.`type`)),
+              "fieldName" -> v(t.name)
+            )
+          })
+        )
+      })
+    )
+  }
+
+  def ostrichService(s: Service) = Dictionary()
+
+  lazy val serviceTemplate = templates("service").generate { pair: (String, JavaService) =>
+    val (namespace, s) = pair
+    val service = s.service
+
+    val functionStructs =
+      service.functions flatMap { f =>
+        Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
+      } map { struct =>
+        structTemplate((None, struct)).indent
+      } mkString("", "\n\n", "\n")
+    val parentName = service.parent.flatMap(_.service).map(_.name)
+    Dictionary(
+      "function" -> v(templates("function")),
+      "package" -> v(namespace),
+      "name" -> v(service.name),
+      "syncExtends" -> v(parentName.map {
+        "extends " + _ + ".Iface "
+      }.getOrElse("")),
+      "asyncExtends" -> v(parentName.map {
+        "extends " + _ + ".FutureIface "
+      }.getOrElse("")),
+      "syncFunctions" -> service.functions.map { f => toDictionary(f, false) },
+      "asyncFunctions" -> service.functions.map { f => toDictionary(f, true) },
+      "functionStructs" -> v(functionStructs),
+      "finagleClient" -> templates("finagleClient"),
+      "finagleService" -> templates("finagleService"),
+      "ostrichServer" -> templates("ostrichService"),
+      "finagleClients" -> v(
+        if (s.options contains WithFinagleClient) Seq(finagleClient(service)) else Seq()
+      ),
+      "finagleServices" -> v(
+        if (s.options contains WithFinagleService) Seq(finagleService(service)) else Seq()
+      ),
+      "ostrichServers" -> v(
+        if (s.options contains WithOstrichServer) Seq(ostrichService(service)) else Seq()
       )
+    )
   }
 }

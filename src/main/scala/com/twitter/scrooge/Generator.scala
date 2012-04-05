@@ -32,8 +32,7 @@ case class JavaService(service: Service, options: Set[ServiceOption])
 trait Generator {
   class InternalError(description: String) extends Exception(description)
 
-  def outputFile(destFolder: String, doc0: Document, inputFile: String): File
-  def apply(_doc: Document, serviceOptions: Set[ServiceOption]): String
+  def apply(_doc: Document, serviceOptions: Set[ServiceOption], destFolder: File)
 
   implicit def string2indent(underlying: String) = new Object {
     def indent(level: Int = 1): String = underlying.split("\\n").map { ("  " * level) + _ }.mkString("\n")

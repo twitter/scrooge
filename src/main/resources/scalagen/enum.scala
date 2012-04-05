@@ -1,3 +1,7 @@
+package {{package}}
+
+import org.apache.thrift.TEnum
+
 object {{enum_name}} {
 {{#values}}
   case object {{name}} extends {{enum_name}}({{value}}, "{{name}}")
