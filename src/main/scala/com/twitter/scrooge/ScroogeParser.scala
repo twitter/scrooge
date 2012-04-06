@@ -79,7 +79,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     MapConstant(Map(list.map { case k ~ x ~ v => (k, v) }: _*))
   }
 
-  def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ { x => Identifier(x) }
+  def identifier = positioned("[A-Za-z_][A-Za-z0-9\\._]*".r ^^ { x => Identifier(x) })
 
   // types
 
@@ -87,17 +87,17 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def referenceType = identifier ^^ { x => ReferenceType(x.name) }
 
-  def definitionType = baseType | containerType
+  def definitionType = positioned(baseType) | positioned(containerType)
 
   def baseType: Parser[BaseType] = (
-    positioned("bool" ^^^ TBool) |
-    positioned("byte" ^^^ TByte) |
-    positioned("i16" ^^^ TI16) |
-    positioned("i32" ^^^ TI32) |
-    positioned("i64" ^^^ TI64) |
-    positioned("double" ^^^ TDouble) |
-    positioned("string" ^^^ TString) |
-    positioned("binary" ^^^ TBinary)
+    "bool" ^^^ TBool |
+    "byte" ^^^ TByte |
+    "i16" ^^^ TI16 |
+    "i32" ^^^ TI32 |
+    "i64" ^^^ TI64 |
+    "double" ^^^ TDouble |
+    "string" ^^^ TString |
+    "binary" ^^^ TBinary
   )
 
   def containerType: Parser[ContainerType] = mapType | setType | listType
@@ -157,7 +157,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // definitions
 
-  def definition = const | typedef | enum | senum | struct | exception | service
+  def definition = positioned(const) | positioned(typedef) | positioned(enum) | positioned(senum) | positioned(struct) | positioned(exception) | positioned(service)
 
   def const = "const" ~> fieldType ~ identifier ~ ("=" ~> constant) ~ opt(listSeparator) ^^ {
     case ftype ~ id ~ const ~ _ => Const(id.name, ftype, const)
