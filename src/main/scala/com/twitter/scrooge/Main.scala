@@ -99,10 +99,11 @@ object Main {
         val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
         val outputFile = outputFilename map { new File(_) } getOrElse generator.outputFile(destFolder, doc0, inputFile)
         val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
+
         if (skipUnchanged && isUnchanged(outputFile, lastModified)) {
           if (verbose) print(" (unchanged)")
-        } else {
 
+        } else {
           val doc1 = TypeResolver().resolve(doc0).document
           val content = generator(doc1, flags.toSet)
 
