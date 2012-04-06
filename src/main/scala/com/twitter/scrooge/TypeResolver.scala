@@ -18,17 +18,17 @@ package com.twitter.scrooge
 
 import AST._
 import scala.collection.mutable.ArrayBuffer
+import scala.util.DynamicVariable
 import scala.util.parsing.input.{Position, NoPosition}
 
-class ExceptionAt(name: String) extends Exception(name) {
-  var pos: Position = NoPosition
-  // com.twitter.scrooge.ParseException: [64.3] failure: string matching regex `\z' expected but `C' found
-  override def toString: String = super.toString + ": " + pos
+class ExceptionAt(name: String)(implicit node: DynamicVariable[Node]) extends Exception(name) {
+  val pos: Position = if (node.value eq null) NoPosition else node.value.pos
+  override def toString: String = super.toString + " at " + pos
 }
 
-class TypeNotFoundException(name: String) extends ExceptionAt(name)
-class UndefinedSymbolException(name: String) extends ExceptionAt(name)
-class TypeMismatchException(name: String) extends ExceptionAt(name)
+class TypeNotFoundException(name: String)(implicit node: DynamicVariable[Node]) extends ExceptionAt(name)
+class UndefinedSymbolException(name: String)(implicit node: DynamicVariable[Node]) extends ExceptionAt(name)
+class TypeMismatchException(name: String)(implicit node: DynamicVariable[Node]) extends ExceptionAt(name)
 
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
@@ -38,6 +38,7 @@ object TypeResolver {
     typeMap: Map[String,T],
     includeMap: Map[String, ResolvedDocument],
     next: TypeResolver => EntityResolver[T])
+    (implicit node: DynamicVariable[Node])
   {
     def apply(name: String): T = {
       name match {
@@ -82,6 +83,8 @@ case class TypeResolver(
 {
   import TypeResolver._
 
+  implicit val dynCurrentNode: DynamicVariable[Node] = new DynamicVariable[Node](null)
+
   lazy val fieldTypeResolver: EntityResolver[FieldType] =
     new EntityResolver(typeMap, includeMap, _.fieldTypeResolver)
   lazy val serviceResolver: EntityResolver[Service] =
@@ -121,7 +124,7 @@ case class TypeResolver(
    * typeMap, and then returns an updated TypeResolver with the new
    * definition bound, plus the resolved definition.
    */
-  def resolve(definition: Definition): ResolvedDefinition = {
+  def resolve(definition: Definition): ResolvedDefinition = dynCurrentNode.withValue(definition) {
     apply(definition) match {
       case d @ Typedef(name, t) => ResolvedDefinition(d, define(name, t))
       case e @ Enum(name, _) => ResolvedDefinition(e, define(name, EnumType(e)))
@@ -186,17 +189,7 @@ case class TypeResolver(
   }
 
   def apply(t: FieldType): FieldType = t match {
-    case ReferenceType(name) => {
-      try {
-        apply(name)
-      } catch {
-        // add the node that threw this error (contains the positional information)
-        case ex: ExceptionAt => {
-          ex.pos = t.pos
-          throw ex
-        }
-      }
-    }
+    case ReferenceType(name) => apply(name)
     case m @ MapType(k, v, _) => m.copy(keyType = apply(k), valueType = apply(v))
     case s @ SetType(e, _) => s.copy(eltType = apply(e))
     case l @ ListType(e, _) => l.copy(eltType = apply(e))
