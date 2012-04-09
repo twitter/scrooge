@@ -25,6 +25,8 @@ import com.twitter.finagle.thrift.ThriftServerFramedCodec
 import com.twitter.finagle.tracing.{NullTracer, Tracer}
 import com.twitter.logging.Logger
 import com.twitter.ostrich.admin.Service
+import com.twitter.util.Duration
+import java.util.concurrent.atomic.AtomicReference
 {{/ostrichServer}}
 
 object {{name}} {

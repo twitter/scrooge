@@ -8,11 +8,13 @@ trait ThriftServer extends Service with FutureIface {
   val thriftPort: Int
   val serverName: String
 
-  var server: Server = null
+  // Must be thread-safe as different threads can start and shutdown the service.
+  private[this] val _server = new AtomicReference[Server]
+  def server: Server = _server.get
 
   def start() {
     val thriftImpl = new FinagledService(this, thriftProtocolFactory)
-    server = serverBuilder.build(thriftImpl)
+    _server.set(serverBuilder.build(thriftImpl))
   }
 
   /**
@@ -27,10 +29,16 @@ trait ThriftServer extends Service with FutureIface {
       .bindTo(new InetSocketAddress(thriftPort))
       .tracerFactory(tracerFactory)
 
-  def shutdown() {
+  /**
+   * Close the underlying server gracefully with the given grace
+   * period. close() will drain the current channels, waiting up to
+   * ``timeout'', after which channels are forcibly closed.
+   */
+  def shutdown(timeout: Duration = 0.seconds) {
     synchronized {
-      if (server != null) {
-        server.close(0.seconds)
+      val s = server
+      if (s != null) {
+        s.close(timeout)
       }
     }
   }
