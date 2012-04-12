@@ -1,1 +1,0 @@
-{{type}} {{name}} = _iprot.{{protocolReadMethod}}();
