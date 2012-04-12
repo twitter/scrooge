@@ -19,6 +19,8 @@ package com.twitter.handlebar
 import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
+import scala.util.parsing.input.StreamReader
+import java.io.StringReader
 
 class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
   def this(reason: String) = this(reason, null)
@@ -64,7 +66,7 @@ object Parser extends RegexParsers {
   def id = """[A-Za-z0-9_\.]+""".r
 
   // rawr.
-  def apply(in: String): Document = {
+  def apply(in: StreamReader): Document = {
     CleanupWhitespace {
       parseAll(document, in) match {
         case Success(result, _) => result
@@ -73,6 +75,7 @@ object Parser extends RegexParsers {
       }
     }
   }
+  def apply(in: String): Document = apply(StreamReader(new StringReader(in)))
 }
 
 /**

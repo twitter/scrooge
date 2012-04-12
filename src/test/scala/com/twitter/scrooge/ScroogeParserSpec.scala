@@ -162,7 +162,7 @@ class ScroogeParserSpec extends Specification {
 
     "standard test file" in {
       val parser = new ScroogeParser(Importer.resourceImporter(getClass))
-      val doc = parser.parseFile("/test.thrift")
+      val doc = parser.parseFile("test.thrift")
       // i guess not blowing up is a good first-pass test.
       // might be nice to verify parts of it tho.
       doc.headers.size mustEqual 13

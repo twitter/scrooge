@@ -19,6 +19,8 @@ package com.twitter.scrooge
 import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
+import scala.util.parsing.input.{Positional, StreamReader}
+import java.io.{FileInputStream, InputStreamReader, StringReader}
 
 class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
   def this(reason: String) = this(reason, null)
@@ -77,15 +79,15 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     MapConstant(Map(list.map { case k ~ x ~ v => (k, v) }: _*))
   }
 
-  def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ { x => Identifier(x) }
+  def identifier = positioned("[A-Za-z_][A-Za-z0-9\\._]*".r ^^ { x => Identifier(x) })
 
   // types
 
-  def fieldType: Parser[FieldType] = baseType | containerType | referenceType
+  def fieldType: Parser[FieldType] = positioned(baseType) | positioned(containerType) | positioned(referenceType)
 
   def referenceType = identifier ^^ { x => ReferenceType(x.name) }
 
-  def definitionType = baseType | containerType
+  def definitionType = positioned(baseType) | positioned(containerType)
 
   def baseType: Parser[BaseType] = (
     "bool" ^^^ TBool |
@@ -155,7 +157,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // definitions
 
-  def definition = const | typedef | enum | senum | struct | exception | service
+  def definition = positioned(const) | positioned(typedef) | positioned(enum) | positioned(senum) | positioned(struct) | positioned(exception) | positioned(service)
 
   def const = "const" ~> fieldType ~ identifier ~ ("=" ~> constant) ~ opt(listSeparator) ^^ {
     case ftype ~ id ~ const ~ _ => Const(id.name, ftype, const)
@@ -222,14 +224,14 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   def namespaceScope = "*" | (identifier ^^ { id => id.name })
 
   // rawr.
-
-  def parse[T](in: String, parser: Parser[T]): T = {
+  def parse[T](in: StreamReader, parser: Parser[T]): T = {
     parseAll(parser, in) match {
       case Success(result, _) => result
-      case x @ Failure(msg, z) => throw new ParseException(x.toString)
+      case x @ Failure(msg, _) => throw new ParseException(x.toString)
       case x @ Error(msg, _) => throw new ParseException(x.toString)
     }
   }
+  def parse[T](in: String, parser: Parser[T]): T = parse(StreamReader(new StringReader(in)), parser)
 
-  def parseFile(filename: String) = parse(importer(filename), document)
+  def parseFile(filename: String) = parse(StreamReader(new InputStreamReader(new FileInputStream((filename)))), document)
 }

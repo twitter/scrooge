@@ -16,8 +16,10 @@
 
 package com.twitter.scrooge
 
+import scala.util.parsing.input.Positional
+
 object AST {
-  sealed abstract class Node
+  sealed abstract class Node extends Positional
   sealed abstract class Requiredness extends Node {
     def isOptional = this eq Requiredness.Optional
     def isRequired = this eq Requiredness.Required

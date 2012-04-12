@@ -90,22 +90,36 @@ object Main {
     }
 
     for (inputFile <- thriftFiles) {
-      val inputFileDir = new File(inputFile).getParent
-      val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
-      val parser = new ScroogeParser(importer)
-      val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
+      try {
+        if (verbose) print("+ Compiling %s".format(inputFile))
 
-      val outputFile = outputFilename map { new File(_) } getOrElse generator.outputFile(destFolder, doc0, inputFile)
-      val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
-      if (!(skipUnchanged && isUnchanged(outputFile, lastModified))) {
-        if (verbose) println("+ Compiling %s".format(inputFile))
-        val doc1 = TypeResolver().resolve(doc0).document
-        val content = generator(doc1, flags.toSet)
+        val inputFileDir = new File(inputFile).getParent
+        val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
+        val parser = new ScroogeParser(importer)
+        val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
+        val outputFile = outputFilename map { new File(_) } getOrElse generator.outputFile(destFolder, doc0, inputFile)
+        val lastModified = importer.lastModified(inputFile).getOrElse(Long.MaxValue)
 
-        Option(outputFile.getParentFile).foreach { _.mkdirs() }
-        val out = new FileWriter(outputFile)
-        out.write(content)
-        out.close()
+        if (skipUnchanged && isUnchanged(outputFile, lastModified)) {
+          if (verbose) print(" (unchanged)")
+
+        } else {
+          val doc1 = TypeResolver().resolve(doc0).document
+          val content = generator(doc1, flags.toSet)
+
+          Option(outputFile.getParentFile).foreach { _.mkdirs() }
+          val out = new FileWriter(outputFile)
+          out.write(content)
+          out.close()
+        }
+      } catch {
+        case ex: Exception => {
+          if (verbose) println("")
+          System.err.println(inputFile + ": " + ex)
+          System.exit(1)
+        }
+      } finally {
+        if (verbose) println("")
       }
     }
   }

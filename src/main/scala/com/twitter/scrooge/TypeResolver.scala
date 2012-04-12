@@ -18,10 +18,17 @@ package com.twitter.scrooge
 
 import AST._
 import scala.collection.mutable.ArrayBuffer
+import scala.util.DynamicVariable
+import scala.util.parsing.input.{Position, NoPosition}
 
-class TypeNotFoundException(name: String) extends Exception(name)
-class UndefinedSymbolException(name: String) extends Exception(name)
-class TypeMismatchException(name: String) extends Exception(name)
+class ExceptionAt(name: String)(implicit node: DynamicVariable[Node]) extends Exception(name) {
+  val pos: Position = if (node.value eq null) NoPosition else node.value.pos
+  override def toString: String = super.toString + " at " + pos
+}
+
+class TypeNotFoundException(name: String)(implicit node: DynamicVariable[Node]) extends ExceptionAt(name)
+class UndefinedSymbolException(name: String)(implicit node: DynamicVariable[Node]) extends ExceptionAt(name)
+class TypeMismatchException(name: String)(implicit node: DynamicVariable[Node]) extends ExceptionAt(name)
 
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
@@ -31,6 +38,7 @@ object TypeResolver {
     typeMap: Map[String,T],
     includeMap: Map[String, ResolvedDocument],
     next: TypeResolver => EntityResolver[T])
+    (implicit node: DynamicVariable[Node])
   {
     def apply(name: String): T = {
       name match {
@@ -75,6 +83,8 @@ case class TypeResolver(
 {
   import TypeResolver._
 
+  implicit val dynCurrentNode: DynamicVariable[Node] = new DynamicVariable[Node](null)
+
   lazy val fieldTypeResolver: EntityResolver[FieldType] =
     new EntityResolver(typeMap, includeMap, _.fieldTypeResolver)
   lazy val serviceResolver: EntityResolver[Service] =
@@ -114,7 +124,7 @@ case class TypeResolver(
    * typeMap, and then returns an updated TypeResolver with the new
    * definition bound, plus the resolved definition.
    */
-  def resolve(definition: Definition): ResolvedDefinition = {
+  def resolve(definition: Definition): ResolvedDefinition = dynCurrentNode.withValue(definition) {
     apply(definition) match {
       case d @ Typedef(name, t) => ResolvedDefinition(d, define(name, t))
       case e @ Enum(name, _) => ResolvedDefinition(e, define(name, EnumType(e)))
@@ -148,7 +158,7 @@ case class TypeResolver(
     copy(serviceMap = serviceMap + (service.name -> service))
   }
 
-  def apply(definition: Definition): Definition = {
+  def apply(definition: Definition): Definition = dynCurrentNode.withValue(definition) {
     definition match {
       case d @ Typedef(name, t) => d.copy(`type` = apply(t))
       case s @ Struct(_, fs) => s.copy(fields = fs.map(apply))
@@ -173,57 +183,63 @@ case class TypeResolver(
       default = f.default.map { const => apply(const, fieldType) })
   }
 
-  def apply(t: FunctionType): FunctionType = t match {
-    case Void => Void
-    case t: FieldType => apply(t)
+  def apply(t: FunctionType): FunctionType = dynCurrentNode.withValue(t) {
+    t match {
+      case Void => Void
+      case t: FieldType => apply(t)
+    }
   }
 
-  def apply(t: FieldType): FieldType = t match {
-    case ReferenceType(name) => apply(name)
-    case m @ MapType(k, v, _) => m.copy(keyType = apply(k), valueType = apply(v))
-    case s @ SetType(e, _) => s.copy(eltType = apply(e))
-    case l @ ListType(e, _) => l.copy(eltType = apply(e))
-    case _ => t
+  def apply(t: FieldType): FieldType = dynCurrentNode.withValue(t) {
+    t match {
+      case ReferenceType(name) => apply(name)
+      case m @ MapType(k, v, _) => m.copy(keyType = apply(k), valueType = apply(v))
+      case s @ SetType(e, _) => s.copy(eltType = apply(e))
+      case l @ ListType(e, _) => l.copy(eltType = apply(e))
+      case _ => t
+    }
   }
 
-  def apply(c: Constant, fieldType: FieldType): Constant = c match {
-    case l @ ListConstant(elems) =>
-      fieldType match {
-        case ListType(eltType, _) => l.copy(elems = elems map { e => apply(e, eltType) } )
-        case SetType(eltType, _) => SetConstant(elems map { e => apply(e, eltType) } toSet)
-        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l)
-      }
-    case m @ MapConstant(elems) =>
-      fieldType match {
-        case MapType(keyType, valType, _) =>
-          m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
-        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
-      }
-    case i @ Identifier(name) =>
-      fieldType match {
-        case EnumType(enum, _) =>
-          val valueName = name match {
-            case QualifiedName(scope, QualifiedName(enumName, valueName)) =>
-              if (fieldTypeResolver(scope, enumName) != fieldType) {
-                throw new UndefinedSymbolException(scope + "." + enumName)
-              } else {
-                valueName
-              }
-            case QualifiedName(enumName, valueName) =>
-              if (enumName != enum.name) {
-                throw new UndefinedSymbolException(enumName)
-              } else {
-                valueName
-              }
-            case _ => name
-          }
-          enum.values.find(_.name == valueName) match {
-            case None => throw new UndefinedSymbolException(name)
-            case Some(value) => EnumValueConstant(enum, value)
-          }
-        case _ => throw new UndefinedSymbolException(name)
-      }
-    case _ => c
+  def apply(c: Constant, fieldType: FieldType): Constant = dynCurrentNode.withValue(c) {
+    c match {
+      case l @ ListConstant(elems) =>
+        fieldType match {
+          case ListType(eltType, _) => l.copy(elems = elems map { e => apply(e, eltType) } )
+          case SetType(eltType, _) => SetConstant(elems map { e => apply(e, eltType) } toSet)
+          case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l)
+        }
+      case m @ MapConstant(elems) =>
+        fieldType match {
+          case MapType(keyType, valType, _) =>
+            m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
+          case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
+        }
+      case i @ Identifier(name) =>
+        fieldType match {
+          case EnumType(enum, _) =>
+            val valueName = name match {
+              case QualifiedName(scope, QualifiedName(enumName, valueName)) =>
+                if (fieldTypeResolver(scope, enumName) != fieldType) {
+                  throw new UndefinedSymbolException(scope + "." + enumName)
+                } else {
+                  valueName
+                }
+              case QualifiedName(enumName, valueName) =>
+                if (enumName != enum.name) {
+                  throw new UndefinedSymbolException(enumName)
+                } else {
+                  valueName
+                }
+              case _ => name
+            }
+            enum.values.find(_.name == valueName) match {
+              case None => throw new UndefinedSymbolException(name)
+              case Some(value) => EnumValueConstant(enum, value)
+            }
+          case _ => throw new UndefinedSymbolException(name)
+        }
+      case _ => c
+    }
   }
 
   def apply(parent: ServiceParent): ServiceParent = {
