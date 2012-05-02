@@ -197,8 +197,7 @@ trait StructTemplate extends Generator { self: JavaLike =>
 
   // ----- struct
 
-  lazy val structTemplate = templates("struct").generate { pair: (Option[String], StructLike) =>
-    val (namespace, struct) = pair
+  lazy val structTemplate = templates("struct").generate { (struct: StructLike, myNamespace: Option[String], includes: Seq[Include]) =>
     val fieldDictionaries = struct.fields.zipWithIndex map {
       case (field, index) =>
         Dictionary(
@@ -268,9 +267,23 @@ trait StructTemplate extends Generator { self: JavaLike =>
     } else {
       "Product"
     }
+
+    val imports = includes map { include =>
+      (namespace(include.document), include.prefix)
+    } map {
+      case (PackageName(parentPackage, subPackage), prefix) => {
+        Dictionary(
+          "parentPackage" -> parentPackage,
+          "subPackage" -> subPackage,
+          "alias" -> prefix
+        )
+      }
+    }
+
     Dictionary(
-      "public" -> v(namespace.isDefined),
-      "package" -> v(namespace.getOrElse("")),
+      "public" -> v(myNamespace.isDefined),
+      "package" -> v(myNamespace.getOrElse("")),
+      "imports" -> v(imports),
       "name" -> v(struct.name),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
