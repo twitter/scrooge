@@ -20,50 +20,64 @@ import java.io.{IOException, File}
 import scala.collection.Map
 import scala.io.Source
 
+// an imported file should have its own path available for nested importing.
+case class FileContents(importer: Importer, data: String)
+
 // an Importer turns a filename into its string contents.
-trait Importer extends (String => String) {
+trait Importer extends (String => FileContents) {
+  def paths: Seq[String] // for tests
   def lastModified(filename: String): Option[Long]
 }
 
 object Importer {
-  def fileImporter(importPaths: Seq[String]) = new Importer {
+  def fileImporter(importPaths: Seq[String]): Importer = new Importer {
     val paths = List(".") ++ importPaths
 
-    private def resolve(filename: String): File = {
+    private[this] def withPath(path: String) = fileImporter(path +: importPaths)
+
+    private def resolve(filename: String): (File, Importer) = {
       val f = new File(filename)
-      if (f.isAbsolute) {
-        f
-      } else {
-        paths.map { path => new File(path, filename) }.find { _.canRead } getOrElse {
-          throw new IOException("Can't find file: " + filename)
-        }
+      if (f.isAbsolute) return (f, this)
+
+      paths map { path =>
+        new File(path, filename).getCanonicalFile
+      } find {
+        _.canRead
+      } map { f =>
+        (f, this.withPath(f.getParent()))
+      } getOrElse {
+        throw new IOException("Can't find file: " + filename)
       }
     }
 
     def lastModified(filename: String): Option[Long] = {
-      Some(resolve(filename).lastModified)
+      val (f, i) = resolve(filename)
+      Some(f.lastModified)
     }
 
     // find the requested file, and load it into a string.
-    def apply(filename: String): String = {
-      Source.fromFile(resolve(filename)).mkString
+    def apply(filename: String): FileContents = {
+      val (f, i) = resolve(filename)
+      FileContents(i, Source.fromFile(f).mkString)
     }
   }
 
   def fakeImporter(files: Map[String, String]) = new Importer {
+    def paths = Seq()
     def lastModified(filename: String) = None
-    def apply(filename: String): String = {
-      files.get(filename).getOrElse {
+    def apply(filename: String): FileContents = {
+      files.get(filename) map { FileContents(this, _) } getOrElse {
         throw new IOException("Can't find file: " + filename)
       }
     }
   }
 
   def resourceImporter(c: Class[_]) = new Importer {
+    def paths = Seq()
     def lastModified(filename: String) = None
-    def apply(filename: String): String = {
+    def apply(filename: String): FileContents = {
       try {
-        Source.fromInputStream(c.getResourceAsStream(filename)).mkString
+        FileContents(this, Source.fromInputStream(c.getResourceAsStream(filename)).mkString)
       } catch {
         case e =>
           throw new IOException("Can't load resource: " + filename)
