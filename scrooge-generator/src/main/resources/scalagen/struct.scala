@@ -7,6 +7,9 @@ import java.nio.ByteBuffer
 import com.twitter.finagle.SourcedException
 import scala.collection.mutable
 import scala.collection.{Map, Set}
+{{#imports}}
+import {{parentPackage}}.{{{subPackage}} => _{{alias}}_}
+{{/imports}}
 
 {{/public}}
 object {{name}} extends ThriftStructCodec[{{name}}] {
@@ -91,7 +94,6 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
     val `{{name}}`: {{fieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{comma}}
 {{/fields}}
   ) extends {{name}}
-
 
 {{#withProxy}}
   /**

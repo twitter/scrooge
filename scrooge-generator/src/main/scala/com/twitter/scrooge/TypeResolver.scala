@@ -83,7 +83,7 @@ case class TypeResolver(
   /**
    * Resolves all types in the given document.
    */
-  def resolve(doc: Document): ResolvedDocument = {
+  def resolve(doc: Document, forcePrefix: Option[String] = None): ResolvedDocument = {
     var resolver = this
     val includes = doc.headers.collect { case i: Include => i }
     val defBuf = new ArrayBuffer[Definition](doc.defs.size)
@@ -93,7 +93,7 @@ case class TypeResolver(
     }
 
     for (d <- doc.defs) {
-      val ResolvedDefinition(d2, r2) = resolver.resolve(d)
+      val ResolvedDefinition(d2, r2) = resolver.resolve(d, forcePrefix)
       resolver = r2
       defBuf += d2
     }
@@ -105,7 +105,7 @@ case class TypeResolver(
    * Returns a new TypeResolver with the given include mapping added.
    */
   def include(inc: Include): TypeResolver = {
-    val resolvedDocument = TypeResolver().resolve(inc.document)
+    val resolvedDocument = TypeResolver().resolve(inc.document, Some("_" + inc.prefix + "_"))
     copy(includeMap = includeMap + (inc.prefix -> resolvedDocument))
   }
 
@@ -114,12 +114,12 @@ case class TypeResolver(
    * typeMap, and then returns an updated TypeResolver with the new
    * definition bound, plus the resolved definition.
    */
-  def resolve(definition: Definition): ResolvedDefinition = {
+  def resolve(definition: Definition, forcePrefix: Option[String]): ResolvedDefinition = {
     apply(definition) match {
       case d @ Typedef(name, t) => ResolvedDefinition(d, define(name, t))
       case e @ Enum(name, _) => ResolvedDefinition(e, define(name, EnumType(e)))
       case s @ Senum(name, _) => ResolvedDefinition(s, define(name, TString))
-      case s @ Struct(name, _) => ResolvedDefinition(s, define(name, StructType(s)))
+      case s @ Struct(name, _) => ResolvedDefinition(s, define(name, StructType(s, prefix = forcePrefix)))
       case e @ Exception_(name, _) => ResolvedDefinition(e, define(e.name, StructType(e)))
       case c @ Const(_, _, v) => ResolvedDefinition(c, define(c))
       case s @ Service(name, _, _) => ResolvedDefinition(s, define(s))

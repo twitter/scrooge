@@ -110,15 +110,14 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
 
   def ostrichService(s: Service) = Dictionary()
 
-  lazy val serviceTemplate = templates("service").generate { pair: (String, JavaService) =>
-    val (namespace, s) = pair
+  lazy val serviceTemplate = templates("service").generate { (s: JavaService, namespace: String, includes: Seq[Include]) =>
     val service = s.service
 
     val functionStructs =
       service.functions flatMap { f =>
         Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
       } map { struct =>
-        structTemplate((None, struct)).indent
+        structTemplate(struct, None, includes).indent
       } mkString("", "\n\n", "\n")
     val parentName = service.parent.flatMap(_.service).map(_.name)
     Dictionary(

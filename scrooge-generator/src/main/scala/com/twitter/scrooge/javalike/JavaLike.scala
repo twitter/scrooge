@@ -229,6 +229,9 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     val doc = normalizeCase(_doc)
     val namespace_ = namespace(_doc)
     val packageDir = namespacedFolder(outputPath, namespace_)
+    val includes = doc.headers.collect {
+      case x @ AST.Include(_, doc) => x
+    }
 
     if (doc.consts.nonEmpty) {
       val file = new File(packageDir, "Constants" + fileExtension)
@@ -241,11 +244,11 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     }
     doc.structs.foreach { struct =>
       val file = new File(packageDir, struct.name + fileExtension)
-      write(file, structTemplate((Some(namespace_), struct)))
+      write(file, structTemplate(struct, Some(namespace_), includes))
     }
     doc.services.foreach { service =>
       val file = new File(packageDir, service.name + fileExtension)
-      write(file, serviceTemplate((namespace_, JavaService(service, serviceOptions))))
+      write(file, serviceTemplate(JavaService(service, serviceOptions), namespace_, includes))
     }
   }
 

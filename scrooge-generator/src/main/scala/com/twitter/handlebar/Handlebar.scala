@@ -16,14 +16,6 @@
 
 package com.twitter.handlebar
 
-case class Unpacker[T](
-  document: AST.Document,
-  unpacker: T => Dictionary,
-  handlebar: Handlebar
-) extends (T => String) {
-  def apply(item: T) = Handlebar.generate(document, unpacker(item))
-}
-
 object Handlebar {
   import AST._
   import Dictionary._
@@ -121,5 +113,16 @@ case class Handlebar(document: AST.Document) {
    * new function of `T => String` that unpacks items of type `T` and runs them through the
    * template.
    */
-  def generate[T](unpacker: T => Dictionary) = new Unpacker[T](document, unpacker, this)
+  def generate[T](unpacker: T => Dictionary) = new (T => String) {
+    def apply(item: T) = Handlebar.generate(document, unpacker(item))
+  }
+
+  def generate[T1, T2](unpacker: (T1, T2) => Dictionary) = new ((T1, T2) => String) {
+    def apply(t1: T1, t2: T2) = Handlebar.generate(document, unpacker(t1, t2))
+  }
+
+  def generate[T1, T2, T3](unpacker: (T1, T2, T3) => Dictionary) = new ((T1, T2, T3) => String) {
+    def apply(t1: T1, t2: T2, t3: T3) = Handlebar.generate(document, unpacker(t1, t2, t3))
+  }
 }
+

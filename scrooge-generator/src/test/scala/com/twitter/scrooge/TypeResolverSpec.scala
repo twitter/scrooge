@@ -36,9 +36,9 @@ object TypeResolverSpec extends Specification {
     }
 
     "resolve dependent types" in {
-      TypeResolver().resolve(enum) must beLike {
+      TypeResolver().resolve(enum, None) must beLike {
         case ResolvedDefinition(enum2, resolver2) =>
-          resolver2.resolve(struct) must beLike {
+          resolver2.resolve(struct, None) must beLike {
             case ResolvedDefinition(struct2: Struct, _) =>
               struct2.fields(3).`type` mustEqual enumType
               true
@@ -130,6 +130,30 @@ object TypeResolverSpec extends Specification {
       val service2 = Service("Sub", Some(ServiceParent("other.Super")), Nil)
       val resolver = TypeResolver().include(include)
       resolver(service2) mustEqual service2.copy(parent = Some(ServiceParent("other.Super", Some(service1))))
+    }
+
+    "resolve a typedef from an included scope" in {
+      val oneInt = Struct("OneInt", Seq(Field(1, "id", TI32, None, Requiredness.Default)))
+      val typedefInt = Typedef("ManyInts", ListType(ReferenceType("OneInt"), None))
+      val doc1 = Document(Nil, Seq(oneInt, typedefInt))
+
+      val collectionStruct = Struct("IntCollection", Seq(
+        Field(1, "scores1", ReferenceType("typedef1.ManyInts"), None, Requiredness.Default),
+        Field(2, "scores2", SetType(ReferenceType("typedef1.OneInt"), None), None, Requiredness.Default)
+      ))
+      val doc2 = Document(Seq(Include("typedef1.thrift", doc1)), Seq(collectionStruct))
+
+      val resolvedDoc = TypeResolver().resolve(doc2).document
+      resolvedDoc.defs(0) must beLike {
+        case Struct(name, fields) => {
+          fields(0) must beLike {
+            case Field(1, _, ListType(StructType(_, Some("_typedef1_")), None), _, _) => true
+          }
+          fields(1) must beLike {
+            case Field(2, _, SetType(StructType(_, Some("_typedef1_")), None), _, _) => true
+          }
+        }
+      }
     }
   }
 }
