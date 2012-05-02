@@ -70,9 +70,6 @@ object Scrooge extends Build {
       "com.github.scopt" %% "scopt" % "2.0.1",
       "com.twitter" %% "util-core" % utilVersion,
 
-//          "finagle" ~ "finagle-thrift_2.9.1",
-//          "util" ~ "util-codec_2.9.1"
-
       // for tests:
       "org.scala-tools.testing" %% "specs" % "1.6.9" % "test" withSources(),
       "org.scalatest" %% "scalatest" % "1.7.1" % "test",
