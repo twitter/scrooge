@@ -36,9 +36,14 @@ object Importer {
     private[this] def withPath(path: String) = fileImporter(path +: importPaths)
 
     private def resolve(filename: String): (File, Importer) = {
-      paths map { path =>
-        new File(path, filename).getCanonicalFile
-      } find {
+      val f = new File(filename)
+      val candidates = if (f.isAbsolute) {
+        List(f)
+      } else {
+        paths map { path => new File(path, filename).getCanonicalFile }
+      }
+
+      candidates find {
         _.canRead
       } map { f =>
         (f, this.withPath(f.getParent()))
