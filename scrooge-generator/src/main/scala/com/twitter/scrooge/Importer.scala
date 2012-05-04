@@ -36,9 +36,6 @@ object Importer {
     private[this] def withPath(path: String) = fileImporter(path +: importPaths)
 
     private def resolve(filename: String): (File, Importer) = {
-      val f = new File(filename)
-      if (f.isAbsolute) return (f, this)
-
       paths map { path =>
         new File(path, filename).getCanonicalFile
       } find {
