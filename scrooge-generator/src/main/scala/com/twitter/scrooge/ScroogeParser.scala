@@ -231,5 +231,9 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     }
   }
 
-  def parseFile(filename: String) = parse(importer(filename), document)
+  def parseFile(filename: String): Document = {
+    val contents = importer(filename)
+    val newParser = new ScroogeParser(contents.importer)
+    newParser.parse(contents.data, newParser.document)
+  }
 }
