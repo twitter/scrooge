@@ -73,6 +73,7 @@ object Scrooge extends Build {
       // for tests:
       "org.scala-tools.testing" %% "specs" % "1.6.9" % "test" withSources(),
       "org.scalatest" %% "scalatest" % "1.7.1" % "test",
+      "com.twitter" %% "scalatest-mixins" % "1.0.3" % "test",
       "org.jmock" % "jmock" % "2.4.0" % "test",
       "org.hamcrest" % "hamcrest-all" % "1.1" % "test",
       "cglib" % "cglib" % "2.1_3" % "test",
