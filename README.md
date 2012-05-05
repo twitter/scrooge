@@ -84,6 +84,53 @@ To use it, add a line like this to your `plugins.sbt` file:
 `README`.
 
 
+## Finagle integration
+
+If you pass the `--finagle` option to scrooge, it will generate a finagle
+client and server wrapper class for each thrift service.
+
+The service wrapper takes a thrift protocol factory (which specifies which
+wire protocol to use) and an implementation of the future-based interface:
+
+    class FinagledService(
+      iface: FutureIface,
+      val protocolFactory: TProtocolFactory
+    ) extends FinagleThriftService
+
+Here's an example of creating a finagle service using this class, assuming
+your thrift service in named `AwesomeService`:
+
+    val address = new InetSocketAddress(listenAddress, port)
+    var builder = ServerBuilder()
+      .codec(ThriftServerFramedCodec())
+      .name("awesome_service")
+      .bindTo(address)
+    val protocol = new TBinaryProtocol.Factory()
+    // calling build() in finagle is equivalent to calling start().
+    builder.build(new AwesomeService.FinagledService(myService, protocol))
+
+The client wrapper has a more complex interface, but is easy to use:
+
+    class FinagledClient(
+      val service: FinagleService[ThriftClientRequest, Array[Byte]],
+      val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+      override val serviceName: Option[String] = None,
+      stats: StatsReceiver = NullStatsReceiver
+    ) extends FinagleThriftClient with FutureIface
+
+It implements the future-based interface of the thrift service:
+
+    val service = ClientBuilder()
+      .hosts(new InetSocketAddress(host, port))
+      .codec(ThriftClientFramedCodec())
+      .build()
+    val client = new AwesomeService.FinagledClient(service)
+
+In both the server and client cases, you probably want to pass more
+configuration parameters to finagle, so check the finagle documentation for
+tweaks once you get things to compile.
+
+
 ## Implementation Semantics
 
 Thrift is severely underspecified with respect to the handling of
