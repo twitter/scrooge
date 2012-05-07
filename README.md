@@ -1,23 +1,25 @@
 # scrooge
 
-Scrooge is a thrift code generator for scala.
+Scrooge is a [thrift](http://thrift.apache.org/) code generator for scala,
+written in scala.
 
-It's meant to be a drop-in replacement for the apache thrift code generator.
+It's meant to be a replacement for the apache thrift code generator, and
+generates conforming, compatible binary codecs by building on top of
+libthrift.
 
 Since scala is API-compatible with java, you can use the apache thrift code
 generator to generate java files and use them from within scala, but the
-overhead of converting to/from java containers can sometimes be annoying.
-This is an attempt to bypass the problem by generating scala code directly.
-It also uses scala syntax so the generated code is *much* smaller.
-
-The generated code still depends on libthrift.
+generated code uses java collections and mutable "bean" classes, causing some
+annoying boilerplate conversions to be hand-written. This is an attempt to
+bypass the problem by generating scala code directly. It also uses scala
+syntax so the generated code is much more compact.
 
 There is a fairly comprehensive set of unit tests, which actually generate
 code, compile it, and execute it to verify expectations.
 
 There are two sub-projects:
 
-- scrooge-generator: the actual code generator
+- scrooge-generator: the code generator
 - scrooge-runtime: some base traits used by the generated code
 
 
@@ -30,7 +32,8 @@ To build scrooge, use sbt:
 
 ## Features
 
-- Generates native scala thrift codecs, using case classes and functions.
+- Generates native scala thrift codecs, in immutable and "builder" variants,
+  using case classes and functions.
 
 - Generated code is templated using a mustache variant, making it easy to
   edit.
@@ -86,7 +89,8 @@ To use it, add a line like this to your `plugins.sbt` file:
 
 ## Finagle integration
 
-If you pass the `--finagle` option to scrooge, it will generate a finagle
+If you pass the `--finagle` option to scrooge, it will generate a
+[finagle](https://github.com/twitter/finagle)
 client and server wrapper class for each thrift service.
 
 The service wrapper takes a thrift protocol factory (which specifies which
