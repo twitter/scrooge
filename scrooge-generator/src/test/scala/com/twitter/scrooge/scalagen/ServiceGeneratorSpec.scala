@@ -119,6 +119,15 @@ class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker wi
       }
 
       ExceptionalService.deliver_result(None, Some(Xception(1, "silly"))).write(protocol) mustEqual ()
+
+      expect {
+        startWrite(protocol, new TField("ex3", TType.STRUCT, 3))
+        one(protocol).writeStructBegin(capturingParam[TStruct].capture)
+        one(protocol).writeFieldStop()
+        one(protocol).writeStructEnd()
+        endWrite(protocol)
+      }
+      ExceptionalService.deliver_result(None, None, None, Some(EmptyXception())).write(protocol) mustEqual ()
     }
 
     "generate FinagledService" in {

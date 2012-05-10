@@ -248,6 +248,8 @@ struct CrazyNesting {
   4: binary binary_field
 }
 
+exception EmptyXception
+
 exception Xception {
   1: i32 errorCode,
   2: string message
@@ -272,6 +274,7 @@ service ExceptionalService {
   i32 deliver(1: string where) throws (
     1: Xception ex
     2: Xception2 ex2
+    3: EmptyXception ex3
   )
 }
 
