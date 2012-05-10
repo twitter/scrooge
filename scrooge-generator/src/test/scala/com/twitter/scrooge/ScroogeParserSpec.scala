@@ -120,7 +120,7 @@ class ScroogeParserSpec extends Specification {
           Field(-1, "message", TString, None, Requiredness.Default),
           Field(-2, "reason", TString, None, Requiredness.Default)
         ))
-      parser.parse("exception NoParams", parser.definition) mustEqual
+      parser.parse("exception NoParams { }", parser.definition) mustEqual
         Exception_("NoParams", Seq())
     }
 

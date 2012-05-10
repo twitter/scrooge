@@ -248,7 +248,7 @@ struct CrazyNesting {
   4: binary binary_field
 }
 
-exception EmptyXception
+exception EmptyXception { }
 
 exception Xception {
   1: i32 errorCode,

@@ -193,7 +193,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     case id ~ fields => Struct(id.name, fixFieldIds(fields))
   }
 
-  def exception = ("exception" ~> identifier) ~ opt("{" ~> rep(field) <~ "}") ^^ {
+  def exception = ("exception" ~> identifier <~ "{") ~ opt(rep(field)) <~ "}" ^^ {
     case id ~ fields => Exception_(id.name, fixFieldIds(fields.getOrElse(Nil)))
   }
 
