@@ -1,1 +1,1 @@
-{{type}}.decoder(_iprot)
+{{#prefix}}_{{prefix}}_.{{/prefix}}{{type}}.decode(_iprot)

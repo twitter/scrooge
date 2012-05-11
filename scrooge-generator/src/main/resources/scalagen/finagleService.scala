@@ -1,7 +1,7 @@
 class FinagledService(
   iface: FutureIface,
-  {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory
-) extends {{parent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}} {
+  protocolFactory: TProtocolFactory
+) extends {{parent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}}{{^hasParent}}(protocolFactory){{/hasParent}} {
 {{#functions}}
   {{>function}}
 {{/function}}

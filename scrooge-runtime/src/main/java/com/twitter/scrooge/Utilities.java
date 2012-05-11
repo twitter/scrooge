@@ -24,27 +24,39 @@ public class Utilities {
     }
   }
 
-  <T> List<T> makeList(T... elements) {
+  public static <T> List<T> makeList(T... elements) {
     return Arrays.asList(elements);
   }
 
-  <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
+  public static <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
     return null;
   }
 
-  <T> Set<T> makeSet(T... elements) {
+  public static <T> Set<T> makeSet(T... elements) {
     return null;
   }
 
-  <A, B> Tuple<A, B> makeTuple(A a, B b) {
+  public static <A, B> Tuple<A, B> makeTuple(A a, B b) {
     return new Tuple<A, B>(a, b);
   }
 
   public static abstract class Option<A> {
     public abstract A get();
     public abstract boolean isDefined();
-    
-    public static Option<? extends Void> NONE = new Option<Void>() {
+
+    public static <A> Option<A> make(boolean b, A a) {
+      if (b) {
+        return new Some<A>(a);
+      } else {
+        return none();
+      }
+    }
+
+    public static <A> Option<A> none() {
+      return (Option<A>) NONE;
+    }
+
+    public static Option<Void> NONE = new Option<Void>() {
       public Void get() {
         throw new IllegalArgumentException();
       }

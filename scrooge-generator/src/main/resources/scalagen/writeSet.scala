@@ -1,5 +1,7 @@
-_oprot.writeSetBegin(new TSet(TType.{{eltType}}, _item.size))
-_item.foreach { _item =>
-{{eltWriter}}
+_oprot.writeSetBegin(new TSet(TType.{{eltConstType}}, `{{name}}`.size))
+`{{name}}`.foreach { `{{eltName}}` =>
+{{#eltReadWriteInfo}}
+  {{>writeValue}}
+{{/eltReadWriteInfo}}
 }
 _oprot.writeSetEnd()

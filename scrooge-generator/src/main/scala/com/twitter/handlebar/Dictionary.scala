@@ -26,7 +26,7 @@ object Dictionary {
   }
 
   case class StringValue(data: String) extends Value {
-    def toBoolean = true
+    def toBoolean = data != ""
     def toData = data
     def children = Nil
   }
@@ -47,6 +47,7 @@ object Dictionary {
     def toBoolean = true
     def toData = "?"
     def children = Nil
+    override def toString = "<partial>"
   }
 
   case object NoValue extends Value {
@@ -74,9 +75,14 @@ case class Dictionary private(
 
   def this() = this(None, new mutable.HashMap())
 
-  def apply(key: String): Value = map.get(key).orElse {
-    parent.map { _.apply(key) }
-  }.getOrElse(NoValue)
+  def apply(key: String): Value = {
+    map.get(key).map {
+      case ListValue(data) => ListValue(data map { _.copy(parent = Some(this)) })
+      case v => v
+    }.orElse {
+      parent.map { _.apply(key) }
+    }.getOrElse(NoValue)
+  }
 
   def update(key: String, data: String) {
     map(key) = StringValue(data)
@@ -87,7 +93,7 @@ case class Dictionary private(
   }
 
   def update(key: String, data: Seq[Dictionary]) {
-    map(key) = ListValue(data map { _.copy(parent = Some(this)) })
+    map(key) = ListValue(data)
   }
 
   def update(key: String, data: Handlebar) {
@@ -95,10 +101,11 @@ case class Dictionary private(
   }
 
   def ++=(values: (String, Value)*) = {
-    map ++= values.toMap mapValues {
-      case ListValue(data) => ListValue(data map { _.copy(parent = Some(this)) })
-      case x => x
-    }
+    map ++= values.toMap
     this
+  }
+
+  def +(dict: Dictionary) = {
+    new Dictionary() ++= (this.map.toSeq: _*) ++= (dict.map.toSeq: _*)
   }
 }

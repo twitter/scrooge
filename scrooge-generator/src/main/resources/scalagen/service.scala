@@ -46,7 +46,9 @@ object {{name}} {
 {{/asyncFunctions}}
   }
 
-{{functionStructs}}
+{{#structs}}
+    {{>struct}}
+{{/structs}}
 {{#finagleClients}}
   {{>finagleClient}}
 {{/finagleClients}}

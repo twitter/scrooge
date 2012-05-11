@@ -23,7 +23,6 @@ import javalike.JavaLike
 class JavaGenerator extends JavaLike {
   val fileExtension = ".java"
   val templateDirName = "/javagen/"
-  val none = "Utilities.Option.none()"
 
   def namespace(doc: Document) =
     doc.namespace("java") getOrElse("thrift")
@@ -124,8 +123,10 @@ class JavaGenerator extends JavaLike {
 
   override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
     `type` match {
-      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
-        "new " + typeName(`type`, mutable) + "()"
+      case MapType(_, _, _) => "Utilities.makeMap()"
+      case SetType(_, _) => "Utilities.makeSet()"
+      case ListType(_, _) => "Utilities.makeList()"
+      case TI64 => "(long) 0"
       case _ => super.defaultValue(`type`, mutable)
     }
   }
@@ -160,15 +161,29 @@ class JavaGenerator extends JavaLike {
       case SetType(x, _) => "Set<" + typeName(x) + ">"
       case ListType(x, _) => "List<" + typeName(x) + ">"
       case n: NamedType => n.name
+      case r: ReferenceType => r.name
+    }
+  }
+
+  def primitiveTypeName(t: FunctionType, mutable: Boolean = false): String = {
+    t match {
+      case Void => "void"
+      case TBool => "boolean"
+      case TByte => "byte"
+      case TI16 => "short"
+      case TI32 => "int"
+      case TI64 => "long"
+      case TDouble => "double"
+      case _ => typeName(t, mutable)
     }
   }
 
   def fieldTypeName(f: Field, mutable: Boolean = false): String = {
-    val baseType = typeName(f.`type`, mutable)
     if (f.requiredness.isOptional) {
+      val baseType = typeName(f.`type`, mutable)
       "Utilities.Option<" + baseType + ">"
     } else {
-      baseType
+      primitiveTypeName(f.`type`)
     }
   }
 

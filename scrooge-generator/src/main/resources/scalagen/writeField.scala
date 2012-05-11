@@ -1,6 +1,7 @@
-if ({{conditional}}) {
-  val _item = `{{name}}`{{getter}}
+{{#optional}}if (`{{name}}`.isDefined) {{{/optional}}
+  val `{{valueVariableName}}` = `{{name}}`{{#optional}}.get{{/optional}}
+
   _oprot.writeFieldBegin({{fieldConst}})
-{{valueWriter}}
+  {{>writeValue}}
   _oprot.writeFieldEnd()
-}
+{{#optional}}}{{/optional}}

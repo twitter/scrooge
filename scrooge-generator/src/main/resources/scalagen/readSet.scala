@@ -3,7 +3,9 @@ val _rv = new mutable.HashSet[{{eltType}}]
 var _i = 0
 while (_i < _set.size) {
   _rv += {
-    {{eltReader}}
+{{#eltReadWriteInfo}}
+    {{>readValue}}
+{{/eltReadWriteInfo}}
   }
   _i += 1
 }

@@ -1,3 +1,5 @@
+package {{package}};
+
 public enum {{enum_name}} {
 {{#values}}
   {{name}}({{value}}){{/values|,

@@ -22,8 +22,8 @@ object Scrooge extends Build {
       sourceManaged in Test,
       resourceDirectory in Test
     ) map { (out, products, cp, managed, resources) =>
-      generateThriftFor("scala", cp, managed, resources, out.log) //++
-        //generateThriftFor("java", cp, managed, out.log)
+      generateThriftFor("scala", cp, managed, resources, out.log) // ++
+        // generateThriftFor("java", cp, managed, resources, out.log)
     }
   )
 

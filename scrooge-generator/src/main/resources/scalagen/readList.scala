@@ -3,7 +3,9 @@ val _rv = new mutable.ArrayBuffer[{{eltType}}](_list.size)
 var _i = 0
 while (_i < _list.size) {
   _rv += {
-    {{eltReader}}
+{{#eltReadWriteInfo}}
+    {{>readValue}}
+{{/eltReadWriteInfo}}
   }
   _i += 1
 }

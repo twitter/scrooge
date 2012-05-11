@@ -1,1 +1,1 @@
-_oprot.writeI32(_item.value)
+_oprot.writeI32(`{{name}}`.value)

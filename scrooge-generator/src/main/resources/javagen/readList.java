@@ -1,9 +1,12 @@
-TList _list = _iprot.readListBegin();
-List<{{eltType}}> {{name}} = new ArrayList<{{eltType}}>(_list.size);
-int i = 0;
-while (_i < _list.size()) {
-  {{eltReader}}
-  {{name}}.append(element);
-  _i += 1;
+TList _list_{{name}} = _iprot.readListBegin();
+{{name}} = new ArrayList<{{eltType}}>();
+int _i_{{name}} = 0;
+{{eltType}} {{eltName}};
+while (_i_{{name}} < _list_{{name}}.size) {
+{{#eltReadWriteInfo}}
+  {{>readValue}}
+{{/eltReadWriteInfo}}
+  {{name}}.add({{eltName}});
+  _i_{{name}} += 1;
 }
 _iprot.readListEnd();

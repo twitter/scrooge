@@ -96,6 +96,7 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
           "argNames" ->
             v(f.args map { "args." + _.name} mkString (", ")),
           "typeName" -> v(typeName(f.`type`)),
+          "isVoid" -> v(f.`type` eq AST.Void),
           "resultNamedArg" -> v(if (f.`type` ne Void) "success = Some(value)" else ""),
           "exceptions" -> v(f.throws map { t =>
             Dictionary(
@@ -113,12 +114,6 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
   lazy val serviceTemplate = templates("service").generate { (s: JavaService, namespace: String, includes: Seq[Include]) =>
     val service = s.service
 
-    val functionStructs =
-      service.functions flatMap { f =>
-        Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-      } map { struct =>
-        structTemplate(struct, None, includes).indent
-      } mkString("", "\n\n", "\n")
     val parentName = service.parent.flatMap(_.service).map(_.name)
     Dictionary(
       "function" -> v(templates("function")),
@@ -132,7 +127,13 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
       }.getOrElse("")),
       "syncFunctions" -> service.functions.map { f => toDictionary(f, false) },
       "asyncFunctions" -> service.functions.map { f => toDictionary(f, true) },
-      "functionStructs" -> v(functionStructs),
+      "struct" -> v(templates("struct")),
+      "structs" -> v(
+        service.functions flatMap { f =>
+          Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
+        } map { struct =>
+          structDict(struct, None, includes)
+        }),
       "finagleClient" -> templates("finagleClient"),
       "finagleService" -> templates("finagleService"),
       "ostrichServer" -> templates("ostrichService"),

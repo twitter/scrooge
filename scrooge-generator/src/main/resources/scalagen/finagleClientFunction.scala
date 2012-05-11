@@ -7,7 +7,7 @@ private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
 {{#headerInfo}}{{>header}}{{/headerInfo}} = {
   _{{name}}RequestsCounter.incr()
   this.service(encodeRequest("{{name}}", {{localName}}_args({{argNames}}))) flatMap { response =>
-    val result = decodeResponse(response, {{localName}}_result.decoder)
+    val result = decodeResponse(response, {{localName}}_result)
 
     val exception =
       {{#hasThrows}}({{#throws}}result.{{name}}{{/throws| orElse }}).map(Future.exception){{/hasThrows}}
@@ -16,11 +16,11 @@ private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
     {{#void}}Future.Done{{/void}}
     {{^void}}
       exception.orElse({{^void}}result.success.map(Future.value){{/void}})
-      .getOrElse(missingResult("{{name}}"))
+      .getOrElse(Future.exception(missingResult("{{name}}")))
     {{/void}}
   } rescue {
     case ex: SourcedException =>
-      this.serviceName foreach { ex.serviceName = _ }
+      if (this.serviceName != "") { ex.serviceName = this.serviceName }
       Future.exception(ex)
   } onSuccess { _ =>
     _{{name}}SuccessCounter.incr()

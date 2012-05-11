@@ -35,8 +35,6 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   def namespace(doc0: Document): String
   val fileExtension: String
   val templateDirName: String
-  val none: String
-
 
   lazy val templates = new HandlebarLoader(templateDirName, fileExtension)
 
@@ -110,17 +108,15 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
     `type` match {
       case TBool => "false"
-      case TByte | TI16 | TI32 | TI64 => "0"
+      case TByte | TI16 | TI32 => "0"
       case TDouble => "0.0"
-      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
-        typeName(`type`, mutable) + "()"
       case _ => "null"
     }
   }
 
   def defaultFieldValue(f: Field): Option[String] = {
     if (f.requiredness.isOptional) {
-      Some(none)
+      None
     } else {
       f.default.map(constantValue(_, false)) orElse {
         if (f.`type`.isInstanceOf[ContainerType]) {
@@ -220,6 +216,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   def toMutable(f: Field): (String, String)
 
   def typeName(t: FunctionType, mutable: Boolean = false): String
+  def primitiveTypeName(t: FunctionType, mutable: Boolean = false): String
 
   def fieldTypeName(f: Field, mutable: Boolean = false): String
 
@@ -244,7 +241,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     }
     doc.structs.foreach { struct =>
       val file = new File(packageDir, struct.name + fileExtension)
-      write(file, structTemplate(struct, Some(namespace_), includes))
+      write(file, templates("struct").generate(structDict(struct, Some(namespace_), includes)))
     }
     doc.services.foreach { service =>
       val file = new File(packageDir, service.name + fileExtension)

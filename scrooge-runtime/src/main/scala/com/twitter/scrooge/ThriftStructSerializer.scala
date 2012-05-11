@@ -14,7 +14,7 @@ trait ThriftStructSerializer[T <: ThriftStruct] {
   def toBytes(obj: T): Array[Byte] = {
     val buf = new ByteArrayOutputStream
     val proto = protocolFactory.getProtocol(new TIOStreamTransport(buf))
-    codec.encoder(obj, proto)
+    codec.encode(obj, proto)
     buf.toByteArray
   }
 
@@ -22,7 +22,7 @@ trait ThriftStructSerializer[T <: ThriftStruct] {
 
   def fromInputStream(stream: InputStream): T = {
     val proto = protocolFactory.getProtocol(new TIOStreamTransport(stream))
-    codec.decoder(proto)
+    codec.decode(proto)
   }
 
   def toString(obj: T): String = {
