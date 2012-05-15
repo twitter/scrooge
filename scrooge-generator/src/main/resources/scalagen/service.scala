@@ -47,7 +47,7 @@ object {{name}} {
   }
 
 {{#structs}}
-    {{>struct}}
+  {{>struct}}
 {{/structs}}
 {{#finagleClients}}
   {{>finagleClient}}

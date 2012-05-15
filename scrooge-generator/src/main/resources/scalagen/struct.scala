@@ -26,12 +26,11 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   def apply(
 {{#fields}}
     `{{name}}`: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
-{{/fields|,
-}}
+{{/fields|,}}
   ): {{name}} = new Immutable(
 {{#fields}}
-    `{{name}}`{{comma}}
-{{/fields}}
+    `{{name}}`
+{{/fields|,}}
   )
 
 {{#arity0}}
@@ -61,7 +60,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
           _field.id match {
 {{#fields}}
 {{#readWriteInfo}}
-          {{>readField}}
+            {{>readField}}
 {{/readWriteInfo}}
 {{/fields}}
             case _ => TProtocolUtil.skip(_iprot, _field.`type`)
@@ -78,11 +77,12 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
       new Immutable(
 {{#fields}}
 {{#optional}}
-        if (_got_{{name}}) Some(`{{name}}`) else None{{/optional}}
+        if (_got_{{name}}) Some(`{{name}}`) else None
+{{/optional}}
 {{^optional}}
-        `{{name}}`{{/optional}}
-{{/fields|,
-}}
+        `{{name}}`
+{{/optional}}
+{{/fields|,}}
       )
     }
   }
@@ -95,8 +95,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   class Immutable(
 {{#fields}}
     val `{{name}}`: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
-{{/fields|,
-}}
+{{/fields|,}}
   ) extends {{name}}
 
 {{#withProxy}}
@@ -122,7 +121,6 @@ trait {{name}} extends {{parentType}}
 
 {{#fields}}
   def `{{name}}`: {{>optionalType}}
-
 {{/fields}}
 
 {{#fields}}
