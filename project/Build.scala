@@ -65,6 +65,9 @@ object Scrooge extends Build {
     organization := "com.twitter",
     version := "2.5.5-SNAPSHOT",
 
+    // we only generate one scrooge to bind them all.
+    crossPaths := false,
+
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
       "com.github.scopt" %% "scopt" % "2.0.1",
