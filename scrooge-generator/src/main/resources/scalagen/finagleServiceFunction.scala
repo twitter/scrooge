@@ -1,4 +1,4 @@
-addFunction("{{name}}", { (iprot: TProtocol, seqid: java.lang.Integer) =>
+addFunction("{{name}}", { (iprot: TProtocol, seqid: Int) =>
   try {
     val args = {{localName}}_args.decode(iprot)
     iprot.readMessageEnd()

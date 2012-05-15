@@ -222,6 +222,8 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
 
   def fieldParams(fields: Seq[Field], asVal: Boolean = false): String
 
+  def baseFinagleService: String
+
   def apply(_doc: Document, serviceOptions: Set[ServiceOption], outputPath: File) {
     val doc = normalizeCase(_doc)
     val namespace_ = namespace(_doc)

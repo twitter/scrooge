@@ -192,4 +192,6 @@ class JavaGenerator extends JavaLike {
       fieldTypeName(f) + " " + f.name
     }.mkString(", ")
   }
+
+  def baseFinagleService = "FinagleService<byte[], byte[]>"
 }

@@ -186,4 +186,6 @@ class ScalaGenerator extends JavaLike {
       valPrefix + nameAndType + defaultValue.getOrElse("")
     }.mkString(", ")
   }
+
+  def baseFinagleService = "FinagleService[Array[Byte], Array[Byte]]"
 }
