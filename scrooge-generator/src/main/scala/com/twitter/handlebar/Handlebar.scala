@@ -38,6 +38,19 @@ object Handlebar {
     }.mkString
   }
 
+  private[this] def join(x: Seq[String], joiner: String): String = {
+    if (x.size > 0 && x.head.endsWith("\n")) {
+      // if each item is at least one entire line to itself, apply the joiner to the end of the
+      // line, instead of onto its own line.
+      val rv = x map { item =>
+        if (item endsWith "\n") item.substring(0, item.size - 1) else item
+      } mkString(joiner + "\n")
+      rv + "\n"
+    } else {
+      x.mkString(joiner)
+    }
+  }
+
   private[this] def process(indentLevel: Int, segment: Segment, dictionary: Dictionary): (Int, String) = {
     var nextIndentLevel = 0
     val processed = segment match {
@@ -59,7 +72,8 @@ object Handlebar {
             if (reversed) {
               ""
             } else {
-              items.map { d => generate(indentLevel, document, d) }.mkString(joiner.getOrElse(""))
+              val contents = items.map { d => generate(indentLevel, document, d) }
+              joiner map { join(contents, _) } getOrElse(contents.mkString)
             }
           }
           case other => {
