@@ -1,5 +1,6 @@
 public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}} implements FutureIface {
   private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
+  private String serviceName;
   private TProtocolFactory protocolFactory /* new TBinaryProtocol.Factory */;
   private StatsReceiver scopedStats;
 
@@ -13,6 +14,7 @@ public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}
     super(service, protocolFactory, serviceName, stats);
 {{/hasParent}}
     this.service = service;
+    this.serviceName = serviceName;
     this.protocolFactory = protocolFactory;
     if (serviceName != "") {
       this.scopedStats = stats.scope(serviceName);
@@ -28,22 +30,26 @@ public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}
     TMemoryBuffer buf = new TMemoryBuffer(512);
     TProtocol oprot = protocolFactory.getProtocol(buf);
 
-    oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0));
-    args.write(oprot);
-    oprot.writeMessageEnd();
+    try {
+      oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0));
+      args.write(oprot);
+      oprot.writeMessageEnd();
+    } catch (TException e) {
+      // not real.
+    }
 
-    byte[] bytes = Arrays.copyOfRange(buf.getArray(), 0, buf.length);
+    byte[] bytes = Arrays.copyOfRange(buf.getArray(), 0, buf.length());
     return new ThriftClientRequest(bytes, false);
   }
 
-  protected T decodeResponse<T extends ThriftStruct>(byte[] resBytes, ThriftStructCodec<T> codec) {
+  protected <T extends ThriftStruct> T decodeResponse(byte[] resBytes, ThriftStructCodec<T> codec) throws TException {
     TProtocol iprot = protocolFactory.getProtocol(new TMemoryInputTransport(resBytes));
     TMessage msg = iprot.readMessageBegin();
     try {
       if (msg.type == TMessageType.EXCEPTION) {
-        Exception exception = TApplicationException.read(iprot);
+        TException exception = TApplicationException.read(iprot);
         if (exception instanceof SourcedException) {
-          if (serviceName != "") ((SourcedException) exception).serviceName = serviceName;
+          if (this.serviceName != "") ((SourcedException) exception).serviceName_$eq(this.serviceName);
         }
         throw exception;
       } else {
@@ -58,7 +64,7 @@ public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}
     return new TApplicationException(
       TApplicationException.MISSING_RESULT,
       "`" + name + "` failed: unknown result"
-    )
+    );
   }
 
   // ----- end boilerplate.

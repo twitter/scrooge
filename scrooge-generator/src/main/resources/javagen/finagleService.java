@@ -1,5 +1,3 @@
-import com.twitter.finagle.Service;
-
 static class FinagledService extends {{parent}} {
   final private FutureIface iface;
   final private TProtocolFactory protocolFactory;
@@ -10,6 +8,10 @@ static class FinagledService extends {{parent}} {
 {{/hasParent}}
     this.iface = iface;
     this.protocolFactory = protocolFactory;
+
+{{#functions}}
+    {{>function}}
+{{/function}}
   }
 
 {{^hasParent}}
@@ -76,9 +78,5 @@ static class FinagledService extends {{parent}} {
   }
 
   // ---- end boilerplate.
-
-{{#functions}}
-    {{>function}}
-{{/function}}
-  }
+{{/hasServer}}
 }

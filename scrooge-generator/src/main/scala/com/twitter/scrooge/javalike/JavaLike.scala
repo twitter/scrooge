@@ -140,7 +140,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
         case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
         case _ => true
       }
-      )
+    )
   }
 
   def constType(t: FunctionType): String = {

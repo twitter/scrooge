@@ -9,23 +9,27 @@
 //  _{{name}}RequestsCounter.incr();
   return this.service.apply(encodeRequest("{{name}}", new {{localName}}_args({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
     public Future<{{type}}> apply(byte[] in) {
-      {{localName}}_result result = decodeResponse(in, {{localName}}_result.CODEC);
+      try {
+        {{localName}}_result result = decodeResponse(in, {{localName}}_result.CODEC);
 
 {{#hasThrows}}
-      Exception exception = null;
+        Exception exception = null;
 {{#throws}}
-      if (exception == null && result.{{name}}.isDefined()) exception = result.{{name}}.get();
+        if (exception == null && result.{{name}}.isDefined()) exception = result.{{name}}.get();
 {{/throws}}
-      if (exception != null) return Future.exception(exception);
+        if (exception != null) return Future.exception(exception);
 {{/hasThrows}}
 
 {{#void}}
-      return Future.value(null);
+        return Future.value(null);
 {{/void}}
 {{^void}}
-      if (result.success.isDefined()) return Future.value(result.success.get());
-      return Future.exception(missingResult("{{name}}"));
+        if (result.success.isDefined()) return Future.value(result.success.get());
+        return Future.exception(missingResult("{{name}}"));
 {{/void}}
+      } catch (TException e) {
+        return Future.exception(e);
+      }
     }
   }).rescue(new Function<Throwable, Future<{{type}}>>() {
       public Future<{{type}}> apply(Throwable t) {

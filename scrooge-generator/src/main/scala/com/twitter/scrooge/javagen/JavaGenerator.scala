@@ -193,5 +193,5 @@ class JavaGenerator extends JavaLike {
     }.mkString(", ")
   }
 
-  def baseFinagleService = "FinagleService<byte[], byte[]>"
+  def baseFinagleService = "Service<byte[], byte[]>"
 }
