@@ -22,8 +22,8 @@ object Scrooge extends Build {
       sourceManaged in Test,
       resourceDirectory in Test
     ) map { (out, products, cp, managed, resources) =>
-      generateThriftFor("scala", cp, managed, resources, out.log) // ++
-        // generateThriftFor("java", cp, managed, resources, out.log)
+      generateThriftFor("scala", cp, managed, resources, out.log) ++
+        generateThriftFor("java", cp, managed, resources, out.log)
     }
   )
 
@@ -102,6 +102,15 @@ object Scrooge extends Build {
     val outFolder = managedFolder / language
     outFolder.mkdirs()
 
+    val extraArgs = if (language != "scala") {
+      Seq(
+        "-n", "thrift.test=thrift." + language + "_test",
+        "-n", "thrift.typedef1=thrift." + language + "_typedef1",
+        "-n", "thrift.typedef2=thrift." + language + "_typedef2"
+      )
+    } else {
+      Seq()
+    }
     log.info("Generating " + language + " files for tests ...")
     val command = List(
       "java",
@@ -112,7 +121,7 @@ object Scrooge extends Build {
       "--ostrich",
       "-d", outFolder.getAbsolutePath.toString,
       "-l", language
-    ) ++ (resourceFolder ** "*.thrift").get.map(_.toString)
+    ) ++ extraArgs ++ (resourceFolder ** "*.thrift").get.map(_.toString)
     log.debug(command.mkString(" "))
     command ! log
     (outFolder ** ("*." + language)).get.toSeq
