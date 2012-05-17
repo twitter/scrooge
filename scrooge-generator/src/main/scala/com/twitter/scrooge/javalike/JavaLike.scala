@@ -140,7 +140,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
         case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
         case _ => true
       }
-      )
+    )
   }
 
   def constType(t: FunctionType): String = {
@@ -221,6 +221,8 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   def fieldTypeName(f: Field, mutable: Boolean = false): String
 
   def fieldParams(fields: Seq[Field], asVal: Boolean = false): String
+
+  def baseFinagleService: String
 
   def apply(_doc: Document, serviceOptions: Set[ServiceOption], outputPath: File) {
     val doc = normalizeCase(_doc)

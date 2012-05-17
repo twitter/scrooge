@@ -32,7 +32,14 @@ class HandlebarLoader(prefix: String, suffix: String = ".scala") {
           throw new NoSuchElementException("template not found: " + fullName)
         }
         case inputStream => {
-          new Handlebar(Source.fromInputStream(inputStream).getLines().mkString("\n"))
+          try {
+            new Handlebar(Source.fromInputStream(inputStream).getLines().mkString("\n"))
+          } catch {
+            case e: Exception => {
+              println("Exception parsing template at " + fullName)
+              throw e
+            }
+          }
         }
       }
     )

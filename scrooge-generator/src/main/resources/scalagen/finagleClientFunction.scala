@@ -1,31 +1,36 @@
-private[this] val _{{name}}Scope = scopedStats.scope("{{name}}")
-private[this] val _{{name}}RequestsCounter = _{{name}}Scope.counter("requests")
-private[this] val _{{name}}SuccessCounter = _{{name}}Scope.counter("success")
-private[this] val _{{name}}FailuresCounter = _{{name}}Scope.counter("failures")
-private[this] val _{{name}}FailuresScope = _{{name}}Scope.scope("failures")
+private[this] object __stats_{{name}} {
+  val RequestsCounter = scopedStats.scope("{{name}}").counter("requests")
+  val SuccessCounter = scopedStats.scope("{{name}}").counter("success")
+  val FailuresCounter = scopedStats.scope("{{name}}").counter("failures")
+  val FailuresScope = scopedStats.scope("{{name}}").scope("failures")
+}
 
 {{#headerInfo}}{{>header}}{{/headerInfo}} = {
-  _{{name}}RequestsCounter.incr()
+  __stats_{{name}}.RequestsCounter.incr()
   this.service(encodeRequest("{{name}}", {{localName}}_args({{argNames}}))) flatMap { response =>
     val result = decodeResponse(response, {{localName}}_result)
-
     val exception =
-      {{#hasThrows}}({{#throws}}result.{{name}}{{/throws| orElse }}).map(Future.exception){{/hasThrows}}
-      {{^hasThrows}}None{{/hasThrows}}
-
-    {{#void}}Future.Done{{/void}}
-    {{^void}}
-      exception.orElse({{^void}}result.success.map(Future.value){{/void}})
-      .getOrElse(Future.exception(missingResult("{{name}}")))
-    {{/void}}
+{{#hasThrows}}
+      ({{#throws}}result.{{name}}{{/throws| orElse }}).map(Future.exception)
+{{/hasThrows}}
+{{^hasThrows}}
+      None
+{{/hasThrows}}
+{{#void}}
+    Future.Done
+{{/void}}
+{{^void}}
+    exception.orElse(result.success.map(Future.value)).getOrElse(Future.exception(missingResult("{{name}}")))
+{{/void}}
   } rescue {
-    case ex: SourcedException =>
+    case ex: SourcedException => {
       if (this.serviceName != "") { ex.serviceName = this.serviceName }
       Future.exception(ex)
+    }
   } onSuccess { _ =>
-    _{{name}}SuccessCounter.incr()
+    __stats_{{name}}.SuccessCounter.incr()
   } onFailure { ex =>
-    _{{name}}FailuresCounter.incr()
-    _{{name}}FailuresScope.counter(ex.getClass.getName).incr()
+    __stats_{{name}}.FailuresCounter.incr()
+    __stats_{{name}}.FailuresScope.counter(ex.getClass.getName).incr()
   }
 }

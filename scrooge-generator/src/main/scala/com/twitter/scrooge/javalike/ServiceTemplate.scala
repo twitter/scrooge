@@ -63,9 +63,7 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
     val parentName = s.parent.flatMap(_.service).map(_.name)
     Dictionary(
       "hasParent" -> v(parentName.nonEmpty),
-      "parent" -> v(parentName.map {
-        _ + ".FinagledClient"
-      }.getOrElse("FinagleThriftClient")),
+      "parent" -> v(parentName map { _ + ".FinagledClient" } getOrElse ""),
       "functions" -> v(s.functions.map { f =>
         Dictionary(
           "header"       -> templates("function"),
@@ -87,7 +85,7 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
     val parentName = s.parent.flatMap(_.service).map(_.name)
     Dictionary(
       "hasParent" -> v(parentName.nonEmpty),
-      "parent" -> v(parentName.map { _ + ".FinagledService"}.getOrElse("FinagleThriftService")),
+      "parent" -> v(parentName.map { _ + ".FinagledService"}.getOrElse(baseFinagleService)),
       "function" -> templates("finagleServiceFunction"),
       "functions" -> v(s.functions map { f =>
         Dictionary(

@@ -138,7 +138,8 @@ object AST {
   case class Service(
     name: String,
     parent: Option[ServiceParent],
-    functions: Seq[Function]) extends Definition
+    functions: Seq[Function]
+  ) extends Definition
 
   sealed abstract class Header extends Node
 
@@ -151,17 +152,21 @@ object AST {
   case class Namespace(scope: String, name: String) extends Header
 
   case class Document(headers: Seq[Header], defs: Seq[Definition]) extends Node {
-    def namespace(language: String) = headers.collect { case Namespace(l, x) if l == language => x }.headOption
+    def namespace(language: String) = headers collect {
+      case Namespace(l, x) if l == language => x
+    } headOption
 
     def mapNamespaces(namespaceMap: Map[String,String]): Document = {
       copy(
         headers = headers map {
-          case header @ Namespace(_, ns) =>
+          case header @ Namespace(_, ns) => {
             namespaceMap.get(ns) map {
               newNs => header.copy(name = newNs)
             } getOrElse(header)
-          case include @ Include(_, doc) =>
+          }
+          case include @ Include(_, doc) => {
             include.copy(document = doc.mapNamespaces(namespaceMap))
+          }
           case header => header
         }
       )

@@ -22,12 +22,18 @@ import com.twitter.finagle.stats.NullStatsReceiver;
 import com.twitter.finagle.stats.StatsReceiver;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 import com.twitter.scrooge.FinagleThriftClient;
+import com.twitter.scrooge.ScalaHelpers;
+import java.util.Arrays;
+import org.apache.thrift.TException;
 {{/finagleClient}}
 {{#finagleService}}
+import com.twitter.finagle.Service;
 import com.twitter.finagle.stats.Counter;
-import com.twitter.scrooge.FinagleThriftService;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
+import org.apache.thrift.transport.TMemoryBuffer;
+import org.apache.thrift.transport.TMemoryInputTransport;
+import org.apache.thrift.transport.TTransport;
 {{/finagleService}}
 {{#ostrichServer}}
 import com.twitter.finagle.builder.Server;
