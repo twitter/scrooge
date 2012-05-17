@@ -1,4 +1,4 @@
-namespace java thrift.test
+namespace java thrift.test2
 
 include "relative1.thrift"
 

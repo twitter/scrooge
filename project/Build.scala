@@ -105,8 +105,8 @@ object Scrooge extends Build {
     val extraArgs = if (language != "scala") {
       Seq(
         "-n", "thrift.test=thrift." + language + "_test",
-        "-n", "thrift.typedef1=thrift." + language + "_typedef1",
-        "-n", "thrift.typedef2=thrift." + language + "_typedef2"
+        "-n", "thrift.test1=thrift." + language + "_test1",
+        "-n", "thrift.test2=thrift." + language + "_test2"
       )
     } else {
       Seq()

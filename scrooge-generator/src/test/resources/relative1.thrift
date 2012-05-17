@@ -1,4 +1,4 @@
-namespace java thrift.test
+namespace java thrift.test1
 
 enum CandyType {
   OLD = 0,
