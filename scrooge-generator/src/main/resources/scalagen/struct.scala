@@ -89,7 +89,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 
   /**
    * The default read-only implementation of {{name}}.  You typically should not need to
-   * directly reference this class, instead, use the {{name}}.apply method to construct
+   * directly reference this class; instead, use the {{name}}.apply method to construct
    * new instances.
    */
   class Immutable(
