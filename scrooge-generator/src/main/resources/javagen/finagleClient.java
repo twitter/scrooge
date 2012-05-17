@@ -67,6 +67,19 @@ public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}
     );
   }
 
+  class __Stats {
+    Counter requestsCounter, successCounter, failuresCounter;
+    StatsReceiver failuresScope;
+
+    public __Stats(String name) {
+      StatsReceiver scope = FinagledClient.this.scopedStats.scope(name);
+      this.requestsCounter = scope.counter(ScalaHelpers.seq("requests"));
+      this.successCounter = scope.counter(ScalaHelpers.seq("success"));
+      this.failuresCounter = scope.counter(ScalaHelpers.seq("failures"));
+      this.failuresScope = scope.scope("failures");
+    }
+  }
+
   // ----- end boilerplate.
 
 {{/hasParent}}
