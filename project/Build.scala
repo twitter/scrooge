@@ -41,7 +41,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-runtime",
     organization := "com.twitter",
-    version := "1.1.4-SNAPSHOT",
+    version := "3.0.0-SNAPSHOT",
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided",
@@ -63,7 +63,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge",
     organization := "com.twitter",
-    version := "2.5.5-SNAPSHOT",
+    version := "3.0.0-SNAPSHOT",
 
     // we only generate one scrooge to bind them all.
     crossPaths := false,
