@@ -43,13 +43,23 @@ object Scrooge extends Build {
     organization := "com.twitter",
     version := "3.0.0-SNAPSHOT",
 
-    libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided",
-      "com.twitter" %% "util-codec" % utilVersion % "provided",
+    crossScalaVersions := Seq("2.8.1", "2.9.1"),
 
-      // for tests:
-      "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
-    )
+    libraryDependencies <<= (scalaVersion, libraryDependencies) { (version, deps) =>
+      deps ++ Seq(
+        "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      ) ++ (if (version == "2.8.1") Seq(
+        "com.twitter" % "util-codec" % utilVersion % "provided",
+
+        // for tests:
+        "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test"
+      ) else Seq(
+        "com.twitter" %% "util-codec" % utilVersion % "provided",
+
+        // for tests:
+        "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
+      ))
+    }
   )
 
   lazy val scroogeGenerator = Project(
