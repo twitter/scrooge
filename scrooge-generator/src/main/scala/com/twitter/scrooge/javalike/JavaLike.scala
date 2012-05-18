@@ -243,11 +243,13 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     }
     doc.structs.foreach { struct =>
       val file = new File(packageDir, struct.name + fileExtension)
-      write(file, templates("struct").generate(structDict(struct, Some(namespace_), includes)))
+      val dict = structDict(struct, Some(namespace_), includes, serviceOptions)
+      write(file, templates("struct").generate(dict))
     }
     doc.services.foreach { service =>
       val file = new File(packageDir, service.name + fileExtension)
-      write(file, serviceTemplate(JavaService(service, serviceOptions), namespace_, includes))
+      val dict = serviceDict(JavaService(service, serviceOptions), namespace_, includes, serviceOptions)
+      write(file, templates("service").generate(dict))
     }
   }
 
