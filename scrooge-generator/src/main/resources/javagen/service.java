@@ -21,10 +21,10 @@ import {{parentPackage}}.{{subPackage}}.*;
 import com.twitter.finagle.stats.NullStatsReceiver;
 import com.twitter.finagle.stats.StatsReceiver;
 import com.twitter.finagle.thrift.ThriftClientRequest;
-import com.twitter.scrooge.FinagleThriftClient;
 import com.twitter.scrooge.ScalaHelpers;
 import java.util.Arrays;
 import org.apache.thrift.TException;
+import scala.runtime.BoxedUnit;
 {{/finagleClient}}
 {{#finagleService}}
 import com.twitter.finagle.Service;

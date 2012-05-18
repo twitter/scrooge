@@ -37,17 +37,17 @@ private __Stats __stats_{{name}} = new __Stats("{{name}}");
     }
   });
 
-  rv.onSuccess(new Function<{{type}}, Void>() {
-    public Void apply({{type}} result) {
+  rv.onSuccess(new Function<{{type}}, BoxedUnit>() {
+    public BoxedUnit apply({{type}} result) {
       __stats_{{name}}.successCounter.incr();
-      return null;
+      return BoxedUnit.UNIT;
     }
   });
-  rv.onFailure(new Function<Throwable, Void>() {
-    public Void apply(Throwable t) {
+  rv.onFailure(new Function<Throwable, BoxedUnit>() {
+    public BoxedUnit apply(Throwable t) {
       __stats_{{name}}.failuresCounter.incr();
       __stats_{{name}}.failuresScope.counter(ScalaHelpers.seq(t.getClass().getName())).incr();
-      return null;
+      return BoxedUnit.UNIT;
     }
   });
 
