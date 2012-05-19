@@ -1,4 +1,4 @@
-namespace java thrift.typedef2
+namespace java thrift.test2
 
 include "typedef1.thrift"
 

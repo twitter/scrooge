@@ -6,6 +6,8 @@ import org.apache.thrift.protocol._
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.Specification
 import thrift.test._
+import thrift.test1._
+import thrift.test2._
 
 class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
   import AST._
@@ -439,6 +441,13 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
             age must beSome(32)
         }
       }
+    }
+
+    "typedef relative fields" in {
+      // if the thrift compiles at all, this test will probably pass.
+      val candy = Candy(100, CandyType.Delicious)
+      candy.sweetnessIso mustEqual 100
+      candy.candyType.value mustEqual 1
     }
   }
 }
