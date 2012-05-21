@@ -22,7 +22,7 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
   private static final TStruct STRUCT = new TStruct("{{name}}");
 {{#fields}}
   private static final TField {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, (short) {{id}});
-  private final {{#optional}}Utilities.Option<{{fieldType}}>{{/optional}}{{^optional}}{{fieldType}}{{/optional}} {{name}};
+  final {{#optional}}Utilities.Option<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}};
 {{/fields}}
 
   public static class Builder {
@@ -55,6 +55,19 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
     }
   }
 
+  public Builder copy() {
+    Builder builder = new Builder();
+{{#fields}}
+{{#optional}}
+    if (this.{{name}}.isDefined()) builder.{{name}}(this.{{name}}.get());
+{{/optional}}
+{{^optional}}
+    builder.{{name}}(this.{{name}});
+{{/optional}}
+{{/fields}}
+    return builder;
+  }
+
   public static ThriftStructCodec<{{name}}> CODEC = new ThriftStructCodec<{{name}}>() {
     public {{name}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
       Builder builder = new Builder();
@@ -72,7 +85,8 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 {{#fields}}
 {{#readWriteInfo}}
             {{>readField}}
-            builder.{{name}}({{name}});
+              builder.{{name}}({{name}});
+              break;
 {{/readWriteInfo}}
 {{/fields}}
             default:
@@ -121,13 +135,14 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 
 {{#fields}}
 {{^isReserved}}
-  {{primitiveFieldType}} get{{Name}}() {
+  public {{primitiveFieldType}} get{{Name}}() {
     return this.{{name}}{{#optional}}.get(){{/optional}};
   }
 {{/isReserved}}
 {{/fields}}
 
   public void write(TProtocol _oprot) throws org.apache.thrift.TException {
+    validate();
     _oprot.writeStructBegin(STRUCT);
 {{#fields}}
 {{#readWriteInfo}}
@@ -136,5 +151,76 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 {{/fields}}
     _oprot.writeFieldStop();
     _oprot.writeStructEnd();
+  }
+
+  private void validate() throws org.apache.thrift.protocol.TProtocolException {
+{{#fields}}
+{{#required}}
+{{#nullable}}
+  if (this.{{name}} == null)
+      throw new org.apache.thrift.protocol.TProtocolException("Required field '{{name}}' cannot be null");
+{{/nullable}}
+{{/required}}
+{{/fields}}
+  }
+
+  public boolean equals(Object other) {
+{{#arity0}}
+    return this == other;
+{{/arity0}}
+{{^arity0}}
+    if (!(other instanceof {{name}})) return false;
+    {{name}} that = ({{name}}) other;
+    return
+{{#fields}}
+{{^isPrimitive}}this.{{name}}.equals(that.{{name}}){{/isPrimitive}}
+{{#isPrimitive}}
+{{#optional}}
+      this.{{name}}.equals(that.{{name}})
+{{/optional}}
+{{^optional}}
+      this.{{name}} == that.{{name}}
+{{/optional}}
+{{/isPrimitive}}
+{{/fields| &&
+}};
+{{/arity0}}
+  }
+
+  public String toString() {
+{{#arity0}}
+    return "{{name}}()";
+{{/arity0}}
+{{^arity0}}
+    return "{{name}}(" + {{#fields}}this.{{name}}{{/fields| + "," + }} + ")";
+{{/arity0}}
+  }
+
+  public int hashCode() {
+{{#arity0}}
+    return super.hashCode();
+{{/arity0}}
+{{^arity0}}
+    int hash = 1;
+{{#fields}}
+{{#isPrimitive}}
+{{#optional}}
+    hash = hash * (this.{{name}}.isDefined() ? 0 : new {{fieldType}}(this.{{name}}.get()).hashCode());
+{{/optional}}
+{{^optional}}
+    hash = hash * new {{fieldType}}(this.{{name}}).hashCode();
+{{/optional}}
+{{/isPrimitive}}
+{{^isPrimitive}}
+{{#optional}}
+    hash = hash * (this.{{name}}.isDefined() ? 0 : this.{{name}}.get().hashCode());
+{{/optional}}
+{{^optional}}
+    hash = hash * (this.{{name}} == null ? 0 : this.{{name}}.hashCode());
+{{/optional}}
+{{/isPrimitive}}
+{{/fields}}
+    return hash;
+{{/arity0}}
   }
 }

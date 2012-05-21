@@ -1,12 +1,9 @@
 package com.twitter.scrooge;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 public class Utilities {
-  static class Tuple<A, B> {
+  public static class Tuple<A, B> {
     private A a;
     private B b;
 
@@ -29,11 +26,19 @@ public class Utilities {
   }
 
   public static <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
-    return null;
+    Map<A, B> map = new HashMap<A, B>();
+    for (Tuple<A, B> element : elements) {
+      map.put(element.getFirst(), element.getSecond());
+    }
+    return map;
   }
 
   public static <T> Set<T> makeSet(T... elements) {
-    return null;
+    Set<T> set = new HashSet<T>();
+    for (T element : elements) {
+      set.add(element);
+    }
+    return set;
   }
 
   public static <A, B> Tuple<A, B> makeTuple(A a, B b) {
@@ -67,7 +72,7 @@ public class Utilities {
     };
 
     public static class Some<A> extends Option<A> {
-      private final A a;
+      final A a;
 
       public Some(A a) {
         this.a = a;
@@ -79,6 +84,16 @@ public class Utilities {
 
       public boolean isDefined() {
         return true;
+      }
+
+      public boolean equals(Object other) {
+        if (!(other instanceof Some)) return false;
+        Some<A> that = (Some<A>) other;
+        return this.a.equals(that.a);
+      }
+
+      public String toString() {
+        return "Some(" + this.a.toString() + ")";
       }
     }
   }

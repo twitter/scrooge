@@ -4,8 +4,8 @@ import com.twitter.sbt._
 
 object Scrooge extends Build {
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "1.11.0"
-  val utilVersion = "1.12.13"
+  val finagleVersion = "4.0.2"
+  val utilVersion = "4.0.1"
 
   val generateTestThrift = TaskKey[Seq[File]](
     "generate-test-thrift",

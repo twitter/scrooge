@@ -112,6 +112,7 @@ trait StructTemplate extends Generator { self: JavaLike =>
           "id" -> v(field.id.toString),
           "fieldConst" -> v(writeFieldConst(field.name)),
           "constType" -> v(constType(field.`type`)),
+          "isPrimitive" -> v(isPrimitive(field.`type`)),
           "primitiveFieldType" -> v(primitiveTypeName(field.`type`, mutable = false)),
           "fieldType" -> v(typeName(field.`type`, mutable = false)),
           "hasDefaultValue" -> v(defaultFieldValue(field).isDefined),
