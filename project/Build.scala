@@ -4,8 +4,8 @@ import com.twitter.sbt._
 
 object Scrooge extends Build {
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "1.11.0"
-  val utilVersion = "1.12.13"
+  val finagleVersion = "4.0.2"
+  val utilVersion = "4.0.1"
 
   val generateTestThrift = TaskKey[Seq[File]](
     "generate-test-thrift",
@@ -22,8 +22,8 @@ object Scrooge extends Build {
       sourceManaged in Test,
       resourceDirectory in Test
     ) map { (out, products, cp, managed, resources) =>
-      generateThriftFor("scala", cp, managed, resources, out.log) //++
-        //generateThriftFor("java", cp, managed, out.log)
+      generateThriftFor("scala", cp, managed, resources, out.log) ++
+        generateThriftFor("java", cp, managed, resources, out.log)
     }
   )
 
@@ -41,15 +41,25 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-runtime",
     organization := "com.twitter",
-    version := "1.1.4-SNAPSHOT",
+    version := "3.0.0-SNAPSHOT",
 
-    libraryDependencies ++= Seq(
-      "com.twitter" %% "finagle-thrift" % finagleVersion,
-      "com.twitter" %% "util-codec" % utilVersion,
+    crossScalaVersions := Seq("2.8.1", "2.9.1"),
 
-      // for tests:
-      "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
-    )
+    libraryDependencies <<= (scalaVersion, libraryDependencies) { (version, deps) =>
+      deps ++ Seq(
+        "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      ) ++ (if (version == "2.8.1") Seq(
+        "com.twitter" % "util-codec" % utilVersion % "provided",
+
+        // for tests:
+        "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test"
+      ) else Seq(
+        "com.twitter" %% "util-codec" % utilVersion % "provided",
+
+        // for tests:
+        "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
+      ))
+    }
   )
 
   lazy val scroogeGenerator = Project(
@@ -63,7 +73,10 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge",
     organization := "com.twitter",
-    version := "2.5.5-SNAPSHOT",
+    version := "3.0.0-SNAPSHOT",
+
+    // we only generate one scrooge to bind them all.
+    crossPaths := false,
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
@@ -79,8 +92,8 @@ object Scrooge extends Build {
       "cglib" % "cglib" % "2.1_3" % "test",
       "asm" % "asm" % "1.5.3" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
-      "com.twitter" % "scrooge-runtime" % "1.1.2" % "test",
       "com.twitter" %% "finagle-core" % finagleVersion % "test",
+      "com.twitter" %% "finagle-thrift" % finagleVersion % "test",
       "com.twitter" %% "finagle-ostrich4" % finagleVersion % "test"
     ),
 
@@ -99,6 +112,15 @@ object Scrooge extends Build {
     val outFolder = managedFolder / language
     outFolder.mkdirs()
 
+    val extraArgs = if (language != "scala") {
+      Seq(
+        "-n", "thrift.test=thrift." + language + "_test",
+        "-n", "thrift.test1=thrift." + language + "_test1",
+        "-n", "thrift.test2=thrift." + language + "_test2"
+      )
+    } else {
+      Seq()
+    }
     log.info("Generating " + language + " files for tests ...")
     val command = List(
       "java",
@@ -109,7 +131,7 @@ object Scrooge extends Build {
       "--ostrich",
       "-d", outFolder.getAbsolutePath.toString,
       "-l", language
-    ) ++ (resourceFolder ** "*.thrift").get.map(_.toString)
+    ) ++ extraArgs ++ (resourceFolder ** "*.thrift").get.map(_.toString)
     log.debug(command.mkString(" "))
     command ! log
     (outFolder ** ("*." + language)).get.toSeq

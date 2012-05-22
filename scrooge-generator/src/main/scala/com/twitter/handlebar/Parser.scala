@@ -82,17 +82,25 @@ object CleanupWhitespace extends (AST.Document => AST.Document) {
 
   def apply(document: Document): Document = {
     var afterSectionHeader = true
+    var sectionHeaderStartedLine = true
     val segments = document.segments.map {
-      case Data(data) if afterSectionHeader && (data startsWith "\n") => {
+      case Data(data) if afterSectionHeader && sectionHeaderStartedLine && (data startsWith "\n") => {
         afterSectionHeader = false
+        sectionHeaderStartedLine = (data endsWith "\n")
         Data(data.substring(1))
       }
       case x @ Section(_, _, _, _) => {
         afterSectionHeader = true
         apply(x)
       }
+      case x @ Data(data) if (data endsWith "\n") => {
+        afterSectionHeader = false
+        sectionHeaderStartedLine = true
+        x
+      }
       case x => {
         afterSectionHeader = false
+        sectionHeaderStartedLine = false
         apply(x)
       }
     }

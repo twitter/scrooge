@@ -1,5 +1,6 @@
-// if ({{conditional}}) { FIXME
+{{#optional}}if ({{name}}.isDefined()) {{{/optional}}
   _oprot.writeFieldBegin({{fieldConst}});
-{{valueWriter}}
+  {{fieldType}} {{valueVariableName}} = {{name}}{{#optional}}.get(){{/optional}};
+  {{>writeValue}}
   _oprot.writeFieldEnd();
-// }
+{{#optional}}}{{/optional}}

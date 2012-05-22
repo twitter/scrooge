@@ -2,96 +2,225 @@
 package {{package}};
 
 import com.twitter.scrooge.Utilities;
+import com.twitter.scrooge.ThriftStruct;
+import com.twitter.scrooge.ThriftStructCodec;
+import com.twitter.util.Function2;
 import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.HashSet;
+{{#imports}}
+import {{parentPackage}}.{{subPackage}}.*;
+{{/imports}}
 
-public {{/public}}{{^public}}static {{/public}}class {{name}} {
+public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} extends Exception{{/isException}} implements ThriftStruct {
   private static final TStruct STRUCT = new TStruct("{{name}}");
 {{#fields}}
   private static final TField {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, (short) {{id}});
-  private final {{fieldType}} {{name}};
+  final {{#optional}}Utilities.Option<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}};
 {{/fields}}
 
-  private static {{name}} decode(TProtocol _iprot) throws org.apache.thrift.TException{
+  public static class Builder {
 {{#fields}}
-    {{fieldType}} {{name}} = {{defaultReadValue}};
+    private {{primitiveFieldType}} _{{name}} = {{defaultReadValue}};
+    private Boolean _got_{{name}} = false;
+
+    public Builder {{name}}({{primitiveFieldType}} value) {
+      this._{{name}} = value;
+      this._got_{{name}} = true;
+      return this;
+    }
 {{/fields}}
+
+    public {{name}} build() {
 {{#fields}}
 {{#required}}
-    Boolean _got_{{name}} = false;
+      if (!_got_{{name}})
+      throw new IllegalStateException("Required field '{{name}}' was not found for struct {{struct}}");
 {{/required}}
 {{/fields}}
-    Boolean _done = false;
-    _iprot.readStructBegin();
-    while (!_done) {
-      TField _field = _iprot.readFieldBegin();
-      if (_field.type == TType.STOP) {
-        _done = true;
-      } else {
-        switch (_field.id) {
+      return new {{name}}(
 {{#fields}}
-          {{reader}}
+{{#optional}}
+      Utilities.Option.make(this._got_{{name}}, this._{{name}}){{/optional}}
+{{^optional}}
+        this._{{name}}{{/optional}}
+{{/fields|,
+}}    );
+    }
+  }
+
+  public Builder copy() {
+    Builder builder = new Builder();
+{{#fields}}
+{{#optional}}
+    if (this.{{name}}.isDefined()) builder.{{name}}(this.{{name}}.get());
+{{/optional}}
+{{^optional}}
+    builder.{{name}}(this.{{name}});
+{{/optional}}
 {{/fields}}
-          default:
-            TProtocolUtil.skip(_iprot, _field.type);
+    return builder;
+  }
+
+  public static ThriftStructCodec<{{name}}> CODEC = new ThriftStructCodec<{{name}}>() {
+    public {{name}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
+      Builder builder = new Builder();
+{{#fields}}
+      {{primitiveFieldType}} {{name}} = {{defaultReadValue}};
+{{/fields}}
+      Boolean _done = false;
+      _iprot.readStructBegin();
+      while (!_done) {
+        TField _field = _iprot.readFieldBegin();
+        if (_field.type == TType.STOP) {
+          _done = true;
+        } else {
+          switch (_field.id) {
+{{#fields}}
+{{#readWriteInfo}}
+            {{>readField}}
+              builder.{{name}}({{name}});
+              break;
+{{/readWriteInfo}}
+{{/fields}}
+            default:
+              TProtocolUtil.skip(_iprot, _field.type);
+          }
+          _iprot.readFieldEnd();
         }
-        _iprot.readFieldEnd();
+      }
+      _iprot.readStructEnd();
+      try {
+        return builder.build();
+      } catch (IllegalStateException stateEx) {
+        throw new TProtocolException(stateEx.getMessage());
       }
     }
-    _iprot.readStructEnd();
-{{#fields}}
-{{#required}}
-    if (!_got_{{name}})
-      throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{struct}}");
-{{/required}}
-{{/fields}}
-    return new {{name}}({{#fields}}{{name}}{{/fields|, }});
-}
 
-  private static void encode({{name}} item, TProtocol oproto) throws org.apache.thrift.TException {
-    item.write(oproto);
+    public void encode({{name}} struct, TProtocol oprot) throws org.apache.thrift.TException {
+      struct.write(oprot);
+    }
+  };
+
+  public static {{name}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
+    return CODEC.decode(_iprot);
+  }
+
+  public static void encode({{name}} struct, TProtocol oprot) throws org.apache.thrift.TException {
+    CODEC.encode(struct, oprot);
   }
 
   public {{name}}(
 {{#fields}}
-  {{fieldType}} {{name}}{{comma}}
+  {{#optional}}Utilities.Option<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}}{{comma}}
 {{/fields}}
   ) {
+{{#isException}}
+{{#fields}}
+{{#isMessage}}
+    super(message);
+{{/isMessage}}
+{{/fields}}
+{{/isException}}
 {{#fields}}
     this.{{name}} = {{name}};
 {{/fields}}
   }
 
 {{#fields}}
-  {{fieldType}} get{{name}}() {
-    return this.{{name}};
+{{^isReserved}}
+  public {{primitiveFieldType}} get{{Name}}() {
+    return this.{{name}}{{#optional}}.get(){{/optional}};
   }
+{{/isReserved}}
 {{/fields}}
 
-  void write(TProtocol _oprot) throws org.apache.thrift.TException {
+  public void write(TProtocol _oprot) throws org.apache.thrift.TException {
     validate();
     _oprot.writeStructBegin(STRUCT);
 {{#fields}}
-    {{writer}}
+{{#readWriteInfo}}
+    {{>writeField}}
+{{/readWriteInfo}}
 {{/fields}}
     _oprot.writeFieldStop();
     _oprot.writeStructEnd();
   }
 
-  void validate() {
+  private void validate() throws org.apache.thrift.protocol.TProtocolException {
 {{#fields}}
 {{#required}}
 {{#nullable}}
-    if (this.{{name}} == null)
-      throw new TProtocolException("Required field '{{name}}' cannot be null");
+  if (this.{{name}} == null)
+      throw new org.apache.thrift.protocol.TProtocolException("Required field '{{name}}' cannot be null");
 {{/nullable}}
 {{/required}}
 {{/fields}}
   }
 
+  public boolean equals(Object other) {
+{{#arity0}}
+    return this == other;
+{{/arity0}}
+{{^arity0}}
+    if (!(other instanceof {{name}})) return false;
+    {{name}} that = ({{name}}) other;
+    return
+{{#fields}}
+{{^isPrimitive}}this.{{name}}.equals(that.{{name}}){{/isPrimitive}}
+{{#isPrimitive}}
+{{#optional}}
+      this.{{name}}.equals(that.{{name}})
+{{/optional}}
+{{^optional}}
+      this.{{name}} == that.{{name}}
+{{/optional}}
+{{/isPrimitive}}
+{{/fields| &&
+}};
+{{/arity0}}
+  }
+
+  public String toString() {
+{{#arity0}}
+    return "{{name}}()";
+{{/arity0}}
+{{^arity0}}
+    return "{{name}}(" + {{#fields}}this.{{name}}{{/fields| + "," + }} + ")";
+{{/arity0}}
+  }
+
+  public int hashCode() {
+{{#arity0}}
+    return super.hashCode();
+{{/arity0}}
+{{^arity0}}
+    int hash = 1;
+{{#fields}}
+{{#isPrimitive}}
+{{#optional}}
+    hash = hash * (this.{{name}}.isDefined() ? 0 : new {{fieldType}}(this.{{name}}.get()).hashCode());
+{{/optional}}
+{{^optional}}
+    hash = hash * new {{fieldType}}(this.{{name}}).hashCode();
+{{/optional}}
+{{/isPrimitive}}
+{{^isPrimitive}}
+{{#optional}}
+    hash = hash * (this.{{name}}.isDefined() ? 0 : this.{{name}}.get().hashCode());
+{{/optional}}
+{{^optional}}
+    hash = hash * (this.{{name}} == null ? 0 : this.{{name}}.hashCode());
+{{/optional}}
+{{/isPrimitive}}
+{{/fields}}
+    return hash;
+{{/arity0}}
+  }
 }

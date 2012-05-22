@@ -1,1 +1,1 @@
-_item.write(_oprot)
+`{{name}}`.write(_oprot)

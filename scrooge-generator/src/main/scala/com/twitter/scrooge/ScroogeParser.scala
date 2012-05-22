@@ -85,8 +85,6 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def referenceType = identifier ^^ { x => ReferenceType(x.name) }
 
-  def definitionType = baseType | containerType
-
   def baseType: Parser[BaseType] = (
     "bool" ^^^ TBool |
     "byte" ^^^ TByte |
@@ -161,7 +159,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     case ftype ~ id ~ const ~ _ => Const(id.name, ftype, const)
   }
 
-  def typedef = "typedef" ~> definitionType ~ identifier ^^ {
+  def typedef = "typedef" ~> fieldType ~ identifier ^^ {
     case dtype ~ id => Typedef(id.name, dtype)
   }
 

@@ -23,7 +23,6 @@ import javalike.JavaLike
 class ScalaGenerator extends JavaLike {
   val fileExtension = ".scala"
   val templateDirName = "/scalagen/"
-  val none = "None"
 
   def namespace(doc: Document) =
     doc.namespace("scala") orElse doc.namespace("java") getOrElse("thrift")
@@ -84,6 +83,7 @@ class ScalaGenerator extends JavaLike {
 
   override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
     `type` match {
+      case TI64 => "0L"
       case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
         typeName(`type`, mutable) + "()"
       case _ => super.defaultValue(`type`, mutable)
@@ -162,9 +162,12 @@ class ScalaGenerator extends JavaLike {
         (if (mutable) "mutable." else "") + "Set[" + typeName(x) + "]"
       case ListType(x, _) =>
         (if (mutable) "mutable.Buffer" else "Seq") + "[" + typeName(x) + "]"
-      case n: NamedType => n.name
+      case n: NamedType => n.prefix.map("_" + _ + "_.").getOrElse("") + n.name
+      case r: ReferenceType => r.name
     }
   }
+
+  def primitiveTypeName(t: FunctionType, mutable: Boolean = false) = typeName(t, mutable)
 
   def fieldTypeName(f: Field, mutable: Boolean = false): String = {
     val baseType = typeName(f.`type`, mutable)
@@ -183,4 +186,6 @@ class ScalaGenerator extends JavaLike {
       valPrefix + nameAndType + defaultValue.getOrElse("")
     }.mkString(", ")
   }
+
+  def baseFinagleService = "FinagleService[Array[Byte], Array[Byte]]"
 }

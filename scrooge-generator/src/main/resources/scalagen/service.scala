@@ -13,10 +13,11 @@ import scala.collection.{Map, Set}
 import com.twitter.finagle.{Service => FinagleService}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.scrooge.FinagleThriftClient
 {{/finagleClient}}
 {{#finagleService}}
-import com.twitter.scrooge.FinagleThriftService
+import com.twitter.finagle.{Service => FinagleService}
+import java.util.Arrays
+import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport, TTransport}
 {{/finagleService}}
 {{#ostrichServer}}
 import com.twitter.finagle.builder.{Server, ServerBuilder}
@@ -46,7 +47,9 @@ object {{name}} {
 {{/asyncFunctions}}
   }
 
-{{functionStructs}}
+{{#structs}}
+  {{>struct}}
+{{/structs}}
 {{#finagleClients}}
   {{>finagleClient}}
 {{/finagleClients}}

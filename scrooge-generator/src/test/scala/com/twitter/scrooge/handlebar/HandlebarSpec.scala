@@ -96,27 +96,28 @@ class HandlebarSpec extends FunSpec {
     it("nests") {
       val students = Seq(
         Dictionary(
-          "name" -> v("Taro"),
-          "cats" -> v(Seq(
-            Dictionary("city" -> v("Anchorage")),
-            Dictionary("city" -> v("Seattle")),
-            Dictionary("city" -> v("Lihu'a"))
-          ))
-        ),
+          "cats" -> v(
+            Dictionary(
+              "info" -> v(Seq(
+                Dictionary("city" -> v("Anchorage")),
+                Dictionary("city" -> v("Seattle")),
+                Dictionary("city" -> v("Lihu'a")))))),
+          "name" -> v("Taro")), // NOTE: "name" must be AFTER "cats->info" to exhibit nesting bug
         Dictionary(
-          "name" -> v("Mira"),
-          "cats" -> v(Seq(
-            Dictionary("city" -> v("Chicago")),
-            Dictionary("city" -> v("Knoxville"))
-          ))
-        )
-      )
+          "cats" -> v(
+            Dictionary(
+              "info" -> v(Seq(
+                Dictionary("city" -> v("Chicago")),
+                Dictionary("city" -> v("Knoxville")))))),
+          "name" -> v("Mira")))
       // this also (accidentally) tests whitespace cleanup.
       val template = """My book report:
 {{#students}}
 One of our students is {{name}}.
 {{#cats}}
+{{#info}}
 {{name}} has a cat that lives in {{city}}.
+{{/info}}
 {{/cats}}
 {{/students}}"""
       val rv = Handlebar.generate(template, Dictionary("students" -> v(students)))

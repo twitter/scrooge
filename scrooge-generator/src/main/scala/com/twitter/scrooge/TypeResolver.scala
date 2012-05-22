@@ -45,8 +45,8 @@ object TypeResolver {
       val include = includeMap.get(scope).getOrElse(throw new UndefinedSymbolException(name))
       try {
         next(include.resolver)(name) match {
-          case st: StructType => st.copy(prefix = Some("_" + scope + "_")).asInstanceOf[T]
-          case et: EnumType => et.copy(prefix = Some("_" + scope + "_")).asInstanceOf[T]
+          case st: StructType => st.copy(prefix = Some(scope)).asInstanceOf[T]
+          case et: EnumType => et.copy(prefix = Some(scope)).asInstanceOf[T]
           case t => t
         }
       } catch {
@@ -105,7 +105,7 @@ case class TypeResolver(
    * Returns a new TypeResolver with the given include mapping added.
    */
   def include(inc: Include): TypeResolver = {
-    val resolvedDocument = TypeResolver().resolve(inc.document, Some("_" + inc.prefix + "_"))
+    val resolvedDocument = TypeResolver().resolve(inc.document, Some(inc.prefix))
     copy(includeMap = includeMap + (inc.prefix -> resolvedDocument))
   }
 

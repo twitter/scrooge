@@ -1,5 +1,7 @@
-_oprot.writeSetBegin(new TSet(TType.{{eltType}}, {{name}}.size()));
+_oprot.writeSetBegin(new TSet(TType.{{eltConstType}}, {{name}}.size()));
 for ({{eltType}} {{eltName}} : {{name}}) {
-  {{eltWriter}}
+{{#eltReadWriteInfo}}
+  {{>writeValue}}
+{{/eltReadWriteInfo}}
 }
 _oprot.writeSetEnd();

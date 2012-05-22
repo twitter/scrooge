@@ -3,10 +3,14 @@ val _rv = new mutable.HashMap[{{keyType}}, {{valueType}}]
 var _i = 0
 while (_i < _map.size) {
   val _key = {
-{{keyReader}}
+{{#keyReadWriteInfo}}
+    {{>readValue}}
+{{/keyReadWriteInfo}}
   }
   val _value = {
-{{valueReader}}
+{{#valueReadWriteInfo}}
+    {{>readValue}}
+{{/valueReadWriteInfo}}
   }
   _rv(_key) = _value
   _i += 1

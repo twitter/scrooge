@@ -1,1 +1,1 @@
-{{name}}.decoder(_iprot);
+{{name}} = {{type}}.decode(_iprot);

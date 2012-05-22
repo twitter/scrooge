@@ -69,8 +69,8 @@ struct Bytes {
 }
 
 struct Misc {
-  1: bool alive
-  2: double pi
+  1: required bool alive
+  2: required double pi
   3: string name
 }
 

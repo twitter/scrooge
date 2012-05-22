@@ -1,6 +1,6 @@
-functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
+addFunction("{{name}}", { (iprot: TProtocol, seqid: Int) =>
   try {
-    val args = {{localName}}_args.decoder(iprot)
+    val args = {{localName}}_args.decode(iprot)
     iprot.readMessageEnd()
     (try {
       iface.{{localName}}({{argNames}})
@@ -23,4 +23,4 @@ functionMap("{{name}}") = { (iprot: TProtocol, seqid: Int) =>
     }
     case e: Exception => Future.exception(e)
   }
-}
+})

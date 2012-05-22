@@ -1,12 +1,9 @@
 package com.twitter.scrooge;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 public class Utilities {
-  static class Tuple<A, B> {
+  public static class Tuple<A, B> {
     private A a;
     private B b;
 
@@ -24,27 +21,47 @@ public class Utilities {
     }
   }
 
-  <T> List<T> makeList(T... elements) {
+  public static <T> List<T> makeList(T... elements) {
     return Arrays.asList(elements);
   }
 
-  <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
-    return null;
+  public static <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
+    Map<A, B> map = new HashMap<A, B>();
+    for (Tuple<A, B> element : elements) {
+      map.put(element.getFirst(), element.getSecond());
+    }
+    return map;
   }
 
-  <T> Set<T> makeSet(T... elements) {
-    return null;
+  public static <T> Set<T> makeSet(T... elements) {
+    Set<T> set = new HashSet<T>();
+    for (T element : elements) {
+      set.add(element);
+    }
+    return set;
   }
 
-  <A, B> Tuple<A, B> makeTuple(A a, B b) {
+  public static <A, B> Tuple<A, B> makeTuple(A a, B b) {
     return new Tuple<A, B>(a, b);
   }
 
   public static abstract class Option<A> {
     public abstract A get();
     public abstract boolean isDefined();
-    
-    public static Option<? extends Void> NONE = new Option<Void>() {
+
+    public static <A> Option<A> make(boolean b, A a) {
+      if (b) {
+        return new Some<A>(a);
+      } else {
+        return none();
+      }
+    }
+
+    public static <A> Option<A> none() {
+      return (Option<A>) NONE;
+    }
+
+    public static Option<Void> NONE = new Option<Void>() {
       public Void get() {
         throw new IllegalArgumentException();
       }
@@ -55,7 +72,7 @@ public class Utilities {
     };
 
     public static class Some<A> extends Option<A> {
-      private final A a;
+      final A a;
 
       public Some(A a) {
         this.a = a;
@@ -67,6 +84,16 @@ public class Utilities {
 
       public boolean isDefined() {
         return true;
+      }
+
+      public boolean equals(Object other) {
+        if (!(other instanceof Some)) return false;
+        Some<A> that = (Some<A>) other;
+        return this.a.equals(that.a);
+      }
+
+      public String toString() {
+        return "Some(" + this.a.toString() + ")";
       }
     }
   }

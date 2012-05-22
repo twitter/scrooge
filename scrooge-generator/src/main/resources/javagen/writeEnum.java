@@ -1,1 +1,1 @@
-_oprot.writeI32({{name}}.value);
+_oprot.writeI32({{name}}.getValue());

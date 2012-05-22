@@ -4,7 +4,9 @@ package {{package}}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
+{{#finagle}}
 import com.twitter.finagle.SourcedException
+{{/finagle}}
 import scala.collection.mutable
 import scala.collection.{Map, Set}
 {{#imports}}
@@ -18,41 +20,37 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   val {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, {{id}})
 {{/fields}}
 
-  val encoder = { (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto) }
-  val decoder: TProtocol => {{name}} = Immutable.decoder
+  def encode(_item: {{name}}, _oproto: TProtocol) { _item.write(_oproto) }
+  def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
 
-  def apply(_iprot: TProtocol): {{name}} = decoder(_iprot)
+  def apply(_iprot: TProtocol): {{name}} = decode(_iprot)
 
   def apply(
 {{#fields}}
-    `{{name}}`: {{fieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{comma}}
-{{/fields}}
+    `{{name}}`: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+{{/fields|,}}
   ): {{name}} = new Immutable(
 {{#fields}}
-    `{{name}}`{{comma}}
-{{/fields}}
+    `{{name}}`
+{{/fields|,}}
   )
 
 {{#arity0}}
   def unapply(_item: {{name}}): Boolean = true
 {{/arity0}}
 {{#arity1}}
-  def unapply(_item: {{struct}}): Option[{{fieldType}}] = Some(_item.{{name}})
+  def unapply(_item: {{struct}}): Option[{{>optionalType}}] = Some(_item.{{name}})
 {{/arity1}}
 {{#arityN}}
   def unapply(_item: {{name}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
-  object Immutable extends ThriftStructCodec[Immutable] {
-    val encoder = { (_item: {{name}}, _oproto: TProtocol) => _item.write(_oproto) }
-    val decoder = { _iprot: TProtocol =>
+  object Immutable extends ThriftStructCodec[{{name}}] {
+    def encode(_item: {{name}}, _oproto: TProtocol) { _item.write(_oproto) }
+    def decode(_iprot: TProtocol) = {
 {{#fields}}
       var `{{name}}`: {{fieldType}} = {{defaultReadValue}}
-{{/fields}}
-{{#fields}}
-{{#required}}
       var _got_{{name}} = false
-{{/required}}
 {{/fields}}
       var _done = false
       _iprot.readStructBegin()
@@ -63,7 +61,9 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
         } else {
           _field.id match {
 {{#fields}}
-            {{reader}}
+{{#readWriteInfo}}
+            {{>readField}}
+{{/readWriteInfo}}
 {{/fields}}
             case _ => TProtocolUtil.skip(_iprot, _field.`type`)
           }
@@ -78,21 +78,26 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 {{/fields}}
       new Immutable(
 {{#fields}}
-        `{{name}}`{{comma}}
-{{/fields}}
+{{#optional}}
+        if (_got_{{name}}) Some(`{{name}}`) else None
+{{/optional}}
+{{^optional}}
+        `{{name}}`
+{{/optional}}
+{{/fields|,}}
       )
     }
   }
 
   /**
    * The default read-only implementation of {{name}}.  You typically should not need to
-   * directly reference this class, instead, use the {{name}}.apply method to construct
+   * directly reference this class; instead, use the {{name}}.apply method to construct
    * new instances.
    */
   class Immutable(
 {{#fields}}
-    val `{{name}}`: {{fieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{comma}}
-{{/fields}}
+    val `{{name}}`: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+{{/fields|,}}
   ) extends {{name}}
 
 {{#withProxy}}
@@ -104,7 +109,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   trait Proxy extends {{name}} {
     protected def _underlying{{name}}: {{name}}
 {{#fields}}
-    def `{{name}}`: {{fieldType}} = _underlying{{struct}}.`{{name}}`
+    def `{{name}}`: {{>optionalType}} = _underlying{{struct}}.`{{name}}`
 {{/fields}}
   }
 {{/withProxy}}
@@ -117,7 +122,7 @@ trait {{name}} extends {{parentType}}
   import {{name}}._
 
 {{#fields}}
-  def `{{name}}`: {{fieldType}}
+  def `{{name}}`: {{>optionalType}}
 {{/fields}}
 
 {{#fields}}
@@ -128,7 +133,9 @@ trait {{name}} extends {{parentType}}
     validate()
     _oprot.writeStructBegin(Struct)
 {{#fields}}
-{{writer}}
+{{#readWriteInfo}}
+    {{>writeField}}
+{{/readWriteInfo}}
 {{/fields}}
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
@@ -136,7 +143,7 @@ trait {{name}} extends {{parentType}}
 
   def copy(
 {{#fields}}
-    `{{name}}`: {{fieldType}} = this.`{{name}}`{{comma}}
+    `{{name}}`: {{>optionalType}} = this.`{{name}}`{{comma}}
 {{/fields}}
   ): {{name}} = new Immutable(
 {{#fields}}

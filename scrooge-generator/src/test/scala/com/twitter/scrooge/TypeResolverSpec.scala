@@ -147,10 +147,10 @@ object TypeResolverSpec extends Specification {
       resolvedDoc.defs(0) must beLike {
         case Struct(name, fields) => {
           fields(0) must beLike {
-            case Field(1, _, ListType(StructType(_, Some("_typedef1_")), None), _, _) => true
+            case Field(1, _, ListType(StructType(_, Some("typedef1")), None), _, _) => true
           }
           fields(1) must beLike {
-            case Field(2, _, SetType(StructType(_, Some("_typedef1_")), None), _, _) => true
+            case Field(2, _, SetType(StructType(_, Some("typedef1")), None), _, _) => true
           }
         }
       }

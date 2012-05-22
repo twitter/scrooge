@@ -232,3 +232,4 @@ included file `LICENSE`.
 - Robey Pointer
 - Ian Ownbey
 - Jeremy Cloud
+- Nick Kallen
