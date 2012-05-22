@@ -98,7 +98,12 @@ trait StructTemplate extends Generator { self: JavaLike =>
 
   // ----- struct
 
-  def structDict(struct: StructLike, myNamespace: Option[String], includes: Seq[Include]) = {
+  def structDict(
+    struct: StructLike,
+    myNamespace: Option[String],
+    includes: Seq[Include],
+    serviceOptions: Set[ServiceOption]
+  ) = {
     val fieldDictionaries = struct.fields.zipWithIndex map {
       case (field, index) =>
         val valueVariableName = field.name + "_item"
@@ -172,7 +177,13 @@ trait StructTemplate extends Generator { self: JavaLike =>
         )
     }
     val parentType = struct match {
-      case _: AST.Exception_ => "SourcedException with ThriftStruct"
+      case _: AST.Exception_ => {
+        if (serviceOptions contains WithFinagleClient) {
+          "SourcedException with ThriftStruct"
+        } else {
+          "Exception with ThriftStruct"
+        }
+      }
       case _ => "ThriftStruct"
     }
     val arity = struct.fields.size
@@ -210,7 +221,8 @@ trait StructTemplate extends Generator { self: JavaLike =>
       "arity0" -> v(arity == 0),
       "arity1" -> (if (arity == 1) fieldDictionaries.take(1) else Nil),
       "arityN" -> v(arity > 1 && arity <= 22),
-      "withProxy" -> v(struct.isInstanceOf[Struct])
+      "withProxy" -> v(struct.isInstanceOf[Struct]),
+      "finagle" -> v(serviceOptions contains WithFinagleClient)
     )
   }
 }

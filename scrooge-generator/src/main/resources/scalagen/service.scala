@@ -13,7 +13,6 @@ import scala.collection.{Map, Set}
 import com.twitter.finagle.{Service => FinagleService}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.scrooge.FinagleThriftClient
 {{/finagleClient}}
 {{#finagleService}}
 import com.twitter.finagle.{Service => FinagleService}

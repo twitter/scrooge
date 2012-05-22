@@ -4,7 +4,9 @@ package {{package}}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
+{{#finagle}}
 import com.twitter.finagle.SourcedException
+{{/finagle}}
 import scala.collection.mutable
 import scala.collection.{Map, Set}
 {{#imports}}
@@ -89,7 +91,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 
   /**
    * The default read-only implementation of {{name}}.  You typically should not need to
-   * directly reference this class, instead, use the {{name}}.apply method to construct
+   * directly reference this class; instead, use the {{name}}.apply method to construct
    * new instances.
    */
   class Immutable(
