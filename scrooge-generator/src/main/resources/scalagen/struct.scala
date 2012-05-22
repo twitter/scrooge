@@ -21,7 +21,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
 {{/fields}}
 
   def encode(_item: {{name}}, _oproto: TProtocol) { _item.write(_oproto) }
-  def decode(iprot: TProtocol) = Immutable.decode(iprot)
+  def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
 
   def apply(_iprot: TProtocol): {{name}} = decode(_iprot)
 

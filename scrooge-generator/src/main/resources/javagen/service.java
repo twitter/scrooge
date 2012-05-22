@@ -5,6 +5,7 @@ import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
 import com.twitter.scrooge.Utilities;
 import com.twitter.util.Future;
+import com.twitter.util.FutureEventListener;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,9 @@ import {{parentPackage}}.{{subPackage}}.*;
 import com.twitter.finagle.stats.NullStatsReceiver;
 import com.twitter.finagle.stats.StatsReceiver;
 import com.twitter.finagle.thrift.ThriftClientRequest;
-import com.twitter.scrooge.ScalaHelpers;
+import com.twitter.scrooge.FinagleThriftClient;
 import java.util.Arrays;
 import org.apache.thrift.TException;
-import scala.runtime.BoxedUnit;
 {{/finagleClient}}
 {{#finagleService}}
 import com.twitter.finagle.Service;

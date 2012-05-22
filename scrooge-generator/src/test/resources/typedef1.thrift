@@ -1,4 +1,4 @@
-namespace java thrift.typedef1
+namespace java thrift.test1
 
 struct OneInt {
   1: i32 id

@@ -218,6 +218,13 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   def typeName(t: FunctionType, mutable: Boolean = false): String
   def primitiveTypeName(t: FunctionType, mutable: Boolean = false): String
 
+  def isPrimitive(t: FunctionType): Boolean = {
+    t match {
+      case Void | TBool | TByte | TI16 | TI32 | TI64 | TDouble => true
+      case _ => false
+    }
+  }
+
   def fieldTypeName(f: Field, mutable: Boolean = false): String
 
   def fieldParams(fields: Seq[Field], asVal: Boolean = false): String
