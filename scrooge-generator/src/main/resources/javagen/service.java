@@ -22,7 +22,6 @@ import {{parentPackage}}.{{subPackage}}.*;
 import com.twitter.finagle.stats.NullStatsReceiver;
 import com.twitter.finagle.stats.StatsReceiver;
 import com.twitter.finagle.thrift.ThriftClientRequest;
-import com.twitter.scrooge.FinagleThriftClient;
 import java.util.Arrays;
 import org.apache.thrift.TException;
 {{/finagleClient}}
