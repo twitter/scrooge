@@ -4,8 +4,8 @@ import com.twitter.sbt._
 
 object Scrooge extends Build {
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "4.0.2"
-  val utilVersion = "4.0.1"
+  val finagleVersion = "4.0.5"
+  val utilVersion = "4.0.3"
 
   val generateTestThrift = TaskKey[Seq[File]](
     "generate-test-thrift",
@@ -48,18 +48,12 @@ object Scrooge extends Build {
 
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (version, deps) =>
       deps ++ Seq(
-        "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-      ) ++ (if (version == "2.8.1") Seq(
-        "com.twitter" % "util-codec" % utilVersion % "provided",
-
-        // for tests:
-        "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test"
-      ) else Seq(
+        "org.apache.thrift" % "libthrift" % "0.8.0" % "provided",
         "com.twitter" % "util-codec_2.9.1" % utilVersion % "provided",
 
         // for tests:
         "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
-      ))
+      )
     }
   )
 
@@ -80,7 +74,7 @@ object Scrooge extends Build {
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.github.scopt" %% "scopt" % "2.0.1",
+      "com.github.scopt" % "scopt_2.9.1" % "2.0.1",
       "com.twitter" %% "util-core" % utilVersion,
 
       // for tests:

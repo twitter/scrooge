@@ -24,7 +24,7 @@
 Dependencies:
 * Upgraded to thrift 0.8.0, util 4.0, and finagle 4.0.
 * Upgraded to sbt 0.11.2.
-* Added support for scala 2.9.1 in addition to 2.8.1.
+* Upgraded to scala 2.9.2.
 
 
 2.5.4 - 03/19/2012
