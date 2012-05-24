@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Scrooge, by Twitter by twitter</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Scrooge, by Twitter</h1>
+        <p>A Thrift generator for Scala, written in Scala</p>
+        <p class="view"><a href="https://github.com/twitter/scrooge">View the Project on GitHub <small>twitter/scrooge</small></a></p>
+        <ul>
+          <li><a href="https://github.com/twitter/scrooge/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/twitter/scrooge/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/twitter/scrooge">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p><strong>Scrooge</strong> is a <a href="http://thrift.apache.org/">thrift</a> code generator for scala,
+written in scala.</p>
+
+<p>It's meant to be a replacement for the apache thrift code generator, and
+generates conforming, compatible binary codecs by building on top of
+libthrift.</p>
+
+<h2>Features</h2>
+
+<ul>
+<li><p>Generates native scala thrift codecs, in immutable and "builder" variants,
+using case classes and functions.</p></li>
+<li><p>Generated code is templated using a mustache variant, making it easy to
+edit.</p></li>
+<li><p><a href="http://twitter.github.com/finagle/">Finagle</a> client/server adaptors, and <a href="https://github.com/twitter/ostrich">Ostrich</a> wrappers, can be optionally
+generated at the same time.</p></li>
+</ul><h2>Running Scrooge</h2>
+
+<p>A starter script is built into <code>dist/scrooge/scripts</code>. You can run that or
+write your own.</p>
+
+<p>To get command line help:</p>
+
+<pre><code>$ scrooge --help
+</code></pre>
+
+<p>To generate source with content written to the current directory:</p>
+
+<pre><code>$ scrooge &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]
+</code></pre>
+
+<p>To generate source with content written to a specified directory, using
+extra include paths, rebuilding only those files that have changed:</p>
+
+<pre><code>$ scrooge
+  -d &lt;target-dir&gt;
+  -i &lt;include-path&gt;
+  -s
+  &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]
+</code></pre>
+
+<h2>Building</h2>
+
+<p>To build scrooge, use sbt:</p>
+
+<pre><code>$ sbt package-dist
+</code></pre>
+
+<h2>More Information</h2>
+
+<p>For more information please see the <a href="https://github.com/twitter/scrooge/blob/master/README.md">Readme</a></p>
+
+<h2>Credits / Thanks</h2>
+
+<ul>
+<li>Jorge Ortiz (<a href="https://github.com/jorgeortiz85" class="user-mention">@jorgeortiz85</a>)</li>
+<li>Robey Pointer (<a href="https://github.com/robey" class="user-mention">@robey</a>)</li>
+<li>Ian Ownbey (<a href="https://github.com/imownbey" class="user-mention">@imownbey</a>)</li>
+<li>Jeremy Cloud (<a href="https://github.com/jjmmcc" class="user-mention">@jjmmcc</a>)</li>
+<li>Nick Kallen (<a href="https://github.com/nkallen" class="user-mention">@nkallen</a>)</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/twitter">twitter</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
