@@ -13,6 +13,8 @@ object Scrooge extends Build {
   )
 
   val sharedSettings = Seq(
+    version := "3.0.0-SNAPSHOT",
+
     SubversionPublisher.subversionRepository := Some("https://svn.twitter.biz/maven-public"),
 
     generateTestThrift <<= (
@@ -29,7 +31,8 @@ object Scrooge extends Build {
 
   lazy val scrooge = Project(
     id = "scrooge",
-    base = file(".")
+    base = file("."),
+    settings = Project.defaultSettings ++ StandardProject.newSettings ++ sharedSettings
   ) aggregate(scroogeRuntime, scroogeGenerator)
 
   lazy val scroogeRuntime = Project(
@@ -41,9 +44,6 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-runtime",
     organization := "com.twitter",
-    version := "3.0.0-SNAPSHOT",
-
-    crossScalaVersions := Seq("2.8.1", "2.9.1"),
 
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (version, deps) =>
       deps ++ Seq(
@@ -54,7 +54,7 @@ object Scrooge extends Build {
         // for tests:
         "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test"
       ) else Seq(
-        "com.twitter" %% "util-codec" % utilVersion % "provided",
+        "com.twitter" % "util-codec_2.9.1" % utilVersion % "provided",
 
         // for tests:
         "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
@@ -73,7 +73,6 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge",
     organization := "com.twitter",
-    version := "3.0.0-SNAPSHOT",
 
     // we only generate one scrooge to bind them all.
     crossPaths := false,
