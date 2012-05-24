@@ -1,12 +1,43 @@
+3.0.0 - 05/24/2012
+===============================================================================
+* Java code generation is now supported!
+* Scala code now generates a set of classes for each struct:
+    - a base trait
+    - an immutable case class (used as the default implementation)
+    - a proxy trait (to make it easy to build proxy classes)
+* Moved scrooge-runtime into the same repo with scrooge, which is now called
+  scrooge-generator. Both projects will keep version numbers in sync now.
+* Changed the way required/optional is treated on fields, and default values,
+  to more closely match the way Apache Thrift works. (This is described in
+  more detail in a new section of the README.)
+* Fixed constant sets.
+* Fixed thread safety in finagle ThriftServer.
+* Fixed the resolution of #include directives that follow relative paths.
+* Removed the finagle dependency from scrooge-runtime so that code generated
+  with scrooge can be loosely coupled with finagle, or optionally not depend
+  on finagle at all (if you don't build finagle bindings).
+* Fixed typedef references that were relative to #included files.
+* Made various improvements to the internal template system.
+* Fixed test speed by using scrooge to generate code that the tests build
+  against, avoiding runtime evaluation.
+
+Dependencies:
+* Upgraded to thrift 0.8.0, util 4.0, and finagle 4.0.
+* Upgraded to sbt 0.11.2.
+* Added support for scala 2.9.1 in addition to 2.8.1.
+
+
 2.5.4 - 03/19/2012
 ===============================================================================
 * Addressed an issue where structs with the same name but from different
   namespaces/packages would conflict.  Now using a package alias to
   disambiguate.
 
+
 2.5.3 - 03/02/2012
 ===============================================================================
 * Minor bug fix for serviceName name class with.
+
 
 2.4.0 - 01/03/2012
 ===============================================================================
@@ -17,6 +48,7 @@
   to be used as if they were case-classes.  The only exception is that there is
   no unapply method; but do you really want to unapply 23+ fields in a match
   statement?
+
 
 2.3.1 - 11/28/2011
 ===============================================================================
