@@ -1,7 +1,0 @@
-
-1.1.3
------
-release: 15 February 2012
-
-- Build for both scala 2.8.1 and 2.9.1.
-
