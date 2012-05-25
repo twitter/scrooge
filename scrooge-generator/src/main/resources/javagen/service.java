@@ -1,5 +1,6 @@
 package {{package}};
 
+import com.twitter.scrooge.ScroogeOption;
 import com.twitter.finagle.SourcedException;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
