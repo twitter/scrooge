@@ -4,8 +4,8 @@ import com.twitter.sbt._
 
 object Scrooge extends Build {
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "4.0.5"
-  val utilVersion = "4.0.3"
+  val finagleVersion = "5.0.0"
+  val utilVersion = "5.0.3"
 
   val generateTestThrift = TaskKey[Seq[File]](
     "generate-test-thrift",
@@ -49,7 +49,7 @@ object Scrooge extends Build {
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (version, deps) =>
       deps ++ Seq(
         "org.apache.thrift" % "libthrift" % "0.8.0" % "provided",
-        "com.twitter" % "util-codec_2.9.1" % utilVersion % "provided",
+        "com.twitter" % "util-codec" % utilVersion % "provided",
 
         // for tests:
         "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
@@ -75,20 +75,20 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
       "com.github.scopt" % "scopt_2.9.1" % "2.0.1",
-      "com.twitter" %% "util-core" % utilVersion,
+      "com.twitter" % "util-core" % utilVersion,
 
       // for tests:
-      "org.scala-tools.testing" %% "specs" % "1.6.9" % "test" withSources(),
-      "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-      "com.twitter" %% "scalatest-mixins" % "1.0.3" % "test",
+      "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test" withSources(),
+      "org.scalatest" % "scalatest_2.9.1" % "1.7.1" % "test",
+      "com.twitter" % "scalatest-mixins_2.9.1" % "1.0.3" % "test",
       "org.jmock" % "jmock" % "2.4.0" % "test",
       "org.hamcrest" % "hamcrest-all" % "1.1" % "test",
       "cglib" % "cglib" % "2.1_3" % "test",
       "asm" % "asm" % "1.5.3" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
-      "com.twitter" %% "finagle-core" % finagleVersion % "test",
-      "com.twitter" %% "finagle-thrift" % finagleVersion % "test",
-      "com.twitter" %% "finagle-ostrich4" % finagleVersion % "test"
+      "com.twitter" % "finagle-core" % finagleVersion % "test",
+      "com.twitter" % "finagle-thrift" % finagleVersion % "test",
+      "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
     ),
 
     mainClass := Some("com.twitter.scrooge.Main"),
