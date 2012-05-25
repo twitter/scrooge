@@ -250,7 +250,7 @@ class JavaGeneratorSpec extends Specification with EvalHelper with JMocker with 
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new Utilities.Option.Some(14))
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new ScroogeOption.Some(14))
         }
 
         "read with missing field" in {
@@ -260,7 +260,7 @@ class JavaGeneratorSpec extends Specification with EvalHelper with JMocker with 
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", Utilities.Option.none())
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", ScroogeOption.none())
         }
 
         "write" in {
@@ -272,7 +272,7 @@ class JavaGeneratorSpec extends Specification with EvalHelper with JMocker with 
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", new Utilities.Option.Some(14)).write(protocol) mustEqual ()
+          new OptionalInt("Commie", new ScroogeOption.Some(14)).write(protocol) mustEqual ()
         }
 
         "write with missing field" in {
@@ -282,7 +282,7 @@ class JavaGeneratorSpec extends Specification with EvalHelper with JMocker with 
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", Utilities.Option.none()).write(protocol) mustEqual ()
+          new OptionalInt("Commie", ScroogeOption.none()).write(protocol) mustEqual ()
         }
       }
 

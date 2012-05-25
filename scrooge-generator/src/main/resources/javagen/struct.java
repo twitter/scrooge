@@ -1,6 +1,7 @@
 {{#public}}
 package {{package}};
 
+import com.twitter.scrooge.ScroogeOption;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
@@ -22,7 +23,7 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
   private static final TStruct STRUCT = new TStruct("{{name}}");
 {{#fields}}
   private static final TField {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, (short) {{id}});
-  final {{#optional}}Utilities.Option<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}};
+  final {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}};
 {{/fields}}
 
   public static class Builder {
@@ -47,7 +48,7 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
       return new {{name}}(
 {{#fields}}
 {{#optional}}
-      Utilities.Option.make(this._got_{{name}}, this._{{name}}){{/optional}}
+      ScroogeOption.make(this._got_{{name}}, this._{{name}}){{/optional}}
 {{^optional}}
         this._{{name}}{{/optional}}
 {{/fields|,
@@ -118,7 +119,7 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 
   public {{name}}(
 {{#fields}}
-  {{#optional}}Utilities.Option<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}}{{comma}}
+  {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}}{{comma}}
 {{/fields}}
   ) {
 {{#isException}}

@@ -1,7 +1,7 @@
 # scrooge
 
-Scrooge is a [thrift](http://thrift.apache.org/) code generator for scala,
-written in scala.
+Scrooge is a [thrift](http://thrift.apache.org/) code generator written in
+scala, which currently generates code for scala and java.
 
 It's meant to be a replacement for the apache thrift code generator, and
 generates conforming, compatible binary codecs by building on top of

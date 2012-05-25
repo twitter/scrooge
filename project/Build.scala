@@ -4,8 +4,8 @@ import com.twitter.sbt._
 
 object Scrooge extends Build {
   // projects that use finagle will provide their own dependent jar.
-  val finagleVersion = "4.0.2"
-  val utilVersion = "4.0.1"
+  val finagleVersion = "5.0.0"
+  val utilVersion = "5.0.3"
 
   val generateTestThrift = TaskKey[Seq[File]](
     "generate-test-thrift",
@@ -13,6 +13,9 @@ object Scrooge extends Build {
   )
 
   val sharedSettings = Seq(
+    version := "3.0.0-SNAPSHOT",
+    scalaVersion := "2.9.2",
+
     SubversionPublisher.subversionRepository := Some("https://svn.twitter.biz/maven-public"),
 
     generateTestThrift <<= (
@@ -29,7 +32,8 @@ object Scrooge extends Build {
 
   lazy val scrooge = Project(
     id = "scrooge",
-    base = file(".")
+    base = file("."),
+    settings = Project.defaultSettings ++ StandardProject.newSettings ++ sharedSettings
   ) aggregate(scroogeRuntime, scroogeGenerator)
 
   lazy val scroogeRuntime = Project(
@@ -41,24 +45,15 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-runtime",
     organization := "com.twitter",
-    version := "3.0.0-SNAPSHOT",
-
-    crossScalaVersions := Seq("2.8.1", "2.9.1"),
 
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (version, deps) =>
       deps ++ Seq(
-        "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-      ) ++ (if (version == "2.8.1") Seq(
+        "org.apache.thrift" % "libthrift" % "0.8.0" % "provided",
         "com.twitter" % "util-codec" % utilVersion % "provided",
 
         // for tests:
-        "org.scala-tools.testing" % "specs_2.8.1" % "1.6.7" % "test"
-      ) else Seq(
-        "com.twitter" %% "util-codec" % utilVersion % "provided",
-
-        // for tests:
         "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test"
-      ))
+      )
     }
   )
 
@@ -73,28 +68,27 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge",
     organization := "com.twitter",
-    version := "3.0.0-SNAPSHOT",
 
     // we only generate one scrooge to bind them all.
     crossPaths := false,
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.github.scopt" %% "scopt" % "2.0.1",
-      "com.twitter" %% "util-core" % utilVersion,
+      "com.github.scopt" % "scopt_2.9.1" % "2.0.1",
+      "com.twitter" % "util-core" % utilVersion,
 
       // for tests:
-      "org.scala-tools.testing" %% "specs" % "1.6.9" % "test" withSources(),
-      "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-      "com.twitter" %% "scalatest-mixins" % "1.0.3" % "test",
+      "org.scala-tools.testing" % "specs_2.9.1" % "1.6.9" % "test" withSources(),
+      "org.scalatest" % "scalatest_2.9.1" % "1.7.1" % "test",
+      "com.twitter" % "scalatest-mixins_2.9.1" % "1.0.3" % "test",
       "org.jmock" % "jmock" % "2.4.0" % "test",
       "org.hamcrest" % "hamcrest-all" % "1.1" % "test",
       "cglib" % "cglib" % "2.1_3" % "test",
       "asm" % "asm" % "1.5.3" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
-      "com.twitter" %% "finagle-core" % finagleVersion % "test",
-      "com.twitter" %% "finagle-thrift" % finagleVersion % "test",
-      "com.twitter" %% "finagle-ostrich4" % finagleVersion % "test"
+      "com.twitter" % "finagle-core" % finagleVersion % "test",
+      "com.twitter" % "finagle-thrift" % finagleVersion % "test",
+      "com.twitter" % "finagle-ostrich4" % finagleVersion % "test"
     ),
 
     mainClass := Some("com.twitter.scrooge.Main"),
