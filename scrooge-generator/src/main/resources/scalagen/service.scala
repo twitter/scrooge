@@ -5,6 +5,7 @@ import com.twitter.finagle.SourcedException
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import com.twitter.util.Future
 import java.net.InetSocketAddress
+import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import scala.collection.mutable
