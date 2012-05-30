@@ -8,6 +8,7 @@ import com.twitter.scrooge.Utilities;
 import com.twitter.util.Future;
 import com.twitter.util.FutureEventListener;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
