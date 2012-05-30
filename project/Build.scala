@@ -13,7 +13,7 @@ object Scrooge extends Build {
   )
 
   val sharedSettings = Seq(
-    version := "3.0.1-SNAPSHOT",
+    version := "3.0.1",
     scalaVersion := "2.9.2",
 
     SubversionPublisher.subversionRepository := Some("https://svn.twitter.biz/maven-public"),
