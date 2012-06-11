@@ -5,3 +5,5 @@ enum CandyType {
   DELICIOUS = 1,
   WEIRD = 2
 }
+
+const string DEFAULT_ACCEPT_HEADER = "text/html, text/*"

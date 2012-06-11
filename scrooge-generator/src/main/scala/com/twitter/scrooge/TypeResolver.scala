@@ -37,7 +37,9 @@ object TypeResolver {
         case QualifiedName(prefix, suffix) =>
           apply(prefix, suffix)
         case _ =>
-          typeMap.get(name).getOrElse(throw new TypeNotFoundException(name))
+          typeMap.get(name).getOrElse {
+            throw new TypeNotFoundException(name)
+          }
       }
     }
 
@@ -79,6 +81,8 @@ case class TypeResolver(
     new EntityResolver(typeMap, includeMap, _.fieldTypeResolver)
   lazy val serviceResolver: EntityResolver[Service] =
     new EntityResolver(serviceMap, includeMap, _.serviceResolver)
+  lazy val constResolver: EntityResolver[Const] =
+    new EntityResolver(constMap, includeMap, _.constResolver)
 
   /**
    * Resolves all types in the given document.
@@ -220,6 +224,17 @@ case class TypeResolver(
           enum.values.find(_.name == valueName) match {
             case None => throw new UndefinedSymbolException(name)
             case Some(value) => EnumValueConstant(enum, value)
+          }
+        case t: BaseType =>
+          name match {
+            case QualifiedName(scope, valueName) =>
+              val const = constResolver(scope, valueName)
+              if (const.`type` != fieldType) {
+                throw new UndefinedSymbolException(scope + "." + valueName)
+              } else {
+                const.value
+              }
+            case _ => throw new UndefinedSymbolException(name)
           }
         case _ => throw new UndefinedSymbolException(name)
       }

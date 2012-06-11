@@ -58,12 +58,12 @@ class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with
     }
 
     "generate constants" in {
-      Constants.myNumberz mustEqual Numberz.One
-      Constants.name mustEqual "Columbo"
-      Constants.someInt mustEqual 1
-      Constants.someDouble mustEqual 3.0
-      Constants.someList mustEqual List("piggy")
-      Constants.someMap mustEqual Map("foo" -> "bar")
+      thrift.test.Constants.myNumberz mustEqual Numberz.One
+      thrift.test.Constants.name mustEqual "Columbo"
+      thrift.test.Constants.someInt mustEqual 1
+      thrift.test.Constants.someDouble mustEqual 3.0
+      thrift.test.Constants.someList mustEqual List("piggy")
+      thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
     }
 
     "basic structs" in {
