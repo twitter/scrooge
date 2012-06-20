@@ -36,6 +36,12 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
       this._got_{{name}} = true;
       return this;
     }
+
+    public Builder unset{{Name}}() {
+      this._{{name}} = {{defaultReadValue}};
+      this._got_{{name}} = false;
+      return this;
+    }
 {{/fields}}
 
     public {{name}} build() {
@@ -119,8 +125,8 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 
   public {{name}}(
 {{#fields}}
-  {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}}{{comma}}
-{{/fields}}
+    {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}}
+{{/fields|, }}
   ) {
 {{#isException}}
 {{#fields}}
@@ -134,12 +140,46 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 {{/fields}}
   }
 
+{{#alternativeConstructor}}
+  public {{name}}(
+{{#defaultFields}}
+    {{primitiveFieldType}} {{name}}
+{{/defaultFields|, }}
+  ) {
+{{#isException}}
 {{#fields}}
-{{^isReserved}}
+{{#isMessage}}
+  super(message);
+{{/isMessage}}
+{{/fields}}
+{{/isException}}
+{{#fields}}
+{{#optional}}
+    this.{{name}} = ScroogeOption.none();
+{{/optional}}
+{{^optional}}
+    this.{{name}} = {{name}};
+{{/optional}}
+{{/fields}}
+  }
+{{/alternativeConstructor}}
+
+{{#fields}}
+{{#hasGetter}}
   public {{primitiveFieldType}} get{{Name}}() {
     return this.{{name}}{{#optional}}.get(){{/optional}};
   }
-{{/isReserved}}
+{{/hasGetter}}
+{{#hasIsDefined}}
+  public boolean isSet{{Name}}() {
+{{#optional}}
+    return this.{{name}}.isDefined();
+{{/optional}}
+{{^optional}}
+    return this.{{name}} != null;
+{{/optional}}
+  }
+{{/hasIsDefined}}
 {{/fields}}
 
   public void write(TProtocol _oprot) throws org.apache.thrift.TException {

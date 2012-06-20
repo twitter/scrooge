@@ -181,7 +181,7 @@ class JavaGenerator extends JavaLike {
   def fieldTypeName(f: Field, mutable: Boolean = false): String = {
     if (f.requiredness.isOptional) {
       val baseType = typeName(f.`type`, mutable)
-      "Utilities.Option<" + baseType + ">"
+      "ScroogeOption<" + baseType + ">"
     } else {
       primitiveTypeName(f.`type`)
     }

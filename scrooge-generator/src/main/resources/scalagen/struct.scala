@@ -39,7 +39,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   def unapply(_item: {{name}}): Boolean = true
 {{/arity0}}
 {{#arity1}}
-  def unapply(_item: {{struct}}): Option[{{>optionalType}}] = Some(_item.{{name}})
+  def unapply(_item: {{structName}}): Option[{{>optionalType}}] = Some(_item.{{name}})
 {{/arity1}}
 {{#arityN}}
   def unapply(_item: {{name}}): Option[{{product}}] = Some(_item)
@@ -73,7 +73,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
       _iprot.readStructEnd()
 {{#fields}}
 {{#required}}
-      if (!_got_{{name}}) throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{struct}}")
+      if (!_got_{{name}}) throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{structName}}")
 {{/required}}
 {{/fields}}
       new Immutable(
@@ -109,7 +109,7 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   trait Proxy extends {{name}} {
     protected def _underlying{{name}}: {{name}}
 {{#fields}}
-    def `{{name}}`: {{>optionalType}} = _underlying{{struct}}.`{{name}}`
+    def `{{name}}`: {{>optionalType}} = _underlying{{structName}}.`{{name}}`
 {{/fields}}
   }
 {{/withProxy}}
@@ -143,12 +143,12 @@ trait {{name}} extends {{parentType}}
 
   def copy(
 {{#fields}}
-    `{{name}}`: {{>optionalType}} = this.`{{name}}`{{comma}}
-{{/fields}}
+    `{{name}}`: {{>optionalType}} = this.`{{name}}`
+{{/fields|, }}
   ): {{name}} = new Immutable(
 {{#fields}}
-    `{{name}}`{{comma}}
-{{/fields}}
+    `{{name}}`
+{{/fields|, }}
   )
 
   /**

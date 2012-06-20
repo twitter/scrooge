@@ -40,7 +40,6 @@ import org.apache.thrift.transport.TTransport;
 import com.twitter.finagle.builder.Server;
 import com.twitter.finagle.builder.ServerBuilder;
 import com.twitter.finagle.stats.StatsReceiver;
-import com.twitter.finagle.stats.OstrichStatsReceiver;
 import com.twitter.finagle.thrift.ThriftServerFramedCodec;
 import com.twitter.finagle.tracing.NullTracer;
 import com.twitter.finagle.tracing.Tracer;

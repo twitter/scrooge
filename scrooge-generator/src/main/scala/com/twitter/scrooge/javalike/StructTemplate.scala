@@ -96,22 +96,14 @@ trait StructTemplate extends Generator { self: JavaLike =>
     }
   }
 
-  // ----- struct
-
-  def structDict(
-    struct: StructLike,
-    myNamespace: Option[String],
-    includes: Seq[Include],
-    serviceOptions: Set[ServiceOption]
-  ) = {
-    val fieldDictionaries = struct.fields.zipWithIndex map {
+  def fieldsToDict(fields: Seq[Field], blacklist: Seq[String]) = {
+    fields.zipWithIndex map {
       case (field, index) =>
         val valueVariableName = field.name + "_item"
         Dictionary(
           "index" -> v(index.toString),
           "indexP1" -> v((index + 1).toString),
           "isMessage" -> v(field.name == "message"),
-          "isReserved" -> v(struct.isInstanceOf[AST.Exception_] && field.name == "message"),
           "name" -> v(field.name),
           "Name" -> v(TitleCase(field.name)),
           "id" -> v(field.id.toString),
@@ -123,6 +115,8 @@ trait StructTemplate extends Generator { self: JavaLike =>
           "hasDefaultValue" -> v(defaultFieldValue(field).isDefined),
           "defaultFieldValue" -> v(defaultFieldValue(field).getOrElse("")),
           "defaultReadValue" -> v(defaultReadValue(field)),
+          "hasGetter" -> v(!blacklist.contains(field.name)),
+          "hasIsDefined" -> v(field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(field.`type`))),
           "required" -> v(field.requiredness.isRequired),
           "optional" -> v(field.requiredness.isOptional),
           "nullable" -> v(isNullableType(field.`type`, field.requiredness.isOptional)),
@@ -171,11 +165,17 @@ trait StructTemplate extends Generator { self: JavaLike =>
               case (prefix, suffix) => Seq(Dictionary("prefix" -> v(prefix), "suffix" -> v(suffix)))
             }
           },
-          "valueVariableName" -> v(valueVariableName),
-          "struct" -> v(struct.name),
-          "comma" -> v(if (index == struct.fields.size - 1) "" else ",")
+          "valueVariableName" -> v(valueVariableName)
         )
     }
+  }
+
+  def structDict(
+    struct: StructLike,
+    myNamespace: Option[String],
+    includes: Seq[Include],
+    serviceOptions: Set[ServiceOption]
+  ) = {
     val parentType = struct match {
       case _: AST.Exception_ => {
         if (serviceOptions contains WithFinagleClient) {
@@ -208,6 +208,9 @@ trait StructTemplate extends Generator { self: JavaLike =>
       }
     }
 
+    val fieldDictionaries = fieldsToDict(
+      struct.fields,
+      if (struct.isInstanceOf[AST.Exception_]) Seq("message") else Seq())
     Dictionary(
       "public" -> v(myNamespace.isDefined),
       "package" -> v(myNamespace.getOrElse("")),
@@ -215,6 +218,10 @@ trait StructTemplate extends Generator { self: JavaLike =>
       "name" -> v(struct.name),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
+      "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Seq())),
+      "alternativeConstructor" -> v(
+        struct.fields.exists(_.requiredness.isOptional) && struct.fields.exists(_.requiredness.isDefault)),
+      "structName" -> v(struct.name),
       "arity" -> arity.toString,
       "isException" -> v(struct.isInstanceOf[AST.Exception_]),
       "product" -> v(product),
