@@ -1,5 +1,6 @@
 package {{package}};
 
+{{docstring}}
 public enum {{enum_name}} {
 {{#values}}
   {{name}}({{value}}){{/values|,
@@ -19,7 +20,7 @@ public enum {{enum_name}} {
   }
 
   /**
-   * Find a the enum type by its integer value, as defined in the Thrift IDL.
+   * Find the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
   public static {{enum_name}} findByValue(int value) {

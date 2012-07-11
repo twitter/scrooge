@@ -35,6 +35,7 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
       }
     Dictionary(
       "async" -> v(async),
+      "docstring" -> v(function.docstring.getOrElse("")),
       "hasThrows" -> v(hasThrows),
       "throws" -> v(throwsDictionaries),
       "name" -> v(function.localName),
@@ -122,6 +123,7 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
       "function" -> v(templates("function")),
       "package" -> v(namespace),
       "name" -> v(service.name),
+      "docstring" -> v(service.docstring.getOrElse("")),
       "syncExtends" -> v(parentName.map {
         "extends " + _ + ".Iface "
       }.getOrElse("")),

@@ -121,12 +121,12 @@ case class TypeResolver(
   def resolve(definition: Definition, forcePrefix: Option[String]): ResolvedDefinition = {
     apply(definition) match {
       case d @ Typedef(name, t) => ResolvedDefinition(d, define(name, t))
-      case e @ Enum(name, _) => ResolvedDefinition(e, define(name, EnumType(e)))
+      case e @ Enum(name, _, _) => ResolvedDefinition(e, define(name, EnumType(e)))
       case s @ Senum(name, _) => ResolvedDefinition(s, define(name, TString))
-      case s @ Struct(name, _) => ResolvedDefinition(s, define(name, StructType(s, prefix = forcePrefix)))
-      case e @ Exception_(name, _) => ResolvedDefinition(e, define(e.name, StructType(e)))
-      case c @ Const(_, _, v) => ResolvedDefinition(c, define(c))
-      case s @ Service(name, _, _) => ResolvedDefinition(s, define(s))
+      case s @ Struct(name, _, _) => ResolvedDefinition(s, define(name, StructType(s, prefix = forcePrefix)))
+      case e @ Exception_(name, _, _) => ResolvedDefinition(e, define(e.name, StructType(e)))
+      case c @ Const(_, _, v, _) => ResolvedDefinition(c, define(c))
+      case s @ Service(name, _, _, _) => ResolvedDefinition(s, define(s))
       case d => ResolvedDefinition(d, this)
     }
   }
@@ -155,18 +155,18 @@ case class TypeResolver(
   def apply(definition: Definition): Definition = {
     definition match {
       case d @ Typedef(name, t) => d.copy(`type` = apply(t))
-      case s @ Struct(_, fs) => s.copy(fields = fs.map(apply))
-      case e @ Exception_(_, fs) => e.copy(fields = fs.map(apply))
-      case c @ Const(_, t, _) =>
+      case s @ Struct(_, fs, _) => s.copy(fields = fs.map(apply))
+      case e @ Exception_(_, fs, _) => e.copy(fields = fs.map(apply))
+      case c @ Const(_, t, _, _) =>
         val `type` = apply(t)
         c.copy(`type` = `type`, value = apply(c.value, `type`))
-      case s @ Service(_, p, fs) => s.copy(parent = p.map(apply), functions = fs.map(apply))
+      case s @ Service(_, p, fs, _) => s.copy(parent = p.map(apply), functions = fs.map(apply))
       case d => d
     }
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, _, t, as, _, ts) =>
+    case Function(_, _, t, as, _, ts, _) =>
       f.copy(`type` = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 

@@ -14,6 +14,7 @@ import {{parentPackage}}.{{{subPackage}} => _{{alias}}_}
 {{/imports}}
 
 {{/public}}
+{{docstring}}
 object {{name}} extends ThriftStructCodec[{{name}}] {
   val Struct = new TStruct("{{name}}")
 {{#fields}}

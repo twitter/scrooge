@@ -1,3 +1,4 @@
+{{docstring}}
 public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}} implements FutureIface {
   private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
   private String serviceName;

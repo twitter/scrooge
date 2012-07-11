@@ -1,5 +1,6 @@
 namespace java thrift.test2
 
+/** lorem ipsum documentation */
 include "relative1.thrift"
 
 typedef relative1.CandyType CandyType

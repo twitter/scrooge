@@ -216,6 +216,7 @@ trait StructTemplate extends Generator { self: JavaLike =>
       "package" -> v(myNamespace.getOrElse("")),
       "imports" -> v(imports),
       "name" -> v(struct.name),
+      "docstring" -> v(struct.docstring.getOrElse("")),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Seq())),

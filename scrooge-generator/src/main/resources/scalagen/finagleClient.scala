@@ -1,3 +1,4 @@
+{{docstring}}
 class FinagledClient(
   service: FinagleService[ThriftClientRequest, Array[Byte]],
   protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,

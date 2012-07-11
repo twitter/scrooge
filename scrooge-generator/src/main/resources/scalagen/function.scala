@@ -1,3 +1,4 @@
+{{docstring}}
 {{#throws}}
 @throws(classOf[{{typeName}}])
 {{/throws}}

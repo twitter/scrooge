@@ -1,4 +1,5 @@
 
+{{docstring}}
 class FinagledService(
   iface: FutureIface,
   protocolFactory: TProtocolFactory

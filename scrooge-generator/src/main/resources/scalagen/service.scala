@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference
 import {{parentPackage}}.{{{subPackage}} => _{{alias}}_}
 {{/imports}}
 
+{{docstring}}
 object {{name}} {
   trait Iface {{syncExtends}}{
 {{#syncFunctions}}

@@ -21,6 +21,9 @@
  * details.
  */
 
+/**
+ * docs here should be ignored
+ */
 namespace c_glib TTest
 namespace java thrift.test
 namespace cpp thrift.test
@@ -50,11 +53,16 @@ enum Numberz
 
 const Numberz myNumberz = Numberz.ONE;
 const string name = "Columbo";
+/**
+ I AM A DOC
+ */
+// not a doc, just a comment, but the doc should still get included.
 const i32 someInt = 1;
 const double someDouble = 3.0;
 const list<string> someList = ["piggy"];
 const map<string,string> someMap = {"foo": "bar"};
 
+/** doc, ignored */
 typedef i64 UserId
 
 struct Ints {
@@ -63,8 +71,10 @@ struct Ints {
   3: i64 papa
 }
 
+/** structdocs */
 struct Bytes {
   1: byte x
+  /** field docs */
   2: binary y
 }
 
@@ -255,6 +265,9 @@ exception Xception {
   2: string message
 }
 
+/**
+ * yep yep, i've documented this
+ **/
 exception Xception2 {
   1: i32 errorCode,
   2: Xtruct struct_thing
@@ -266,6 +279,9 @@ struct OneField {
   1: EmptyStruct field
 }
 
+/**
+ * smpfy
+ */
 service SimpleService {
   i32 deliver(1: string where)
 }
@@ -294,13 +310,24 @@ service ThriftTest
   Numberz      testEnum(1: Numberz thing),
   UserId       testTypedef(1: UserId thing),
 
+  /** double doc comments don't cause problems, right? */
+  /** now i've fulfilled my documentation requirements
+   */
   map<i32,map<i32,i32>> testMapMap(1: i32 hello),
 
   /* So you think you've got this all worked, out eh? */
   map<UserId, map<Numberz,Insanity>> testInsanity(1: Insanity argument),
 
   /* Multiple parameters */
-  Xtruct testMulti(1: byte arg0, 2: i32 arg1, 3: i64 arg2, 4: map<i16, string> arg3, 5: Numberz arg4, 6: UserId arg5),
+  Xtruct testMulti(
+    1: byte arg0,
+    /** function parameter doc */
+    2: i32 arg1,
+    3: i64 arg2,
+    4: map<i16, string> arg3,
+    5: Numberz arg4,
+    6: UserId arg5
+  ),
 
   /* Exception specifier */
 

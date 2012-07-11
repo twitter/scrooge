@@ -55,6 +55,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     Dictionary(
       "package" -> v(namespace),
       "enum_name" -> v(enum.name),
+      "docstring" -> v(enum.docstring.getOrElse("")),
       "values" -> v(enum.values map { value =>
         Dictionary(
           "name" -> v(value.name),
@@ -73,7 +74,8 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
         Dictionary(
           "name" -> v(c.name),
           "type" -> v(typeName(c.`type`)),
-          "value" -> v(constantValue(c.value))
+          "value" -> v(constantValue(c.value)),
+          "docstring" -> v(c.docstring.getOrElse(""))
         )
       })
     )

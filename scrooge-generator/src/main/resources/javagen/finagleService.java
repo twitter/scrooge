@@ -1,3 +1,4 @@
+{{docstring}}
 public static class FinagledService extends {{parent}} {
   final private FutureIface iface;
   final private TProtocolFactory protocolFactory;

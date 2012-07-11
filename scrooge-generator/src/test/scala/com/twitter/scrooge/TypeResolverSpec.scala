@@ -8,7 +8,7 @@ object TypeResolverSpec extends Specification {
   "TypeResolve" should {
     val foo = EnumValue("FOO", 1)
     val bar = EnumValue("BAR", 2)
-    val enum = Enum("SomeEnum", Seq(foo, bar))
+    val enum = Enum("SomeEnum", Seq(foo, bar), None)
     val enumType = EnumType(enum)
     val enumRef = ReferenceType(enum.name)
     val struct = Struct("BlahBlah", Seq(
@@ -16,10 +16,10 @@ object TypeResolverSpec extends Specification {
       Field(2, "mama", TI32),
       Field(3, "papa", TI64),
       Field(4, "pupu", enumRef)
-    ))
+    ), None)
     val structType = StructType(struct)
     val structRef = ReferenceType(struct.name)
-    val ex = Exception_("Boom", Seq(Field(1, "msg", enumRef)))
+    val ex = Exception_("Boom", Seq(Field(1, "msg", enumRef)), None)
     val exType = StructType(ex)
     val exRef = ReferenceType(ex.name)
     val resolver = TypeResolver()
@@ -87,9 +87,9 @@ object TypeResolverSpec extends Specification {
     "transform a Function" in {
       val field = Field(1, "foo", structRef)
       val ex = Field(2, "ex", structRef)
-      val fun = Function("foo", structRef, Seq(field), false, Seq(ex))
+      val fun = Function("foo", structRef, Seq(field), false, Seq(ex), None)
       resolver(fun) mustEqual
-        Function("foo", resolver(fun.`type`), Seq(resolver(field)), false, Seq(resolver(ex)))
+        Function("foo", resolver(fun.`type`), Seq(resolver(field)), false, Seq(resolver(ex)), None)
     }
 
     "transform a TypeDef" in {
@@ -106,46 +106,46 @@ object TypeResolverSpec extends Specification {
     }
 
     "transform a Const" in {
-      val const = Const("foo", enumRef, Identifier("FOO"))
-      resolver(const) mustEqual Const("foo", enumType, EnumValueConstant(enum, enum.values.head))
+      val const = Const("foo", enumRef, Identifier("FOO"), None)
+      resolver(const) mustEqual Const("foo", enumType, EnumValueConstant(enum, enum.values.head), None)
     }
 
     "transform a Service" in {
-      val fun = Function("foo", structRef, Seq(Field(1, "foo", structRef)), false, Nil)
-      val service = Service("Glurb", None, Seq(fun))
+      val fun = Function("foo", structRef, Seq(Field(1, "foo", structRef)), false, Nil, None)
+      val service = Service("Glurb", None, Seq(fun), None)
       resolver(service) mustEqual service.copy(functions = Seq(resolver(fun)))
     }
 
     "resolve a service parent from same scope" in {
-      val service1 = Service("Super", None, Nil)
-      val service2 = Service("Sub", Some(ServiceParent("Super")), Nil)
+      val service1 = Service("Super", None, Nil, None)
+      val service2 = Service("Sub", Some(ServiceParent("Super")), Nil, None)
       val resolver = TypeResolver().define(service1)
       resolver(service2) mustEqual service2.copy(parent = Some(ServiceParent(service1)))
     }
 
     "resolve a service parent from an included scope" in {
-      val service1 = Service("Super", None, Nil)
+      val service1 = Service("Super", None, Nil, None)
       val otherDoc = Document(Nil, Seq(service1))
       val include = Include("other.thrift", otherDoc)
-      val service2 = Service("Sub", Some(ServiceParent("other.Super")), Nil)
+      val service2 = Service("Sub", Some(ServiceParent("other.Super")), Nil, None)
       val resolver = TypeResolver().include(include)
       resolver(service2) mustEqual service2.copy(parent = Some(ServiceParent("other.Super", Some(service1))))
     }
 
     "resolve a typedef from an included scope" in {
-      val oneInt = Struct("OneInt", Seq(Field(1, "id", TI32, None, Requiredness.Default)))
+      val oneInt = Struct("OneInt", Seq(Field(1, "id", TI32, None, Requiredness.Default)), None)
       val typedefInt = Typedef("ManyInts", ListType(ReferenceType("OneInt"), None))
       val doc1 = Document(Nil, Seq(oneInt, typedefInt))
 
       val collectionStruct = Struct("IntCollection", Seq(
         Field(1, "scores1", ReferenceType("typedef1.ManyInts"), None, Requiredness.Default),
         Field(2, "scores2", SetType(ReferenceType("typedef1.OneInt"), None), None, Requiredness.Default)
-      ))
+      ), None)
       val doc2 = Document(Seq(Include("typedef1.thrift", doc1)), Seq(collectionStruct))
 
       val resolvedDoc = TypeResolver().resolve(doc2).document
       resolvedDoc.defs(0) must beLike {
-        case Struct(name, fields) => {
+        case Struct(name, fields, _) => {
           fields(0) must beLike {
             case Field(1, _, ListType(StructType(_, Some("typedef1")), None), _, _) => true
           }

@@ -18,7 +18,6 @@ package com.twitter.scrooge
 
 import scala.collection.mutable
 import scala.util.parsing.combinator._
-import scala.util.parsing.combinator.lexical._
 
 class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
   def this(reason: String) = this(reason, null)
@@ -27,7 +26,18 @@ class ParseException(reason: String, cause: Throwable) extends Exception(reason,
 class ScroogeParser(importer: Importer) extends RegexParsers {
   import AST._
 
-  override val whiteSpace = """(\s+|(//.*\n)|(#.*\n)|(/\*([^\*]+|\n|\*(?!/))*\*/))+""".r
+  //                            1    2        3       4         4a    4b 4c       4d
+  override val whiteSpace = """(\s+|(//.*\n)|(#.*\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
+  // 1: whitespace, 1 or more
+  // 2: leading // followed by anything 0 or more, until \n
+  // 3: leading #  followed by anything 0 or more, until \n
+  // 4: leading /* then NOT a *, then...
+  // 4a:  not a *, 1 or more times
+  // 4b:  OR a newline
+  // 4c:  OR a * followed by a 0-width lookahead / (not sure why we have this -KO)
+  //   (0 or more of 4b/4c/4d)
+  // 4d: ending */
+
 
   // transformations
 
@@ -115,7 +125,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // fields
 
-  def field = opt(fieldId) ~ fieldReq ~ (fieldType ~ identifier) ~
+  def field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~ (fieldType ~ identifier) ~
     (opt("=" ~> constant) <~ opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value => {
       val transformedVal = ftype match {
         case TBool => value map {
@@ -141,10 +151,10 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   // functions
 
-  def function = (opt("oneway") ~ functionType) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
-    (opt(throws) <~ opt(listSeparator)) ^^ { case (oneway ~ ftype) ~ id ~ args ~ throws =>
+  def function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
+    (opt(throws) <~ opt(listSeparator)) ^^ { case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
     Function(id.name, ftype, fixFieldIds(args), oneway.isDefined,
-      throws.map { fixFieldIds(_) }.getOrElse(Nil))
+      throws.map { fixFieldIds(_) }.getOrElse(Nil), comment)
   }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
@@ -155,16 +165,16 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def definition = const | typedef | enum | senum | struct | exception | service
 
-  def const = "const" ~> fieldType ~ identifier ~ ("=" ~> constant) ~ opt(listSeparator) ^^ {
-    case ftype ~ id ~ const ~ _ => Const(id.name, ftype, const)
+  def const = opt(comments) ~ ("const" ~> fieldType) ~ identifier ~ ("=" ~> constant) ~ opt(listSeparator) ^^ {
+    case comment ~ ftype ~ id ~ const ~ _ => Const(id.name, ftype, const, comment)
   }
 
-  def typedef = "typedef" ~> fieldType ~ identifier ^^ {
+  def typedef = (opt(comments) ~ "typedef") ~> fieldType ~ identifier ^^ {
     case dtype ~ id => Typedef(id.name, dtype)
   }
 
-  def enum = (("enum" ~> identifier) <~ "{") ~ rep(identifier ~ opt("=" ~> intConstant) <~
-    opt(listSeparator)) <~ "}" ^^ { case id ~ items =>
+  def enum = (opt(comments) ~ (("enum" ~> identifier) <~ "{")) ~ rep(identifier ~ opt("=" ~> intConstant) <~
+      opt(listSeparator)) <~ "}" ^^ { case comment ~ id ~ items =>
     var failed: Option[Int] = None
     val seen = new mutable.HashSet[Int]
     var nextValue = 0
@@ -179,7 +189,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     if (failed.isDefined) {
       throw new ParseException("Repeating enum value in " + id.name + ": " + failed.get)
     } else {
-      Enum(id.name, values.toList)
+      Enum(id.name, values.toList, comment)
     }
   }
 
@@ -187,18 +197,18 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value })
   }
 
-  def struct = (("struct" ~> identifier) <~ "{") ~ rep(field) <~ "}" ^^ {
-    case id ~ fields => Struct(id.name, fixFieldIds(fields))
+  def struct = (opt(comments) ~ (("struct" ~> identifier) <~ "{")) ~ rep(field) <~ "}" ^^ {
+    case comment ~ id ~ fields => Struct(id.name, fixFieldIds(fields), comment)
   }
 
-  def exception = ("exception" ~> identifier <~ "{") ~ opt(rep(field)) <~ "}" ^^ {
-    case id ~ fields => Exception_(id.name, fixFieldIds(fields.getOrElse(Nil)))
+  def exception = (opt(comments) ~ ("exception" ~> identifier <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
+    case comment ~ id ~ fields => Exception_(id.name, fixFieldIds(fields.getOrElse(Nil)), comment)
   }
 
-  def service = ("service" ~> identifier) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
+  def service = (opt(comments) ~ ("service" ~> identifier)) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
     "}") ^^ {
-    case id ~ extend ~ functions =>
-      Service(id.name, extend.map { id => ServiceParent(id.name) }, functions)
+    case comment ~ id ~ extend ~ functions =>
+      Service(id.name, extend.map { id => ServiceParent(id.name) }, functions, comment)
   }
 
   // document
@@ -209,15 +219,26 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def header: Parser[Header] = include | cppInclude | namespace
 
-  def include = "include" ~> stringConstant ^^ { s => Include(s.value, parseFile(s.value)) }
+  def include = opt(comments) ~> "include" ~> stringConstant ^^ { s => Include(s.value, parseFile(s.value)) }
 
   // bogus dude.
   def cppInclude = "cpp_include" ~> stringConstant ^^ { s => CppInclude(s.value) }
 
-  def namespace = "namespace" ~> namespaceScope ~ identifier ^^ { case scope ~ id =>
+  def namespace = opt(comments) ~> "namespace" ~> namespaceScope ~ identifier ^^ { case scope ~ id =>
     Namespace(scope, id.name)
   }
   def namespaceScope = "*" | (identifier ^^ { id => id.name })
+
+  /**
+   * Matches scaladoc/javadoc style comments.
+   */
+  def comments: Parser[String] = {
+    rep1(docComment) ^^ { case cs =>
+      cs.mkString("\n")
+    }
+  }
+
+  val docComment: Parser[String] = """(?s)/\*\*.+?\*/""".r
 
   // rawr.
 

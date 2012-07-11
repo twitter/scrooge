@@ -19,6 +19,7 @@ import java.util.HashSet;
 import {{parentPackage}}.{{subPackage}}.*;
 {{/imports}}
 
+{{docstring}}
 public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} extends Exception{{/isException}} implements ThriftStruct {
   private static final TStruct STRUCT = new TStruct("{{name}}");
 {{#fields}}

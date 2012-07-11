@@ -46,6 +46,7 @@ import com.twitter.finagle.tracing.Tracer;
 import com.twitter.logging.Logger;
 {{/ostrichServer}}
 
+{{docstring}}
 public class {{name}} {
   public interface Iface {{syncExtends}}{
 {{#syncFunctions}}

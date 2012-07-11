@@ -88,7 +88,8 @@ object AST {
     `type`: FunctionType,
     args: Seq[Field],
     oneway: Boolean,
-    throws: Seq[Field])
+    throws: Seq[Field],
+    docstring: Option[String])
   extends Node
 
   object Function {
@@ -97,9 +98,10 @@ object AST {
       `type`: FunctionType,
       args: Seq[Field],
       oneway: Boolean,
-      throws: Seq[Field]
+      throws: Seq[Field],
+      docstring: Option[String]
     ) = {
-      new Function(name, name, `type`, args, oneway, throws)
+      new Function(name, name, `type`, args, oneway, throws, docstring)
     }
   }
 
@@ -107,11 +109,15 @@ object AST {
     val name: String
   }
 
-  case class Const(name: String, `type`: FieldType, value: Constant) extends Definition
+  case class Const(name: String, `type`: FieldType, value: Constant, docstring: Option[String]) extends Definition
 
   case class Typedef(name: String, `type`: FieldType) extends Definition
 
-  case class Enum(name: String, values: Seq[EnumValue]) extends Definition
+  case class Enum(
+    name: String,
+    values: Seq[EnumValue],
+    docstring: Option[String]
+  ) extends Definition
 
   case class EnumValue(name: String, value: Int) extends Node
 
@@ -119,15 +125,20 @@ object AST {
 
   sealed abstract class StructLike extends Definition {
     val fields: Seq[Field]
+    val docstring: Option[String]
   }
 
-  case class Struct(name: String, fields: Seq[Field]) extends StructLike
+  case class Struct(name: String, fields: Seq[Field], docstring: Option[String]) extends StructLike
 
-  case class FunctionArgs(name: String, fields: Seq[Field]) extends StructLike
+  case class FunctionArgs(name: String, fields: Seq[Field]) extends StructLike {
+    override val docstring: Option[String] = None
+  }
 
-  case class FunctionResult(name: String, fields: Seq[Field]) extends StructLike
+  case class FunctionResult(name: String, fields: Seq[Field]) extends StructLike {
+    override val docstring: Option[String] = None
+  }
 
-  case class Exception_(name: String, fields: Seq[Field]) extends StructLike
+  case class Exception_(name: String, fields: Seq[Field], docstring: Option[String]) extends StructLike
 
   object ServiceParent {
     def apply(service: Service): ServiceParent = ServiceParent(service.name, Some(service))
@@ -138,7 +149,8 @@ object AST {
   case class Service(
     name: String,
     parent: Option[ServiceParent],
-    functions: Seq[Function]
+    functions: Seq[Function],
+    docstring: Option[String]
   ) extends Definition
 
   sealed abstract class Header extends Node

@@ -51,21 +51,32 @@ class ScroogeParserSpec extends Specification {
     }
 
     "functions" in {
-      parser.parse("void go()", parser.function) mustEqual Function("go", Void, Seq(), false, Seq())
-      parser.parse("oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
-        TI32, Seq(Field(1, "n", TI32, None, Requiredness.Default)), true, Seq())
+      parser.parse("/**doc!*/ void go()", parser.function) mustEqual
+        Function("go", Void, Seq(), false, Seq(), Some("/**doc!*/"))
+      parser.parse("/**one-way-docs*/ oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
+        TI32, Seq(Field(1, "n", TI32, None, Requiredness.Default)), true, Seq(), Some("/**one-way-docs*/"))
       parser.parse(
-        "list<string> get_tables(optional i32 id, 3: required string name='cat') throws (1: Exception ex);",
+        "list<string> get_tables(optional i32 id, /**DOC*/3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
         Function("get_tables", ListType(TString, None), Seq(
           Field(-1, "id", TI32, None, Requiredness.Optional),
           Field(3, "name", TString, Some(StringConstant("cat")), Requiredness.Required)
-        ), false, Seq(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)))
+        ), false, Seq(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)), None)
     }
 
     "const" in {
-      parser.parse("const string name = \"Columbo\"", parser.definition) mustEqual Const("name",
-        TString, StringConstant("Columbo"))
+      parser.parse("/** COMMENT */ const string name = \"Columbo\"", parser.definition) mustEqual Const("name",
+        TString, StringConstant("Columbo"), Some("/** COMMENT */"))
+    }
+
+    "more than one docstring" in {
+      val code = """
+/** comment */
+/** and another */
+const string tyrion = "lannister"
+"""
+      parser.parse(code, parser.definition) mustEqual Const("tyrion",
+        TString, StringConstant("lannister"), Some("/** comment */\n/** and another */"))
     }
 
     "typedef" in {
@@ -86,10 +97,27 @@ class ScroogeParserSpec extends Specification {
         EnumValue("WEST", 91),
         EnumValue("UP", 92),
         EnumValue("DOWN", 5)
-      ))
+      ), None)
 
       parser.parse("enum Bad { a=1, b, c=2 }", parser.definition) must throwA[ParseException]
+
+      val withComment = """
+/**
+ * Docstring!
+ */
+enum Foo
+{
+  X = 1,
+  Y = 2
+}"""
+      parser.parse(withComment, parser.enum) mustEqual Enum("Foo",
+        Seq(
+          EnumValue("X", 1),
+          EnumValue("Y", 2)),
+        Some("/**\n * Docstring!\n */")
+      )
     }
+
 
     "senum" in {
       // wtf is senum?!
@@ -99,50 +127,55 @@ class ScroogeParserSpec extends Specification {
 
     "struct" in {
       val code = """
+        /** docs up here */
         struct Point {
           1: double x
+          /** comments*/
           2: double y
           3: Color color = BLUE
         }
-        """
+                 """
       parser.parse(code, parser.definition) mustEqual Struct("Point", Seq(
         Field(1, "x", TDouble, None, Requiredness.Default),
         Field(2, "y", TDouble, None, Requiredness.Default),
         Field(3, "color", ReferenceType("Color"), Some(Identifier("BLUE")), Requiredness.Default)
-      ))
+      ), Some("/** docs up here */"))
     }
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
-        Exception_("BadError", Seq(Field(1, "message", TString, None, Requiredness.Default)))
+        Exception_("BadError", Seq(Field(1, "message", TString, None, Requiredness.Default)), None)
       parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
         Exception_("E", Seq(
           Field(-1, "message", TString, None, Requiredness.Default),
           Field(-2, "reason", TString, None, Requiredness.Default)
-        ))
+        ), None)
       parser.parse("exception NoParams { }", parser.definition) mustEqual
-        Exception_("NoParams", Seq())
+        Exception_("NoParams", Seq(), None)
+      parser.parse("/** doc rivers */ exception wellDocumentedException { }", parser.definition) mustEqual
+        Exception_("wellDocumentedException", Seq(), Some("/** doc rivers */"))
     }
 
     "service" in {
       val code = """
+        /** cold hard cache */
         service Cache {
           void put(1: string name, 2: binary value);
           binary get(1: string name) throws (1: NotFoundException ex);
         }
-        """
+                 """
       parser.parse(code, parser.definition) mustEqual Service("Cache", None, Seq(
         Function("put", Void, Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "value", TBinary, None, Requiredness.Default)
-        ), false, Seq()),
+        ), false, Seq(), None),
         Function("get", TBinary, Seq(
           Field(1, "name", TString, None, Requiredness.Default)
-        ), false, Seq(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)))
-      ))
+        ), false, Seq(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)), None)
+      ), Some("/** cold hard cache */"))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
-        Service("LeechCache", Some(ServiceParent("Cache")), Seq())
+        Service("LeechCache", Some(ServiceParent("Cache")), Seq(), None)
     }
 
     "document" in {
@@ -150,15 +183,17 @@ class ScroogeParserSpec extends Specification {
         namespace java com.example
         namespace * example
 
+        /** what up doc */
         service NullService {
+          /** DoC */
           void doNothing();
         }
-        """
+                 """
       parser.parse(code, parser.document) mustEqual Document(
         Seq(Namespace("java", "com.example"), Namespace("*", "example")),
         Seq(Service("NullService", None, Seq(
-          Function("doNothing", Void, Seq(), false, Seq())
-        )))
+          Function("doNothing", Void, Seq(), false, Seq(), Some("/** DoC */"))
+        ), Some("/** what up doc */")))
       )
     }
 
