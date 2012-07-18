@@ -14,3 +14,4 @@ lib_managed/
 .project
 .scala_dependencies
 .ivyjars
+.classpath.txt
