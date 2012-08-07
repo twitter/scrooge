@@ -17,7 +17,7 @@
 package com.twitter.handlebar
 
 object Handlebar {
-  import AST._
+  import ParserAST._
   import Dictionary._
 
   private[this] val Space = " "
@@ -114,7 +114,7 @@ object Handlebar {
   private[this] def brittspace(line: String) = OnlySpaces.findFirstIn(line).isDefined
 }
 
-case class Handlebar(document: AST.Document) {
+case class Handlebar(document: ParserAST.Document) {
   def this(template: String) = this(Parser(template))
 
   /**

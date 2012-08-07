@@ -265,7 +265,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   private[this] def write(file: File, string: String) {
     val writer = new FileWriter(file)
     try {
-      writer.write(string)
+       writer.write(string)
     } finally {
       writer.close()
     }

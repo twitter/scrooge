@@ -10,11 +10,12 @@ trait ThriftServer extends Service with FutureIface {
 
   // Must be thread-safe as different threads can start and shutdown the service.
   private[this] val _server = new AtomicReference[Server]
-  def server: Server = _server.get
+  def server = _server.get
+  def server_=(value: Server) = _server.set(value)
 
   def start() {
     val thriftImpl = new FinagledService(this, thriftProtocolFactory)
-    _server.set(serverBuilder.build(thriftImpl))
+    server_=(serverBuilder.build(thriftImpl))
   }
 
   /**
@@ -42,4 +43,6 @@ trait ThriftServer extends Service with FutureIface {
       }
     }
   }
+
+  def shutdown() = shutdown(0.seconds)
 }

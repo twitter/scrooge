@@ -18,7 +18,7 @@ package com.twitter.handlebar
 
 import org.scalatest._
 
-import AST._
+import ParserAST._
 
 class ParserSpec extends FunSpec {
   describe("Parser") {

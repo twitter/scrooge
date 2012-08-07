@@ -23,7 +23,7 @@ class ParseException(reason: String, cause: Throwable) extends Exception(reason,
   def this(reason: String) = this(reason, null)
 }
 
-object AST {
+object ParserAST {
   case class Document(segments: Seq[Segment])
   sealed trait Segment
   case class Data(data: String) extends Segment
@@ -33,7 +33,7 @@ object AST {
 }
 
 object Parser extends RegexParsers {
-  import AST._
+  import ParserAST._
 
   override def skipWhitespace = false
 
@@ -77,8 +77,8 @@ object Parser extends RegexParsers {
 /**
  * If a section header is on its own line, remove the trailing linefeed.
  */
-object CleanupWhitespace extends (AST.Document => AST.Document) {
-  import AST._
+object CleanupWhitespace extends (ParserAST.Document => ParserAST.Document) {
+  import ParserAST._
 
   def apply(document: Document): Document = {
     var afterSectionHeader = true
