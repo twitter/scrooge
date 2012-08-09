@@ -93,6 +93,9 @@ trait StructTemplate extends Generator { self: JavaLike =>
             "protocolWriteMethod" -> v(protocolWriteMethod(t)),
             "protocolReadMethod" -> v(protocolReadMethod(t))
         ))
+      case t: ReferenceType =>
+        // todo: implement ReferenceType
+        throw new Exception()
     }
   }
 
