@@ -4,12 +4,12 @@ package scalagen
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.specs.mock.{ClassMocker, JMocker}
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
 
-class ScalaGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
+class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   import AST._
 
   val protocol = mock[TProtocol]

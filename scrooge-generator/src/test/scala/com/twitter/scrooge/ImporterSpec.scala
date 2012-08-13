@@ -3,7 +3,10 @@ package com.twitter.scrooge
 import com.twitter.scalatest._
 import java.io.{File, FileOutputStream}
 import org.scalatest._
+import org.scalatest.junit.JUnitRunner
+import org.junit.runner.RunWith
 
+@RunWith(classOf[JUnitRunner])
 class ImporterSpec extends FunSpec with TestFolder {
   describe("fileImporter") {
     it("finds files on the path") {

@@ -17,7 +17,10 @@
 package com.twitter.handlebar
 
 import org.scalatest._
+import org.scalatest.junit.JUnitRunner
+import org.junit.runner.RunWith
 
+@RunWith(classOf[JUnitRunner])
 class HandlebarSpec extends FunSpec {
   import Dictionary._
 

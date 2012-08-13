@@ -1,8 +1,8 @@
 package com.twitter.scrooge
 
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
 
-object TypeResolverSpec extends Specification {
+class TypeResolverSpec extends SpecificationWithJUnit {
   import AST._
 
   "TypeResolve" should {

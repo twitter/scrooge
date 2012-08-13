@@ -5,13 +5,13 @@ import java.util.Arrays
 import com.twitter.finagle
 import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.util.Future
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
 import thrift.test._
 
-class ServiceGeneratorSpec extends Specification with EvalHelper with JMocker with ClassMocker {
+class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   import AST._
 
   val protocol = mock[TProtocol]

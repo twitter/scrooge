@@ -1,8 +1,8 @@
 package com.twitter.scrooge
 
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
 
-object CamelCaseSpec extends Specification {
+class CamelCaseSpec extends SpecificationWithJUnit {
   import AST._
 
   val cases = List(

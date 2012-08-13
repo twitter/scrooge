@@ -16,10 +16,12 @@
 
 package com.twitter.handlebar
 
-import org.scalatest._
-
 import ParserAST._
+import org.scalatest._
+import org.scalatest.junit.JUnitRunner
+import org.junit.runner.RunWith
 
+@RunWith(classOf[JUnitRunner])
 class ParserSpec extends FunSpec {
   describe("Parser") {
     it("all text") {

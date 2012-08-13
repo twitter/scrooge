@@ -1,8 +1,8 @@
 package com.twitter.scrooge
 
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
 
-object ASTSpec extends Specification {
+class ASTSpec extends SpecificationWithJUnit {
   import AST._
 
   "Document" should {

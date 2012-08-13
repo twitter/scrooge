@@ -241,26 +241,24 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
       case x @ AST.Include(_, doc) => x
     }
 
-    val header = templates.getHeader
-
     if (doc.consts.nonEmpty) {
       val file = new File(packageDir, "Constants" + fileExtension)
-      writeFile(file, header, constsTemplate((namespace_, doc.consts)))
+      writeFile(file, templates.header, constsTemplate((namespace_, doc.consts)))
     }
 
     doc.enums.foreach { enum =>
       val file = new File(packageDir, enum.name + fileExtension)
-      writeFile(file, header, enumTemplate((namespace_, enum)))
+      writeFile(file, templates.header, enumTemplate((namespace_, enum)))
     }
     doc.structs.foreach { struct =>
       val file = new File(packageDir, struct.name + fileExtension)
       val dict = structDict(struct, Some(namespace_), includes, serviceOptions)
-      writeFile(file, header, templates("struct").generate(dict))
+      writeFile(file, templates.header, templates("struct").generate(dict))
     }
     doc.services.foreach { service =>
       val file = new File(packageDir, service.name + fileExtension)
       val dict = serviceDict(JavaService(service, serviceOptions), namespace_, includes, serviceOptions)
-      writeFile(file, header, templates("service").generate(dict))
+      writeFile(file, templates.header, templates("service").generate(dict))
     }
   }
 

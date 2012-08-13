@@ -1,14 +1,14 @@
 package com.twitter.scrooge
 
-import org.specs.Specification
+import org.specs.SpecificationWithJUnit
+
+case class Car(make: String, model: String)
 
 object Extra {
   val nameber = "WRX"
 }
 
-object TemplateSpec extends Specification {
-  case class Car(make: String, model: String)
-
+class TemplateSpec extends SpecificationWithJUnit {
   val car1 = Car("Subaru", "Impreza")
 
   "Template" should {
@@ -29,3 +29,5 @@ object TemplateSpec extends Specification {
     }
   }
 }
+
+

@@ -16,10 +16,12 @@
 
 package com.twitter.handlebar
 
-import org.scalatest._
-
 import Dictionary._
+import org.scalatest._
+import org.scalatest.junit.JUnitRunner
+import org.junit.runner.RunWith
 
+@RunWith(classOf[JUnitRunner])
 class DictionarySpec extends FunSpec {
   describe("Dictionary") {
     it("can be empty") {
