@@ -106,7 +106,6 @@ trait StructTemplate extends Generator { self: JavaLike =>
         Dictionary(
           "index" -> v(index.toString),
           "indexP1" -> v((index + 1).toString),
-          "isMessage" -> v(field.name == "message"),
           "name" -> v(field.name),
           "Name" -> v(TitleCase(field.name)),
           "id" -> v(field.id.toString),
@@ -173,21 +172,33 @@ trait StructTemplate extends Generator { self: JavaLike =>
     }
   }
 
+  private def exceptionMsgFieldName(struct: StructLike): Option[String] = {
+    val msgField: Option[Field] = struct.fields find { field =>
+      // 1st choice: find a field called message
+      field.name == "message"
+    } orElse {
+      // 2nd choice: the first string field
+      struct.fields find { field => fieldTypeName(field) == "String" }
+    }
+
+    msgField map { _.name }
+  }
+
   def structDict(
     struct: StructLike,
     myNamespace: Option[String],
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption]
   ) = {
-    val parentType = struct match {
-      case _: AST.Exception_ => {
-        if (serviceOptions contains WithFinagleClient) {
-          "SourcedException with ThriftStruct"
-        } else {
-          "Exception with ThriftStruct"
-        }
+    val isException = struct.isInstanceOf[AST.Exception_]
+    val parentType = if (isException) {
+      if (serviceOptions contains WithFinagleClient) {
+        "SourcedException with ThriftStruct"
+      } else {
+        "Exception with ThriftStruct"
       }
-      case _ => "ThriftStruct"
+    } else {
+      "ThriftStruct"
     }
     val arity = struct.fields.size
     val product = if (arity >= 1 && arity <= 22) {
@@ -211,9 +222,11 @@ trait StructTemplate extends Generator { self: JavaLike =>
       }
     }
 
+    val exceptionMsgField: Option[String] = if (isException) exceptionMsgFieldName(struct) else None
+
     val fieldDictionaries = fieldsToDict(
       struct.fields,
-      if (struct.isInstanceOf[AST.Exception_]) Seq("message") else Seq())
+      if (isException) Seq("message") else Seq())
     Dictionary(
       "public" -> v(myNamespace.isDefined),
       "package" -> v(myNamespace.getOrElse("")),
@@ -227,7 +240,9 @@ trait StructTemplate extends Generator { self: JavaLike =>
         struct.fields.exists(_.requiredness.isOptional) && struct.fields.exists(_.requiredness.isDefault)),
       "structName" -> v(struct.name),
       "arity" -> arity.toString,
-      "isException" -> v(struct.isInstanceOf[AST.Exception_]),
+      "isException" -> v(isException),
+      "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
+      "exceptionMessageField" -> v(exceptionMsgField.getOrElse("")),
       "product" -> v(product),
       "arity0" -> v(arity == 0),
       "arity1" -> (if (arity == 1) fieldDictionaries.take(1) else Nil),

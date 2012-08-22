@@ -370,6 +370,12 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
 
       "exception" in {
         new Xception(1, "boom") must haveSuperClass[Exception]
+        new Xception(2, "kathunk").getMessage mustEqual "kathunk"
+      }
+
+      "exception getMessage" in {
+        new StringMsgException(1, "jeah").getMessage mustEqual "jeah"
+        new NonStringMessageException(5).getMessage mustEqual "5"
       }
 
       "funky names that scala doesn't like" in {

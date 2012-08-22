@@ -1,4 +1,5 @@
 {{#public}}
+
 package {{package}};
 
 import com.twitter.scrooge.ScroogeOption;
@@ -129,13 +130,6 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
     {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{name}}
 {{/fields|, }}
   ) {
-{{#isException}}
-{{#fields}}
-{{#isMessage}}
-    super(message);
-{{/isMessage}}
-{{/fields}}
-{{/isException}}
 {{#fields}}
     this.{{name}} = {{name}};
 {{/fields}}
@@ -147,13 +141,6 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
     {{primitiveFieldType}} {{name}}
 {{/defaultFields|, }}
   ) {
-{{#isException}}
-{{#fields}}
-{{#isMessage}}
-  super(message);
-{{/isMessage}}
-{{/fields}}
-{{/isException}}
 {{#fields}}
 {{#optional}}
     this.{{name}} = ScroogeOption.none();
@@ -206,6 +193,14 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 {{/fields}}
   }
 
+{{#hasExceptionMessage}}
+  @Override
+  public String getMessage() {
+    return String.valueOf({{exceptionMessageField}});
+  }
+{{/hasExceptionMessage}}
+
+  @Override
   public boolean equals(Object other) {
 {{#arity0}}
     return this == other;
@@ -229,6 +224,7 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 {{/arity0}}
   }
 
+  @Override
   public String toString() {
 {{#arity0}}
     return "{{name}}()";
@@ -238,6 +234,7 @@ public {{/public}}{{^public}}static {{/public}}class {{name}}{{#isException}} ex
 {{/arity0}}
   }
 
+  @Override
   public int hashCode() {
 {{#arity0}}
     return super.hashCode();

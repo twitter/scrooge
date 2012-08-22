@@ -165,7 +165,7 @@ trait {{name}} extends {{parentType}}
 {{/fields}}
   }
 
-  def canEqual(other: Any) = other.isInstanceOf[{{name}}]
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[{{name}}]
 
   override def equals(other: Any): Boolean = runtime.ScalaRunTime._equals(this, other)
 
@@ -173,7 +173,11 @@ trait {{name}} extends {{parentType}}
 
   override def toString: String = runtime.ScalaRunTime._toString(this)
 
-  override def productArity = {{arity}}
+{{#hasExceptionMessage}}
+  override def getMessage: String = String.valueOf(`{{exceptionMessageField}}`)
+{{/hasExceptionMessage}}
+
+  override def productArity: Int = {{arity}}
 
   override def productElement(n: Int): Any = n match {
 {{#fields}}
@@ -182,5 +186,5 @@ trait {{name}} extends {{parentType}}
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
-  override def productPrefix = "{{name}}"
+  override def productPrefix: String = "{{name}}"
 }

@@ -391,6 +391,12 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
       "exception" in {
         Xception(1, "boom") must haveSuperClass[Exception]
+        Xception(2, "kathunk").getMessage mustEqual "kathunk"
+      }
+
+      "exception getMessage" in {
+        StringMsgException(1, "jeah").getMessage mustEqual "jeah"
+        NonStringMessageException(5).getMessage mustEqual "5"
       }
 
       "funky names that scala doesn't like" in {

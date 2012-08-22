@@ -273,6 +273,17 @@ exception Xception2 {
   2: Xtruct struct_thing
 }
 
+// makes sure we generate getMessage on the first string arg,
+exception StringMsgException {
+  1: i32 something
+  2: string use_this
+}
+
+// make sure we can handle Throwable's getMessage
+exception NonStringMessageException {
+  1: i32 message
+}
+
 struct EmptyStruct {}
 
 struct OneField {
