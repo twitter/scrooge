@@ -87,9 +87,9 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     "transform a Function" in {
       val field = Field(1, "foo", structRef)
       val ex = Field(2, "ex", structRef)
-      val fun = Function("foo", structRef, Seq(field), false, Seq(ex), None)
+      val fun = Function("foo", structRef, Seq(field), Seq(ex), None)
       resolver(fun) mustEqual
-        Function("foo", resolver(fun.`type`), Seq(resolver(field)), false, Seq(resolver(ex)), None)
+        Function("foo", resolver(fun.`type`), Seq(resolver(field)), Seq(resolver(ex)), None)
     }
 
     "transform a TypeDef" in {
@@ -111,7 +111,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "transform a Service" in {
-      val fun = Function("foo", structRef, Seq(Field(1, "foo", structRef)), false, Nil, None)
+      val fun = Function("foo", structRef, Seq(Field(1, "foo", structRef)), Nil, None)
       val service = Service("Glurb", None, Seq(fun), None)
       resolver(service) mustEqual service.copy(functions = Seq(resolver(fun)))
     }

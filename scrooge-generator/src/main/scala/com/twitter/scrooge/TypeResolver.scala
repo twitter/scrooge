@@ -166,7 +166,7 @@ case class TypeResolver(
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, _, t, as, _, ts, _) =>
+    case Function(_, _, t, as, ts, _) =>
       f.copy(`type` = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 

@@ -87,7 +87,6 @@ object AST {
     localName: String,
     `type`: FunctionType,
     args: Seq[Field],
-    oneway: Boolean,
     throws: Seq[Field],
     docstring: Option[String])
   extends Node
@@ -97,11 +96,10 @@ object AST {
       name: String,
       `type`: FunctionType,
       args: Seq[Field],
-      oneway: Boolean,
       throws: Seq[Field],
       docstring: Option[String]
     ) = {
-      new Function(name, name, `type`, args, oneway, throws, docstring)
+      new Function(name, name, `type`, args, throws, docstring)
     }
   }
 

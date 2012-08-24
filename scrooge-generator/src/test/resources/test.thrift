@@ -347,9 +347,6 @@ service ThriftTest
   /* Multiple exceptions specifier */
 
   Xtruct testMultiException(1: string arg0, 2: string arg1) throws(1: Xception err1, 2: Xception2 err2)
-
-  /* Test oneway void */
-  oneway void testOneway(1:i32 secondsToSleep)
 }
 
 struct VersioningTestV1 {

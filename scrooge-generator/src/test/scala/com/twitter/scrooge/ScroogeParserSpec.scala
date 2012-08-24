@@ -52,16 +52,14 @@ class ScroogeParserSpec extends SpecificationWithJUnit {
 
     "functions" in {
       parser.parse("/**doc!*/ void go()", parser.function) mustEqual
-        Function("go", Void, Seq(), false, Seq(), Some("/**doc!*/"))
-      parser.parse("/**one-way-docs*/ oneway i32 double(1: i32 n)", parser.function) mustEqual Function("double",
-        TI32, Seq(Field(1, "n", TI32, None, Requiredness.Default)), true, Seq(), Some("/**one-way-docs*/"))
+        Function("go", Void, Seq(), Seq(), Some("/**doc!*/"))
       parser.parse(
         "list<string> get_tables(optional i32 id, /**DOC*/3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
         Function("get_tables", ListType(TString, None), Seq(
           Field(-1, "id", TI32, None, Requiredness.Optional),
           Field(3, "name", TString, Some(StringConstant("cat")), Requiredness.Required)
-        ), false, Seq(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)), None)
+        ), Seq(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)), None)
     }
 
     "const" in {
@@ -98,8 +96,6 @@ const string tyrion = "lannister"
         EnumValue("UP", 92),
         EnumValue("DOWN", 5)
       ), None)
-
-      parser.parse("enum Bad { a=1, b, c=2 }", parser.definition) must throwA[ParseException]
 
       val withComment = """
 /**
@@ -168,10 +164,10 @@ enum Foo
         Function("put", Void, Seq(
           Field(1, "name", TString, None, Requiredness.Default),
           Field(2, "value", TBinary, None, Requiredness.Default)
-        ), false, Seq(), None),
+        ), Seq(), None),
         Function("get", TBinary, Seq(
           Field(1, "name", TString, None, Requiredness.Default)
-        ), false, Seq(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)), None)
+        ), Seq(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)), None)
       ), Some("/** cold hard cache */"))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
@@ -192,7 +188,7 @@ enum Foo
       parser.parse(code, parser.document) mustEqual Document(
         Seq(Namespace("java", "com.example"), Namespace("*", "example")),
         Seq(Service("NullService", None, Seq(
-          Function("doNothing", Void, Seq(), false, Seq(), Some("/** DoC */"))
+          Function("doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
         ), Some("/** what up doc */")))
       )
     }
@@ -203,6 +199,47 @@ enum Foo
       // i guess not blowing up is a good first-pass test.
       // might be nice to verify parts of it tho.
       doc.headers.size mustEqual 13
+    }
+
+    // reject syntax
+    "reject oneway modifier" in {
+      parser.parse("/**one-way-docs*/ oneway i32 double(1: i32 n)", parser.function) must
+        throwA[OnewayNotSupportedException]
+    }
+
+    "reject negative field ids" in {
+      val code =
+        """
+          struct Point {
+            1: double x
+            -2: double y
+            3: Color color = BLUE
+          }
+        """
+      parser.parse(code, parser.definition) must throwA[NegativeFieldIdException]
+    }
+
+    "reject duplicate field ids" in {
+      val code =
+        """
+          struct Point {
+            1: double x
+            2: double y
+            2: Color color = BLUE
+          }
+        """
+      parser.parse(code, parser.definition) must throwA[DuplicateFieldIdException]
+    }
+
+    "reject duplicate enum values" in {
+      parser.parse("enum Bad { a=1, b, c=2 }", parser.definition) must throwA[RepeatingEnumValueException]
+
+      val code = """
+        enum Direction {
+          NORTH, SOUTH, EAST=90, WEST=90, UP, DOWN=5
+        }
+      """
+      parser.parse(code, parser.definition) must throwA[RepeatingEnumValueException]
     }
   }
 }

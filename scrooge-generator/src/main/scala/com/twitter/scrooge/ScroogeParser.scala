@@ -19,10 +19,6 @@ package com.twitter.scrooge
 import scala.collection.mutable
 import scala.util.parsing.combinator._
 
-class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
-  def this(reason: String) = this(reason, null)
-}
-
 class ScroogeParser(importer: Importer) extends RegexParsers {
   import AST._
 
@@ -42,12 +38,17 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   // transformations
 
   def fixFieldIds(fields: List[Field]): List[Field] = {
-    if (fields.exists { _.id < 0 })
-      throw new ParseException("Negative user-provided field id")
+    // check negative field ids
+    fields.find(_.id < 0).foreach { field => throw new NegativeFieldIdException(field.name) }
 
-    val explicit = fields.filter { _.id != 0 }
-    if (explicit != explicit.distinct)
-      throw new ParseException("Duplicate user-provided field id")
+    // check duplicate field ids
+    fields.filter(_.id != 0).foldLeft(Set[Int]())((set, field) => {
+      if (set.contains(field.id)) {
+        throw new DuplicateFieldIdException(field.name)
+      } else {
+        set + field.id
+      }
+    })
 
     var nextId = -1
     fields.map { field =>
@@ -152,10 +153,17 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   // functions
 
   def function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
-    (opt(throws) <~ opt(listSeparator)) ^^ { case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
-    Function(id.name, ftype, fixFieldIds(args), oneway.isDefined,
-      throws.map { fixFieldIds(_) }.getOrElse(Nil), comment)
-  }
+    (opt(throws) <~ opt(listSeparator)) ^^
+    {
+      case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
+        if (oneway.isDefined) throw new OnewayNotSupportedException(id.name)
+
+        Function(
+          id.name,
+          ftype,
+          fixFieldIds(args),
+          throws.map { fixFieldIds(_) }.getOrElse(Nil), comment)
+    }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
@@ -187,7 +195,7 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
       values += EnumValue(k.name, value)
     }
     if (failed.isDefined) {
-      throw new ParseException("Repeating enum value in " + id.name + ": " + failed.get)
+      throw new RepeatingEnumValueException(id.name, failed.get)
     } else {
       Enum(id.name, values.toList, comment)
     }
