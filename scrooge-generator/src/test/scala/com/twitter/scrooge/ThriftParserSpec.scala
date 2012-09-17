@@ -1,12 +1,13 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.frontend
 
 import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.{RepeatingEnumValueException, DuplicateFieldIdException, NegativeFieldIdException, OnewayNotSupportedException}
 
-class ScroogeParserSpec extends SpecificationWithJUnit {
-  import AST._
+class ThriftParserSpec extends SpecificationWithJUnit {
+  import com.twitter.scrooge.ast._
 
-  "ScroogeParser" should {
-    val parser = new ScroogeParser(Importer.fakeImporter(Map.empty))
+  "ThriftParser" should {
+    val parser = new ThriftParser(Importer.fakeImporter(Map.empty))
 
     "comments" in {
       parser.parse("  300  ", parser.constant) mustEqual IntConstant(300)
@@ -194,7 +195,7 @@ enum Foo
     }
 
     "standard test file" in {
-      val parser = new ScroogeParser(Importer.resourceImporter(getClass))
+      val parser = new ThriftParser(Importer.resourceImporter(getClass))
       val doc = parser.parseFile("/test.thrift")
       // i guess not blowing up is a good first-pass test.
       // might be nice to verify parts of it tho.

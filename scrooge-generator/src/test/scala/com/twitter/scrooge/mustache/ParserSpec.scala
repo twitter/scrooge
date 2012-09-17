@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.twitter.handlebar
+package com.twitter.scrooge.mustache
 
-import ParserAST._
+import MustacheAST._
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
+import com.twitter.scrooge.ParseException
 
 @RunWith(classOf[JUnitRunner])
 class ParserSpec extends FunSpec {
   describe("Parser") {
     it("all text") {
-      assert(Parser("hello\nthere") === Document(Seq(Data("hello\nthere"))))
+      assert(MustacheParser("hello\nthere") === Document(Seq(Data("hello\nthere"))))
     }
 
     it("interpolates") {
       val text = "say hello to {{friend}}, {{name}}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("say hello to "),
         Interpolation("friend"),
         Data(", "),
@@ -40,7 +41,7 @@ class ParserSpec extends FunSpec {
 
     it("doesn't get confused by other {") {
       val text = "say { to {{friend}}, {{name}}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("say { to "),
         Interpolation("friend"),
         Data(", "),
@@ -50,12 +51,12 @@ class ParserSpec extends FunSpec {
 
     it("errors on impossible ids") {
       val text = "hello {{"
-      intercept[ParseException] { Parser(text) }
+      intercept[ParseException] { MustacheParser(text) }
     }
 
     it("section") {
       val text = "Classmates: {{#students}}Name: {{name}}{{/students}}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("Classmates: "),
         Section("students", Document(Seq(
           Data("Name: "),
@@ -66,7 +67,7 @@ class ParserSpec extends FunSpec {
 
     it("nested section") {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/moons}} :) {{/planets}}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("Planets: "),
         Section("planets", Document(Seq(
           Interpolation("name"),
@@ -81,12 +82,12 @@ class ParserSpec extends FunSpec {
 
     it("complains about mismatched section headers") {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/planets}}"
-      intercept[ParseException] { Parser(text) }
+      intercept[ParseException] { MustacheParser(text) }
     }
 
     it("inverted section") {
       val text = "{{^space}}no space{{/space}}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Section("space", Document(Seq(
           Data("no space")
         )), true)
@@ -95,7 +96,7 @@ class ParserSpec extends FunSpec {
 
     it("comments") {
       val text = "remember {{! these comments look stupid, like xml}} nothing."
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("remember "),
         Data(" nothing.")
       )))
@@ -103,7 +104,7 @@ class ParserSpec extends FunSpec {
 
     it("partial") {
       val text = "{{#foo}}ok {{>other}}{{/foo}}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Section("foo", Document(Seq(
           Data("ok "),
           Partial("other")
@@ -113,7 +114,7 @@ class ParserSpec extends FunSpec {
 
     it("triple braces is fine") {
       val text = "Hello, {{{foo}}}."
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("Hello, {"),
         Interpolation("foo"),
         Data("}.")
@@ -122,7 +123,7 @@ class ParserSpec extends FunSpec {
 
     it("section with joiner") {
       val text = "Students: {{#students}}{{name}}{{/students|, }}"
-      assert(Parser(text) === Document(Seq(
+      assert(MustacheParser(text) === Document(Seq(
         Data("Students: "),
         Section("students", Document(Seq(
           Interpolation("name")

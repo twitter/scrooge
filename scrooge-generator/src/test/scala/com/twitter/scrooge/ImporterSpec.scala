@@ -1,4 +1,4 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.frontend
 
 import com.twitter.scalatest._
 import java.io.{File, FileOutputStream}

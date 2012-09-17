@@ -1,5 +1,4 @@
-package com.twitter.scrooge
-package scalagen
+package com.twitter.scrooge.backend
 
 import java.util.Arrays
 import com.twitter.finagle
@@ -10,10 +9,9 @@ import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
 import thrift.test._
+import com.twitter.scrooge.EvalHelper
 
 class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
-  import AST._
-
   val protocol = mock[TProtocol]
 
   case class matchThriftClientRequest(r: ThriftClientRequest) extends Matcher[ThriftClientRequest]() {

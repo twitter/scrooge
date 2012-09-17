@@ -1,5 +1,4 @@
-package com.twitter.scrooge
-package javalike
+package com.twitter.scrooge.backend
 
 /**
  * Copyright 2011 Twitter, Inc.
@@ -8,7 +7,7 @@ package javalike
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +16,12 @@ package javalike
  * limitations under the License.
  */
 
-import AST._
-import com.twitter.handlebar.Dictionary
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.mustache.Dictionary
 
-trait StructTemplate extends Generator { self: JavaLike =>
+trait StructTemplate extends Generator {
+  self: JavaLike =>
+
   case class Binding[FT <: FieldType](name: String, fieldType: FT)
 
   import Dictionary._
@@ -45,7 +46,7 @@ trait StructTemplate extends Generator { self: JavaLike =>
             "eltConstType" -> v(constType(t.eltType)),
             "eltType" -> v(typeName(t.eltType)),
             "eltReadWriteInfo" -> v(readWriteInfo(eltName, t.eltType))
-        ))
+          ))
       case t: SetType =>
         val eltName = "_" + name + "_element"
         TypeTemplate + Dictionary(
@@ -70,21 +71,21 @@ trait StructTemplate extends Generator { self: JavaLike =>
             "valueName" -> valueName,
             "keyReadWriteInfo" -> v(readWriteInfo(keyName, t.keyType)),
             "valueReadWriteInfo" -> v(readWriteInfo(valueName, t.valueType))
-        ))
+          ))
       case t: StructType =>
         TypeTemplate + Dictionary(
           "isStruct" -> Dictionary(
             "name" -> v(name),
             "prefix" -> v(t.prefix.getOrElse("")),
             "type" -> v(t.name)
-        ))
+          ))
       case t: EnumType =>
         TypeTemplate + Dictionary(
           "isEnum" -> Dictionary(
             "name" -> v(name),
             "prefix" -> v(t.prefix.getOrElse("")),
             "type" -> v(t.name)
-        ))
+          ))
       case t: BaseType =>
         TypeTemplate + Dictionary(
           "isBase" -> Dictionary(
@@ -92,7 +93,7 @@ trait StructTemplate extends Generator { self: JavaLike =>
             "name" -> v(name),
             "protocolWriteMethod" -> v(protocolWriteMethod(t)),
             "protocolReadMethod" -> v(protocolReadMethod(t))
-        ))
+          ))
       case t: ReferenceType =>
         // todo: implement ReferenceType
         throw new Exception()
@@ -173,24 +174,29 @@ trait StructTemplate extends Generator { self: JavaLike =>
   }
 
   private def exceptionMsgFieldName(struct: StructLike): Option[String] = {
-    val msgField: Option[Field] = struct.fields find { field =>
+    val msgField: Option[Field] = struct.fields find {
+      field =>
       // 1st choice: find a field called message
-      field.name == "message"
+        field.name == "message"
     } orElse {
       // 2nd choice: the first string field
-      struct.fields find { field => fieldTypeName(field) == "String" }
+      struct.fields find {
+        field => fieldTypeName(field) == "String"
+      }
     }
 
-    msgField map { _.name }
+    msgField map {
+      _.name
+    }
   }
 
   def structDict(
-    struct: StructLike,
-    myNamespace: Option[String],
-    includes: Seq[Include],
-    serviceOptions: Set[ServiceOption]
-  ) = {
-    val isException = struct.isInstanceOf[AST.Exception_]
+                  struct: StructLike,
+                  myNamespace: Option[String],
+                  includes: Seq[Include],
+                  serviceOptions: Set[ServiceOption]
+                  ) = {
+    val isException = struct.isInstanceOf[Exception_]
     val parentType = if (isException) {
       if (serviceOptions contains WithFinagleClient) {
         "SourcedException with ThriftStruct"
@@ -210,8 +216,9 @@ trait StructTemplate extends Generator { self: JavaLike =>
       "Product"
     }
 
-    val imports = includes map { include =>
-      (namespace(include.document), include.prefix)
+    val imports = includes map {
+      include =>
+        (namespace(include.document), include.prefix)
     } map {
       case (PackageName(parentPackage, subPackage), prefix) => {
         Dictionary(

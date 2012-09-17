@@ -1,5 +1,4 @@
-package com.twitter.scrooge
-package javalike
+package com.twitter.scrooge.backend
 
 /*
  * Copyright 2011 Twitter, Inc.
@@ -18,11 +17,15 @@ package javalike
  */
 
 import com.twitter.conversions.string._
-import com.twitter.handlebar.Dictionary
-import AST._
+import com.twitter.scrooge.mustache.Dictionary
+import com.twitter.scrooge.ast._
 import java.io.{FileWriter, File}
+import scala._
+import com.twitter.scrooge._
+import mustache.HandlebarLoader
 
 abstract class JavaLike extends Generator with StructTemplate with ServiceTemplate {
+
   import Dictionary._
 
   private[this] def namespacedFolder(destFolder: File, namespace: String) = {
@@ -31,8 +34,10 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     file
   }
 
-  def normalizeCase[N <: AST.Node](node: N): N
+  def normalizeCase[N <: Node](node: N): N
+
   def namespace(doc0: Document): String
+
   val fileExtension: String
   val templateDirName: String
 
@@ -50,56 +55,62 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     }
   }
 
-  lazy val enumTemplate = templates("enum").generate { pair: (String, Enum) =>
-    val (namespace, enum) = pair
-    Dictionary(
-      "package" -> v(namespace),
-      "enum_name" -> v(enum.name),
-      "docstring" -> v(enum.docstring.getOrElse("")),
-      "values" -> v(enum.values map { value =>
-        Dictionary(
-          "name" -> v(value.name),
-          "nameLowerCase" -> v(value.name.toLowerCase),
-          "value" -> v(value.value.toString)
-        )
-      })
-    )
+  lazy val enumTemplate = templates("enum").generate {
+    pair: (String, Enum) =>
+      val (namespace, enum) = pair
+      Dictionary(
+        "package" -> v(namespace),
+        "enum_name" -> v(enum.name),
+        "docstring" -> v(enum.docstring.getOrElse("")),
+        "values" -> v(enum.values map {
+          value =>
+            Dictionary(
+              "name" -> v(value.name),
+              "nameLowerCase" -> v(value.name.toLowerCase),
+              "value" -> v(value.value.toString)
+            )
+        })
+      )
   }
 
-  lazy val constsTemplate = templates("consts").generate { pair: (String, Seq[Const]) =>
-    val (namespace, consts) = pair
-    Dictionary(
-      "package" -> v(namespace),
-      "constants" -> v(consts map { c =>
-        Dictionary(
-          "name" -> v(c.name),
-          "type" -> v(typeName(c.`type`)),
-          "value" -> v(constantValue(c.value)),
-          "docstring" -> v(c.docstring.getOrElse(""))
-        )
-      })
-    )
+  lazy val constsTemplate = templates("consts").generate {
+    pair: (String, Seq[Const]) =>
+      val (namespace, consts) = pair
+      Dictionary(
+        "package" -> v(namespace),
+        "constants" -> v(consts map {
+          c =>
+            Dictionary(
+              "name" -> v(c.name),
+              "type" -> v(typeName(c.`type`)),
+              "value" -> v(constantValue(c.value)),
+              "docstring" -> v(c.docstring.getOrElse(""))
+            )
+        })
+      )
   }
 
   def quote(str: String) = "\"" + str.quoteC() + "\""
 
   def constantValue(constant: Constant, mutable: Boolean = false): String = {
     constant match {
-      case NullConstant                   => "null"
-      case StringConstant(value)          => quote(value)
-      case DoubleConstant(value)          => value.toString
-      case IntConstant(value)             => value.toString
-      case BoolConstant(value)            => value.toString
-      case c@ListConstant(_)              => listValue(c, mutable)
-      case c@SetConstant(_)               => setValue(c, mutable)
-      case c@MapConstant(_)               => mapValue(c, mutable)
+      case NullConstant => "null"
+      case StringConstant(value) => quote(value)
+      case DoubleConstant(value) => value.toString
+      case IntConstant(value) => value.toString
+      case BoolConstant(value) => value.toString
+      case c@ListConstant(_) => listValue(c, mutable)
+      case c@SetConstant(_) => setValue(c, mutable)
+      case c@MapConstant(_) => mapValue(c, mutable)
       case EnumValueConstant(enum, value) => enum.name + "." + value.name
-      case Identifier(name)               => name
+      case Identifier(name) => name
     }
   }
 
   def listValue(list: ListConstant, mutable: Boolean = false): String
+
   def setValue(set: SetConstant, mutable: Boolean = false): String
+
   def mapValue(map: MapConstant, mutable: Boolean = false): String
 
   def writeFieldConst(name: String) = TitleCase(name) + "Field"
@@ -142,7 +153,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
         case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
         case _ => true
       }
-    )
+      )
   }
 
   def constType(t: FunctionType): String = {
@@ -218,6 +229,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
   def toMutable(f: Field): (String, String)
 
   def typeName(t: FunctionType, mutable: Boolean = false): String
+
   def primitiveTypeName(t: FunctionType, mutable: Boolean = false): String
 
   def isPrimitive(t: FunctionType): Boolean = {
@@ -238,7 +250,7 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
     val namespace_ = namespace(_doc)
     val packageDir = namespacedFolder(outputPath, namespace_)
     val includes = doc.headers.collect {
-      case x @ AST.Include(_, doc) => x
+      case x@ Include(_, doc) => x
     }
 
     if (doc.consts.nonEmpty) {
@@ -246,19 +258,22 @@ abstract class JavaLike extends Generator with StructTemplate with ServiceTempla
       writeFile(file, templates.header, constsTemplate((namespace_, doc.consts)))
     }
 
-    doc.enums.foreach { enum =>
-      val file = new File(packageDir, enum.name + fileExtension)
-      writeFile(file, templates.header, enumTemplate((namespace_, enum)))
+    doc.enums.foreach {
+      enum =>
+        val file = new File(packageDir, enum.name + fileExtension)
+        writeFile(file, templates.header, enumTemplate((namespace_, enum)))
     }
-    doc.structs.foreach { struct =>
-      val file = new File(packageDir, struct.name + fileExtension)
-      val dict = structDict(struct, Some(namespace_), includes, serviceOptions)
-      writeFile(file, templates.header, templates("struct").generate(dict))
+    doc.structs.foreach {
+      struct =>
+        val file = new File(packageDir, struct.name + fileExtension)
+        val dict = structDict(struct, Some(namespace_), includes, serviceOptions)
+        writeFile(file, templates.header, templates("struct").generate(dict))
     }
-    doc.services.foreach { service =>
-      val file = new File(packageDir, service.name + fileExtension)
-      val dict = serviceDict(JavaService(service, serviceOptions), namespace_, includes, serviceOptions)
-      writeFile(file, templates.header, templates("service").generate(dict))
+    doc.services.foreach {
+      service =>
+        val file = new File(packageDir, service.name + fileExtension)
+        val dict = serviceDict(JavaService(service, serviceOptions), namespace_, includes, serviceOptions)
+        writeFile(file, templates.header, templates("service").generate(dict))
     }
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
+package com.twitter.scrooge.frontend
 
 import java.io.{IOException, File}
 import scala.collection.Map

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.twitter.handlebar
+package com.twitter.scrooge.mustache
 
 object Handlebar {
-  import ParserAST._
+  import MustacheAST._
   import Dictionary._
 
   private[this] val Space = " "
   private[this] val OnlySpaces = """^\s+$""".r
 
   def generate(template: String, dictionary: Dictionary): String =
-    generate(0, Parser(template), dictionary)
+    generate(0, MustacheParser(template), dictionary)
 
   def generate(document: Document, dictionary: Dictionary): String =
     generate(0, document, dictionary)
@@ -114,8 +114,8 @@ object Handlebar {
   private[this] def brittspace(line: String) = OnlySpaces.findFirstIn(line).isDefined
 }
 
-case class Handlebar(document: ParserAST.Document) {
-  def this(template: String) = this(Parser(template))
+case class Handlebar(document: MustacheAST.Document) {
+  def this(template: String) = this(MustacheParser(template))
 
   /**
    * Create a string out of a template, using a dictionary to fill in the blanks.

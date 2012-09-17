@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.twitter.handlebar
+package com.twitter.scrooge.mustache
 
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.lexical._
+import com.twitter.scrooge.ParseException
 
-class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) {
-  def this(reason: String) = this(reason, null)
-}
-
-object ParserAST {
+object MustacheAST {
   case class Document(segments: Seq[Segment])
   sealed trait Segment
   case class Data(data: String) extends Segment
@@ -32,8 +29,8 @@ object ParserAST {
   case class Partial(name: String) extends Segment
 }
 
-object Parser extends RegexParsers {
-  import ParserAST._
+object MustacheParser extends RegexParsers {
+  import MustacheAST._
 
   override def skipWhitespace = false
 
@@ -77,8 +74,8 @@ object Parser extends RegexParsers {
 /**
  * If a section header is on its own line, remove the trailing linefeed.
  */
-object CleanupWhitespace extends (ParserAST.Document => ParserAST.Document) {
-  import ParserAST._
+object CleanupWhitespace extends (MustacheAST.Document => MustacheAST.Document) {
+  import MustacheAST._
 
   def apply(document: Document): Document = {
     var afterSectionHeader = true

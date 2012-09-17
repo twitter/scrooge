@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.twitter.handlebar
+package com.twitter.scrooge.mustache
 
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

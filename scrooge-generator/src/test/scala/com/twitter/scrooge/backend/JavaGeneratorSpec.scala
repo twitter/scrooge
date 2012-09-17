@@ -1,69 +1,45 @@
 package com.twitter.scrooge
-package scalagen
+package backend
 
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
-import thrift.test._
-import thrift.test1._
-import thrift.test2._
+import thrift.java_test._
 
-class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
-  import AST._
-
+class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
 
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
 
-  "ScalaGenerator" should {
+  "JavaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        Numberz.One.value mustEqual 1
-        Numberz.Two.value mustEqual 2
-        Numberz.Three.value mustEqual 3
-        Numberz.Five.value mustEqual 5
-        Numberz.Six.value mustEqual 6
-        Numberz.Eight.value mustEqual 8
+        Numberz.ONE.getValue() mustEqual 1
+        Numberz.TWO.getValue() mustEqual 2
+        Numberz.THREE.getValue() mustEqual 3
+        Numberz.FIVE.getValue() mustEqual 5
+        Numberz.SIX.getValue() mustEqual 6
+        Numberz.EIGHT.getValue() mustEqual 8
       }
 
-      "apply" in {
-        Numberz(1) mustEqual Numberz.One
-        Numberz(2) mustEqual Numberz.Two
-        Numberz(3) mustEqual Numberz.Three
-        Numberz(5) mustEqual Numberz.Five
-        Numberz(6) mustEqual Numberz.Six
-        Numberz(8) mustEqual Numberz.Eight
-      }
-
-      "get" in {
-        Numberz.get(1) must beSome(Numberz.One)
-        Numberz.get(2) must beSome(Numberz.Two)
-        Numberz.get(3) must beSome(Numberz.Three)
-        Numberz.get(5) must beSome(Numberz.Five)
-        Numberz.get(6) must beSome(Numberz.Six)
-        Numberz.get(8) must beSome(Numberz.Eight)
-        Numberz.get(10) must beNone
-      }
-
-      "valueOf" in {
-        Numberz.valueOf("One") must beSome(Numberz.One)
-        Numberz.valueOf("Two") must beSome(Numberz.Two)
-        Numberz.valueOf("Three") must beSome(Numberz.Three)
-        Numberz.valueOf("Five") must beSome(Numberz.Five)
-        Numberz.valueOf("Six") must beSome(Numberz.Six)
-        Numberz.valueOf("Eight") must beSome(Numberz.Eight)
-        Numberz.valueOf("Ten") must beNone
+      "findByValue" in {
+        Numberz.findByValue(1) mustEqual Numberz.ONE
+        Numberz.findByValue(2) mustEqual Numberz.TWO
+        Numberz.findByValue(3) mustEqual Numberz.THREE
+        Numberz.findByValue(5) mustEqual Numberz.FIVE
+        Numberz.findByValue(6) mustEqual Numberz.SIX
+        Numberz.findByValue(8) mustEqual Numberz.EIGHT
       }
     }
 
     "generate constants" in {
-      thrift.test.Constants.myNumberz mustEqual Numberz.One
-      thrift.test.Constants.name mustEqual "Columbo"
-      thrift.test.Constants.someInt mustEqual 1
-      thrift.test.Constants.someDouble mustEqual 3.0
-      thrift.test.Constants.someList mustEqual List("piggy")
-      thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
+      Constants.myNumberz mustEqual Numberz.ONE
+      Constants.name mustEqual "Columbo"
+      Constants.someInt mustEqual 1
+      Constants.someDouble mustEqual 3.0
+      Constants.someList mustEqual Utilities.makeList("piggy")
+      Constants.someMap mustEqual Utilities.makeMap(Utilities.makeTuple("foo", "bar"))
     }
 
     "basic structs" in {
@@ -79,7 +55,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Ints(protocol) mustEqual Ints(16, 32, 64L)
+          Ints.decode(protocol) mustEqual new Ints(16, 32, 64L)
         }
 
         "write" in {
@@ -93,7 +69,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endWrite(protocol)
           }
 
-          Ints(16, 32, 64L).write(protocol) mustEqual ()
+          new Ints(16, 32, 64L).write(protocol) mustEqual ()
         }
       }
 
@@ -107,9 +83,9 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          val bytes = Bytes(protocol)
-          bytes.x mustEqual 3.toByte
-          new String(bytes.y.array) mustEqual "hello"
+          val bytes = Bytes.decode(protocol)
+          bytes.getX mustEqual 3.toByte
+          new String(bytes.getY.array) mustEqual "hello"
         }
 
         "write" in {
@@ -121,7 +97,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endWrite(protocol)
           }
 
-          Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) mustEqual ()
+          new Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) mustEqual ()
         }
       }
 
@@ -137,7 +113,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Misc(protocol) mustEqual Misc(true, 3.14, "bender")
+          Misc.decode(protocol) mustEqual new Misc(true, 3.14, "bender")
         }
 
         "write" in {
@@ -151,16 +127,17 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endWrite(protocol)
           }
 
-          Misc(false, 6.28, "fry").write(protocol) mustEqual ()
+          new Misc(false, 6.28, "fry").write(protocol) mustEqual ()
         }
       }
 
       "lists, sets, and maps" in {
-        val exemplar = Compound(
-          intlist = List(10, 20),
-          intset = Set(44, 55),
-          namemap = Map("wendy" -> 500),
-          nested = List(Set(9)))
+        val exemplar = new Compound.Builder()
+          .intlist(Utilities.makeList(10, 20))
+          .intset(Utilities.makeSet(44, 55))
+          .namemap(Utilities.makeMap(Utilities.makeTuple("wendy", 500)))
+          .nested(Utilities.makeList(Utilities.makeSet(9)))
+        .build()
 
         "read" in {
           expect {
@@ -188,7 +165,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Compound(protocol) mustEqual exemplar
+          Compound.decode(protocol) mustEqual exemplar
         }
 
         "write" in {
@@ -231,7 +208,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          RequiredString(protocol) mustEqual RequiredString("yo")
+          RequiredString.decode(protocol) mustEqual new RequiredString("yo")
         }
 
         "missing required value throws exception during deserialization" in {
@@ -242,21 +219,21 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           }
 
           "with no default value" in {
-            RequiredString(protocol) must throwA[TProtocolException]
+            RequiredString.decode(protocol) must throwA[TProtocolException]
           }
 
           "with default value" in {
-            RequiredStringWithDefault(protocol) must throwA[TProtocolException]
+            RequiredStringWithDefault.decode(protocol) must throwA[TProtocolException]
           }
         }
 
         "null required value throws exception during serialization" in {
           "with no default value" in {
-            RequiredString(value = null).write(protocol) must throwA[TProtocolException]
+            new RequiredString(null).write(protocol) must throwA[TProtocolException]
           }
 
           "with default value" in {
-            RequiredStringWithDefault(value = null).write(protocol) must throwA[TProtocolException]
+            new RequiredStringWithDefault(null).write(protocol) must throwA[TProtocolException]
           }
         }
       }
@@ -271,7 +248,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          OptionalInt(protocol) mustEqual OptionalInt("Commie", Some(14))
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new ScroogeOption.Some(14))
         }
 
         "read with missing field" in {
@@ -281,7 +258,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          OptionalInt(protocol) mustEqual OptionalInt("Commie", None)
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", ScroogeOption.none())
         }
 
         "write" in {
@@ -293,7 +270,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endWrite(protocol)
           }
 
-          OptionalInt("Commie", Some(14)).write(protocol) mustEqual ()
+          new OptionalInt("Commie", new ScroogeOption.Some(14)).write(protocol) mustEqual ()
         }
 
         "write with missing field" in {
@@ -303,7 +280,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endWrite(protocol)
           }
 
-          OptionalInt("Commie", None).write(protocol) mustEqual ()
+          new OptionalInt("Commie", ScroogeOption.none()).write(protocol) mustEqual ()
         }
       }
 
@@ -315,7 +292,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             one(protocol).readStructEnd()
           }
 
-          DefaultValues(protocol) mustEqual DefaultValues("leela")
+          DefaultValues.decode(protocol) mustEqual new DefaultValues("leela")
         }
 
         "read with value present" in {
@@ -327,7 +304,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             one(protocol).readStructEnd()
           }
 
-          DefaultValues(protocol) mustEqual DefaultValues("delilah")
+          DefaultValues.decode(protocol) mustEqual new DefaultValues("delilah")
         }
       }
 
@@ -354,10 +331,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Empire(protocol) mustEqual Empire(
+          Empire.decode(protocol) mustEqual new Empire(
             "United States of America",
-            List("connecticut", "california"),
-            Emperor("Bush", 42))
+            Utilities.makeList("connecticut", "california"),
+            new Emperor("Bush", 42))
         }
 
         "write" in {
@@ -381,79 +358,56 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endWrite(protocol)
           }
 
-          Empire(
+          new Empire(
             "Canada",
-            List("Manitoba", "Alberta"),
-            Emperor("Larry", 13)
+            Utilities.makeList("Manitoba", "Alberta"),
+            new Emperor("Larry", 13)
           ).write(protocol) mustEqual ()
         }
       }
 
       "exception" in {
-        Xception(1, "boom") must haveSuperClass[Exception]
-        Xception(2, "kathunk").getMessage mustEqual "kathunk"
+        new Xception(1, "boom") must haveSuperClass[Exception]
+        new Xception(2, "kathunk").getMessage mustEqual "kathunk"
       }
 
       "exception getMessage" in {
-        StringMsgException(1, "jeah").getMessage mustEqual "jeah"
-        NonStringMessageException(5).getMessage mustEqual "5"
+        new StringMsgException(1, "jeah").getMessage mustEqual "jeah"
+        new NonStringMessageException(5).getMessage mustEqual "5"
       }
 
       "funky names that scala doesn't like" in {
-        Naughty("car", 100).`type` mustEqual "car"
-        Naughty("car", 100).`def` mustEqual 100
+        new Naughty("car", 100).getType() mustEqual "car"
+        new Naughty("car", 100).getDef() mustEqual 100
       }
 
       "with more than 22 fields" in {
         "apply" in {
-          Biggie().num25 mustEqual 25
+          new Biggie.Builder().build().getNum25() mustEqual 25
         }
 
         "two default object must be equal" in {
-          Biggie() mustEqual Biggie()
+          new Biggie.Builder().build() mustEqual new Biggie.Builder().build()
         }
 
         "copy and equals" in {
-          Biggie().copy(num10 = -5) mustEqual Biggie(num10 = -5)
+          new Biggie.Builder().build().copy().num10(-5).build() mustEqual new Biggie.Builder().num10(-5).build()
         }
 
         "hashCode is the same for two similar objects" in {
-          Biggie().hashCode mustEqual Biggie().hashCode
-          Biggie(num10 = -5).hashCode mustEqual Biggie(num10 = -5).hashCode
+          new Biggie.Builder().build().hashCode mustEqual new Biggie.Builder().build().hashCode
+          new Biggie.Builder().num10(-5).build().hashCode mustEqual new Biggie.Builder().num10(-5).build().hashCode
         }
 
         "hashCode is different for two different objects" in {
-          Biggie(num10 = -5).hashCode mustNot beEqual(Biggie().hashCode)
+          new Biggie.Builder().num10(-5).build().hashCode mustNot beEqual(new Biggie.Builder().build().hashCode)
         }
 
         "toString" in {
-          Biggie().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
+          new Biggie.Builder().build().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
         }
       }
 
-      "unapply single field" in {
-        val struct: Any = RequiredString("hello")
-        struct match {
-          case RequiredString(value) =>
-            value mustEqual "hello"
-        }
-      }
-
-      "unapply multiple fields" in {
-        val struct: Any = OptionalInt("foo", Some(32))
-        struct match {
-          case OptionalInt(name, age) =>
-            name mustEqual "foo"
-            age must beSome(32)
-        }
-      }
-    }
-
-    "typedef relative fields" in {
-      // if the thrift compiles at all, this test will probably pass.
-      val candy = Candy(100, CandyType.Delicious)
-      candy.sweetnessIso mustEqual 100
-      candy.candyType.value mustEqual 1
     }
   }
 }

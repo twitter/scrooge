@@ -16,7 +16,7 @@
 
 package com.twitter.scrooge
 
-import AST._
+import com.twitter.scrooge.ast._
 import scala.collection.mutable.ArrayBuffer
 
 class TypeNotFoundException(name: String) extends Exception(name)

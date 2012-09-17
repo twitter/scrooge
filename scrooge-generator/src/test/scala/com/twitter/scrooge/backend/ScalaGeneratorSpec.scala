@@ -1,47 +1,69 @@
-package com.twitter.scrooge
-package scalagen
+package com.twitter.scrooge.backend
 
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
-import thrift.java_test._
+import thrift.test._
+import thrift.test1._
+import thrift.test2._
+import com.twitter.scrooge.EvalHelper
 
-class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
-  import AST._
+//import com.twitter.scrooge.ast._
 
+class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
 
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
 
-  "JavaGenerator" should {
+  "ScalaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        Numberz.ONE.getValue() mustEqual 1
-        Numberz.TWO.getValue() mustEqual 2
-        Numberz.THREE.getValue() mustEqual 3
-        Numberz.FIVE.getValue() mustEqual 5
-        Numberz.SIX.getValue() mustEqual 6
-        Numberz.EIGHT.getValue() mustEqual 8
+        Numberz.One.value mustEqual 1
+        Numberz.Two.value mustEqual 2
+        Numberz.Three.value mustEqual 3
+        Numberz.Five.value mustEqual 5
+        Numberz.Six.value mustEqual 6
+        Numberz.Eight.value mustEqual 8
       }
 
-      "findByValue" in {
-        Numberz.findByValue(1) mustEqual Numberz.ONE
-        Numberz.findByValue(2) mustEqual Numberz.TWO
-        Numberz.findByValue(3) mustEqual Numberz.THREE
-        Numberz.findByValue(5) mustEqual Numberz.FIVE
-        Numberz.findByValue(6) mustEqual Numberz.SIX
-        Numberz.findByValue(8) mustEqual Numberz.EIGHT
+      "apply" in {
+        Numberz(1) mustEqual Numberz.One
+        Numberz(2) mustEqual Numberz.Two
+        Numberz(3) mustEqual Numberz.Three
+        Numberz(5) mustEqual Numberz.Five
+        Numberz(6) mustEqual Numberz.Six
+        Numberz(8) mustEqual Numberz.Eight
+      }
+
+      "get" in {
+        Numberz.get(1) must beSome(Numberz.One)
+        Numberz.get(2) must beSome(Numberz.Two)
+        Numberz.get(3) must beSome(Numberz.Three)
+        Numberz.get(5) must beSome(Numberz.Five)
+        Numberz.get(6) must beSome(Numberz.Six)
+        Numberz.get(8) must beSome(Numberz.Eight)
+        Numberz.get(10) must beNone
+      }
+
+      "valueOf" in {
+        Numberz.valueOf("One") must beSome(Numberz.One)
+        Numberz.valueOf("Two") must beSome(Numberz.Two)
+        Numberz.valueOf("Three") must beSome(Numberz.Three)
+        Numberz.valueOf("Five") must beSome(Numberz.Five)
+        Numberz.valueOf("Six") must beSome(Numberz.Six)
+        Numberz.valueOf("Eight") must beSome(Numberz.Eight)
+        Numberz.valueOf("Ten") must beNone
       }
     }
 
     "generate constants" in {
-      Constants.myNumberz mustEqual Numberz.ONE
-      Constants.name mustEqual "Columbo"
-      Constants.someInt mustEqual 1
-      Constants.someDouble mustEqual 3.0
-      Constants.someList mustEqual Utilities.makeList("piggy")
-      Constants.someMap mustEqual Utilities.makeMap(Utilities.makeTuple("foo", "bar"))
+      thrift.test.Constants.myNumberz mustEqual Numberz.One
+      thrift.test.Constants.name mustEqual "Columbo"
+      thrift.test.Constants.someInt mustEqual 1
+      thrift.test.Constants.someDouble mustEqual 3.0
+      thrift.test.Constants.someList mustEqual List("piggy")
+      thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
     }
 
     "basic structs" in {
@@ -57,7 +79,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          Ints.decode(protocol) mustEqual new Ints(16, 32, 64L)
+          Ints(protocol) mustEqual Ints(16, 32, 64L)
         }
 
         "write" in {
@@ -71,7 +93,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new Ints(16, 32, 64L).write(protocol) mustEqual ()
+          Ints(16, 32, 64L).write(protocol) mustEqual ()
         }
       }
 
@@ -85,9 +107,9 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          val bytes = Bytes.decode(protocol)
-          bytes.getX mustEqual 3.toByte
-          new String(bytes.getY.array) mustEqual "hello"
+          val bytes = Bytes(protocol)
+          bytes.x mustEqual 3.toByte
+          new String(bytes.y.array) mustEqual "hello"
         }
 
         "write" in {
@@ -99,7 +121,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) mustEqual ()
+          Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) mustEqual ()
         }
       }
 
@@ -115,7 +137,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          Misc.decode(protocol) mustEqual new Misc(true, 3.14, "bender")
+          Misc(protocol) mustEqual Misc(true, 3.14, "bender")
         }
 
         "write" in {
@@ -129,17 +151,16 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new Misc(false, 6.28, "fry").write(protocol) mustEqual ()
+          Misc(false, 6.28, "fry").write(protocol) mustEqual ()
         }
       }
 
       "lists, sets, and maps" in {
-        val exemplar = new Compound.Builder()
-          .intlist(Utilities.makeList(10, 20))
-          .intset(Utilities.makeSet(44, 55))
-          .namemap(Utilities.makeMap(Utilities.makeTuple("wendy", 500)))
-          .nested(Utilities.makeList(Utilities.makeSet(9)))
-        .build()
+        val exemplar = Compound(
+          intlist = List(10, 20),
+          intset = Set(44, 55),
+          namemap = Map("wendy" -> 500),
+          nested = List(Set(9)))
 
         "read" in {
           expect {
@@ -167,7 +188,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          Compound.decode(protocol) mustEqual exemplar
+          Compound(protocol) mustEqual exemplar
         }
 
         "write" in {
@@ -210,7 +231,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          RequiredString.decode(protocol) mustEqual new RequiredString("yo")
+          RequiredString(protocol) mustEqual RequiredString("yo")
         }
 
         "missing required value throws exception during deserialization" in {
@@ -221,21 +242,21 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
           }
 
           "with no default value" in {
-            RequiredString.decode(protocol) must throwA[TProtocolException]
+            RequiredString(protocol) must throwA[TProtocolException]
           }
 
           "with default value" in {
-            RequiredStringWithDefault.decode(protocol) must throwA[TProtocolException]
+            RequiredStringWithDefault(protocol) must throwA[TProtocolException]
           }
         }
 
         "null required value throws exception during serialization" in {
           "with no default value" in {
-            new RequiredString(null).write(protocol) must throwA[TProtocolException]
+            RequiredString(value = null).write(protocol) must throwA[TProtocolException]
           }
 
           "with default value" in {
-            new RequiredStringWithDefault(null).write(protocol) must throwA[TProtocolException]
+            RequiredStringWithDefault(value = null).write(protocol) must throwA[TProtocolException]
           }
         }
       }
@@ -250,7 +271,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new ScroogeOption.Some(14))
+          OptionalInt(protocol) mustEqual OptionalInt("Commie", Some(14))
         }
 
         "read with missing field" in {
@@ -260,7 +281,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", ScroogeOption.none())
+          OptionalInt(protocol) mustEqual OptionalInt("Commie", None)
         }
 
         "write" in {
@@ -272,7 +293,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", new ScroogeOption.Some(14)).write(protocol) mustEqual ()
+          OptionalInt("Commie", Some(14)).write(protocol) mustEqual ()
         }
 
         "write with missing field" in {
@@ -282,7 +303,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", ScroogeOption.none()).write(protocol) mustEqual ()
+          OptionalInt("Commie", None).write(protocol) mustEqual ()
         }
       }
 
@@ -294,7 +315,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             one(protocol).readStructEnd()
           }
 
-          DefaultValues.decode(protocol) mustEqual new DefaultValues("leela")
+          DefaultValues(protocol) mustEqual DefaultValues("leela")
         }
 
         "read with value present" in {
@@ -306,7 +327,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             one(protocol).readStructEnd()
           }
 
-          DefaultValues.decode(protocol) mustEqual new DefaultValues("delilah")
+          DefaultValues(protocol) mustEqual DefaultValues("delilah")
         }
       }
 
@@ -333,10 +354,10 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          Empire.decode(protocol) mustEqual new Empire(
+          Empire(protocol) mustEqual Empire(
             "United States of America",
-            Utilities.makeList("connecticut", "california"),
-            new Emperor("Bush", 42))
+            List("connecticut", "california"),
+            Emperor("Bush", 42))
         }
 
         "write" in {
@@ -360,56 +381,79 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new Empire(
+          Empire(
             "Canada",
-            Utilities.makeList("Manitoba", "Alberta"),
-            new Emperor("Larry", 13)
+            List("Manitoba", "Alberta"),
+            Emperor("Larry", 13)
           ).write(protocol) mustEqual ()
         }
       }
 
       "exception" in {
-        new Xception(1, "boom") must haveSuperClass[Exception]
-        new Xception(2, "kathunk").getMessage mustEqual "kathunk"
+        Xception(1, "boom") must haveSuperClass[Exception]
+        Xception(2, "kathunk").getMessage mustEqual "kathunk"
       }
 
       "exception getMessage" in {
-        new StringMsgException(1, "jeah").getMessage mustEqual "jeah"
-        new NonStringMessageException(5).getMessage mustEqual "5"
+        StringMsgException(1, "jeah").getMessage mustEqual "jeah"
+        NonStringMessageException(5).getMessage mustEqual "5"
       }
 
       "funky names that scala doesn't like" in {
-        new Naughty("car", 100).getType() mustEqual "car"
-        new Naughty("car", 100).getDef() mustEqual 100
+        Naughty("car", 100).`type` mustEqual "car"
+        Naughty("car", 100).`def` mustEqual 100
       }
 
       "with more than 22 fields" in {
         "apply" in {
-          new Biggie.Builder().build().getNum25() mustEqual 25
+          Biggie().num25 mustEqual 25
         }
 
         "two default object must be equal" in {
-          new Biggie.Builder().build() mustEqual new Biggie.Builder().build()
+          Biggie() mustEqual Biggie()
         }
 
         "copy and equals" in {
-          new Biggie.Builder().build().copy().num10(-5).build() mustEqual new Biggie.Builder().num10(-5).build()
+          Biggie().copy(num10 = -5) mustEqual Biggie(num10 = -5)
         }
 
         "hashCode is the same for two similar objects" in {
-          new Biggie.Builder().build().hashCode mustEqual new Biggie.Builder().build().hashCode
-          new Biggie.Builder().num10(-5).build().hashCode mustEqual new Biggie.Builder().num10(-5).build().hashCode
+          Biggie().hashCode mustEqual Biggie().hashCode
+          Biggie(num10 = -5).hashCode mustEqual Biggie(num10 = -5).hashCode
         }
 
         "hashCode is different for two different objects" in {
-          new Biggie.Builder().num10(-5).build().hashCode mustNot beEqual(new Biggie.Builder().build().hashCode)
+          Biggie(num10 = -5).hashCode mustNot beEqual(Biggie().hashCode)
         }
 
         "toString" in {
-          new Biggie.Builder().build().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
+          Biggie().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
         }
       }
 
+      "unapply single field" in {
+        val struct: Any = RequiredString("hello")
+        struct match {
+          case RequiredString(value) =>
+            value mustEqual "hello"
+        }
+      }
+
+      "unapply multiple fields" in {
+        val struct: Any = OptionalInt("foo", Some(32))
+        struct match {
+          case OptionalInt(name, age) =>
+            name mustEqual "foo"
+            age must beSome(32)
+        }
+      }
+    }
+
+    "typedef relative fields" in {
+      // if the thrift compiles at all, this test will probably pass.
+      val candy = Candy(100, CandyType.Delicious)
+      candy.sweetnessIso mustEqual 100
+      candy.candyType.value mustEqual 1
     }
   }
 }

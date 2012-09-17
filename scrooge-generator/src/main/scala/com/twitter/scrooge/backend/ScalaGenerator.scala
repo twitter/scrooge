@@ -1,6 +1,3 @@
-package com.twitter.scrooge
-package javagen
-
 /*
  * Copyright 2011 Twitter, Inc.
  *
@@ -17,17 +14,18 @@ package javagen
  * limitations under the License.
  */
 
-import AST._
-import javalike.JavaLike
+package com.twitter.scrooge.backend
 
-class JavaGenerator extends JavaLike {
-  val fileExtension = ".java"
-  val templateDirName = "/javagen/"
+import com.twitter.scrooge.ast._
+
+class ScalaGenerator extends JavaLike {
+  val fileExtension = ".scala"
+  val templateDirName = "/scalagen/"
 
   def namespace(doc: Document) =
-    doc.namespace("java") getOrElse("thrift")
+    doc.namespace("scala") orElse doc.namespace("java") getOrElse ("thrift")
 
-  def normalizeCase[N <: AST.Node](node: N) = {
+  def normalizeCase[N <: Node](node: N) = {
     (node match {
       case d: Document =>
         d.copy(defs = d.defs.map(normalizeCase(_)))
@@ -49,7 +47,7 @@ class JavaGenerator extends JavaLike {
       case e: Enum =>
         e.copy(values = e.values.map(normalizeCase(_)))
       case e: EnumValue =>
-        e.copy(name = UpperCase(e.name))
+        e.copy(name = TitleCase(e.name))
       case s: Struct =>
         s.copy(fields = s.fields.map(normalizeCase(_)))
       case f: FunctionArgs =>
@@ -65,20 +63,29 @@ class JavaGenerator extends JavaLike {
   }
 
   def listValue(list: ListConstant, mutable: Boolean = false): String = {
-    (if (mutable) "Utilities.makeList(" else "Utilities.makeList(") +
+    (if (mutable) "mutable.Buffer(" else "Seq(") +
       list.elems.map(constantValue(_)).mkString(", ") + ")"
   }
 
   def setValue(set: SetConstant, mutable: Boolean = false): String = {
-    (if (mutable) "Utilities.makeSet(" else "Utilities.makeSet(") +
+    (if (mutable) "mutable.Set(" else "Set(") +
       set.elems.map(constantValue(_)).mkString(", ") + ")"
   }
 
   def mapValue(map: MapConstant, mutable: Boolean = false): String = {
-    (if (mutable) "Utilities.makeMap(" else "Utilities.makeMap(") + (map.elems.map {
+    (if (mutable) "mutable.Map(" else "Map(") + (map.elems.map {
       case (k, v) =>
-        "Utilities.makeTuple(" + constantValue(k) + ", " + constantValue(v) + ")"
+        constantValue(k) + " -> " + constantValue(v)
     } mkString (", ")) + ")"
+  }
+
+  override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
+    `type` match {
+      case TI64 => "0L"
+      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
+        typeName(`type`, mutable) + "()"
+      case _ => super.defaultValue(`type`, mutable)
+    }
   }
 
   /**
@@ -121,16 +128,6 @@ class JavaGenerator extends JavaLike {
     }
   }
 
-  override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
-    `type` match {
-      case MapType(_, _, _) => "Utilities.makeMap()"
-      case SetType(_, _) => "Utilities.makeSet()"
-      case ListType(_, _) => "Utilities.makeList()"
-      case TI64 => "(long) 0"
-      case _ => super.defaultValue(`type`, mutable)
-    }
-  }
-
   /**
    * Generates a prefix and suffix to wrap around a field expression that will
    * convert the value to a mutable equivalent.
@@ -148,50 +145,48 @@ class JavaGenerator extends JavaLike {
 
   def typeName(t: FunctionType, mutable: Boolean = false): String = {
     t match {
-      case Void => "Void"
+      case Void => "Unit"
       case TBool => "Boolean"
       case TByte => "Byte"
       case TI16 => "Short"
-      case TI32 => "Integer"
+      case TI32 => "Int"
       case TI64 => "Long"
       case TDouble => "Double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case MapType(k, v, _) => "Map<" + typeName(k) + ", " + typeName(v) + ">"
-      case SetType(x, _) => "Set<" + typeName(x) + ">"
-      case ListType(x, _) => "List<" + typeName(x) + ">"
-      case n: NamedType => n.name
+      case MapType(k, v, _) =>
+        (if (mutable) "mutable." else "") + "Map[" + typeName(k) + ", " + typeName(v) + "]"
+      case SetType(x, _) =>
+        (if (mutable) "mutable." else "") + "Set[" + typeName(x) + "]"
+      case ListType(x, _) =>
+        (if (mutable) "mutable.Buffer" else "Seq") + "[" + typeName(x) + "]"
+      case n: NamedType => n.prefix.map("_" + _ + "_.").getOrElse("") + n.name
       case r: ReferenceType => r.name
     }
   }
 
-  def primitiveTypeName(t: FunctionType, mutable: Boolean = false): String = {
-    t match {
-      case Void => "void"
-      case TBool => "boolean"
-      case TByte => "byte"
-      case TI16 => "short"
-      case TI32 => "int"
-      case TI64 => "long"
-      case TDouble => "double"
-      case _ => typeName(t, mutable)
-    }
-  }
+  def primitiveTypeName(t: FunctionType, mutable: Boolean = false) = typeName(t, mutable)
 
   def fieldTypeName(f: Field, mutable: Boolean = false): String = {
+    val baseType = typeName(f.`type`, mutable)
     if (f.requiredness.isOptional) {
-      val baseType = typeName(f.`type`, mutable)
-      "ScroogeOption<" + baseType + ">"
+      "Option[" + baseType + "]"
     } else {
-      primitiveTypeName(f.`type`)
+      baseType
     }
   }
 
   def fieldParams(fields: Seq[Field], asVal: Boolean = false): String = {
-    fields.map { f =>
-      fieldTypeName(f) + " " + f.name
+    fields.map {
+      f =>
+        val valPrefix = if (asVal) "val " else ""
+        val nameAndType = "`" + f.name + "`: " + fieldTypeName(f)
+        val defaultValue = defaultFieldValue(f) map {
+          " = " + _
+        }
+        valPrefix + nameAndType + defaultValue.getOrElse("")
     }.mkString(", ")
   }
 
-  def baseFinagleService = "Service<byte[], byte[]>"
+  def baseFinagleService = "FinagleService[Array[Byte], Array[Byte]]"
 }

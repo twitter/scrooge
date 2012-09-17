@@ -1,10 +1,8 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.ast
 
 import org.specs.SpecificationWithJUnit
 
 class ASTSpec extends SpecificationWithJUnit {
-  import AST._
-
   "Document" should {
     "generate correct namespace from java" in {
       val doc = Document(Seq(Namespace("java", "com.twitter.oatmeal")), Nil)

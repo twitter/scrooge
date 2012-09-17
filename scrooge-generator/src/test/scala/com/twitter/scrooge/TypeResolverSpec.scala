@@ -3,7 +3,7 @@ package com.twitter.scrooge
 import org.specs.SpecificationWithJUnit
 
 class TypeResolverSpec extends SpecificationWithJUnit {
-  import AST._
+  import ast._
 
   "TypeResolve" should {
     val foo = EnumValue("FOO", 1)

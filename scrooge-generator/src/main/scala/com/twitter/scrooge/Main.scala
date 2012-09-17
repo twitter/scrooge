@@ -16,11 +16,11 @@
 
 package com.twitter.scrooge
 
+import com.twitter.scrooge.backend._
+import com.twitter.scrooge.frontend._
 import java.io.{File, FileWriter}
 import java.util.Properties
 import scala.collection.mutable
-import scalagen.ScalaGenerator
-import javagen.JavaGenerator
 import scopt.OptionParser
 
 object Main {
@@ -50,7 +50,7 @@ object Main {
       })
       opt("v", "verbose", "log verbose messages about progress", { verbose = true; () })
       opt("d", "dest", "<path>",
-          "write generated code to a folder (default: %s)".format(destFolder), { x: String =>
+      "write generated code to a folder (default: %s)".format(destFolder), { x: String =>
         destFolder = x
       })
       opt("i", "import-path", "<path>", "path(s) to search for imported thrift files (may be used multiple times)", { path: String =>
@@ -88,7 +88,7 @@ object Main {
     for (inputFile <- thriftFiles) {
       val inputFileDir = new File(inputFile).getParent
       val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
-      val parser = new ScroogeParser(importer)
+      val parser = new ThriftParser(importer)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))

@@ -1,7 +1,7 @@
 package com.twitter.scrooge
-package scalagen
 
 import com.twitter.finagle.thrift.ThriftClientRequest
+//import com.twitter.scrooge.ThriftStruct
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer

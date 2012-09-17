@@ -1,18 +1,16 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.backend
 
 import org.specs.SpecificationWithJUnit
 
 class CamelCaseSpec extends SpecificationWithJUnit {
-  import AST._
-
   val cases = List(
-    "hello" -> ("hello", "Hello"),
-    "hello_world" -> ("helloWorld", "HelloWorld"),
-    "a_b_c_d" -> ("aBCD", "ABCD"),
-    "HELLO_WORLD" -> ("helloWorld", "HelloWorld"),
-    "helloWorld" -> ("helloWorld", "HelloWorld"),
-    "hello_World" -> ("helloWorld", "HelloWorld"),
-    "HELLOWORLD" -> ("helloworld", "Helloworld")
+    "hello" ->("hello", "Hello"),
+    "hello_world" ->("helloWorld", "HelloWorld"),
+    "a_b_c_d" ->("aBCD", "ABCD"),
+    "HELLO_WORLD" ->("helloWorld", "HelloWorld"),
+    "helloWorld" ->("helloWorld", "HelloWorld"),
+    "hello_World" ->("helloWorld", "HelloWorld"),
+    "HELLOWORLD" ->("helloworld", "Helloworld")
   )
 
   "CamelCase" should {

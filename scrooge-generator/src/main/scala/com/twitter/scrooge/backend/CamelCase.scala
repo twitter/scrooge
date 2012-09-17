@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
+package com.twitter.scrooge.backend
 
 object CamelCase {
   private object State extends Enumeration {

@@ -1,5 +1,4 @@
-package com.twitter.scrooge
-package javalike
+package com.twitter.scrooge.backend
 
 /**
  * Copyright 2011 Twitter, Inc.
@@ -8,7 +7,7 @@ package javalike
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,18 +16,21 @@ package javalike
  * limitations under the License.
  */
 
-import AST._
-import com.twitter.handlebar.Dictionary
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.mustache.Dictionary
 
-trait ServiceTemplate extends Generator { self: JavaLike =>
+trait ServiceTemplate extends Generator {
+  self: JavaLike =>
+
   import Dictionary._
 
   def toDictionary(function: Function, async: Boolean): Dictionary = {
     val hasThrows = !async && function.throws.size > 0
     val throwsDictionaries =
       if (hasThrows) {
-        function.throws map { t =>
-          Dictionary("typeName" -> v(typeName(t.`type`)))
+        function.throws map {
+          t =>
+            Dictionary("typeName" -> v(typeName(t.`type`)))
         }
       } else {
         Nil
@@ -64,19 +66,24 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
     val parentName = s.parent.flatMap(_.service).map(_.name)
     Dictionary(
       "hasParent" -> v(parentName.nonEmpty),
-      "parent" -> v(parentName map { _ + ".FinagledClient" } getOrElse ""),
-      "functions" -> v(s.functions.map { f =>
-        Dictionary(
-          "header"       -> templates("function"),
-          "headerInfo"   -> v(toDictionary(f, true)),
-          "name"         -> v(f.name),
-          "type"         -> v(typeName(f.`type`)),
-          "void"         -> v(f.`type` eq AST.Void),
-          "localName"    -> v(f.localName),
-          "argNames"     -> v(f.args.map(_.name).mkString(", ")),
-          "hasThrows"    -> v(f.throws.size > 0),
-          "throws"       -> v(f.throws.map { thro => Dictionary("name" -> v(thro.name)) })
-        )
+      "parent" -> v(parentName map {
+        _ + ".FinagledClient"
+      } getOrElse ""),
+      "functions" -> v(s.functions.map {
+        f =>
+          Dictionary(
+            "header" -> templates("function"),
+            "headerInfo" -> v(toDictionary(f, true)),
+            "name" -> v(f.name),
+            "type" -> v(typeName(f.`type`)),
+            "void" -> v(f.`type` eq Void),
+            "localName" -> v(f.localName),
+            "argNames" -> v(f.args.map(_.name).mkString(", ")),
+            "hasThrows" -> v(f.throws.size > 0),
+            "throws" -> v(f.throws.map {
+              thro => Dictionary("name" -> v(thro.name))
+            })
+          )
       }),
       "function" -> templates("finagleClientFunction")
     )
@@ -86,24 +93,30 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
     val parentName = s.parent.flatMap(_.service).map(_.name)
     Dictionary(
       "hasParent" -> v(parentName.nonEmpty),
-      "parent" -> v(parentName.map { _ + ".FinagledService"}.getOrElse(baseFinagleService)),
+      "parent" -> v(parentName.map {
+        _ + ".FinagledService"
+      }.getOrElse(baseFinagleService)),
       "function" -> templates("finagleServiceFunction"),
-      "functions" -> v(s.functions map { f =>
-        Dictionary(
-          "name" -> v(f.name),
-          "localName" -> v(f.localName),
-          "argNames" ->
-            v(f.args map { "args." + _.name} mkString (", ")),
-          "typeName" -> v(typeName(f.`type`)),
-          "isVoid" -> v(f.`type` eq AST.Void),
-          "resultNamedArg" -> v(if (f.`type` ne Void) "success = Some(value)" else ""),
-          "exceptions" -> v(f.throws map { t =>
-            Dictionary(
-              "exceptionType" -> v(typeName(t.`type`)),
-              "fieldName" -> v(t.name)
-            )
-          })
-        )
+      "functions" -> v(s.functions map {
+        f =>
+          Dictionary(
+            "name" -> v(f.name),
+            "localName" -> v(f.localName),
+            "argNames" ->
+              v(f.args map {
+                "args." + _.name
+              } mkString (", ")),
+            "typeName" -> v(typeName(f.`type`)),
+            "isVoid" -> v(f.`type` eq Void),
+            "resultNamedArg" -> v(if (f.`type` ne Void) "success = Some(value)" else ""),
+            "exceptions" -> v(f.throws map {
+              t =>
+                Dictionary(
+                  "exceptionType" -> v(typeName(t.`type`)),
+                  "fieldName" -> v(t.name)
+                )
+            })
+          )
       })
     )
   }
@@ -130,14 +143,20 @@ trait ServiceTemplate extends Generator { self: JavaLike =>
       "asyncExtends" -> v(parentName.map {
         "extends " + _ + ".FutureIface "
       }.getOrElse("")),
-      "syncFunctions" -> service.functions.map { f => toDictionary(f, false) },
-      "asyncFunctions" -> service.functions.map { f => toDictionary(f, true) },
+      "syncFunctions" -> service.functions.map {
+        f => toDictionary(f, false)
+      },
+      "asyncFunctions" -> service.functions.map {
+        f => toDictionary(f, true)
+      },
       "struct" -> v(templates("struct")),
       "structs" -> v(
-        service.functions flatMap { f =>
-          Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-        } map { struct =>
-          structDict(struct, None, includes, serviceOptions)
+        service.functions flatMap {
+          f =>
+            Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
+        } map {
+          struct =>
+            structDict(struct, None, includes, serviceOptions)
         }),
       "finagleClient" -> templates("finagleClient"),
       "finagleService" -> templates("finagleService"),

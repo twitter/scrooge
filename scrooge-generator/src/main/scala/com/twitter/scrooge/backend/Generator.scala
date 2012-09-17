@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
+package com.twitter.scrooge.backend
 
 import java.io.File
-import com.twitter.scrooge.AST.{Service, Document}
+import com.twitter.scrooge.ast.{Service, Document}
 
 abstract sealed class ServiceOption
 

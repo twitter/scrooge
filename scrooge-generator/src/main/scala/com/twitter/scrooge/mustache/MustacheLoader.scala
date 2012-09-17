@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
+package com.twitter.scrooge.mustache
 
 import com.twitter.conversions.string._
-import com.twitter.handlebar.Handlebar
 import scala.collection.mutable.HashMap
 import scala.io.Source
 

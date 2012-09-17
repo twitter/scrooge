@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
+package com.twitter.scrooge.frontend
 
 import scala.collection.mutable
 import scala.util.parsing.combinator._
+import com.twitter.scrooge.{ParseException, DuplicateFieldIdException, NegativeFieldIdException,
+OnewayNotSupportedException, RepeatingEnumValueException}
 
-class ScroogeParser(importer: Importer) extends RegexParsers {
-  import AST._
+class ThriftParser(importer: Importer) extends RegexParsers {
+
+  import com.twitter.scrooge.ast._
 
   //                            1    2        3       4         4a    4b 4c       4d
   override val whiteSpace = """(\s+|(//.*\n)|(#.*\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
@@ -39,7 +42,9 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def fixFieldIds(fields: List[Field]): List[Field] = {
     // check negative field ids
-    fields.find(_.id < 0).foreach { field => throw new NegativeFieldIdException(field.name) }
+    fields.find(_.id < 0).foreach {
+      field => throw new NegativeFieldIdException(field.name)
+    }
 
     // check duplicate field ids
     fields.filter(_.id != 0).foldLeft(Set[Int]())((set, field) => {
@@ -51,14 +56,15 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     })
 
     var nextId = -1
-    fields.map { field =>
-      if (field.id == 0) {
-        val f = field.copy(id = nextId)
-        nextId -= 1
-        f
-      } else {
-        field
-      }
+    fields.map {
+      field =>
+        if (field.id == 0) {
+          val f = field.copy(id = nextId)
+          nextId -= 1
+          f
+        } else {
+          field
+        }
     }
   }
 
@@ -69,43 +75,59 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
       failure("constant expected")
   }
 
-  def intConstant = "[-+]?\\d+(?!\\.)".r ^^ { x => IntConstant(x.toLong) }
-
-  def numberConstant = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ { x =>
-    if (x.exists { c => "eE." contains c }) DoubleConstant(x.toDouble) else IntConstant(x.toLong)
+  def intConstant = "[-+]?\\d+(?!\\.)".r ^^ {
+    x => IntConstant(x.toLong)
   }
 
-  def stringConstant = (("\"" ~> "[^\"]*".r <~ "\"") | ("'" ~> "[^']*".r <~ "'")) ^^ { x =>
-    StringConstant(x)
+  def numberConstant = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ {
+    x =>
+      if (x.exists {
+        c => "eE." contains c
+      }) DoubleConstant(x.toDouble)
+      else IntConstant(x.toLong)
+  }
+
+  def stringConstant = (("\"" ~> "[^\"]*".r <~ "\"") | ("'" ~> "[^']*".r <~ "'")) ^^ {
+    x =>
+      StringConstant(x)
   }
 
   def listSeparator = "[,;]?".r
-  def listConstant = "[" ~> repsep(constant, listSeparator) <~ "]" ^^ { list =>
-    ListConstant(list)
+
+  def listConstant = "[" ~> repsep(constant, listSeparator) <~ "]" ^^ {
+    list =>
+      ListConstant(list)
   }
 
-  def mapConstant = "{" ~> repsep(constant ~ ":" ~ constant, listSeparator) <~ "}" ^^ { list =>
-    MapConstant(Map(list.map { case k ~ x ~ v => (k, v) }: _*))
+  def mapConstant = "{" ~> repsep(constant ~ ":" ~ constant, listSeparator) <~ "}" ^^ {
+    list =>
+      MapConstant(Map(list.map {
+        case k ~ x ~ v => (k, v)
+      }: _*))
   }
 
-  def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ { x => Identifier(x) }
+  def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ {
+    x => Identifier(x)
+  }
 
   // types
 
   def fieldType: Parser[FieldType] = baseType | containerType | referenceType
 
-  def referenceType = identifier ^^ { x => ReferenceType(x.name) }
+  def referenceType = identifier ^^ {
+    x => ReferenceType(x.name)
+  }
 
   def baseType: Parser[BaseType] = (
     "bool" ^^^ TBool |
-    "byte" ^^^ TByte |
-    "i16" ^^^ TI16 |
-    "i32" ^^^ TI32 |
-    "i64" ^^^ TI64 |
-    "double" ^^^ TDouble |
-    "string" ^^^ TString |
-    "binary" ^^^ TBinary
-  )
+      "byte" ^^^ TByte |
+      "i16" ^^^ TI16 |
+      "i32" ^^^ TI32 |
+      "i64" ^^^ TI64 |
+      "double" ^^^ TDouble |
+      "string" ^^^ TString |
+      "binary" ^^^ TBinary
+    )
 
   def containerType: Parser[ContainerType] = mapType | setType | listType
 
@@ -122,12 +144,15 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   }
 
   // FFS. i'm very close to removing this and forcably breaking old thrift files.
-  def cppType = "cpp_type" ~> stringConstant ^^ { literal => literal.value }
+  def cppType = "cpp_type" ~> stringConstant ^^ {
+    literal => literal.value
+  }
 
   // fields
 
   def field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~ (fieldType ~ identifier) ~
-    (opt("=" ~> constant) <~ opt(listSeparator)) ^^ { case (fid ~ req) ~ (ftype ~ id) ~ value => {
+    (opt("=" ~> constant) <~ opt(listSeparator)) ^^ {
+    case (fid ~ req) ~ (ftype ~ id) ~ value => {
       val transformedVal = ftype match {
         case TBool => value map {
           case IntConstant(0) => BoolConstant(false)
@@ -143,7 +168,10 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
     }
   }
 
-  def fieldId = intConstant <~ ":" ^^ { x => x.value.toInt }
+  def fieldId = intConstant <~ ":" ^^ {
+    x => x.value.toInt
+  }
+
   def fieldReq = opt("required" | "optional") ^^ {
     case Some("required") => Requiredness.Required
     case Some("optional") => Requiredness.Optional
@@ -153,17 +181,18 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   // functions
 
   def function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
-    (opt(throws) <~ opt(listSeparator)) ^^
-    {
-      case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
-        if (oneway.isDefined) throw new OnewayNotSupportedException(id.name)
+    (opt(throws) <~ opt(listSeparator)) ^^ {
+    case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
+      if (oneway.isDefined) throw new OnewayNotSupportedException(id.name)
 
-        Function(
-          id.name,
-          ftype,
-          fixFieldIds(args),
-          throws.map { fixFieldIds(_) }.getOrElse(Nil), comment)
-    }
+      Function(
+        id.name,
+        ftype,
+        fixFieldIds(args),
+        throws.map {
+          fixFieldIds(_)
+        }.getOrElse(Nil), comment)
+  }
 
   def functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
@@ -182,27 +211,34 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   }
 
   def enum = (opt(comments) ~ (("enum" ~> identifier) <~ "{")) ~ rep(identifier ~ opt("=" ~> intConstant) <~
-      opt(listSeparator)) <~ "}" ^^ { case comment ~ id ~ items =>
-    var failed: Option[Int] = None
-    val seen = new mutable.HashSet[Int]
-    var nextValue = 0
-    val values = new mutable.ListBuffer[EnumValue]
-    items.foreach { case k ~ v =>
-      val value = v.map { _.value.toInt }.getOrElse(nextValue)
-      if (seen contains value) failed = Some(value)
-      nextValue = value + 1
-      seen += value
-      values += EnumValue(k.name, value)
-    }
-    if (failed.isDefined) {
-      throw new RepeatingEnumValueException(id.name, failed.get)
-    } else {
-      Enum(id.name, values.toList, comment)
-    }
+    opt(listSeparator)) <~ "}" ^^ {
+    case comment ~ id ~ items =>
+      var failed: Option[Int] = None
+      val seen = new mutable.HashSet[Int]
+      var nextValue = 0
+      val values = new mutable.ListBuffer[EnumValue]
+      items.foreach {
+        case k ~ v =>
+          val value = v.map {
+            _.value.toInt
+          }.getOrElse(nextValue)
+          if (seen contains value) failed = Some(value)
+          nextValue = value + 1
+          seen += value
+          values += EnumValue(k.name, value)
+      }
+      if (failed.isDefined) {
+        throw new RepeatingEnumValueException(id.name, failed.get)
+      } else {
+        Enum(id.name, values.toList, comment)
+      }
   }
 
   def senum = (("senum" ~> identifier) <~ "{") ~ rep(stringConstant <~ opt(listSeparator)) <~
-    "}" ^^ { case id ~ items => Senum(id.name, items.map { _.value })
+    "}" ^^ {
+    case id ~ items => Senum(id.name, items.map {
+      _.value
+    })
   }
 
   def struct = (opt(comments) ~ (("struct" ~> identifier) <~ "{")) ~ rep(field) <~ "}" ^^ {
@@ -216,7 +252,9 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   def service = (opt(comments) ~ ("service" ~> identifier)) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
     "}") ^^ {
     case comment ~ id ~ extend ~ functions =>
-      Service(id.name, extend.map { id => ServiceParent(id.name) }, functions, comment)
+      Service(id.name, extend.map {
+        id => ServiceParent(id.name)
+      }, functions, comment)
   }
 
   // document
@@ -227,22 +265,31 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
 
   def header: Parser[Header] = include | cppInclude | namespace
 
-  def include = opt(comments) ~> "include" ~> stringConstant ^^ { s => Include(s.value, parseFile(s.value)) }
+  def include = opt(comments) ~> "include" ~> stringConstant ^^ {
+    s => Include(s.value, parseFile(s.value))
+  }
 
   // bogus dude.
-  def cppInclude = "cpp_include" ~> stringConstant ^^ { s => CppInclude(s.value) }
-
-  def namespace = opt(comments) ~> "namespace" ~> namespaceScope ~ identifier ^^ { case scope ~ id =>
-    Namespace(scope, id.name)
+  def cppInclude = "cpp_include" ~> stringConstant ^^ {
+    s => CppInclude(s.value)
   }
-  def namespaceScope = "*" | (identifier ^^ { id => id.name })
+
+  def namespace = opt(comments) ~> "namespace" ~> namespaceScope ~ identifier ^^ {
+    case scope ~ id =>
+      Namespace(scope, id.name)
+  }
+
+  def namespaceScope = "*" | (identifier ^^ {
+    id => id.name
+  })
 
   /**
    * Matches scaladoc/javadoc style comments.
    */
   def comments: Parser[String] = {
-    rep1(docComment) ^^ { case cs =>
-      cs.mkString("\n")
+    rep1(docComment) ^^ {
+      case cs =>
+        cs.mkString("\n")
     }
   }
 
@@ -253,14 +300,14 @@ class ScroogeParser(importer: Importer) extends RegexParsers {
   def parse[T](in: String, parser: Parser[T]): T = {
     parseAll(parser, in) match {
       case Success(result, _) => result
-      case x @ Failure(msg, z) => throw new ParseException(x.toString)
-      case x @ Error(msg, _) => throw new ParseException(x.toString)
+      case x@Failure(msg, z) => throw new ParseException(x.toString)
+      case x@Error(msg, _) => throw new ParseException(x.toString)
     }
   }
 
   def parseFile(filename: String): Document = {
     val contents = importer(filename)
-    val newParser = new ScroogeParser(contents.importer)
+    val newParser = new ThriftParser(contents.importer)
     newParser.parse(contents.data, newParser.document)
   }
 }
