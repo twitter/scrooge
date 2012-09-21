@@ -141,7 +141,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
         Field(1, "scores1", ReferenceType("typedef1.ManyInts"), None, Requiredness.Default),
         Field(2, "scores2", SetType(ReferenceType("typedef1.OneInt"), None), None, Requiredness.Default)
       ), None)
-      val doc2 = Document(Seq(Include("typedef1.thrift", doc1)), Seq(collectionStruct))
+      val doc2 = Document(Seq(Include("src/test/thrift/typedef1.thrift", doc1)), Seq(collectionStruct))
 
       val resolvedDoc = TypeResolver().resolve(doc2).document
       resolvedDoc.defs(0) must beLike {

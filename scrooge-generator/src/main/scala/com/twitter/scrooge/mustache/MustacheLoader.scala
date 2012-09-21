@@ -47,7 +47,7 @@ class HandlebarLoader(prefix: String, suffix: String = ".scala") {
   val header: String = {
     getClass.getResourceAsStream("/header") match {
       case null => throw new NoSuchElementException("header not found: ")
-      case inputStream => Source.fromInputStream(inputStream).getLines().mkString("\n")
+      case inputStream => Source.fromInputStream(inputStream).getLines().mkString("\n") + "\n"
     }
   }
 }

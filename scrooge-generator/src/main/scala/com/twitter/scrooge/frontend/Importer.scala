@@ -16,74 +16,119 @@
 
 package com.twitter.scrooge.frontend
 
-import java.io.{IOException, File}
-import scala.collection.Map
+import java.io.File
+import java.util.zip.{ZipFile, ZipEntry}
 import scala.io.Source
 
 // an imported file should have its own path available for nested importing.
 case class FileContents(importer: Importer, data: String)
 
 // an Importer turns a filename into its string contents.
-trait Importer extends (String => FileContents) {
-  def paths: Seq[String] // for tests
+trait Importer extends (String => Option[FileContents]) {
+  private[scrooge] def canonicalPaths: Seq[String] // for tests
   def lastModified(filename: String): Option[Long]
+  def +:(head: Importer): Importer = MultiImporter(Seq(head, this))
 }
 
 object Importer {
-  def fileImporter(importPaths: Seq[String]): Importer = new Importer {
-    val paths = List(".") ++ importPaths
+  /**
+   * @param path Path of a directory or a zip/jar file
+   * @return the importer that will look into the directory or zip/jar
+   *         file specified by path
+   */
+  def apply(path: String): Importer =
+    apply(new File(path).getCanonicalFile)
 
-    private[this] def withPath(path: String) = fileImporter(path +: importPaths)
-
-    private def resolve(filename: String): (File, Importer) = {
-      val f = new File(filename)
-      val candidates = if (f.isAbsolute) {
-        List(f)
-      } else {
-        paths map { path => new File(path, filename).getCanonicalFile }
-      }
-
-      candidates find {
-        _.canRead
-      } map { f =>
-        (f, this.withPath(f.getParent()))
-      } getOrElse {
-        throw new IOException("Can't find file: " + filename)
-      }
-    }
-
-    def lastModified(filename: String): Option[Long] = {
-      val (f, i) = resolve(filename)
-      Some(f.lastModified)
-    }
-
-    // find the requested file, and load it into a string.
-    def apply(filename: String): FileContents = {
-      val (f, i) = resolve(filename)
-      FileContents(i, Source.fromFile(f).mkString)
-    }
+  /**
+   * @param file File of a directory or a zip/jar file
+   * @return the importer that will look into the directory or zip/jar
+   *         file specified by path
+   */
+  def apply(file: File): Importer = {
+    if (file.isDirectory)
+      DirImporter(file)
+    else if (file.isFile &&
+      (file.getName.toLowerCase.endsWith(".jar") ||
+        file.getName.toLowerCase.endsWith(".zip")))
+      // A more accurate way to determine whether it's a zip file is to call
+      //     new ZipFile(file)
+      // and see if there is an exception. But we decide to use the filename
+      // because more often than not it indicates user's intention.
+      ZipImporter(file)
+    else
+      NullImporter
   }
 
-  def fakeImporter(files: Map[String, String]) = new Importer {
-    def paths = Seq()
-    def lastModified(filename: String) = None
-    def apply(filename: String): FileContents = {
-      files.get(filename) map { FileContents(this, _) } getOrElse {
-        throw new IOException("Can't find file: " + filename)
-      }
-    }
+  def apply(paths: Seq[String]): Importer =
+    MultiImporter(paths map { Importer(_) })
+}
+
+case class DirImporter(dir: File) extends Importer {
+  private[scrooge] def canonicalPaths = Seq(dir.getCanonicalPath) // for test
+
+  private[this] def resolve(filename: String): Option[(File, Importer)] = {
+    val file = new File(dir, filename)
+    if (file.canRead) {
+      // if the file does not exactly locate in dir, we need to add a new relative path
+      val importer =
+        if (file.getParentFile.getCanonicalPath == dir.getCanonicalPath)
+          this
+        else
+          Importer(file.getParentFile) +: this
+      Some(file, importer)
+    } else None
   }
 
-  def resourceImporter(c: Class[_]) = new Importer {
-    def paths = Seq()
-    def lastModified(filename: String) = None
-    def apply(filename: String): FileContents = {
-      try {
-        FileContents(this, Source.fromInputStream(c.getResourceAsStream(filename)).mkString)
-      } catch {
-        case e =>
-          throw new IOException("Can't load resource: " + filename)
-      }
+  def lastModified(filename: String): Option[Long] =
+    resolve(filename) map { case (file, _) => file.lastModified }
+
+  def apply(filename: String): Option[FileContents] =
+    resolve(filename) map { case (file, importer) =>
+      FileContents(importer, Source.fromFile(file).mkString)
     }
-  }
+}
+
+// jar files are just zip files, so this will work with both .jar and .zip files
+case class ZipImporter(file: File) extends Importer {
+  private[this] val zipFile = new ZipFile(file)
+
+  lazy val canonicalPaths = Seq(file.getCanonicalPath)
+
+  private def resolve(filename: String): Option[ZipEntry] =
+    Option(zipFile.getEntry(filename))
+
+  // uses the lastModified time of the zip/jar file
+  def lastModified(filename: String): Option[Long] =
+    resolve(filename) map { _ => file.lastModified }
+
+  def apply(filename: String): Option[FileContents] =
+    resolve(filename) map { entry =>
+      FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry)).mkString)
+    }
+}
+
+case class MultiImporter(importers: Seq[Importer]) extends Importer {
+  lazy val canonicalPaths = importers flatMap { _.canonicalPaths }
+
+  private def first[A](f: Importer => Option[A]): Option[A] =
+    importers.foldLeft[Option[A]](None) { (accum, next) => accum orElse f(next) }
+
+  def lastModified(filename: String): Option[Long] =
+    first[Long] { _.lastModified(filename) }
+
+  def apply(filename: String): Option[FileContents] =
+    first[FileContents] { _(filename) } map {
+      case FileContents(importer, data) =>
+        // take the importer that found the file and prepend it to importer list returned,
+        // that way it is used first when finding relative imports
+        FileContents(importer +: this, data)
+    }
+
+  override def +:(head: Importer): Importer = MultiImporter(head +: importers)
+}
+
+object NullImporter extends Importer {
+  val canonicalPaths = Nil
+  def lastModified(filename: String) = None
+  def apply(filename: String) = None
 }

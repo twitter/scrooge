@@ -20,6 +20,7 @@ import scala.collection.mutable
 import scala.util.parsing.combinator._
 import com.twitter.scrooge.{ParseException, DuplicateFieldIdException, NegativeFieldIdException,
 OnewayNotSupportedException, RepeatingEnumValueException}
+import java.io.FileNotFoundException
 
 class ThriftParser(importer: Importer) extends RegexParsers {
 
@@ -295,8 +296,6 @@ class ThriftParser(importer: Importer) extends RegexParsers {
 
   val docComment: Parser[String] = """(?s)/\*\*.+?\*/""".r
 
-  // rawr.
-
   def parse[T](in: String, parser: Parser[T]): T = {
     parseAll(parser, in) match {
       case Success(result, _) => result
@@ -306,7 +305,10 @@ class ThriftParser(importer: Importer) extends RegexParsers {
   }
 
   def parseFile(filename: String): Document = {
-    val contents = importer(filename)
+    val contents = importer(filename) getOrElse {
+      throw new FileNotFoundException(filename)
+    }
+
     val newParser = new ThriftParser(contents.importer)
     newParser.parse(contents.data, newParser.document)
   }

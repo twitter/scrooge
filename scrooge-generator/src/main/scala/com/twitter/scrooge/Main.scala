@@ -18,7 +18,7 @@ package com.twitter.scrooge
 
 import com.twitter.scrooge.backend._
 import com.twitter.scrooge.frontend._
-import java.io.{File, FileWriter}
+import java.io.File
 import java.util.Properties
 import scala.collection.mutable
 import scopt.OptionParser
@@ -86,8 +86,7 @@ object Main {
     }
 
     for (inputFile <- thriftFiles) {
-      val inputFileDir = new File(inputFile).getParent
-      val importer = Importer.fileImporter(inputFileDir :: importPaths.toList)
+      val importer = Importer(new File(".")) +: Importer(importPaths)
       val parser = new ThriftParser(importer)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 

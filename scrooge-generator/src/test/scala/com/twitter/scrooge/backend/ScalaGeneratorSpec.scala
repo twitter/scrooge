@@ -450,10 +450,12 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
     }
 
     "typedef relative fields" in {
-      // if the thrift compiles at all, this test will probably pass.
       val candy = Candy(100, CandyType.Delicious)
       candy.sweetnessIso mustEqual 100
       candy.candyType.value mustEqual 1
+      candy.brand mustEqual "Hershey"
+      candy.count mustEqual 10
+      candy.headline mustEqual "Life is short, eat dessert first"
     }
   }
 }

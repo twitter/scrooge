@@ -19,9 +19,9 @@ class ImporterSpec extends FunSpec with TestFolder {
       f.write("hello".getBytes)
       f.close()
 
-      val importer = Importer.fileImporter(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
+      val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
       val c = importer.apply("a.thrift")
-      assert(c.data === "hello")
+      assert(c.isDefined && c.get.data == "hello")
     }
 
     it("follows relative links correctly") {
@@ -34,10 +34,11 @@ class ImporterSpec extends FunSpec with TestFolder {
       f.write("hello".getBytes)
       f.close()
 
-      val importer = Importer.fileImporter(Seq(folder1.getAbsolutePath))
+      val importer = Importer(Seq(folder1.getAbsolutePath))
       val c = importer.apply("../f2/a.thrift")
-      assert(c.data === "hello")
-      assert(c.importer.paths contains folder2.getCanonicalPath)
+      assert(c.isDefined)
+      assert(c.get.data == "hello")
+      assert(c.get.importer.canonicalPaths contains folder2.getCanonicalPath)
     }
   }
 }

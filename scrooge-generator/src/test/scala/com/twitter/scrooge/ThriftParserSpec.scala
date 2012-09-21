@@ -1,5 +1,6 @@
 package com.twitter.scrooge.frontend
 
+import scala.collection.mutable.ListBuffer
 import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.{RepeatingEnumValueException, DuplicateFieldIdException, NegativeFieldIdException, OnewayNotSupportedException}
 
@@ -7,7 +8,7 @@ class ThriftParserSpec extends SpecificationWithJUnit {
   import com.twitter.scrooge.ast._
 
   "ThriftParser" should {
-    val parser = new ThriftParser(Importer.fakeImporter(Map.empty))
+    val parser = new ThriftParser(NullImporter)
 
     "comments" in {
       parser.parse("  300  ", parser.constant) mustEqual IntConstant(300)
@@ -192,14 +193,6 @@ enum Foo
           Function("doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
         ), Some("/** what up doc */")))
       )
-    }
-
-    "standard test file" in {
-      val parser = new ThriftParser(Importer.resourceImporter(getClass))
-      val doc = parser.parseFile("/test.thrift")
-      // i guess not blowing up is a good first-pass test.
-      // might be nice to verify parts of it tho.
-      doc.headers.size mustEqual 13
     }
 
     // reject syntax

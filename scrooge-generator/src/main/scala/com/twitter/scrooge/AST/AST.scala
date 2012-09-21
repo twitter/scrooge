@@ -165,15 +165,25 @@ case class Service(
 
 sealed abstract class Header extends Node
 
-case class Include(filename: String, document: Document) extends Header {
-  lazy val prefix = stripExtension(filename)
-
-  def stripExtension(filename: String) = {
-    filename.indexOf('.') match {
-      case -1 => filename
-      case dot => filename.substring(0, dot)
-    }
-  }
+/**
+ * Process include statement.
+ * @param filePath the path of the file to be included. It can be a
+ *                 relative path, an absolute path or simply a file name
+ * @param document the content of the file to be included.
+ */
+case class Include(filePath: String, document: Document) extends Header {
+  /**
+   * The definitions in the included file must be used with a prefix.
+   * For example, if it says
+   *    include "../relativeDir/foo.thrift"
+   * and include2.thrift contains a definition
+   *    struct Bar {
+   *      ..
+   *    }
+   * Then we can use type Bar like this:
+   *    foo.Bar
+   */
+  val prefix = filePath.split('/').last.split('.').head
 }
 
 case class CppInclude(file: String) extends Header
