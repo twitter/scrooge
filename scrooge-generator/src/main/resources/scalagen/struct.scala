@@ -10,48 +10,48 @@ import com.twitter.finagle.SourcedException
 import scala.collection.mutable
 import scala.collection.{Map, Set}
 {{#imports}}
-import {{parentPackage}}.{{{subPackage}} => _{{alias}}_}
+import {{parentpackage}}.{{{subpackage}} => {{_alias_}}}
 {{/imports}}
 
 {{/public}}
 {{docstring}}
-object {{name}} extends ThriftStructCodec[{{name}}] {
-  val Struct = new TStruct("{{name}}")
+object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
+  val Struct = new TStruct("{{StructName}}")
 {{#fields}}
-  val {{fieldConst}} = new TField("{{name}}", TType.{{constType}}, {{id}})
+  val {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, {{id}})
 {{/fields}}
 
-  def encode(_item: {{name}}, _oproto: TProtocol) { _item.write(_oproto) }
+  def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
   def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
 
-  def apply(_iprot: TProtocol): {{name}} = decode(_iprot)
+  def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
 
   def apply(
 {{#fields}}
-    `{{name}}`: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
 {{/fields|,}}
-  ): {{name}} = new Immutable(
+  ): {{StructName}} = new Immutable(
 {{#fields}}
-    `{{name}}`
+    {{fieldName}}
 {{/fields|,}}
   )
 
 {{#arity0}}
-  def unapply(_item: {{name}}): Boolean = true
+  def unapply(_item: {{StructName}}): Boolean = true
 {{/arity0}}
 {{#arity1}}
-  def unapply(_item: {{structName}}): Option[{{>optionalType}}] = Some(_item.{{name}})
+  def unapply(_item: {{StructName}}): Option[{{>optionalType}}] = Some(_item.{{fieldName}})
 {{/arity1}}
 {{#arityN}}
-  def unapply(_item: {{name}}): Option[{{product}}] = Some(_item)
+  def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
-  object Immutable extends ThriftStructCodec[{{name}}] {
-    def encode(_item: {{name}}, _oproto: TProtocol) { _item.write(_oproto) }
+  object Immutable extends ThriftStructCodec[{{StructName}}] {
+    def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
     def decode(_iprot: TProtocol) = {
 {{#fields}}
-      var `{{name}}`: {{fieldType}} = {{defaultReadValue}}
-      var _got_{{name}} = false
+      var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+      var {{gotName}} = false
 {{/fields}}
       var _done = false
       _iprot.readStructBegin()
@@ -74,16 +74,16 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
       _iprot.readStructEnd()
 {{#fields}}
 {{#required}}
-      if (!_got_{{name}}) throw new TProtocolException("Required field '{{name}}' was not found in serialized data for struct {{structName}}")
+      if (!{{gotName}}) throw new TProtocolException("Required field '{{StructName}}' was not found in serialized data for struct {{StructName}}")
 {{/required}}
 {{/fields}}
       new Immutable(
 {{#fields}}
 {{#optional}}
-        if (_got_{{name}}) Some(`{{name}}`) else None
+        if ({{gotName}}) Some({{fieldName}}) else None
 {{/optional}}
 {{^optional}}
-        `{{name}}`
+        {{fieldName}}
 {{/optional}}
 {{/fields|,}}
       )
@@ -91,43 +91,43 @@ object {{name}} extends ThriftStructCodec[{{name}}] {
   }
 
   /**
-   * The default read-only implementation of {{name}}.  You typically should not need to
-   * directly reference this class; instead, use the {{name}}.apply method to construct
+   * The default read-only implementation of {{StructName}}.  You typically should not need to
+   * directly reference this class; instead, use the {{StructName}}.apply method to construct
    * new instances.
    */
   class Immutable(
 {{#fields}}
-    val `{{name}}`: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
 {{/fields|,}}
-  ) extends {{name}}
+  ) extends {{StructName}}
 
 {{#withProxy}}
   /**
-   * This Proxy trait allows you to extend the {{name}} trait with additional state or
-   * behavior and implement the read-only methods from {{name}} using an underlying
+   * This Proxy trait allows you to extend the {{StructName}} trait with additional state or
+   * behavior and implement the read-only methods from {{StructName}} using an underlying
    * instance.
    */
-  trait Proxy extends {{name}} {
-    protected def _underlying{{name}}: {{name}}
+  trait Proxy extends {{StructName}} {
+    protected def {{underlyingStructName}}: {{StructName}}
 {{#fields}}
-    def `{{name}}`: {{>optionalType}} = _underlying{{structName}}.`{{name}}`
+    def {{fieldName}}: {{>optionalType}} = {{underlyingStructName}}.{{fieldName}}
 {{/fields}}
   }
 {{/withProxy}}
 }
 
-trait {{name}} extends {{parentType}}
+trait {{StructName}} extends {{parentType}}
   with {{product}}
   with java.io.Serializable
 {
-  import {{name}}._
+  import {{StructName}}._
 
 {{#fields}}
-  def `{{name}}`: {{>optionalType}}
+  def {{fieldName}}: {{>optionalType}}
 {{/fields}}
 
 {{#fields}}
-  def _{{indexP1}} = `{{name}}`
+  def _{{indexP1}} = {{fieldName}}
 {{/fields}}
 
   override def write(_oprot: TProtocol) {
@@ -144,11 +144,11 @@ trait {{name}} extends {{parentType}}
 
   def copy(
 {{#fields}}
-    `{{name}}`: {{>optionalType}} = this.`{{name}}`
+    {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
 {{/fields|, }}
-  ): {{name}} = new Immutable(
+  ): {{StructName}} = new Immutable(
 {{#fields}}
-    `{{name}}`
+    {{fieldName}}
 {{/fields|, }}
   )
 
@@ -159,13 +159,13 @@ trait {{name}} extends {{parentType}}
 {{#fields}}
 {{#required}}
 {{#nullable}}
-    if (`{{name}}` == null) throw new TProtocolException("Required field '{{name}}' cannot be null")
+    if ({{fieldName}} == null) throw new TProtocolException("Required field {{fieldName}} cannot be null")
 {{/nullable}}
 {{/required}}
 {{/fields}}
   }
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[{{name}}]
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
   override def equals(other: Any): Boolean = runtime.ScalaRunTime._equals(this, other)
 
@@ -174,17 +174,17 @@ trait {{name}} extends {{parentType}}
   override def toString: String = runtime.ScalaRunTime._toString(this)
 
 {{#hasExceptionMessage}}
-  override def getMessage: String = String.valueOf(`{{exceptionMessageField}}`)
+  override def getMessage: String = String.valueOf({{exceptionMessageField}})
 {{/hasExceptionMessage}}
 
   override def productArity: Int = {{arity}}
 
   override def productElement(n: Int): Any = n match {
 {{#fields}}
-    case {{index}} => `{{name}}`
+    case {{index}} => {{fieldName}}
 {{/fields}}
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
-  override def productPrefix: String = "{{name}}"
+  override def productPrefix: String = "{{StructName}}"
 }

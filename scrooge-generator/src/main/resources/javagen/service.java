@@ -18,7 +18,7 @@ import java.util.HashSet;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.TApplicationException;
 {{#imports}}
-import {{parentPackage}}.{{subPackage}}.*;
+import {{parentpackage}}.{{subpackage}}.*;
 {{/imports}}
 {{#finagleClient}}
 import com.twitter.finagle.stats.NullStatsReceiver;
@@ -47,7 +47,7 @@ import com.twitter.logging.Logger;
 {{/ostrichServer}}
 
 {{docstring}}
-public class {{name}} {
+public class {{ServiceName}} {
   public interface Iface {{syncExtends}}{
 {{#syncFunctions}}
     {{>function}};

@@ -1,1 +1,1 @@
-{{#prefix}}_{{prefix}}_.{{/prefix}}{{type}}.decode(_iprot)
+{{#scopePrefix}}{{scopePrefix}}.{{/scopePrefix}}{{fieldType}}.decode(_iprot)

@@ -1,14 +1,14 @@
 package {{package}};
 
 {{docstring}}
-public enum {{enum_name}} {
+public enum {{EnumName}} {
 {{#values}}
   {{name}}({{value}}){{/values|,
 }};
 
   private final int value;
 
-  private {{enum_name}}(int value) {
+  private {{EnumName}}(int value) {
     this.value = value;
   }
 
@@ -23,7 +23,7 @@ public enum {{enum_name}} {
    * Find the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static {{enum_name}} findByValue(int value) {
+  public static {{EnumName}} findByValue(int value) {
     switch(value) {
 {{#values}}
       case {{value}}: return {{name}};

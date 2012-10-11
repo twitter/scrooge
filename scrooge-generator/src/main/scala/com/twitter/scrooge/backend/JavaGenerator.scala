@@ -17,37 +17,58 @@ package com.twitter.scrooge.backend
  */
 
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.mustache.Dictionary._
 
-class JavaGenerator extends JavaLike {
+class JavaGenerator extends Generator {
   val fileExtension = ".java"
   val templateDirName = "/javagen/"
 
-  def namespace(doc: Document) =
-    doc.namespace("java") getOrElse ("thrift")
+  private[this] object JavaKeywords {
+    private[this] val set = Set[String](
+      "abstract", "assert", "boolean", "break", "byte", "case",
+      "catch", "char", "class", "const", "continue", "default", "double",
+      "do", "else", "enum", "extends", "false", "final", "finally", "float",
+      "for", "goto", "if", "implements", "import", "instanceof", "int",
+      "interface", "long", "native", "new", "null", "package", "private",
+      "protected", "public", "return", "short", "static", "strictfp",
+      "super", "switch", "synchronized", "this", "throw", "throws",
+      "transient", "true", "try", "void", "volatile", "while")
+    def contains(str: String): Boolean = set.contains(str)
+  }
+
+  // put Java keywords in "_"
+  def quoteKeyword(str: String): String =
+    if (JavaKeywords.contains(str))
+      "_" + str + "_"
+    else
+      str
+
+  def getNamespace(doc: Document): Identifier =
+    doc.namespace("java") getOrElse (SimpleID("thrift"))
 
   def normalizeCase[N <: Node](node: N) = {
     (node match {
       case d: Document =>
         d.copy(defs = d.defs.map(normalizeCase(_)))
-      case i: Identifier =>
-        i.copy(name = TitleCase(i.name))
-      case e: EnumValueConstant =>
+      case id: Identifier => id.toTitleCase
+      case e: EnumRHS =>
         e.copy(normalizeCase(e.enum), normalizeCase(e.value))
       case f: Field =>
         f.copy(
-          name = CamelCase(f.name),
+          sid = f.sid.toCamelCase,
           default = f.default.map(normalizeCase(_)))
       case f: Function =>
         f.copy(
-          localName = CamelCase(f.localName),
+          funcName = f.funcName.toCamelCase,
           args = f.args.map(normalizeCase(_)),
           throws = f.throws.map(normalizeCase(_)))
-      case c: Const =>
+      case c: ConstDefinition =>
         c.copy(value = normalizeCase(c.value))
       case e: Enum =>
         e.copy(values = e.values.map(normalizeCase(_)))
-      case e: EnumValue =>
-        e.copy(name = UpperCase(e.name))
+      case e: EnumField =>
+        e.copy(sid = e.sid.toUpperCase)
       case s: Struct =>
         s.copy(fields = s.fields.map(normalizeCase(_)))
       case f: FunctionArgs =>
@@ -62,48 +83,53 @@ class JavaGenerator extends JavaLike {
     }).asInstanceOf[N]
   }
 
-  def listValue(list: ListConstant, mutable: Boolean = false): String = {
-    (if (mutable) "Utilities.makeList(" else "Utilities.makeList(") +
-      list.elems.map(constantValue(_)).mkString(", ") + ")"
+  def genList(list: ListRHS, mutable: Boolean = false): CodeFragment = {
+    val code = (if (mutable) "Utilities.makeList(" else "Utilities.makeList(") +
+      list.elems.map(genConstant(_).toData).mkString(", ") + ")"
+    codify(code)
   }
 
-  def setValue(set: SetConstant, mutable: Boolean = false): String = {
-    (if (mutable) "Utilities.makeSet(" else "Utilities.makeSet(") +
-      set.elems.map(constantValue(_)).mkString(", ") + ")"
+  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment = {
+    val code = (if (mutable) "Utilities.makeSet(" else "Utilities.makeSet(") +
+      set.elems.map(genConstant(_).toData).mkString(", ") + ")"
+    codify(code)
   }
 
-  def mapValue(map: MapConstant, mutable: Boolean = false): String = {
-    (if (mutable) "Utilities.makeMap(" else "Utilities.makeMap(") + (map.elems.map {
+  def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment = {
+    val code = (if (mutable) "Utilities.makeMap(" else "Utilities.makeMap(") + (map.elems.map {
       case (k, v) =>
-        "Utilities.makeTuple(" + constantValue(k) + ", " + constantValue(v) + ")"
+        "Utilities.makeTuple(" + genConstant(k).toData + ", " + genConstant(v).toData + ")"
     } mkString (", ")) + ")"
+    codify(code)
   }
 
   /**
    * Generates a suffix to append to a field expression that will
    * convert the value to an immutable equivalent.
    */
-  def toImmutable(t: FieldType): String = {
-    t match {
+  def genToImmutable(t: FieldType): CodeFragment = {
+    val code = t match {
       case MapType(_, _, _) => ".toMap"
       case SetType(_, _) => ".toSet"
       case ListType(_, _) => ".toList"
       case _ => ""
     }
+    codify(code)
   }
 
   /**
    * Generates a suffix to append to a field expression that will
    * convert the value to an immutable equivalent.
    */
-  def toImmutable(f: Field): String = {
+  def genToImmutable(f: Field): CodeFragment = {
     if (f.requiredness.isOptional) {
-      toImmutable(f.`type`) match {
+      val code = genToImmutable(f.fieldType).toData match {
         case "" => ""
         case underlyingToImmutable => ".map(_" + underlyingToImmutable + ")"
       }
+      codify(code)
     } else {
-      toImmutable(f.`type`)
+      genToImmutable(f.fieldType)
     }
   }
 
@@ -113,19 +139,9 @@ class JavaGenerator extends JavaLike {
    */
   def toMutable(t: FieldType): (String, String) = {
     t match {
-      case MapType(_, _, _) | SetType(_, _) => (typeName(t, true) + "() ++= ", "")
+      case MapType(_, _, _) | SetType(_, _) => (genType(t, true).toData + "() ++= ", "")
       case ListType(_, _) => ("", ".toBuffer")
       case _ => ("", "")
-    }
-  }
-
-  override def defaultValue(`type`: FieldType, mutable: Boolean = false) = {
-    `type` match {
-      case MapType(_, _, _) => "Utilities.makeMap()"
-      case SetType(_, _) => "Utilities.makeSet()"
-      case ListType(_, _) => "Utilities.makeList()"
-      case TI64 => "(long) 0"
-      case _ => super.defaultValue(`type`, mutable)
     }
   }
 
@@ -135,17 +151,28 @@ class JavaGenerator extends JavaLike {
    */
   def toMutable(f: Field): (String, String) = {
     if (f.requiredness.isOptional) {
-      toMutable(f.`type`) match {
+      toMutable(f.fieldType) match {
         case ("", "") => ("", "")
         case (prefix, suffix) => ("", ".map(" + prefix + "_" + suffix + ")")
       }
     } else {
-      toMutable(f.`type`)
+      toMutable(f.fieldType)
     }
   }
 
-  def typeName(t: FunctionType, mutable: Boolean = false): String = {
-    t match {
+  override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
+    val code = fieldType match {
+      case MapType(_, _, _) => "Utilities.makeMap()"
+      case SetType(_, _) => "Utilities.makeSet()"
+      case ListType(_, _) => "Utilities.makeList()"
+      case TI64 => "0L"
+      case _ => super.genDefaultValue(fieldType, mutable).toData
+    }
+    codify(code)
+  }
+
+  def genType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
+    val code = t match {
       case Void => "Void"
       case TBool => "Boolean"
       case TByte => "Byte"
@@ -155,16 +182,18 @@ class JavaGenerator extends JavaLike {
       case TDouble => "Double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case MapType(k, v, _) => "Map<" + typeName(k) + ", " + typeName(v) + ">"
-      case SetType(x, _) => "Set<" + typeName(x) + ">"
-      case ListType(x, _) => "List<" + typeName(x) + ">"
-      case n: NamedType => n.name
-      case r: ReferenceType => r.name
+      case MapType(k, v, _) => "Map<" + genType(k).toData + ", " + genType(v).toData + ">"
+      case SetType(x, _) => "Set<" + genType(x).toData + ">"
+      case ListType(x, _) => "List<" + genType(x).toData + ">"
+      case n: NamedType => n.sid.name // todo CSL-272: shouldn't this be fully qualified?
+      case r: ReferenceType =>
+        throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
+    codify(code)
   }
 
-  def primitiveTypeName(t: FunctionType, mutable: Boolean = false): String = {
-    t match {
+  def genPrimitiveType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
+    val code = t match {
       case Void => "void"
       case TBool => "boolean"
       case TByte => "byte"
@@ -172,25 +201,28 @@ class JavaGenerator extends JavaLike {
       case TI32 => "int"
       case TI64 => "long"
       case TDouble => "double"
-      case _ => typeName(t, mutable)
+      case _ => genType(t, mutable).toData
     }
+    codify(code)
   }
 
-  def fieldTypeName(f: Field, mutable: Boolean = false): String = {
-    if (f.requiredness.isOptional) {
-      val baseType = typeName(f.`type`, mutable)
+  def genFieldType(f: Field, mutable: Boolean = false): CodeFragment = {
+    val code = if (f.requiredness.isOptional) {
+      val baseType = genType(f.fieldType, mutable).toData
       "ScroogeOption<" + baseType + ">"
     } else {
-      primitiveTypeName(f.`type`)
+      genPrimitiveType(f.fieldType).toData
     }
+    codify(code)
   }
 
-  def fieldParams(fields: Seq[Field], asVal: Boolean = false): String = {
-    fields.map {
+  def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = {
+    val code = fields.map {
       f =>
-        fieldTypeName(f) + " " + f.name
+        genFieldType(f).toData + " " + genID(f.sid).toData
     }.mkString(", ")
+    codify(code)
   }
 
-  def baseFinagleService = "Service<byte[], byte[]>"
+  def genBaseFinagleService = codify("Service<byte[], byte[]>")
 }

@@ -19,11 +19,15 @@ package com.twitter.scrooge.mustache
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
+import com.twitter.scrooge.mustache.Dictionary._
 
 @RunWith(classOf[JUnitRunner])
 class HandlebarSpec extends FunSpec {
-  import Dictionary._
-
+  def v(data: Dictionary): Value = ListValue(Seq(data))
+  def v(data: String): Value = CodeFragment(data)
+  def v(data: Boolean): Value = BooleanValue(data)
+  def v(data: Seq[Dictionary]): Value = ListValue(data)
+  def v(data: Handlebar): Value = PartialValue(data)
   describe("Handlebar") {
     it("without directives") {
       val template = "there are no directives here"
@@ -46,9 +50,9 @@ class HandlebarSpec extends FunSpec {
 
     describe("iterates items") {
       val cats = Seq(
-        Dictionary("name" -> "Commie"),
-        Dictionary("name" -> "Lola"),
-        Dictionary("name" -> "Lexi")
+        Dictionary("name" -> v("Commie")),
+        Dictionary("name" -> v("Lola")),
+        Dictionary("name" -> v("Lexi"))
       )
 
       it("normally") {

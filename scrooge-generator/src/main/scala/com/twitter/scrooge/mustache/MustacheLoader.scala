@@ -16,7 +16,6 @@
 
 package com.twitter.scrooge.mustache
 
-import com.twitter.conversions.string._
 import scala.collection.mutable.HashMap
 import scala.io.Source
 

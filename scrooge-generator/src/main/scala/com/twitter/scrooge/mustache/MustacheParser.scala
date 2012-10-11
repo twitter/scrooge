@@ -17,15 +17,14 @@
 package com.twitter.scrooge.mustache
 
 import scala.util.parsing.combinator._
-import scala.util.parsing.combinator.lexical._
 import com.twitter.scrooge.ParseException
 
 object MustacheAST {
-  case class Document(segments: Seq[Segment])
+  case class Template(segments: Seq[Segment])
   sealed trait Segment
   case class Data(data: String) extends Segment
   case class Interpolation(name: String) extends Segment
-  case class Section(name: String, document: Document, reversed: Boolean, joiner: Option[String] = None) extends Segment
+  case class Section(name: String, document: Template, reversed: Boolean, joiner: Option[String] = None) extends Segment
   case class Partial(name: String) extends Segment
 }
 
@@ -34,7 +33,7 @@ object MustacheParser extends RegexParsers {
 
   override def skipWhitespace = false
 
-  def document: Parser[Document] = rep(directive | data) ^^ { x => Document(x.flatten) }
+  def document: Parser[Template] = rep(directive | data) ^^ { x => Template(x.flatten) }
 
   def directive: Parser[Option[Segment]] = interpolation | section | comment | partial
 
@@ -59,8 +58,7 @@ object MustacheParser extends RegexParsers {
 
   def id = """[A-Za-z0-9_\.]+""".r
 
-  // rawr.
-  def apply(in: String): Document = {
+  def apply(in: String): Template = {
     CleanupWhitespace {
       parseAll(document, in) match {
         case Success(result, _) => result
@@ -74,10 +72,10 @@ object MustacheParser extends RegexParsers {
 /**
  * If a section header is on its own line, remove the trailing linefeed.
  */
-object CleanupWhitespace extends (MustacheAST.Document => MustacheAST.Document) {
+object CleanupWhitespace extends (MustacheAST.Template => MustacheAST.Template) {
   import MustacheAST._
 
-  def apply(document: Document): Document = {
+  def apply(document: Template): Template = {
     var afterSectionHeader = true
     var sectionHeaderStartedLine = true
     val segments = document.segments.map {
@@ -101,7 +99,7 @@ object CleanupWhitespace extends (MustacheAST.Document => MustacheAST.Document) 
         apply(x)
       }
     }
-    Document(segments)
+    Template(segments)
   }
 
   def apply(segment: Segment): Segment = {

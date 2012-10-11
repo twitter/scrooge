@@ -1,1 +1,1 @@
-{{name}} = {{type}}.decode(_iprot);
+{{name}} = {{fieldType}}.decode(_iprot);

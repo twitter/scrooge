@@ -60,6 +60,7 @@ const string name = "Columbo";
 const i32 someInt = 1;
 const double someDouble = 3.0;
 const list<string> someList = ["piggy"];
+const list<string> emptyList = [];
 const map<string,string> someMap = {"foo": "bar"};
 
 /** doc, ignored */
@@ -117,11 +118,6 @@ struct Empire {
   1: string name
   2: list<string> provinces
   5: Emperor emperor
-}
-
-struct Naughty {
-  1: string type
-  2: i32 def
 }
 
 struct Biggie {

@@ -23,6 +23,11 @@ import org.junit.runner.RunWith
 
 @RunWith(classOf[JUnitRunner])
 class DictionarySpec extends FunSpec {
+  def v(data: Dictionary): Value = ListValue(Seq(data))
+  def v(data: String): Value = CodeFragment(data)
+  def v(data: Boolean): Value = BooleanValue(data)
+  def v(data: Seq[Dictionary]): Value = ListValue(data)
+  def v(data: Handlebar): Value = PartialValue(data)
   describe("Dictionary") {
     it("can be empty") {
       val d = Dictionary()

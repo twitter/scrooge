@@ -1,1 +1,1 @@
-{{name}} = {{type}}.findByValue(_iprot.readI32());
+{{name}} = {{fieldType}}.findByValue(_iprot.readI32());

@@ -1,18 +1,18 @@
 
-private __Stats __stats_{{name}} = new __Stats("{{name}}");
+private __Stats {{__stats_name}} = new __Stats("{{clientFuncName}}");
 
 {{#headerInfo}}{{>header}}{{/headerInfo}} {
-  __stats_{{name}}.requestsCounter.incr();
+  {{__stats_name}}.requestsCounter.incr();
 
-  Future<{{type}}> rv = this.service.apply(encodeRequest("{{name}}", new {{localName}}_args({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
+  Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncName}}", new {{ArgsStruct}}({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
     public Future<{{type}}> apply(byte[] in) {
       try {
-        {{localName}}_result result = decodeResponse(in, {{localName}}_result.CODEC);
+        {{ResultStruct}} result = decodeResponse(in, {{ResultStruct}}.CODEC);
 
 {{#hasThrows}}
         Exception exception = null;
 {{#throws}}
-        if (exception == null && result.{{name}}.isDefined()) exception = result.{{name}}.get();
+        if (exception == null && result.{{throwName}}.isDefined()) exception = result.{{throwName}}.get();
 {{/throws}}
         if (exception != null) return Future.exception(exception);
 {{/hasThrows}}
@@ -22,7 +22,7 @@ private __Stats __stats_{{name}} = new __Stats("{{name}}");
 {{/void}}
 {{^void}}
         if (result.success.isDefined()) return Future.value(result.success.get());
-        return Future.exception(missingResult("{{name}}"));
+        return Future.exception(missingResult("{{clientFuncName}}"));
 {{/void}}
       } catch (TException e) {
         return Future.exception(e);
@@ -39,12 +39,12 @@ private __Stats __stats_{{name}} = new __Stats("{{name}}");
 
   rv.addEventListener(new FutureEventListener<{{type}}>() {
     public void onSuccess({{type}} result) {
-      __stats_{{name}}.successCounter.incr();
+      {{__stats_name}}.successCounter.incr();
     }
 
     public void onFailure(Throwable t) {
-      __stats_{{name}}.failuresCounter.incr();
-      __stats_{{name}}.failuresScope.counter0(t.getClass().getName()).incr();
+      {{__stats_name}}.failuresCounter.incr();
+      {{__stats_name}}.failuresScope.counter0(t.getClass().getName()).incr();
     }
   });
 

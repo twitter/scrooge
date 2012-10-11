@@ -1,10 +1,10 @@
 case {{id}} => { /* {{name}} */
   _field.`type` match {
     case TType.{{constType}} => {
-      `{{name}}` = {
+      {{fieldName}} = {
         {{>readValue}}
       }
-      _got_{{name}} = true
+      {{gotName}} = true
     }
     case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }

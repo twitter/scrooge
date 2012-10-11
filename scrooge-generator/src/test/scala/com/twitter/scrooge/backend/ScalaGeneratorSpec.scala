@@ -7,9 +7,9 @@ import org.specs.SpecificationWithJUnit
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
+import thrift.`def`.default._
 import com.twitter.scrooge.EvalHelper
-
-//import com.twitter.scrooge.ast._
+import sun.tools.java.Constants
 
 class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
@@ -63,6 +63,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       thrift.test.Constants.someInt mustEqual 1
       thrift.test.Constants.someDouble mustEqual 3.0
       thrift.test.Constants.someList mustEqual List("piggy")
+      thrift.test.Constants.emptyList mustEqual List()
       thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
     }
 
@@ -397,11 +398,6 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       "exception getMessage" in {
         StringMsgException(1, "jeah").getMessage mustEqual "jeah"
         NonStringMessageException(5).getMessage mustEqual "5"
-      }
-
-      "funky names that scala doesn't like" in {
-        Naughty("car", 100).`type` mustEqual "car"
-        Naughty("car", 100).`def` mustEqual 100
       }
 
       "with more than 22 fields" in {

@@ -1,5 +1,5 @@
-_oprot.writeListBegin(new TList(TType.{{eltConstType}}, `{{name}}`.size))
-`{{name}}`.foreach { `{{eltName}}` =>
+_oprot.writeListBegin(new TList(TType.{{eltConstType}}, {{name}}.size))
+{{name}}.foreach { {{eltName}} =>
 {{#eltReadWriteInfo}}
   {{>writeValue}}
 {{/eltReadWriteInfo}}

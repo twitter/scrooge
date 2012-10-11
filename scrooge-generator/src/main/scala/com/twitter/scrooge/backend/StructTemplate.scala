@@ -18,127 +18,136 @@ package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
+import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.mustache.Dictionary._
 
-trait StructTemplate extends Generator {
-  self: JavaLike =>
+trait StructTemplate {
+  self: Generator =>
 
   case class Binding[FT <: FieldType](name: String, fieldType: FT)
 
-  import Dictionary._
-
   val TypeTemplate =
     Dictionary(
-      "isList" -> false,
-      "isSet" -> false,
-      "isMap" -> false,
-      "isStruct" -> false,
-      "isEnum" -> false,
-      "isBase" -> false)
+      "isList" -> v(false),
+      "isSet" -> v(false),
+      "isMap" -> v(false),
+      "isStruct" -> v(false),
+      "isEnum" -> v(false),
+      "isBase" -> v(false))
 
-  def readWriteInfo[T <: FieldType](name: String, t: FieldType): Dictionary = {
+  def readWriteInfo[T <: FieldType](sid: SimpleID, t: FieldType): Dictionary = {
     t match {
       case t: ListType =>
-        val eltName = "_" + name + "_element"
+        val elt = sid.append("_element")
         TypeTemplate + Dictionary(
-          "isList" -> Dictionary(
-            "name" -> v(name),
-            "eltName" -> v(eltName),
-            "eltConstType" -> v(constType(t.eltType)),
-            "eltType" -> v(typeName(t.eltType)),
-            "eltReadWriteInfo" -> v(readWriteInfo(eltName, t.eltType))
-          ))
+          "isList" -> v(Dictionary(
+            "name" -> genID(sid),
+            "eltName" -> genID(elt),
+            "eltConstType" -> genConstType(t.eltType),
+            "eltType" -> genType(t.eltType),
+            "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
+          )))
       case t: SetType =>
-        val eltName = "_" + name + "_element"
+        val elt =  sid.append("_element")
         TypeTemplate + Dictionary(
-          "isSet" -> Dictionary(
-            "name" -> v(name),
-            "eltName" -> eltName,
-            "eltConstType" -> v(constType(t.eltType)),
-            "eltType" -> v(typeName(t.eltType)),
-            "eltReadWriteInfo" -> v(readWriteInfo(eltName, t.eltType))
-          ))
+          "isSet" -> v(Dictionary(
+            "name" -> genID(sid),
+            "eltName" -> genID(elt),
+            "eltConstType" -> genConstType(t.eltType),
+            "eltType" -> genType(t.eltType),
+            "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
+          )))
       case t: MapType =>
-        val keyName = "_" + name + "_key"
-        val valueName = "_" + name + "_value"
+        val key =  sid.append("_key")
+        val value =  sid.append("_value")
         TypeTemplate + Dictionary(
-          "isMap" -> Dictionary(
-            "name" -> v(name),
-            "keyConstType" -> v(constType(t.keyType)),
-            "valueConstType" -> v(constType(t.valueType)),
-            "keyType" -> v(typeName(t.keyType)),
-            "valueType" -> v(typeName(t.valueType)),
-            "keyName" -> keyName,
-            "valueName" -> valueName,
-            "keyReadWriteInfo" -> v(readWriteInfo(keyName, t.keyType)),
-            "valueReadWriteInfo" -> v(readWriteInfo(valueName, t.valueType))
-          ))
+          "isMap" -> v(Dictionary(
+            "name" -> genID(sid),
+            "keyConstType" -> genConstType(t.keyType),
+            "valueConstType" -> genConstType(t.valueType),
+            "keyType" -> genType(t.keyType),
+            "valueType" -> genType(t.valueType),
+            "keyName" -> genID(key),
+            "valueName" -> genID(value),
+            "keyReadWriteInfo" -> v(readWriteInfo(key, t.keyType)),
+            "valueReadWriteInfo" -> v(readWriteInfo(value, t.valueType))
+          )))
       case t: StructType =>
         TypeTemplate + Dictionary(
-          "isStruct" -> Dictionary(
-            "name" -> v(name),
-            "prefix" -> v(t.prefix.getOrElse("")),
-            "type" -> v(t.name)
-          ))
+          "isStruct" -> v(Dictionary(
+            "name" -> genID(sid),
+            "scopePrefix" -> (t.scopePrefix match {
+              case Some(sid) => genID(sid.append("_").prepend("_"))
+              case None => codify("")
+            }),
+            "fieldType" -> genID(t.sid)
+          )))
       case t: EnumType =>
         TypeTemplate + Dictionary(
-          "isEnum" -> Dictionary(
-            "name" -> v(name),
-            "prefix" -> v(t.prefix.getOrElse("")),
-            "type" -> v(t.name)
-          ))
+          "isEnum" -> v(Dictionary(
+            "name" -> genID(sid),
+            "scopePrefix" -> (t.scopePrefix match {
+              case Some(sid) => genID(sid.append("_").prepend("_"))
+              case None => codify("")
+            }),
+            "fieldType" -> genID(t.sid)
+          )))
       case t: BaseType =>
         TypeTemplate + Dictionary(
-          "isBase" -> Dictionary(
-            "type" -> v(typeName(t)),
-            "name" -> v(name),
-            "protocolWriteMethod" -> v(protocolWriteMethod(t)),
-            "protocolReadMethod" -> v(protocolReadMethod(t))
-          ))
+          "isBase" -> v(Dictionary(
+            "type" -> genType(t),
+            "name" -> genID(sid),
+            "protocolWriteMethod" -> genProtocolWriteMethod(t),
+            "protocolReadMethod" -> genProtocolReadMethod(t)
+          )))
       case t: ReferenceType =>
-        // todo: implement ReferenceType
-        throw new Exception()
+        throw new ScroogeInternalException("ReferenceType should have been resolved by now")
     }
   }
 
   def fieldsToDict(fields: Seq[Field], blacklist: Seq[String]) = {
     fields.zipWithIndex map {
       case (field, index) =>
-        val valueVariableName = field.name + "_item"
+        val valueVariableID = field.sid.append("_item")
         Dictionary(
-          "index" -> v(index.toString),
-          "indexP1" -> v((index + 1).toString),
-          "name" -> v(field.name),
-          "Name" -> v(TitleCase(field.name)),
-          "id" -> v(field.id.toString),
-          "fieldConst" -> v(writeFieldConst(field.name)),
-          "constType" -> v(constType(field.`type`)),
-          "isPrimitive" -> v(isPrimitive(field.`type`)),
-          "primitiveFieldType" -> v(primitiveTypeName(field.`type`, mutable = false)),
-          "fieldType" -> v(typeName(field.`type`, mutable = false)),
-          "hasDefaultValue" -> v(defaultFieldValue(field).isDefined),
-          "defaultFieldValue" -> v(defaultFieldValue(field).getOrElse("")),
-          "defaultReadValue" -> v(defaultReadValue(field)),
-          "hasGetter" -> v(!blacklist.contains(field.name)),
-          "hasIsDefined" -> v(field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(field.`type`))),
+          "index" -> codify(index.toString),
+          "indexP1" -> codify((index + 1).toString),
+          "_fieldName" -> genID(field.sid.prepend("_")), // for Java only
+          "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")), // for Java only
+          "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
+          "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
+          "fieldName" -> genID(field.sid),
+          "gotName" -> genID(field.sid.prepend("_got_")),
+          "id" -> codify(field.index.toString),
+          "fieldConst" -> genID(field.sid.toTitleCase.append("Field")),
+          "constType" -> genConstType(field.fieldType),
+          "isPrimitive" -> v(isPrimitive(field.fieldType)),
+          "primitiveFieldType" -> genPrimitiveType(field.fieldType, mutable = false),
+          "fieldType" -> genType(field.fieldType, mutable = false),
+          "hasDefaultValue" -> v(genDefaultFieldValue(field).isDefined),
+          "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
+          "defaultReadValue" -> genDefaultReadValue(field),
+          "hasGetter" -> v(!blacklist.contains(field.sid.name)),
+          "hasIsDefined" -> v(field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(field.fieldType))),
           "required" -> v(field.requiredness.isRequired),
           "optional" -> v(field.requiredness.isOptional),
-          "nullable" -> v(isNullableType(field.`type`, field.requiredness.isOptional)),
+          "nullable" -> v(isNullableType(field.fieldType, field.requiredness.isOptional)),
           "collection" -> v {
-            field.`type` match {
+            field.fieldType match {
               case ListType(eltType, _) => List(
                 Dictionary(
-                  "elementType" -> v(typeName(eltType))
+                  "elementType" -> genType(eltType)
                 )
               )
               case SetType(eltType, _) => List(
                 Dictionary(
-                  "elementType" -> v(typeName(eltType))
+                  "elementType" -> genType(eltType)
                 )
               )
               case MapType(keyType, valueType, _) => List(
                 Dictionary(
                   "elementType" ->
-                    v("(" + typeName(keyType) + ", " + typeName(valueType) + ")")
+                    codify("(" + genType(keyType).toData + ", " + genType(valueType).toData + ")")
                 )
               )
               case _ => Nil
@@ -161,41 +170,43 @@ trait StructTemplate extends Generator {
           "readEnum" -> v(templates("readEnum")),
           "readBase" -> v(templates("readBase")),
           "optionalType" -> v(templates("optionalType")),
-          "readWriteInfo" -> v(readWriteInfo(valueVariableName, field.`type`)),
-          "toImmutable" -> v(toImmutable(field)),
+          "readWriteInfo" -> v(readWriteInfo(valueVariableID, field.fieldType)),
+          "toImmutable" -> genToImmutable(field),
           "toMutable" -> v {
             toMutable(field) match {
-              case (prefix, suffix) => Seq(Dictionary("prefix" -> v(prefix), "suffix" -> v(suffix)))
+              case (prefix, suffix) => Seq(Dictionary(
+                "prefix" -> codify(prefix),
+                "suffix" -> codify(suffix)))
             }
           },
-          "valueVariableName" -> v(valueVariableName)
+          "valueVariableName" -> genID(valueVariableID)
         )
     }
   }
 
-  private def exceptionMsgFieldName(struct: StructLike): Option[String] = {
+  private def exceptionMsgFieldName(struct: StructLike): Option[SimpleID] = {
     val msgField: Option[Field] = struct.fields find {
       field =>
       // 1st choice: find a field called message
-        field.name == "message"
+        field.sid.name == "message"
     } orElse {
       // 2nd choice: the first string field
       struct.fields find {
-        field => fieldTypeName(field) == "String"
+        field => field.fieldType == TString
       }
     }
 
     msgField map {
-      _.name
+      _.sid
     }
   }
 
   def structDict(
-                  struct: StructLike,
-                  myNamespace: Option[String],
-                  includes: Seq[Include],
-                  serviceOptions: Set[ServiceOption]
-                  ) = {
+    struct: StructLike,
+    namespace: Option[Identifier],
+    includes: Seq[Include],
+    serviceOptions: Set[ServiceOption]
+  ) = {
     val isException = struct.isInstanceOf[Exception_]
     val parentType = if (isException) {
       if (serviceOptions contains WithFinagleClient) {
@@ -209,7 +220,7 @@ trait StructTemplate extends Generator {
     val arity = struct.fields.size
     val product = if (arity >= 1 && arity <= 22) {
       val fieldTypes = struct.fields.map {
-        f => fieldTypeName(f)
+        f => genFieldType(f).toData
       }.mkString(", ")
       "Product" + arity + "[" + fieldTypes + "]"
     } else {
@@ -218,41 +229,47 @@ trait StructTemplate extends Generator {
 
     val imports = includes map {
       include =>
-        (namespace(include.document), include.prefix)
+        (getNamespace(include.document), include.prefix)
     } map {
-      case (PackageName(parentPackage, subPackage), prefix) => {
+      case (id, prefix) => {
+        val (parentPackage, subPackage) = id match {
+          case sid: SimpleID => (SimpleID("_root_"), sid)
+          case qid: QualifiedID => (qid.head, qid.tail)
+        }
+
         Dictionary(
-          "parentPackage" -> parentPackage,
-          "subPackage" -> subPackage,
-          "alias" -> prefix
+          "parentpackage" -> genID(parentPackage.toLowerCase),
+          "subpackage" -> genID(subPackage.toLowerCase),
+          "_alias_" -> genID(prefix.prepend("_").append("_"))
         )
       }
     }
 
-    val exceptionMsgField: Option[String] = if (isException) exceptionMsgFieldName(struct) else None
+    val exceptionMsgField: Option[SimpleID] = if (isException) exceptionMsgFieldName(struct) else None
 
     val fieldDictionaries = fieldsToDict(
       struct.fields,
       if (isException) Seq("message") else Seq())
+
     Dictionary(
-      "public" -> v(myNamespace.isDefined),
-      "package" -> v(myNamespace.getOrElse("")),
+      "public" -> v(namespace.isDefined),
+      "package" -> namespace.map{ genID(_) }.getOrElse(codify("")),
       "imports" -> v(imports),
-      "name" -> v(struct.name),
-      "docstring" -> v(struct.docstring.getOrElse("")),
-      "parentType" -> v(parentType),
+      "docstring" -> codify(struct.docstring.getOrElse("")),
+      "parentType" -> codify(parentType),
       "fields" -> v(fieldDictionaries),
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Seq())),
       "alternativeConstructor" -> v(
         struct.fields.exists(_.requiredness.isOptional) && struct.fields.exists(_.requiredness.isDefault)),
-      "structName" -> v(struct.name),
-      "arity" -> arity.toString,
+      "StructName" -> genID(struct.sid.toTitleCase),
+      "underlyingStructName" -> genID(struct.sid.prepend("_underlying_")),
+      "arity" -> codify(arity.toString),
       "isException" -> v(isException),
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
-      "exceptionMessageField" -> v(exceptionMsgField.getOrElse("")),
-      "product" -> v(product),
+      "exceptionMessageField" -> exceptionMsgField.map { genID(_) }.getOrElse { codify("")},
+      "product" -> codify(product),
       "arity0" -> v(arity == 0),
-      "arity1" -> (if (arity == 1) fieldDictionaries.take(1) else Nil),
+      "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withProxy" -> v(struct.isInstanceOf[Struct]),
       "finagle" -> v(serviceOptions contains WithFinagleClient)

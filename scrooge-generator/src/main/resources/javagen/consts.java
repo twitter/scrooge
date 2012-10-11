@@ -7,6 +7,6 @@ import java.util.Map;
 public final class Constants {
 {{#constants}}
   {{docstring}}
-  public static final {{type}} {{name}} = {{value}};
+  public static final {{fieldType}} {{name}} = {{value}};
 {{/constants}}
 }

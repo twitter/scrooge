@@ -25,10 +25,11 @@ object Dictionary {
     def children: Seq[Dictionary]
   }
 
-  case class StringValue(data: String) extends Value {
+  case class CodeFragment(data: String) extends Value {
     def toBoolean = data != ""
     def toData = data
     def children = Nil
+    override def toString = toData
   }
 
   case class BooleanValue(data: Boolean) extends Value {
@@ -56,11 +57,29 @@ object Dictionary {
     def children = Nil
   }
 
-  implicit def v(data: Dictionary): Value = ListValue(Seq(data))
-  implicit def v(data: String): Value = StringValue(data)
-  implicit def v(data: Boolean): Value = BooleanValue(data)
-  implicit def v(data: Seq[Dictionary]): Value = ListValue(data)
-  implicit def v(data: Handlebar): Value = PartialValue(data)
+  /**
+   * Wrap generated code fragments in the form of Strings in a dictionary value.
+   */
+  def codify(code: String): CodeFragment = CodeFragment(code)
+  /**
+   * Wrap a boolean flag in a dictionary value.
+   */
+  def v(data: Boolean): Value =  BooleanValue(data)
+
+  /**
+   * Add a child Dictionary. This is used to process Sections in mustache templates
+   */
+  def v(data: Dictionary): Value = ListValue(Seq(data))
+
+  /**
+   * Add children dictionaries. This is used to process Sections in mustache templates
+   */
+  def v(data: Seq[Dictionary]): Value = ListValue(data)
+
+  /**
+   * Wrap a handle bar in dictionary value. This is used to process Partial in mustache templates
+   */
+  def v(data: Handlebar): Value = PartialValue(data)
 
   def apply(values: (String, Value)*) = new Dictionary ++= (values: _*)
 }
@@ -85,7 +104,7 @@ case class Dictionary private(
   }
 
   def update(key: String, data: String) {
-    map(key) = StringValue(data)
+    map(key) = CodeFragment(data)
   }
 
   def update(key: String, data: Boolean) {

@@ -55,7 +55,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      SimpleService.deliver_args(protocol).where mustEqual "boston"
+      SimpleService.DeliverArgs(protocol).where mustEqual "boston"
 
       expect {
         startWrite(protocol, new TField("where", TType.STRING, 1))
@@ -63,7 +63,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      SimpleService.deliver_args("atlanta").write(protocol) mustEqual ()
+      SimpleService.DeliverArgs("atlanta").write(protocol) mustEqual ()
 
       expect {
         startRead(protocol, new TField("success", TType.I32, 0))
@@ -71,7 +71,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      SimpleService.deliver_result(protocol).success mustEqual Some(13)
+      SimpleService.DeliverResult(protocol).success mustEqual Some(13)
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -79,7 +79,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      SimpleService.deliver_result(Some(24)).write(protocol) mustEqual ()
+      SimpleService.DeliverResult(Some(24)).write(protocol) mustEqual ()
     }
 
     "generate exception return values" in {
@@ -93,7 +93,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      val res = ExceptionalService.deliver_result(protocol)
+      val res = ExceptionalService.DeliverResult(protocol)
       res.success must beNone
       res.ex must beSome(Xception(1, "silly"))
       res.ex2 must beNone
@@ -104,7 +104,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      ExceptionalService.deliver_result(Some(24)).write(protocol) mustEqual ()
+      ExceptionalService.DeliverResult(Some(24)).write(protocol) mustEqual ()
 
       expect {
         startWrite(protocol, new TField("ex", TType.STRUCT, 1))
@@ -116,7 +116,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      ExceptionalService.deliver_result(None, Some(Xception(1, "silly"))).write(protocol) mustEqual ()
+      ExceptionalService.DeliverResult(None, Some(Xception(1, "silly"))).write(protocol) mustEqual ()
 
       expect {
         startWrite(protocol, new TField("ex3", TType.STRUCT, 3))
@@ -125,7 +125,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         one(protocol).writeStructEnd()
         endWrite(protocol)
       }
-      ExceptionalService.deliver_result(None, None, None, Some(EmptyXception())).write(protocol) mustEqual ()
+      ExceptionalService.DeliverResult(None, None, None, Some(EmptyXception())).write(protocol) mustEqual ()
     }
 
     "generate FinagledService" in {
@@ -133,8 +133,8 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val service = new ExceptionalService.FinagledService(impl, new TBinaryProtocol.Factory)
 
       "success" in {
-        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston")).message
-        val response = encodeResponse("deliver", ExceptionalService.deliver_result(success = Some(42)))
+        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston")).message
+        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(success = Some(42)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.value(42)
@@ -144,9 +144,9 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "exception" in {
-        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston")).message
+        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston")).message
         val ex = Xception(1, "boom")
-        val response = encodeResponse("deliver", ExceptionalService.deliver_result(ex = Some(ex)))
+        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(ex = Some(ex)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.exception(ex)
@@ -165,8 +165,8 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val client = new ExceptionalService.FinagledClient(clientService)
 
       "success" in {
-        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston"))
-        val response = encodeResponse("deliver", ExceptionalService.deliver_result(success = Some(42)))
+        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston"))
+        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(success = Some(42)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.value(42)
@@ -176,9 +176,9 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "exception" in {
-        val request = encodeRequest("deliver", ExceptionalService.deliver_args("Boston"))
+        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston"))
         val ex = Xception(1, "boom")
-        val response = encodeResponse("deliver", ExceptionalService.deliver_result(ex = Some(ex)))
+        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(ex = Some(ex)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.exception(ex)
@@ -224,7 +224,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val service = new Capsly.FinagledService(null, null) {
         def getFunction2(name: String) = functionMap(name)
       }
-      service.getFunction2("Bad_Name") must not(be_==(None))
+      service.getFunction2("badName") must not(be_==(None))
     }
   }
 }

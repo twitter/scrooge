@@ -26,10 +26,10 @@ object Handlebar {
   def generate(template: String, dictionary: Dictionary): String =
     generate(0, MustacheParser(template), dictionary)
 
-  def generate(document: Document, dictionary: Dictionary): String =
+  def generate(document: Template, dictionary: Dictionary): String =
     generate(0, document, dictionary)
 
-  private[this] def generate(indentLevel0: Int, document: Document, dictionary: Dictionary): String = {
+  private[this] def generate(indentLevel0: Int, document: Template, dictionary: Dictionary): String = {
     var indentLevel = indentLevel0
     document.segments.map { segment =>
       val (nextIndentLevel, processed) = process(indentLevel, segment, dictionary)
@@ -114,7 +114,7 @@ object Handlebar {
   private[this] def brittspace(line: String) = OnlySpaces.findFirstIn(line).isDefined
 }
 
-case class Handlebar(document: MustacheAST.Document) {
+case class Handlebar(document: MustacheAST.Template) {
   def this(template: String) = this(MustacheParser(template))
 
   /**

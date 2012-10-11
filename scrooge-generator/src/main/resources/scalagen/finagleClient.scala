@@ -43,7 +43,7 @@ class FinagledClient(
   protected def missingResult(name: String) = {
     new TApplicationException(
       TApplicationException.MISSING_RESULT,
-      "`" + name + "` failed: unknown result"
+      name + " failed: unknown result"
     )
   }
 

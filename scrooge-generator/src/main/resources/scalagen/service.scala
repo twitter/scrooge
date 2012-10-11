@@ -32,11 +32,11 @@ import java.util.concurrent.atomic.AtomicReference
 {{/ostrichServer}}
 
 {{#imports}}
-import {{parentPackage}}.{{{subPackage}} => _{{alias}}_}
+import {{parentpackage}}.{{{subpackage}} => {{_alias_}}}
 {{/imports}}
 
 {{docstring}}
-object {{name}} {
+object {{ServiceName}} {
   trait Iface {{syncExtends}}{
 {{#syncFunctions}}
     {{>function}}

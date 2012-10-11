@@ -43,24 +43,24 @@ class ThriftParser(importer: Importer) extends RegexParsers {
 
   def fixFieldIds(fields: List[Field]): List[Field] = {
     // check negative field ids
-    fields.find(_.id < 0).foreach {
-      field => throw new NegativeFieldIdException(field.name)
+    fields.find(_.index < 0).foreach {
+      field => throw new NegativeFieldIdException(field.sid.name)
     }
 
     // check duplicate field ids
-    fields.filter(_.id != 0).foldLeft(Set[Int]())((set, field) => {
-      if (set.contains(field.id)) {
-        throw new DuplicateFieldIdException(field.name)
+    fields.filter(_.index != 0).foldLeft(Set[Int]())((set, field) => {
+      if (set.contains(field.index)) {
+        throw new DuplicateFieldIdException(field.sid.name)
       } else {
-        set + field.id
+        set + field.index
       }
     })
 
     var nextId = -1
     fields.map {
       field =>
-        if (field.id == 0) {
-          val f = field.copy(id = nextId)
+        if (field.index == 0) {
+          val f = field.copy(index = nextId)
           nextId -= 1
           f
         } else {
@@ -69,46 +69,74 @@ class ThriftParser(importer: Importer) extends RegexParsers {
     }
   }
 
-  // constants
+  // identifier
 
-  def constant: Parser[Constant] = {
-    numberConstant | stringConstant | listConstant | mapConstant | identifier |
+  /**
+   * The places where both SimpleIDs and QualifiedIDs are allowed, in which case
+   * we use Identifier:
+   *   - right hand side of an assignmnet
+   *   - namespace declaration
+   * For all other places, only SimpleIDs are allowed. Specifically
+   *   - right hand side of an assignment.
+   *
+   * Note that Scala parser does not support left recursion well. We cannot do
+   * something like this which is more intuitive:
+
+      def qualifiedID = (simpleID <~ "\\.") ~ repsep(simpleID, "\\.".r) ^^ {
+        case id ~ ids => QualifiedID((id +: ids) map { _.name })
+      }
+
+      def identifier: Parser[Identifier] = qualifiedID | simpleID
+   */
+
+  def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ {
+    x => Identifier(x)
+  }
+
+  def simpleID = "[A-Za-z_][A-Za-z0-9_]*".r ^^ {
+    x => SimpleID(x)
+  }
+
+  // ride hand side (RHS)
+
+  def rhs: Parser[RHS] = {
+    numberLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS |
       failure("constant expected")
   }
 
   def intConstant = "[-+]?\\d+(?!\\.)".r ^^ {
-    x => IntConstant(x.toLong)
+    x => IntLiteral(x.toLong)
   }
 
-  def numberConstant = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ {
+  def numberLiteral = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ {
     x =>
       if (x.exists {
         c => "eE." contains c
-      }) DoubleConstant(x.toDouble)
-      else IntConstant(x.toLong)
+      }) DoubleLiteral(x.toDouble)
+      else IntLiteral(x.toLong)
   }
 
-  def stringConstant = (("\"" ~> "[^\"]*".r <~ "\"") | ("'" ~> "[^']*".r <~ "'")) ^^ {
+  def stringLiteral = (("\"" ~> "[^\"]*".r <~ "\"") | ("'" ~> "[^']*".r <~ "'")) ^^ {
     x =>
-      StringConstant(x)
+      StringLiteral(x)
   }
 
   def listSeparator = "[,;]?".r
 
-  def listConstant = "[" ~> repsep(constant, listSeparator) <~ "]" ^^ {
+  def listOrMapRHS = "[" ~> repsep(rhs, listSeparator) <~ "]" ^^ {
     list =>
-      ListConstant(list)
+      ListRHS(list)
   }
 
-  def mapConstant = "{" ~> repsep(constant ~ ":" ~ constant, listSeparator) <~ "}" ^^ {
+  def mapRHS = "{" ~> repsep(rhs ~ ":" ~ rhs, listSeparator) <~ "}" ^^ {
     list =>
-      MapConstant(Map(list.map {
+      MapRHS(Map(list.map {
         case k ~ x ~ v => (k, v)
       }: _*))
   }
 
-  def identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ {
-    x => Identifier(x)
+  def idRHS = identifier ^^ {
+    id => IdRHS(id)
   }
 
   // types
@@ -116,7 +144,7 @@ class ThriftParser(importer: Importer) extends RegexParsers {
   def fieldType: Parser[FieldType] = baseType | containerType | referenceType
 
   def referenceType = identifier ^^ {
-    x => ReferenceType(x.name)
+    id => ReferenceType(id)
   }
 
   def baseType: Parser[BaseType] = (
@@ -145,19 +173,19 @@ class ThriftParser(importer: Importer) extends RegexParsers {
   }
 
   // FFS. i'm very close to removing this and forcably breaking old thrift files.
-  def cppType = "cpp_type" ~> stringConstant ^^ {
+  def cppType = "cpp_type" ~> stringLiteral ^^ {
     literal => literal.value
   }
 
   // fields
 
-  def field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~ (fieldType ~ identifier) ~
-    (opt("=" ~> constant) <~ opt(listSeparator)) ^^ {
-    case (fid ~ req) ~ (ftype ~ id) ~ value => {
+  def field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~ (fieldType ~ simpleID) ~
+    (opt("=" ~> rhs) <~ opt(listSeparator)) ^^ {
+    case (fid ~ req) ~ (ftype ~ sid) ~ value => {
       val transformedVal = ftype match {
         case TBool => value map {
-          case IntConstant(0) => BoolConstant(false)
-          case _ => BoolConstant(true)
+          case IntLiteral(0) => BoolLiteral(false)
+          case _ => BoolLiteral(true)
         }
         case _ => value
       }
@@ -165,7 +193,7 @@ class ThriftParser(importer: Importer) extends RegexParsers {
       val transformedReq = {
         if (transformedVal.isDefined && req.isOptional) Requiredness.Default else req
       }
-      Field(fid.getOrElse(0), id.name, ftype, transformedVal, transformedReq)
+      Field(fid.getOrElse(0), sid, ftype, transformedVal, transformedReq)
     }
   }
 
@@ -181,13 +209,13 @@ class ThriftParser(importer: Importer) extends RegexParsers {
 
   // functions
 
-  def function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (identifier <~ "(") ~ (rep(field) <~ ")") ~
+  def function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(field) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ {
     case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
-      if (oneway.isDefined) throw new OnewayNotSupportedException(id.name)
+      if (oneway.isDefined) throw new OnewayNotSupportedException(id.fullName)
 
       Function(
-        id.name,
+        id,
         ftype,
         fixFieldIds(args),
         throws.map {
@@ -203,21 +231,21 @@ class ThriftParser(importer: Importer) extends RegexParsers {
 
   def definition = const | typedef | enum | senum | struct | exception | service
 
-  def const = opt(comments) ~ ("const" ~> fieldType) ~ identifier ~ ("=" ~> constant) ~ opt(listSeparator) ^^ {
-    case comment ~ ftype ~ id ~ const ~ _ => Const(id.name, ftype, const, comment)
+  def const = opt(comments) ~ ("const" ~> fieldType) ~ simpleID ~ ("=" ~> rhs) ~ opt(listSeparator) ^^ {
+    case comment ~ ftype ~ sid ~ const ~ _ => ConstDefinition(sid, ftype, const, comment)
   }
 
-  def typedef = (opt(comments) ~ "typedef") ~> fieldType ~ identifier ^^ {
-    case dtype ~ id => Typedef(id.name, dtype)
+  def typedef = (opt(comments) ~ "typedef") ~> fieldType ~ simpleID ^^ {
+    case dtype ~ sid => Typedef(sid, dtype)
   }
 
-  def enum = (opt(comments) ~ (("enum" ~> identifier) <~ "{")) ~ rep(identifier ~ opt("=" ~> intConstant) <~
+  def enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(simpleID ~ opt("=" ~> intConstant) <~
     opt(listSeparator)) <~ "}" ^^ {
-    case comment ~ id ~ items =>
+    case comment ~ sid ~ items =>
       var failed: Option[Int] = None
       val seen = new mutable.HashSet[Int]
       var nextValue = 0
-      val values = new mutable.ListBuffer[EnumValue]
+      val values = new mutable.ListBuffer[EnumField]
       items.foreach {
         case k ~ v =>
           val value = v.map {
@@ -226,35 +254,35 @@ class ThriftParser(importer: Importer) extends RegexParsers {
           if (seen contains value) failed = Some(value)
           nextValue = value + 1
           seen += value
-          values += EnumValue(k.name, value)
+          values += EnumField(k, value)
       }
       if (failed.isDefined) {
-        throw new RepeatingEnumValueException(id.name, failed.get)
+        throw new RepeatingEnumValueException(sid.name, failed.get)
       } else {
-        Enum(id.name, values.toList, comment)
+        Enum(sid, values.toList, comment)
       }
   }
 
-  def senum = (("senum" ~> identifier) <~ "{") ~ rep(stringConstant <~ opt(listSeparator)) <~
+  def senum = (("senum" ~> simpleID) <~ "{") ~ rep(stringLiteral <~ opt(listSeparator)) <~
     "}" ^^ {
-    case id ~ items => Senum(id.name, items.map {
+    case sid ~ items => Senum(sid, items.map {
       _.value
     })
   }
 
-  def struct = (opt(comments) ~ (("struct" ~> identifier) <~ "{")) ~ rep(field) <~ "}" ^^ {
-    case comment ~ id ~ fields => Struct(id.name, fixFieldIds(fields), comment)
+  def struct = (opt(comments) ~ (("struct" ~> simpleID) <~ "{")) ~ rep(field) <~ "}" ^^ {
+    case comment ~ sid ~ fields => Struct(sid, fixFieldIds(fields), comment)
   }
 
-  def exception = (opt(comments) ~ ("exception" ~> identifier <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
-    case comment ~ id ~ fields => Exception_(id.name, fixFieldIds(fields.getOrElse(Nil)), comment)
+  def exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
+    case comment ~ sid ~ fields => Exception_(sid, fixFieldIds(fields.getOrElse(Nil)), comment)
   }
 
-  def service = (opt(comments) ~ ("service" ~> identifier)) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
+  def service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
     "}") ^^ {
-    case comment ~ id ~ extend ~ functions =>
-      Service(id.name, extend.map {
-        id => ServiceParent(id.name)
+    case comment ~ sid ~ extend ~ functions =>
+      Service(sid, extend.map {
+        id => ServiceParent(id.fullName)
       }, functions, comment)
   }
 
@@ -266,22 +294,22 @@ class ThriftParser(importer: Importer) extends RegexParsers {
 
   def header: Parser[Header] = include | cppInclude | namespace
 
-  def include = opt(comments) ~> "include" ~> stringConstant ^^ {
+  def include = opt(comments) ~> "include" ~> stringLiteral ^^ {
     s => Include(s.value, parseFile(s.value))
   }
 
   // bogus dude.
-  def cppInclude = "cpp_include" ~> stringConstant ^^ {
+  def cppInclude = "cpp_include" ~> stringLiteral ^^ {
     s => CppInclude(s.value)
   }
 
   def namespace = opt(comments) ~> "namespace" ~> namespaceScope ~ identifier ^^ {
     case scope ~ id =>
-      Namespace(scope, id.name)
+      Namespace(scope, id)
   }
 
   def namespaceScope = "*" | (identifier ^^ {
-    id => id.name
+    id => id.fullName
   })
 
   /**

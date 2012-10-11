@@ -1,23 +1,23 @@
-addFunction("{{name}}", new Function2<TProtocol, Integer, Future<byte[]>>() {
+addFunction("{{serviceFuncName}}", new Function2<TProtocol, Integer, Future<byte[]>>() {
   public Future<byte[]> apply(TProtocol iprot, final Integer seqid) {
     try {
-      {{localName}}_args args = {{localName}}_args.decode(iprot);
+      {{ArgsStruct}} args = {{ArgsStruct}}.decode(iprot);
       iprot.readMessageEnd();
       Future<{{typeName}}> result;
       try {
-        result = iface.{{localName}}({{argNames}});
+        result = iface.{{serviceFuncName}}({{argNames}});
       } catch (Throwable t) {
         result = Future.exception(t);
       }
       return result.flatMap(new Function<{{typeName}}, Future<byte[]>>() {
         public Future<byte[]> apply({{typeName}} value){
-          return reply("{{name}}", seqid, new {{localName}}_result.Builder(){{^isVoid}}.success(value){{/isVoid}}.build());
+          return reply("{{serviceFuncName}}", seqid, new {{ResultStruct}}.Builder(){{^isVoid}}.success(value){{/isVoid}}.build());
         }
       }).rescue(new Function<Throwable, Future<byte[]>>() {
         public Future<byte[]> apply(Throwable t) {
 {{#exceptions}}
           if (t instanceof {{exceptionType}}) {
-            return reply("{{name}}", seqid, new {{localName}}_result.Builder().{{fieldName}}(({{exceptionType}}) t).build());
+            return reply("{{ServiceName}}", seqid, new {{ResultStruct}}.Builder().{{fieldName}}(({{exceptionType}}) t).build());
           }
 {{/exceptions}}
           return Future.exception(t);
@@ -26,7 +26,7 @@ addFunction("{{name}}", new Function2<TProtocol, Integer, Future<byte[]>>() {
     } catch (TProtocolException e) {
       try {
         iprot.readMessageEnd();
-        return exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
+        return exception("{{serviceFuncName}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
       } catch (Exception unrecoverable) {
         return Future.exception(unrecoverable);
       }

@@ -1,1 +1,1 @@
-{{#prefix}}_{{prefix}}_.{{/prefix}}{{type}}(_iprot.readI32())
+{{#scopePrefix}}{{scopePrefix}}.{{/scopePrefix}}{{fieldType}}(_iprot.readI32())

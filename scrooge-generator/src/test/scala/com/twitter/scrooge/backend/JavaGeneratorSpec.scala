@@ -39,6 +39,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
       Constants.someInt mustEqual 1
       Constants.someDouble mustEqual 3.0
       Constants.someList mustEqual Utilities.makeList("piggy")
+      Constants.emptyList mustEqual Utilities.makeList()
       Constants.someMap mustEqual Utilities.makeMap(Utilities.makeTuple("foo", "bar"))
     }
 
@@ -376,11 +377,6 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
         new NonStringMessageException(5).getMessage mustEqual "5"
       }
 
-      "funky names that scala doesn't like" in {
-        new Naughty("car", 100).getType() mustEqual "car"
-        new Naughty("car", 100).getDef() mustEqual 100
-      }
-
       "with more than 22 fields" in {
         "apply" in {
           new Biggie.Builder().build().getNum25() mustEqual 25
@@ -407,7 +403,6 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
           new Biggie.Builder().build().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
         }
       }
-
     }
   }
 }

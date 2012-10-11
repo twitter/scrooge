@@ -91,7 +91,7 @@ object Main {
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
-      val doc1 = TypeResolver().resolve(doc0).document
+      val doc1 = TypeResolver()(doc0).document
       generator(doc1, flags.toSet, new File(destFolder))
     }
   }

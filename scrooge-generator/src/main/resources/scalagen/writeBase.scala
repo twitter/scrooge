@@ -1,1 +1,1 @@
-_oprot.{{protocolWriteMethod}}(`{{name}}`)
+_oprot.{{protocolWriteMethod}}({{name}})

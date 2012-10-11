@@ -26,78 +26,101 @@ class TypeMismatchException(name: String) extends Exception(name)
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
-object TypeResolver {
-  class EntityResolver[T](
-    typeMap: Map[String,T],
-    includeMap: Map[String, ResolvedDocument],
-    next: TypeResolver => EntityResolver[T])
-  {
-    def apply(name: String): T = {
-      name match {
-        case QualifiedName(prefix, suffix) =>
-          apply(prefix, suffix)
-        case _ =>
-          typeMap.get(name).getOrElse {
-            throw new TypeNotFoundException(name)
-          }
-      }
-    }
-
-    def apply(scope: String, name: String): T = {
-      val include = includeMap.get(scope).getOrElse(throw new UndefinedSymbolException(name))
-      try {
-        next(include.resolver)(name) match {
-          case st: StructType => st.copy(prefix = Some(scope)).asInstanceOf[T]
-          case et: EnumType => et.copy(prefix = Some(scope)).asInstanceOf[T]
-          case t => t
-        }
-      } catch {
-        case ex: TypeNotFoundException =>
-          // don't lose context
-          throw new TypeNotFoundException(scope + "." + name)
-      }
-    }
+class EntityResolver[T](
+  typeMap: Map[String,T],
+  includeMap: Map[String, ResolvedDocument],
+  next: TypeResolver => EntityResolver[T])
+{
+  def apply(fullname: String): T = Identifier(fullname) match {
+    case sid: SimpleID => apply(sid)
+    case qid: QualifiedID => apply(qid)
   }
 
-  object QualifiedName {
-    def unapply(str: String): Option[(String, String)] = {
-      str.indexOf('.') match {
-        case -1 => None
-        case dot => Some((str.substring(0, dot), str.substring(dot + 1)))
+  def apply(sid: SimpleID): T =
+    typeMap.get(sid.name).getOrElse {
+      throw new TypeNotFoundException(sid.name)
+    }
+
+  def apply(qid: QualifiedID): T = {
+    // todo CSL-272:
+    // qid can be:
+    //   - includeName.constName
+    //   - enumName.fieldName
+    //   - includeName.enumName.fieldName?
+    // I don't think the latter two cases will work.
+    val (root, rest) = (qid.names.head, qid.names.tail.mkString("."))
+    val include = includeMap.get(root).getOrElse(throw new UndefinedSymbolException(rest))
+    try {
+      next(include.resolver)(rest) match {
+        case st: StructType => st.copy(scopePrefix = Some(SimpleID(root))).asInstanceOf[T]
+        case et: EnumType => et.copy(scopePrefix = Some(SimpleID(root))).asInstanceOf[T]
+        case t => t
       }
+    } catch {
+      case ex: TypeNotFoundException =>
+        // don't lose context
+        throw new TypeNotFoundException(qid.fullName)
     }
   }
 }
 
 case class TypeResolver(
   typeMap: Map[String, FieldType] = Map(),
-  constMap: Map[String, Const] = Map(),
+  constMap: Map[String, ConstDefinition] = Map(),
   serviceMap: Map[String, Service] = Map(),
   includeMap: Map[String, ResolvedDocument] = Map())
 {
-  import TypeResolver._
-
   lazy val fieldTypeResolver: EntityResolver[FieldType] =
     new EntityResolver(typeMap, includeMap, _.fieldTypeResolver)
   lazy val serviceResolver: EntityResolver[Service] =
     new EntityResolver(serviceMap, includeMap, _.serviceResolver)
-  lazy val constResolver: EntityResolver[Const] =
+  lazy val constResolver: EntityResolver[ConstDefinition] =
     new EntityResolver(constMap, includeMap, _.constResolver)
+
+
+  /**
+   * Returns a new TypeResolver with the given include mapping added.
+   */
+  def withMapping(inc: Include): TypeResolver = {
+    val resolvedDocument = TypeResolver()(inc.document, Some(inc.prefix))
+    copy(includeMap = includeMap + (inc.prefix.name -> resolvedDocument))
+  }
+
+  /**
+   * Returns a new TypeResolver with the given type mapping added.
+   */
+  def withMapping(name: String, fieldType: FieldType): TypeResolver = {
+    copy(typeMap = typeMap + (name -> fieldType))
+  }
+
+  /**
+   * Returns a new TypeResolver with the given constant added.
+   */
+  def withMapping(const: ConstDefinition): TypeResolver = {
+    copy(constMap = constMap + (const.sid.name -> const))
+  }
+
+  /**
+   * Returns a new TypeResolver with the given service added.
+   */
+  def withMapping(service: Service): TypeResolver = {
+    copy(serviceMap = serviceMap + (service.sid.name -> service))
+  }
 
   /**
    * Resolves all types in the given document.
    */
-  def resolve(doc: Document, forcePrefix: Option[String] = None): ResolvedDocument = {
+  def apply(doc: Document, forcePrefix: Option[SimpleID] = None): ResolvedDocument = {
     var resolver = this
     val includes = doc.headers.collect { case i: Include => i }
     val defBuf = new ArrayBuffer[Definition](doc.defs.size)
 
     for (i <- includes) {
-      resolver = resolver.include(i)
+      resolver = resolver.withMapping(i)
     }
 
     for (d <- doc.defs) {
-      val ResolvedDefinition(d2, r2) = resolver.resolve(d, forcePrefix)
+      val ResolvedDefinition(d2, r2) = resolver(d, forcePrefix)
       resolver = r2
       defBuf += d2
     }
@@ -106,74 +129,54 @@ case class TypeResolver(
   }
 
   /**
-   * Returns a new TypeResolver with the given include mapping added.
-   */
-  def include(inc: Include): TypeResolver = {
-    val resolvedDocument = TypeResolver().resolve(inc.document, Some(inc.prefix))
-    copy(includeMap = includeMap + (inc.prefix -> resolvedDocument))
-  }
-
-  /**
    * Resolves types in the given definition according to the current
    * typeMap, and then returns an updated TypeResolver with the new
    * definition bound, plus the resolved definition.
    */
-  def resolve(definition: Definition, forcePrefix: Option[String]): ResolvedDefinition = {
-    apply(definition) match {
-      case d @ Typedef(name, t) => ResolvedDefinition(d, define(name, t))
-      case e @ Enum(name, _, _) => ResolvedDefinition(e, define(name, EnumType(e)))
-      case s @ Senum(name, _) => ResolvedDefinition(s, define(name, TString))
-      case s @ Struct(name, _, _) => ResolvedDefinition(s, define(name, StructType(s, prefix = forcePrefix)))
-      case e @ Exception_(name, _, _) => ResolvedDefinition(e, define(e.name, StructType(e)))
-      case c @ Const(_, _, v, _) => ResolvedDefinition(c, define(c))
-      case s @ Service(name, _, _, _) => ResolvedDefinition(s, define(s))
-      case d => ResolvedDefinition(d, this)
-    }
-  }
-
-  /**
-   * Returns a new TypeResolver with the given type mapping added.
-   */
-  def define(name: String, `type`: FieldType): TypeResolver = {
-    copy(typeMap = typeMap + (name -> `type`))
-  }
-
-  /**
-   * Returns a new TypeResolver with the given constant added.
-   */
-  def define(const: Const): TypeResolver = {
-    copy(constMap = constMap + (const.name -> const))
-  }
-
-  /**
-   * Returns a new TypeResolver with the given service added.
-   */
-  def define(service: Service): TypeResolver = {
-    copy(serviceMap = serviceMap + (service.name -> service))
-  }
-
-  def apply(definition: Definition): Definition = {
-    definition match {
-      case d @ Typedef(name, t) => d.copy(`type` = apply(t))
-      case s @ Struct(_, fs, _) => s.copy(fields = fs.map(apply))
-      case e @ Exception_(_, fs, _) => e.copy(fields = fs.map(apply))
-      case c @ Const(_, t, _, _) =>
-        val `type` = apply(t)
-        c.copy(`type` = `type`, value = apply(c.value, `type`))
-      case s @ Service(_, p, fs, _) => s.copy(parent = p.map(apply), functions = fs.map(apply))
-      case d => d
-    }
+  def apply(definition: Definition, forcePrefix: Option[SimpleID]): ResolvedDefinition
+  = definition match {
+    case d @ Typedef(sid, t) =>
+      val resolved = apply(t)
+      ResolvedDefinition(
+        d.copy(fieldType = resolved),
+        withMapping(sid.name, resolved))
+    case s @ Struct(sid, fs, _) =>
+      val resolved = s.copy(fields = fs.map(apply))
+      ResolvedDefinition(
+        resolved,
+        withMapping(sid.name, StructType(resolved, forcePrefix)))
+    case e @ Exception_(sid, fs, _) =>
+      val resolved = e.copy(fields = fs.map(apply))
+      ResolvedDefinition(
+        resolved,
+        // todo CSL-272: why no forcedPrefix is needed, unlike the Struct case?
+        withMapping(sid.name, StructType(resolved)))
+    case c @ ConstDefinition(_, t, v, _) =>
+      val fieldType = apply(t)
+      val resolved = c.copy(fieldType = fieldType, value = apply(v, fieldType))
+      ResolvedDefinition(resolved, withMapping(resolved))
+    case s @ Service(sid, p, fs, _) =>
+      val resolved = s.copy(parent = p.map(apply), functions = fs.map(apply))
+      ResolvedDefinition(resolved, withMapping(resolved))
+    case e @ Enum(sid, _, _) =>
+      // todo CSL-272: why no forcedPrefix is needed, unlike the Struct case?
+      ResolvedDefinition(e, withMapping(sid.name, EnumType(e)))
+    case s @ Senum(sid, _) =>
+      ResolvedDefinition(s, withMapping(sid.name, TString))
+    case d: EnumField => ResolvedDefinition(d, this)
+    case d: FunctionArgs => ResolvedDefinition(d, this)
+    case d: FunctionResult => ResolvedDefinition(d, this)
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, _, t, as, ts, _) =>
-      f.copy(`type` = apply(t), args = as.map(apply), throws = ts.map(apply))
+    case Function(_, t, as, ts, _) =>
+      f.copy(funcType = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 
   def apply(f: Field): Field = {
-    val fieldType = apply(f.`type`)
+    val fieldType = apply(f.fieldType)
     f.copy(
-      `type` = fieldType,
+      fieldType = fieldType,
       default = f.default.map { const => apply(const, fieldType) })
   }
 
@@ -183,61 +186,67 @@ case class TypeResolver(
   }
 
   def apply(t: FieldType): FieldType = t match {
-    case ReferenceType(name) => apply(name)
+    case ReferenceType(id) => apply(id)
     case m @ MapType(k, v, _) => m.copy(keyType = apply(k), valueType = apply(v))
     case s @ SetType(e, _) => s.copy(eltType = apply(e))
     case l @ ListType(e, _) => l.copy(eltType = apply(e))
-    case _ => t
+    case b: BaseType => b
+    case e: EnumType => e
+    case s: StructType => s
   }
 
-  def apply(c: Constant, fieldType: FieldType): Constant = c match {
-    case l @ ListConstant(elems) =>
+  def apply(c: RHS, fieldType: FieldType): RHS = c match {
+    // list values and map values look the same in Thrift, but different in Java and Scala
+    // So we need type information in order to generated correct code.
+    case l @ ListRHS(elems) =>
       fieldType match {
         case ListType(eltType, _) => l.copy(elems = elems map { e => apply(e, eltType) } )
-        case SetType(eltType, _) => SetConstant(elems map { e => apply(e, eltType) } toSet)
+        case SetType(eltType, _) => SetRHS(elems map { e => apply(e, eltType) } toSet)
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l)
       }
-    case m @ MapConstant(elems) =>
+    case m @ MapRHS(elems) =>
       fieldType match {
         case MapType(keyType, valType, _) =>
           m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
       }
-    case i @ Identifier(name) =>
-      fieldType match {
-        case EnumType(enum, _) =>
-          val valueName = name match {
-            case QualifiedName(scope, QualifiedName(enumName, valueName)) =>
-              if (fieldTypeResolver(scope, enumName) != fieldType) {
-                throw new UndefinedSymbolException(scope + "." + enumName)
-              } else {
-                valueName
-              }
-            case QualifiedName(enumName, valueName) =>
-              if (enumName != enum.name) {
-                throw new UndefinedSymbolException(enumName)
-              } else {
-                valueName
-              }
-            case _ => name
-          }
-          enum.values.find(_.name == valueName) match {
-            case None => throw new UndefinedSymbolException(name)
-            case Some(value) => EnumValueConstant(enum, value)
-          }
-        case t: BaseType =>
-          name match {
-            case QualifiedName(scope, valueName) =>
-              val const = constResolver(scope, valueName)
-              if (const.`type` != fieldType) {
-                throw new UndefinedSymbolException(scope + "." + valueName)
-              } else {
-                const.value
-              }
-            case _ => throw new UndefinedSymbolException(name)
-          }
-        case _ => throw new UndefinedSymbolException(name)
-      }
+    case i @ IdRHS(id) => id match {
+      case SimpleID(valueName) =>
+        fieldType match {
+          case EnumType(enum, _) =>
+            enum.values.find(_.sid.name == valueName) match {
+              case None => throw new UndefinedSymbolException(valueName)
+              case Some(value) => EnumRHS(enum, value)
+            }
+          case _ => throw new UndefinedSymbolException(valueName)
+        }
+      case qid @ QualifiedID(names) =>
+        fieldType match {
+          case EnumType(enum, _) =>
+            val valueName = if (names.size == 2) {
+              // id is enumName.valueName
+              val enumName = names.head
+              if (enumName != enum.sid.name) throw new UndefinedSymbolException(enumName)
+              else names.last
+            } else {
+              // id is scopeName.enumName.valueName
+              // todo CSL-272: is it possible to have nested scopes? eg: scope1.scope2.enumName.valueName
+              val enumNameWithScope = QualifiedID(names.dropRight(1)).fullName
+              if (fieldTypeResolver(enumNameWithScope) != fieldType)
+                throw new UndefinedSymbolException(enumNameWithScope)
+              else names.last
+            }
+            enum.values.find(_.sid.name == valueName) match {
+              case None => throw new UndefinedSymbolException(qid.fullName)
+              case Some(value) => EnumRHS(enum, value)
+            }
+          case t: BaseType =>
+            val const = constResolver(qid.fullName)
+            if (const.fieldType != fieldType) throw new UndefinedSymbolException(qid.fullName)
+            else const.value
+          case _ => throw new UndefinedSymbolException(qid.fullName)
+        }
+    }
     case _ => c
   }
 
@@ -245,5 +254,8 @@ case class TypeResolver(
     parent.copy(service = Some(serviceResolver(parent.name)))
   }
 
-  def apply(name: String): FieldType = fieldTypeResolver(name)
+  def apply(id: Identifier): FieldType = id match {
+    case sid: SimpleID => fieldTypeResolver(sid)
+    case qid: QualifiedID => fieldTypeResolver(qid)
+  }
 }

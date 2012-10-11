@@ -15,3 +15,8 @@ class DuplicateFieldIdException(name: String)
 
 class RepeatingEnumValueException(name: String, value: Int)
   extends ParseException("Repeating enum value in " + name + ": " + value)
+
+/**
+ * ScroogeInternalException indicates a Scrooge bug
+ */
+class ScroogeInternalException(msg: String) extends Exception

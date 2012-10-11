@@ -3,6 +3,6 @@ package {{package}}
 object Constants {
 {{#constants}}
   {{docstring}}
-  val {{name}}: {{type}} = {{value}}
+  val {{name}}: {{fieldType}} = {{value}}
 {{/constants}}
 }

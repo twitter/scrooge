@@ -1,33 +1,31 @@
 package com.twitter.scrooge.frontend
 
-import scala.collection.mutable.ListBuffer
+import com.twitter.scrooge.ast._
 import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.{RepeatingEnumValueException, DuplicateFieldIdException, NegativeFieldIdException, OnewayNotSupportedException}
 
 class ThriftParserSpec extends SpecificationWithJUnit {
-  import com.twitter.scrooge.ast._
-
   "ThriftParser" should {
     val parser = new ThriftParser(NullImporter)
 
     "comments" in {
-      parser.parse("  300  ", parser.constant) mustEqual IntConstant(300)
-      parser.parse("  // go away.\n 300", parser.constant) mustEqual IntConstant(300)
-      parser.parse("  /*\n   * go away.\n   */\n 300", parser.constant) mustEqual IntConstant(300)
-      parser.parse("# hello\n 300", parser.constant) mustEqual IntConstant(300)
+      parser.parse("  300  ", parser.rhs) mustEqual IntLiteral(300)
+      parser.parse("  // go away.\n 300", parser.rhs) mustEqual IntLiteral(300)
+      parser.parse("  /*\n   * go away.\n   */\n 300", parser.rhs) mustEqual IntLiteral(300)
+      parser.parse("# hello\n 300", parser.rhs) mustEqual IntLiteral(300)
     }
 
     "constant" in {
-      parser.parse("300.5", parser.constant) mustEqual DoubleConstant(300.5)
-      parser.parse("\"hello!\"", parser.constant) mustEqual StringConstant("hello!")
-      parser.parse("'hello!'", parser.constant) mustEqual StringConstant("hello!")
-      parser.parse("cat", parser.constant) mustEqual Identifier("cat")
-      val list = parser.parse("[ 4, 5 ]", parser.constant)
-      list must haveClass[ListConstant]
-      list.asInstanceOf[ListConstant].elems.toList mustEqual List(IntConstant(4), IntConstant(5))
+      parser.parse("300.5", parser.rhs) mustEqual DoubleLiteral(300.5)
+      parser.parse("\"hello!\"", parser.rhs) mustEqual StringLiteral("hello!")
+      parser.parse("'hello!'", parser.rhs) mustEqual StringLiteral("hello!")
+      parser.parse("cat", parser.rhs) mustEqual IdRHS(SimpleID("cat"))
+      val list = parser.parse("[ 4, 5 ]", parser.rhs)
+      list must haveClass[ListRHS]
+      list.asInstanceOf[ListRHS].elems.toList mustEqual List(IntLiteral(4), IntLiteral(5))
       parser.parse("{ 'name': 'Commie', 'home': 'San Francisco' }",
-        parser.constant) mustEqual MapConstant(Map(StringConstant("name") -> StringConstant
-        ("Commie"), StringConstant("home") -> StringConstant("San Francisco")))
+        parser.rhs) mustEqual MapRHS(Map(StringLiteral("name") -> StringLiteral
+        ("Commie"), StringLiteral("home") -> StringLiteral("San Francisco")))
     }
 
     "base types" in {
@@ -47,26 +45,26 @@ class ThriftParserSpec extends SpecificationWithJUnit {
         None), None)
       parser.parse("map<string, list<bool>>", parser.fieldType) mustEqual MapType(TString,
         ListType(TBool, None), None)
-      parser.parse("set<Monster>", parser.fieldType) mustEqual SetType(ReferenceType("Monster"),
+      parser.parse("set<Monster>", parser.fieldType) mustEqual SetType(ReferenceType(Identifier("Monster")),
         None)
-      parser.parse("Monster", parser.fieldType) mustEqual ReferenceType("Monster")
+      parser.parse("Monster", parser.fieldType) mustEqual ReferenceType(Identifier("Monster"))
     }
 
     "functions" in {
       parser.parse("/**doc!*/ void go()", parser.function) mustEqual
-        Function("go", Void, Seq(), Seq(), Some("/**doc!*/"))
+        Function(SimpleID("go"), Void, Seq(), Seq(), Some("/**doc!*/"))
       parser.parse(
         "list<string> get_tables(optional i32 id, /**DOC*/3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
-        Function("get_tables", ListType(TString, None), Seq(
-          Field(-1, "id", TI32, None, Requiredness.Optional),
-          Field(3, "name", TString, Some(StringConstant("cat")), Requiredness.Required)
-        ), Seq(Field(1, "ex", ReferenceType("Exception"), None, Requiredness.Default)), None)
+        Function(SimpleID("get_tables"), ListType(TString, None), Seq(
+          Field(-1, SimpleID("id"), TI32, None, Requiredness.Optional),
+          Field(3, SimpleID("name"), TString, Some(StringLiteral("cat")), Requiredness.Required)
+        ), Seq(Field(1, SimpleID("ex"), ReferenceType(Identifier("Exception")), None, Requiredness.Default)), None)
     }
 
     "const" in {
-      parser.parse("/** COMMENT */ const string name = \"Columbo\"", parser.definition) mustEqual Const("name",
-        TString, StringConstant("Columbo"), Some("/** COMMENT */"))
+      parser.parse("/** COMMENT */ const string name = \"Columbo\"", parser.definition) mustEqual ConstDefinition(SimpleID("name"),
+        TString, StringLiteral("Columbo"), Some("/** COMMENT */"))
     }
 
     "more than one docstring" in {
@@ -75,12 +73,12 @@ class ThriftParserSpec extends SpecificationWithJUnit {
 /** and another */
 const string tyrion = "lannister"
 """
-      parser.parse(code, parser.definition) mustEqual Const("tyrion",
-        TString, StringConstant("lannister"), Some("/** comment */\n/** and another */"))
+      parser.parse(code, parser.definition) mustEqual ConstDefinition(SimpleID("tyrion"),
+        TString, StringLiteral("lannister"), Some("/** comment */\n/** and another */"))
     }
 
     "typedef" in {
-      parser.parse("typedef list<i32> Ladder", parser.definition) mustEqual Typedef("Ladder",
+      parser.parse("typedef list<i32> Ladder", parser.definition) mustEqual Typedef(SimpleID("Ladder"),
         ListType(TI32, None))
     }
 
@@ -90,13 +88,13 @@ const string tyrion = "lannister"
           NORTH, SOUTH, EAST=90, WEST, UP, DOWN=5
         }
         """
-      parser.parse(code, parser.definition) mustEqual Enum("Direction", Seq(
-        EnumValue("NORTH", 0),
-        EnumValue("SOUTH", 1),
-        EnumValue("EAST", 90),
-        EnumValue("WEST", 91),
-        EnumValue("UP", 92),
-        EnumValue("DOWN", 5)
+      parser.parse(code, parser.definition) mustEqual Enum(SimpleID("Direction"), Seq(
+        EnumField(SimpleID("NORTH"), 0),
+        EnumField(SimpleID("SOUTH"), 1),
+        EnumField(SimpleID("EAST"), 90),
+        EnumField(SimpleID("WEST"), 91),
+        EnumField(SimpleID("UP"), 92),
+        EnumField(SimpleID("DOWN"), 5)
       ), None)
 
       val withComment = """
@@ -108,10 +106,10 @@ enum Foo
   X = 1,
   Y = 2
 }"""
-      parser.parse(withComment, parser.enum) mustEqual Enum("Foo",
+      parser.parse(withComment, parser.enum) mustEqual Enum(SimpleID("Foo"),
         Seq(
-          EnumValue("X", 1),
-          EnumValue("Y", 2)),
+          EnumField(SimpleID("X"), 1),
+          EnumField(SimpleID("Y"), 2)),
         Some("/**\n * Docstring!\n */")
       )
     }
@@ -120,7 +118,7 @@ enum Foo
     "senum" in {
       // wtf is senum?!
       parser.parse("senum Cities { 'Milpitas', 'Mayfield' }", parser.definition) mustEqual
-        Senum("Cities", Seq("Milpitas", "Mayfield"))
+        Senum(SimpleID("Cities"), Seq("Milpitas", "Mayfield"))
     }
 
     "struct" in {
@@ -133,25 +131,25 @@ enum Foo
           3: Color color = BLUE
         }
                  """
-      parser.parse(code, parser.definition) mustEqual Struct("Point", Seq(
-        Field(1, "x", TDouble, None, Requiredness.Default),
-        Field(2, "y", TDouble, None, Requiredness.Default),
-        Field(3, "color", ReferenceType("Color"), Some(Identifier("BLUE")), Requiredness.Default)
+      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Point"), Seq(
+        Field(1, SimpleID("x"), TDouble, None, Requiredness.Default),
+        Field(2, SimpleID("y"), TDouble, None, Requiredness.Default),
+        Field(3, SimpleID("color"), ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
       ), Some("/** docs up here */"))
     }
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
-        Exception_("BadError", Seq(Field(1, "message", TString, None, Requiredness.Default)), None)
+        Exception_(SimpleID("BadError"), Seq(Field(1, SimpleID("message"), TString, None, Requiredness.Default)), None)
       parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
-        Exception_("E", Seq(
-          Field(-1, "message", TString, None, Requiredness.Default),
-          Field(-2, "reason", TString, None, Requiredness.Default)
+        Exception_(SimpleID("E"), Seq(
+          Field(-1, SimpleID("message"), TString, None, Requiredness.Default),
+          Field(-2, SimpleID("reason"), TString, None, Requiredness.Default)
         ), None)
       parser.parse("exception NoParams { }", parser.definition) mustEqual
-        Exception_("NoParams", Seq(), None)
+        Exception_(SimpleID("NoParams"), Seq(), None)
       parser.parse("/** doc rivers */ exception wellDocumentedException { }", parser.definition) mustEqual
-        Exception_("wellDocumentedException", Seq(), Some("/** doc rivers */"))
+        Exception_(SimpleID("wellDocumentedException"), Seq(), Some("/** doc rivers */"))
     }
 
     "service" in {
@@ -162,18 +160,18 @@ enum Foo
           binary get(1: string name) throws (1: NotFoundException ex);
         }
                  """
-      parser.parse(code, parser.definition) mustEqual Service("Cache", None, Seq(
-        Function("put", Void, Seq(
-          Field(1, "name", TString, None, Requiredness.Default),
-          Field(2, "value", TBinary, None, Requiredness.Default)
+      parser.parse(code, parser.definition) mustEqual Service(SimpleID("Cache"), None, Seq(
+        Function(SimpleID("put"), Void, Seq(
+          Field(1, SimpleID("name"), TString, None, Requiredness.Default),
+          Field(2, SimpleID("value"), TBinary, None, Requiredness.Default)
         ), Seq(), None),
-        Function("get", TBinary, Seq(
-          Field(1, "name", TString, None, Requiredness.Default)
-        ), Seq(Field(1, "ex", ReferenceType("NotFoundException"), None, Requiredness.Default)), None)
+        Function(SimpleID("get"), TBinary, Seq(
+          Field(1, SimpleID("name"), TString, None, Requiredness.Default)
+        ), Seq(Field(1, SimpleID("ex"), ReferenceType(Identifier("NotFoundException")), None, Requiredness.Default)), None)
       ), Some("/** cold hard cache */"))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
-        Service("LeechCache", Some(ServiceParent("Cache")), Seq(), None)
+        Service(SimpleID("LeechCache"), Some(ServiceParent("Cache")), Seq(), None)
     }
 
     "document" in {
@@ -188,9 +186,9 @@ enum Foo
         }
                  """
       parser.parse(code, parser.document) mustEqual Document(
-        Seq(Namespace("java", "com.example"), Namespace("*", "example")),
-        Seq(Service("NullService", None, Seq(
-          Function("doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
+        Seq(Namespace("java", Identifier("com.example")), Namespace("*", Identifier("example"))),
+        Seq(Service(SimpleID("NullService"), None, Seq(
+          Function(SimpleID("doNothing"), Void, Seq(), Seq(), Some("/** DoC */"))
         ), Some("/** what up doc */")))
       )
     }
