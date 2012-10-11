@@ -67,7 +67,13 @@ case class DirImporter(dir: File) extends Importer {
   private[scrooge] def canonicalPaths = Seq(dir.getCanonicalPath) // for test
 
   private[this] def resolve(filename: String): Option[(File, Importer)] = {
-    val file = new File(dir, filename)
+    val file = {
+      val file = new File(filename)
+      if (file.isAbsolute)
+        file
+      else
+        new File(dir, filename)
+    }
     if (file.canRead) {
       // if the file does not exactly locate in dir, we need to add a new relative path
       val importer =
