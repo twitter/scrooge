@@ -179,8 +179,9 @@ class ThriftParser(importer: Importer) extends RegexParsers {
 
   // fields
 
-  def field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~ (fieldType ~ simpleID) ~
-    (opt("=" ~> rhs) <~ opt(listSeparator)) ^^ {
+  def field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~
+    (fieldType ~ (opt(annotationGroup) ~> simpleID)) ~
+    (opt("=" ~> rhs) <~ opt(annotationGroup) <~ opt(listSeparator)) ^^ {
     case (fid ~ req) ~ (ftype ~ sid) ~ value => {
       val transformedVal = ftype match {
         case TBool => value map {
@@ -235,7 +236,7 @@ class ThriftParser(importer: Importer) extends RegexParsers {
     case comment ~ ftype ~ sid ~ const ~ _ => ConstDefinition(sid, ftype, const, comment)
   }
 
-  def typedef = (opt(comments) ~ "typedef") ~> fieldType ~ simpleID ^^ {
+  def typedef = (opt(comments) ~ "typedef") ~> fieldType ~ (opt(annotationGroup) ~> simpleID) ^^ {
     case dtype ~ sid => Typedef(sid, dtype)
   }
 
@@ -270,7 +271,7 @@ class ThriftParser(importer: Importer) extends RegexParsers {
     })
   }
 
-  def struct = (opt(comments) ~ (("struct" ~> simpleID) <~ "{")) ~ rep(field) <~ "}" ^^ {
+  def struct = (opt(comments) ~ (("struct" ~> simpleID) <~ "{")) ~ rep(field) <~ "}" <~ opt(annotationGroup) ^^ {
     case comment ~ sid ~ fields => Struct(sid, fixFieldIds(fields), comment)
   }
 
@@ -323,6 +324,12 @@ class ThriftParser(importer: Importer) extends RegexParsers {
   }
 
   val docComment: Parser[String] = """(?s)/\*\*.+?\*/""".r
+
+  // annotations
+
+  def annotation = identifier ~ ("=" ~> stringLiteral)
+
+  def annotationGroup = "(" ~> repsep(annotation, ",") <~ (opt(",") ~ ")")
 
   def parse[T](in: String, parser: Parser[T]): T = {
     parseAll(parser, in) match {

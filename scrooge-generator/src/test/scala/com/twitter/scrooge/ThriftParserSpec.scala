@@ -233,5 +233,26 @@ enum Foo
       """
       parser.parse(code, parser.definition) must throwA[RepeatingEnumValueException]
     }
+
+    "ignore annotations" in {
+      parser.parse("""typedef string (dbtype="fixedchar(4)", nullable="false") AirportCode""",
+        parser.definition) mustEqual Typedef(SimpleID("AirportCode"), TString)
+
+      val code =
+        """
+          struct Airport {
+            1: optional i64 id(autoincrement="true"),
+            2: optional string(dbtype="varchar(255)") code,
+            3: optional string name
+          } (primary_key="(id)",
+             index="code_idx(code)",
+             sql_name="airports",)
+        """
+      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Airport"), Seq(
+        Field(1, SimpleID("id"), TI64, None, Requiredness.Optional),
+        Field(2, SimpleID("code"), TString, None, Requiredness.Optional),
+        Field(3, SimpleID("name"), TString, None, Requiredness.Optional)
+      ), None)
+    }
   }
 }
