@@ -35,22 +35,27 @@ object Identifier {
 
   object State extends Enumeration {
     type State = Value
-    val NextUp, NextDown, Lower, Upper = Value
+    val NextUp, NextDown, Lower, Upper, LeadIn = Value
   }
 
   // case conversion
   private[this] def toCamelCase(str: String, firstCharUp: Boolean): String = {
     import State._
 
-    var state = if (firstCharUp) NextUp else NextDown
+    var state = LeadIn
     val sb = new StringBuilder(str.length)
 
     // c should be upper only if following _ or following <lower> and is <upper>
+    // leading underscores should be preserved
     for (c <- str) {
       if (c == '_') {
-        state = NextUp
+        state match {
+          case LeadIn => sb.append('_')
+          case _ => state = NextUp
+        }
       } else {
         state match {
+          case LeadIn => sb.append(if (firstCharUp) c.toUpper else c.toLower)
           case NextUp => sb.append(c.toUpper)
           case NextDown => sb.append(c.toLower)
           case Lower => sb.append(c)
