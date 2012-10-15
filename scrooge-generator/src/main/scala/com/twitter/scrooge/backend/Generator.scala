@@ -20,6 +20,7 @@ import java.io.{FileWriter, File}
 import com.twitter.conversions.string._
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.ScroogeInternalException
 
 
@@ -33,7 +34,7 @@ case class JavaService(service: Service, options: Set[ServiceOption])
 abstract class Generator
   extends StructTemplate with ServiceTemplate with ConstsTemplate with EnumTemplate
 {
-  import com.twitter.scrooge.mustache.Dictionary._
+  import Dictionary._
 
   /******************** helper functions ************************/
   private[this] def namespacedFolder(destFolder: File, namespace: String) = {
@@ -219,6 +220,27 @@ abstract class Generator
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment
 
   def genBaseFinagleService: CodeFragment
+
+  /**
+   * Creates a sequence of dictionaries describing aliased imports.
+   */
+  protected def importsDicts(includes: Seq[Include]) = {
+    includes map { include =>
+      val id = getNamespace(include.document)
+      val prefix = include.prefix
+
+      val (parentPackage, subPackage) = id match {
+        case sid: SimpleID => (SimpleID("_root_"), sid)
+        case qid: QualifiedID => (qid.qualifier, qid.name)
+      }
+
+      Dictionary(
+        "parentpackage" -> genID(parentPackage),
+        "subpackage" -> genID(subPackage),
+        "_alias_" -> genID(prefix.prepend("_").append("_"))
+      )
+    }
+  }
 
   // main entry
   def apply(_doc: Document, serviceOptions: Set[ServiceOption], outputPath: File) {

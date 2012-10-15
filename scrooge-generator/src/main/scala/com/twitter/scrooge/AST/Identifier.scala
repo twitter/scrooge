@@ -114,5 +114,7 @@ case class QualifiedID(names: Seq[String]) extends Identifier {
 
   def head: SimpleID = SimpleID(names.head)
   def tail: Identifier = Identifier(names.tail.mkString("."))
-}
 
+  def qualifier: Identifier = Identifier(names.dropRight(1).mkString("."))
+  def name: SimpleID = SimpleID(names.last)
+}

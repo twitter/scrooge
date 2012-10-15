@@ -227,24 +227,6 @@ trait StructTemplate {
       "Product"
     }
 
-    val imports = includes map {
-      include =>
-        (getNamespace(include.document), include.prefix)
-    } map {
-      case (id, prefix) => {
-        val (parentPackage, subPackage) = id match {
-          case sid: SimpleID => (SimpleID("_root_"), sid)
-          case qid: QualifiedID => (qid.head, qid.tail)
-        }
-
-        Dictionary(
-          "parentpackage" -> genID(parentPackage.toLowerCase),
-          "subpackage" -> genID(subPackage.toLowerCase),
-          "_alias_" -> genID(prefix.prepend("_").append("_"))
-        )
-      }
-    }
-
     val exceptionMsgField: Option[SimpleID] = if (isException) exceptionMsgFieldName(struct) else None
 
     val fieldDictionaries = fieldsToDict(
@@ -254,7 +236,7 @@ trait StructTemplate {
     Dictionary(
       "public" -> v(namespace.isDefined),
       "package" -> namespace.map{ genID(_) }.getOrElse(codify("")),
-      "imports" -> v(imports),
+      "imports" -> v(importsDicts(includes)),
       "docstring" -> codify(struct.docstring.getOrElse("")),
       "parentType" -> codify(parentType),
       "fields" -> v(fieldDictionaries),

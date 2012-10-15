@@ -139,6 +139,7 @@ trait ServiceTemplate {
     Dictionary(
       "function" -> v(templates("function")),
       "package" -> genID(namespace),
+      "imports" -> v(importsDicts(includes)),
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> codify(service.docstring.getOrElse("")),
       "syncExtends" -> codify(parentID.map { id =>
