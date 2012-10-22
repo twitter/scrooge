@@ -210,7 +210,7 @@ trait StructTemplate {
     val isException = struct.isInstanceOf[Exception_]
     val parentType = if (isException) {
       if (serviceOptions contains WithFinagleClient) {
-        "SourcedException with ThriftStruct"
+        "ThriftException with SourcedException with ThriftStruct"
       } else {
         "Exception with ThriftStruct"
       }

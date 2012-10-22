@@ -8,8 +8,9 @@ import thrift.test._
 import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
-import com.twitter.scrooge.EvalHelper
+import com.twitter.scrooge.{ThriftStruct, ThriftException, EvalHelper}
 import sun.tools.java.Constants
+import com.twitter.finagle.SourcedException
 
 class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
@@ -392,6 +393,9 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
       "exception" in {
         Xception(1, "boom") must haveSuperClass[Exception]
+        Xception(1, "boom") must haveSuperClass[ThriftException]
+        Xception(1, "boom") must haveSuperClass[SourcedException]
+        Xception(1, "boom") must haveSuperClass[ThriftStruct]
         Xception(2, "kathunk").getMessage mustEqual "kathunk"
       }
 

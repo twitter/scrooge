@@ -9,7 +9,7 @@ import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
 import thrift.test._
-import com.twitter.scrooge.EvalHelper
+import com.twitter.scrooge.{ThriftException, EvalHelper}
 
 class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
@@ -184,7 +184,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
           one(impl).deliver("Boston") willReturn Future.exception(ex)
         }
 
-        client.deliver("Boston")() must throwA(ex)
+        client.deliver("Boston")() must throwA[ThriftException](ex)
       }
     }
 
