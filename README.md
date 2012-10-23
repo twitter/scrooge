@@ -226,6 +226,10 @@ Scrooge is licensed under the Apache 2 license, which you can find in the
 included file `LICENSE`.
 
 
+## Owners
+- Chunyan Song
+
+
 ## Credits / Thanks
 
 - Jorge Ortiz
@@ -233,3 +237,5 @@ included file `LICENSE`.
 - Ian Ownbey
 - Jeremy Cloud
 - Nick Kallen
+- Kevin Oliver
+- Dana Contreras

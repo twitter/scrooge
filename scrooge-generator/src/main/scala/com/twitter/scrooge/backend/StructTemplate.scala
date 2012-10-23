@@ -212,7 +212,7 @@ trait StructTemplate {
       if (serviceOptions contains WithFinagleClient) {
         "ThriftException with SourcedException with ThriftStruct"
       } else {
-        "Exception with ThriftStruct"
+        "ThriftException with ThriftStruct"
       }
     } else {
       "ThriftStruct"
