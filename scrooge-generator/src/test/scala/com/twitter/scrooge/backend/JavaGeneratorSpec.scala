@@ -15,26 +15,26 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
   "JavaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        Numberz.ONE.getValue() mustEqual 1
-        Numberz.TWO.getValue() mustEqual 2
-        Numberz.THREE.getValue() mustEqual 3
-        Numberz.FIVE.getValue() mustEqual 5
-        Numberz.SIX.getValue() mustEqual 6
-        Numberz.EIGHT.getValue() mustEqual 8
+        NumberId.ONE.getValue() mustEqual 1
+        NumberId.TWO.getValue() mustEqual 2
+        NumberId.THREE.getValue() mustEqual 3
+        NumberId.FIVE.getValue() mustEqual 5
+        NumberId.SIX.getValue() mustEqual 6
+        NumberId.EIGHT.getValue() mustEqual 8
       }
 
       "findByValue" in {
-        Numberz.findByValue(1) mustEqual Numberz.ONE
-        Numberz.findByValue(2) mustEqual Numberz.TWO
-        Numberz.findByValue(3) mustEqual Numberz.THREE
-        Numberz.findByValue(5) mustEqual Numberz.FIVE
-        Numberz.findByValue(6) mustEqual Numberz.SIX
-        Numberz.findByValue(8) mustEqual Numberz.EIGHT
+        NumberId.findByValue(1) mustEqual NumberId.ONE
+        NumberId.findByValue(2) mustEqual NumberId.TWO
+        NumberId.findByValue(3) mustEqual NumberId.THREE
+        NumberId.findByValue(5) mustEqual NumberId.FIVE
+        NumberId.findByValue(6) mustEqual NumberId.SIX
+        NumberId.findByValue(8) mustEqual NumberId.EIGHT
       }
     }
 
     "generate constants" in {
-      Constants.myNumberz mustEqual Numberz.ONE
+      Constants.myNumberID mustEqual NumberId.ONE
       Constants.name mustEqual "Columbo"
       Constants.someInt mustEqual 1
       Constants.someDouble mustEqual 3.0

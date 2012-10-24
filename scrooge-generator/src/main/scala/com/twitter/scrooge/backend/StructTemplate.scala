@@ -80,7 +80,7 @@ trait StructTemplate {
               case Some(sid) => genID(sid.append("_").prepend("_"))
               case None => codify("")
             }),
-            "fieldType" -> genID(t.sid)
+            "fieldType" -> genID(t.sid.toTitleCase)
           )))
       case t: EnumType =>
         TypeTemplate + Dictionary(
@@ -90,7 +90,7 @@ trait StructTemplate {
               case Some(sid) => genID(sid.append("_").prepend("_"))
               case None => codify("")
             }),
-            "fieldType" -> genID(t.sid)
+            "fieldType" -> genID(t.sid.toTitleCase)
           )))
       case t: BaseType =>
         TypeTemplate + Dictionary(

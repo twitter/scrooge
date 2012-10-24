@@ -20,46 +20,46 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
   "ScalaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        Numberz.One.value mustEqual 1
-        Numberz.Two.value mustEqual 2
-        Numberz.Three.value mustEqual 3
-        Numberz.Five.value mustEqual 5
-        Numberz.Six.value mustEqual 6
-        Numberz.Eight.value mustEqual 8
+        NumberId.One.value mustEqual 1
+        NumberId.Two.value mustEqual 2
+        NumberId.Three.value mustEqual 3
+        NumberId.Five.value mustEqual 5
+        NumberId.Six.value mustEqual 6
+        NumberId.Eight.value mustEqual 8
       }
 
       "apply" in {
-        Numberz(1) mustEqual Numberz.One
-        Numberz(2) mustEqual Numberz.Two
-        Numberz(3) mustEqual Numberz.Three
-        Numberz(5) mustEqual Numberz.Five
-        Numberz(6) mustEqual Numberz.Six
-        Numberz(8) mustEqual Numberz.Eight
+        NumberId(1) mustEqual NumberId.One
+        NumberId(2) mustEqual NumberId.Two
+        NumberId(3) mustEqual NumberId.Three
+        NumberId(5) mustEqual NumberId.Five
+        NumberId(6) mustEqual NumberId.Six
+        NumberId(8) mustEqual NumberId.Eight
       }
 
       "get" in {
-        Numberz.get(1) must beSome(Numberz.One)
-        Numberz.get(2) must beSome(Numberz.Two)
-        Numberz.get(3) must beSome(Numberz.Three)
-        Numberz.get(5) must beSome(Numberz.Five)
-        Numberz.get(6) must beSome(Numberz.Six)
-        Numberz.get(8) must beSome(Numberz.Eight)
-        Numberz.get(10) must beNone
+        NumberId.get(1) must beSome(NumberId.One)
+        NumberId.get(2) must beSome(NumberId.Two)
+        NumberId.get(3) must beSome(NumberId.Three)
+        NumberId.get(5) must beSome(NumberId.Five)
+        NumberId.get(6) must beSome(NumberId.Six)
+        NumberId.get(8) must beSome(NumberId.Eight)
+        NumberId.get(10) must beNone
       }
 
       "valueOf" in {
-        Numberz.valueOf("One") must beSome(Numberz.One)
-        Numberz.valueOf("Two") must beSome(Numberz.Two)
-        Numberz.valueOf("Three") must beSome(Numberz.Three)
-        Numberz.valueOf("Five") must beSome(Numberz.Five)
-        Numberz.valueOf("Six") must beSome(Numberz.Six)
-        Numberz.valueOf("Eight") must beSome(Numberz.Eight)
-        Numberz.valueOf("Ten") must beNone
+        NumberId.valueOf("One") must beSome(NumberId.One)
+        NumberId.valueOf("Two") must beSome(NumberId.Two)
+        NumberId.valueOf("Three") must beSome(NumberId.Three)
+        NumberId.valueOf("Five") must beSome(NumberId.Five)
+        NumberId.valueOf("Six") must beSome(NumberId.Six)
+        NumberId.valueOf("Eight") must beSome(NumberId.Eight)
+        NumberId.valueOf("Ten") must beNone
       }
     }
 
     "generate constants" in {
-      thrift.test.Constants.myNumberz mustEqual Numberz.One
+      thrift.test.Constants.myNumberID mustEqual NumberId.One
       thrift.test.Constants.name mustEqual "Columbo"
       thrift.test.Constants.someInt mustEqual 1
       thrift.test.Constants.someDouble mustEqual 3.0

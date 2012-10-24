@@ -185,7 +185,7 @@ class JavaGenerator extends Generator {
       case MapType(k, v, _) => "Map<" + genType(k).toData + ", " + genType(v).toData + ">"
       case SetType(x, _) => "Set<" + genType(x).toData + ">"
       case ListType(x, _) => "List<" + genType(x).toData + ">"
-      case n: NamedType => n.sid.name // todo CSL-272: shouldn't this be fully qualified?
+      case n: NamedType => n.sid.toTitleCase.name // todo CSL-272: shouldn't this be fully qualified?
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }

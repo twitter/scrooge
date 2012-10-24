@@ -104,7 +104,7 @@ abstract class Generator
       case c@ListRHS(_) => genList(c, mutable)
       case c@SetRHS(_) => genSet(c, mutable)
       case c@MapRHS(_) => genMap(c, mutable)
-      case EnumRHS(enum, value) => genID(value.sid.addScope(enum.sid))
+      case EnumRHS(enum, value) => genID(value.sid.addScope(enum.sid.toTitleCase))
       case iv@IdRHS(id) => genID(id)
     }
   }

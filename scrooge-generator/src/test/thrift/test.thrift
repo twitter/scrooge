@@ -41,7 +41,7 @@ namespace * thrift.test
 /**
  * Docstring!
  */
-enum Numberz
+enum NumberID
 {
   ONE = 1,
   TWO,
@@ -51,7 +51,7 @@ enum Numberz
   EIGHT = 8
 }
 
-const Numberz myNumberz = Numberz.ONE;
+const NumberID myNumberID = NumberID.ONE;
 const string name = "Columbo";
 /**
  I AM A DOC
@@ -156,7 +156,7 @@ struct OneOfEach {
   5: i64 j
   6: double d
   7: string str
-  8: Numberz e
+  8: NumberID e
   9: Misc ref
   10: list<i32> i_list
   11: set<i32> i_set
@@ -171,7 +171,7 @@ struct OneOfEachWithDefault {
   5: i64 j = 1
   6: double d = 1.0
   7: string str = "yo"
-  8: Numberz e = Numberz.ONE
+  8: NumberID e = NumberID.ONE
   10: list<i32> i_list = [1]
   11: set<i32> i_set = [1]
   12: map<i32, i32> i_map = {1: 1}
@@ -185,7 +185,7 @@ struct OneOfEachOptional {
   5: optional i64 j
   6: optional double d
   7: optional string str
-  8: optional Numberz e
+  8: optional NumberID e
   9: optional Misc ref
   10: optional list<i32> i_list
   11: optional set<i32> i_set
@@ -200,7 +200,7 @@ struct OneOfEachOptionalWithDefault {
   5: optional i64 j = 1
   6: optional double d = 1.0
   7: optional string str = "yo"
-  8: optional Numberz e = Numberz.ONE
+  8: optional NumberID e = NumberID.ONE
   10: optional list<i32> i_list = [1]
   11: optional set<i32> i_set = [1]
   12: optional map<i32, i32> i_map = {1: 1}
@@ -243,7 +243,7 @@ struct Xtruct3
 
 struct Insanity
 {
-  1: map<Numberz, UserId> userMap,
+  1: map<NumberID, UserId> userMap,
   2: list<Xtruct> xtructs
 }
 
@@ -314,7 +314,7 @@ service ThriftTest
   map<i32,i32> testMap(1: map<i32,i32> thing),
   set<i32>     testSet(1: set<i32> thing),
   list<i32>    testList(1: list<i32> thing),
-  Numberz      testEnum(1: Numberz thing),
+  NumberID      testEnum(1: NumberID thing),
   UserId       testTypedef(1: UserId thing),
 
   /** double doc comments don't cause problems, right? */
@@ -323,7 +323,7 @@ service ThriftTest
   map<i32,map<i32,i32>> testMapMap(1: i32 hello),
 
   /* So you think you've got this all worked, out eh? */
-  map<UserId, map<Numberz,Insanity>> testInsanity(1: Insanity argument),
+  map<UserId, map<NumberID,Insanity>> testInsanity(1: Insanity argument),
 
   /* Multiple parameters */
   Xtruct testMulti(
@@ -332,7 +332,7 @@ service ThriftTest
     2: i32 arg1,
     3: i64 arg2,
     4: map<i16, string> arg3,
-    5: Numberz arg4,
+    5: NumberID arg4,
     6: UserId arg5
   ),
 

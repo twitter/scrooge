@@ -188,7 +188,7 @@ class ScalaGenerator extends Generator {
           case Some(scope) => n.sid.addScope(scope.append("_").prepend("_"))
           case None => n.sid
         }
-        genID(id).toData
+        genID(id.toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
