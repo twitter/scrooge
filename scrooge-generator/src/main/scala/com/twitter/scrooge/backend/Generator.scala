@@ -71,6 +71,11 @@ abstract class Generator
    */
   def toMutable(f: Field): (String, String)
 
+  /**
+   * get the ID of a service parent.  Java and Scala implementations are different.
+   */
+  def getServiceParentID(parent: ServiceParent): Identifier
+
   def isPrimitive(t: FunctionType): Boolean = {
     t match {
       case Void | TBool | TByte | TI16 | TI32 | TI64 | TDouble => true

@@ -61,12 +61,11 @@ trait ServiceTemplate {
   }
 
   def finagleClient(s: Service) = {
-    val parentName = s.parent.flatMap(_.service).map(_.sid.name)
     Dictionary(
-      "hasParent" -> v(parentName.nonEmpty),
-      "parent" -> codify(parentName map {
-        _ + ".FinagledClient"
-      } getOrElse ""),
+      "hasParent" -> v(s.parent.isDefined),
+      "finagleClientParent" -> s.parent.map { p =>
+        genID(SimpleID("FinagledClient").addScope(getServiceParentID(p)))
+      }.getOrElse {codify("")},
       "functions" -> v(s.functions.map {
         f =>
           Dictionary(
@@ -93,12 +92,13 @@ trait ServiceTemplate {
   }
 
   def finagleService(s: Service) = {
-    val parentID = s.parent.flatMap(_.service).map(_.sid)
     Dictionary(
-      "hasParent" -> v(parentID.nonEmpty),
-      "parent" -> parentID.map { id =>
-        codify(genID(id).toData + ".FinagledService")
-      }.getOrElse(genBaseFinagleService),
+      "hasParent" -> v(s.parent.isDefined),
+      "finagleServiceParent" -> {s.parent match {
+        case Some(p) =>
+          genID(SimpleID("FinagledService").addScope(getServiceParentID(p)))
+        case None => genBaseFinagleService
+      }},
       "function" -> v(templates("finagleServiceFunction")),
       "functions" -> v(s.functions map {
         f =>
@@ -135,18 +135,17 @@ trait ServiceTemplate {
   ) = {
     val service = s.service
 
-    val parentID = service.parent.flatMap(_.service).map(_.sid)
     Dictionary(
       "function" -> v(templates("function")),
       "package" -> genID(namespace),
       "imports" -> v(importsDicts(includes)),
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> codify(service.docstring.getOrElse("")),
-      "syncExtends" -> codify(parentID.map { id =>
-        "extends " + genID(id).toData + ".Iface "
-      }.getOrElse("")),
-      "asyncExtends" -> codify(parentID.map { id =>
-        "extends " + genID(id) + ".FutureIface "
+      "syncExtends" -> codify(service.parent.map { p =>
+          "extends " + genID(getServiceParentID(p)) + ".Iface "
+        }.getOrElse("")),
+      "asyncExtends" -> codify(service.parent.map { p =>
+        "extends " + genID(getServiceParentID(p)) + ".FutureIface "
       }.getOrElse("")),
       "syncFunctions" -> v(service.functions.map {
         f => toDictionary(f, false)

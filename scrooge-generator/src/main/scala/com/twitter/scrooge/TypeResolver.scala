@@ -31,36 +31,31 @@ class EntityResolver[T](
   includeMap: Map[String, ResolvedDocument],
   next: TypeResolver => EntityResolver[T])
 {
-  def apply(fullname: String): T = Identifier(fullname) match {
-    case sid: SimpleID => apply(sid)
-    case qid: QualifiedID => apply(qid)
-  }
-
-  def apply(sid: SimpleID): T =
-    typeMap.get(sid.name).getOrElse {
-      throw new TypeNotFoundException(sid.name)
-    }
-
-  def apply(qid: QualifiedID): T = {
-    // todo CSL-272:
-    // qid can be:
-    //   - includeName.constName
-    //   - enumName.fieldName
-    //   - includeName.enumName.fieldName?
-    // I don't think the latter two cases will work.
-    val (root, rest) = (qid.names.head, qid.names.tail.mkString("."))
-    val include = includeMap.get(root).getOrElse(throw new UndefinedSymbolException(rest))
-    try {
-      next(include.resolver)(rest) match {
-        case st: StructType => st.copy(scopePrefix = Some(SimpleID(root))).asInstanceOf[T]
-        case et: EnumType => et.copy(scopePrefix = Some(SimpleID(root))).asInstanceOf[T]
-        case t => t
+  def apply(id: Identifier): T = id match {
+    case SimpleID(name) =>
+      typeMap.get(name).getOrElse {
+        throw new TypeNotFoundException(name)
       }
-    } catch {
-      case ex: TypeNotFoundException =>
-        // don't lose context
-        throw new TypeNotFoundException(qid.fullName)
-    }
+    case qid: QualifiedID =>
+      // todo CSL-272:
+      // qid can be:
+      //   - includeName.constName
+      //   - enumName.fieldName
+      //   - includeName.enumName.fieldName?
+      // I don't think the latter two cases will work.
+      val (root, rest) = (qid.names.head, qid.names.tail.mkString("."))
+      val include = includeMap.get(root).getOrElse(throw new UndefinedSymbolException(rest))
+      try {
+        next(include.resolver)(Identifier(rest)) match {
+          case st: StructType => st.copy(scopePrefix = Some(SimpleID(root))).asInstanceOf[T]
+          case et: EnumType => et.copy(scopePrefix = Some(SimpleID(root))).asInstanceOf[T]
+          case t => t
+        }
+      } catch {
+        case ex: TypeNotFoundException =>
+          // don't lose context
+          throw new TypeNotFoundException(qid.fullName)
+      }
   }
 }
 
@@ -232,7 +227,7 @@ case class TypeResolver(
               // id is scopeName.enumName.valueName
               // todo CSL-272: is it possible to have nested scopes? eg: scope1.scope2.enumName.valueName
               val enumNameWithScope = QualifiedID(names.dropRight(1)).fullName
-              if (fieldTypeResolver(enumNameWithScope) != fieldType)
+              if (fieldTypeResolver(Identifier(enumNameWithScope)) != fieldType)
                 throw new UndefinedSymbolException(enumNameWithScope)
               else names.last
             }
@@ -241,7 +236,7 @@ case class TypeResolver(
               case Some(value) => EnumRHS(enum, value)
             }
           case t: BaseType =>
-            val const = constResolver(qid.fullName)
+            val const = constResolver(qid)
             if (const.fieldType != fieldType) throw new UndefinedSymbolException(qid.fullName)
             else const.value
           case _ => throw new UndefinedSymbolException(qid.fullName)
@@ -251,7 +246,11 @@ case class TypeResolver(
   }
 
   def apply(parent: ServiceParent): ServiceParent = {
-    parent.copy(service = Some(serviceResolver(parent.name)))
+    val parentID = parent.prefix match {
+      case Some(p) => parent.sid.addScope(p)
+      case None => parent.sid
+    }
+    parent.copy(service = Some(serviceResolver(parentID)))
   }
 
   def apply(id: Identifier): FieldType = id match {

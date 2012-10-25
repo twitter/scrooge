@@ -3,7 +3,7 @@
 class FinagledService(
   iface: FutureIface,
   protocolFactory: TProtocolFactory
-) extends {{parent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}} {
+) extends {{finagleServiceParent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}} {
 {{^hasParent}}
   // ----- boilerplate that should eventually be moved into finagle:
 

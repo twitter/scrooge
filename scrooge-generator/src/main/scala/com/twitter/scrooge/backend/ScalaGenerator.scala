@@ -44,6 +44,15 @@ class ScalaGenerator extends Generator {
   def getNamespace(doc: Document): Identifier =
     doc.namespace("scala") orElse doc.namespace("java") getOrElse (SimpleID("thrift"))
 
+  /**
+   * Get ID of service parent. If prefix is defined, it needs to be aliased, eg: "_prefix_"
+   */
+  def getServiceParentID(parent: ServiceParent): Identifier = {
+    parent.prefix match {
+      case Some(prefix) => parent.sid.addScope(prefix.append("_").prepend("_"))
+      case None => parent.sid
+    }
+  }
   def normalizeCase[N <: Node](node: N) = {
     (node match {
       case d: Document =>

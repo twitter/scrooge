@@ -279,12 +279,16 @@ class ThriftParser(importer: Importer) extends RegexParsers {
     case comment ~ sid ~ fields => Exception_(sid, fixFieldIds(fields.getOrElse(Nil)), comment)
   }
 
-  def service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> identifier) ~ ("{" ~> rep(function) <~
+  def service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> serviceParentID) ~ ("{" ~> rep(function) <~
     "}") ^^ {
     case comment ~ sid ~ extend ~ functions =>
-      Service(sid, extend.map {
-        id => ServiceParent(id.fullName)
-      }, functions, comment)
+      Service(sid, extend, functions, comment)
+  }
+
+  def serviceParentID = opt(simpleID <~ ".") ~ simpleID ^^ {
+    case prefix ~ sid => {
+      ServiceParent(sid, prefix)
+    }
   }
 
   // document

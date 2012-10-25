@@ -55,8 +55,7 @@ case class Service(
   docstring: Option[String]
 ) extends Definition
 
-object ServiceParent {
-  def apply(service: Service): ServiceParent = ServiceParent(service.sid.name, Some(service))
-}
-
-case class ServiceParent(name: String, service: Option[Service] = None)
+case class ServiceParent(
+  sid: SimpleID,
+  prefix: Option[SimpleID],
+  service: Option[Service] = None)

@@ -47,6 +47,15 @@ class JavaGenerator extends Generator {
   def getNamespace(doc: Document): Identifier =
     doc.namespace("java") getOrElse (SimpleID("thrift"))
 
+  /**
+   * get the ID of service parent.
+   */
+  // todo (csl-301): currently we just use the service's SimpleID, because
+  // in the Java code it imports everything in the namespace that the service is defined in
+  // This will be a problem if there are multiple such imported services that share the same
+  // name, in which case we need to fully qualify the service name.
+  def getServiceParentID(parent: ServiceParent): Identifier = parent.sid
+
   def normalizeCase[N <: Node](node: N) = {
     (node match {
       case d: Document =>

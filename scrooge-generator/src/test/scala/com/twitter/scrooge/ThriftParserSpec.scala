@@ -171,7 +171,11 @@ enum Foo
       ), Some("/** cold hard cache */"))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
-        Service(SimpleID("LeechCache"), Some(ServiceParent("Cache")), Seq(), None)
+        Service(
+          SimpleID("LeechCache"),
+          Some(ServiceParent(SimpleID("Cache"), None)),
+          Seq(),
+          None)
     }
 
     "document" in {

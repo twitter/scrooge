@@ -116,18 +116,34 @@ class TypeResolverSpec extends SpecificationWithJUnit {
 
     "resolve a service parent from same scope" in {
       val service1 = Service(SimpleID("Super"), None, Nil, None)
-      val service2 = Service(SimpleID("Sub"), Some(ServiceParent("Super")), Nil, None)
+      val service2 = Service(
+        SimpleID("Sub"),
+        Some(ServiceParent(SimpleID("Super"), None)),
+        Nil,
+        None)
       val resolver = TypeResolver().withMapping(service1)
-      resolver(service2, None).definition mustEqual service2.copy(parent = Some(ServiceParent(service1)))
+      resolver(service2, None).definition mustEqual service2.copy(parent =
+        Some(ServiceParent(
+          service1.sid,
+          None,
+          Some(service1))))
     }
 
     "resolve a service parent from an included scope" in {
       val service1 = Service(SimpleID("Super"), None, Nil, None)
       val otherDoc = Document(Nil, Seq(service1))
       val include = Include("other.thrift", otherDoc)
-      val service2 = Service(SimpleID("Sub"), Some(ServiceParent("other.Super")), Nil, None)
+      val service2 = Service(
+        SimpleID("Sub"),
+        Some(ServiceParent(SimpleID("Super"), Some(SimpleID("other")))),
+        Nil,
+        None)
       val resolver = TypeResolver().withMapping(include)
-      resolver(service2, None).definition mustEqual service2.copy(parent = Some(ServiceParent("other.Super", Some(service1))))
+      resolver(service2, None).definition mustEqual
+        service2.copy(parent = Some(ServiceParent(
+          SimpleID("Super"),
+          Some(SimpleID("other")),
+          Some(service1))))
     }
 
     "resolve a typedef from an included scope" in {

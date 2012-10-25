@@ -1,5 +1,5 @@
 {{docstring}}
-public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}} implements FutureIface {
+public static class FinagledClient{{#hasParent}} extends {{finagleClientParent}}{{/hasParent}} implements FutureIface {
   private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
   private String serviceName;
   private TProtocolFactory protocolFactory /* new TBinaryProtocol.Factory */;
@@ -68,9 +68,9 @@ public static class FinagledClient{{#hasParent}} extends {{parent}}{{/hasParent}
     );
   }
 
-  class __Stats {
-    Counter requestsCounter, successCounter, failuresCounter;
-    StatsReceiver failuresScope;
+  protected class __Stats {
+    public Counter requestsCounter, successCounter, failuresCounter;
+    public StatsReceiver failuresScope;
 
     public __Stats(String name) {
       StatsReceiver scope = FinagledClient.this.scopedStats.scope(name);

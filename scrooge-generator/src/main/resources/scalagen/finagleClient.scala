@@ -4,7 +4,7 @@ class FinagledClient(
   protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
   serviceName: String = "",
   stats: StatsReceiver = NullStatsReceiver
-) extends {{#hasParent}}{{parent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}FutureIface {
+) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}FutureIface {
 {{^hasParent}}
   // ----- boilerplate that should eventually be moved into finagle:
 

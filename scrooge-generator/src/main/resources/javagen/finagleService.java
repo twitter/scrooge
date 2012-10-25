@@ -1,5 +1,5 @@
 {{docstring}}
-public static class FinagledService extends {{parent}} {
+public static class FinagledService extends {{finagleServiceParent}} {
   final private FutureIface iface;
   final private TProtocolFactory protocolFactory;
 
