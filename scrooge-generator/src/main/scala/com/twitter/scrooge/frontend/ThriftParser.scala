@@ -18,11 +18,10 @@ package com.twitter.scrooge.frontend
 
 import scala.collection.mutable
 import scala.util.parsing.combinator._
-import com.twitter.scrooge.{ParseException, DuplicateFieldIdException, NegativeFieldIdException,
-OnewayNotSupportedException, RepeatingEnumValueException}
+import com.twitter.scrooge._
 import java.io.FileNotFoundException
 
-class ThriftParser(importer: Importer) extends RegexParsers {
+class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
 
   import com.twitter.scrooge.ast._
 
@@ -74,7 +73,7 @@ class ThriftParser(importer: Importer) extends RegexParsers {
   /**
    * The places where both SimpleIDs and QualifiedIDs are allowed, in which case
    * we use Identifier:
-   *   - right hand side of an assignmnet
+   *   - right hand side of an assignment
    *   - namespace declaration
    * For all other places, only SimpleIDs are allowed. Specifically
    *   - right hand side of an assignment.
@@ -213,7 +212,7 @@ class ThriftParser(importer: Importer) extends RegexParsers {
   def function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(field) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ {
     case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
-      if (oneway.isDefined) throw new OnewayNotSupportedException(id.fullName)
+      if (oneway.isDefined) failOrWarn(new OnewayNotSupportedException(id.fullName))
 
       Function(
         id,
@@ -348,7 +347,15 @@ class ThriftParser(importer: Importer) extends RegexParsers {
       throw new FileNotFoundException(filename)
     }
 
-    val newParser = new ThriftParser(contents.importer)
+    val newParser = new ThriftParser(contents.importer, this.strict)
     newParser.parse(contents.data, newParser.document)
+  }
+
+  // helper functions
+  def failOrWarn(ex: ParseWarning) {
+    if (strict)
+      throw ex
+    else
+      println("Warning: " + ex.getMessage)
   }
 }

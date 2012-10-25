@@ -30,6 +30,7 @@ object Main {
   val flags = new mutable.HashSet[ServiceOption]
   val namespaceMappings = new mutable.HashMap[String, String]
   var verbose = false
+  var strict = true
   var skipUnchanged = false
   var generator: Generator = new ScalaGenerator
 
@@ -62,6 +63,7 @@ object Main {
         }
         ()
       })
+      opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting", { strict = false; () })
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
       opt("l", "language", "name of language to generate code in ('java' and 'scala' are currently supported)", { languageString: String =>
         languageString match {
@@ -87,7 +89,7 @@ object Main {
 
     for (inputFile <- thriftFiles) {
       val importer = Importer(new File(".")) +: Importer(importPaths)
-      val parser = new ThriftParser(importer)
+      val parser = new ThriftParser(importer, strict)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))

@@ -6,7 +6,7 @@ import com.twitter.scrooge.{RepeatingEnumValueException, DuplicateFieldIdExcepti
 
 class ThriftParserSpec extends SpecificationWithJUnit {
   "ThriftParser" should {
-    val parser = new ThriftParser(NullImporter)
+    val parser = new ThriftParser(NullImporter, true)
 
     "comments" in {
       parser.parse("  300  ", parser.rhs) mustEqual IntLiteral(300)
@@ -201,6 +201,14 @@ enum Foo
     "reject oneway modifier" in {
       parser.parse("/**one-way-docs*/ oneway i32 double(1: i32 n)", parser.function) must
         throwA[OnewayNotSupportedException]
+    }
+
+    "ignore oneway modifier with strict mode off" in {
+      val parserNonStrict = new ThriftParser(NullImporter, false)
+      parserNonStrict.parse("/**one-way-docs*/ oneway i32 double(1: i32 n)", parserNonStrict.function) mustEqual
+        Function(SimpleID("double"), TI32, Seq(
+          Field(1, SimpleID("n"), TI32)
+        ), Seq(), Some("/**one-way-docs*/"))
     }
 
     "reject negative field ids" in {
