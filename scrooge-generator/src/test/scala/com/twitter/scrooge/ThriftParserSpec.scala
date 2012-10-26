@@ -2,7 +2,7 @@ package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast._
 import org.specs.SpecificationWithJUnit
-import com.twitter.scrooge.{RepeatingEnumValueException, DuplicateFieldIdException, NegativeFieldIdException, OnewayNotSupportedException}
+import com.twitter.scrooge._
 
 class ThriftParserSpec extends SpecificationWithJUnit {
   "ThriftParser" should {
@@ -136,6 +136,49 @@ enum Foo
         Field(2, SimpleID("y"), TDouble, None, Requiredness.Default),
         Field(3, SimpleID("color"), ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
       ), Some("/** docs up here */"))
+    }
+
+    "union" in {
+      "basic" in {
+        val code = """
+          /** docs up here */
+          union Aircraft {
+            1: Airplane a
+            /** comments*/
+            2: Rotorcraft r
+            3: Glider g
+            4: LighterThanAir lta
+          }
+                   """
+        parser.parse(code, parser.definition) mustEqual Union(SimpleID("Aircraft"), Seq(
+          Field(1, SimpleID("a"), ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
+          Field(2, SimpleID("r"), ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
+          Field(3, SimpleID("g"), ReferenceType(Identifier("Glider")), None, Requiredness.Default),
+          Field(4, SimpleID("lta"), ReferenceType(Identifier("LighterThanAir")), None, Requiredness.Default)
+        ), Some("/** docs up here */"))
+      }
+
+      "requiredness" in {
+        parser.parse("union Aircraft { 1: required Airplane a }", parser.definition) must
+          throwA[UnionFieldRequiredException]
+        parser.parse("union Aircraft { 1: optional Airplane a }", parser.definition) must
+          throwA[UnionFieldOptionalException]
+
+        val laxParser = new ThriftParser(NullImporter, false)
+        val code = """
+          union Aircraft {
+            1: required Airplane a
+            2: optional Rotorcraft r
+            3: Glider g
+          }
+                   """
+
+        laxParser.parse(code, laxParser.definition) mustEqual Union(SimpleID("Aircraft"), Seq(
+          Field(1, SimpleID("a"), ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
+          Field(2, SimpleID("r"), ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
+          Field(3, SimpleID("g"), ReferenceType(Identifier("Glider")), None, Requiredness.Default)
+        ), None)
+      }
     }
 
     "exception" in {

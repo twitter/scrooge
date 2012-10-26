@@ -3,8 +3,9 @@ case {{id}}: /* {{fieldName}} */
     case TType.{{constType}}:
       {{fieldType}} {{valueVariableName}};
       {{>readValue}}
-      {{fieldName}} = {{valueVariableName}};
+      result = new{{FieldName}}({{valueVariableName}});
       break;
     default:
       TProtocolUtil.skip(_iprot, _field.type);
   }
+  break;

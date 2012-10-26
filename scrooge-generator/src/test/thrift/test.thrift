@@ -254,6 +254,12 @@ struct CrazyNesting {
   4: binary binary_field
 }
 
+union MorePerfectUnion {
+  1: Bonk bonk
+  2: Bools bools
+  3: Xtruct xtruct
+}
+
 exception EmptyXception { }
 
 exception Xception {
@@ -342,7 +348,11 @@ service ThriftTest
 
   /* Multiple exceptions specifier */
 
-  Xtruct testMultiException(1: string arg0, 2: string arg1) throws(1: Xception err1, 2: Xception2 err2)
+  Xtruct testMultiException(1: string arg0, 2: string arg1) throws(1: Xception err1, 2: Xception2 err2),
+
+  /* Unions */
+
+  MorePerfectUnion testUnions(1: MorePerfectUnion arg0)
 }
 
 struct VersioningTestV1 {

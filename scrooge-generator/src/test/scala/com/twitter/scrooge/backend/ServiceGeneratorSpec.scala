@@ -82,6 +82,70 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       SimpleService.DeliverResult(Some(24)).write(protocol) mustEqual ()
     }
 
+    "generate unions for args and return value" in {
+      expect {
+        startRead(protocol, new TField("arg0", TType.STRUCT, 1))
+        startRead(protocol, new TField("bools", TType.STRUCT, 2))
+        startRead(protocol, new TField("im_true", TType.BOOL, 1))
+        one(protocol).readBool() willReturn true
+        nextRead(protocol, new TField("im_false", TType.BOOL, 2))
+        one(protocol).readBool() willReturn false
+        endRead(protocol)
+        endRead(protocol)
+        endRead(protocol)
+      }
+
+      ThriftTest.TestUnionsArgs(protocol).arg0 mustEqual
+        MorePerfectUnion.Bools(Bools(true, false))
+
+      expect {
+        startWrite(protocol, new TField("arg0", TType.STRUCT, 1))
+        startWrite(protocol, new TField("bonk", TType.STRUCT, 1))
+        startWrite(protocol, new TField("message", TType.STRING, 1))
+        one(protocol).writeString("hello world")
+        nextWrite(protocol, new TField("type", TType.I32, 2))
+        one(protocol).writeI32(42)
+        endWrite(protocol)
+        endWrite(protocol)
+        endWrite(protocol)
+      }
+
+      ThriftTest.TestUnionsArgs(
+        MorePerfectUnion.Bonk(Bonk("hello world", 42))
+      ).write(protocol) mustEqual ()
+
+      expect {
+        startRead(protocol, new TField("success", TType.STRUCT, 0))
+        startRead(protocol, new TField("bools", TType.STRUCT, 2))
+        startRead(protocol, new TField("im_true", TType.BOOL, 1))
+        one(protocol).readBool() willReturn true
+        nextRead(protocol, new TField("im_false", TType.BOOL, 2))
+        one(protocol).readBool() willReturn false
+        endRead(protocol)
+        endRead(protocol)
+        endRead(protocol)
+      }
+
+      ThriftTest.TestUnionsResult(protocol).success mustEqual
+        Some(MorePerfectUnion.Bools(Bools(true, false)))
+
+      expect {
+        startWrite(protocol, new TField("success", TType.STRUCT, 0))
+        startWrite(protocol, new TField("bonk", TType.STRUCT, 1))
+        startWrite(protocol, new TField("message", TType.STRING, 1))
+        one(protocol).writeString("hello world")
+        nextWrite(protocol, new TField("type", TType.I32, 2))
+        one(protocol).writeI32(42)
+        endWrite(protocol)
+        endWrite(protocol)
+        endWrite(protocol)
+      }
+
+      ThriftTest.TestUnionsResult(
+        Some(MorePerfectUnion.Bonk(Bonk("hello world", 42)))
+      ).write(protocol) mustEqual ()
+    }
+
     "generate exception return values" in {
       expect {
         startRead(protocol, new TField("ex", TType.STRUCT, 1))

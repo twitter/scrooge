@@ -404,5 +404,119 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
         }
       }
     }
+
+    "unions" in {
+      "zero fields" in {
+        "read" in {
+          expect {
+            emptyRead(protocol)
+          }
+
+          Bird.decode(protocol) must throwA[TProtocolException]
+        }
+
+        "instantiate" in {
+          Bird.newRaptor(null) must throwA[NullPointerException]
+        }
+      }
+
+      "one field" in {
+        "read" in {
+          expect {
+            startRead(protocol, new TField("hummingbird", TType.STRING, 2))
+            one(protocol).readString() willReturn "Ruby-Throated"
+            endRead(protocol)
+          }
+
+          Bird.decode(protocol) mustEqual Bird.newHummingbird("Ruby-Throated")
+        }
+
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("owlet_nightjar", TType.STRING, 3))
+            one(protocol).writeString("foo")
+            endWrite(protocol)
+          }
+
+          Bird.newOwletNightjar("foo").write(protocol)
+        }
+      }
+
+      "more than one field" in {
+        "read" in {
+          expect {
+            startRead(protocol, new TField("hummingbird", TType.STRING, 2))
+            one(protocol).readString() willReturn "Anna's Hummingbird"
+            nextRead(protocol, new TField("owlet_nightjar", TType.STRING, 3))
+            one(protocol).readBinary() willReturn ByteBuffer.allocate(1)
+            endRead(protocol)
+          }
+
+          Bird.decode(protocol) must throwA[TProtocolException]
+        }
+
+        // no write test because it's not possible
+      }
+
+      "nested struct" in {
+        "read" in {
+          expect {
+            startRead(protocol, new TField("raptor", TType.STRUCT, 1))
+            startRead(protocol, new TField("isOwl", TType.BOOL, 1))
+            one(protocol).readBool() willReturn false
+            nextRead(protocol, new TField("species", TType.STRING, 2))
+            one(protocol).readString() willReturn "peregrine"
+            endRead(protocol)
+            endRead(protocol)
+          }
+
+          Bird.decode(protocol) mustEqual Bird.newRaptor(new Raptor(false, "peregrine"))
+        }
+
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("raptor", TType.STRUCT, 1))
+            startWrite(protocol, new TField("isOwl", TType.BOOL, 1))
+            one(protocol).writeBool(true)
+            nextWrite(protocol, new TField("species", TType.STRING, 2))
+            one(protocol).writeString("Tyto alba")
+            endWrite(protocol)
+            endWrite(protocol)
+          }
+
+          Bird.newRaptor(new Raptor(true, "Tyto alba")).write(protocol)
+        }
+      }
+
+      "collection" in {
+        "read" in {
+          expect {
+            startRead(protocol, new TField("flock", TType.LIST, 4))
+            one(protocol).readListBegin() willReturn new TList(TType.STRING, 3)
+            one(protocol).readString() willReturn "starling"
+            one(protocol).readString() willReturn "kestrel"
+            one(protocol).readString() willReturn "warbler"
+            one(protocol).readListEnd()
+            endRead(protocol)
+          }
+
+          Bird.decode(protocol) mustEqual Bird.newFlock(Utilities.makeList("starling", "kestrel", "warbler"))
+        }
+
+        "write" in {
+          expect {
+            startWrite(protocol, new TField("flock", TType.LIST, 4))
+            one(protocol).writeListBegin(equal(new TList(TType.STRING, 3)))
+            one(protocol).writeString("starling")
+            one(protocol).writeString("kestrel")
+            one(protocol).writeString("warbler")
+            one(protocol).writeListEnd()
+            endWrite(protocol)
+          }
+
+          Bird.newFlock(Utilities.makeList("starling", "kestrel", "warbler")).write(protocol)
+        }
+      }
+    }
   }
 }

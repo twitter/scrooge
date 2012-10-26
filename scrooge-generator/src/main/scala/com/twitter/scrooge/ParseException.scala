@@ -25,6 +25,20 @@ class ParseWarning(reason: String, cause: Throwable)
 class OnewayNotSupportedException(name: String)
   extends ParseWarning("oneway modifier not supported by Scrooge in function " + name)
 
+class UnionFieldRequiredException(union: String, field: String)
+  extends ParseWarning("Field " + field + " in union " + union + " cannot be required")
+
+class UnionFieldOptionalException(union: String, field: String)
+  extends ParseWarning("Field " + field + " in union " + union + " cannot be optional")
+
+object UnionFieldRequirednessException {
+  def apply(union: String, field: String, requiredness: String): ParseWarning = {
+    requiredness.toLowerCase match {
+      case "required" => new UnionFieldRequiredException(union, field)
+      case "optional" => new UnionFieldOptionalException(union, field)
+    }
+  }
+}
 
 /**
  * ScroogeInternalException indicates a Scrooge bug

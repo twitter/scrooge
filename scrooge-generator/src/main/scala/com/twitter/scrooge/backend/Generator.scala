@@ -271,10 +271,17 @@ abstract class Generator
 
     doc.structs.foreach {
       struct =>
+        val templateName =
+          struct match {
+            case _: Union => "union"
+            case _ => "struct"
+          }
+
         val file = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
         val dict = structDict(struct, Some(namespace), includes, serviceOptions)
-        writeFile(file, templates.header, templates("struct").generate(dict))
+        writeFile(file, templates.header, templates(templateName).generate(dict))
     }
+
     doc.services.foreach {
       service =>
         val file = new File(packageDir, service.sid.toTitleCase.name + fileExtension)

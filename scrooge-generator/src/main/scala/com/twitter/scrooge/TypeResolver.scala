@@ -140,6 +140,11 @@ case class TypeResolver(
       ResolvedDefinition(
         resolved,
         withMapping(sid.name, StructType(resolved, forcePrefix)))
+    case u @ Union(sid, fs, _) =>
+      val resolved = u.copy(fields = fs.map(apply))
+      ResolvedDefinition(
+        resolved,
+        withMapping(sid.name, StructType(resolved, forcePrefix)))
     case e @ Exception_(sid, fs, _) =>
       val resolved = e.copy(fields = fs.map(apply))
       ResolvedDefinition(

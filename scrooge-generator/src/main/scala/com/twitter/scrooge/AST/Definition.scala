@@ -34,6 +34,12 @@ case class Struct(
   docstring: Option[String]
 ) extends StructLike
 
+case class Union(
+  sid: SimpleID,
+  fields: Seq[Field],
+  docstring: Option[String]
+) extends StructLike
+
 case class FunctionArgs(sid: SimpleID, fields: Seq[Field]) extends StructLike {
   override val docstring: Option[String] = None
 }

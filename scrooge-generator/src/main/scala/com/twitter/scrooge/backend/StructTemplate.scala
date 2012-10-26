@@ -105,6 +105,13 @@ trait StructTemplate {
     }
   }
 
+  private def isQualified(fieldType: FieldType): Boolean = {
+    fieldType match {
+      case n: NamedType => n.scopePrefix.isDefined
+      case _ => false
+    }
+  }
+
   def fieldsToDict(fields: Seq[Field], blacklist: Seq[String]) = {
     fields.zipWithIndex map {
       case (field, index) =>
@@ -117,13 +124,18 @@ trait StructTemplate {
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> genID(field.sid),
+          "FieldName" -> genID(field.sid.toTitleCase),
+          "FIELD_NAME" -> genID(field.sid.toUpperCase),
           "gotName" -> genID(field.sid.prepend("_got_")),
           "id" -> codify(field.index.toString),
           "fieldConst" -> genID(field.sid.toTitleCase.append("Field")),
           "constType" -> genConstType(field.fieldType),
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
+          "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
+          "isQualified" -> v(isQualified(field.fieldType)),
           "primitiveFieldType" -> genPrimitiveType(field.fieldType, mutable = false),
           "fieldType" -> genType(field.fieldType, mutable = false),
+          "qualifiedFieldType" -> v(templates("qualifiedFieldType")),
           "hasDefaultValue" -> v(genDefaultFieldValue(field).isDefined),
           "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
           "defaultReadValue" -> genDefaultReadValue(field),
@@ -154,6 +166,7 @@ trait StructTemplate {
             }
           },
           "readField" -> v(templates("readField")),
+          "readUnionField" -> v(templates("readUnionField")),
           "readValue" -> v(templates("readValue")),
           "writeField" -> v(templates("writeField")),
           "writeValue" -> v(templates("writeValue")),

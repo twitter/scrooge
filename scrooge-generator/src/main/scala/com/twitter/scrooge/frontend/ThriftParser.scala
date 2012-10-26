@@ -229,7 +229,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
 
   // definitions
 
-  def definition = const | typedef | enum | senum | struct | exception | service
+  def definition = const | typedef | enum | senum | struct | union | exception | service
 
   def const = opt(comments) ~ ("const" ~> fieldType) ~ simpleID ~ ("=" ~> rhs) ~ opt(listSeparator) ^^ {
     case comment ~ ftype ~ sid ~ const ~ _ => ConstDefinition(sid, ftype, const, comment)
@@ -270,8 +270,23 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
     })
   }
 
-  def struct = (opt(comments) ~ (("struct" ~> simpleID) <~ "{")) ~ rep(field) <~ "}" <~ opt(annotationGroup) ^^ {
+  def structLike(keyword: String) =
+    (opt(comments) ~ ((keyword ~> simpleID) <~ "{")) ~ rep(field) <~ "}" <~ opt(annotationGroup)
+
+  def struct = structLike("struct") ^^ {
     case comment ~ sid ~ fields => Struct(sid, fixFieldIds(fields), comment)
+  }
+
+  def union = structLike("union") ^^ {
+    case comment ~ sid ~ fields =>
+      val fields0 = fields.map {
+        case f @ Field(_, _, _, _, r) if r == Requiredness.Default => f
+        case f @ _ =>
+          failOrWarn(UnionFieldRequirednessException(sid.name, f.sid.name, f.requiredness.toString))
+          f.copy(requiredness = Requiredness.Default)
+      }
+
+      Union(sid, fixFieldIds(fields0), comment)
   }
 
   def exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
