@@ -1,3 +1,64 @@
+3.0.1 - 10/30/2012
+===============================================================================
+Features
+* Doc comments are included in the generated code.
+* Generated exception structs now have getMessage() method
+* Generate header that emits Scrooge version
+* Fixed importing woes. You can now import a directory or a Jar/Zip file through
+  command line argument, which will be stored in a chain of paths maintained by
+  Scrooge. Then refer to a file using relative path in the thrift "include"
+  statement. Scrooge will locate the file in the path chain.
+  This also fixed the bug that couldn't resolve a symbol imported through a
+  relative path and threw an UndefinedSymbolException
+* Introduce a "strict" mode that defaults to on. Unfavored syntax throws an
+  exception when "strict" mode is on and prints a warning when it's off. The
+  strict mode can be disabled by specifying the "--disable-strict" argument.
+* The "oneway" modifier is treated as an OnewayNotSupportedException in strict
+  mode and a warning in non-strict mode.
+* Support Union types. Given:
+       union Point {
+         1: double x
+         2: double y
+         3: Color color = BLUE
+       }
+  Scrooge generates:
+       sealed trait Point
+       object Point {
+         case class X(x: Double) extends Point
+         case class Y(y: Double) extends Point
+         case class Count(color: Color = Color.Blue) extends Point
+       }
+  The "required" and "optional" modifiers in a union type will throw
+  exceptions in strict mode and print warnings in non-strict mode.
+* Fixing namespace aliasing bug.
+* Have a common trait ThriftException for all the thrift exception structs.
+* Support cross file service inheritance. Now you can do
+       include "foo.thrift"
+       service MyService extends foo.FooService { ... }
+
+Implementation
+* The project structure refactoring:
+    - frontend: Importer and ThriftParser
+    - mustache: everything related to mustache, including template parser, loader
+      and handlebar
+    - ast: Thrift AST definition
+    - backend: code generation include various generators and dictionaries to
+      hydrate Mustache templates.
+* For maintainability and easy trouble shooting in the future, define clear and
+  separate responsibilities of each components:
+    - Move ID manipulation(concatenation, case conversion, keyword rewriting etc)
+      to Generator phase.
+    - Utilizing Scala static type checking to enforce scoping correctness by
+      introducing SimpleID and QualifiedID to AST.
+    - Enforce dictionary key uniqueness for nested Mustache templates.
+* Scrooge project is now on Maven
+* Delete obsolete code and tests
+
+Dependencies:
+* Upgraded to util 5.3.13, finagle 5.3.30
+* Removed dependency on sbt
+* Add dependency on maven
+
 3.0.0 - 05/24/2012
 ===============================================================================
 * Java code generation is now supported!

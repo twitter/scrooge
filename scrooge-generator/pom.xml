@@ -44,12 +44,12 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core</artifactId>
-      <version>5.0.3</version>
+      <version>5.3.13</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-codec</artifactId>
-      <version>5.0.3</version>
+      <version>5.3.13</version>
     </dependency>
     <dependency>
       <groupId>org.scala-tools.testing</groupId>
@@ -102,19 +102,19 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core</artifactId>
-      <version>5.0.0</version>
+      <version>5.3.20</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift</artifactId>
-      <version>5.0.0</version>
+      <version>5.3.20</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-ostrich4</artifactId>
-      <version>5.0.0</version>
+      <version>5.3.20</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
