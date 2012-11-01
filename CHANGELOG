@@ -1,15 +1,13 @@
 3.0.1 - 10/30/2012
 ===============================================================================
-Features
+Features and bug fixes
 * Doc comments are included in the generated code.
 * Generated exception structs now have getMessage() method
 * Generate header that emits Scrooge version
-* Fixed importing woes. You can now import a directory or a Jar/Zip file through
-  command line argument, which will be stored in a chain of paths maintained by
-  Scrooge. Then refer to a file using relative path in the thrift "include"
-  statement. Scrooge will locate the file in the path chain.
-  This also fixed the bug that couldn't resolve a symbol imported through a
-  relative path and threw an UndefinedSymbolException
+* You can now import a directory or a Jar/Zip file through command line
+  argument, which will be stored in a chain of paths maintained by Scrooge.
+  Then refer to a file using relative path in the thrift "include" statement.
+  Scrooge will locate the file in the path chain.
 * Introduce a "strict" mode that defaults to on. Unfavored syntax throws an
   exception when "strict" mode is on and prints a warning when it's off. The
   strict mode can be disabled by specifying the "--disable-strict" argument.
@@ -30,22 +28,25 @@ Features
        }
   The "required" and "optional" modifiers in a union type will throw
   exceptions in strict mode and print warnings in non-strict mode.
-* Fixing namespace aliasing bug.
 * Have a common trait ThriftException for all the thrift exception structs.
 * Support cross file service inheritance. Now you can do
        include "foo.thrift"
        service MyService extends foo.FooService { ... }
+* Bug fix: It couldn't resolve a symbol imported through a relative path and
+  threw an UndefinedSymbolException
+* Bug fix: namespace aliasing put the parentheses in the wrong place.
+* Bug fix: services using binary fields wouldn't compile
+* Bug fix: cross-file const referencing didn't work
 
-Implementation
-* The project structure refactoring:
+Implementation updates
+* Project structure:
     - frontend: Importer and ThriftParser
     - mustache: everything related to mustache, including template parser, loader
       and handlebar
     - ast: Thrift AST definition
     - backend: code generation include various generators and dictionaries to
       hydrate Mustache templates.
-* For maintainability and easy trouble shooting in the future, define clear and
-  separate responsibilities of each components:
+* Redefine clear and separate responsibilities of each components:
     - Move ID manipulation(concatenation, case conversion, keyword rewriting etc)
       to Generator phase.
     - Utilizing Scala static type checking to enforce scoping correctness by
