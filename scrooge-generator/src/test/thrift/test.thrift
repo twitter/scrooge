@@ -305,6 +305,12 @@ service ExceptionalService {
     2: Xception2 ex2
     3: EmptyXception ex3
   )
+
+  void remove(1: i32 id) throws (
+    1: Xception ex
+    2: Xception2 ex2
+    3: EmptyXception ex3
+  )
 }
 
 service ThriftTest
