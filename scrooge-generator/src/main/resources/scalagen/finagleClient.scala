@@ -1,8 +1,8 @@
 {{docstring}}
 class FinagledClient(
-  service: FinagleService[ThriftClientRequest, Array[Byte]],
-  protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
-  serviceName: String = "",
+  {{#hasParent}}override {{/hasParent}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
+  {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+  {{#hasParent}}override {{/hasParent}}val serviceName: String = "",
   stats: StatsReceiver = NullStatsReceiver
 ) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}FutureIface {
 {{^hasParent}}
