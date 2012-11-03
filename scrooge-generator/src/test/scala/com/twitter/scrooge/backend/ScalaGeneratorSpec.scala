@@ -9,7 +9,6 @@ import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
 import com.twitter.scrooge.{ThriftStruct, ThriftException, EvalHelper}
-import sun.tools.java.Constants
 import com.twitter.finagle.SourcedException
 
 class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
@@ -26,6 +25,15 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NumberId.Five.value mustEqual 5
         NumberId.Six.value mustEqual 6
         NumberId.Eight.value mustEqual 8
+      }
+
+      "correct names" in {
+        NumberId.One.name mustEqual "One"
+        NumberId.Two.name mustEqual "Two"
+        NumberId.Three.name mustEqual "Three"
+        NumberId.Five.name mustEqual "Five"
+        NumberId.Six.name mustEqual "Six"
+        NumberId.Eight.name mustEqual "Eight"
       }
 
       "apply" in {

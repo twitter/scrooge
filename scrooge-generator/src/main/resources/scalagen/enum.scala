@@ -1,6 +1,6 @@
 package {{package}}
 
-import org.apache.thrift.TEnum
+import com.twitter.scrooge.ThriftEnum
 
 {{docstring}}
 object {{EnumName}} {
@@ -45,7 +45,5 @@ object {{EnumName}} {
 }
 
 {{docstring}}
-abstract class {{EnumName}}(val value: Int, val name: String) extends TEnum {
-  def getValue = value
-}
+abstract class {{EnumName}}(value: Int, name: String) extends ThriftEnum(value, name)
 
