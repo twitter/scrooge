@@ -1,6 +1,7 @@
 package com.twitter.scrooge
 package backend
 
+import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.specs.mock.{ClassMocker, JMocker}
@@ -30,6 +31,25 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
         NumberId.findByValue(5) mustEqual NumberId.FIVE
         NumberId.findByValue(6) mustEqual NumberId.SIX
         NumberId.findByValue(8) mustEqual NumberId.EIGHT
+      }
+
+      "java-serializable" in {
+        val bos = new ByteArrayOutputStream()
+        val out = new ObjectOutputStream(bos)
+        out.writeObject(NumberId.ONE)
+        out.writeObject(NumberId.TWO)
+        bos.close()
+        val bytes = bos.toByteArray
+
+        val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
+        var obj = in.readObject()
+        obj.isInstanceOf[NumberId] must beTrue
+        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.ONE.getValue
+        obj.asInstanceOf[NumberId].name mustEqual NumberId.ONE.name
+        obj = in.readObject()
+        obj.isInstanceOf[NumberId] must beTrue
+        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.TWO.getValue
+        obj.asInstanceOf[NumberId].name mustEqual NumberId.TWO.name
       }
     }
 

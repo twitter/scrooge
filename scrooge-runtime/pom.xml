@@ -27,11 +27,5 @@
       <artifactId>util-codec</artifactId>
       <version>5.3.13</version>
     </dependency>
-    <dependency>
-      <groupId>org.scala-tools.testing</groupId>
-      <artifactId>specs_2.9.1</artifactId>
-      <version>1.6.9</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

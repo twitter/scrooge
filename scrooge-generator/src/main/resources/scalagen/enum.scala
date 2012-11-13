@@ -3,9 +3,12 @@ package {{package}}
 import com.twitter.scrooge.ThriftEnum
 
 {{docstring}}
-object {{EnumName}} {
+case object {{EnumName}} {
 {{#values}}
-  case object {{name}} extends {{EnumName}}({{value}}, "{{name}}")
+  case object {{name}} extends {{EnumName}} {
+    val value = {{value}}
+    val name = "{{name}}"
+  }
 {{/values}}
 
   /**
@@ -44,6 +47,6 @@ object {{EnumName}} {
   }
 }
 
-{{docstring}}
-abstract class {{EnumName}}(value: Int, name: String) extends ThriftEnum(value, name)
 
+{{docstring}}
+sealed trait {{EnumName}} extends ThriftEnum with Serializable

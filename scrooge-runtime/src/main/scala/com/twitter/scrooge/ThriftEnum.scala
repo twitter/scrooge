@@ -2,6 +2,8 @@ package com.twitter.scrooge
 
 import org.apache.thrift.TEnum
 
-abstract class ThriftEnum(val value: Int, val name: String) extends TEnum {
+trait ThriftEnum extends TEnum {
+  def value: Int
+  def name: String
   def getValue = value
 }
