@@ -18,7 +18,7 @@ package com.twitter.scrooge
 
 import com.twitter.scrooge.backend._
 import com.twitter.scrooge.frontend._
-import java.io.File
+import java.io.{FileWriter, File}
 import java.util.Properties
 import scala.collection.mutable
 import scopt.OptionParser
@@ -32,6 +32,8 @@ object Main {
   var verbose = false
   var strict = true
   var skipUnchanged = false
+  var fileMapPath: Option[String] = None
+  var fileMapWriter: Option[FileWriter] = None
   var generator: Generator = new ScalaGenerator
 
   def main(args: Array[String]) {
@@ -64,6 +66,10 @@ object Main {
         ()
       })
       opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting", { strict = false; () })
+      opt(None, "gen-file-map", "<path>", "generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files", { path: String =>
+        fileMapPath = Some(path)
+        ()
+      })
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
       opt("l", "language", "name of language to generate code in ('java' and 'scala' are currently supported)", { languageString: String =>
         languageString match {
@@ -87,6 +93,27 @@ object Main {
       System.exit(1)
     }
 
+    preCompilation()
+    compile()
+    postCompilation()
+  }
+
+  def preCompilation() {
+    // if --gen-file-map is specified, prepare the file.
+    fileMapWriter = fileMapPath.map { path =>
+      val file = new File(path)
+      val dir = file.getParentFile
+      if (dir != null && !dir.exists()) {
+        dir.mkdirs()
+      }
+      if (verbose) {
+        println("+ Writing file mapping to %s".format(path))
+      }
+      new FileWriter(file)
+    }
+  }
+
+  def compile() {
     for (inputFile <- thriftFiles) {
       val importer = Importer(new File(".")) +: Importer(importPaths)
       val parser = new ThriftParser(importer, strict)
@@ -94,8 +121,36 @@ object Main {
 
       if (verbose) println("+ Compiling %s".format(inputFile))
       val doc1 = TypeResolver()(doc0).document
-      generator(doc1, flags.toSet, new File(destFolder))
+      val generatedFiles =
+        generator(doc1, flags.toSet, new File(destFolder)).map { _.getPath }
+
+      if (verbose) {
+        println("+ Generated %s".format(generatedFiles.mkString(", ")))
+      }
+      fileMapWriter.foreach { w =>
+        generatedFiles.foreach { path =>
+          w.write(inputFile + " -> " + path + "\n")
+        }
+      }
     }
+  }
+
+  def postCompilation() {
+    fileMapWriter.foreach { _.close() }
+
+    // we need to clear these options in case Main.main() is called
+    // multiple times in the same process.
+    destFolder = "."
+    importPaths.clear()
+    thriftFiles.clear()
+    flags.clear()
+    namespaceMappings.clear()
+    verbose = false
+    strict = true
+    skipUnchanged = false
+    fileMapPath = None
+    fileMapWriter = None
+    generator = new ScalaGenerator
   }
 
   def isUnchanged(file: File, sourceLastModified: Long): Boolean = {

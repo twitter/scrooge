@@ -3,40 +3,28 @@
 args=("$@")
 cp=${args[0]}
 out=${args[1]}
+manifestDir=$out/manifests
 
 javaNamespace="-n thrift.test=thrift.java_test
 -n thrift.test1=thrift.java_test1
 -n thrift.test2=thrift.java_test2
--n thrift.def.default=thrift.java_def.default
--n org.danadanger.test=org.danadanger.java_test
--n org.danadanger.test.types=org.danadanger.java_test.types
--n org.danadanger.test.BASE=org.danadanger.java_test.BASE"
+-n thrift.def.default=thrift.java_def.default"
 
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l scala"
-thrifts=`find src/test/thrift/*.thrift`
 
-echo "compiling thrift files into Java"
-$javaRun $thrifts
+echo "compiling standalone thrift files"
+standalone_thrifts=`find src/test/thrift/*.thrift`
+$javaRun $standalone_thrifts
+$scalaRun $standalone_thrifts
 
-echo "compiling thrift files into Scala"
-$scalaRun $thrifts
+echo "compiling dependency of candy.thrift"
+dependency_thrifts=`find src/test/thrift/ -name "*include*.thrift"`
+$javaRun $dependency_thrifts
+$scalaRun $dependency_thrifts
 
-echo "compiling include files for candy.thrift into Java"
-$javaRun src/test/thrift/relative/dir1/include1.thrift
-$javaRun src/test/thrift/relative/dir2/include2.thrift
-$javaRun src/test/thrift/relative/dir3/include3.thrift
-$javaRun src/test/thrift/relative/dir1/dir4/include4.thrift
-
-echo "compiling include files for candy.thrift into Scala"
-$scalaRun src/test/thrift/relative/dir1/include1.thrift
-$scalaRun src/test/thrift/relative/dir2/include2.thrift
-$scalaRun src/test/thrift/relative/dir3/include3.thrift
-$scalaRun src/test/thrift/relative/dir1/dir4/include4.thrift
-
+echo "compiling candy.thrift"
 importArg="-i src/test/thrift/relative/dir2:src/test/thrift/relative/include3.jar"
-echo "compiling candy.thrift into Java"
 $javaRun $importArg src/test/thrift/relative/candy.thrift
-
-echo "compiling candy.thrift into Scala"
 $scalaRun $importArg src/test/thrift/relative/candy.thrift
+
