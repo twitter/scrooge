@@ -17,6 +17,7 @@ package com.twitter.scrooge.backend
  */
 
 import java.io.{FileWriter, File}
+import scala.collection.mutable
 import com.twitter.conversions.string._
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
@@ -248,7 +249,12 @@ abstract class Generator
   }
 
   // main entry
-  def apply(_doc: Document, serviceOptions: Set[ServiceOption], outputPath: File) {
+  def apply(
+    _doc: Document,
+    serviceOptions: Set[ServiceOption],
+    outputPath: File): Iterable[File]
+  = {
+    val generatedFiles = new mutable.ListBuffer[File]
     val doc = normalizeCase(_doc)
     val namespace = getNamespace(_doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName)
@@ -260,6 +266,7 @@ abstract class Generator
       val file = new File(packageDir, "Constants" + fileExtension)
       val dict = constDict(namespace, doc.consts)
       writeFile(file, templates.header, templates("consts").generate(dict))
+      generatedFiles += file
     }
 
     doc.enums.foreach {
@@ -267,6 +274,7 @@ abstract class Generator
         val file = new File(packageDir, enum.sid.toTitleCase.name + fileExtension)
         val dict = enumDict(namespace, enum)
         writeFile(file, templates.header, templates("enum").generate(dict))
+        generatedFiles += file
     }
 
     doc.structs.foreach {
@@ -280,6 +288,7 @@ abstract class Generator
         val file = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
         val dict = structDict(struct, Some(namespace), includes, serviceOptions)
         writeFile(file, templates.header, templates(templateName).generate(dict))
+        generatedFiles += file
     }
 
     doc.services.foreach {
@@ -287,6 +296,9 @@ abstract class Generator
         val file = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
         val dict = serviceDict(JavaService(service, serviceOptions), namespace, includes, serviceOptions)
         writeFile(file, templates.header, templates("service").generate(dict))
+        generatedFiles += file
     }
+
+    generatedFiles
   }
 }

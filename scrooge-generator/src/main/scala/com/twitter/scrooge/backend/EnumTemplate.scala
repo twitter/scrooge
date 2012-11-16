@@ -7,9 +7,9 @@ import com.twitter.scrooge.ast.{Enum, Identifier}
 trait EnumTemplate {
   self: Generator =>
   def enumDict(
-    namespace: Identifier,
-    enum: Enum
-  ): Dictionary =
+                namespace: Identifier,
+                enum: Enum
+                ): Dictionary =
     Dictionary(
       "package" -> genID(namespace),
       "EnumName" -> genID(enum.sid.toTitleCase),

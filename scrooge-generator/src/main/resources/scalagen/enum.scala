@@ -1,11 +1,14 @@
 package {{package}}
 
-import org.apache.thrift.TEnum
+import com.twitter.scrooge.ThriftEnum
 
 {{docstring}}
-object {{EnumName}} {
+case object {{EnumName}} {
 {{#values}}
-  case object {{name}} extends {{EnumName}}({{value}}, "{{name}}")
+  case object {{name}} extends {{EnumName}} {
+    val value = {{value}}
+    val name = "{{name}}"
+  }
 {{/values}}
 
   /**
@@ -44,8 +47,6 @@ object {{EnumName}} {
   }
 }
 
-{{docstring}}
-abstract class {{EnumName}}(val value: Int, val name: String) extends TEnum {
-  def getValue = value
-}
 
+{{docstring}}
+sealed trait {{EnumName}} extends ThriftEnum with Serializable

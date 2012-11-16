@@ -1,5 +1,6 @@
 package com.twitter.scrooge.backend
 
+import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.specs.mock.{ClassMocker, JMocker}
@@ -9,7 +10,6 @@ import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
 import com.twitter.scrooge.{ThriftStruct, ThriftException, EvalHelper}
-import sun.tools.java.Constants
 import com.twitter.finagle.SourcedException
 
 class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
@@ -20,12 +20,21 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
   "ScalaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        NumberId.One.value mustEqual 1
-        NumberId.Two.value mustEqual 2
-        NumberId.Three.value mustEqual 3
-        NumberId.Five.value mustEqual 5
-        NumberId.Six.value mustEqual 6
-        NumberId.Eight.value mustEqual 8
+        NumberId.One.getValue mustEqual 1
+        NumberId.Two.getValue mustEqual 2
+        NumberId.Three.getValue mustEqual 3
+        NumberId.Five.getValue mustEqual 5
+        NumberId.Six.getValue mustEqual 6
+        NumberId.Eight.getValue mustEqual 8
+      }
+
+      "correct names" in {
+        NumberId.One.name mustEqual "One"
+        NumberId.Two.name mustEqual "Two"
+        NumberId.Three.name mustEqual "Three"
+        NumberId.Five.name mustEqual "Five"
+        NumberId.Six.name mustEqual "Six"
+        NumberId.Eight.name mustEqual "Eight"
       }
 
       "apply" in {
@@ -55,6 +64,26 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NumberId.valueOf("Six") must beSome(NumberId.Six)
         NumberId.valueOf("Eight") must beSome(NumberId.Eight)
         NumberId.valueOf("Ten") must beNone
+      }
+
+      "java-serializable" in {
+        val bos = new ByteArrayOutputStream()
+        val out = new ObjectOutputStream(bos)
+        out.writeObject(NumberId.One)
+        out.writeObject(NumberId.Two)
+        bos.close()
+        val bytes = bos.toByteArray
+
+        val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
+        var obj = in.readObject()
+        obj.isInstanceOf[NumberId] must beTrue
+        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.One.getValue
+        obj.asInstanceOf[NumberId].name mustEqual NumberId.One.name
+
+        obj = in.readObject()
+        obj.isInstanceOf[NumberId] must beTrue
+        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.Two.getValue
+        obj.asInstanceOf[NumberId].name mustEqual NumberId.Two.name
       }
     }
 

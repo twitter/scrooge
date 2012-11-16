@@ -1,6 +1,6 @@
 // The capitalized namespace, while unconventional, is permitted; this won't compile unless case is
 // preserved.
-namespace java org.danadanger.test.BASE
+namespace java thrift.test1
 
 struct Location {
   1: double latitude

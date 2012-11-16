@@ -1,6 +1,6 @@
 // Ensures that types in different namespaces are imported and aliased properly in struct code. If
 // not, this won't compile.
-namespace java org.danadanger.test.types
+namespace java thrift.test1
 
 include "location.thrift"
 

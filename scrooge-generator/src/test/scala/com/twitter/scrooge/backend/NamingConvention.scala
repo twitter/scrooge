@@ -14,7 +14,7 @@ class NamingConventionSpec extends SpecificationWithJUnit {
       naughty.`type` mustEqual "car"
       naughty.`abstract` mustEqual 100
 
-      Super.Trait.value mustEqual 20
+      Super.Trait.getValue mustEqual 20
       Super.get(99) must beSome(Super.Native)
       Super.valueOf("`trait`") must beSome(Super.Trait)
     }
