@@ -16,13 +16,6 @@
     <git.dir>${project.basedir}/../../.git</git.dir>
     <mainClass>com.twitter.scrooge.Main</mainClass>
   </properties>
-  <repositories>
-    <repository>
-      <id>artifactory</id>
-      <name>artifactory</name>
-      <url>http://artifactory.local.twitter.com/repo</url>
-    </repository>
-  </repositories>
   <dependencies>
     <!-- project dependencies -->
     <dependency>
