@@ -5,18 +5,6 @@
   <artifactId>scrooge</artifactId>
   <packaging>pom</packaging>
   <version>3.0.2</version>
-  <distributionManagement>
-    <repository>
-      <id>artifactory-release</id>
-      <name>Twitter Artifactory Releases</name>
-      <url>http://artifactory.local.twitter.com/libs-releases-local</url>
-    </repository>
-    <snapshotRepository>
-      <id>artifactory-snapshot</id>
-      <name>Twitter Artifactory Snapshots</name>
-      <url>http://artifactory.local.twitter.com/libs-snapshots-local</url>
-    </snapshotRepository>
-  </distributionManagement>
   <modules>
     <module>scrooge-runtime</module>
     <module>scrooge-generator</module>
