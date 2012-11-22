@@ -8,9 +8,8 @@
   <version>3.0.2</version>
   <parent>
     <groupId>com.twitter</groupId>
-    <artifactId>service-292</artifactId>
-    <version>0.0.2</version>
-    <relativePath/>
+    <artifactId>scrooge</artifactId>
+    <version>3.0.2</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
