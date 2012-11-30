@@ -8,6 +8,10 @@ enum super { // rewritten to title case Super in generated code
   native = 99
 }
 
+struct TestValidate {
+  1: optional bool validate
+}
+
 struct naughty { // rewritten to title case Naughty
   1: string type  // `type` in Scala; getType() in Java
   2: i32 abstract // `abstract` in Scala, getAbstract() in Java
