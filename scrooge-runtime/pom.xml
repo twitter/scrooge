@@ -7,14 +7,19 @@
   <version>3.0.3-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
-    <artifactId>scala-parent-292</artifactId>
-    <version>0.0.2</version>
-    <relativePath/>
+    <artifactId>scrooge</artifactId>
+    <version>3.0.3-SNAPSHOT</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
   </properties>
   <dependencies>
+    <!-- scala library -->
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>2.9.2</version>
+    </dependency>
     <!-- library dependencies -->
     <dependency>
       <groupId>org.apache.thrift</groupId>
@@ -28,4 +33,30 @@
       <version>5.3.13</version>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.5.1</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
