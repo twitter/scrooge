@@ -1,26 +1,28 @@
 package {{package}}
 
 import com.twitter.conversions.time._
-import com.twitter.finagle.SourcedException
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
-import com.twitter.util.Future
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import scala.collection.mutable
 import scala.collection.{Map, Set}
-{{#finagleClient}}
+{{#withFinagle}}
+import com.twitter.util.Future
+{{/withFinagle}}
+{{#withFinagleClient}}
 import com.twitter.finagle.{Service => FinagleService}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.ThriftClientRequest
-{{/finagleClient}}
-{{#finagleService}}
+import com.twitter.finagle.SourcedException
+{{/withFinagleClient}}
+{{#withFinagleService}}
 import com.twitter.finagle.{Service => FinagleService}
 import java.util.Arrays
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport, TTransport}
-{{/finagleService}}
-{{#ostrichServer}}
+{{/withFinagleService}}
+{{#withOstrichServer}}
 import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
 import com.twitter.finagle.thrift.ThriftServerFramedCodec
@@ -29,7 +31,7 @@ import com.twitter.logging.Logger
 import com.twitter.ostrich.admin.Service
 import com.twitter.util.Duration
 import java.util.concurrent.atomic.AtomicReference
-{{/ostrichServer}}
+{{/withOstrichServer}}
 
 {{#imports}}
 import {{parentpackage}}.{{{subpackage}} => {{_alias_}}}
@@ -43,11 +45,13 @@ object {{ServiceName}} {
 {{/syncFunctions}}
   }
 
+{{#withFinagle}}
   trait FutureIface {{asyncExtends}}{
 {{#asyncFunctions}}
     {{>function}}
 {{/asyncFunctions}}
   }
+{{/withFinagle}}
 
 {{#structs}}
   {{>struct}}
