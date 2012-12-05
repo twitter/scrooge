@@ -4,9 +4,9 @@ package {{package}}
 import com.twitter.scrooge.{ThriftException, ThriftStruct, ThriftStructCodec}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
-{{#finagle}}
+{{#withFinagleClient}}
 import com.twitter.finagle.SourcedException
-{{/finagle}}
+{{/withFinagleClient}}
 import scala.collection.mutable
 import scala.collection.{Map, Set}
 {{#imports}}
@@ -20,6 +20,19 @@ object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, {{id}})
 {{/fields}}
+
+  /**
+   * Checks that all required fields are non-null.
+   */
+  def validate(_item: {{StructName}}) {
+{{#fields}}
+{{#required}}
+{{#nullable}}
+    if (_item.{{fieldName}} == null) throw new TProtocolException("Required field {{fieldName}} cannot be null")
+{{/nullable}}
+{{/required}}
+{{/fields}}
+  }
 
   def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
   def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
@@ -131,7 +144,7 @@ trait {{StructName}} extends {{parentType}}
 {{/fields}}
 
   override def write(_oprot: TProtocol) {
-    validate()
+    {{StructName}}.validate(this)
     _oprot.writeStructBegin(Struct)
 {{#fields}}
 {{#readWriteInfo}}
@@ -151,19 +164,6 @@ trait {{StructName}} extends {{parentType}}
     {{fieldName}}
 {{/fields|, }}
   )
-
-  /**
-   * Checks that all required fields are non-null.
-   */
-  def validate() {
-{{#fields}}
-{{#required}}
-{{#nullable}}
-    if ({{fieldName}} == null) throw new TProtocolException("Required field {{fieldName}} cannot be null")
-{{/nullable}}
-{{/required}}
-{{/fields}}
-  }
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 

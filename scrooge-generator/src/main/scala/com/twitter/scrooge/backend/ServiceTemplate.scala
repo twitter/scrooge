@@ -173,7 +173,12 @@ trait ServiceTemplate {
       ),
       "ostrichServers" -> v(
         if (s.options contains WithOstrichServer) Seq(ostrichService(service)) else Seq()
-      )
+      ),
+      "withFinagleClient" -> v(s.options contains WithFinagleService),
+      "withFinagleService" -> v(s.options contains WithFinagleService),
+      "withOstrichServer" -> v(s.options contains WithOstrichServer),
+      "withFinagle" -> v((s.options contains WithFinagleClient)
+        || (s.options contains WithFinagleService))
     )
   }
 }

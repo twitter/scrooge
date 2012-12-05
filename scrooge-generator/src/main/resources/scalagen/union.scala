@@ -4,9 +4,9 @@ package {{package}}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
-{{#finagle}}
+{{#withFinagleClient}}
 import com.twitter.finagle.SourcedException
-{{/finagle}}
+{{/withFinagleClient}}
 import scala.collection.mutable
 import scala.collection.{Map, Set}
 {{#imports}}

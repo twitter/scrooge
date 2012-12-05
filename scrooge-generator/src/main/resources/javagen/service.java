@@ -1,12 +1,9 @@
 package {{package}};
 
 import com.twitter.scrooge.ScroogeOption;
-import com.twitter.finagle.SourcedException;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
 import com.twitter.scrooge.Utilities;
-import com.twitter.util.Future;
-import com.twitter.util.FutureEventListener;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -20,14 +17,19 @@ import org.apache.thrift.TApplicationException;
 {{#imports}}
 import {{parentpackage}}.{{subpackage}}.*;
 {{/imports}}
-{{#finagleClient}}
+{{#withFinagle}}
+import com.twitter.util.Future;
+import com.twitter.util.FutureEventListener;
+{{/withFinagle}}
+{{#withFinagleClient}}
+import com.twitter.finagle.SourcedException;
 import com.twitter.finagle.stats.NullStatsReceiver;
 import com.twitter.finagle.stats.StatsReceiver;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 import java.util.Arrays;
 import org.apache.thrift.TException;
-{{/finagleClient}}
-{{#finagleService}}
+{{/withFinagleClient}}
+{{#withFinagleService}}
 import com.twitter.finagle.Service;
 import com.twitter.finagle.stats.Counter;
 import com.twitter.util.Function;
@@ -35,8 +37,8 @@ import com.twitter.util.Function2;
 import org.apache.thrift.transport.TMemoryBuffer;
 import org.apache.thrift.transport.TMemoryInputTransport;
 import org.apache.thrift.transport.TTransport;
-{{/finagleService}}
-{{#ostrichServer}}
+{{/withFinagleService}}
+{{#withOstrichServer}}
 import com.twitter.finagle.builder.Server;
 import com.twitter.finagle.builder.ServerBuilder;
 import com.twitter.finagle.stats.StatsReceiver;
@@ -44,7 +46,7 @@ import com.twitter.finagle.thrift.ThriftServerFramedCodec;
 import com.twitter.finagle.tracing.NullTracer;
 import com.twitter.finagle.tracing.Tracer;
 import com.twitter.logging.Logger;
-{{/ostrichServer}}
+{{/withOstrichServer}}
 
 {{docstring}}
 public class {{ServiceName}} {
@@ -54,11 +56,13 @@ public class {{ServiceName}} {
 {{/syncFunctions}}
   }
 
+{{#withFinagle}}
   public interface FutureIface {{asyncExtends}}{
 {{#asyncFunctions}}
     {{>function}};
 {{/asyncFunctions}}
   }
+{{/withFinagle}}
 
 {{#structs}}
   {{>struct}}

@@ -5,6 +5,13 @@ namespace java thrift.test
 include "airport_service.thrift"
 include "airport.thrift"
 
-service ExtendedAirportService extends airport_service.AirportService {
-  bool hasWifi(1: airport.Airport a)
+exception AirportException {
+  1: i32 errorCode
 }
+
+service ExtendedAirportService extends airport_service.AirportService {
+  bool hasWifi(1: airport.Airport a) throws (
+    1: AirportException ex
+  )
+}
+
