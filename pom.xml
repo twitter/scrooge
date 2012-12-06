@@ -5,20 +5,62 @@
   <artifactId>scrooge</artifactId>
   <packaging>pom</packaging>
   <version>3.0.3-SNAPSHOT</version>
+  <url>http://github.com/twitter/scrooge</url>
+  <description>A Thrift generator for Scala</description>
+
+  <scm>
+    <connection>scm:git:git@github.com:twitter/scrooge.git</connection>
+    <url>scm:git:git@github.com:twitter/scrooge.git</url>
+    <developerConnection>scm:git:git@github.com:twitter/scrooge.git</developerConnection>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Chunyan Song</name>
+      <email>csong@twitter.com</email>
+    </developer>
+  </developers>
+
+  <properties>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+    <encoding>UTF-8</encoding>
+    <scala.version>2.9.2</scala.version>
+  </properties>
+
   <distributionManagement>
     <repository>
-      <id>artifactory-release</id>
-      <name>Twitter Artifactory Releases</name>
-      <url>http://artifactory.local.twitter.com/libs-releases-local</url>
+      <id>sonatype-release</id>
+      <name>Sonatype OSS</name>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
     </repository>
-    <snapshotRepository>
-      <id>artifactory-snapshot</id>
-      <name>Twitter Artifactory Snapshots</name>
-      <url>http://artifactory.local.twitter.com/libs-snapshots-local</url>
-    </snapshotRepository>
   </distributionManagement>
+  
+  <repositories>
+    <repository>
+      <id>twitter-maven-repository</id>
+      <name>Twitter's public artifact repository</name>
+      <url>http://maven.twttr.com/</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>Twitter public Maven repo</id>
+      <url>http://maven.twttr.com</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <modules>
     <module>scrooge-runtime</module>
     <module>scrooge-generator</module>
   </modules>
+
 </project>
