@@ -6,7 +6,6 @@ import com.twitter.scrooge.ScroogeOption;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
-import com.twitter.util.Function2;
 import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;

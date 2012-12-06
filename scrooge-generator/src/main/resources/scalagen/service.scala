@@ -1,6 +1,5 @@
 package {{package}}
 
-import com.twitter.conversions.time._
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
@@ -10,6 +9,7 @@ import scala.collection.mutable
 import scala.collection.{Map, Set}
 {{#withFinagle}}
 import com.twitter.util.Future
+import com.twitter.conversions.time._
 {{/withFinagle}}
 {{#withFinagleClient}}
 import com.twitter.finagle.{Service => FinagleService}
