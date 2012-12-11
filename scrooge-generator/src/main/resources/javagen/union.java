@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-{{#imports}}
-import {{parentpackage}}.{{subpackage}}.*;
-{{/imports}}
 
 {{docstring}}
 public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements ThriftStruct {

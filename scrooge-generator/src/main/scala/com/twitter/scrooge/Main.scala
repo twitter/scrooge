@@ -23,7 +23,13 @@ import java.util.Properties
 import scala.collection.mutable
 import scopt.OptionParser
 
+object Language extends Enumeration {
+  type Language = Value
+  val Scala, Java = Value
+}
+
 object Main {
+  import Language._
   var destFolder: String = "."
   val importPaths = new mutable.ListBuffer[String]
   val thriftFiles = new mutable.ListBuffer[String]
@@ -34,7 +40,7 @@ object Main {
   var skipUnchanged = false
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
-  var generator: Generator = new ScalaGenerator
+  var language: Language = Scala
 
   def main(args: Array[String]) {
     val buildProperties = new Properties
@@ -72,11 +78,12 @@ object Main {
       })
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
       opt("l", "language", "name of language to generate code in ('java' and 'scala' are currently supported)", { languageString: String =>
-        languageString match {
-          case "scala" =>
-            generator = new ScalaGenerator
-          case "java" =>
-            generator = new JavaGenerator
+        languageString.toLowerCase match {
+          case "scala" => language = Scala
+          case "java" => language = Java
+          case _ =>
+            println("language option %s not supported".format(languageString))
+            System.exit(0)
         }
         ()
       })
@@ -120,9 +127,10 @@ object Main {
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
-      val doc1 = TypeResolver()(doc0).document
+      val resolvedDoc = TypeResolver()(doc0)
+      val generator = Generator(language, resolvedDoc.resolver.includeMap)
       val generatedFiles =
-        generator(doc1, flags.toSet, new File(destFolder)).map { _.getPath }
+        generator(resolvedDoc.document, flags.toSet, new File(destFolder)).map { _.getPath }
 
       if (verbose) {
         println("+ Generated %s".format(generatedFiles.mkString(", ")))
@@ -150,7 +158,6 @@ object Main {
     skipUnchanged = false
     fileMapPath = None
     fileMapWriter = None
-    generator = new ScalaGenerator
   }
 
   def isUnchanged(file: File, sourceLastModified: Long): Boolean = {

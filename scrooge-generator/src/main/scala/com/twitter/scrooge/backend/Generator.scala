@@ -22,8 +22,8 @@ import com.twitter.conversions.string._
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
-import com.twitter.scrooge.ScroogeInternalException
-
+import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
+import com.twitter.scrooge.Language._
 
 abstract sealed class ServiceOption
 
@@ -32,16 +32,37 @@ case object WithFinagleService extends ServiceOption
 case object WithOstrichServer extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
+object Generator {
+  def apply(lan: Language, includeMap: Map[String, ResolvedDocument]): Generator =
+    lan match {
+      case Scala => new ScalaGenerator(includeMap)
+      case Java => new JavaGenerator(includeMap)
+    }
+}
+
 abstract class Generator
   extends StructTemplate with ServiceTemplate with ConstsTemplate with EnumTemplate
 {
   import Dictionary._
+
+  /**
+   * Map from included file names to the namespaces defined in those files.
+   */
+  val includeMap: Map[String, ResolvedDocument]
 
   /******************** helper functions ************************/
   private[this] def namespacedFolder(destFolder: File, namespace: String) = {
     val file = new File(destFolder, namespace.replace('.', File.separatorChar))
     file.mkdirs()
     file
+  }
+
+  protected def getIncludeNamespace(includeFileName: String): Identifier = {
+    val javaNamespace = includeMap.get(includeFileName).flatMap {
+      doc: ResolvedDocument => doc.document.namespace("java")
+    }
+    assert(javaNamespace.isDefined)
+    javaNamespace.get
   }
 
   def normalizeCase[N <: Node](node: N): N
@@ -75,7 +96,12 @@ abstract class Generator
   /**
    * get the ID of a service parent.  Java and Scala implementations are different.
    */
-  def getServiceParentID(parent: ServiceParent): Identifier
+  def getServiceParentID(parent: ServiceParent): Identifier = {
+    parent.prefix match {
+      case Some(scope) => parent.sid.addScope(getIncludeNamespace(scope.name))
+      case None => parent.sid
+    }
+  }
 
   def isPrimitive(t: FunctionType): Boolean = {
     t match {
@@ -175,6 +201,16 @@ abstract class Generator
     codify(code)
   }
 
+  /**
+   * When a named type is imported via include statement, we need to
+   * qualify it using its full namespace
+   */
+  def qualifyNamedType(t: NamedType): Identifier =
+    t.scopePrefix match {
+      case Some(scope) => t.sid.addScope(getIncludeNamespace(scope.name))
+      case None => t.sid
+    }
+
   def genProtocolReadMethod(t: FunctionType): CodeFragment = {
     val code = t match {
       case TBool => "readBool"
@@ -226,27 +262,6 @@ abstract class Generator
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment
 
   def genBaseFinagleService: CodeFragment
-
-  /**
-   * Creates a sequence of dictionaries describing aliased imports.
-   */
-  protected def importsDicts(includes: Seq[Include]) = {
-    includes map { include =>
-      val id = getNamespace(include.document)
-      val prefix = include.prefix
-
-      val (parentPackage, subPackage) = id match {
-        case sid: SimpleID => (SimpleID("_root_"), sid)
-        case qid: QualifiedID => (qid.qualifier, qid.name)
-      }
-
-      Dictionary(
-        "parentpackage" -> genID(parentPackage),
-        "subpackage" -> genID(subPackage),
-        "_alias_" -> genID(prefix.prepend("_").append("_"))
-      )
-    }
-  }
 
   // main entry
   def apply(

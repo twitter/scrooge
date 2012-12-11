@@ -33,10 +33,6 @@ import com.twitter.util.Duration
 import java.util.concurrent.atomic.AtomicReference
 {{/withOstrichServer}}
 
-{{#imports}}
-import {{parentpackage}}.{{{subpackage}} => {{_alias_}}}
-{{/imports}}
-
 {{docstring}}
 object {{ServiceName}} {
   trait Iface {{syncExtends}}{
