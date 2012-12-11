@@ -1,1 +1,1 @@
-{{#scopePrefix}}{{scopePrefix}}.{{/scopePrefix}}{{fieldType}}(_iprot.readI32())
+{{>qualifiedFieldType}}(_iprot.readI32())

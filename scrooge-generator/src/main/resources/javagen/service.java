@@ -14,9 +14,6 @@ import java.util.Set;
 import java.util.HashSet;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.TApplicationException;
-{{#imports}}
-import {{parentpackage}}.{{subpackage}}.*;
-{{/imports}}
 {{#withFinagle}}
 import com.twitter.util.Future;
 import com.twitter.util.FutureEventListener;

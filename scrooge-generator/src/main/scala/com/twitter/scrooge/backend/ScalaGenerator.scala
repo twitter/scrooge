@@ -17,10 +17,10 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.mustache.Dictionary._
 
-class ScalaGenerator extends Generator {
+class ScalaGenerator(val includeMap: Map[String, ResolvedDocument]) extends Generator {
   val fileExtension = ".scala"
   val templateDirName = "/scalagen/"
 
@@ -42,17 +42,8 @@ class ScalaGenerator extends Generator {
       str
 
   def getNamespace(doc: Document): Identifier =
-    doc.namespace("scala") orElse doc.namespace("java") getOrElse (SimpleID("thrift"))
+    doc.namespace("java") getOrElse (SimpleID("thrift"))
 
-  /**
-   * Get ID of service parent. If prefix is defined, it needs to be aliased, eg: "_prefix_"
-   */
-  def getServiceParentID(parent: ServiceParent): Identifier = {
-    parent.prefix match {
-      case Some(prefix) => parent.sid.addScope(prefix.append("_").prepend("_"))
-      case None => parent.sid
-    }
-  }
   def normalizeCase[N <: Node](node: N) = {
     (node match {
       case d: Document =>
@@ -192,12 +183,7 @@ class ScalaGenerator extends Generator {
         (if (mutable) "mutable." else "") + "Set[" + genType(x).toData + "]"
       case ListType(x, _) =>
         (if (mutable) "mutable.Buffer" else "Seq") + "[" + genType(x).toData + "]"
-      case n: NamedType =>
-        val id = n.scopePrefix match {
-          case Some(scope) => n.sid.addScope(scope.append("_").prepend("_"))
-          case None => n.sid
-        }
-        genID(id.toTitleCase).toData
+      case n: NamedType => genID(qualifyNamedType(n).toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }

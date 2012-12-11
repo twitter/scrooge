@@ -261,14 +261,14 @@ If you specify --finagle option, you need to have the following additional depen
          <groupId>com.twitter</groupId>
          <artifactId>finagle-core</artifactId>
        </dependency>
-
-If you specify --ostrich option, in addition to the above finagle dependencies, you
-still need:
-
        <dependency>
          <groupId>com.twitter</groupId>
          <artifactId>finagle-thrift</artifactId>
        </dependency>
+
+If you specify --ostrich option, in addition to the above finagle dependencies, you
+still need:
+
        <dependency>
          <groupId>com.twitter</groupId>
          <artifactId>finagle-ostrich4</artifactId>

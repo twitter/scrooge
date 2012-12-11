@@ -76,21 +76,13 @@ trait StructTemplate {
         TypeTemplate + Dictionary(
           "isStruct" -> v(Dictionary(
             "name" -> genID(sid),
-            "scopePrefix" -> (t.scopePrefix match {
-              case Some(sid) => genID(sid.append("_").prepend("_"))
-              case None => codify("")
-            }),
-            "fieldType" -> genID(t.sid.toTitleCase)
+            "fieldType" -> genType(t)
           )))
       case t: EnumType =>
         TypeTemplate + Dictionary(
           "isEnum" -> v(Dictionary(
             "name" -> genID(sid),
-            "scopePrefix" -> (t.scopePrefix match {
-              case Some(sid) => genID(sid.append("_").prepend("_"))
-              case None => codify("")
-            }),
-            "fieldType" -> genID(t.sid.toTitleCase)
+            "fieldType" -> genType(t)
           )))
       case t: BaseType =>
         TypeTemplate + Dictionary(
@@ -102,13 +94,6 @@ trait StructTemplate {
           )))
       case t: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should have been resolved by now")
-    }
-  }
-
-  private def isQualified(fieldType: FieldType): Boolean = {
-    fieldType match {
-      case n: NamedType => n.scopePrefix.isDefined
-      case _ => false
     }
   }
 
@@ -131,10 +116,15 @@ trait StructTemplate {
           "fieldConst" -> genID(field.sid.toTitleCase.append("Field")),
           "constType" -> genConstType(field.fieldType),
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
-          "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
-          "isQualified" -> v(isQualified(field.fieldType)),
           "primitiveFieldType" -> genPrimitiveType(field.fieldType, mutable = false),
           "fieldType" -> genType(field.fieldType, mutable = false),
+          "isImported" -> v(field.fieldType match {
+            case n: NamedType => n.scopePrefix.isDefined
+            case _ => false
+          }),
+          "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
+          // "qualifiedFieldType" is used to generate qualified type name even if it's not
+          // imported, in case other same-named entities are generated in the same file.
           "qualifiedFieldType" -> v(templates("qualifiedFieldType")),
           "hasDefaultValue" -> v(genDefaultFieldValue(field).isDefined),
           "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
@@ -249,7 +239,6 @@ trait StructTemplate {
     Dictionary(
       "public" -> v(namespace.isDefined),
       "package" -> namespace.map{ genID(_) }.getOrElse(codify("")),
-      "imports" -> v(importsDicts(includes)),
       "docstring" -> codify(struct.docstring.getOrElse("")),
       "parentType" -> codify(parentType),
       "fields" -> v(fieldDictionaries),

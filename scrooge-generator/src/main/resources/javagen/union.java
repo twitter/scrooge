@@ -6,7 +6,6 @@ import com.twitter.scrooge.ScroogeOption;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
-import com.twitter.util.Function2;
 import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;
@@ -16,9 +15,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-{{#imports}}
-import {{parentpackage}}.{{subpackage}}.*;
-{{/imports}}
 
 {{docstring}}
 public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements ThriftStruct {
