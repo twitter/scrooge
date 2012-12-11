@@ -9,9 +9,6 @@ import com.twitter.finagle.SourcedException
 {{/withFinagleClient}}
 import scala.collection.mutable
 import scala.collection.{Map, Set}
-{{#imports}}
-import {{parentpackage}}.{{{subpackage}} => {{_alias_}}}
-{{/imports}}
 
 {{/public}}
 {{docstring}}

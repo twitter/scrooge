@@ -17,10 +17,10 @@ package com.twitter.scrooge.backend
  */
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.mustache.Dictionary._
 
-class JavaGenerator extends Generator {
+class JavaGenerator(val includeMap: Map[String, ResolvedDocument]) extends Generator {
   val fileExtension = ".java"
   val templateDirName = "/javagen/"
 
@@ -46,15 +46,6 @@ class JavaGenerator extends Generator {
 
   def getNamespace(doc: Document): Identifier =
     doc.namespace("java") getOrElse (SimpleID("thrift"))
-
-  /**
-   * get the ID of service parent.
-   */
-  // todo (csl-301): currently we just use the service's SimpleID, because
-  // in the Java code it imports everything in the namespace that the service is defined in
-  // This will be a problem if there are multiple such imported services that share the same
-  // name, in which case we need to fully qualify the service name.
-  def getServiceParentID(parent: ServiceParent): Identifier = parent.sid
 
   def normalizeCase[N <: Node](node: N) = {
     (node match {
@@ -194,7 +185,7 @@ class JavaGenerator extends Generator {
       case MapType(k, v, _) => "Map<" + genType(k).toData + ", " + genType(v).toData + ">"
       case SetType(x, _) => "Set<" + genType(x).toData + ">"
       case ListType(x, _) => "List<" + genType(x).toData + ">"
-      case n: NamedType => n.sid.toTitleCase.name // todo CSL-272: shouldn't this be fully qualified?
+      case n: NamedType => genID(qualifyNamedType(n).toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
