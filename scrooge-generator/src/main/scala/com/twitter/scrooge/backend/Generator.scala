@@ -37,11 +37,10 @@ object Generator {
     lan: Language,
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String
-    ): Generator =
-    lan match {
-      case Scala => new ScalaGenerator(includeMap, defaultNamespace)
-      case Java => new JavaGenerator(includeMap, defaultNamespace)
-    }
+  ): Generator = lan match {
+    case Scala => new ScalaGenerator(includeMap, defaultNamespace)
+    case Java => new JavaGenerator(includeMap, defaultNamespace)
+  }
 }
 
 abstract class Generator
