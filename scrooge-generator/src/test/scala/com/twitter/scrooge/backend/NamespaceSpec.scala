@@ -5,7 +5,7 @@ import org.specs.SpecificationWithJUnit
 class NamespaceSpec extends SpecificationWithJUnit {
   "Scala Generator" should {
     import foo._
-    import bar._  // todo: CSL-338. replace bar with default namespace name
+    import bar._
     import com.fake._
     "import from another namespace" in {
       val service: Restaurant.Iface = new Restaurant.Iface {

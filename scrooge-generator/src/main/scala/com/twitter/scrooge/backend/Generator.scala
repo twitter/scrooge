@@ -33,11 +33,14 @@ case object WithOstrichServer extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 object Generator {
-  def apply(lan: Language, includeMap: Map[String, ResolvedDocument]): Generator =
-    lan match {
-      case Scala => new ScalaGenerator(includeMap)
-      case Java => new JavaGenerator(includeMap)
-    }
+  def apply(
+    lan: Language,
+    includeMap: Map[String, ResolvedDocument],
+    defaultNamespace: String
+  ): Generator = lan match {
+    case Scala => new ScalaGenerator(includeMap, defaultNamespace)
+    case Java => new JavaGenerator(includeMap, defaultNamespace)
+  }
 }
 
 abstract class Generator
@@ -49,6 +52,7 @@ abstract class Generator
    * Map from included file names to the namespaces defined in those files.
    */
   val includeMap: Map[String, ResolvedDocument]
+  val defaultNamespace: String
 
   /******************** helper functions ************************/
   private[this] def namespacedFolder(destFolder: File, namespace: String) = {
@@ -61,12 +65,13 @@ abstract class Generator
     val javaNamespace = includeMap.get(includeFileName).flatMap {
       doc: ResolvedDocument => doc.document.namespace("java")
     }
-    assert(javaNamespace.isDefined)
-    javaNamespace.get
+    javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
 
   def normalizeCase[N <: Node](node: N): N
-  def getNamespace(doc0: Document): Identifier
+  def getNamespace(doc: Document): Identifier =
+    doc.namespace("java") getOrElse (SimpleID(defaultNamespace))
+
   val fileExtension: String
   val templateDirName: String
   lazy val templates = new HandlebarLoader(templateDirName, fileExtension)
