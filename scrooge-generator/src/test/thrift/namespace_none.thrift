@@ -1,4 +1,3 @@
-namespace java bar // todo CSL-322, CSL-338: get rid of this line after implementing default namespace
 
 enum Weekday
 {

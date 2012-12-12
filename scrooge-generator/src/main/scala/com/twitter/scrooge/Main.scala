@@ -41,6 +41,7 @@ object Main {
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
   var language: Language = Scala
+  var defaultNamespace: String = "thrift"
 
   def main(args: Array[String]) {
     val buildProperties = new Properties
@@ -70,6 +71,12 @@ object Main {
           case Array(from, to) => namespaceMappings(from) = to
         }
         ()
+      })
+      opt(None, "default-java-namespace", "<name>",
+      "Use <name> as default namespace if the thrift file doesn't define its own namespace. " +
+        "If this option is not specified either, then use \"thrift\" as default namespace",
+      { name: String =>
+        defaultNamespace = name
       })
       opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting", { strict = false; () })
       opt(None, "gen-file-map", "<path>", "generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files", { path: String =>
@@ -128,7 +135,7 @@ object Main {
 
       if (verbose) println("+ Compiling %s".format(inputFile))
       val resolvedDoc = TypeResolver()(doc0)
-      val generator = Generator(language, resolvedDoc.resolver.includeMap)
+      val generator = Generator(language, resolvedDoc.resolver.includeMap, defaultNamespace)
       val generatedFiles =
         generator(resolvedDoc.document, flags.toSet, new File(destFolder)).map { _.getPath }
 

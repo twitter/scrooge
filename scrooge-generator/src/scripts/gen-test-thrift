@@ -10,18 +10,19 @@ javaNamespace="-n thrift.test=thrift.java_test
 -n thrift.def.default=thrift.java_def.default
 -n foo=java_foo
 -n bar=java_bar
--n com.fake=com.java_fake"
+-n com.fake=com.java_fake
+--default-java-namespace java_thrift"
 
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l scala"
 
-echo "compiling all thrift files except those in relative/"
+echo "compiling all thrift files except those in relative/ with --finagle --ostrich"
 standalone_thrifts=`find src/test/thrift -name *.thrift | grep -v src/test/thrift/relative`
 $javaRun $standalone_thrifts
 $scalaRun $standalone_thrifts
 
 echo "compiling dependency of relative/candy.thrift"
-dependency_thrifts=`find src/test/thrift/ -name "*include*.thrift"`
+dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`
 $javaRun $dependency_thrifts
 $scalaRun $dependency_thrifts
 
@@ -44,3 +45,8 @@ scalaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l scal
 javaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l java $javaVanillaNamespace"
 $scalaVanillaRun $airport_thrifts
 $javaVanillaRun $airport_thrifts
+
+echo "compiling namespace example with bar and java_bar as default namespace"
+namespace_thrifts=`find src/test/thrift -name *.thrift | grep namespace`
+$scalaRun --default-java-namespace bar $namespace_thrifts
+$javaRun --default-java-namespace java_bar $namespace_thrifts
