@@ -20,7 +20,11 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.mustache.Dictionary._
 
-class JavaGenerator(val includeMap: Map[String, ResolvedDocument]) extends Generator {
+class JavaGenerator(
+  val includeMap: Map[String, ResolvedDocument],
+  val defaultNamespace: String
+  ) extends Generator
+{
   val fileExtension = ".java"
   val templateDirName = "/javagen/"
 
@@ -43,9 +47,6 @@ class JavaGenerator(val includeMap: Map[String, ResolvedDocument]) extends Gener
       "_" + str + "_"
     else
       str
-
-  def getNamespace(doc: Document): Identifier =
-    doc.namespace("java") getOrElse (SimpleID("thrift"))
 
   def normalizeCase[N <: Node](node: N) = {
     (node match {
