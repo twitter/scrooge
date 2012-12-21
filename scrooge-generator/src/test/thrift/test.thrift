@@ -240,6 +240,13 @@ struct Xtruct3
   11: i64    i64_thing
 }
 
+struct NestedXtruct
+{
+  1: Xtruct x1,
+  2: Xtruct2 x2,
+  3: Xtruct3 x3
+}
+
 
 struct Insanity
 {
