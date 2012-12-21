@@ -1,3 +1,18 @@
+3.0.3 - 12/21/2012
+===============================================================================
+* Scrooge artifacts now deploys to Maven central via Sonatype
+* Scrooge project builds in Travis CI
+* Features
+  - Fully qualifying ids imported by "include" statements. We don't generate
+  "import" statements anymore.
+  - Remove unnecessary finagle jar dependencies for vanilla generated code.
+* Add tests
+  - non-finagle usage; see NonFinagleSpec.scala
+  - struct immutability and deep copying; see ImmutableStructSpec.scala
+* Bug fixes
+  - move "validate" method from Scala struct trait to object, so that the thrift
+   struct can define a "validate" field without name clashing.
+
 3.0.2 - 11/16/2012
 ===============================================================================
 * Adding a "--gen-file-map <path>" option to Scrooge command line. It tells

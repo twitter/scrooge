@@ -5,11 +5,11 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-generator</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.3-SNAPSHOT</version>
+  <version>3.0.3</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>3.0.3</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
@@ -26,7 +26,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.0.3-SNAPSHOT</version>
+      <version>3.0.3</version>
       <scope>test</scope>
     </dependency>
     <!-- library dependencies -->
