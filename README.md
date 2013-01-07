@@ -143,7 +143,7 @@ Scrooge generates the following wrapper class:
         def fetchBlob(id: Long): ByteBuffer
       }
 
-      // furture-based Finagle interface
+      // future-based Finagle interface
       trait FutureIface {
         def fetchBlob(id: Long): Future[ByteBuffer]
       }
