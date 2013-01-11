@@ -5,6 +5,7 @@
   <artifactId>scrooge-runtime</artifactId>
   <packaging>jar</packaging>
   <version>3.0.3</version>
+  <name>scrooge-runtime</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>

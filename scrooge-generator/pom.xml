@@ -6,6 +6,7 @@
   <artifactId>scrooge-generator</artifactId>
   <packaging>jar</packaging>
   <version>3.0.3</version>
+  <name>scrooge-generator</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
