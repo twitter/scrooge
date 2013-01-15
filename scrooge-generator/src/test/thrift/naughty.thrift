@@ -17,8 +17,9 @@ struct naughty { // rewritten to title case Naughty
   2: i32 abstract // `abstract` in Scala, getAbstract() in Java
 }
 
-union UnionPrimitiveType {
-  1: i32 val
-  2: bool flag
-  3: string text
+union NaughtyUnion {
+  10: i32 value // test primitive type and field name "value"
+  15: super field
+  20: bool flag
+  30: string text
 }

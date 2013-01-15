@@ -599,15 +599,15 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       "primitive field type" in {
         import thrift.`def`.default._
         val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
-        var original: UnionPrimitiveType = UnionPrimitiveType.Val(1)
-        UnionPrimitiveType.encode(original, protocol)
-        UnionPrimitiveType.decode(protocol) mustEqual(original)
-        original = UnionPrimitiveType.Flag(true)
-        UnionPrimitiveType.encode(original, protocol)
-        UnionPrimitiveType.decode(protocol) mustEqual(original)
-        original = UnionPrimitiveType.Text("false")
-        UnionPrimitiveType.encode(original, protocol)
-        UnionPrimitiveType.decode(protocol) mustEqual(original)
+        var original: NaughtyUnion = NaughtyUnion.Value(1)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.Flag(true)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.Text("false")
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
       }
     }
 

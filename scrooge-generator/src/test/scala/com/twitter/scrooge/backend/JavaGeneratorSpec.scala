@@ -542,15 +542,15 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
       "primitive field type" in {
         import thrift.java_def._default_._
         val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
-        var original: UnionPrimitiveType = UnionPrimitiveType.newVal(1)
-        UnionPrimitiveType.encode(original, protocol)
-        UnionPrimitiveType.decode(protocol) mustEqual(original)
-        original = UnionPrimitiveType.newFlag(true)
-        UnionPrimitiveType.encode(original, protocol)
-        UnionPrimitiveType.decode(protocol) mustEqual(original)
-        original = UnionPrimitiveType.newText("false")
-        UnionPrimitiveType.encode(original, protocol)
-        UnionPrimitiveType.decode(protocol) mustEqual(original)
+        var original: NaughtyUnion = NaughtyUnion.newValue(1)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.newFlag(true)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.newText("false")
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
       }
     }
   }
