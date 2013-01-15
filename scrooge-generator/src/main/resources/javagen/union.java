@@ -21,7 +21,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
   private static final TStruct STRUCT = new TStruct("{{StructName}}");
 {{#fields}}
   private static final TField {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, (short) {{id}});
-  final {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{fieldName}};
+  final {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{fieldType}}{{/optional}} {{fieldName}};
 {{/fields}}
 
   public enum Field {
@@ -93,7 +93,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
       throw new NullPointerException("Cannot construct {{StructName}} with a null value");
     this.setField = setField;
 {{#fields}}
-    this.{{fieldName}} = (setField == Field.{{FIELD_NAME}} ? ({{primitiveFieldType}}) value : null);
+    this.{{fieldName}} = (setField == Field.{{FIELD_NAME}} ? ({{fieldType}}) value : null);
 {{/fields}}
   }
 

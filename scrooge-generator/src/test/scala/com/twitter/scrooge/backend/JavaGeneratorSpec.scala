@@ -4,6 +4,7 @@ package backend
 import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
 import thrift.java_test._
@@ -536,6 +537,20 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
 
           Bird.newFlock(Utilities.makeList("starling", "kestrel", "warbler")).write(protocol)
         }
+      }
+
+      "primitive field type" in {
+        import thrift.java_def._default_._
+        val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
+        var original: UnionPrimitiveType = UnionPrimitiveType.newVal(1)
+        UnionPrimitiveType.encode(original, protocol)
+        UnionPrimitiveType.decode(protocol) mustEqual(original)
+        original = UnionPrimitiveType.newFlag(true)
+        UnionPrimitiveType.encode(original, protocol)
+        UnionPrimitiveType.decode(protocol) mustEqual(original)
+        original = UnionPrimitiveType.newText("false")
+        UnionPrimitiveType.encode(original, protocol)
+        UnionPrimitiveType.decode(protocol) mustEqual(original)
       }
     }
   }

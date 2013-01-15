@@ -16,3 +16,9 @@ struct naughty { // rewritten to title case Naughty
   1: string type  // `type` in Scala; getType() in Java
   2: i32 abstract // `abstract` in Scala, getAbstract() in Java
 }
+
+union UnionPrimitiveType {
+  1: i32 val
+  2: bool flag
+  3: string text
+}

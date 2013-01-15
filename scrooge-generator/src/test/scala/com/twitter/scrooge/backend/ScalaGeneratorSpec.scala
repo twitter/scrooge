@@ -3,6 +3,7 @@ package com.twitter.scrooge.backend
 import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
 import thrift.test._
@@ -593,6 +594,20 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
       "default value" in {
         Bird.Hummingbird() mustEqual Bird.Hummingbird("Calypte anna")
+      }
+
+      "primitive field type" in {
+        import thrift.`def`.default._
+        val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
+        var original: UnionPrimitiveType = UnionPrimitiveType.Val(1)
+        UnionPrimitiveType.encode(original, protocol)
+        UnionPrimitiveType.decode(protocol) mustEqual(original)
+        original = UnionPrimitiveType.Flag(true)
+        UnionPrimitiveType.encode(original, protocol)
+        UnionPrimitiveType.decode(protocol) mustEqual(original)
+        original = UnionPrimitiveType.Text("false")
+        UnionPrimitiveType.encode(original, protocol)
+        UnionPrimitiveType.decode(protocol) mustEqual(original)
       }
     }
 
