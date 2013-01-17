@@ -94,13 +94,16 @@ object Main {
         }
         ()
       })
-
       opt("finagle", "generate finagle classes", {
         flags += WithFinagleService
         flags += WithFinagleClient
         ()
       })
       opt("ostrich", "generate ostrich server interface", { flags += WithOstrichServer; () })
+      opt("allowNull", "allow null as value for fields (while writing) regardless of field's requiredness", {
+        flags += WithSkipNullWrite
+        ()
+      })
       arglist("<files...>", "thrift files to compile", { thriftFiles += _ })
     }
     if (!parser.parse(args)) {

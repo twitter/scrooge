@@ -1,6 +1,8 @@
-if ({{#optional}}{{fieldName}}.isDefined{{/optional}}{{^optional}}true{{/optional}}) {
+;{{#optional}}if ({{fieldName}}.isDefined) {{/optional}}{
   val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
-  _oprot.writeFieldBegin({{fieldConst}})
-  {{>writeValue}}
-  _oprot.writeFieldEnd()
+  ;{{#withSkipNullWrite}}{{^isPrimitive}}if ({{valueVariableName}} != null) {{/isPrimitive}}{{/withSkipNullWrite}}{
+    _oprot.writeFieldBegin({{fieldConst}})
+    {{>writeValue}}
+    _oprot.writeFieldEnd()
+  }
 }

@@ -30,6 +30,7 @@ abstract sealed class ServiceOption
 case object WithFinagleClient extends ServiceOption
 case object WithFinagleService extends ServiceOption
 case object WithOstrichServer extends ServiceOption
+case object WithSkipNullWrite extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 object Generator {

@@ -256,7 +256,8 @@ trait StructTemplate {
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withProxy" -> v(struct.isInstanceOf[Struct]),
-      "withFinagleClient" -> v(serviceOptions contains WithFinagleClient)
+      "withFinagleClient" -> v(serviceOptions contains WithFinagleClient),
+      "withSkipNullWrite" -> v(serviceOptions contains WithSkipNullWrite)
     )
   }
 }

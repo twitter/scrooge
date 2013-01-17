@@ -1,6 +1,8 @@
-{{#optional}}if ({{fieldName}}.isDefined()) {{{/optional}}
-  _oprot.writeFieldBegin({{fieldConst}});
+{{#optional}}if ({{fieldName}}.isDefined()) {{/optional}}{
   {{fieldType}} {{valueVariableName}} = {{fieldName}}{{#optional}}.get(){{/optional}};
-  {{>writeValue}}
-  _oprot.writeFieldEnd();
-{{#optional}}}{{/optional}}
+  {{#withSkipNullWrite}}{{^isPrimitive}}if ({{valueVariableName}} != null) {{/isPrimitive}}{{/withSkipNullWrite}}{
+    _oprot.writeFieldBegin({{fieldConst}});
+    {{>writeValue}}
+    _oprot.writeFieldEnd();
+  }
+}
