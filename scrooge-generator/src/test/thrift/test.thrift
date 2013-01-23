@@ -51,18 +51,6 @@ enum NumberID
   EIGHT = 8
 }
 
-const NumberID myNumberID = NumberID.ONE;
-const string name = "Columbo";
-/**
- I AM A DOC
- */
-// not a doc, just a comment, but the doc should still get included.
-const i32 someInt = 1;
-const double someDouble = 3.0;
-const list<string> someList = ["piggy"];
-const list<string> emptyList = [];
-const map<string,string> someMap = {"foo": "bar"};
-
 /** doc, ignored */
 typedef i64 UserId
 

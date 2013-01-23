@@ -77,9 +77,9 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "transform a Field with enum constant default" in {
-      val field = Field(1, SimpleID("foo"), enumRef, Some(IdRHS(SimpleID("FOO"))))
+      val field = Field(1, SimpleID("field"), enumRef, Some(IdRHS(Identifier("SomeEnum.FOO"))))
       resolver(field) mustEqual
-        Field(1, SimpleID("foo"), enumType, Some(EnumRHS(enum, foo)))
+        Field(1, SimpleID("field"), enumType, Some(EnumRHS(enum, foo)))
     }
 
     "transform a Function" in {
@@ -104,8 +104,32 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "transform a Const" in {
-      val const = ConstDefinition(SimpleID("foo"), enumRef, IdRHS(SimpleID("FOO")), None)
-      resolver(const, None).definition mustEqual ConstDefinition(SimpleID("foo"), enumType, EnumRHS(enum, enum.values.head), None)
+      val const = ConstDefinition(SimpleID("foo"), enumRef, IdRHS(Identifier("SomeEnum.FOO")), None)
+      resolver(const, None).definition mustEqual ConstDefinition(SimpleID("foo"), enumType, EnumRHS(enum, foo), None)
+    }
+
+    "const definition transitivity" in {
+      // this code is ok
+      //   const string line = "hi"
+      //   const string copy = line
+      val line = ConstDefinition(SimpleID("line"), TString, StringLiteral("hi"), None)
+      val newResolver = resolver(line, None).resolver
+      val copy = ConstDefinition(SimpleID("copy"), TString, IdRHS(SimpleID("line")), None)
+      newResolver(copy, None).definition mustEqual
+        ConstDefinition(SimpleID("copy"), TString, StringLiteral("hi"), None)
+
+      // this code has type mismatch
+      //   const string line = "hi"
+      //   const i32 copy = line
+      //
+      val copyWrongType = ConstDefinition(SimpleID("copy"), TI32, IdRHS(SimpleID("line")), None)
+      newResolver(copyWrongType, None) must throwA[TypeMismatchException]
+
+      // this code has undefined symbol
+      //   const string line = "hi"
+      //   const string copy = noSuchConst
+      val copyWrongId = ConstDefinition(SimpleID("copy"), TString, IdRHS(SimpleID("noSuchConst")), None)
+      newResolver(copyWrongId, None) must throwA[UndefinedConstantException]
     }
 
     "transform a Service" in {

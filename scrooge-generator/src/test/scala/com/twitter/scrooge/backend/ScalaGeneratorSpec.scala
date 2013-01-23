@@ -89,7 +89,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
     }
 
     "generate constants" in {
-      thrift.test.Constants.myNumberID mustEqual NumberId.One
+      thrift.test.Constants.myWfhDay mustEqual Weekday.Thu
       thrift.test.Constants.name mustEqual "Columbo"
       thrift.test.Constants.someInt mustEqual 1
       thrift.test.Constants.someDouble mustEqual 3.0
