@@ -40,6 +40,7 @@ object Main {
   var skipUnchanged = false
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
+  var dryRun: Boolean = false
   var language: Language = Scala
   var defaultNamespace: String = "thrift"
 
@@ -83,6 +84,12 @@ object Main {
         fileMapPath = Some(path)
         ()
       })
+      opt("dry-run",
+      "parses and validates source thrift files, reporting any errors, but" +
+        " does not emit any generated source code.  can be used with " +
+        "--gen-file-mapping to get the file mapping",
+      { dryRun = true; () }
+      )
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { skipUnchanged = true; () })
       opt("l", "language", "name of language to generate code in ('java' and 'scala' are currently supported)", { languageString: String =>
         languageString.toLowerCase match {
@@ -136,8 +143,12 @@ object Main {
       if (verbose) println("+ Compiling %s".format(inputFile))
       val resolvedDoc = TypeResolver()(doc0)
       val generator = Generator(language, resolvedDoc.resolver.includeMap, defaultNamespace)
-      val generatedFiles =
-        generator(resolvedDoc.document, flags.toSet, new File(destFolder)).map { _.getPath }
+      val generatedFiles = generator(
+        resolvedDoc.document,
+        flags.toSet,
+        new File(destFolder),
+        dryRun
+      ).map { _.getPath }
 
       if (verbose) {
         println("+ Generated %s".format(generatedFiles.mkString(", ")))

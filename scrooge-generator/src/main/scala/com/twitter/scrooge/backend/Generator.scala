@@ -55,9 +55,9 @@ abstract class Generator
   val defaultNamespace: String
 
   /******************** helper functions ************************/
-  private[this] def namespacedFolder(destFolder: File, namespace: String) = {
+  private[this] def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean) = {
     val file = new File(destFolder, namespace.replace('.', File.separatorChar))
-    file.mkdirs()
+    if (!dryRun) file.mkdirs()
     file
   }
 
@@ -272,50 +272,60 @@ abstract class Generator
   def apply(
     _doc: Document,
     serviceOptions: Set[ServiceOption],
-    outputPath: File): Iterable[File]
-  = {
+    outputPath: File,
+    dryRun: Boolean = false
+  ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
     val doc = normalizeCase(_doc)
     val namespace = getNamespace(_doc)
-    val packageDir = namespacedFolder(outputPath, namespace.fullName)
+    val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
     val includes = doc.headers.collect {
       case x@ Include(_, doc) => x
     }
 
     if (doc.consts.nonEmpty) {
       val file = new File(packageDir, "Constants" + fileExtension)
-      val dict = constDict(namespace, doc.consts)
-      writeFile(file, templates.header, templates("consts").generate(dict))
+      if (!dryRun) {
+        val dict = constDict(namespace, doc.consts)
+        writeFile(file, templates.header, templates("consts").generate(dict))
+      }
       generatedFiles += file
     }
 
     doc.enums.foreach {
       enum =>
         val file = new File(packageDir, enum.sid.toTitleCase.name + fileExtension)
-        val dict = enumDict(namespace, enum)
-        writeFile(file, templates.header, templates("enum").generate(dict))
+        if (!dryRun) {
+          val dict = enumDict(namespace, enum)
+          writeFile(file, templates.header, templates("enum").generate(dict))
+        }
         generatedFiles += file
     }
 
     doc.structs.foreach {
       struct =>
-        val templateName =
-          struct match {
-            case _: Union => "union"
-            case _ => "struct"
-          }
-
         val file = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
-        val dict = structDict(struct, Some(namespace), includes, serviceOptions)
-        writeFile(file, templates.header, templates(templateName).generate(dict))
+
+        if (!dryRun) {
+          val templateName =
+            struct match {
+              case _: Union => "union"
+              case _ => "struct"
+            }
+
+          val dict = structDict(struct, Some(namespace), includes, serviceOptions)
+          writeFile(file, templates.header, templates(templateName).generate(dict))
+        }
         generatedFiles += file
     }
 
     doc.services.foreach {
       service =>
         val file = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
-        val dict = serviceDict(JavaService(service, serviceOptions), namespace, includes, serviceOptions)
-        writeFile(file, templates.header, templates("service").generate(dict))
+        if (!dryRun) {
+          val dict = serviceDict(JavaService(service, serviceOptions), namespace, includes, serviceOptions)
+          writeFile(file, templates.header, templates("service").generate(dict))
+        }
         generatedFiles += file
     }
 
