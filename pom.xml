@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge</artifactId>
   <packaging>pom</packaging>
-  <version>3.0.4-SNAPSHOT</version>
+  <version>3.0.4</version>
   <name>scrooge</name>
   <url>http://github.com/twitter/scrooge</url>
   <description>A Thrift generator for Scala</description>
@@ -51,11 +51,6 @@
 
   <repositories>
     <repository>
-      <id>twitter-maven-repository</id>
-      <name>Twitter's public artifact repository</name>
-      <url>http://maven.twttr.com/</url>
-    </repository>
-    <repository>
       <id>sonatype-nexus-snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
@@ -66,13 +61,6 @@
       </snapshots>
     </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>Twitter public Maven repo</id>
-      <url>http://maven.twttr.com</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <build>
     <pluginManagement>

@@ -5,12 +5,12 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-generator</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.4-SNAPSHOT</version>
+  <version>3.0.4</version>
   <name>scrooge-generator</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.0.4-SNAPSHOT</version>
+    <version>3.0.4</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.0.4-SNAPSHOT</version>
+      <version>3.0.4</version>
       <scope>test</scope>
     </dependency>
     <!-- library dependencies -->
@@ -43,13 +43,13 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-core</artifactId>
-      <version>5.3.13</version>
+      <artifactId>util-core_2.9.2</artifactId>
+      <version>6.0.6</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-codec</artifactId>
-      <version>5.3.13</version>
+      <artifactId>util-codec_2.9.2</artifactId>
+      <version>6.0.6</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -107,20 +107,20 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-core</artifactId>
-      <version>5.3.20</version>
+      <artifactId>finagle-core_2.9.2</artifactId>
+      <version>6.0.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-thrift</artifactId>
-      <version>5.3.20</version>
+      <artifactId>finagle-thrift_2.9.2</artifactId>
+      <version>6.0.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-ostrich4</artifactId>
-      <version>5.3.20</version>
+      <artifactId>finagle-ostrich4_2.9.2</artifactId>
+      <version>6.0.6</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
