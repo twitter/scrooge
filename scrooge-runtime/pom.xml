@@ -4,12 +4,12 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-runtime</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.4</version>
+  <version>3.0.5-SNAPSHOT</version>
   <name>scrooge-runtime</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.0.4</version>
+    <version>3.0.5-SNAPSHOT</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>

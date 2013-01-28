@@ -3,7 +3,7 @@
 * add --dry-run option to parse and validate source thrift files, reports any
 errors, but does not emit any generated source code. It can be used with
 --gen-file-mapping to get the file mapping
-* Bug fix: union types wasn't able to contain primitive types before.
+* Bug fix: union types now can contain primitive types.
 * Update dependency of util/finagle/ostrich to 6.0.6
 * Project dependencies are all in Maven Central now. You don't need to have
 access to Twitter internal repository anymore.

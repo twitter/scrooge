@@ -62,6 +62,11 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
       Constants.someList mustEqual Utilities.makeList("piggy")
       Constants.emptyList mustEqual Utilities.makeList()
       Constants.someMap mustEqual Utilities.makeMap(Utilities.makeTuple("foo", "bar"))
+      Constants.someSimpleSet mustEqual Utilities.makeSet("foo", "bar")
+      Constants.someSet mustEqual Utilities.makeSet(
+        Utilities.makeList("piggy"),
+        Utilities.makeList("kitty")
+      )
     }
 
     "basic structs" in {

@@ -96,6 +96,11 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       thrift.test.Constants.someList mustEqual List("piggy")
       thrift.test.Constants.emptyList mustEqual List()
       thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
+      thrift.test.Constants.someSimpleSet mustEqual Set("foo", "bar")
+      thrift.test.Constants.someSet mustEqual Set(
+        List("piggy"),
+        List("kitty")
+      )
     }
 
     "basic structs" in {

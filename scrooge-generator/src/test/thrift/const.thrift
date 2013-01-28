@@ -11,11 +11,16 @@ const double someDouble = 3.0;
 const list<string> someList = ["piggy"];
 const list<string> emptyList = [];
 const map<string,string> someMap = {"foo": "bar"};
+const set<string> someSimpleSet = ["foo", "bar"]
+const list<string> anotherNoneEmptyList = ["kitty"]
+const set<list<string>> someSet = [someList, anotherNoneEmptyList]
+
 
 const list<string> nonEmptyPlainList = [name];
 
 // TODO: CSL-364. Uncomment the following line once it's fixed.
 // const list<list<string>> emptyNestedList = [emptyList];
+// const set<list<string>> setWithEmptyListElement = [emptyList, someList]
 
 const list<list<string>> nonEmptyNestedList = [nonEmptyPlainList];
 
