@@ -1,15 +1,17 @@
 package com.twitter.scrooge.backend
 
 import java.util.Arrays
-import com.twitter.finagle
-import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.util.Future
 import org.specs.SpecificationWithJUnit
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
+import com.twitter.finagle
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.util.Future
+import com.twitter.scrooge.testutil.EvalHelper
+import com.twitter.scrooge.ThriftException
 import thrift.test._
-import com.twitter.scrooge.{ThriftException, EvalHelper}
+
 
 class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
