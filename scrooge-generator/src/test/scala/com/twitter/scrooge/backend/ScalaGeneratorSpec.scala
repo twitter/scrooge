@@ -6,12 +6,13 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
+import com.twitter.finagle.SourcedException
+import com.twitter.scrooge.testutil.EvalHelper
+import com.twitter.scrooge.{ThriftStruct, ThriftException}
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
-import com.twitter.scrooge.{ThriftStruct, ThriftException, EvalHelper}
-import com.twitter.finagle.SourcedException
 
 class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]

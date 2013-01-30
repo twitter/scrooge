@@ -16,59 +16,56 @@
 
 package com.twitter.scrooge.mustache
 
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
 import com.twitter.scrooge.mustache.Dictionary._
+import org.specs.SpecificationWithJUnit
 
-@RunWith(classOf[JUnitRunner])
-class HandlebarSpec extends FunSpec {
+class HandlebarSpec extends SpecificationWithJUnit {
   def v(data: Dictionary): Value = ListValue(Seq(data))
   def v(data: String): Value = CodeFragment(data)
   def v(data: Boolean): Value = BooleanValue(data)
   def v(data: Seq[Dictionary]): Value = ListValue(data)
   def v(data: Handlebar): Value = PartialValue(data)
-  describe("Handlebar") {
-    it("without directives") {
+  "Handlebar" should {
+    "without directives" in {
       val template = "there are no directives here"
-      assert(Handlebar.generate(template, Dictionary()) === template)
+      Handlebar.generate(template, Dictionary()) mustEqual template
     }
 
-    it("simple interpolation") {
+    "simple interpolation" in {
       val template = "Hello {{name}}!\nYou're looking {{how}} today."
-      assert(Handlebar.generate(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) ===
-        "Hello Mary!\nYou're looking sad today.")
+      Handlebar.generate(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) mustEqual
+        "Hello Mary!\nYou're looking sad today."
     }
 
-    it("optional blocks") {
+    "optional blocks" in {
       val template = "You {{#money}}have ${{money}}{{/money}}{{^money}}are broke{{/money}}."
-      assert(Handlebar.generate(template, Dictionary("money" -> v("5"))) === "You have $5.")
-      assert(Handlebar.generate(template, Dictionary()) === "You are broke.")
-      assert(Handlebar.generate(template, Dictionary("money" -> v(true))) === "You have $true.")
-      assert(Handlebar.generate(template, Dictionary("money" -> v(false))) === "You are broke.")
+      Handlebar.generate(template, Dictionary("money" -> v("5"))) mustEqual "You have $5."
+      Handlebar.generate(template, Dictionary()) mustEqual "You are broke."
+      Handlebar.generate(template, Dictionary("money" -> v(true))) mustEqual "You have $true."
+      Handlebar.generate(template, Dictionary("money" -> v(false))) mustEqual "You are broke."
     }
 
-    describe("iterates items") {
+    "iterates items" in {
       val cats = Seq(
         Dictionary("name" -> v("Commie")),
         Dictionary("name" -> v("Lola")),
         Dictionary("name" -> v("Lexi"))
       )
 
-      it("normally") {
+      "normally" in {
         val template = "The cats are named: {{#cats}}'{{name}}' {{/cats}}."
-        assert(Handlebar.generate(template, Dictionary("cats" -> v(cats))) ===
-          "The cats are named: 'Commie' 'Lola' 'Lexi' .")
+        Handlebar.generate(template, Dictionary("cats" -> v(cats))) mustEqual
+          "The cats are named: 'Commie' 'Lola' 'Lexi' ."
       }
 
-      it("with a joiner") {
+      "with a joiner" in {
         val template = "The cats are named: {{#cats}}{{name}}{{/cats|, }}."
-        assert(Handlebar.generate(template, Dictionary("cats" -> v(cats))) ===
-          "The cats are named: Commie, Lola, Lexi.")
+        Handlebar.generate(template, Dictionary("cats" -> v(cats))) mustEqual
+          "The cats are named: Commie, Lola, Lexi."
       }
     }
 
-    describe("partial") {
+    "partial" in {
       val cities = Seq(
         Dictionary("city" -> v("New York"), "state" -> v("NY")),
         Dictionary("city" -> v("Atlanta"), "state" -> v("GA"))
@@ -76,31 +73,31 @@ class HandlebarSpec extends FunSpec {
       val cityTemplate = new Handlebar("{{city}},\n{{state}}")
       val dictionary = Dictionary("cities" -> v(cities), "description" -> v(cityTemplate))
 
-      it("works") {
+      "works" in {
         val template = "We have these cities:\n{{#cities}}\n{{>description}}\n{{/cities}}\n"
-        assert(Handlebar.generate(template, dictionary) ===
-          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n")
+        Handlebar.generate(template, dictionary) mustEqual
+          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n"
       }
 
-      it("indents") {
+      "indents" in {
         val template = "We have these cities:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n"
-        assert(Handlebar.generate(template, dictionary) ===
-          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n")
+        Handlebar.generate(template, dictionary) mustEqual
+          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n"
       }
 
-      it("indents nestedly") {
+      "indents nestedly" in {
         val template = "We have these cities:\n  {{>header}}\n"
         val headerTemplate = new Handlebar("Header:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n")
         val dictionary = Dictionary(
           "cities" -> v(cities),
           "header" -> v(headerTemplate),
           "description" -> v(cityTemplate))
-        assert(Handlebar.generate(template, dictionary) ===
-          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n")
+        Handlebar.generate(template, dictionary) mustEqual
+          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n"
       }
     }
 
-    it("nests") {
+    "nests" in {
       val students = Seq(
         Dictionary(
           "cats" -> v(
@@ -137,7 +134,7 @@ One of our students is Mira.
 Mira has a cat that lives in Chicago.
 Mira has a cat that lives in Knoxville.
 """
-      assert(rv === expect)
+      rv mustEqual expect
     }
   }
 }
