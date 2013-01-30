@@ -17,45 +17,42 @@
 package com.twitter.scrooge.mustache
 
 import Dictionary._
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
+import org.specs.SpecificationWithJUnit
 
-@RunWith(classOf[JUnitRunner])
-class DictionarySpec extends FunSpec {
+class DictionarySpec extends SpecificationWithJUnit {
   def v(data: Dictionary): Value = ListValue(Seq(data))
   def v(data: String): Value = CodeFragment(data)
   def v(data: Boolean): Value = BooleanValue(data)
   def v(data: Seq[Dictionary]): Value = ListValue(data)
   def v(data: Handlebar): Value = PartialValue(data)
-  describe("Dictionary") {
-    it("can be empty") {
+  "Dictionary" should {
+    "can be empty" in {
       val d = Dictionary()
-      assert(d("nothing") === Dictionary.NoValue)
+      d("nothing") mustEqual Dictionary.NoValue
     }
 
-    describe("stores") {
-      it("boolean") {
+    "stores" in {
+      "boolean" in {
         val d = Dictionary("live" -> v(true), "banned" -> v(false))
-        assert(d("live").toBoolean)
-        assert(!d("banned").toBoolean)
-        assert(!d("not-here").toBoolean)
+        d("live").toBoolean must beTrue
+        !d("banned").toBoolean must beTrue
+        !d("not-here").toBoolean must beTrue
       }
 
-      it("string") {
+      "string" in {
         val d = Dictionary("name" -> v("Commie"))
-        assert(d("name").toData === "Commie")
-        assert(d("name").toBoolean)
-        assert(d("not-here").toData === "")
+        d("name").toData mustEqual "Commie"
+        d("name").toBoolean must beTrue
+        d("not-here").toData mustEqual ""
       }
 
-      it("dictionaries") {
+      "dictionaries" in {
         val stats = Seq(Dictionary("age" -> v("14")))
         val d = Dictionary("name" -> v("Commie"), "stats" -> v(stats))
-        assert(d("stats").children.size === 1)
-        assert(d("nothing").children.size === 0)
-        assert(d("stats").children.map { _("age").toData }.toList === List("14"))
-        assert(d("stats").children.map { _("name").toData }.toList === List("Commie"))
+        d("stats").children.size mustEqual 1
+        d("nothing").children.size mustEqual 0
+        d("stats").children.map { _("age").toData }.toList mustEqual List("14")
+        d("stats").children.map { _("name").toData }.toList mustEqual List("Commie")
       }
     }
   }
