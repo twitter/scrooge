@@ -104,6 +104,9 @@ class JavaGenerator(
     codify(code)
   }
 
+  def genEnum(enum: EnumRHS): CodeFragment =
+    genID(enum.value.sid.toUpperCase.addScope(enum.enum.sid.toTitleCase))
+
   /**
    * Generates a suffix to append to a field expression that will
    * convert the value to an immutable equivalent.

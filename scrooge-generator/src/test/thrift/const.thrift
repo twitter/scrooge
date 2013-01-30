@@ -24,18 +24,17 @@ const list<string> nonEmptyPlainList = [name];
 
 const list<list<string>> nonEmptyNestedList = [nonEmptyPlainList];
 
-enum Weekday {
-  MON = 1,
+// mixed cases for ids
+enum weekDay {
+  mon = 1,
   TUE,
-  WED = 3,
-  THU,
-  FRI,
-  SAT,
-  SUN
+  Wed = 3,
+  thu,
+  Fri,
+  Sat,
+  sUN
 }
 
-const Weekday myWfhDay = Weekday.THU;
-
-// todo: CSL-365. Uncomment the following line once it's fixed.
-// const list<Weekday> myDaysOut = [myWfhday, Weekday.SAT, Weekday.SUN]
+const weekDay myWfhDay = weekDay.thu;
+const list<weekDay> myDaysOut = [myWfhDay, weekDay.Sat, weekDay.sUN]
 

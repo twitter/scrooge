@@ -141,7 +141,7 @@ abstract class Generator
       case c@ListRHS(_) => genList(c, mutable)
       case c@SetRHS(_) => genSet(c, mutable)
       case c@MapRHS(_) => genMap(c, mutable)
-      case EnumRHS(enum, value) => genID(value.sid.addScope(enum.sid.toTitleCase))
+      case c: EnumRHS => genEnum(c)
       case iv@IdRHS(id) => genID(id)
     }
   }
@@ -151,6 +151,8 @@ abstract class Generator
   def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment
 
   def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
+
+  def genEnum(enum: EnumRHS): CodeFragment
 
   /**
    * The default value for the specified type and mutability.

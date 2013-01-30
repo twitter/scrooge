@@ -55,7 +55,8 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
     }
 
     "generate constants" in {
-      Constants.myWfhDay mustEqual Weekday.THU
+      Constants.myWfhDay mustEqual WeekDay.THU
+      Constants.myDaysOut mustEqual Utilities.makeList(WeekDay.THU, WeekDay.SAT, WeekDay.SUN)
       Constants.name mustEqual "Columbo"
       Constants.someInt mustEqual 1
       Constants.someDouble mustEqual 3.0
