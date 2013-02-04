@@ -1,12 +1,26 @@
+3.0.5 - 02/04/2013
+===============================================================================
+Bug fixes
+* Constant definitions now can be of "set" type.
+* Fix letter cases of enum fields(Java uses upper case; Scala uses title case)
+Dependencies
+* Remove dependency on org.scalatest, com.twitter.scalatest (not in Maven
+  Central)
+* Update dependency of util/finagle/ostrich to 6.1.0
+* Project dependencies are all in Maven Central now. You don't need to have
+  access to Twitter internal repository anymore.
+
 3.0.4 - 01/27/2013
 ===============================================================================
+Features:
 * add --dry-run option to parse and validate source thrift files, reports any
-errors, but does not emit any generated source code. It can be used with
---gen-file-mapping to get the file mapping
-* Bug fix: union types now can contain primitive types.
+  errors, but does not emit any generated source code. It can be used with
+  --gen-file-mapping to get the file mapping
+Bug fixes
+* union types now can contain primitive types.
+* constants defined in the same file now can be referenced.
+Dependencies
 * Update dependency of util/finagle/ostrich to 6.0.6
-* Project dependencies are all in Maven Central now. You don't need to have
-access to Twitter internal repository anymore.
 
 3.0.3 - 12/21/2012
 ===============================================================================
