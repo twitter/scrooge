@@ -7,6 +7,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.EvalHelper
 import thrift.java_test._
 
 class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {

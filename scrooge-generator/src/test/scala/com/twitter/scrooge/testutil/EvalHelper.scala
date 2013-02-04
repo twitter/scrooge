@@ -1,12 +1,12 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.testutil
 
-import com.twitter.finagle.thrift.ThriftClientRequest
-//import com.twitter.scrooge.ThriftStruct
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.matcher.Matcher
 import org.specs.mock.JMocker
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.scrooge.ThriftStruct
 
 trait EvalHelper { self: JMocker =>
   case class matchEqualsTField(a: TField) extends Matcher[TField]() {
