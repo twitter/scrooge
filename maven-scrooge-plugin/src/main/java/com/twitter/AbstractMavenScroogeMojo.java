@@ -76,7 +76,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private boolean thriftFromDependencies = false;
 
   /**
-   * Command line options to pass to the thrift compiler, e.g.
+   * Command line options to pass to scrooge, e.g.
    * {@code
    * <thriftOpts>
    *   <thriftOpt>--finagle</thriftOpt>

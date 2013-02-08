@@ -109,6 +109,7 @@
           <thriftOpts>
             <thriftOpt>--finagle</thriftOpt>
             <thriftOpt>--ostrich</thriftOpt>
+            <thriftOpt>-v</thriftOpt> <!-- verbose mode -->
           </thriftOpts>
         </configuration>
         <executions>
@@ -127,7 +128,6 @@
             </goals>
           </execution>
         </executions>
-
       </plugin>
     </plugins>
   </build>
