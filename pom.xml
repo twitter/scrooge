@@ -133,6 +133,7 @@
     <module>scrooge-runtime</module>
     <module>scrooge-generator</module>
     <module>maven-scrooge</module>
+    <module>scrooge-project-maven</module>
   </modules>
 
 </project>
