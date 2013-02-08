@@ -100,7 +100,12 @@
         <artifactId>maven-scrooge-plugin</artifactId>
         <version>3.0.6-SNAPSHOT</version>
         <configuration>
-          <thriftNamespaceMappings/>
+          <thriftNamespaceMappings>
+            <thriftNamespaceMapping>
+              <from>mythrift.bird</from>
+              <to>mythrift.bird_renamed</to>
+            </thriftNamespaceMapping>
+          </thriftNamespaceMappings>
           <thriftOpts>
             <thriftOpt>--finagle</thriftOpt>
             <thriftOpt>--ostrich</thriftOpt>

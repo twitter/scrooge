@@ -1,4 +1,4 @@
-namespace java com.twitter.example.thrift
+namespace java mythrift.week
 
 enum weekDay {
   mon = 1,
