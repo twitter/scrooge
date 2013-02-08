@@ -19,7 +19,7 @@ import java.util.Set;
  * @threadSafe true
  */
 
-public final class FinagleThriftTestCompileMojo extends AbstractFinagleThriftMojo {
+public final class MavenScroogeTestCompileMojo extends AbstractMavenScroogeMojo {
 
   /**
    * The source directories containing the sources to be compiled.

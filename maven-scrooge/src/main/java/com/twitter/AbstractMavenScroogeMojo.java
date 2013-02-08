@@ -27,14 +27,14 @@ import static org.codehaus.plexus.util.FileUtils.*;
 
 /**
  * Abstract Mojo implementation.
- * This class is extended by {@link com.twitter.FinagleThriftCompileMojo} and
- * {@link com.twitter.FinagleThriftTestCompileMojo} in order to override the specific configuration for
+ * This class is extended by {@link MavenScroogeCompileMojo} and
+ * {@link MavenScroogeTestCompileMojo} in order to override the specific configuration for
  * compiling the main or test classes respectively.
  *
  * @author mccv
  * @requiresDependencyResolution
  */
-abstract class AbstractFinagleThriftMojo extends AbstractMojo {
+abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
   private static final String THRIFT_FILE_SUFFIX = ".thrift";
 
@@ -158,15 +158,8 @@ abstract class AbstractFinagleThriftMojo extends AbstractMojo {
       ImmutableSet<File> outputFiles = findGeneratedFilesInDirectory(getOutputDirectory());
 
       Set<String> compileRoots = new HashSet<String>();
-      for (String generator : thriftGenerators) {
-        if ("java".equals(generator) || "finagle".equals(generator)) {
-          compileRoots.add("gen-java");
-        } else if ("py".equals(generator)) {
-          compileRoots.add("gen-py");
-        } else if ("scrooge".equals(generator)) {
-          compileRoots.add("scrooge");
-        }
-      }
+      compileRoots.add("scrooge");
+
       if (thriftFiles.isEmpty()) {
         getLog().info("No thrift files to compile.");
       } else if (checkStaleness && ((lastModified(thriftFiles) + staleMillis) < lastModified(outputFiles))) {
@@ -179,27 +172,13 @@ abstract class AbstractFinagleThriftMojo extends AbstractMojo {
         cleanDirectory(outputDirectory);
 
         getLog().info(format("compiling thrift files %s with generators %s", thriftFiles, thriftGenerators));
-        for (String generator: thriftGenerators) {
-          if ("java".equals(generator) || "rb".equals(generator) || "py".equals(generator)) {
-            synchronized (lock) {
-              FinagleThriftRunner runner = new FinagleThriftRunner(fixHashcode);
-              runner.compile(getLog(), outputDirectory, thriftFiles, thriftIncludes, generator);
-            }
-          } else if ("finagle".equals(generator)) {
-            synchronized(lock) {
-              FinagleThriftRunner runner = new FinagleThriftRunner("thrift-finagle", fixHashcode);
-              runner.compile(getLog(), outputDirectory, thriftFiles, thriftIncludes, "java");
-            }
-          } else if ("scrooge".equals(generator)) {
-            synchronized(lock) {
-              ScroogeRunner runner = new ScroogeRunner();
-              Map<String, String> thriftNamespaceMap = new HashMap<String, String>();
-              for (ThriftNamespaceMapping mapping : thriftNamespaceMappings) {
-                thriftNamespaceMap.put(mapping.getFrom(), mapping.getTo());
-              }
-              runner.compile(getLog(), new File(outputDirectory, "scrooge"), thriftFiles, thriftIncludes, thriftNamespaceMap, thriftOpts);
-            }
+        synchronized(lock) {
+          ScroogeRunner runner = new ScroogeRunner();
+          Map<String, String> thriftNamespaceMap = new HashMap<String, String>();
+          for (ThriftNamespaceMapping mapping : thriftNamespaceMappings) {
+            thriftNamespaceMap.put(mapping.getFrom(), mapping.getTo());
           }
+          runner.compile(getLog(), new File(outputDirectory, "scrooge"), thriftFiles, thriftIncludes, thriftNamespaceMap, thriftOpts);
         }
         attachFiles(compileRoots);
       }
