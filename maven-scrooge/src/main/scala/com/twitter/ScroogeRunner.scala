@@ -6,7 +6,7 @@ import java.util.{Map, Set}
 import scala.collection.JavaConverters._
 import scrooge.backend._
 import scrooge.frontend.{ThriftParser, Importer}
-import scrooge.TypeResolver
+import scrooge.{Language, TypeResolver}
 
 /**
  * @author mccv
@@ -19,11 +19,14 @@ class ScroogeRunner {
       val allDirs: List[File] = inputFileDir :: thriftIncludes.asScala.toList
       val allDirNames = allDirs.map(_.getCanonicalPath)
       val importer = Importer(allDirNames)
-      val parser = new ThriftParser(importer)
+      val parser = new ThriftParser(importer, true)
       val doc0 = parser.parseFile(inputFile.getCanonicalPath).mapNamespaces(namespaceMappings.asScala.toMap)
 
-      val doc1 = TypeResolver()(doc0).document
-      val gen = new ScalaGenerator()
+      //val doc1 = TypeResolver()(doc0).document
+      //val gen = new ScalaGenerator()
+      val resolvedDoc = TypeResolver()(doc0)
+      val doc1 = resolvedDoc.document
+      val gen = Generator(Language.Scala, resolvedDoc.resolver.includeMap, "thrift")
       val scroogeOpts = new scala.collection.mutable.HashSet[ServiceOption]
       if (flags.contains("finagle") || flags.contains ("--finagle")) {
         scroogeOpts += WithFinagleService
