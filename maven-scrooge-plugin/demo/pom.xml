@@ -2,17 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.twitter</groupId>
-  <artifactId>scrooge-project-maven</artifactId>
+  <artifactId>maven-scrooge-plugin-demo</artifactId>
   <packaging>jar</packaging>
   <version>1.0</version>
-  <name>scrooge-project-maven</name>
+  <name>maven-scrooge-plugin-demo</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
     <version>3.0.6-SNAPSHOT</version>
   </parent>
   <properties>
-    <git.dir>${project.basedir}/../../.git</git.dir>
+    <git.dir>${project.basedir}/../../../.git</git.dir>
   </properties>
   <dependencies>
     <!-- scala library -->
@@ -97,7 +97,7 @@
       </plugin>
       <plugin>
         <groupId>com.twitter</groupId>
-        <artifactId>maven-scrooge</artifactId>
+        <artifactId>maven-scrooge-plugin</artifactId>
         <version>3.0.6-SNAPSHOT</version>
         <configuration>
           <thriftNamespaceMappings/>
