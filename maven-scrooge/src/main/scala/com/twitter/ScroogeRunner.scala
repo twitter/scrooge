@@ -7,12 +7,28 @@ import scala.collection.JavaConverters._
 import scrooge.backend._
 import scrooge.frontend.{ThriftParser, Importer}
 import scrooge.{Language, TypeResolver}
-
-/**
- * @author mccv
- */
+import scrooge.Compiler
 
 class ScroogeRunner {
+
+  def compile(
+    log: Log,
+    outputDir: File,
+    thriftFiles: Set[File],
+    thriftIncludes: Set[File],
+    namespaceMappings: Map[String, String],
+    flags: Set[String]
+  ) {
+    val compiler = new Compiler()
+    compiler.strict = true
+    compiler.destFolder = outputDir.getPath
+    thriftFiles.asScala.map { compiler.thriftFiles += _.getPath }
+    thriftIncludes.asScala.map { compiler.importPaths += _.getPath }
+    namespaceMappings.asScala.map { e => compiler.namespaceMappings.put(e._1, e._2)}
+
+    compiler.run()
+  }
+/*
   def compile(log: Log, outputDir: File, thriftFiles: Set[File], thriftIncludes: Set[File], namespaceMappings: Map[String, String], flags: Set[String]) {
     for (inputFile <- thriftFiles.asScala) {
       val inputFileDir = inputFile.getParentFile()
@@ -43,5 +59,6 @@ class ScroogeRunner {
       gen(doc1, scroogeOpts.toSet, outputDir)
     }
   }
+  */
 
 }
