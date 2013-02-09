@@ -9,12 +9,11 @@
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>
-  <repositories>
-    <repository>
-      <id>twitter</id>
-      <url>http://maven.twttr.com</url>
-    </repository>
-  </repositories>
+  <parent>
+    <groupId>com.twitter</groupId>
+    <artifactId>scrooge</artifactId>
+    <version>3.0.6-SNAPSHOT</version>
+  </parent>
   <dependencyManagement>
     <dependencies>
       <dependency>
