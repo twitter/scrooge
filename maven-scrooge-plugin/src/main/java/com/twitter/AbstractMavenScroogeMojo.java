@@ -64,12 +64,6 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<File> thriftIncludes = new HashSet<File>();
 
   /**
-   * A set of generators to run on thrift code. Valid options are java, rb, py, finagle, and scrooge.
-   * @parameter
-   */
-  private Set<String> thriftGenerators = new HashSet<String>();
-
-  /**
    * Whether or not to scan dependencies for thrift files
    * @parameter
    */
@@ -171,7 +165,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
         // Quick fix to fix issues with two mvn installs in a row (ie no clean)
         cleanDirectory(outputDirectory);
 
-        getLog().info(format("compiling thrift files %s with generators %s", thriftFiles, thriftGenerators));
+        getLog().info(format("compiling thrift files %s with Scrooge", thriftFiles));
         synchronized(lock) {
           ScroogeRunner runner = new ScroogeRunner();
           Map<String, String> thriftNamespaceMap = new HashMap<String, String>();
