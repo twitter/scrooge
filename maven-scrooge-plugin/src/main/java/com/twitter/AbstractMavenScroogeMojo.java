@@ -178,9 +178,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           for (ThriftNamespaceMapping mapping : thriftNamespaceMappings) {
             thriftNamespaceMap.put(mapping.getFrom(), mapping.getTo());
           }
-
           runner.compile(getLog(), new File(outputDirectory, "scrooge"), thriftFiles, thriftIncludes, thriftNamespaceMap, thriftOpts);
-
         }
         attachFiles(compileRoots);
       }

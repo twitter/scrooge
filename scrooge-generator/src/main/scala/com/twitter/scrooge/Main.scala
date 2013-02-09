@@ -26,6 +26,13 @@ object Main {
 
   def main(args: Array[String]) {
     val compiler = new Compiler()
+    if (!parseOptions(compiler, args)) {
+      System.exit(1)
+    }
+    compiler.run()
+  }
+
+  def parseOptions(compiler: Compiler, args: Seq[String]): Boolean = {
     val buildProperties = new Properties
     Option(getClass.getResource("build.properties")) foreach { resource =>
       buildProperties.load(resource.openStream)
@@ -91,11 +98,7 @@ object Main {
       opt("ostrich", "generate ostrich server interface", { compiler.flags += WithOstrichServer; () })
       arglist("<files...>", "thrift files to compile", { compiler.thriftFiles += _ })
     }
-    if (!parser.parse(args)) {
-      System.exit(1)
-    }
-
-    compiler.run()
+    parser.parse(args)
   }
 
   def isUnchanged(file: File, sourceLastModified: Long): Boolean = {

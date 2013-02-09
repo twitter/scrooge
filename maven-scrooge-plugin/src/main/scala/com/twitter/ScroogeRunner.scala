@@ -20,7 +20,7 @@ import org.apache.maven.plugin.logging.Log
 import java.io.File
 import java.util.{Map, Set}
 import scala.collection.JavaConverters._
-import scrooge.Compiler
+import scrooge.{Main, Compiler}
 
 class ScroogeRunner {
 
@@ -35,9 +35,10 @@ class ScroogeRunner {
 
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath
-    thriftFiles.asScala.map { compiler.thriftFiles += _.getPath }
+    thriftFiles.asScala.map { _.getPath }
     thriftIncludes.asScala.map { compiler.importPaths += _.getPath }
     namespaceMappings.asScala.map { e => compiler.namespaceMappings.put(e._1, e._2)}
+    Main.parseOptions(compiler, flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath })
     compiler.run()
   }
 }
