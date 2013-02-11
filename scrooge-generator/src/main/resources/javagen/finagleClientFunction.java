@@ -1,8 +1,15 @@
 
-private __Stats {{__stats_name}} = new __Stats("{{clientFuncName}}");
+private __Stats _{{__stats_name}};
+
+private __Stats {{__stats_name}}() {
+  if (_{{__stats_name}} == null) {
+    _{{__stats_name}} = new __Stats("{{clientFuncName}}");
+  }
+  return _{{__stats_name}};
+}
 
 {{#headerInfo}}{{>header}}{{/headerInfo}} {
-  {{__stats_name}}.requestsCounter.incr();
+  {{__stats_name}}().requestsCounter.incr();
 
   Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncName}}", new {{ArgsStruct}}({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
     public Future<{{type}}> apply(byte[] in) {
@@ -39,12 +46,12 @@ private __Stats {{__stats_name}} = new __Stats("{{clientFuncName}}");
 
   rv.addEventListener(new FutureEventListener<{{type}}>() {
     public void onSuccess({{type}} result) {
-      {{__stats_name}}.successCounter.incr();
+      {{__stats_name}}().successCounter.incr();
     }
 
     public void onFailure(Throwable t) {
-      {{__stats_name}}.failuresCounter.incr();
-      {{__stats_name}}.failuresScope.counter0(t.getClass().getName()).incr();
+      {{__stats_name}}().failuresCounter.incr();
+      {{__stats_name}}().failuresScope.counter0(t.getClass().getName()).incr();
     }
   });
 
