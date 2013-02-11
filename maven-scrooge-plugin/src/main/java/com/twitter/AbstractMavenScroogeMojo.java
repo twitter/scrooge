@@ -21,6 +21,7 @@ import static com.google.common.base.Join.join;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.Collections.list;
 import static org.codehaus.plexus.util.FileUtils.*;
 
@@ -172,7 +173,18 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           for (ThriftNamespaceMapping mapping : thriftNamespaceMappings) {
             thriftNamespaceMap.put(mapping.getFrom(), mapping.getTo());
           }
-          runner.compile(getLog(), new File(outputDirectory, "scrooge"), thriftFiles, thriftIncludes, thriftNamespaceMap, thriftOpts);
+
+          // Include thrifts from dependencies as well.
+          Set<File> includes = thriftIncludes;
+          includes.add(getResourcesOutputDirectory());
+
+          runner.compile(
+                  getLog(),
+                  new File(outputDirectory, "scrooge"),
+                  thriftFiles,
+                  includes,
+                  thriftNamespaceMap,
+                  thriftOpts);
         }
         attachFiles(compileRoots);
       }

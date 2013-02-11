@@ -47,13 +47,11 @@
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.9.2</artifactId>
       <version>6.1.0</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-ostrich4_2.9.2</artifactId>
       <version>6.1.0</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
@@ -129,9 +127,10 @@
             </thriftNamespaceMapping>
           </thriftNamespaceMappings>
           <thriftOpts>
+            <!-- add other Scrooge command line options using thriftOpts -->
             <thriftOpt>--finagle</thriftOpt>
             <thriftOpt>--ostrich</thriftOpt>
-            <thriftOpt>-v</thriftOpt> <!-- verbose mode -->
+            <thriftOpt>-v</thriftOpt>
           </thriftOpts>
         </configuration>
         <executions>

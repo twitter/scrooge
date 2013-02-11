@@ -27,14 +27,14 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.scala-tools</groupId>
-          <artifactId>maven-scala-plugin</artifactId>
-          <version>2.14.1</version>
+          <groupId>net.alchim31.maven</groupId>
+          <artifactId>scala-maven-plugin</artifactId>
+          <version>3.1.0</version>
           <dependencies>
             <dependency>
-              <groupId>org.scala-tools</groupId>
-              <artifactId>maven-scala-plugin</artifactId>
-              <version>2.14.1</version>
+              <groupId>net.alchim31.maven</groupId>
+              <artifactId>scala-maven-plugin</artifactId>
+              <version>3.1.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -51,8 +51,9 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>scala-compile-first</id>
@@ -70,6 +71,9 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <scalaVersion>2.9.2</scalaVersion>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
