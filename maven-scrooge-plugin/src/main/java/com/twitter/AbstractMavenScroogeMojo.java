@@ -21,7 +21,6 @@ import static com.google.common.base.Join.join;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static java.util.Collections.list;
 import static org.codehaus.plexus.util.FileUtils.*;
 
@@ -32,7 +31,6 @@ import static org.codehaus.plexus.util.FileUtils.*;
  * {@link MavenScroogeTestCompileMojo} in order to override the specific configuration for
  * compiling the main or test classes respectively.
  *
- * @author mccv
  * @requiresDependencyResolution
  */
 abstract class AbstractMavenScroogeMojo extends AbstractMojo {
@@ -65,12 +63,6 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<File> thriftIncludes = new HashSet<File>();
 
   /**
-   * Whether or not to scan dependencies for thrift files
-   * @parameter
-   */
-  private boolean thriftFromDependencies = false;
-
-  /**
    * Command line options to pass to scrooge, e.g.
    * {@code
    * <thriftOpts>
@@ -83,11 +75,12 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<String> thriftOpts = new HashSet<String>();
 
   /**
-   * List of exclusions for thriftFromDependencies. Make sure to include the
+   * List of dependencies to extract thrift files from, even if they
+   * do not have idl classifier. Make sure to include the
    * correct artifact name (eg. finagle-thrift, not just finagle)
    * {@code
    * <dependencyConfig>
-   *     <exclude>finagle-thrift</exclude>
+   *     <include>finagle-thrift</include>
    * </dependencyConfig>
    * }
    *  @parameter
@@ -174,7 +167,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
             thriftNamespaceMap.put(mapping.getFrom(), mapping.getTo());
           }
 
-          // Include thrifts from dependencies as well.
+          // Include thrifts from resource as well.
           Set<File> includes = thriftIncludes;
           includes.add(getResourcesOutputDirectory());
 
@@ -246,47 +239,32 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     if (thriftSourceRoot != null && thriftSourceRoot.exists()) {
       thriftFiles.addAll(findThriftFilesInDirectory(thriftSourceRoot));
     }
-    if (thriftFromDependencies) {
-      getLog().info("finding thrift files in dependencies");
-      extractFilesFromDependencies(findThriftDependencies(dependencyConfig), getResourcesOutputDirectory());
-      if (getResourcesOutputDirectory().exists()) {
-        thriftFiles.addAll(findThriftFilesInDirectory(getResourcesOutputDirectory()));
-      }
-      getLog().info("finding thrift files in referenced (reactor) projects");
-      thriftFiles.addAll(getReferencedThriftFiles());
+    getLog().info("finding thrift files in dependencies");
+    extractFilesFromDependencies(findThriftDependencies(dependencyConfig), getResourcesOutputDirectory());
+    if (getResourcesOutputDirectory().exists()) {
+      thriftFiles.addAll(findThriftFilesInDirectory(getResourcesOutputDirectory()));
     }
+    getLog().info("finding thrift files in referenced (reactor) projects");
+    thriftFiles.addAll(getReferencedThriftFiles());
     return thriftFiles;
   }
 
   /**
-   * Look in dependent artifacts for thrift files. When found, copy
-   * them to {@link #getResourcesOutputDirectory()}.
+   * Iterate through dependencies, find those either
+   *   - have a classifier of idl
+   *   - are in the whitelist
    */
-  private Set<File> findThriftDependencies(Set<String> exclusions) throws IOException {
+  private Set<File> findThriftDependencies(Set<String> whitelist) throws IOException {
     Set<File> thriftDependencies = new HashSet<File>();
-    List<Artifact> dependencyArtifacts = getDependencyArtifacts();
-    for (Artifact artifact : dependencyArtifacts) {
-      if(!exclusions.contains(artifact.getArtifactId())) {
+    for(Artifact artifact : (Collection<Artifact>)project.getArtifacts()) {
+      String classifier = artifact.getClassifier();
+      String artifactId = artifact.getArtifactId();
+      if (classifier != null && classifier.equals("idl")
+              || whitelist.contains(artifactId)) {
         thriftDependencies.add(artifact.getFile());
       }
     }
     return thriftDependencies;
-  }
-
-  /**
-   * Get a list of dependent artifacst to scan for thrift files.
-   * Uses {@link #getDependencyScopeFilter()} to filter dependencies.
-   */
-  private List<Artifact> getDependencyArtifacts() throws IOException {
-    List<Artifact> compileArtifacts = new ArrayList<Artifact>();
-
-    for(Artifact artifact : (Collection<Artifact>)project.getArtifacts()) {
-      String classifier = artifact.getClassifier();
-      if (classifier != null && (classifier.equals("idl") || classifier.equals("thrift")) ) {
-        compileArtifacts.add(artifact);
-      }
-    }
-    return compileArtifacts;
   }
 
   /**
@@ -304,6 +282,8 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
             File destination = new File(output, entry.getName());
             getLog().info(format("extracting %s to %s", entry.getName(), destination.getCanonicalPath()));
             copyStreamToFile(new RawInputStreamFacade(jar.getInputStream(entry)), destination);
+            if (!destination.setLastModified(dep.lastModified()))
+              getLog().warn(format("fail to set last modified time for %s", destination.getCanonicalPath()));
           }
         }
       } else {

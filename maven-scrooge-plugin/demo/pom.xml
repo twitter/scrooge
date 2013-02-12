@@ -2,15 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.twitter</groupId>
-  <artifactId>maven-scrooge-plugin-demo</artifactId>
+  <artifactId>scrooge-demo</artifactId>
   <packaging>jar</packaging>
+  <name>scrooge-demo</name>
   <version>1.0</version>
-  <name>maven-scrooge-plugin-demo</name>
-  <parent>
-    <groupId>com.twitter</groupId>
-    <artifactId>scrooge</artifactId>
-    <version>3.0.6-SNAPSHOT</version>
-  </parent>
   <properties>
     <git.dir>${project.basedir}/../../../.git</git.dir>
   </properties>
@@ -76,6 +71,15 @@
       <version>2.4.0</version>
       <scope>test</scope>
     </dependency>
+    <!-- Add thrift dependencies in the following format
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>gizmoduck-thrift-only</artifactId>
+      <version>4.3.0</version>
+      <scope>compile</scope>
+      <classifier>idl</classifier>
+    </dependency>
+    -->
   </dependencies>
   <build>
     <plugins>

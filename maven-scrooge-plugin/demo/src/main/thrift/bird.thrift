@@ -14,6 +14,6 @@ struct Bird {
   2: string habitat
 }
 
-//service BirdService {
-//  list<Bird> getNonFlyingBirds(1: Location habitat)
-//}
+service BirdService {
+  list<Bird> getNonFlyingBirds(1: Location habitat)
+}

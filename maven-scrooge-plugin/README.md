@@ -4,10 +4,19 @@
 Here is an example of how to add maven-scrooge-plugin into your maven project.
 
     <dependencies>
+      ...
+      <!-- dependencies where we want to extract thrift files from -->
       <dependency>
-        <groupId>com.foocorp</groupId>
-        <artifactId>foo-thrift-jar</artifactId>
+        <groupId>com.twitter</groupId>
+        <artifactId>foo-thrift-only</artifactId>
+        <version>4.3.0</version>
         <classifier>idl</classifier>
+      </dependency>
+      <dependency>
+        <groupId>com.twitter</groupId>
+        <artifactId>bar-thrift-only</artifactId>
+        <version>7.8.0</version>
+        <!-- not an idl classifer, need to be added to whitelist below -->
       </dependency>
     </dependencies>
     <plugins>
@@ -19,8 +28,8 @@ Here is an example of how to add maven-scrooge-plugin into your maven project.
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
-              <from>mythrift.bird</from>
-              <to>mythrift.bird_renamed</to>
+              <from>com.twitter.old</from>
+              <to>com.twitter.new</to>
             </thriftNamespaceMapping>
           </thriftNamespaceMappings>
           <thriftOpts>
@@ -29,6 +38,9 @@ Here is an example of how to add maven-scrooge-plugin into your maven project.
             <thriftOpt>--ostrich</thriftOpt>
             <thriftOpt>-v</thriftOpt>
           </thriftOpts>
+          <dependencyConfig> <!-- this is the whitelist -->
+            <include>bar-thrift-only</include>
+          </dependencyConfig>
         </configuration>
         <executions>
           <execution>

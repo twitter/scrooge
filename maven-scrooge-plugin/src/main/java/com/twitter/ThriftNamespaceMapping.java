@@ -1,8 +1,5 @@
 package com.twitter;
 
-/**
- * @author mmcbride
- */
 public class ThriftNamespaceMapping {
   public String getTo() {
     return to;
