@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <!-- TODO: change name to scrooge-maven-plugin when all code reviews are done-->
-  <artifactId>maven-scrooge-plugin</artifactId>
+  <artifactId>scrooge-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <name>maven-scrooge-plugin</name>
+  <name>scrooge-maven-plugin</name>
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>

@@ -151,7 +151,7 @@
       </plugin>
       <plugin>
         <groupId>com.twitter</groupId>
-        <artifactId>maven-scrooge-plugin</artifactId>
+        <artifactId>scrooge-maven-plugin</artifactId>
         <version>3.0.6-SNAPSHOT</version>
         <configuration>
           <thriftNamespaceMappings>
