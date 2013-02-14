@@ -10,13 +10,35 @@
     <git.dir>${project.basedir}/../../../.git</git.dir>
   </properties>
   <dependencies>
-    <!-- scala library -->
+    <!-- how to add thrift dependencies -->
+    <!-- if the artifact has "idl" classifer, you can specify it
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>foo</artifactId>
+      <version>0.1.0</version>
+      <scope>compile</scope>
+      <classifier>idl</classifier>
+    </dependency>
+    -->
+
+    <!-- if the artifact does not have "idl" classifier, then you need to
+         - add it as a dependency here.
+         - add the artifactId as <dependencyConfig> in scrooge-maven-plugin, as seen later
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>bar</artifactId>
+      <version>1.0.1</version>
+      <scope>compile</scope>
+      <classifier>idl</classifier>
+    </dependency>
+    -->
+
+    <!-- common library dependencies -->
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>2.9.2</version>
     </dependency>
-    <!-- library dependencies -->
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
@@ -71,15 +93,6 @@
       <version>2.4.0</version>
       <scope>test</scope>
     </dependency>
-    <!-- Add thrift dependencies in the following format
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>gizmoduck-thrift-only</artifactId>
-      <version>4.3.0</version>
-      <scope>compile</scope>
-      <classifier>idl</classifier>
-    </dependency>
-    -->
   </dependencies>
   <build>
     <plugins>
@@ -90,7 +103,10 @@
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
-        </configuration>
+          <fork>true</fork>
+          <meminitial>128m</meminitial>
+          <maxmem>512m</maxmem>
+       </configuration>
       </plugin>
       <plugin>
         <groupId>net.alchim31.maven</groupId>
@@ -102,6 +118,20 @@
               <goal>compile</goal>
               <goal>testCompile</goal>
             </goals>
+            <configuration>
+              <args>
+                <param>-unchecked</param>
+                <param>-deprecation</param>
+                <param>-encoding</param>
+                <param>utf8</param>
+              </args>
+              <!-- Scrooge generates more files (one file per struct), so
+                   you might need to increase running memory for maven
+               -->
+              <jvmArgs>
+                <jvmArg>-Xmx2G</jvmArg>
+              </jvmArgs>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -136,6 +166,11 @@
             <thriftOpt>--ostrich</thriftOpt>
             <thriftOpt>-v</thriftOpt>
           </thriftOpts>
+          <!-- tell scrooge to extract thrifts from these artifacts as well
+          <dependencyConfig>
+            <include>bar</include>
+          </dependencyConfig>
+          -->
         </configuration>
         <executions>
           <execution>

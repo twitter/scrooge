@@ -58,7 +58,7 @@ SBT users need this:
 
     val scrooge_runtime = "com.twitter.scrooge" % "scrooge-runtime" % "3.0.1"
 
-## Running Scrooge
+## Running Scrooge as a command line tool
 
 To get command line help:
 
@@ -118,6 +118,12 @@ To use it, add a line like this to your `plugins.sbt` file:
 
 (or whatever the current version is). Full details are in the sbt-scrooge
 `README`.
+
+## Maven Plugin
+We ship a [scrooge-maven-plugin](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin) with Scrooge,
+as well as an [example maven project](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin/demo).
+Please refer to the [example pom file] (https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin/demo/pom.xml)
+
 
 ## Finagle integration
 
