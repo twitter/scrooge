@@ -2,7 +2,7 @@
 
 package {{package}};
 
-import com.twitter.scrooge.ScroogeOption;
+import com.twitter.scrooge.Option;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
@@ -21,7 +21,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
   private static final TStruct STRUCT = new TStruct("{{StructName}}");
 {{#fields}}
   private static final TField {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, (short) {{id}});
-  private final {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{fieldType}}{{/optional}} {{fieldName}};
+  private final {{#optional}}Option<{{fieldType}}>{{/optional}}{{^optional}}{{fieldType}}{{/optional}} {{fieldName}};
 {{/fields}}
 
   public enum Field {

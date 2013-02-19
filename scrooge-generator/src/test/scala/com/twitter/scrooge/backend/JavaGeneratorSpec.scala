@@ -277,7 +277,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new ScroogeOption.Some(14))
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new Option.Some(14))
         }
 
         "read with missing field" in {
@@ -287,7 +287,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", ScroogeOption.none())
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", Option.none())
         }
 
         "write" in {
@@ -299,7 +299,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", new ScroogeOption.Some(14)).write(protocol) mustEqual ()
+          new OptionalInt("Commie", new Option.Some(14)).write(protocol) mustEqual ()
         }
 
         "write with missing field" in {
@@ -309,7 +309,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", ScroogeOption.none()).write(protocol) mustEqual ()
+          new OptionalInt("Commie", Option.none()).write(protocol) mustEqual ()
         }
       }
 

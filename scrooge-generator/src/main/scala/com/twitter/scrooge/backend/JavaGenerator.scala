@@ -213,7 +213,7 @@ class JavaGenerator(
   def genFieldType(f: Field, mutable: Boolean = false): CodeFragment = {
     val code = if (f.requiredness.isOptional) {
       val baseType = genType(f.fieldType, mutable).toData
-      "ScroogeOption<" + baseType + ">"
+      "com.twitter.scrooge.Option<" + baseType + ">"
     } else {
       genPrimitiveType(f.fieldType).toData
     }

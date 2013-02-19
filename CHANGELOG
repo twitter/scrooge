@@ -1,3 +1,21 @@
+3.0.6 - 02/15/2013
+===============================================================================
+* Released a scrooge-maven-plugin, for maven projects to integrate Scrooge in
+  their pom files. Also released a demo of how to use scrooge-maven-plugin
+* scrooge-runtime is now backward compatible with scrooge-runtime 2.X.X. The
+  following classes and methods are deprecated:
+    FinagleThriftClient,
+    FinagleThriftService,
+    ThriftStructCodec.decoder,
+    ThriftStructCodec.encoder
+* scrooge-runtime now can introspect generated ThriftStruct. See the new
+  ThriftStructMetaData class.
+* BREAKING: in scrooge-runtime, com.twitter.ScroogeOption is now renamed to
+  just Option. This is mainly for Java code. But if you need to use it in
+  Scala code, make sure to address ambiguity with scala.Option.
+* Updated APIs of scrooge-generator. See com.twitter.scrooge.Compiler class
+* Fix the stats reporting for the java scrooge thrift code generation
+
 3.0.5 - 02/04/2013
 ===============================================================================
 Bug fixes

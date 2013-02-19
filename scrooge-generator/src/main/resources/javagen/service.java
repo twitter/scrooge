@@ -1,6 +1,6 @@
 package {{package}};
 
-import com.twitter.scrooge.ScroogeOption;
+import com.twitter.scrooge.Option;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
 import com.twitter.scrooge.Utilities;

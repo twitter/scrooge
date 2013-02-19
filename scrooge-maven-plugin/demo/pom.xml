@@ -73,7 +73,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.0.6-SNAPSHOT</version>
+      <version>3.0.6</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -152,7 +152,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>3.0.6-SNAPSHOT</version>
+        <version>3.0.6</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
