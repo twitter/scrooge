@@ -61,9 +61,14 @@ public class {{ServiceName}} {
   }
 {{/withFinagle}}
 
-{{#structs}}
-  {{>struct}}
-{{/structs}}
+{{#internalStructs}}
+{{#internalArgsStruct}}
+    {{>struct}}
+{{/internalArgsStruct}}
+{{#internalResultStruct}}
+    {{>struct}}
+{{/internalResultStruct}}
+{{/internalStructs}}
 {{#finagleClients}}
   {{>finagleClient}}
 {{/finagleClients}}

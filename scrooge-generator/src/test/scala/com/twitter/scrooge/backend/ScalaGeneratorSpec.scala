@@ -626,5 +626,13 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       candy.count mustEqual 10
       candy.headline mustEqual "Life is short, eat dessert first"
     }
+
+    "hide internal helper function to avoid naming conflict" in {
+      import thrift.`def`.default._
+      val impl = new NaughtyService.Iface {
+        def foo(): FooResult = FooResult("dummy message")
+      }
+      impl.foo().message mustEqual("dummy message")
+    }
   }
 }

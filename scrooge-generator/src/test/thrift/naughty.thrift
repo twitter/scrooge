@@ -23,3 +23,13 @@ union NaughtyUnion {
   20: bool flag
   30: string text
 }
+
+
+// csl-389
+struct fooResult {
+  1: string message
+}
+
+service naughtyService {
+  fooResult foo()
+}

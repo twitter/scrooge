@@ -44,11 +44,11 @@ trait ServiceTemplate {
     )
   }
 
-  def serviceFunctionArgsStruct(f: Function): FunctionArgs = {
-    FunctionArgs(f.funcName.append("_args"), f.args)
+  def internalArgsStruct(f:Function): FunctionArgs = {
+    FunctionArgs(internalArgsStructName(f), f.args)
   }
 
-  def serviceFunctionResultStruct(f: Function): FunctionResult = {
+  def internalResultStruct(f:Function): FunctionResult = {
     val throws = f.throws map {
       _.copy(requiredness = Requiredness.Optional)
     }
@@ -57,8 +57,14 @@ trait ServiceTemplate {
       case fieldType: FieldType =>
         Seq(Field(0, SimpleID("success"), fieldType, None, Requiredness.Optional))
     }
-    FunctionResult(f.funcName.append("_result"), success ++ throws)
+    FunctionResult(internalResultStructName(f), success ++ throws)
   }
+
+  def internalArgsStructName(f: Function): SimpleID =
+    f.funcName.toCamelCase.append("$").append("args")
+
+  def internalResultStructName(f: Function): SimpleID =
+    f.funcName.toCamelCase.append("$").append("result")
 
   def finagleClient(s: Service) = {
     Dictionary(
@@ -75,8 +81,8 @@ trait ServiceTemplate {
             "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "type" -> genType(f.funcType),
             "void" -> v(f.funcType eq Void),
-            "ArgsStruct" -> genID(f.funcName.append("Args").toTitleCase),
-            "ResultStruct" -> genID(f.funcName.append("Result").toTitleCase),
+            "ArgsStruct" -> genID(internalArgsStructName(f)),
+            "ResultStruct" -> genID(internalResultStructName(f)),
             "argNames" -> {
               val code = f.args.map { field => genID(field.sid).toData }.mkString(", ")
               codify(code)
@@ -104,8 +110,8 @@ trait ServiceTemplate {
         f =>
           Dictionary(
             "serviceFuncName" -> genID(f.funcName.toCamelCase),
-            "ArgsStruct" -> genID(f.funcName.append("Args").toTitleCase),
-            "ResultStruct" -> genID(f.funcName.append("Result").toTitleCase),
+            "ArgsStruct" -> genID(internalArgsStructName(f)),
+            "ResultStruct" -> genID(internalResultStructName(f)),
             "argNames" ->
               codify(f.args map { field =>
                 "args." + genID(field.sid).toData
@@ -153,14 +159,16 @@ trait ServiceTemplate {
         f => toDictionary(f, true)
       }),
       "struct" -> v(templates("struct")),
-      "structs" -> v(
-        service.functions flatMap {
-          f =>
-            Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-        } map {
-          struct =>
-            structDict(struct, None, includes, serviceOptions)
-        }),
+      "internalStructs" -> v(service.functions.map { f =>
+        Dictionary(
+          "internalArgsStruct" -> v(structDict(
+            internalArgsStruct(f),
+            None, includes, serviceOptions)),
+          "internalResultStruct" -> v(structDict(
+            internalResultStruct(f),
+            None, includes, serviceOptions))
+        )
+      }),
       "finagleClient" -> v(templates("finagleClient")),
       "finagleService" -> v(templates("finagleService")),
       "ostrichServer" -> v(templates("ostrichService")),
