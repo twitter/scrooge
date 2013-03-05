@@ -327,8 +327,8 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
       Namespace(scope, id)
   }
 
-  def namespaceScope = "*" | (identifier ^^ {
-    id => id.fullName
+  def namespaceScope = "*" ^^^ "*" | (identifier ^^ {
+    id => if (id.fullName == "scala") "java" else id.fullName
   })
 
   /**

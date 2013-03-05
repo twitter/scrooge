@@ -1,4 +1,4 @@
-namespace java com.fake
+namespace * com.fake
 
 include "namespace_none.thrift"
 include "namespace_single.thrift"

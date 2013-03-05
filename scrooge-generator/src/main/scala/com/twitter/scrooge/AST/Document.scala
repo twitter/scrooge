@@ -1,9 +1,15 @@
 package com.twitter.scrooge.ast
 
 case class Document(headers: Seq[Header], defs: Seq[Definition]) extends DocumentNode {
-  def namespace(language: String): Option[Identifier] = headers collect {
-    case Namespace(l, x) if l == language => x
-  } headOption
+  def namespace(language: String): Option[Identifier] = {
+    (headers collect {
+      // first try to find language specific namespace scope
+      case Namespace(l, x) if l == language => x
+    }).headOption orElse(headers collect {
+      // then see if universal namespace scope is defined
+      case Namespace(l, x) if l == "*" => x
+    }).headOption
+  }
 
   def mapNamespaces(namespaceMap: Map[String,String]): Document = {
     copy(
