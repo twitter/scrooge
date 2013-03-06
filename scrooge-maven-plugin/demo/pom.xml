@@ -29,7 +29,6 @@
       <artifactId>bar</artifactId>
       <version>1.0.1</version>
       <scope>compile</scope>
-      <classifier>idl</classifier>
     </dependency>
     -->
 
