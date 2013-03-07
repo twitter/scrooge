@@ -1,3 +1,17 @@
+3.0.7 - 03/07/2013
+===============================================================================
+* All on-wire names in the Thrift messages are now consistent with
+Apache generated code. This allows Scrooge generated services to exchange
+Thrift messages with Apache generated services.
+* scrooge-maven-plugin now enforces an explicit white list in <dependencyConfig>.
+The old behavior is that if a dependency artifact has a "idl" classifier, we
+will extract thrift files from it to compile. The new behavior is that the
+artifact must be explicitly included in <dependencyConfig>. The dependencies
+here include both direct dependencies(specified in project pom file) and
+indirect dependencies (everything in the dependency tree).
+* Now supports "scala" as a namespace scope. It is treated same as "java".
+* Now supports "*" as a default namespace scope
+
 3.0.6 - 02/15/2013
 ===============================================================================
 * Released a scrooge-maven-plugin, for maven projects to integrate Scrooge in
