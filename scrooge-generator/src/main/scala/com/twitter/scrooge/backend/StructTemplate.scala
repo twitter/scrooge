@@ -109,6 +109,7 @@ trait StructTemplate {
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> genID(field.sid),
+          "fieldNameForWire" -> codify(field.originalName),
           "newFieldName" -> genID(field.sid.toTitleCase.prepend("new")),
           "FieldName" -> genID(field.sid.toTitleCase),
           "FIELD_NAME" -> genID(field.sid.toUpperCase),
@@ -248,6 +249,7 @@ trait StructTemplate {
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Seq())),
       "alternativeConstructor" -> v(
         struct.fields.exists(_.requiredness.isOptional) && struct.fields.exists(_.requiredness.isDefault)),
+      "StructNameForWire" -> codify(struct.originalName),
       "StructName" ->
         // if isPublic, the struct comes from a Thrift definition. Otherwise
         // it's an internal struct: fooMethod$args or fooMethod$result

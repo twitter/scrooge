@@ -45,7 +45,9 @@ trait ServiceTemplate {
   }
 
   def internalArgsStruct(f:Function): FunctionArgs = {
-    FunctionArgs(internalArgsStructName(f), f.args)
+    FunctionArgs(internalArgsStructName(f),
+      internalArgsStructNameForWire(f),
+      f.args)
   }
 
   def internalResultStruct(f:Function): FunctionResult = {
@@ -55,16 +57,30 @@ trait ServiceTemplate {
     val success = f.funcType match {
       case Void => Nil
       case fieldType: FieldType =>
-        Seq(Field(0, SimpleID("success"), fieldType, None, Requiredness.Optional))
+        Seq(Field(0, SimpleID("success"), "success", fieldType, None, Requiredness.Optional))
     }
-    FunctionResult(internalResultStructName(f), success ++ throws)
+    FunctionResult(internalResultStructName(f),
+      internalResultStructNameForWire(f),
+      success ++ throws)
   }
 
   def internalArgsStructName(f: Function): SimpleID =
     f.funcName.toCamelCase.append("$").append("args")
 
+  /**
+   * The name used in RPC request, this needs to be same as Apache compiler
+   */
+  def internalArgsStructNameForWire(f: Function): String =
+    f.funcName.name + "_args"
+
   def internalResultStructName(f: Function): SimpleID =
     f.funcName.toCamelCase.append("$").append("result")
+
+  /**
+   * The name used in RPC request, this needs to be same as Apache compiler
+   */
+  def internalResultStructNameForWire(f: Function): String =
+    f.funcName.name + "_result"
 
   def finagleClient(s: Service) = {
     Dictionary(
@@ -77,7 +93,7 @@ trait ServiceTemplate {
           Dictionary(
             "header" -> v(templates("function")),
             "headerInfo" -> v(toDictionary(f, true)),
-            "clientFuncName" -> genID(f.funcName.toCamelCase),
+            "clientFuncNameForWire" -> codify(f.originalName),
             "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "type" -> genType(f.funcType),
             "void" -> v(f.funcType eq Void),
@@ -109,7 +125,8 @@ trait ServiceTemplate {
       "functions" -> v(s.functions map {
         f =>
           Dictionary(
-            "serviceFuncName" -> genID(f.funcName.toCamelCase),
+            "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
+            "serviceFuncNameForWire" -> codify(f.originalName),
             "ArgsStruct" -> genID(internalArgsStructName(f)),
             "ResultStruct" -> genID(internalResultStructName(f)),
             "argNames" ->

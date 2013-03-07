@@ -15,9 +15,9 @@ sealed trait {{StructName}} extends {{parentType}}
 
 {{docstring}}
 object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
-  val Union = new TStruct("{{StructName}}")
+  val Union = new TStruct("{{StructNameForWire}}")
 {{#fields}}
-  val {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, {{id}})
+  val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
 {{/fields}}
 
   def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }

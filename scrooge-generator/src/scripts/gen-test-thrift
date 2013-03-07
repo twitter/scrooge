@@ -11,6 +11,7 @@ javaNamespace="-n thrift.test=thrift.java_test
 -n foo=java_foo
 -n bar=java_bar
 -n com.fake=com.java_fake
+-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_java
 --default-java-namespace java_thrift"
 
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l java $javaNamespace"

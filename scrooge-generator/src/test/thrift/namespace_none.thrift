@@ -1,13 +1,13 @@
 
 enum Weekday
 {
-  MONDAY=1,
-  TUESDAY,
-  WEDNESDAY,
-  THURSDAY,
-  FRIDAY,
-  SATURDAY=6,
-  SUNDAY
+  Monday=1,
+  Tuesday,
+  Wednesday,
+  Thursday,
+  Friday,
+  Saturday=6,
+  Sunday
 }
 
 // intentional name collision with Business service in namespace_single.thrift

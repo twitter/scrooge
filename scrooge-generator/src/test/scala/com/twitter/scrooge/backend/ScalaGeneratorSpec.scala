@@ -22,76 +22,76 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
   "ScalaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        NumberId.One.getValue mustEqual 1
-        NumberId.Two.getValue mustEqual 2
-        NumberId.Three.getValue mustEqual 3
-        NumberId.Five.getValue mustEqual 5
-        NumberId.Six.getValue mustEqual 6
-        NumberId.Eight.getValue mustEqual 8
+        NumberID.One.getValue mustEqual 1
+        NumberID.Two.getValue mustEqual 2
+        NumberID.Three.getValue mustEqual 3
+        NumberID.Five.getValue mustEqual 5
+        NumberID.Six.getValue mustEqual 6
+        NumberID.Eight.getValue mustEqual 8
       }
 
       "correct names" in {
-        NumberId.One.name mustEqual "One"
-        NumberId.Two.name mustEqual "Two"
-        NumberId.Three.name mustEqual "Three"
-        NumberId.Five.name mustEqual "Five"
-        NumberId.Six.name mustEqual "Six"
-        NumberId.Eight.name mustEqual "Eight"
+        NumberID.One.name mustEqual "One"
+        NumberID.Two.name mustEqual "Two"
+        NumberID.Three.name mustEqual "Three"
+        NumberID.Five.name mustEqual "Five"
+        NumberID.Six.name mustEqual "Six"
+        NumberID.Eight.name mustEqual "Eight"
       }
 
       "apply" in {
-        NumberId(1) mustEqual NumberId.One
-        NumberId(2) mustEqual NumberId.Two
-        NumberId(3) mustEqual NumberId.Three
-        NumberId(5) mustEqual NumberId.Five
-        NumberId(6) mustEqual NumberId.Six
-        NumberId(8) mustEqual NumberId.Eight
+        NumberID(1) mustEqual NumberID.One
+        NumberID(2) mustEqual NumberID.Two
+        NumberID(3) mustEqual NumberID.Three
+        NumberID(5) mustEqual NumberID.Five
+        NumberID(6) mustEqual NumberID.Six
+        NumberID(8) mustEqual NumberID.Eight
       }
 
       "get" in {
-        NumberId.get(1) must beSome(NumberId.One)
-        NumberId.get(2) must beSome(NumberId.Two)
-        NumberId.get(3) must beSome(NumberId.Three)
-        NumberId.get(5) must beSome(NumberId.Five)
-        NumberId.get(6) must beSome(NumberId.Six)
-        NumberId.get(8) must beSome(NumberId.Eight)
-        NumberId.get(10) must beNone
+        NumberID.get(1) must beSome(NumberID.One)
+        NumberID.get(2) must beSome(NumberID.Two)
+        NumberID.get(3) must beSome(NumberID.Three)
+        NumberID.get(5) must beSome(NumberID.Five)
+        NumberID.get(6) must beSome(NumberID.Six)
+        NumberID.get(8) must beSome(NumberID.Eight)
+        NumberID.get(10) must beNone
       }
 
       "valueOf" in {
-        NumberId.valueOf("One") must beSome(NumberId.One)
-        NumberId.valueOf("Two") must beSome(NumberId.Two)
-        NumberId.valueOf("Three") must beSome(NumberId.Three)
-        NumberId.valueOf("Five") must beSome(NumberId.Five)
-        NumberId.valueOf("Six") must beSome(NumberId.Six)
-        NumberId.valueOf("Eight") must beSome(NumberId.Eight)
-        NumberId.valueOf("Ten") must beNone
+        NumberID.valueOf("One") must beSome(NumberID.One)
+        NumberID.valueOf("Two") must beSome(NumberID.Two)
+        NumberID.valueOf("Three") must beSome(NumberID.Three)
+        NumberID.valueOf("Five") must beSome(NumberID.Five)
+        NumberID.valueOf("Six") must beSome(NumberID.Six)
+        NumberID.valueOf("Eight") must beSome(NumberID.Eight)
+        NumberID.valueOf("Ten") must beNone
       }
 
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
-        out.writeObject(NumberId.One)
-        out.writeObject(NumberId.Two)
+        out.writeObject(NumberID.One)
+        out.writeObject(NumberID.Two)
         bos.close()
         val bytes = bos.toByteArray
 
         val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
         var obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.One.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.One.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.One.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.One.name
 
         obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.Two.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.Two.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.Two.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.Two.name
       }
     }
 
     "generate constants" in {
       thrift.test.Constants.myWfhDay mustEqual WeekDay.Thu
-      thrift.test.Constants.myDaysOut mustEqual List(WeekDay.Thu, WeekDay.Sat, WeekDay SUn)
+      thrift.test.Constants.myDaysOut mustEqual List(WeekDay.Thu, WeekDay.Sat, WeekDay.SUN)
       thrift.test.Constants.name mustEqual "Columbo"
       thrift.test.Constants.someInt mustEqual 1
       thrift.test.Constants.someDouble mustEqual 3.0
@@ -619,7 +619,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
     }
 
     "typedef relative fields" in {
-      val candy = Candy(100, CandyType.Delicious)
+      val candy = Candy(100, CandyType.DeliCIous)
       candy.sweetnessIso mustEqual 100
       candy.candyType.value mustEqual 1
       candy.brand mustEqual "Hershey"

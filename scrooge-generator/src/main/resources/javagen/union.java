@@ -18,9 +18,9 @@ import java.util.HashSet;
 
 {{docstring}}
 public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements ThriftStruct {
-  private static final TStruct STRUCT = new TStruct("{{StructName}}");
+  private static final TStruct STRUCT = new TStruct("{{StructNameForWire}}");
 {{#fields}}
-  private static final TField {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, (short) {{id}});
+  private static final TField {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, (short) {{id}});
   private final {{#optional}}Option<{{fieldType}}>{{/optional}}{{^optional}}{{fieldType}}{{/optional}} {{fieldName}};
 {{/fields}}
 

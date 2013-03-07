@@ -290,7 +290,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val service = new Capsly.FinagledService(null, null) {
         def getFunction2(name: String) = functionMap(name)
       }
-      service.getFunction2("badName") must not(be_==(None))
+      service.getFunction2("Bad_Name") must not(be_==(None))
     }
   }
 }

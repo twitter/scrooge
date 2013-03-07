@@ -193,7 +193,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
       val transformedReq = {
         if (transformedVal.isDefined && req.isOptional) Requiredness.Default else req
       }
-      Field(fid.getOrElse(0), sid, ftype, transformedVal, transformedReq)
+      Field(fid.getOrElse(0), sid, sid.name, ftype, transformedVal, transformedReq)
     }
   }
 
@@ -216,6 +216,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
 
       Function(
         id,
+        id.name,
         ftype,
         fixFieldIds(args),
         throws.map {
@@ -274,23 +275,23 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
     (opt(comments) ~ ((keyword ~> simpleID) <~ "{")) ~ rep(field) <~ "}" <~ opt(annotationGroup)
 
   def struct = structLike("struct") ^^ {
-    case comment ~ sid ~ fields => Struct(sid, fixFieldIds(fields), comment)
+    case comment ~ sid ~ fields => Struct(sid, sid.name, fixFieldIds(fields), comment)
   }
 
   def union = structLike("union") ^^ {
     case comment ~ sid ~ fields =>
       val fields0 = fields.map {
-        case f @ Field(_, _, _, _, r) if r == Requiredness.Default => f
+        case f @ Field(_, _, _, _, _, r) if r == Requiredness.Default => f
         case f @ _ =>
           failOrWarn(UnionFieldRequirednessException(sid.name, f.sid.name, f.requiredness.toString))
           f.copy(requiredness = Requiredness.Default)
       }
 
-      Union(sid, fixFieldIds(fields0), comment)
+      Union(sid, sid.name, fixFieldIds(fields0), comment)
   }
 
   def exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
-    case comment ~ sid ~ fields => Exception_(sid, fixFieldIds(fields.getOrElse(Nil)), comment)
+    case comment ~ sid ~ fields => Exception_(sid, sid.name, fixFieldIds(fields.getOrElse(Nil)), comment)
   }
 
   def service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> serviceParentID) ~ ("{" ~> rep(function) <~

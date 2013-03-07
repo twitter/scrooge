@@ -147,17 +147,17 @@ case class TypeResolver(
       ResolvedDefinition(
         d.copy(fieldType = resolved),
         withMapping(sid.name, resolved))
-    case s @ Struct(sid, fs, _) =>
+    case s @ Struct(sid, _, fs, _) =>
       val resolved = s.copy(fields = fs.map(apply))
       ResolvedDefinition(
         resolved,
         withMapping(sid.name, StructType(resolved, forcePrefix)))
-    case u @ Union(sid, fs, _) =>
+    case u @ Union(sid, _, fs, _) =>
       val resolved = u.copy(fields = fs.map(apply))
       ResolvedDefinition(
         resolved,
         withMapping(sid.name, StructType(resolved, forcePrefix)))
-    case e @ Exception_(sid, fs, _) =>
+    case e @ Exception_(sid, _, fs, _) =>
       val resolved = e.copy(fields = fs.map(apply))
       ResolvedDefinition(
         resolved,
@@ -181,7 +181,7 @@ case class TypeResolver(
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, t, as, ts, _) =>
+    case Function(_, _, t, as, ts, _) =>
       f.copy(funcType = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 

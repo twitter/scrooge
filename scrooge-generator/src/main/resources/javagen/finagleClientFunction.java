@@ -3,7 +3,7 @@ private __Stats _{{__stats_name}};
 
 private __Stats {{__stats_name}}() {
   if (_{{__stats_name}} == null) {
-    _{{__stats_name}} = new __Stats("{{clientFuncName}}");
+    _{{__stats_name}} = new __Stats("{{clientFuncNameForWire}}");
   }
   return _{{__stats_name}};
 }
@@ -11,7 +11,7 @@ private __Stats {{__stats_name}}() {
 {{#headerInfo}}{{>header}}{{/headerInfo}} {
   {{__stats_name}}().requestsCounter.incr();
 
-  Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncName}}", new {{ArgsStruct}}({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
+  Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncNameForWire}}", new {{ArgsStruct}}({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
     public Future<{{type}}> apply(byte[] in) {
       try {
         {{ResultStruct}} result = decodeResponse(in, {{ResultStruct}}.CODEC);
@@ -29,7 +29,7 @@ private __Stats {{__stats_name}}() {
 {{/void}}
 {{^void}}
         if (result.success.isDefined()) return Future.value(result.success.get());
-        return Future.exception(missingResult("{{clientFuncName}}"));
+        return Future.exception(missingResult("{{clientFuncNameForWire}}"));
 {{/void}}
       } catch (TException e) {
         return Future.exception(e);

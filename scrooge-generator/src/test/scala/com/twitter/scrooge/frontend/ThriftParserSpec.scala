@@ -52,14 +52,14 @@ class ThriftParserSpec extends SpecificationWithJUnit {
 
     "functions" in {
       parser.parse("/**doc!*/ void go()", parser.function) mustEqual
-        Function(SimpleID("go"), Void, Seq(), Seq(), Some("/**doc!*/"))
+        Function(SimpleID("go"), "go", Void, Seq(), Seq(), Some("/**doc!*/"))
       parser.parse(
         "list<string> get_tables(optional i32 id, /**DOC*/3: required string name='cat') throws (1: Exception ex);",
         parser.function) mustEqual
-        Function(SimpleID("get_tables"), ListType(TString, None), Seq(
-          Field(-1, SimpleID("id"), TI32, None, Requiredness.Optional),
-          Field(3, SimpleID("name"), TString, Some(StringLiteral("cat")), Requiredness.Required)
-        ), Seq(Field(1, SimpleID("ex"), ReferenceType(Identifier("Exception")), None, Requiredness.Default)), None)
+        Function(SimpleID("get_tables"), "get_tables", ListType(TString, None), Seq(
+          Field(-1, SimpleID("id"), "id", TI32, None, Requiredness.Optional),
+          Field(3, SimpleID("name"), "name", TString, Some(StringLiteral("cat")), Requiredness.Required)
+        ), Seq(Field(1, SimpleID("ex"), "ex", ReferenceType(Identifier("Exception")), None, Requiredness.Default)), None)
     }
 
     "const" in {
@@ -131,10 +131,10 @@ enum Foo
           3: Color color = BLUE
         }
                  """
-      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Point"), Seq(
-        Field(1, SimpleID("x"), TDouble, None, Requiredness.Default),
-        Field(2, SimpleID("y"), TDouble, None, Requiredness.Default),
-        Field(3, SimpleID("color"), ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
+      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Point"), "Point", Seq(
+        Field(1, SimpleID("x"), "x", TDouble, None, Requiredness.Default),
+        Field(2, SimpleID("y"), "y", TDouble, None, Requiredness.Default),
+        Field(3, SimpleID("color"), "color", ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
       ), Some("/** docs up here */"))
     }
 
@@ -150,11 +150,11 @@ enum Foo
             4: LighterThanAir lta
           }
                    """
-        parser.parse(code, parser.definition) mustEqual Union(SimpleID("Aircraft"), Seq(
-          Field(1, SimpleID("a"), ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
-          Field(2, SimpleID("r"), ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
-          Field(3, SimpleID("g"), ReferenceType(Identifier("Glider")), None, Requiredness.Default),
-          Field(4, SimpleID("lta"), ReferenceType(Identifier("LighterThanAir")), None, Requiredness.Default)
+        parser.parse(code, parser.definition) mustEqual Union(SimpleID("Aircraft"), "Aircraft", Seq(
+          Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
+          Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
+          Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default),
+          Field(4, SimpleID("lta"), "lta", ReferenceType(Identifier("LighterThanAir")), None, Requiredness.Default)
         ), Some("/** docs up here */"))
       }
 
@@ -173,26 +173,27 @@ enum Foo
           }
                    """
 
-        laxParser.parse(code, laxParser.definition) mustEqual Union(SimpleID("Aircraft"), Seq(
-          Field(1, SimpleID("a"), ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
-          Field(2, SimpleID("r"), ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
-          Field(3, SimpleID("g"), ReferenceType(Identifier("Glider")), None, Requiredness.Default)
+        laxParser.parse(code, laxParser.definition) mustEqual Union(SimpleID("Aircraft"), "Aircraft", Seq(
+          Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
+          Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
+          Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default)
         ), None)
       }
     }
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) mustEqual
-        Exception_(SimpleID("BadError"), Seq(Field(1, SimpleID("message"), TString, None, Requiredness.Default)), None)
+        Exception_(SimpleID("BadError"), "BadError",
+          Seq(Field(1, SimpleID("message"), "message", TString, None, Requiredness.Default)), None)
       parser.parse("exception E { string message, string reason }", parser.definition) mustEqual
-        Exception_(SimpleID("E"), Seq(
-          Field(-1, SimpleID("message"), TString, None, Requiredness.Default),
-          Field(-2, SimpleID("reason"), TString, None, Requiredness.Default)
+        Exception_(SimpleID("E"), "E", Seq(
+          Field(-1, SimpleID("message"), "message", TString, None, Requiredness.Default),
+          Field(-2, SimpleID("reason"), "reason", TString, None, Requiredness.Default)
         ), None)
       parser.parse("exception NoParams { }", parser.definition) mustEqual
-        Exception_(SimpleID("NoParams"), Seq(), None)
+        Exception_(SimpleID("NoParams"), "NoParams", Seq(), None)
       parser.parse("/** doc rivers */ exception wellDocumentedException { }", parser.definition) mustEqual
-        Exception_(SimpleID("wellDocumentedException"), Seq(), Some("/** doc rivers */"))
+        Exception_(SimpleID("wellDocumentedException"), "wellDocumentedException", Seq(), Some("/** doc rivers */"))
     }
 
     "service" in {
@@ -204,13 +205,13 @@ enum Foo
         }
                  """
       parser.parse(code, parser.definition) mustEqual Service(SimpleID("Cache"), None, Seq(
-        Function(SimpleID("put"), Void, Seq(
-          Field(1, SimpleID("name"), TString, None, Requiredness.Default),
-          Field(2, SimpleID("value"), TBinary, None, Requiredness.Default)
+        Function(SimpleID("put"), "put", Void, Seq(
+          Field(1, SimpleID("name"), "name", TString, None, Requiredness.Default),
+          Field(2, SimpleID("value"), "value", TBinary, None, Requiredness.Default)
         ), Seq(), None),
-        Function(SimpleID("get"), TBinary, Seq(
-          Field(1, SimpleID("name"), TString, None, Requiredness.Default)
-        ), Seq(Field(1, SimpleID("ex"), ReferenceType(Identifier("NotFoundException")), None, Requiredness.Default)), None)
+        Function(SimpleID("get"), "get", TBinary, Seq(
+          Field(1, SimpleID("name"), "name", TString, None, Requiredness.Default)
+        ), Seq(Field(1, SimpleID("ex"), "ex", ReferenceType(Identifier("NotFoundException")), None, Requiredness.Default)), None)
       ), Some("/** cold hard cache */"))
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) mustEqual
@@ -235,7 +236,7 @@ enum Foo
       parser.parse(code, parser.document) mustEqual Document(
         Seq(Namespace("java", Identifier("com.example")), Namespace("*", Identifier("example"))),
         Seq(Service(SimpleID("NullService"), None, Seq(
-          Function(SimpleID("doNothing"), Void, Seq(), Seq(), Some("/** DoC */"))
+          Function(SimpleID("doNothing"), "doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
         ), Some("/** what up doc */")))
       )
     }
@@ -249,8 +250,8 @@ enum Foo
     "ignore oneway modifier with strict mode off" in {
       val parserNonStrict = new ThriftParser(NullImporter, false)
       parserNonStrict.parse("/**one-way-docs*/ oneway i32 double(1: i32 n)", parserNonStrict.function) mustEqual
-        Function(SimpleID("double"), TI32, Seq(
-          Field(1, SimpleID("n"), TI32)
+        Function(SimpleID("double"), "double", TI32, Seq(
+          Field(1, SimpleID("n"), "n", TI32)
         ), Seq(), Some("/**one-way-docs*/"))
     }
 
@@ -303,10 +304,10 @@ enum Foo
              index="code_idx(code)",
              sql_name="airports",)
         """
-      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Airport"), Seq(
-        Field(1, SimpleID("id"), TI64, None, Requiredness.Optional),
-        Field(2, SimpleID("code"), TString, None, Requiredness.Optional),
-        Field(3, SimpleID("name"), TString, None, Requiredness.Optional)
+      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Airport"), "Airport", Seq(
+        Field(1, SimpleID("id"), "id", TI64, None, Requiredness.Optional),
+        Field(2, SimpleID("code"), "code", TString, None, Requiredness.Optional),
+        Field(3, SimpleID("name"), "name", TString, None, Requiredness.Optional)
       ), None)
     }
   }

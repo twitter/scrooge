@@ -18,40 +18,40 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
   "JavaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        NumberId.ONE.getValue() mustEqual 1
-        NumberId.TWO.getValue() mustEqual 2
-        NumberId.THREE.getValue() mustEqual 3
-        NumberId.FIVE.getValue() mustEqual 5
-        NumberId.SIX.getValue() mustEqual 6
-        NumberId.EIGHT.getValue() mustEqual 8
+        NumberID.ONE.getValue() mustEqual 1
+        NumberID.TWO.getValue() mustEqual 2
+        NumberID.THREE.getValue() mustEqual 3
+        NumberID.FIVE.getValue() mustEqual 5
+        NumberID.SIX.getValue() mustEqual 6
+        NumberID.EIGHT.getValue() mustEqual 8
       }
 
       "findByValue" in {
-        NumberId.findByValue(1) mustEqual NumberId.ONE
-        NumberId.findByValue(2) mustEqual NumberId.TWO
-        NumberId.findByValue(3) mustEqual NumberId.THREE
-        NumberId.findByValue(5) mustEqual NumberId.FIVE
-        NumberId.findByValue(6) mustEqual NumberId.SIX
-        NumberId.findByValue(8) mustEqual NumberId.EIGHT
+        NumberID.findByValue(1) mustEqual NumberID.ONE
+        NumberID.findByValue(2) mustEqual NumberID.TWO
+        NumberID.findByValue(3) mustEqual NumberID.THREE
+        NumberID.findByValue(5) mustEqual NumberID.FIVE
+        NumberID.findByValue(6) mustEqual NumberID.SIX
+        NumberID.findByValue(8) mustEqual NumberID.EIGHT
       }
 
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
-        out.writeObject(NumberId.ONE)
-        out.writeObject(NumberId.TWO)
+        out.writeObject(NumberID.ONE)
+        out.writeObject(NumberID.TWO)
         bos.close()
         val bytes = bos.toByteArray
 
         val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
         var obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.ONE.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.ONE.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.ONE.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.ONE.name
         obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.TWO.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.TWO.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.TWO.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.TWO.name
       }
     }
 
