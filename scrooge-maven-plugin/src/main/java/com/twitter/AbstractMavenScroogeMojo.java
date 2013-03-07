@@ -257,10 +257,8 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<File> findThriftDependencies(Set<String> whitelist) throws IOException {
     Set<File> thriftDependencies = new HashSet<File>();
     for(Artifact artifact : (Collection<Artifact>)project.getArtifacts()) {
-      String classifier = artifact.getClassifier();
       String artifactId = artifact.getArtifactId();
-      if (classifier != null && classifier.equals("idl")
-              || whitelist.contains(artifactId)) {
+      if (whitelist.contains(artifactId)) {
         thriftDependencies.add(artifact.getFile());
       }
     }
@@ -325,7 +323,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * Walk project references recursively, adding thrift files to the provided list.
    */
   List<File> getRecursiveThriftFiles(MavenProject project, String outputDirectory, List<File> files) throws IOException {
-    if (!dependencyConfig.contains(project.getArtifactId())) {
+    if (dependencyConfig.contains(project.getArtifactId())) {
       File dir = new File(new File(project.getFile().getParent(), "target"), outputDirectory);
       if (dir.exists()) {
         try {

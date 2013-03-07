@@ -10,27 +10,19 @@
     <git.dir>${project.basedir}/../../../.git</git.dir>
   </properties>
   <dependencies>
-    <!-- how to add thrift dependencies -->
-    <!-- if the artifact has "idl" classifer, you can specify it
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>foo</artifactId>
-      <version>0.1.0</version>
-      <scope>compile</scope>
-      <classifier>idl</classifier>
-    </dependency>
-    -->
+    <!-- Project dependencies -->
 
-    <!-- if the artifact does not have "idl" classifier, then you need to
-         - add it as a dependency here.
-         - add the artifactId as <dependencyConfig> in scrooge-maven-plugin, as seen later
+    <!-- Notes to users:
+    Suppose your project depends on some artifact from which you want to pull
+    out the thrift files to compile using Scrooge. Add the dependency as usual
+    and add the artifact to the whitelist in scrooge-maven-plugin configuration
+    Here we are using event-logger-thrift as an example
+    -->
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>bar</artifactId>
-      <version>1.0.1</version>
-      <scope>compile</scope>
+      <artifactId>event-logger-thrift</artifactId>
+      <version>0.0.3</version>
     </dependency>
-    -->
 
     <!-- common library dependencies -->
     <dependency>
@@ -165,11 +157,10 @@
             <thriftOpt>--ostrich</thriftOpt>
             <thriftOpt>-v</thriftOpt>
           </thriftOpts>
-          <!-- tell scrooge to extract thrifts from these artifacts as well
+          <!-- tell scrooge to extract thrifts from these artifacts -->
           <dependencyConfig>
-            <include>bar</include>
+            <include>event-logger-thrift</include>
           </dependencyConfig>
-          -->
         </configuration>
         <executions>
           <execution>
