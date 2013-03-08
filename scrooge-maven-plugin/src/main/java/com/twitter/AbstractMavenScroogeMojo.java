@@ -250,16 +250,14 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   }
 
   /**
-   * Iterate through dependencies, find those either
-   *   - have a classifier of idl
-   *   - are in the whitelist
+   * Iterate through dependencies, find those specified in the whitelist
    */
-  private Set<File> findThriftDependencies(Set<String> whitelist) throws IOException {
-    Set<File> thriftDependencies = new HashSet<File>();
+  private Set<Artifact> findThriftDependencies(Set<String> whitelist) throws IOException {
+    Set<Artifact> thriftDependencies = new HashSet<Artifact>();
     for(Artifact artifact : (Collection<Artifact>)project.getArtifacts()) {
       String artifactId = artifact.getArtifactId();
       if (whitelist.contains(artifactId)) {
-        thriftDependencies.add(artifact.getFile());
+        thriftDependencies.add(artifact);
       }
     }
     return thriftDependencies;
@@ -270,14 +268,17 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * @param dependencies A set of jar artifacts ths project depends on.
    * @param output The directory to copy any found files into.
    */
-  private void extractFilesFromDependencies(Collection<File> dependencies, File output) throws IOException {
-    for (File dep : dependencies) {
+  private void extractFilesFromDependencies(Collection<Artifact> dependencies, File output) throws IOException {
+    for (Artifact artifact : dependencies) {
+      File dep = artifact.getFile();
       getLog().info("extracting thrift files from " + dep.getCanonicalPath());
+      File destFolder = new File(output, artifact.getArtifactId());
+      destFolder.mkdirs();
       if (dep.isFile() && dep.canRead() && dep.getName().endsWith(".jar")) {
         JarFile jar = new JarFile(dep);
         for (JarEntry entry : list(jar.entries())) {
           if (entry.getName().endsWith(".thrift")) {
-            File destination = new File(output, entry.getName());
+            File destination = new File(destFolder, entry.getName());
             getLog().info(format("extracting %s to %s", entry.getName(), destination.getCanonicalPath()));
             copyStreamToFile(new RawInputStreamFacade(jar.getInputStream(entry)), destination);
             if (!destination.setLastModified(dep.lastModified()))
@@ -331,10 +332,12 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           for (File f : findThriftFilesInDirectory(dir)) {
             URI fileURI = new URI("file://" + f.getCanonicalPath());
             String relPath = baseDir.relativize(fileURI).getPath();
-            File dest = new File(getResourcesOutputDirectory(), relPath);
-            getLog().info(format("copying %s to %s", f.getCanonicalPath(), dest.getCanonicalPath()));
-            copyFile(f, dest);
-            files.add(dest);
+            File destFolder = new File(getResourcesOutputDirectory(), project.getArtifactId());
+            destFolder.mkdirs();
+            File destFile = new File(destFolder, relPath);
+            getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
+            copyFile(f, destFile);
+            files.add(destFile);
           }
         } catch (URISyntaxException urie) {
           throw new IOException("error forming URI for file transfer: " + urie);
