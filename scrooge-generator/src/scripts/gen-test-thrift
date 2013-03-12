@@ -52,8 +52,8 @@ $javaRun --default-java-namespace java_bar $namespace_thrifts
 
 echo "Running Scrooge on integration/"
 integration_thrifts=`find src/test/thrift/integration -name *.thrift`
-$scalaRun $integration_thrifts
-$javaRun $integration_thrifts
+$scalaRun -n thrift.test=com.twitter.scrooge.integration_scala --disable-strict $integration_thrifts
+$javaRun -n thrift.test=com.twitter.scrooge.integration_java --disable-strict $integration_thrifts
 
 echo "Running Scrooge on standalone/"
 standalone_thrifts=`find src/test/thrift/standalone -name *.thrift`
