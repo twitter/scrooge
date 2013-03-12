@@ -17,23 +17,21 @@ javaNamespace="-n thrift.test=thrift.java_test
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l scala"
 
-echo "compiling all thrift files except those in relative/ with --finagle --ostrich"
-standalone_thrifts=`find src/test/thrift -name *.thrift | grep -v src/test/thrift/relative`
-$javaRun $standalone_thrifts
-$scalaRun $standalone_thrifts
-
-echo "compiling dependency of relative/candy.thrift"
+echo "Running Scrooge on relative/"
 dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`
 $javaRun $dependency_thrifts
 $scalaRun $dependency_thrifts
-
-echo "compiling relative/candy.thrift"
 importArg="-i src/test/thrift/relative/dir2:src/test/thrift/relative/include3.jar"
 $javaRun $importArg src/test/thrift/relative/candy.thrift
 $scalaRun $importArg src/test/thrift/relative/candy.thrift
 
-echo "compiling airport example and generating vanilla code"
 airport_thrifts=`find src/test/thrift/airport -name *.thrift`
+
+echo "Running Scrooge on airport/ for Finagle usage"
+$scalaRun $airport_thrifts
+$javaRun $airport_thrifts
+
+echo "Running Scrooge on airport/ for vanilla usage"
 vanillaNamespace="-n thrift.test=vanilla.test
 -n thrift.test1=vanilla.test1
 -n thrift.test2=vanilla.test2"
@@ -47,7 +45,18 @@ javaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l java 
 $scalaVanillaRun $airport_thrifts
 $javaVanillaRun $airport_thrifts
 
-echo "compiling namespace example with bar and java_bar as default namespace"
-namespace_thrifts=`find src/test/thrift -name *.thrift | grep namespace`
+echo "Running Scrooge on namespace/ with bar and java_bar as default namespace"
+namespace_thrifts=`find src/test/thrift/namespace -name *.thrift`
 $scalaRun --default-java-namespace bar $namespace_thrifts
 $javaRun --default-java-namespace java_bar $namespace_thrifts
+
+echo "Running Scrooge on integration/"
+integration_thrifts=`find src/test/thrift/integration -name *.thrift`
+$scalaRun $integration_thrifts
+$javaRun $integration_thrifts
+
+echo "Running Scrooge on standalone/"
+standalone_thrifts=`find src/test/thrift/standalone -name *.thrift`
+$javaRun $standalone_thrifts
+$scalaRun $standalone_thrifts
+
