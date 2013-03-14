@@ -4,8 +4,8 @@ import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.ast._
 class TypeResolverSpec extends SpecificationWithJUnit {
   "TypeResolve" should {
-    val foo = EnumField(SimpleID("FOO"), 1)
-    val bar = EnumField(SimpleID("BAR"), 2)
+    val foo = EnumField(SimpleID("FOO"), 1, None)
+    val bar = EnumField(SimpleID("BAR"), 2, Some("/** I am a doc. */"))
     val enum = Enum(SimpleID("SomeEnum"), Seq(foo, bar), None)
     val enumType = new EnumType(enum)
     val enumRef = ReferenceType(enum.sid)

@@ -5,6 +5,7 @@ import com.twitter.scrooge.ThriftEnum
 {{docstring}}
 case object {{EnumName}} {
 {{#values}}
+  {{valuedocstring}}
   case object {{name}} extends {{EnumName}} {
     val value = {{value}}
     val name = "{{name}}"
