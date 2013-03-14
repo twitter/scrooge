@@ -80,28 +80,33 @@ class ScalaGenerator(
     }).asInstanceOf[N]
   }
 
-  def genList(list: ListRHS, mutable: Boolean = false): CodeFragment = {
+  def genList(fieldType: FieldType, list: ListRHS, mutable: Boolean = false): CodeFragment = {
+    val ListType(eltType, _) = fieldType
     val code = (if (mutable) "mutable.Buffer(" else "Seq(") +
-      list.elems.map(genConstant(_).toData).mkString(", ") + ")"
+      list.elems.map(genConstant(eltType, _).toData).mkString(", ") + ")"
     codify(code)
   }
 
-  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment = {
+  def genSet(fieldType: FieldType, set: SetRHS, mutable: Boolean = false): CodeFragment = {
+    val SetType(eltType, _) = fieldType
     val code = (if (mutable) "mutable.Set(" else "Set(") +
-      set.elems.map(genConstant(_).toData).mkString(", ") + ")"
+      set.elems.map(genConstant(eltType, _).toData).mkString(", ") + ")"
     codify(code)
   }
 
-  def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment = {
+  def genMap(fieldType: FieldType, map: MapRHS, mutable: Boolean = false): CodeFragment = {
+    val MapType(keyType, valueType, _) = fieldType
     val code = (if (mutable) "mutable.Map(" else "Map(") + (map.elems.map {
       case (k, v) =>
-        genConstant(k).toData + " -> " + genConstant(v).toData
+        genConstant(keyType, k).toData + " -> " + genConstant(valueType, v).toData
     } mkString (", ")) + ")"
     codify(code)
   }
 
-  def genEnum(enum: EnumRHS): CodeFragment =
-    genID(enum.value.sid.toTitleCase.addScope(enum.enum.sid.toTitleCase))
+  def genEnum(fieldType: FieldType, enum: EnumRHS): CodeFragment = {
+    val enumType = fieldType.asInstanceOf[EnumType]
+    genID(enum.value.sid.toTitleCase.addScope(qualifyNamedType(enumType).toTitleCase))
+  }
 
   override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
     val code = fieldType match {

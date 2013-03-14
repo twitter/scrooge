@@ -84,28 +84,33 @@ class JavaGenerator(
     }).asInstanceOf[N]
   }
 
-  def genList(list: ListRHS, mutable: Boolean = false): CodeFragment = {
+  def genList(fieldType: FieldType, list: ListRHS, mutable: Boolean = false): CodeFragment = {
+    val ListType(eltType, _) = fieldType
     val code = (if (mutable) "Utilities.makeList(" else "Utilities.makeList(") +
-      list.elems.map(genConstant(_).toData).mkString(", ") + ")"
+      list.elems.map(genConstant(eltType, _).toData).mkString(", ") + ")"
     codify(code)
   }
 
-  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment = {
+  def genSet(fieldType: FieldType, set: SetRHS, mutable: Boolean = false): CodeFragment = {
+    val SetType(eltType, _) = fieldType
     val code = (if (mutable) "Utilities.makeSet(" else "Utilities.makeSet(") +
-      set.elems.map(genConstant(_).toData).mkString(", ") + ")"
+      set.elems.map(genConstant(eltType, _).toData).mkString(", ") + ")"
     codify(code)
   }
 
-  def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment = {
+  def genMap(fieldType: FieldType, map: MapRHS, mutable: Boolean = false): CodeFragment = {
+    val MapType(keyType, valueType, _) = fieldType
     val code = (if (mutable) "Utilities.makeMap(" else "Utilities.makeMap(") + (map.elems.map {
       case (k, v) =>
-        "Utilities.makeTuple(" + genConstant(k).toData + ", " + genConstant(v).toData + ")"
+        "Utilities.makeTuple(" + genConstant(keyType, k).toData + ", " + genConstant(valueType, v).toData + ")"
     } mkString (", ")) + ")"
     codify(code)
   }
 
-  def genEnum(enum: EnumRHS): CodeFragment =
-    genID(enum.value.sid.toUpperCase.addScope(enum.enum.sid.toTitleCase))
+  def genEnum(fieldType: FieldType, enum: EnumRHS): CodeFragment = {
+    val enumType = fieldType.asInstanceOf[EnumType]
+    genID(enum.value.sid.toUpperCase.addScope(qualifyNamedType(enumType).toTitleCase))
+  }
 
   /**
    * Generates a suffix to append to a field expression that will
