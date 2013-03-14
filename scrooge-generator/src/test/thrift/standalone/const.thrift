@@ -26,9 +26,14 @@ const list<list<string>> nonEmptyNestedList = [nonEmptyPlainList];
 
 // mixed cases for ids
 enum weekDay {
+  // not a doc, just a comment.
   mon = 1,
+  // not a doc, just a comment.
   TUE,
+  /** I am a doc. */
+  // not a doc, just a comment.
   Wed = 3,
+  /** I am a doc. */
   thu,
   Fri,
   Sat,
