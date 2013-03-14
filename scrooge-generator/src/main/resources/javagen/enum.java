@@ -3,6 +3,7 @@ package {{package}};
 {{docstring}}
 public enum {{EnumName}} {
 {{#values}}
+  {{valuedocstring}}
   {{name}}({{value}}){{/values|,
 }};
 

@@ -240,7 +240,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
     case dtype ~ sid => Typedef(sid, dtype)
   }
 
-  def enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(simpleID ~ opt("=" ~> intConstant) <~
+  def enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(opt(comments) ~ simpleID ~ opt("=" ~> intConstant) <~
     opt(listSeparator)) <~ "}" ^^ {
     case comment ~ sid ~ items =>
       var failed: Option[Int] = None
@@ -248,14 +248,14 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
       var nextValue = 0
       val values = new mutable.ListBuffer[EnumField]
       items.foreach {
-        case k ~ v =>
+        case c ~ k ~ v =>
           val value = v.map {
             _.value.toInt
           }.getOrElse(nextValue)
           if (seen contains value) failed = Some(value)
           nextValue = value + 1
           seen += value
-          values += EnumField(k, value)
+          values += EnumField(k, value, c)
       }
       if (failed.isDefined) {
         throw new RepeatingEnumValueException(sid.name, failed.get)

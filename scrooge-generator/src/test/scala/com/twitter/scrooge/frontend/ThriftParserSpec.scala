@@ -89,12 +89,12 @@ const string tyrion = "lannister"
         }
         """
       parser.parse(code, parser.definition) mustEqual Enum(SimpleID("Direction"), Seq(
-        EnumField(SimpleID("NORTH"), 0),
-        EnumField(SimpleID("SOUTH"), 1),
-        EnumField(SimpleID("EAST"), 90),
-        EnumField(SimpleID("WEST"), 91),
-        EnumField(SimpleID("UP"), 92),
-        EnumField(SimpleID("DOWN"), 5)
+        EnumField(SimpleID("NORTH"), 0, None),
+        EnumField(SimpleID("SOUTH"), 1, None),
+        EnumField(SimpleID("EAST"), 90, None),
+        EnumField(SimpleID("WEST"), 91, None),
+        EnumField(SimpleID("UP"), 92, None),
+        EnumField(SimpleID("DOWN"), 5, None)
       ), None)
 
       val withComment = """
@@ -103,13 +103,16 @@ const string tyrion = "lannister"
  */
 enum Foo
 {
+  /** I am a doc. */
+  // I am a comment.
   X = 1,
+  // I am a comment.
   Y = 2
 }"""
       parser.parse(withComment, parser.enum) mustEqual Enum(SimpleID("Foo"),
         Seq(
-          EnumField(SimpleID("X"), 1),
-          EnumField(SimpleID("Y"), 2)),
+          EnumField(SimpleID("X"), 1, Some("/** I am a doc. */")),
+          EnumField(SimpleID("Y"), 2, None)),
         Some("/**\n * Docstring!\n */")
       )
     }
