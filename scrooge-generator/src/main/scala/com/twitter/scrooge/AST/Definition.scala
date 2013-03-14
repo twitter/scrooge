@@ -20,7 +20,7 @@ case class Enum(
   docstring: Option[String]
 ) extends Definition
 
-case class EnumField(sid: SimpleID, value: Int) extends Definition
+case class EnumField(sid: SimpleID, value: Int, docstring: Option[String]) extends Definition
 case class Senum(sid: SimpleID, values: Seq[String]) extends Definition
 
 sealed abstract class StructLike extends Definition {
