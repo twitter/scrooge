@@ -43,25 +43,13 @@ namespace * thrift.test
  */
 enum NumberID
 {
-  ONE = 1,
-  TWO,
-  THREE,
-  FIVE = 5,
-  SIX,
-  EIGHT = 8
+  One = 1,
+  Two,
+  Three,
+  Five = 5,
+  Six,
+  Eight = 8
 }
-
-const NumberID myNumberID = NumberID.ONE;
-const string name = "Columbo";
-/**
- I AM A DOC
- */
-// not a doc, just a comment, but the doc should still get included.
-const i32 someInt = 1;
-const double someDouble = 3.0;
-const list<string> someList = ["piggy"];
-const list<string> emptyList = [];
-const map<string,string> someMap = {"foo": "bar"};
 
 /** doc, ignored */
 typedef i64 UserId
@@ -171,7 +159,7 @@ struct OneOfEachWithDefault {
   5: i64 j = 1
   6: double d = 1.0
   7: string str = "yo"
-  8: NumberID e = NumberID.ONE
+  8: NumberID e = NumberID.One
   10: list<i32> i_list = [1]
   11: set<i32> i_set = [1]
   12: map<i32, i32> i_map = {1: 1}
@@ -200,7 +188,7 @@ struct OneOfEachOptionalWithDefault {
   5: optional i64 j = 1
   6: optional double d = 1.0
   7: optional string str = "yo"
-  8: optional NumberID e = NumberID.ONE
+  8: optional NumberID e = NumberID.One
   10: optional list<i32> i_list = [1]
   11: optional set<i32> i_set = [1]
   12: optional map<i32, i32> i_map = {1: 1}

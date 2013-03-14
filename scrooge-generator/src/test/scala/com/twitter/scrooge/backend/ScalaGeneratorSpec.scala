@@ -3,14 +3,16 @@ package com.twitter.scrooge.backend
 import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
+import com.twitter.finagle.SourcedException
+import com.twitter.scrooge.testutil.EvalHelper
+import com.twitter.scrooge.{ThriftStruct, ThriftException}
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
-import com.twitter.scrooge.{ThriftStruct, ThriftException, EvalHelper}
-import com.twitter.finagle.SourcedException
 
 class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
@@ -20,81 +22,87 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
   "ScalaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        NumberId.One.getValue mustEqual 1
-        NumberId.Two.getValue mustEqual 2
-        NumberId.Three.getValue mustEqual 3
-        NumberId.Five.getValue mustEqual 5
-        NumberId.Six.getValue mustEqual 6
-        NumberId.Eight.getValue mustEqual 8
+        NumberID.One.getValue mustEqual 1
+        NumberID.Two.getValue mustEqual 2
+        NumberID.Three.getValue mustEqual 3
+        NumberID.Five.getValue mustEqual 5
+        NumberID.Six.getValue mustEqual 6
+        NumberID.Eight.getValue mustEqual 8
       }
 
       "correct names" in {
-        NumberId.One.name mustEqual "One"
-        NumberId.Two.name mustEqual "Two"
-        NumberId.Three.name mustEqual "Three"
-        NumberId.Five.name mustEqual "Five"
-        NumberId.Six.name mustEqual "Six"
-        NumberId.Eight.name mustEqual "Eight"
+        NumberID.One.name mustEqual "One"
+        NumberID.Two.name mustEqual "Two"
+        NumberID.Three.name mustEqual "Three"
+        NumberID.Five.name mustEqual "Five"
+        NumberID.Six.name mustEqual "Six"
+        NumberID.Eight.name mustEqual "Eight"
       }
 
       "apply" in {
-        NumberId(1) mustEqual NumberId.One
-        NumberId(2) mustEqual NumberId.Two
-        NumberId(3) mustEqual NumberId.Three
-        NumberId(5) mustEqual NumberId.Five
-        NumberId(6) mustEqual NumberId.Six
-        NumberId(8) mustEqual NumberId.Eight
+        NumberID(1) mustEqual NumberID.One
+        NumberID(2) mustEqual NumberID.Two
+        NumberID(3) mustEqual NumberID.Three
+        NumberID(5) mustEqual NumberID.Five
+        NumberID(6) mustEqual NumberID.Six
+        NumberID(8) mustEqual NumberID.Eight
       }
 
       "get" in {
-        NumberId.get(1) must beSome(NumberId.One)
-        NumberId.get(2) must beSome(NumberId.Two)
-        NumberId.get(3) must beSome(NumberId.Three)
-        NumberId.get(5) must beSome(NumberId.Five)
-        NumberId.get(6) must beSome(NumberId.Six)
-        NumberId.get(8) must beSome(NumberId.Eight)
-        NumberId.get(10) must beNone
+        NumberID.get(1) must beSome(NumberID.One)
+        NumberID.get(2) must beSome(NumberID.Two)
+        NumberID.get(3) must beSome(NumberID.Three)
+        NumberID.get(5) must beSome(NumberID.Five)
+        NumberID.get(6) must beSome(NumberID.Six)
+        NumberID.get(8) must beSome(NumberID.Eight)
+        NumberID.get(10) must beNone
       }
 
       "valueOf" in {
-        NumberId.valueOf("One") must beSome(NumberId.One)
-        NumberId.valueOf("Two") must beSome(NumberId.Two)
-        NumberId.valueOf("Three") must beSome(NumberId.Three)
-        NumberId.valueOf("Five") must beSome(NumberId.Five)
-        NumberId.valueOf("Six") must beSome(NumberId.Six)
-        NumberId.valueOf("Eight") must beSome(NumberId.Eight)
-        NumberId.valueOf("Ten") must beNone
+        NumberID.valueOf("One") must beSome(NumberID.One)
+        NumberID.valueOf("Two") must beSome(NumberID.Two)
+        NumberID.valueOf("Three") must beSome(NumberID.Three)
+        NumberID.valueOf("Five") must beSome(NumberID.Five)
+        NumberID.valueOf("Six") must beSome(NumberID.Six)
+        NumberID.valueOf("Eight") must beSome(NumberID.Eight)
+        NumberID.valueOf("Ten") must beNone
       }
 
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
-        out.writeObject(NumberId.One)
-        out.writeObject(NumberId.Two)
+        out.writeObject(NumberID.One)
+        out.writeObject(NumberID.Two)
         bos.close()
         val bytes = bos.toByteArray
 
         val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
         var obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.One.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.One.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.One.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.One.name
 
         obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.Two.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.Two.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.Two.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.Two.name
       }
     }
 
     "generate constants" in {
-      thrift.test.Constants.myNumberID mustEqual NumberId.One
+      thrift.test.Constants.myWfhDay mustEqual WeekDay.Thu
+      thrift.test.Constants.myDaysOut mustEqual List(WeekDay.Thu, WeekDay.Sat, WeekDay.SUN)
       thrift.test.Constants.name mustEqual "Columbo"
       thrift.test.Constants.someInt mustEqual 1
       thrift.test.Constants.someDouble mustEqual 3.0
       thrift.test.Constants.someList mustEqual List("piggy")
       thrift.test.Constants.emptyList mustEqual List()
       thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
+      thrift.test.Constants.someSimpleSet mustEqual Set("foo", "bar")
+      thrift.test.Constants.someSet mustEqual Set(
+        List("piggy"),
+        List("kitty")
+      )
     }
 
     "basic structs" in {
@@ -594,15 +602,37 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       "default value" in {
         Bird.Hummingbird() mustEqual Bird.Hummingbird("Calypte anna")
       }
+
+      "primitive field type" in {
+        import thrift.`def`.default._
+        val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
+        var original: NaughtyUnion = NaughtyUnion.Value(1)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.Flag(true)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.Text("false")
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+      }
     }
 
     "typedef relative fields" in {
-      val candy = Candy(100, CandyType.Delicious)
+      val candy = Candy(100, CandyType.DeliCIous)
       candy.sweetnessIso mustEqual 100
       candy.candyType.value mustEqual 1
       candy.brand mustEqual "Hershey"
       candy.count mustEqual 10
       candy.headline mustEqual "Life is short, eat dessert first"
+    }
+
+    "hide internal helper function to avoid naming conflict" in {
+      import thrift.`def`.default._
+      val impl = new NaughtyService.Iface {
+        def foo(): FooResult = FooResult("dummy message")
+      }
+      impl.foo().message mustEqual("dummy message")
     }
   }
 }

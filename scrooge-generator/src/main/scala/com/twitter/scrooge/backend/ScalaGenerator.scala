@@ -100,6 +100,9 @@ class ScalaGenerator(
     codify(code)
   }
 
+  def genEnum(enum: EnumRHS): CodeFragment =
+    genID(enum.value.sid.toTitleCase.addScope(enum.enum.sid.toTitleCase))
+
   override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
     val code = fieldType match {
       case TI64 => "0L"

@@ -17,57 +17,54 @@
 package com.twitter.scrooge.mustache
 
 import MustacheAST._
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
+import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.ParseException
 
-@RunWith(classOf[JUnitRunner])
-class ParserSpec extends FunSpec {
-  describe("Parser") {
-    it("all text") {
-      assert(MustacheParser("hello\nthere") === Template(Seq(Data("hello\nthere"))))
+class ParserSpec extends SpecificationWithJUnit {
+  "Parser" should {
+    "all text" in {
+      MustacheParser("hello\nthere") mustEqual Template(Seq(Data("hello\nthere")))
     }
 
-    it("interpolates") {
+    "interpolates" in {
       val text = "say hello to {{friend}}, {{name}}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("say hello to "),
         Interpolation("friend"),
         Data(", "),
         Interpolation("name")
-      )))
+      ))
     }
 
-    it("doesn't get confused by other {") {
+    "doesn't get confused by other {" in {
       val text = "say { to {{friend}}, {{name}}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("say { to "),
         Interpolation("friend"),
         Data(", "),
         Interpolation("name")
-      )))
+      ))
     }
 
-    it("errors on impossible ids") {
+    "errors on impossible ids" in {
       val text = "hello {{"
-      intercept[ParseException] { MustacheParser(text) }
+      MustacheParser(text) must throwA[ParseException]
     }
 
-    it("section") {
+    "section" in {
       val text = "Classmates: {{#students}}Name: {{name}}{{/students}}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("Classmates: "),
         Section("students", Template(Seq(
           Data("Name: "),
           Interpolation("name")
         )), false)
-      )))
+      ))
     }
 
-    it("nested section") {
+    "nested section" in {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/moons}} :) {{/planets}}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("Planets: "),
         Section("planets", Template(Seq(
           Interpolation("name"),
@@ -77,58 +74,58 @@ class ParserSpec extends FunSpec {
           )), false),
           Data(" :) ")
         )), false)
-      )))
+      ))
     }
 
-    it("complains about mismatched section headers") {
+    "complains about mismatched section headers" in {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/planets}}"
-      intercept[ParseException] { MustacheParser(text) }
+      MustacheParser(text) must throwA[ParseException]
     }
 
-    it("inverted section") {
+    "inverted section" in {
       val text = "{{^space}}no space{{/space}}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Section("space", Template(Seq(
           Data("no space")
         )), true)
-      )))
+      ))
     }
 
-    it("comments") {
+    "comments" in {
       val text = "remember {{! these comments look stupid, like xml}} nothing."
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("remember "),
         Data(" nothing.")
-      )))
+      ))
     }
 
-    it("partial") {
+    "partial" in {
       val text = "{{#foo}}ok {{>other}}{{/foo}}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Section("foo", Template(Seq(
           Data("ok "),
           Partial("other")
         )), false)
-      )))
+      ))
     }
 
-    it("triple braces is fine") {
+    "triple braces is fine" in {
       val text = "Hello, {{{foo}}}."
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("Hello, {"),
         Interpolation("foo"),
         Data("}.")
-      )))
+      ))
     }
 
-    it("section with joiner") {
+    "section with joiner" in {
       val text = "Students: {{#students}}{{name}}{{/students|, }}"
-      assert(MustacheParser(text) === Template(Seq(
+      MustacheParser(text) mustEqual Template(Seq(
         Data("Students: "),
         Section("students", Template(Seq(
           Interpolation("name")
         )), false, Some(", "))
-      )))
+      ))
     }
   }
 }

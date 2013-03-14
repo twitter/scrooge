@@ -1,15 +1,17 @@
 package com.twitter.scrooge.backend
 
 import java.util.Arrays
-import com.twitter.finagle
-import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.util.Future
 import org.specs.SpecificationWithJUnit
 import org.specs.matcher.Matcher
 import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
+import com.twitter.finagle
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.util.Future
+import com.twitter.scrooge.testutil.EvalHelper
+import com.twitter.scrooge.ThriftException
 import thrift.test._
-import com.twitter.scrooge.{ThriftException, EvalHelper}
+
 
 class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
   val protocol = mock[TProtocol]
@@ -55,7 +57,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      SimpleService.DeliverArgs(protocol).where mustEqual "boston"
+      SimpleService.deliver$args(protocol).where mustEqual "boston"
 
       expect {
         startWrite(protocol, new TField("where", TType.STRING, 1))
@@ -63,7 +65,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      SimpleService.DeliverArgs("atlanta").write(protocol) mustEqual ()
+      SimpleService.deliver$args("atlanta").write(protocol) mustEqual ()
 
       expect {
         startRead(protocol, new TField("success", TType.I32, 0))
@@ -71,7 +73,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      SimpleService.DeliverResult(protocol).success mustEqual Some(13)
+      SimpleService.deliver$result(protocol).success mustEqual Some(13)
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -79,7 +81,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      SimpleService.DeliverResult(Some(24)).write(protocol) mustEqual ()
+      SimpleService.deliver$result(Some(24)).write(protocol) mustEqual ()
     }
 
     "generate unions for args and return value" in {
@@ -95,7 +97,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      ThriftTest.TestUnionsArgs(protocol).arg0 mustEqual
+      ThriftTest.testUnions$args(protocol).arg0 mustEqual
         MorePerfectUnion.Bools(Bools(true, false))
 
       expect {
@@ -110,7 +112,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      ThriftTest.TestUnionsArgs(
+      ThriftTest.testUnions$args(
         MorePerfectUnion.Bonk(Bonk("hello world", 42))
       ).write(protocol) mustEqual ()
 
@@ -126,7 +128,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      ThriftTest.TestUnionsResult(protocol).success mustEqual
+      ThriftTest.testUnions$result(protocol).success mustEqual
         Some(MorePerfectUnion.Bools(Bools(true, false)))
 
       expect {
@@ -141,7 +143,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      ThriftTest.TestUnionsResult(
+      ThriftTest.testUnions$result(
         Some(MorePerfectUnion.Bonk(Bonk("hello world", 42)))
       ).write(protocol) mustEqual ()
     }
@@ -157,7 +159,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      val res = ExceptionalService.DeliverResult(protocol)
+      val res = ExceptionalService.deliver$result(protocol)
       res.success must beNone
       res.ex must beSome(Xception(1, "silly"))
       res.ex2 must beNone
@@ -168,7 +170,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      ExceptionalService.DeliverResult(Some(24)).write(protocol) mustEqual ()
+      ExceptionalService.deliver$result(Some(24)).write(protocol) mustEqual ()
 
       expect {
         startWrite(protocol, new TField("ex", TType.STRUCT, 1))
@@ -180,7 +182,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endWrite(protocol)
       }
 
-      ExceptionalService.DeliverResult(None, Some(Xception(1, "silly"))).write(protocol) mustEqual ()
+      ExceptionalService.deliver$result(None, Some(Xception(1, "silly"))).write(protocol) mustEqual ()
 
       expect {
         startWrite(protocol, new TField("ex3", TType.STRUCT, 3))
@@ -189,7 +191,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         one(protocol).writeStructEnd()
         endWrite(protocol)
       }
-      ExceptionalService.DeliverResult(None, None, None, Some(EmptyXception())).write(protocol) mustEqual ()
+      ExceptionalService.deliver$result(None, None, None, Some(EmptyXception())).write(protocol) mustEqual ()
     }
 
     "generate FinagledService" in {
@@ -197,8 +199,8 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val service = new ExceptionalService.FinagledService(impl, new TBinaryProtocol.Factory)
 
       "success" in {
-        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston")).message
-        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(success = Some(42)))
+        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston")).message
+        val response = encodeResponse("deliver", ExceptionalService.deliver$result(success = Some(42)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.value(42)
@@ -208,9 +210,9 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "exception" in {
-        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston")).message
+        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston")).message
         val ex = Xception(1, "boom")
-        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(ex = Some(ex)))
+        val response = encodeResponse("deliver", ExceptionalService.deliver$result(ex = Some(ex)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.exception(ex)
@@ -229,8 +231,8 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val client = new ExceptionalService.FinagledClient(clientService)
 
       "success" in {
-        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston"))
-        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(success = Some(42)))
+        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
+        val response = encodeResponse("deliver", ExceptionalService.deliver$result(success = Some(42)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.value(42)
@@ -240,9 +242,9 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "exception" in {
-        val request = encodeRequest("deliver", ExceptionalService.DeliverArgs("Boston"))
+        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
         val ex = Xception(1, "boom")
-        val response = encodeResponse("deliver", ExceptionalService.DeliverResult(ex = Some(ex)))
+        val response = encodeResponse("deliver", ExceptionalService.deliver$result(ex = Some(ex)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.exception(ex)
@@ -288,7 +290,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       val service = new Capsly.FinagledService(null, null) {
         def getFunction2(name: String) = functionMap(name)
       }
-      service.getFunction2("badName") must not(be_==(None))
+      service.getFunction2("Bad_Name") must not(be_==(None))
     }
   }
 }

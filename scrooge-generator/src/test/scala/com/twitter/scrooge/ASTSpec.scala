@@ -44,13 +44,14 @@ class ASTSpec extends SpecificationWithJUnit {
       "hello" ->("hello", "Hello"),
       "hello_world" ->("helloWorld", "HelloWorld"),
       "a_b_c_d" ->("aBCD", "ABCD"),
-      "HELLO_WORLD" ->("helloWorld", "HelloWorld"),
+      "HELLO_WORLD" ->("hELLOWORLD", "HELLOWORLD"),
       "helloWorld" ->("helloWorld", "HelloWorld"),
       "hello_World" ->("helloWorld", "HelloWorld"),
-      "HELLOWORLD" ->("helloworld", "Helloworld"),
+      "HELLOWORLD" ->("hELLOWORLD", "HELLOWORLD"),
       "_Foo_bar" ->("_fooBar", "_FooBar"),
       "__foo_bar" ->("__fooBar", "__FooBar"),
-      "ThriftClientRequestID" ->("thriftClientRequestId", "ThriftClientRequestId")
+      "ThriftClientRequestID" ->("thriftClientRequestID", "ThriftClientRequestID"),
+      "TChatbirdKey"->("tChatbirdKey", "TChatbirdKey")
     )
     "camel case conversion" in {
       simpleCases foreach {

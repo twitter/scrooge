@@ -109,6 +109,8 @@ trait StructTemplate {
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> genID(field.sid),
+          "fieldNameForWire" -> codify(field.originalName),
+          "newFieldName" -> genID(field.sid.toTitleCase.prepend("new")),
           "FieldName" -> genID(field.sid.toTitleCase),
           "FIELD_NAME" -> genID(field.sid.toUpperCase),
           "gotName" -> genID(field.sid.prepend("_got_")),
@@ -236,8 +238,10 @@ trait StructTemplate {
       struct.fields,
       if (isException) Seq("message") else Seq())
 
+    val isPublic = namespace.isDefined
+
     Dictionary(
-      "public" -> v(namespace.isDefined),
+      "public" -> v(isPublic),
       "package" -> namespace.map{ genID(_) }.getOrElse(codify("")),
       "docstring" -> codify(struct.docstring.getOrElse("")),
       "parentType" -> codify(parentType),
@@ -245,7 +249,11 @@ trait StructTemplate {
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Seq())),
       "alternativeConstructor" -> v(
         struct.fields.exists(_.requiredness.isOptional) && struct.fields.exists(_.requiredness.isDefault)),
-      "StructName" -> genID(struct.sid.toTitleCase),
+      "StructNameForWire" -> codify(struct.originalName),
+      "StructName" ->
+        // if isPublic, the struct comes from a Thrift definition. Otherwise
+        // it's an internal struct: fooMethod$args or fooMethod$result
+        (if (isPublic) genID(struct.sid.toTitleCase) else genID(struct.sid)),
       "underlyingStructName" -> genID(struct.sid.prepend("_underlying_")),
       "arity" -> codify(arity.toString),
       "isException" -> v(isException),

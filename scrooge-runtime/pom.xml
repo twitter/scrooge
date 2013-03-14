@@ -1,14 +1,13 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.twitter</groupId>
   <artifactId>scrooge-runtime</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.3.MP2</version>
+  <name>scrooge-runtime</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.0.3.MP2</version>
+    <version>3.0.8-SNAPSHOT</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
@@ -29,8 +28,20 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-codec</artifactId>
-      <version>5.3.13</version>
+      <artifactId>util-codec_2.9.2</artifactId>
+      <version>6.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>finagle-core_2.9.2</artifactId>
+      <version>6.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>finagle-thrift_2.9.2</artifactId>
+      <version>6.1.0</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

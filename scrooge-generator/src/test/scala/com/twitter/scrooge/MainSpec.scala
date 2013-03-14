@@ -3,7 +3,7 @@ package com.twitter.scrooge
 import java.io.{FileWriter, File}
 import scala.io.Source
 import org.specs.SpecificationWithJUnit
-import com.twitter.io.Files
+import com.twitter.scrooge.testutil.TempDirectory
 
 class MainSpec extends SpecificationWithJUnit {
   "Scrooge Main" should {
@@ -52,31 +52,5 @@ struct Point {
         input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Direction.scala") + "\n" +
         input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala")+ "\n"
     manifestString mustEqual expected
-  }
-
-  object TempDirectory {
-    /**
-     * Create a new temporary directory in the current directory,
-     * which will be deleted upon the exit of the VM.
-     *
-     * @return File representing the directory
-     */
-    def create(dir: Option[File], deleteAtExit: Boolean = true): File = {
-      val file = dir match {
-        case Some(d) => File.createTempFile("temp", "dir", d)
-        case None => File.createTempFile("temp", "dir")
-      }
-      file.delete()
-      file.mkdir()
-
-      if (deleteAtExit)
-        Runtime.getRuntime().addShutdownHook(new Thread {
-          override def run() {
-            Files.delete(file)
-          }
-        })
-
-      file
-    }
   }
 }

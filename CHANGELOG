@@ -1,3 +1,59 @@
+3.0.7 - 03/07/2013
+===============================================================================
+* All on-wire names in the Thrift messages are now consistent with
+Apache generated code. This allows Scrooge generated services to exchange
+Thrift messages with Apache generated services.
+* scrooge-maven-plugin now enforces an explicit white list in <dependencyConfig>.
+The old behavior is that if a dependency artifact has a "idl" classifier, we
+will extract thrift files from it to compile. The new behavior is that the
+artifact must be explicitly included in <dependencyConfig>. The dependencies
+here include both direct dependencies(specified in project pom file) and
+indirect dependencies (everything in the dependency tree).
+* Now supports "scala" as a namespace scope. It is treated same as "java".
+* Now supports "*" as a default namespace scope
+
+3.0.6 - 02/15/2013
+===============================================================================
+* Released a scrooge-maven-plugin, for maven projects to integrate Scrooge in
+  their pom files. Also released a demo of how to use scrooge-maven-plugin
+* scrooge-runtime is now backward compatible with scrooge-runtime 2.X.X. The
+  following classes and methods are deprecated:
+    FinagleThriftClient,
+    FinagleThriftService,
+    ThriftStructCodec.decoder,
+    ThriftStructCodec.encoder
+* scrooge-runtime now can introspect generated ThriftStruct. See the new
+  ThriftStructMetaData class.
+* BREAKING: in scrooge-runtime, com.twitter.ScroogeOption is now renamed to
+  just Option. This is mainly for Java code. But if you need to use it in
+  Scala code, make sure to address ambiguity with scala.Option.
+* Updated APIs of scrooge-generator. See com.twitter.scrooge.Compiler class
+* Fix the stats reporting for the java scrooge thrift code generation
+
+3.0.5 - 02/04/2013
+===============================================================================
+Bug fixes
+* Constant definitions now can be of "set" type.
+* Fix letter cases of enum fields(Java uses upper case; Scala uses title case)
+Dependencies
+* Remove dependency on org.scalatest, com.twitter.scalatest (not in Maven
+  Central)
+* Update dependency of util/finagle/ostrich to 6.1.0
+* Project dependencies are all in Maven Central now. You don't need to have
+  access to Twitter internal repository anymore.
+
+3.0.4 - 01/27/2013
+===============================================================================
+Features:
+* add --dry-run option to parse and validate source thrift files, reports any
+  errors, but does not emit any generated source code. It can be used with
+  --gen-file-mapping to get the file mapping
+Bug fixes
+* union types now can contain primitive types.
+* constants defined in the same file now can be referenced.
+Dependencies
+* Update dependency of util/finagle/ostrich to 6.0.6
+
 3.0.3 - 12/21/2012
 ===============================================================================
 * Scrooge artifacts now deploys to Maven central via Sonatype

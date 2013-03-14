@@ -1,6 +1,6 @@
 package {{package}};
 
-import com.twitter.scrooge.ScroogeOption;
+import com.twitter.scrooge.Option;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
 import com.twitter.scrooge.Utilities;
@@ -61,9 +61,14 @@ public class {{ServiceName}} {
   }
 {{/withFinagle}}
 
-{{#structs}}
-  {{>struct}}
-{{/structs}}
+{{#internalStructs}}
+{{#internalArgsStruct}}
+    {{>struct}}
+{{/internalArgsStruct}}
+{{#internalResultStruct}}
+    {{>struct}}
+{{/internalResultStruct}}
+{{/internalStructs}}
 {{#finagleClients}}
   {{>finagleClient}}
 {{/finagleClients}}

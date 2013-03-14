@@ -2,7 +2,7 @@
 
 package {{package}};
 
-import com.twitter.scrooge.ScroogeOption;
+import com.twitter.scrooge.Option;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
@@ -18,10 +18,10 @@ import java.util.HashSet;
 
 {{docstring}}
 public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements ThriftStruct {
-  private static final TStruct STRUCT = new TStruct("{{StructName}}");
+  private static final TStruct STRUCT = new TStruct("{{StructNameForWire}}");
 {{#fields}}
-  private static final TField {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, (short) {{id}});
-  final {{#optional}}ScroogeOption<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{fieldName}};
+  private static final TField {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, (short) {{id}});
+  private final {{#optional}}Option<{{fieldType}}>{{/optional}}{{^optional}}{{fieldType}}{{/optional}} {{fieldName}};
 {{/fields}}
 
   public enum Field {
@@ -31,7 +31,13 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
 
   }
 
-  final Field setField;
+  /*
+   * A flag indicate which field this union object is set to.
+   * Note that it is ok to define a field with name "setField", the
+   * generated getter method would be "getSetField", so there won't
+   * be naming conflict.
+   */
+  public final Field setField;
 
   public static ThriftStructCodec<{{StructName}}> CODEC = new ThriftStructCodec<{{StructName}}>() {
     public {{StructName}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
@@ -93,41 +99,14 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
       throw new NullPointerException("Cannot construct {{StructName}} with a null value");
     this.setField = setField;
 {{#fields}}
-    this.{{fieldName}} = (setField == Field.{{FIELD_NAME}} ? ({{primitiveFieldType}}) value : null);
+    this.{{fieldName}} = (setField == Field.{{FIELD_NAME}} ? ({{fieldType}}) value : null);
 {{/fields}}
   }
 
 {{#fields}}
-  public static {{StructName}} new{{FieldName}}({{primitiveFieldType}} {{fieldName}}) {
+  public static {{StructName}} {{newFieldName}}({{primitiveFieldType}} {{fieldName}}) {
     return new {{StructName}}(Field.{{FIELD_NAME}}, {{fieldName}});
   }
-{{/fields}}
-
-  public Field getSetField() {
-    return this.setField;
-  }
-
-  public Object getValue() {
-    switch (setField) {
-{{#fields}}
-      case {{FIELD_NAME}}:
-        return this.{{fieldName}};
-{{/fields}}
-    }
-    return null;
-  }
-{{#fields}}
-
-{{#hasGetter}}
-  public {{primitiveFieldType}} {{getName}}() {
-    return (this.setField == Field.{{FIELD_NAME}} ? this.{{fieldName}} : null);
-  }
-{{/hasGetter}}
-{{#hasIsDefined}}
-  public boolean {{isSetName}}() {
-    return this.setField == Field.{{FIELD_NAME}};
-  }
-{{/hasIsDefined}}
 {{/fields}}
 
   public void write(TProtocol _oprot) throws org.apache.thrift.TException {

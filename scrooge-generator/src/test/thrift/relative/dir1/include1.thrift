@@ -10,7 +10,7 @@ include "dir4/include4.thrift"
 
 enum CandyType {
   OLD = 0,
-  DELICIOUS = 1,
+  deliCIous = 1,
   WEIRD = 2
 }
 

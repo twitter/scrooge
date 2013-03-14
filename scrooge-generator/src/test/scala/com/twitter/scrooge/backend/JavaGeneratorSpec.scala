@@ -4,8 +4,10 @@ package backend
 import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.EvalHelper
 import thrift.java_test._
 
 class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
@@ -16,51 +18,57 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
   "JavaGenerator" should {
     "generate an enum" in {
       "correct constants" in {
-        NumberId.ONE.getValue() mustEqual 1
-        NumberId.TWO.getValue() mustEqual 2
-        NumberId.THREE.getValue() mustEqual 3
-        NumberId.FIVE.getValue() mustEqual 5
-        NumberId.SIX.getValue() mustEqual 6
-        NumberId.EIGHT.getValue() mustEqual 8
+        NumberID.ONE.getValue() mustEqual 1
+        NumberID.TWO.getValue() mustEqual 2
+        NumberID.THREE.getValue() mustEqual 3
+        NumberID.FIVE.getValue() mustEqual 5
+        NumberID.SIX.getValue() mustEqual 6
+        NumberID.EIGHT.getValue() mustEqual 8
       }
 
       "findByValue" in {
-        NumberId.findByValue(1) mustEqual NumberId.ONE
-        NumberId.findByValue(2) mustEqual NumberId.TWO
-        NumberId.findByValue(3) mustEqual NumberId.THREE
-        NumberId.findByValue(5) mustEqual NumberId.FIVE
-        NumberId.findByValue(6) mustEqual NumberId.SIX
-        NumberId.findByValue(8) mustEqual NumberId.EIGHT
+        NumberID.findByValue(1) mustEqual NumberID.ONE
+        NumberID.findByValue(2) mustEqual NumberID.TWO
+        NumberID.findByValue(3) mustEqual NumberID.THREE
+        NumberID.findByValue(5) mustEqual NumberID.FIVE
+        NumberID.findByValue(6) mustEqual NumberID.SIX
+        NumberID.findByValue(8) mustEqual NumberID.EIGHT
       }
 
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
-        out.writeObject(NumberId.ONE)
-        out.writeObject(NumberId.TWO)
+        out.writeObject(NumberID.ONE)
+        out.writeObject(NumberID.TWO)
         bos.close()
         val bytes = bos.toByteArray
 
         val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
         var obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.ONE.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.ONE.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.ONE.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.ONE.name
         obj = in.readObject()
-        obj.isInstanceOf[NumberId] must beTrue
-        obj.asInstanceOf[NumberId].getValue mustEqual NumberId.TWO.getValue
-        obj.asInstanceOf[NumberId].name mustEqual NumberId.TWO.name
+        obj.isInstanceOf[NumberID] must beTrue
+        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.TWO.getValue
+        obj.asInstanceOf[NumberID].name mustEqual NumberID.TWO.name
       }
     }
 
     "generate constants" in {
-      Constants.myNumberID mustEqual NumberId.ONE
+      Constants.myWfhDay mustEqual WeekDay.THU
+      Constants.myDaysOut mustEqual Utilities.makeList(WeekDay.THU, WeekDay.SAT, WeekDay.SUN)
       Constants.name mustEqual "Columbo"
       Constants.someInt mustEqual 1
       Constants.someDouble mustEqual 3.0
       Constants.someList mustEqual Utilities.makeList("piggy")
       Constants.emptyList mustEqual Utilities.makeList()
       Constants.someMap mustEqual Utilities.makeMap(Utilities.makeTuple("foo", "bar"))
+      Constants.someSimpleSet mustEqual Utilities.makeSet("foo", "bar")
+      Constants.someSet mustEqual Utilities.makeSet(
+        Utilities.makeList("piggy"),
+        Utilities.makeList("kitty")
+      )
     }
 
     "basic structs" in {
@@ -269,7 +277,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new ScroogeOption.Some(14))
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", new Option.Some(14))
         }
 
         "read with missing field" in {
@@ -279,7 +287,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endRead(protocol)
           }
 
-          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", ScroogeOption.none())
+          OptionalInt.decode(protocol) mustEqual new OptionalInt("Commie", Option.none())
         }
 
         "write" in {
@@ -291,7 +299,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", new ScroogeOption.Some(14)).write(protocol) mustEqual ()
+          new OptionalInt("Commie", new Option.Some(14)).write(protocol) mustEqual ()
         }
 
         "write with missing field" in {
@@ -301,7 +309,7 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
             endWrite(protocol)
           }
 
-          new OptionalInt("Commie", ScroogeOption.none()).write(protocol) mustEqual ()
+          new OptionalInt("Commie", Option.none()).write(protocol) mustEqual ()
         }
       }
 
@@ -536,6 +544,20 @@ class JavaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMoc
 
           Bird.newFlock(Utilities.makeList("starling", "kestrel", "warbler")).write(protocol)
         }
+      }
+
+      "primitive field type" in {
+        import thrift.java_def._default_._
+        val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
+        var original: NaughtyUnion = NaughtyUnion.newValue(1)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.newFlag(true)
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
+        original = NaughtyUnion.newText("false")
+        NaughtyUnion.encode(original, protocol)
+        NaughtyUnion.decode(protocol) mustEqual(original)
       }
     }
   }

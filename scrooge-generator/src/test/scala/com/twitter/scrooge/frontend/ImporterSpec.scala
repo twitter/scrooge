@@ -1,15 +1,14 @@
 package com.twitter.scrooge.frontend
 
-import com.twitter.scalatest._
 import java.io.{File, FileOutputStream}
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
+import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.TempDirectory
 
-@RunWith(classOf[JUnitRunner])
-class ImporterSpec extends FunSpec with TestFolder {
-  describe("fileImporter") {
-    it("finds files on the path") {
+class ImporterSpec extends SpecificationWithJUnit {
+  "fileImporter" should {
+    val testFolder = TempDirectory.create(None)
+
+    "finds files on the path" in {
       val folder1 = new File(testFolder, "f1")
       val folder2 = new File(testFolder, "f2")
       folder1.mkdir()
@@ -21,10 +20,11 @@ class ImporterSpec extends FunSpec with TestFolder {
 
       val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
       val c = importer.apply("a.thrift")
-      assert(c.isDefined && c.get.data == "hello")
+      c.isDefined must beTrue
+      c.get.data mustEqual "hello"
     }
 
-    it("follows relative links correctly") {
+    "follows relative links correctly" in {
       val folder1 = new File(testFolder, "f1")
       val folder2 = new File(testFolder, "f2")
       folder1.mkdir()
@@ -36,9 +36,9 @@ class ImporterSpec extends FunSpec with TestFolder {
 
       val importer = Importer(Seq(folder1.getAbsolutePath))
       val c = importer.apply("../f2/a.thrift")
-      assert(c.isDefined)
-      assert(c.get.data == "hello")
-      assert(c.get.importer.canonicalPaths contains folder2.getCanonicalPath)
+      c.isDefined must beTrue
+      c.get.data mustEqual "hello"
+      (c.get.importer.canonicalPaths contains folder2.getCanonicalPath) must beTrue
     }
   }
 }

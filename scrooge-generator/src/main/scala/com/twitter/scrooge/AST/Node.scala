@@ -37,6 +37,7 @@ object Requiredness {
 case class Field(
   index: Int,
   sid: SimpleID,
+  originalName: String,
   fieldType: FieldType,
   default: Option[RHS] = None,
   requiredness: Requiredness = Requiredness.Default
@@ -44,6 +45,7 @@ case class Field(
 
 case class Function(
   funcName: SimpleID,
+  originalName: String,
   funcType: FunctionType,
   args: Seq[Field],
   throws: Seq[Field],

@@ -29,42 +29,51 @@ object Identifier {
       QualifiedID(ids)
   }
 
-  def toCamelCase(str: String): String = toCamelCase(str, false)
-
   def toTitleCase(str: String): String = toCamelCase(str, true)
 
-  object State extends Enumeration {
-    type State = Value
-    val NextUp, NextDown, Lower, Upper, LeadIn = Value
-  }
-
-  // case conversion
-  private[this] def toCamelCase(str: String, firstCharUp: Boolean): String = {
-    import State._
-
-    var state = LeadIn
+  /**
+   * convert string to camel case, with the following fine print:
+   *   - leading underscores are preserved
+   *   - internal underscores are removed. Character following an underscore
+   *     is converted to upper case.
+   *   - first character (non underscore char) is upper case if
+   *     firstCharUp is true, lower case if false
+   *   - If there are consecutive upper case letters in the original
+   *     string, preserve the upper case.
+   *
+   *   Examples: (original, camel case, title case)
+   *     (genID, genID, GenID)
+   *     (_genID, _genID, _GenID)
+   *     (gen_id, genId, GenId)
+   */
+  def toCamelCase(str: String, firstCharUp: Boolean = false): String = {
     val sb = new StringBuilder(str.length)
+    // copy leading _
+    val firstCharPos = str.indexWhere(c => c != '_')
+    if (firstCharPos > 0)
+      sb.append(str.substring(0, firstCharPos))
 
-    // c should be upper only if following _ or following <lower> and is <upper>
-    // leading underscores should be preserved
-    for (c <- str) {
-      if (c == '_') {
-        state match {
-          case LeadIn => sb.append('_')
-          case _ => state = NextUp
-        }
-      } else {
-        state match {
-          case LeadIn => sb.append(if (firstCharUp) c.toUpper else c.toLower)
-          case NextUp => sb.append(c.toUpper)
-          case NextDown => sb.append(c.toLower)
-          case Lower => sb.append(c)
-          case Upper => sb.append(c.toLower)
-        }
-        state = if (c.isUpper) Upper else Lower
+    // the first char
+    if (firstCharPos < str.size) {
+      val firstChar = str.charAt(firstCharPos)
+      if (firstCharUp) sb.append(firstChar.toUpper)
+      else sb.append(firstChar.toLower)
+    }
+
+    // the rest
+    var lastWas_ = false
+    for (c <- str.substring(firstCharPos + 1)) {
+      if (c == '_')
+        lastWas_ = true
+      else {
+        if (c.isUpper || lastWas_)
+          sb.append(c.toUpper)
+        else
+          sb.append(c)
+        lastWas_ = false
       }
     }
-    sb.toString
+    sb.toString()
   }
 }
 

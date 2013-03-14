@@ -16,3 +16,20 @@ struct naughty { // rewritten to title case Naughty
   1: string type  // `type` in Scala; getType() in Java
   2: i32 abstract // `abstract` in Scala, getAbstract() in Java
 }
+
+union NaughtyUnion {
+  10: i32 value // test primitive type and field name "value"
+  15: super field
+  20: bool flag
+  30: string text
+}
+
+
+// csl-389
+struct fooResult {
+  1: string message
+}
+
+service naughtyService {
+  fooResult foo()
+}

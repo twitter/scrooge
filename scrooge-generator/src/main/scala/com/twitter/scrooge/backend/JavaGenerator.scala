@@ -104,6 +104,9 @@ class JavaGenerator(
     codify(code)
   }
 
+  def genEnum(enum: EnumRHS): CodeFragment =
+    genID(enum.value.sid.toUpperCase.addScope(enum.enum.sid.toTitleCase))
+
   /**
    * Generates a suffix to append to a field expression that will
    * convert the value to an immutable equivalent.
@@ -210,7 +213,7 @@ class JavaGenerator(
   def genFieldType(f: Field, mutable: Boolean = false): CodeFragment = {
     val code = if (f.requiredness.isOptional) {
       val baseType = genType(f.fieldType, mutable).toData
-      "ScroogeOption<" + baseType + ">"
+      "com.twitter.scrooge.Option<" + baseType + ">"
     } else {
       genPrimitiveType(f.fieldType).toData
     }

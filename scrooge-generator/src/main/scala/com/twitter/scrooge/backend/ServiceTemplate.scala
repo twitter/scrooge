@@ -44,21 +44,43 @@ trait ServiceTemplate {
     )
   }
 
-  def serviceFunctionArgsStruct(f: Function): FunctionArgs = {
-    FunctionArgs(f.funcName.append("_args"), f.args)
+  def internalArgsStruct(f:Function): FunctionArgs = {
+    FunctionArgs(internalArgsStructName(f),
+      internalArgsStructNameForWire(f),
+      f.args)
   }
 
-  def serviceFunctionResultStruct(f: Function): FunctionResult = {
+  def internalResultStruct(f:Function): FunctionResult = {
     val throws = f.throws map {
       _.copy(requiredness = Requiredness.Optional)
     }
     val success = f.funcType match {
       case Void => Nil
       case fieldType: FieldType =>
-        Seq(Field(0, SimpleID("success"), fieldType, None, Requiredness.Optional))
+        Seq(Field(0, SimpleID("success"), "success", fieldType, None, Requiredness.Optional))
     }
-    FunctionResult(f.funcName.append("_result"), success ++ throws)
+    FunctionResult(internalResultStructName(f),
+      internalResultStructNameForWire(f),
+      success ++ throws)
   }
+
+  def internalArgsStructName(f: Function): SimpleID =
+    f.funcName.toCamelCase.append("$").append("args")
+
+  /**
+   * The name used in RPC request, this needs to be same as Apache compiler
+   */
+  def internalArgsStructNameForWire(f: Function): String =
+    f.funcName.name + "_args"
+
+  def internalResultStructName(f: Function): SimpleID =
+    f.funcName.toCamelCase.append("$").append("result")
+
+  /**
+   * The name used in RPC request, this needs to be same as Apache compiler
+   */
+  def internalResultStructNameForWire(f: Function): String =
+    f.funcName.name + "_result"
 
   def finagleClient(s: Service) = {
     Dictionary(
@@ -71,12 +93,12 @@ trait ServiceTemplate {
           Dictionary(
             "header" -> v(templates("function")),
             "headerInfo" -> v(toDictionary(f, true)),
-            "clientFuncName" -> genID(f.funcName.toCamelCase),
+            "clientFuncNameForWire" -> codify(f.originalName),
             "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "type" -> genType(f.funcType),
             "void" -> v(f.funcType eq Void),
-            "ArgsStruct" -> genID(f.funcName.append("Args").toTitleCase),
-            "ResultStruct" -> genID(f.funcName.append("Result").toTitleCase),
+            "ArgsStruct" -> genID(internalArgsStructName(f)),
+            "ResultStruct" -> genID(internalResultStructName(f)),
             "argNames" -> {
               val code = f.args.map { field => genID(field.sid).toData }.mkString(", ")
               codify(code)
@@ -103,9 +125,10 @@ trait ServiceTemplate {
       "functions" -> v(s.functions map {
         f =>
           Dictionary(
-            "serviceFuncName" -> genID(f.funcName.toCamelCase),
-            "ArgsStruct" -> genID(f.funcName.append("Args").toTitleCase),
-            "ResultStruct" -> genID(f.funcName.append("Result").toTitleCase),
+            "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
+            "serviceFuncNameForWire" -> codify(f.originalName),
+            "ArgsStruct" -> genID(internalArgsStructName(f)),
+            "ResultStruct" -> genID(internalResultStructName(f)),
             "argNames" ->
               codify(f.args map { field =>
                 "args." + genID(field.sid).toData
@@ -153,14 +176,16 @@ trait ServiceTemplate {
         f => toDictionary(f, true)
       }),
       "struct" -> v(templates("struct")),
-      "structs" -> v(
-        service.functions flatMap {
-          f =>
-            Seq(serviceFunctionArgsStruct(f), serviceFunctionResultStruct(f))
-        } map {
-          struct =>
-            structDict(struct, None, includes, serviceOptions)
-        }),
+      "internalStructs" -> v(service.functions.map { f =>
+        Dictionary(
+          "internalArgsStruct" -> v(structDict(
+            internalArgsStruct(f),
+            None, includes, serviceOptions)),
+          "internalResultStruct" -> v(structDict(
+            internalResultStruct(f),
+            None, includes, serviceOptions))
+        )
+      }),
       "finagleClient" -> v(templates("finagleClient")),
       "finagleService" -> v(templates("finagleService")),
       "ostrichServer" -> v(templates("ostrichService")),

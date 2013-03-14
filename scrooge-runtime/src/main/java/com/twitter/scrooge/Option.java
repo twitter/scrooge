@@ -2,11 +2,11 @@ package com.twitter.scrooge;
 
 import java.util.*;
 
-public abstract class ScroogeOption<A> {
+public abstract class Option<A> {
   public abstract A get();
   public abstract boolean isDefined();
 
-  public static <A> ScroogeOption<A> make(boolean b, A a) {
+  public static <A> Option<A> make(boolean b, A a) {
     if (b) {
       return new Some<A>(a);
     } else {
@@ -14,11 +14,11 @@ public abstract class ScroogeOption<A> {
     }
   }
 
-  public static <A> ScroogeOption<A> none() {
-    return (ScroogeOption<A>) NONE;
+  public static <A> Option<A> none() {
+    return (Option<A>) NONE;
   }
 
-  public static ScroogeOption<Void> NONE = new ScroogeOption<Void>() {
+  public static Option<Void> NONE = new Option<Void>() {
     public Void get() {
       throw new IllegalArgumentException();
     }
@@ -28,7 +28,7 @@ public abstract class ScroogeOption<A> {
     }
   };
 
-  public static class Some<A> extends ScroogeOption<A> {
+  public static class Some<A> extends Option<A> {
     final A a;
 
     public Some(A a) {

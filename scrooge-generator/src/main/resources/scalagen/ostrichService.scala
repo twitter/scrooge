@@ -28,7 +28,7 @@ trait ThriftServer extends Service with FutureIface {
       .name(serverName)
       .reportTo(statsReceiver)
       .bindTo(new InetSocketAddress(thriftPort))
-      .tracerFactory(tracerFactory)
+      .tracer(tracerFactory())
 
   /**
    * Close the underlying server gracefully with the given grace

@@ -20,21 +20,24 @@ import com.twitter.scrooge.ast._
 import scala.collection.mutable.ArrayBuffer
 
 class TypeNotFoundException(name: String) extends Exception(name)
+class UndefinedConstantException(name: String) extends Exception(name)
 class UndefinedSymbolException(name: String) extends Exception(name)
 class TypeMismatchException(name: String) extends Exception(name)
 
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
-class EntityResolver[T](
-  typeMap: Map[String,T],
+abstract class EntityResolver[T](
+  entityMap: Map[String,T],
   includeMap: Map[String, ResolvedDocument],
   next: TypeResolver => EntityResolver[T])
 {
+  def createMissingEntityException(name: String): Exception
+
   def apply(id: Identifier): T = id match {
     case SimpleID(name) =>
-      typeMap.get(name).getOrElse {
-        throw new TypeNotFoundException(name)
+      entityMap.get(name).getOrElse {
+        throw createMissingEntityException(name)
       }
     case qid: QualifiedID =>
       // todo CSL-272:
@@ -52,9 +55,9 @@ class EntityResolver[T](
           case t => t
         }
       } catch {
-        case ex: TypeNotFoundException =>
+        case ex: UndefinedSymbolException =>
           // don't lose context
-          throw new TypeNotFoundException(qid.fullName)
+          throw createMissingEntityException(qid.fullName)
       }
   }
 }
@@ -66,11 +69,20 @@ case class TypeResolver(
   includeMap: Map[String, ResolvedDocument] = Map())
 {
   lazy val fieldTypeResolver: EntityResolver[FieldType] =
-    new EntityResolver(typeMap, includeMap, _.fieldTypeResolver)
+    new EntityResolver(typeMap, includeMap, _.fieldTypeResolver) {
+      def createMissingEntityException(name: String): Exception =
+        new TypeNotFoundException(name)
+    }
   lazy val serviceResolver: EntityResolver[Service] =
-    new EntityResolver(serviceMap, includeMap, _.serviceResolver)
+    new EntityResolver(serviceMap, includeMap, _.serviceResolver) {
+      def createMissingEntityException(name: String): Exception =
+        new UndefinedSymbolException(name)
+    }
   lazy val constResolver: EntityResolver[ConstDefinition] =
-    new EntityResolver(constMap, includeMap, _.constResolver)
+    new EntityResolver(constMap, includeMap, _.constResolver) {
+      def createMissingEntityException(name: String): Exception =
+        new UndefinedConstantException(name)
+    }
 
 
   /**
@@ -135,17 +147,17 @@ case class TypeResolver(
       ResolvedDefinition(
         d.copy(fieldType = resolved),
         withMapping(sid.name, resolved))
-    case s @ Struct(sid, fs, _) =>
+    case s @ Struct(sid, _, fs, _) =>
       val resolved = s.copy(fields = fs.map(apply))
       ResolvedDefinition(
         resolved,
         withMapping(sid.name, StructType(resolved, forcePrefix)))
-    case u @ Union(sid, fs, _) =>
+    case u @ Union(sid, _, fs, _) =>
       val resolved = u.copy(fields = fs.map(apply))
       ResolvedDefinition(
         resolved,
         withMapping(sid.name, StructType(resolved, forcePrefix)))
-    case e @ Exception_(sid, fs, _) =>
+    case e @ Exception_(sid, _, fs, _) =>
       val resolved = e.copy(fields = fs.map(apply))
       ResolvedDefinition(
         resolved,
@@ -169,7 +181,7 @@ case class TypeResolver(
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, t, as, ts, _) =>
+    case Function(_, _, t, as, ts, _) =>
       f.copy(funcType = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 
@@ -211,15 +223,14 @@ case class TypeResolver(
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
       }
     case i @ IdRHS(id) => id match {
-      case SimpleID(valueName) =>
-        fieldType match {
-          case EnumType(enum, _) =>
-            enum.values.find(_.sid.name == valueName) match {
-              case None => throw new UndefinedSymbolException(valueName)
-              case Some(value) => EnumRHS(enum, value)
-            }
-          case _ => throw new UndefinedSymbolException(valueName)
-        }
+      case sid: SimpleID =>
+        // When the rhs value is a simpleID, it can only be a constant
+        // defined in the same file
+        val const = constResolver(sid)
+        if (const.fieldType == fieldType)
+          const.value
+        else
+          throw new TypeMismatchException(sid.name)
       case qid @ QualifiedID(names) =>
         fieldType match {
           case EnumType(enum, _) =>
@@ -233,7 +244,7 @@ case class TypeResolver(
               // todo CSL-272: is it possible to have nested scopes? eg: scope1.scope2.enumName.valueName
               val enumNameWithScope = QualifiedID(names.dropRight(1)).fullName
               if (fieldTypeResolver(Identifier(enumNameWithScope)) != fieldType)
-                throw new UndefinedSymbolException(enumNameWithScope)
+                throw new TypeMismatchException(enumNameWithScope)
               else names.last
             }
             enum.values.find(_.sid.name == valueName) match {
@@ -242,7 +253,7 @@ case class TypeResolver(
             }
           case t: BaseType =>
             val const = constResolver(qid)
-            if (const.fieldType != fieldType) throw new UndefinedSymbolException(qid.fullName)
+            if (const.fieldType != fieldType) throw new TypeMismatchException(qid.fullName)
             else const.value
           case _ => throw new UndefinedSymbolException(qid.fullName)
         }

@@ -13,9 +13,9 @@ import scala.collection.{Map, Set}
 {{/public}}
 {{docstring}}
 object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
-  val Struct = new TStruct("{{StructName}}")
+  val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
-  val {{fieldConst}} = new TField("{{fieldName}}", TType.{{constType}}, {{id}})
+  val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
 {{/fields}}
 
   /**
@@ -84,7 +84,7 @@ object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
       _iprot.readStructEnd()
 {{#fields}}
 {{#required}}
-      if (!{{gotName}}) throw new TProtocolException("Required field '{{StructName}}' was not found in serialized data for struct {{StructName}}")
+      if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
 {{/required}}
 {{/fields}}
       new Immutable(

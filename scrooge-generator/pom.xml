@@ -2,14 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.twitter</groupId>
   <artifactId>scrooge-generator</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.3.MP2</version>
+  <name>scrooge-generator</name>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.0.3.MP2</version>
+    <version>3.0.8-SNAPSHOT</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
@@ -26,7 +25,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.0.3.MP2</version>
+      <version>3.0.8-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <!-- library dependencies -->
@@ -34,7 +33,7 @@
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.8.0</version>
-    </dependency>
+     </dependency>
     <dependency>
       <groupId>com.github.scopt</groupId>
       <artifactId>scopt_2.9.1</artifactId>
@@ -42,13 +41,13 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-core</artifactId>
-      <version>5.3.13</version>
+      <artifactId>util-core_2.9.2</artifactId>
+      <version>6.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-codec</artifactId>
-      <version>5.3.13</version>
+      <artifactId>util-codec_2.9.2</artifactId>
+      <version>6.1.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -57,21 +56,15 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.scala-tools.testing</groupId>
       <artifactId>specs_2.9.1</artifactId>
       <version>1.6.9</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.9.1</artifactId>
-      <version>1.7.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>scalatest-mixins_2.9.1</artifactId>
-      <version>1.0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -106,20 +99,20 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-core</artifactId>
-      <version>5.3.20</version>
+      <artifactId>finagle-core_2.9.2</artifactId>
+      <version>6.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-thrift</artifactId>
-      <version>5.3.20</version>
+      <artifactId>finagle-thrift_2.9.2</artifactId>
+      <version>6.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-ostrich4</artifactId>
-      <version>5.3.20</version>
+      <artifactId>finagle-ostrich4_2.9.2</artifactId>
+      <version>6.1.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
