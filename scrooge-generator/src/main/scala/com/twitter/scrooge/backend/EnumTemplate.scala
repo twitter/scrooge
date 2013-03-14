@@ -17,6 +17,7 @@ trait EnumTemplate {
       "values" -> v(enum.values map {
         value =>
           Dictionary(
+            "valuedocstring" -> codify(value.docstring.getOrElse("")),
             "name" -> genID(value.sid),
             "nameLowerCase" -> genID(value.sid.toLowerCase),
             "value" -> codify(value.value.toString)
