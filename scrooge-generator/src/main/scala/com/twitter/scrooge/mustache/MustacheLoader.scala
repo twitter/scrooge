@@ -23,7 +23,7 @@ class HandlebarLoader(prefix: String, suffix: String = ".scala") {
   private val cache = new HashMap[String, Handlebar]
 
   def apply(name: String): Handlebar = {
-    val fullName = prefix + name + suffix
+    val fullName = prefix + name + suffix + ".mustache"
     cache.getOrElseUpdate(name,
       getClass.getResourceAsStream(fullName) match {
         case null => {
