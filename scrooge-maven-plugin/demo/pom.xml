@@ -22,6 +22,7 @@
       <groupId>com.twitter</groupId>
       <artifactId>event-logger-thrift</artifactId>
       <version>0.0.3</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- common library dependencies -->
