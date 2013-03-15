@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference
 {{/withOstrichServer}}
 
 {{docstring}}
+@javax.annotation.Generated(value = Array("com.twitter.scrooge"), date = "{{date}}")
 object {{ServiceName}} {
   trait Iface {{syncExtends}}{
 {{#syncFunctions}}

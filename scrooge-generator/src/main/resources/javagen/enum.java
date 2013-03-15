@@ -1,6 +1,7 @@
 package {{package}};
 
 {{docstring}}
+@javax.annotation.Generated(value = "com.twitter.scrooge", date = "{{date}}")
 public enum {{EnumName}} {
 {{#values}}
   {{valuedocstring}}
