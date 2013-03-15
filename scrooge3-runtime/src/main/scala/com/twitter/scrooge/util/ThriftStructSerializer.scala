@@ -1,10 +1,11 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.util
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import org.apache.thrift.protocol.{TBinaryProtocol, TCompactProtocol, TProtocol,
   TProtocolFactory, TSimpleJSONProtocol}
 import org.apache.thrift.transport.TIOStreamTransport
 import com.twitter.util.{Base64StringEncoder, StringEncoder}
+import com.twitter.scrooge.base.{ThriftStruct, ThriftStructCodec}
 
 trait ThriftStructSerializer[T <: ThriftStruct] {
   def codec: ThriftStructCodec[T]

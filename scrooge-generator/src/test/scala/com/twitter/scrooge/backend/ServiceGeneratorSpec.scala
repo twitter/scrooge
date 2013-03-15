@@ -9,7 +9,7 @@ import com.twitter.finagle
 import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.util.Future
 import com.twitter.scrooge.testutil.EvalHelper
-import com.twitter.scrooge.ThriftException
+import com.twitter.scrooge.base.ThriftException
 import thrift.test._
 
 

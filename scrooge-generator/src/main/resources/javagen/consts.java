@@ -1,6 +1,6 @@
 package {{package}};
 
-import com.twitter.scrooge.Utilities;
+import com.twitter.scrooge.util.Utilities;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

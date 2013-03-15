@@ -2,10 +2,10 @@
 
 package {{package}};
 
-import com.twitter.scrooge.Option;
-import com.twitter.scrooge.Utilities;
-import com.twitter.scrooge.ThriftStruct;
-import com.twitter.scrooge.ThriftStructCodec;
+import com.twitter.scrooge.base.ThriftStruct;
+import com.twitter.scrooge.base.ThriftStructCodec;
+import com.twitter.scrooge.util.Option;
+import com.twitter.scrooge.util.Utilities;
 import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;

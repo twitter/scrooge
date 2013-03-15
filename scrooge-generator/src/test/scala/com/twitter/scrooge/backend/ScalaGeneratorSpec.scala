@@ -8,7 +8,7 @@ import org.specs.mock.{ClassMocker, JMocker}
 import org.specs.SpecificationWithJUnit
 import com.twitter.finagle.SourcedException
 import com.twitter.scrooge.testutil.EvalHelper
-import com.twitter.scrooge.{ThriftStruct, ThriftException}
+import com.twitter.scrooge.base.{ThriftStruct, ThriftException}
 import thrift.test._
 import thrift.test1._
 import thrift.test2._

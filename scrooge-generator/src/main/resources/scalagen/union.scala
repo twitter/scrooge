@@ -1,7 +1,7 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import com.twitter.scrooge.base.{ThriftStruct, ThriftStructCodec}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 {{#withFinagleClient}}

@@ -1,4 +1,4 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.base
 
 import org.apache.thrift.TEnum
 

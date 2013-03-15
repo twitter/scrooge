@@ -1,4 +1,4 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.base
 
 import java.lang.reflect.Method
 import org.apache.thrift.protocol.{TField, TProtocol}

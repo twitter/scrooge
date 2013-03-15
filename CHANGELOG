@@ -1,3 +1,18 @@
+3.0.8 - 03/15/2013
+===============================================================================
+* BREAKING CHANGES: revert the backward compatibility of scrooge-runtime with
+Scrooge 2. In order to ease the migration from Scrooge 2 to Scrooge 3, we now
+allow both versions to co-exist in user projects.
+  - The artifact ID of scrooge-runtime is changed to scrooge3-runtime
+  - The content of scrooge-runtime is now split into two packages:
+    -- com.twitter.scrooge.base contains ThriftStruct, ThriftStructCodec,
+    ThriftEnum and ThriftMetaData
+    -- com.twitter.scrooge.util contains Utilities, Option, ThriftStructSerializer
+* When scrooge-maven-plugin extracts Thrift files from a dependency artifact, it
+now puts them in a sub folder named after the artifact id. This way, the user
+project can use same-named Thrift files from different artifacts.
+* Support documentation on enum values.
+
 3.0.7 - 03/07/2013
 ===============================================================================
 * All on-wire names in the Thrift messages are now consistent with

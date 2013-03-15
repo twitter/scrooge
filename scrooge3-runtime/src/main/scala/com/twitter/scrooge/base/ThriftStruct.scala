@@ -1,4 +1,4 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.base
 
 import org.apache.thrift.protocol.TProtocol
 
@@ -15,10 +15,4 @@ abstract class ThriftStructCodec[T <: ThriftStruct] {
   def decode(iprot: TProtocol): T
 
   lazy val metaData = new ThriftStructMetaData(this)
-
-  @deprecated
-  def encoder: (T, TProtocol) => Unit = encode _
-
-  @deprecated
-  def decoder: TProtocol => T = decode _
 }

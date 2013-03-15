@@ -1,6 +1,6 @@
 package {{package}}
 
-import com.twitter.scrooge.ThriftEnum
+import com.twitter.scrooge.base.ThriftEnum
 
 {{docstring}}
 case object {{EnumName}} {

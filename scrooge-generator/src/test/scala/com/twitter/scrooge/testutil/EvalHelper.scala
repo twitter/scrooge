@@ -6,7 +6,7 @@ import org.apache.thrift.transport.TMemoryBuffer
 import org.specs.matcher.Matcher
 import org.specs.mock.JMocker
 import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.scrooge.ThriftStruct
+import com.twitter.scrooge.base.ThriftStruct
 
 trait EvalHelper { self: JMocker =>
   case class matchEqualsTField(a: TField) extends Matcher[TField]() {

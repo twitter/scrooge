@@ -1,6 +1,6 @@
 package {{package}}
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import com.twitter.scrooge.base.{ThriftStruct, ThriftStructCodec}
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
