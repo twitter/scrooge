@@ -132,28 +132,28 @@ abstract class Generator
     case QualifiedID(names) => codify(names.map { quoteKeyword(_) }.mkString("."))
   }
 
-  def genConstant(constant: RHS, mutable: Boolean = false): CodeFragment = {
+  def genConstant(fieldType: FieldType, constant: RHS, mutable: Boolean = false): CodeFragment = {
     constant match {
       case NullLiteral => codify("null")
       case StringLiteral(value) => codify(quote(value))
       case DoubleLiteral(value) => codify(value.toString)
       case IntLiteral(value) => codify(value.toString)
       case BoolLiteral(value) => codify(value.toString)
-      case c@ListRHS(_) => genList(c, mutable)
-      case c@SetRHS(_) => genSet(c, mutable)
-      case c@MapRHS(_) => genMap(c, mutable)
-      case c: EnumRHS => genEnum(c)
+      case c@ListRHS(_) => genList(fieldType, c, mutable)
+      case c@SetRHS(_) => genSet(fieldType, c, mutable)
+      case c@MapRHS(_) => genMap(fieldType, c, mutable)
+      case c: EnumRHS => genEnum(fieldType, c)
       case iv@IdRHS(id) => genID(id)
     }
   }
 
-  def genList(list: ListRHS, mutable: Boolean = false): CodeFragment
+  def genList(fieldType: FieldType, list: ListRHS, mutable: Boolean = false): CodeFragment
 
-  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment
+  def genSet(fieldType: FieldType, set: SetRHS, mutable: Boolean = false): CodeFragment
 
-  def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
+  def genMap(fieldType: FieldType, map: MapRHS, mutable: Boolean = false): CodeFragment
 
-  def genEnum(enum: EnumRHS): CodeFragment
+  def genEnum(fieldType: FieldType, enum: EnumRHS): CodeFragment
 
   /**
    * The default value for the specified type and mutability.
@@ -172,7 +172,7 @@ abstract class Generator
     if (f.requiredness.isOptional) {
       None
     } else {
-      f.default.map(genConstant(_, false)) orElse {
+      f.default.map(genConstant(f.fieldType, _, mutable = false)) orElse {
         if (f.fieldType.isInstanceOf[ContainerType]) {
           Some(genDefaultValue(f.fieldType))
         } else {

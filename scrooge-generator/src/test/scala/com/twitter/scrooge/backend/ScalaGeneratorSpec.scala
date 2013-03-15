@@ -627,6 +627,11 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       candy.headline mustEqual "Life is short, eat dessert first"
     }
 
+    "typedef relative fields with default" in {
+      val candy = Candy(100)
+      candy.candyType.value mustEqual 2
+    }
+
     "hide internal helper function to avoid naming conflict" in {
       import thrift.`def`.default._
       val impl = new NaughtyService.Iface {
