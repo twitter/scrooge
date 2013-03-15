@@ -46,6 +46,7 @@ import com.twitter.logging.Logger;
 {{/withOstrichServer}}
 
 {{docstring}}
+@javax.annotation.Generated(value = "com.twitter.scrooge", date = "{{date}}")
 public class {{ServiceName}} {
   public interface Iface {{syncExtends}}{
 {{#syncFunctions}}

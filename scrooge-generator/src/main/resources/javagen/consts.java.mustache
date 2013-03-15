@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@javax.annotation.Generated(value = "com.twitter.scrooge", date = "{{date}}")
 public final class Constants {
 {{#constants}}
   {{docstring}}
