@@ -18,6 +18,9 @@ project can use same-named Thrift files from different artifacts.
 * All on-wire names in the Thrift messages are now consistent with
 Apache generated code. This allows Scrooge generated services to exchange
 Thrift messages with Apache generated services.
+* Title case ids now preserve consecutive upper case letters. Eg:
+     TBird (original) -> Tbird (old) -> TBird (now)
+  See test case in scrooge-generator/src/test/scala/com/twitter/scrooge/ASTSpec.scala
 * scrooge-maven-plugin now enforces an explicit white list in <dependencyConfig>.
 The old behavior is that if a dependency artifact has a "idl" classifier, we
 will extract thrift files from it to compile. The new behavior is that the
