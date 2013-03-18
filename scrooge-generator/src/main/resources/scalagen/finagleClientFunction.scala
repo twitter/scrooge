@@ -17,7 +17,7 @@ private[this] object {{__stats_name}} {
       None
 {{/hasThrows}}
 {{#void}}
-    Future.Done
+    exception.getOrElse(Future.Done)
 {{/void}}
 {{^void}}
     exception.orElse(result.success.map(Future.value)).getOrElse(Future.exception(missingResult("{{clientFuncNameForWire}}")))
