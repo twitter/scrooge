@@ -57,6 +57,7 @@ class ASTSpec extends SpecificationWithJUnit {
       "Gen_HTMLReport" -> ("genHTMLReport", "GenHTMLReport"),
       "Gen_HTML_Report" -> ("genHtmlReport", "GenHtmlReport"),
       "GENHTMLREPORT" -> ("genhtmlreport", "Genhtmlreport"),
+      "genHTMLReport" -> ("genHTMLReport", "GenHTMLReport"),
       "genhtmlreport" -> ("genhtmlreport", "Genhtmlreport"),
       "genHtmlReport" -> ("genHtmlReport", "GenHtmlReport"),
       "_genHtmlReport" -> ("_genHtmlReport", "_GenHtmlReport"),
