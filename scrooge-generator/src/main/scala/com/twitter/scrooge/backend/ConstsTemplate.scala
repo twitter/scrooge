@@ -19,6 +19,7 @@ trait ConstsTemplate {
           "value" -> genConstant(c.value),
           "docstring" -> codify(c.docstring.getOrElse(""))
         )
-    })
+    }),
+    "date" -> codify(generationDate)
   )
 }
