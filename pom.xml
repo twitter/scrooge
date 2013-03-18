@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge</artifactId>
   <packaging>pom</packaging>
-  <version>3.0.8-SNAPSHOT</version>
+  <version>3.0.8</version>
   <name>scrooge</name>
   <url>http://github.com/twitter/scrooge</url>
   <description>A Thrift generator for Scala</description>
