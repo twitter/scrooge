@@ -41,17 +41,26 @@ class ASTSpec extends SpecificationWithJUnit {
 
   "Identifier" should {
     val simpleCases = List(
-      "hello" ->("hello", "Hello"),
-      "hello_world" ->("helloWorld", "HelloWorld"),
-      "a_b_c_d" ->("aBCD", "ABCD"),
-      "HELLO_WORLD" ->("hELLOWORLD", "HELLOWORLD"),
-      "helloWorld" ->("helloWorld", "HelloWorld"),
-      "hello_World" ->("helloWorld", "HelloWorld"),
-      "HELLOWORLD" ->("hELLOWORLD", "HELLOWORLD"),
-      "_Foo_bar" ->("_fooBar", "_FooBar"),
-      "__foo_bar" ->("__fooBar", "__FooBar"),
-      "ThriftClientRequestID" ->("thriftClientRequestID", "ThriftClientRequestID"),
-      "TChatbirdKey"->("tChatbirdKey", "TChatbirdKey")
+      "hello" -> ("hello", "Hello"),
+      "hello_world" -> ("helloWorld", "HelloWorld"),
+      "a_b_c_d" -> ("aBCD", "ABCD"),
+      "HELLO_WORLD" -> ("helloWorld", "HelloWorld"),
+      "helloWorld" -> ("helloWorld", "HelloWorld"),
+      "hello_World" -> ("helloWorld", "HelloWorld"),
+      "HELLOWORLD" -> ("helloworld", "Helloworld"),
+      "_Foo_bar" -> ("_fooBar", "_FooBar"),
+      "__foo_bar" -> ("__fooBar", "__FooBar"),
+      "ThriftClientRequestID" -> ("thriftClientRequestID", "ThriftClientRequestID"),
+      "TChatbirdKey" -> ("tChatbirdKey", "TChatbirdKey"),
+      "gen_html_report" -> ("genHtmlReport", "GenHtmlReport"),
+      "GEN_HTML_REPORT" -> ("genHtmlReport", "GenHtmlReport"),
+      "Gen_HTMLReport" -> ("genHTMLReport", "GenHTMLReport"),
+      "Gen_HTML_Report" -> ("genHtmlReport", "GenHtmlReport"),
+      "GENHTMLREPORT" -> ("genhtmlreport", "Genhtmlreport"),
+      "genhtmlreport" -> ("genhtmlreport", "Genhtmlreport"),
+      "genHtmlReport" -> ("genHtmlReport", "GenHtmlReport"),
+      "_genHtmlReport" -> ("_genHtmlReport", "_GenHtmlReport"),
+      "__genHtmlReport" -> ("__genHtmlReport", "__GenHtmlReport")
     )
     "camel case conversion" in {
       simpleCases foreach {
