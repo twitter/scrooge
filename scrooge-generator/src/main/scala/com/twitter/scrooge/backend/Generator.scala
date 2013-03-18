@@ -36,10 +36,11 @@ object Generator {
   def apply(
     lan: Language,
     includeMap: Map[String, ResolvedDocument],
-    defaultNamespace: String
+    defaultNamespace: String,
+    generationDate: String
   ): Generator = lan match {
-    case Scala => new ScalaGenerator(includeMap, defaultNamespace)
-    case Java => new JavaGenerator(includeMap, defaultNamespace)
+    case Scala => new ScalaGenerator(includeMap, defaultNamespace, generationDate)
+    case Java => new JavaGenerator(includeMap, defaultNamespace, generationDate)
   }
 }
 
@@ -53,6 +54,7 @@ abstract class Generator
    */
   val includeMap: Map[String, ResolvedDocument]
   val defaultNamespace: String
+  val generationDate: String
 
   /******************** helper functions ************************/
   private[this] def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean) = {

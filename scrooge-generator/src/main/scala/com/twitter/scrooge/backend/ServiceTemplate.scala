@@ -202,7 +202,8 @@ trait ServiceTemplate {
       "withFinagleService" -> v(s.options contains WithFinagleService),
       "withOstrichServer" -> v(s.options contains WithOstrichServer),
       "withFinagle" -> v((s.options contains WithFinagleClient)
-        || (s.options contains WithFinagleService))
+        || (s.options contains WithFinagleService)),
+      "date" -> codify(generationDate)
     )
   }
 }
