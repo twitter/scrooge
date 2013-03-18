@@ -241,6 +241,17 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         client.deliver("Boston")() mustEqual 42
       }
 
+      "success void" in {
+        val request = encodeRequest("remove", ExceptionalService.remove$args(123))
+        val response = encodeResponse("remove", ExceptionalService.remove$result())
+
+        expect {
+          one(impl).remove(123) willReturn Future.Done
+        }
+
+        client.remove(123)() mustEqual ()
+      }
+
       "exception" in {
         val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
         val ex = Xception(1, "boom")
@@ -251,6 +262,18 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         }
 
         client.deliver("Boston")() must throwA[ThriftException](ex)
+      }
+
+      "void exception" in {
+        val request = encodeRequest("remove", ExceptionalService.remove$args(123))
+        val ex = Xception(1, "boom")
+        val response = encodeResponse("remove", ExceptionalService.remove$result(ex = Some(ex)))
+
+        expect {
+          one(impl).remove(123) willReturn Future.exception(ex)
+        }
+
+        client.remove(123)() must throwA[ThriftException](ex)
       }
     }
 
