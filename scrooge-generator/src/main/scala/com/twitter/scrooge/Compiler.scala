@@ -20,6 +20,8 @@ import scala.collection.mutable
 import java.io.{File, FileWriter}
 import com.twitter.scrooge.backend.{Generator, ServiceOption}
 import com.twitter.scrooge.frontend.{ThriftParser, Importer}
+import org.apache.commons.lang.time.FastDateFormat
+import java.util.Date
 
 object Language extends Enumeration {
   type Language = Value
@@ -42,6 +44,7 @@ class Compiler {
   var dryRun: Boolean = false
   var language: Language = Scala
   var defaultNamespace: String = "thrift"
+  val now: String = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
 
   def run() {
     // if --gen-file-map is specified, prepare the map file.
@@ -65,7 +68,7 @@ class Compiler {
 
       if (verbose) println("+ Compiling %s".format(inputFile))
       val resolvedDoc = TypeResolver()(doc0)
-      val generator = Generator(language, resolvedDoc.resolver.includeMap, defaultNamespace)
+      val generator = Generator(language, resolvedDoc.resolver.includeMap, defaultNamespace, now)
       val generatedFiles = generator(
         resolvedDoc.document,
         flags.toSet,
