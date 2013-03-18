@@ -242,8 +242,8 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "success void" in {
-        val request = encodeRequest("remove", ExceptionalService.RemoveArgs(123))
-        val response = encodeResponse("remove", ExceptionalService.RemoveResult())
+        val request = encodeRequest("remove", ExceptionalService.remove$args(123))
+        val response = encodeResponse("remove", ExceptionalService.remove$result())
 
         expect {
           one(impl).remove(123) willReturn Future.Done
@@ -265,9 +265,9 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "void exception" in {
-        val request = encodeRequest("remove", ExceptionalService.RemoveArgs(123))
+        val request = encodeRequest("remove", ExceptionalService.remove$args(123))
         val ex = Xception(1, "boom")
-        val response = encodeResponse("remove", ExceptionalService.RemoveResult(ex = Some(ex)))
+        val response = encodeResponse("remove", ExceptionalService.remove$result(ex = Some(ex)))
 
         expect {
           one(impl).remove(123) willReturn Future.exception(ex)
