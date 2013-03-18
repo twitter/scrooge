@@ -1,6 +1,6 @@
 package com.twitter.scrooge.ast
 
-import collection.mutable.StringBuilder
+import scala.collection.mutable
 import com.twitter.scrooge.ScroogeInternalException
 
 sealed abstract class Identifier extends IdNode {
@@ -38,42 +38,33 @@ object Identifier {
    *     is converted to upper case.
    *   - first character (non underscore char) is upper case if
    *     firstCharUp is true, lower case if false
-   *   - If there are consecutive upper case letters in the original
-   *     string, preserve the upper case.
+   *   - first character of the second and following parts (text between underscores)
+   *     is always in upper case
+   *   - if a part is all upper case it is converted to lower case (except for first character),
+   *     in other cases case is preserved
    *
    *   Examples: (original, camel case, title case)
-   *     (genID, genID, GenID)
-   *     (_genID, _genID, _GenID)
-   *     (gen_id, genId, GenId)
+   *     (gen_html_report, genHtmlReport, GenHtmlReport)
+   *     (GEN_HTML_REPORT, genHtmlReport, GenHtmlReport)
+   *     (Gen_HTMLReport, genHTMLReport, GenHTMLReport)
+   *     (Gen_HTML_Report, genHtmlReport, GenHtmlReport)
+   *     (GENHTMLREPORT, genhtmlreport, Genhtmlreport)
+   *     (genhtmlreport, genhtmlreport, Genhtmlreport)
+   *     (genHtmlReport, genHtmlReport, GenHtmlReport)
+   *     (genHTMLReport, genHTMLReport, GenHtmlReport)
+   *     (_genHtmlReport, _genHtmlReport, _GenHtmlReport)
    */
   def toCamelCase(str: String, firstCharUp: Boolean = false): String = {
-    val sb = new StringBuilder(str.length)
-    // copy leading _
-    val firstCharPos = str.indexWhere(c => c != '_')
-    if (firstCharPos > 0)
-      sb.append(str.substring(0, firstCharPos))
-
-    // the first char
-    if (firstCharPos < str.size) {
-      val firstChar = str.charAt(firstCharPos)
-      if (firstCharUp) sb.append(firstChar.toUpper)
-      else sb.append(firstChar.toLower)
-    }
-
-    // the rest
-    var lastWas_ = false
-    for (c <- str.substring(firstCharPos + 1)) {
-      if (c == '_')
-        lastWas_ = true
-      else {
-        if (c.isUpper || lastWas_)
-          sb.append(c.toUpper)
-        else
-          sb.append(c)
-        lastWas_ = false
-      }
-    }
-    sb.toString()
+    str.takeWhile(_ == '_') + str.
+      split('_').
+      filterNot(_.isEmpty).
+      zipWithIndex.map { case (part, ind) =>
+        val first = if (ind == 0 && !firstCharUp) part(0).toLower else part(0).toUpper
+        val isAllUpperCase = part.forall(_.isUpper)
+        val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
+        new mutable.StringBuilder(part.size).append(first).append(rest)
+      }.
+      mkString
   }
 }
 

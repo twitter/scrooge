@@ -3,7 +3,7 @@ package {{package}}
 import com.twitter.scrooge.ThriftEnum
 
 {{docstring}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge"), date = "{{date}}")
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
 case object {{EnumName}} {
 {{#values}}
   {{valuedocstring}}
@@ -51,5 +51,5 @@ case object {{EnumName}} {
 
 
 {{docstring}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge"), date = "{{date}}")
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
 sealed trait {{EnumName}} extends ThriftEnum with Serializable

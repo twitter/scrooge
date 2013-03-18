@@ -254,7 +254,11 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    */
   private Set<Artifact> findThriftDependencies(Set<String> whitelist) throws IOException {
     Set<Artifact> thriftDependencies = new HashSet<Artifact>();
-    for(Artifact artifact : (Collection<Artifact>)project.getArtifacts()) {
+    Set<Artifact> allDependencies = new HashSet<Artifact>();
+    allDependencies.addAll(project.getArtifacts());
+    allDependencies.addAll(project.getDependencyArtifacts());
+
+    for(Artifact artifact : allDependencies) {
       String artifactId = artifact.getArtifactId();
       if (whitelist.contains(artifactId)) {
         thriftDependencies.add(artifact);
