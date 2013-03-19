@@ -22,6 +22,7 @@
       <groupId>com.twitter</groupId>
       <artifactId>event-logger-thrift</artifactId>
       <version>0.0.3</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- common library dependencies -->
@@ -64,7 +65,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.0.8.MP2</version>
+      <version>3.0.8</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -143,7 +144,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>3.0.8.MP2</version>
+        <version>3.0.8</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>

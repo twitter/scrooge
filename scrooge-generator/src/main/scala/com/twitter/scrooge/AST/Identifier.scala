@@ -51,6 +51,7 @@ object Identifier {
    *     (GENHTMLREPORT, genhtmlreport, Genhtmlreport)
    *     (genhtmlreport, genhtmlreport, Genhtmlreport)
    *     (genHtmlReport, genHtmlReport, GenHtmlReport)
+   *     (genHTMLReport, genHTMLReport, GenHtmlReport)
    *     (_genHtmlReport, _genHtmlReport, _GenHtmlReport)
    */
   def toCamelCase(str: String, firstCharUp: Boolean = false): String = {
