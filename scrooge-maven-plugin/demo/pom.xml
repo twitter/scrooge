@@ -156,7 +156,6 @@
             <!-- add other Scrooge command line options using thriftOpts -->
             <thriftOpt>--finagle</thriftOpt>
             <thriftOpt>--ostrich</thriftOpt>
-            <thriftOpt>-v</thriftOpt>
           </thriftOpts>
           <!-- tell scrooge to extract thrifts from these artifacts -->
           <dependencyConfig>
