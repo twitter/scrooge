@@ -265,7 +265,8 @@ trait StructTemplate {
       "arityN" -> v(arity > 1 && arity <= 22),
       "withProxy" -> v(struct.isInstanceOf[Struct]),
       "withFinagleClient" -> v(serviceOptions contains WithFinagleClient),
-      "date" -> codify(generationDate)
+      "date" -> codify(generationDate),
+      "withSkipNullWrite" -> v(serviceOptions contains WithSkipNullWrite)
     )
   }
 }

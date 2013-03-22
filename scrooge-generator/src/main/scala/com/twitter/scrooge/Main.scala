@@ -19,7 +19,7 @@ package com.twitter.scrooge
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
-import com.twitter.scrooge.backend.{WithOstrichServer, WithFinagleClient, WithFinagleService}
+import com.twitter.scrooge.backend.{WithOstrichServer, WithFinagleClient, WithFinagleService, WithSkipNullWrite}
 
 object Main {
   import Language._
@@ -96,6 +96,10 @@ object Main {
         ()
       })
       opt("ostrich", "generate ostrich server interface", { compiler.flags += WithOstrichServer; () })
+      opt("allowNull", "allow null as value for fields (while writing) regardless of field's requiredness", {
+        compiler.flags += WithSkipNullWrite
+        ()
+      })
       arglist("<files...>", "thrift files to compile", { compiler.thriftFiles += _ })
     }
     parser.parse(args)

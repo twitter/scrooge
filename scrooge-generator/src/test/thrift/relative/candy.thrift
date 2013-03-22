@@ -18,7 +18,7 @@ typedef include1.CandyType CandyType
 
 struct Candy {
   1: i32 sweetness_iso
-  2: CandyType candy_type
+  2: CandyType candy_type = CandyType.WEIRD
   3: string headline = include1.HEADLINE
   4: optional string brand = include2.BRAND
   5: i32 count = include3.PIECES
