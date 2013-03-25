@@ -26,6 +26,8 @@ class ThriftParserSpec extends SpecificationWithJUnit {
       parser.parse("{ 'name': 'Commie', 'home': 'San Francisco' }",
         parser.rhs) mustEqual MapRHS(Map(StringLiteral("name") -> StringLiteral
         ("Commie"), StringLiteral("home") -> StringLiteral("San Francisco")))
+      parser.parse("true", parser.rhs) mustEqual IdRHS(SimpleID("true")) // and not BoolLiteral(true), see #13
+      parser.parse("false", parser.rhs) mustEqual IdRHS(SimpleID("false")) // and not BoolLiteral(false), see #13
     }
 
     "base types" in {
