@@ -1,3 +1,11 @@
+3.0.9 - 03/27/2013
+===============================================================================
+* Remove "provided" scope of finagle in scrooge-runtime. So it brings Finagle
+  6.1.0 as transit dependency to your project
+* Make the generated Scala code backward compatible with Finagle 5. The impact
+  to users on Finagle 6 is that you will see a lot of warnings saying that
+  tracerFactory is deprecated.
+
 3.0.8 - 03/18/2013
 ===============================================================================
 * When scrooge-maven-plugin extracts Thrift files from a dependency artifact, it

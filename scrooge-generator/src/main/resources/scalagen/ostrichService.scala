@@ -28,7 +28,9 @@ trait ThriftServer extends Service with FutureIface {
       .name(serverName)
       .reportTo(statsReceiver)
       .bindTo(new InetSocketAddress(thriftPort))
-      .tracer(tracerFactory())
+      // TODO: once everyone in Twitter is on Finagle 6+, change this to
+      // .tracer(tracerFactory())
+      .tracerFactory(tracerFactory)
 
   /**
    * Close the underlying server gracefully with the given grace

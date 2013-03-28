@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.0.8</version>
+    <version>3.0.9</version>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
@@ -35,13 +35,11 @@
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.9.2</artifactId>
       <version>6.1.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.9.2</artifactId>
       <version>6.1.0</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
