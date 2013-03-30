@@ -95,7 +95,12 @@ object Main {
         compiler.flags += WithFinagleClient
         ()
       })
-      opt("ostrich", "generate ostrich server interface", { compiler.flags += WithOstrichServer; () })
+      opt("ostrich", "generate ostrich server interface", {
+        // --ostrich implies --finagle
+        compiler.flags += WithOstrichServer
+        compiler.flags += WithFinagleClient
+        compiler.flags += WithFinagleService
+        () })
       arglist("<files...>", "thrift files to compile", { compiler.thriftFiles += _ })
     }
     parser.parse(args)
