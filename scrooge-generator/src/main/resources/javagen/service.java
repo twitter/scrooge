@@ -64,10 +64,10 @@ public class {{ServiceName}} {
 
 {{#internalStructs}}
 {{#internalArgsStruct}}
-    {{>struct}}
+  {{>struct}}
 {{/internalArgsStruct}}
 {{#internalResultStruct}}
-    {{>struct}}
+  {{>struct}}
 {{/internalResultStruct}}
 {{/internalStructs}}
 {{#finagleClients}}
