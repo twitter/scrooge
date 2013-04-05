@@ -65,7 +65,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.1.0-SNAPSHOT</version>
+      <version>3.0.9</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -144,12 +144,12 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>3.1.0-SNAPSHOT</version>
+        <version>3.0.9</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
-              <from>mythrift.bird</from>
-              <to>mythrift.bird_renamed</to>
+              <from>com.twitter.demo</from>
+              <to>com.twitter.mydemo.renamed</to>
             </thriftNamespaceMapping>
           </thriftNamespaceMappings>
           <thriftOpts>
