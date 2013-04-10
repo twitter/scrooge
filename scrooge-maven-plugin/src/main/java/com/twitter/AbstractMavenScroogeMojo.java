@@ -63,6 +63,17 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<File> thriftIncludes = new HashSet<File>();
 
   /**
+  * Which language the generated files should be ("java" or "scala")
+  * @parameter default-value="scala"
+   * {@code
+   * <configuration>
+   *     <language>java</language>
+   * </configuration>
+   * }
+  */
+  private String language;
+
+  /**
    * Command line options to pass to scrooge, e.g.
    * {@code
    * <thriftOpts>
@@ -177,6 +188,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
                   thriftFiles,
                   includes,
                   thriftNamespaceMap,
+                  language,
                   thriftOpts);
         }
         attachFiles(compileRoots);

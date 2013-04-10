@@ -20,7 +20,8 @@ import org.apache.maven.plugin.logging.Log
 import java.io.File
 import java.util.{Map, Set}
 import scala.collection.JavaConverters._
-import scrooge.{Main, Compiler}
+import scrooge.{Language, Main, Compiler}
+import org.apache.maven.plugin.MojoExecutionException
 
 class ScroogeRunner {
 
@@ -30,6 +31,7 @@ class ScroogeRunner {
     thriftFiles: Set[File],
     thriftIncludes: Set[File],
     namespaceMappings: Map[String, String],
+    language: String,
     flags: Set[String]
   ) {
 
@@ -39,6 +41,11 @@ class ScroogeRunner {
     thriftIncludes.asScala.map { compiler.importPaths += _.getPath }
     namespaceMappings.asScala.map { e => compiler.namespaceMappings.put(e._1, e._2)}
     Main.parseOptions(compiler, flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath })
+    compiler.language = language.toLowerCase match {
+      case "java" => Language.Java
+      case "scala" => Language.Scala
+      case _ => throw new MojoExecutionException("Unknown language option \""+language+"\"")
+    }
     compiler.run()
   }
 }
