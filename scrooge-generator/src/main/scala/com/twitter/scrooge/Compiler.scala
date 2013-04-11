@@ -32,7 +32,7 @@ class Compiler {
   import Language._
   val defaultDestFolder = "."
   var destFolder: String = defaultDestFolder
-  val importPaths = new mutable.ListBuffer[String]
+  val includePaths = new mutable.ListBuffer[String]
   val thriftFiles = new mutable.ListBuffer[String]
   val flags = new mutable.HashSet[ServiceOption]
   val namespaceMappings = new mutable.HashMap[String, String]
@@ -62,7 +62,7 @@ class Compiler {
 
     // compile
     for (inputFile <- thriftFiles) {
-      val importer = Importer(new File(".")) +: Importer(importPaths)
+      val importer = Importer(new File(".")) +: Importer(includePaths)
       val parser = new ThriftParser(importer, strict)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 

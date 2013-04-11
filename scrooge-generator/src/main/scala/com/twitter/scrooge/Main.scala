@@ -52,8 +52,8 @@ object Main {
       "write generated code to a folder (default: %s)".format(compiler.defaultDestFolder), { x: String =>
         compiler.destFolder = x
       })
-      opt("i", "import-path", "<path>", "path(s) to search for imported thrift files (may be used multiple times)", { path: String =>
-        compiler.importPaths ++= path.split(File.pathSeparator); ()
+      opt("i", "include-path", "<path>", "path(s) to search for included thrift files (may be used multiple times)", { path: String =>
+        compiler.includePaths ++= path.split(File.pathSeparator); ()
       })
       opt("n", "namespace-map", "<oldname>=<newname>", "map old namespace to new (may be used multiple times)", { mapping: String =>
         mapping.split("=") match {

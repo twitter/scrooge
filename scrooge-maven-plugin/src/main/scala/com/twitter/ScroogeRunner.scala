@@ -36,7 +36,7 @@ class ScroogeRunner {
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath
     thriftFiles.asScala.map { _.getPath }
-    thriftIncludes.asScala.map { compiler.importPaths += _.getPath }
+    thriftIncludes.asScala.map { compiler.includePaths += _.getPath }
     namespaceMappings.asScala.map { e => compiler.namespaceMappings.put(e._1, e._2)}
     Main.parseOptions(compiler, flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath })
     compiler.run()
