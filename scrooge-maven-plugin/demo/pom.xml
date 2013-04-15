@@ -144,7 +144,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>3.0.9</version>
+        <version>3.1.0</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
@@ -152,6 +152,7 @@
               <to>com.twitter.mydemo.renamed</to>
             </thriftNamespaceMapping>
           </thriftNamespaceMappings>
+          <language>scala</language>
           <thriftOpts>
             <!-- add other Scrooge command line options using thriftOpts -->
             <thriftOpt>--finagle</thriftOpt>
