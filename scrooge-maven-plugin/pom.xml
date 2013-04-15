@@ -10,17 +10,8 @@
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scrooge</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1-SNAPSHOT</version>
   </parent>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.twitter</groupId>
-        <artifactId>util-core_2.9.2</artifactId>
-        <version>6.3.0</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <build>
     <pluginManagement>
       <plugins>
@@ -124,7 +115,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator</artifactId>
-      <version>3.1.0</version>
+      <version>3.1.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <reporting>
