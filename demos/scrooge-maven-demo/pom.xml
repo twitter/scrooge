@@ -152,6 +152,7 @@
               <to>com.twitter.mydemo.renamed</to>
             </thriftNamespaceMapping>
           </thriftNamespaceMappings>
+          <language>scala</language> <!-- default is scala, can also be java -->
           <thriftOpts>
             <!-- add other Scrooge command line options using thriftOpts -->
             <thriftOpt>--finagle</thriftOpt>
