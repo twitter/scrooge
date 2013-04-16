@@ -1,7 +1,7 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftException, ThriftStruct, ThriftStructCodec}
+import com.twitter.scrooge.{ThriftException, ThriftStruct, ThriftStructCodec3}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 {{#withFinagleClient}}
@@ -12,7 +12,7 @@ import scala.collection.{Map, Set}
 
 {{/public}}
 {{docstring}}
-object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
+object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
@@ -31,8 +31,8 @@ object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
 {{/fields}}
   }
 
-  def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-  def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
+  override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
+  override def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
 
   def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
 
@@ -56,9 +56,9 @@ object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
   def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
-  object Immutable extends ThriftStructCodec[{{StructName}}] {
-    def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-    def decode(_iprot: TProtocol) = {
+  object Immutable extends ThriftStructCodec3[{{StructName}}] {
+    override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
+    override def decode(_iprot: TProtocol) = {
 {{#fields}}
       var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
       var {{gotName}} = false

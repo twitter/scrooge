@@ -6,6 +6,7 @@ import com.twitter.scrooge.Option;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
+import com.twitter.scrooge.ThriftStructCodec3;
 import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;
@@ -40,7 +41,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
    */
   public final Field setField;
 
-  public static ThriftStructCodec<{{StructName}}> CODEC = new ThriftStructCodec<{{StructName}}>() {
+  public static ThriftStructCodec<{{StructName}}> CODEC = new ThriftStructCodec3<{{StructName}}>() {
     public {{StructName}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
       {{StructName}} result = null;
       _iprot.readStructBegin();

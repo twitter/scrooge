@@ -6,6 +6,7 @@ import com.twitter.scrooge.Option;
 import com.twitter.scrooge.Utilities;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
+import com.twitter.scrooge.ThriftStructCodec3;
 import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;
@@ -74,7 +75,8 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
     return builder;
   }
 
-  public static ThriftStructCodec<{{StructName}}> CODEC = new ThriftStructCodec<{{StructName}}>() {
+  public static ThriftStructCodec<{{StructName}}> CODEC = new ThriftStructCodec3<{{StructName}}>() {
+    @Override
     public {{StructName}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
       Builder builder = new Builder();
 {{#fields}}
@@ -109,6 +111,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
       }
     }
 
+    @Override
     public void encode({{StructName}} struct, TProtocol oprot) throws org.apache.thrift.TException {
       struct.write(oprot);
     }

@@ -1,7 +1,7 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 {{#withFinagleClient}}
@@ -16,14 +16,14 @@ sealed trait {{StructName}} extends {{parentType}}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
-object {{StructName}} extends ThriftStructCodec[{{StructName}}] {
+object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   val Union = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
 {{/fields}}
 
-  def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
-  def decode(_iprot: TProtocol): {{StructName}} = {
+  override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
+  override def decode(_iprot: TProtocol): {{StructName}} = {
     var _result: {{StructName}} = null
     _iprot.readStructBegin()
     val _field = _iprot.readFieldBegin()

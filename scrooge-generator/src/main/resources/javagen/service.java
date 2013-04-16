@@ -3,6 +3,7 @@ package {{package}};
 import com.twitter.scrooge.Option;
 import com.twitter.scrooge.ThriftStruct;
 import com.twitter.scrooge.ThriftStructCodec;
+import com.twitter.scrooge.ThriftStructCodec3;
 import com.twitter.scrooge.Utilities;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
