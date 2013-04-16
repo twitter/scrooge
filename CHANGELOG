@@ -1,10 +1,20 @@
+3.1.1 - 04/16/2013
+===============================================================================
+* BREAKING CHANGE:
+    We finally made scrooge-runtime to be backward with Scrooge 2. This requires
+    a name change for the ThriftStructCodec. From now on, all objects generated
+    by Scrooge 3 will use ThriftStructCodec3.
+    This will affect you only if your code is using ThriftStructCodec directly,
+    which is not common.
+* add language option tag to scrooge-maven-plugin, thanks to @eirslett
+* some directory reorganization of the demos
+
 3.1.0 - 04/11/2013
 ===============================================================================
 * Dependency changes: now on util/finagle 6.3.0
 * demo project now shows how to construct finagle server and client using
 generated code
 * --ostrich flag implies --finagle flag
-
 
 3.0.9 - 03/27/2013
 ===============================================================================
