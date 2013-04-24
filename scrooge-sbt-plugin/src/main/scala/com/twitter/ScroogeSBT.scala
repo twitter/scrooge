@@ -132,7 +132,7 @@ object ScroogeSBT extends Plugin {
   )
 
   val newSettings = Seq(
-    scroogeBuildOptions := Seq("finagle")
+    scroogeBuildOptions := Seq("--finagle")
   ) ++ inConfig(Test)(genThriftSettings) ++ inConfig(Compile)(genThriftSettings)
 }
 
