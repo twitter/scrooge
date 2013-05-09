@@ -90,13 +90,13 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * do not have idl classifier. Make sure to include the
    * correct artifact name (eg. finagle-thrift, not just finagle)
    * {@code
-   * <dependencyConfig>
+   * <dependencyIncludes>
    *     <include>finagle-thrift</include>
-   * </dependencyConfig>
+   * </dependencyIncludes>
    * }
    *  @parameter
    */
-  private Set<String> dependencyConfig = new HashSet<String>();
+  private Set<String> dependencyIncludes = new HashSet<String>();
 
   /**
    * A set of namespace mappings to pass to the thrift compiler, e.g.
@@ -252,7 +252,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       thriftFiles.addAll(findThriftFilesInDirectory(thriftSourceRoot));
     }
     getLog().info("finding thrift files in dependencies");
-    extractFilesFromDependencies(findThriftDependencies(dependencyConfig), getResourcesOutputDirectory());
+    extractFilesFromDependencies(findThriftDependencies(dependencyIncludes), getResourcesOutputDirectory());
     if (getResourcesOutputDirectory().exists()) {
       thriftFiles.addAll(findThriftFilesInDirectory(getResourcesOutputDirectory()));
     }
@@ -340,7 +340,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * Walk project references recursively, adding thrift files to the provided list.
    */
   List<File> getRecursiveThriftFiles(MavenProject project, String outputDirectory, List<File> files) throws IOException {
-    if (dependencyConfig.contains(project.getArtifactId())) {
+    if (dependencyIncludes.contains(project.getArtifactId())) {
       File dir = new File(new File(project.getFile().getParent(), "target"), outputDirectory);
       if (dir.exists()) {
         try {

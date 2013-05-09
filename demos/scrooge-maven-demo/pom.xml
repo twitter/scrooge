@@ -159,9 +159,9 @@
             <thriftOpt>--ostrich</thriftOpt>
           </thriftOpts>
           <!-- tell scrooge to extract thrifts from these artifacts -->
-          <dependencyConfig>
+          <dependencyIncludes>
             <include>event-logger-thrift</include>
-          </dependencyConfig>
+          </dependencyIncludes>
         </configuration>
         <executions>
           <execution>
