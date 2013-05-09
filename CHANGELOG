@@ -1,3 +1,8 @@
+3.1.2 - 05/09/2012
+===============================================================================
+* BREAKING CHANGE:
+    In the maven plugin: change the dependentConfigs param to dependentIncludes
+
 3.1.1 - 04/16/2013
 ===============================================================================
 * BREAKING CHANGE:
