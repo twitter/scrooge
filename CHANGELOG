@@ -11,6 +11,7 @@
     by Scrooge 3 will use ThriftStructCodec3.
     This will affect you only if your code is using ThriftStructCodec directly,
     which is not common.
+* scrooge now releases jar-with-dependencies
 * add language option tag to scrooge-maven-plugin, thanks to @eirslett
 * some directory reorganization of the demos
 
