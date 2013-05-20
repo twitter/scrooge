@@ -90,7 +90,7 @@ case class DirImporter(dir: File) extends Importer {
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename) map { case (file, importer) =>
-      FileContents(importer, Source.fromFile(file).mkString)
+      FileContents(importer, Source.fromFile(file, "UTF-8").mkString)
     }
 }
 
@@ -109,7 +109,7 @@ case class ZipImporter(file: File) extends Importer {
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename) map { entry =>
-      FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry)).mkString)
+      FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString)
     }
 }
 
