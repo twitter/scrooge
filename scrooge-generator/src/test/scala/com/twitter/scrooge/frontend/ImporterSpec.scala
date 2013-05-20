@@ -40,5 +40,21 @@ class ImporterSpec extends SpecificationWithJUnit {
       c.get.data mustEqual "hello"
       (c.get.importer.canonicalPaths contains folder2.getCanonicalPath) must beTrue
     }
+    
+    "reads utf-8 data correctly" in {
+      val folder1 = new File(testFolder, "f1")
+      val folder2 = new File(testFolder, "f2")
+      folder1.mkdir()
+      folder2.mkdir()
+
+      val f = new FileOutputStream(new File(folder2, "a.thrift"))
+      f.write("你好".getBytes("UTF-8"))
+      f.close()
+
+      val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
+      val c = importer.apply("a.thrift")
+      c.isDefined must beTrue
+      c.get.data mustEqual "你好"
+    }
   }
 }
