@@ -15,3 +15,4 @@ lib_managed/
 .scala_dependencies
 .ivyjars
 .classpath.txt
+sbt-launch.jar

@@ -4,6 +4,10 @@ args=("$@")
 cp=${args[0]}
 out=${args[1]}
 
+if [[ -n "${args[2]}" ]]; then
+  cd "${args[2]}"
+fi
+
 javaNamespace="-n thrift.test=thrift.java_test
 -n thrift.test1=thrift.java_test1
 -n thrift.test2=thrift.java_test2
