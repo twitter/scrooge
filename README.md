@@ -1,4 +1,4 @@
-# Scrooge 
+# Scrooge
 [![Build Status](https://secure.travis-ci.org/twitter/scrooge.png)](http://travis-ci.org/twitter/scrooge)
 
 Scrooge is a [thrift](http://thrift.apache.org/) code generator written in
@@ -121,8 +121,8 @@ To use it, add a line like this to your `plugins.sbt` file:
 
 ## Maven Plugin
 We ship a [scrooge-maven-plugin](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin) with Scrooge,
-as well as an [example maven project](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin/demo).
-Please refer to the [example pom file] (https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin/demo/pom.xml)
+as well as an [example maven project](https://github.com/twitter/scrooge/tree/master/demos/scrooge-maven-demo).
+Please refer to the [example pom file](https://github.com/twitter/scrooge/tree/master/demos/scrooge-maven-demo/pom.xml)
 
 
 ## Finagle integration
