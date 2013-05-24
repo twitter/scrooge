@@ -52,6 +52,7 @@ object Scrooge extends Build {
       "junit" % "junit" % "4.8.1" % "test",
       "com.novocode" % "junit-interface" % "0.8" % "test->default"
     ),
+    resolvers += "twitter-repo" at "http://maven.twttr.com",
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
