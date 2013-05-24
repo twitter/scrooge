@@ -1,4 +1,4 @@
-# Scrooge 
+# Scrooge
 [![Build Status](https://secure.travis-ci.org/twitter/scrooge.png)](http://travis-ci.org/twitter/scrooge)
 
 Scrooge is a [thrift](http://thrift.apache.org/) code generator written in
@@ -38,9 +38,9 @@ There are two sub-projects:
 
 ## Building Scrooge
 
-To build scrooge, use maven:
+To build scrooge, use sbt:
 
-    $ mvn clean package
+    $ ./sbt +publish-local
 
 ## Runtime dependency
 
@@ -50,13 +50,13 @@ Maven users need to add the following to the pom.xml file:
 
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-runtime</artifactId>
-      <version>3.0.1</version>
+      <artifactId>scrooge-runtime_2.9.2</artifactId>
+      <version>3.1.2</version>
     </dependency>
 
 SBT users need this:
 
-    val scrooge_runtime = "com.twitter.scrooge" % "scrooge-runtime" % "3.0.1"
+    val scrooge_runtime = "com.twitter.scrooge" %% "scrooge-runtime" % "3.1.2"
 
 ## Running Scrooge as a command line tool
 
