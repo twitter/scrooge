@@ -4,6 +4,7 @@
     In the maven plugin: change the dependentConfigs param to dependentIncludes
 
 * optimize empty collections on deserialization
+* upgrade to finagle 6.4.0 and util 6.3.4
 
 3.1.1 - 04/16/2013
 ===============================================================================
