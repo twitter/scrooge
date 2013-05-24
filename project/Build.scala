@@ -107,7 +107,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       sharedSettings
   ).aggregate(
-    scroogeGenerator, scroogeMavenPlugin, scroogeRuntime
+    scroogeGenerator, scroogeRuntime
   )
 
   lazy val scroogeGenerator = Project(
@@ -129,22 +129,6 @@ object Scrooge extends Build {
       finagle("ostrich4") % "test"
     )
   ).dependsOn(scroogeRuntime % "test")
-
-  lazy val scroogeMavenPlugin = Project(
-    id = "scrooge-maven-plugin",
-    base = file("scrooge-maven-plugin"),
-    settings = Project.defaultSettings ++
-      sharedSettings
-  ).settings(
-    name := "scrooge-maven-plugin",
-    libraryDependencies ++= Seq(
-      "org.apache.maven" % "maven-plugin-api" % "2.0.9",
-      "com.google.collections" % "google-collections" % "0.8",
-      "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
-      "org.apache.maven" % "maven-project" % "2.0.9",
-      "org.slf4j" % "slf4j-api" % "1.6.1"
-    )
-  ).dependsOn(scroogeGenerator)
 
   lazy val scroogeRuntime = Project(
     id = "scrooge-runtime",
