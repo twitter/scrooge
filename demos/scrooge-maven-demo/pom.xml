@@ -35,32 +35,31 @@
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.8.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core_2.9.2</artifactId>
-      <version>6.1.0</version>
+      <version>6.3.4</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-codec_2.9.2</artifactId>
-      <version>6.1.0</version>
+      <version>6.3.4</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.9.2</artifactId>
-      <version>6.1.0</version>
+      <version>6.4.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.9.2</artifactId>
-      <version>6.1.0</version>
+      <version>6.4.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-ostrich4_2.9.2</artifactId>
-      <version>6.1.0</version>
+      <version>6.4.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
