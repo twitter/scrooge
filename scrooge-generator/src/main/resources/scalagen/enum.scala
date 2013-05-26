@@ -48,11 +48,12 @@ case object {{EnumName}} {
     }
   }
   
-  val list: List[{{EnumName}}] =
+  val list: List[{{EnumName}}] = {
 {{#values}}
-      apply({{value}}) ::
+    {{name}} ::
 {{/values}}
-      Nil
+    List.empty[{{EnumName}}]
+  }
 }
 
 
