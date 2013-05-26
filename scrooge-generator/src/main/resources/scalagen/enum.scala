@@ -52,7 +52,7 @@ case object {{EnumName}} {
 {{#values}}
     {{name}} ::
 {{/values}}
-    List.empty[{{EnumName}}]
+    scala.List.empty[{{EnumName}}]
   }
 }
 
