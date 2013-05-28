@@ -52,6 +52,9 @@ object Main {
       "write generated code to a folder (default: %s)".format(compiler.defaultDestFolder), { x: String =>
         compiler.destFolder = x
       })
+      opt(None, "import-path", "<path>", "[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)", { path: String =>
+        compiler.includePaths ++= path.split(File.pathSeparator); ()
+      })
       opt("i", "include-path", "<path>", "path(s) to search for included thrift files (may be used multiple times)", { path: String =>
         compiler.includePaths ++= path.split(File.pathSeparator); ()
       })
