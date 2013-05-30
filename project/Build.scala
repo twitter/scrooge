@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 
 object Scrooge extends Build {
+  val scroogeVersion = "3.1.2"
   val utilVersion = "6.3.4"
   val finagleVersion = "6.4.0"
 
@@ -34,7 +35,7 @@ object Scrooge extends Build {
   )
 
   val sharedSettings = Seq(
-    version := "3.1.2",
+    version := scroogeVersion,
     organization := "com.twitter",
     crossScalaVersions := Seq("2.9.2", "2.10.0"),
 
@@ -107,7 +108,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       sharedSettings
   ).aggregate(
-    scroogeGenerator, scroogeRuntime
+    scroogeGenerator, scroogeRuntime, scroogeSbtPlugin
   )
 
   lazy val scroogeGenerator = Project(
@@ -144,4 +145,13 @@ object Scrooge extends Build {
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
     )
   )
+
+  lazy val scroogeSbtPlugin = Project(
+    id = "scrooge-sbt-plugin",
+    base = file("scrooge-sbt-plugin"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    sbtPlugin := true
+  ).dependsOn(scroogeGenerator)
 }
