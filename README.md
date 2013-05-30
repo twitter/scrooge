@@ -51,12 +51,12 @@ Maven users need to add the following to the pom.xml file:
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime_2.9.2</artifactId>
-      <version>3.1.2</version>
+      <version>3.1.5</version>
     </dependency>
 
 SBT users need this:
 
-    val scrooge_runtime = "com.twitter.scrooge" %% "scrooge-runtime" % "3.1.2"
+    val scrooge_runtime = "com.twitter.scrooge" %% "scrooge-runtime" % "3.1.5"
 
 ## Running Scrooge as a command line tool
 
@@ -108,21 +108,46 @@ A complete command line help menu:
 
 ## SBT Plugin
 
-There's a plugin for SBT (0.11):
+Add a line like this to your `plugins.sbt` file:
 
-[https://github.com/twitter/sbt-scrooge](https://github.com/twitter/sbt-scrooge)
+    addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "3.1.5")
 
-To use it, add a line like this to your `plugins.sbt` file:
+In your `build.sbt` file:
 
-    addSbtPlugin("com.twitter" %% "sbt11-scrooge" % "1.0.0")
+    com.twitter.scrooge.ScroogeSBT.newSettings
 
-(or whatever the current version is). Full details are in the sbt-scrooge
-`README`.
+    libraryDependencies ++= Seq(
+      "org.apache.thrift" % "libthrift" % "0.8.0",
+      "com.twitter" %% "scrooge-runtime" % "3.1.2",
+      "com.twitter" %% "finagle-thrift" % "6.4.0"
+    )
+
+### SBT Configuration
+
+A full list of settings is in the (only) source file. Here are the ones you're
+most likely to want to edit:
+
+- `scroogeBuildOptions: Seq[String]`
+
+  list of command-line arguments to pass to scrooge (default:
+  `Seq("--finagle", "--verbose")`)
+
+- `scroogeThriftIncludeFolders: Seq[File]`
+
+  list of folders to search when processing "include" directives (default: none)
+
+- `scroogeThriftSourceFolder: File`
+
+  where to find thrift files to compile (default: `src/main/thrift/`)
+
+- `scroogeThriftOutputFolder: File`
+
+  where to put the generated scala files (default: `target/<scala-ver>/src_managed`)
 
 ## Maven Plugin
 We ship a [scrooge-maven-plugin](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin) with Scrooge,
-as well as an [example maven project](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin/demo).
-Please refer to the [example pom file] (https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin/demo/pom.xml)
+as well as an [example maven project](https://github.com/twitter/scrooge/tree/master/demos/scrooge-maven-demo).
+Please refer to the [example pom file] (https://github.com/twitter/scrooge/tree/master/demos/scrooge-maven-demo/pom.xml)
 
 
 ## Finagle integration
@@ -372,11 +397,13 @@ included file `LICENSE`.
 
 
 ## Owners
-- Chunyan Song
+
+- Jeff Smick
 
 
 ## Credits / Thanks
 
+- Chunyan Song
 - Jorge Ortiz
 - Robey Pointer
 - Ian Ownbey
