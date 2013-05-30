@@ -118,7 +118,7 @@ In your `build.sbt` file:
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.twitter" %% "scrooge-runtime" % "3.1.2",
+      "com.twitter" %% "scrooge-runtime" % "3.1.5",
       "com.twitter" %% "finagle-thrift" % "6.4.0"
     )
 

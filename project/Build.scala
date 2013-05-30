@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Scrooge extends Build {
-  val scroogeVersion = "3.1.2"
+  val scroogeVersion = "3.1.5"
   val utilVersion = "6.3.4"
   val finagleVersion = "6.4.0"
 
