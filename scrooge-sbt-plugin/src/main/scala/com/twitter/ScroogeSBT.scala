@@ -30,14 +30,23 @@ object ScroogeSBT extends Plugin {
     compiler.run()
   }
 
+  def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
+    dependencies.filter { dep =>
+      val module = dep.get(AttributeKey[ModuleID]("module-id"))
+      module.map { m =>
+        whitelist.contains(m.name)
+      }.getOrElse(false)
+    }
+  }
+
   val scroogeBuildOptions = SettingKey[Seq[String]](
     "scrooge-build-options",
     "command line args to pass to scrooge"
   )
 
-  val scroogeCompileExternalSources = SettingKey[Boolean](
-    "scrooge-compile-external-sources",
-    "compile external source files?"
+  val scroogeThriftDependencies = SettingKey[Seq[String]](
+    "scrooge-thrift-dependencies",
+    "artifacts to extract and compile thrift files from"
   )
 
   val scroogeThriftIncludeFolders = SettingKey[Seq[File]](
@@ -82,13 +91,16 @@ object ScroogeSBT extends Plugin {
 
   val scroogeUnpackDeps = TaskKey[Seq[File]](
     "scrooge-unpack-deps",
-    "unpack thrift files from dependencies")
+    "unpack thrift files from dependencies, generating a sequence of source directories"
+  )
 
   val scroogeGen = TaskKey[Seq[File]](
     "scrooge-gen",
     "generate scala code from thrift files using scrooge"
   )
 
+  // Dependencies included in the `thrift` configuration will be used
+  // in both compile and test.
   val thriftConfig = config("thrift")
 
   /**
@@ -98,45 +110,60 @@ object ScroogeSBT extends Plugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq("--finagle"),
-    scroogeCompileExternalSources := false,
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { x => x },
     scroogeThriftIncludeFolders := Seq(),
     scroogeThriftNamespaceMap := Map(),
+    scroogeThriftDependencies := Seq(),
 
     // complete list of source files
     scroogeThriftSources <<= (
       scroogeThriftSourceFolder,
-      scroogeUnpackDeps,
-      scroogeCompileExternalSources
-    ) map { (srcDir, externalSources, compileExternal) =>
-      val external = if (compileExternal) {
-        externalSources
-      } else {
-        Seq()
-      }
-      (srcDir ** "*.thrift").get ++ external
+      scroogeUnpackDeps
+    ) map { (srcDir, extDirs) =>
+      (Seq(srcDir) ++ extDirs).flatMap { dir => (dir ** "*.thrift").get }
     },
 
     // complete list of include directories
     scroogeThriftIncludes <<= (
       scroogeThriftIncludeFolders,
-      scroogeThriftExternalSourceFolder
-    ) map { (includes, extDir) =>
-      includes ++ Seq(extDir)
+      scroogeUnpackDeps
+    ) map { (includes, extDirs) =>
+      includes ++ extDirs
     },
 
     // unpack thrift files from all dependencies in the `thrift` configuration
+    //
+    // returns Seq[File] - directories that include thrift files
     scroogeUnpackDeps <<= (
+      streams,
+      configuration,
       classpathTypes,
       update,
+      scroogeThriftDependencies,
       scroogeThriftExternalSourceFolder
-    ) map { (cpTypes, update, extDir) =>
+    ) map { (out, configuration, cpTypes, update, deps, extDir) =>
       IO.createDirectory(extDir)
-      Classpaths.managedJars(thriftConfig, cpTypes, update) flatMap { dep =>
-        IO.unzip(dep.data, extDir, "*.thrift").toSeq
+      val whitelist = deps.toSet
+      val dependencies =
+        Classpaths.managedJars(thriftConfig, cpTypes, update) ++
+        filter(Classpaths.managedJars(configuration, cpTypes, update), whitelist)
+
+      val paths = dependencies.map { dep =>
+        val module = dep.get(AttributeKey[ModuleID]("module-id"))
+        module.flatMap { m =>
+          val dest = new File(extDir, m.name)
+          IO.createDirectory(dest)
+          val thriftFiles = IO.unzip(dep.data, dest, "*.thrift").toSeq
+          if (thriftFiles.isEmpty) {
+            None
+          } else {
+            Some(dest)
+          }
+        }
       }
+      paths.filter(_.isDefined).map(_.get)
     },
 
     // look at includes and our sources to see if anything is newer than any of our output files
