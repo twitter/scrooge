@@ -19,7 +19,6 @@ object ScroogeSBT extends Plugin {
   ) {
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath
-    thriftFiles.map { _.getPath }
     thriftIncludes.map { compiler.includePaths += _.getPath }
     namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2)}
     Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
@@ -36,9 +35,19 @@ object ScroogeSBT extends Plugin {
     "command line args to pass to scrooge"
   )
 
+  val scroogeCompileExternalSources = SettingKey[Boolean](
+    "scrooge-compile-external-sources",
+    "compile external source files?"
+  )
+
   val scroogeThriftIncludeFolders = SettingKey[Seq[File]](
     "scrooge-thrift-include-folders",
     "folders to search for thrift 'include' directives"
+  )
+
+  val scroogeThriftIncludes = TaskKey[Seq[File]](
+    "scrooge-thrift-includes",
+    "complete list of folders to search for thrift 'include' directives"
   )
 
   val scroogeThriftNamespaceMap = SettingKey[Map[String, String]](
@@ -51,9 +60,14 @@ object ScroogeSBT extends Plugin {
     "directory containing thrift source files"
   )
 
-  val scroogeThriftSources = SettingKey[Seq[File]](
+  val scroogeThriftExternalSourceFolder = SettingKey[File](
+    "scrooge-thrift-external-source-folder",
+    "directory containing external source files to compile"
+  )
+
+  val scroogeThriftSources = TaskKey[Seq[File]](
     "scrooge-thrift-sources",
-    "thrift source files to compile"
+    "complete list of thrift source files to compile"
   )
 
   val scroogeThriftOutputFolder = SettingKey[File](
@@ -66,10 +80,16 @@ object ScroogeSBT extends Plugin {
     "true if scrooge has decided it needs to regenerate the scala files from thrift sources"
   )
 
+  val scroogeUnpackDeps = TaskKey[Seq[File]](
+    "scrooge-unpack-deps",
+    "unpack thrift files from dependencies")
+
   val scroogeGen = TaskKey[Seq[File]](
     "scrooge-gen",
     "generate scala code from thrift files using scrooge"
   )
+
+  val thriftConfig = config("thrift")
 
   /**
    * these settings will go into both the compile and test configurations.
@@ -78,18 +98,53 @@ object ScroogeSBT extends Plugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq("--finagle"),
+    scroogeCompileExternalSources := false,
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
-    scroogeThriftSources <<= (scroogeThriftSourceFolder) { srcDir => (srcDir ** "*.thrift").get },
+    scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { x => x },
     scroogeThriftIncludeFolders := Seq(),
     scroogeThriftNamespaceMap := Map(),
+
+    // complete list of source files
+    scroogeThriftSources <<= (
+      scroogeThriftSourceFolder,
+      scroogeUnpackDeps,
+      scroogeCompileExternalSources
+    ) map { (srcDir, externalSources, compileExternal) =>
+      val external = if (compileExternal) {
+        externalSources
+      } else {
+        Seq()
+      }
+      (srcDir ** "*.thrift").get ++ external
+    },
+
+    // complete list of include directories
+    scroogeThriftIncludes <<= (
+      scroogeThriftIncludeFolders,
+      scroogeThriftExternalSourceFolder
+    ) map { (includes, extDir) =>
+      includes ++ Seq(extDir)
+    },
+
+    // unpack thrift files from all dependencies in the `thrift` configuration
+    scroogeUnpackDeps <<= (
+      classpathTypes,
+      update,
+      scroogeThriftExternalSourceFolder
+    ) map { (cpTypes, update, extDir) =>
+      IO.createDirectory(extDir)
+      Classpaths.managedJars(thriftConfig, cpTypes, update) flatMap { dep =>
+        IO.unzip(dep.data, extDir, "*.thrift").toSeq
+      }
+    },
 
     // look at includes and our sources to see if anything is newer than any of our output files
     scroogeIsDirty <<= (
       streams,
       scroogeThriftSources,
       scroogeThriftOutputFolder,
-      scroogeThriftIncludeFolders
+      scroogeThriftIncludes
     ) map { (out, sources, outputDir, inc) =>
       // figure out if we need to actually rebuild, based on mtimes.
       val allSourceDeps = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
@@ -117,7 +172,7 @@ object ScroogeSBT extends Plugin {
       scroogeThriftSources,
       scroogeThriftOutputFolder,
       scroogeBuildOptions,
-      scroogeThriftIncludeFolders,
+      scroogeThriftIncludes,
       scroogeThriftNamespaceMap
     ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
@@ -131,7 +186,7 @@ object ScroogeSBT extends Plugin {
   )
 
   val newSettings =
+    Seq(ivyConfigurations += thriftConfig) ++
     inConfig(Test)(genThriftSettings) ++
     inConfig(Compile)(genThriftSettings)
 }
-
