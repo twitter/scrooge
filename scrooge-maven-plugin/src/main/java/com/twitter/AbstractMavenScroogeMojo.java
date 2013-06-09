@@ -343,20 +343,16 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     if (dependencyIncludes.contains(project.getArtifactId())) {
       File dir = new File(new File(project.getFile().getParent(), "target"), outputDirectory);
       if (dir.exists()) {
-        try {
-          URI baseDir = new URI("file://" + dir.getCanonicalPath());
-          for (File f : findThriftFilesInDirectory(dir)) {
-            URI fileURI = new URI("file://" + f.getCanonicalPath());
-            String relPath = baseDir.relativize(fileURI).getPath();
-            File destFolder = new File(getResourcesOutputDirectory(), project.getArtifactId());
-            destFolder.mkdirs();
-            File destFile = new File(destFolder, relPath);
-            getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
-            copyFile(f, destFile);
-            files.add(destFile);
-          }
-        } catch (URISyntaxException urie) {
-          throw new IOException("error forming URI for file transfer: " + urie);
+        URI baseDir = getFileURI(dir);
+        for (File f : findThriftFilesInDirectory(dir)) {
+          URI fileURI = getFileURI(f);
+          String relPath = baseDir.relativize(fileURI).getPath();
+          File destFolder = new File(getResourcesOutputDirectory(), project.getArtifactId());
+          destFolder.mkdirs();
+          File destFile = new File(destFolder, relPath);
+          getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
+          copyFile(f, destFile);
+          files.add(destFile);
         }
       }
     }
@@ -365,5 +361,13 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       getRecursiveThriftFiles(refs.get(name), outputDirectory, files);
     }
     return files;
+  }
+
+  URI getFileURI(File file) throws IOException {
+    try {
+      return new URI("file://"+(file.getCanonicalPath().replace("\\","/")));
+    } catch (URISyntaxException urie) {
+      throw new IOException("error forming URI for file transfer: " + urie);
+    }
   }
 }
