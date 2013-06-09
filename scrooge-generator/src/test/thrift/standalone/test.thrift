@@ -51,6 +51,34 @@ enum NumberID
   Eight = 8
 }
 
+enum NamespaceCollisions
+{
+  Any,
+  AnyRef,
+  Object,
+  String,
+  Byte,
+  Short,
+  Char,
+  Int,
+  Long,
+  Float,
+  Double,
+  Option,
+  None,
+  Some,
+  List,
+  Nil,
+  Null,
+  Set,
+  Map,
+  Seq,
+  Array,
+  Iterable,
+  Unit,
+  Nothing
+}
+
 /** doc, ignored */
 typedef i64 UserId
 

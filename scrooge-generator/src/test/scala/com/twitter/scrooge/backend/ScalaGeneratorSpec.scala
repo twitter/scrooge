@@ -97,6 +97,33 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         obj.asInstanceOf[NumberID].getValue mustEqual NumberID.Two.getValue
         obj.asInstanceOf[NumberID].name mustEqual NumberID.Two.name
       }
+
+      "handle namespace collisions" in {
+        NamespaceCollisions.Any.name mustEqual "Any"
+        NamespaceCollisions.AnyRef.name mustEqual "AnyRef"
+        NamespaceCollisions.Object.name mustEqual "Object"
+        NamespaceCollisions.String.name mustEqual "String"
+        NamespaceCollisions.Byte.name mustEqual "Byte"
+        NamespaceCollisions.Short.name mustEqual "Short"
+        NamespaceCollisions.Char.name mustEqual "Char"
+        NamespaceCollisions.Int.name mustEqual "Int"
+        NamespaceCollisions.Long.name mustEqual "Long"
+        NamespaceCollisions.Float.name mustEqual "Float"
+        NamespaceCollisions.Double.name mustEqual "Double"
+        NamespaceCollisions.Option.name mustEqual "Option"
+        NamespaceCollisions.None.name mustEqual "None"
+        NamespaceCollisions.Some.name mustEqual "Some"
+        NamespaceCollisions.List.name mustEqual "List"
+        NamespaceCollisions.Nil.name mustEqual "Nil"
+        NamespaceCollisions.Null.name mustEqual "Null"
+        NamespaceCollisions.Set.name mustEqual "Set"
+        NamespaceCollisions.Map.name mustEqual "Map"
+        NamespaceCollisions.Seq.name mustEqual "Seq"
+        NamespaceCollisions.Array.name mustEqual "Array"
+        NamespaceCollisions.Iterable.name mustEqual "Iterable"
+        NamespaceCollisions.Unit.name mustEqual "Unit"
+        NamespaceCollisions.Nothing.name mustEqual "Nothing"
+      }
     }
 
     "generate constants" in {
