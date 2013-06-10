@@ -236,7 +236,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.9.2</artifactId>
-      <version>3.1.5</version>
+      <version>3.1.7</version>
     </dependency>
   </dependencies>
   <reporting>

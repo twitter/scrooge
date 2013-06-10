@@ -57,7 +57,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      SimpleService.deliver$args(protocol).where mustEqual "boston"
+      SimpleService.deliver$args.decode(protocol).where mustEqual "boston"
 
       expect {
         startWrite(protocol, new TField("where", TType.STRING, 1))
@@ -73,7 +73,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      SimpleService.deliver$result(protocol).success mustEqual Some(13)
+      SimpleService.deliver$result.decode(protocol).success mustEqual Some(13)
 
       expect {
         startWrite(protocol, new TField("success", TType.I32, 0))
@@ -97,7 +97,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      ThriftTest.testUnions$args(protocol).arg0 mustEqual
+      ThriftTest.testUnions$args.decode(protocol).arg0 mustEqual
         MorePerfectUnion.Bools(Bools(true, false))
 
       expect {
@@ -128,7 +128,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      ThriftTest.testUnions$result(protocol).success mustEqual
+      ThriftTest.testUnions$result.decode(protocol).success mustEqual
         Some(MorePerfectUnion.Bools(Bools(true, false)))
 
       expect {
@@ -159,7 +159,7 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
         endRead(protocol)
       }
 
-      val res = ExceptionalService.deliver$result(protocol)
+      val res = ExceptionalService.deliver$result.decode(protocol)
       res.success must beNone
       res.ex must beSome(Xception(1, "silly"))
       res.ex2 must beNone

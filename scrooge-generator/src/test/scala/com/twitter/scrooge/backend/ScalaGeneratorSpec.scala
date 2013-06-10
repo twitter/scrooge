@@ -118,7 +118,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Ints(protocol) mustEqual Ints(16, 32, 64L)
+          Ints.decode(protocol) mustEqual Ints(16, 32, 64L)
         }
 
         "write" in {
@@ -146,7 +146,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          val bytes = Bytes(protocol)
+          val bytes = Bytes.decode(protocol)
           bytes.x mustEqual 3.toByte
           new String(bytes.y.array) mustEqual "hello"
         }
@@ -176,7 +176,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Misc(protocol) mustEqual Misc(true, 3.14, "bender")
+          Misc.decode(protocol) mustEqual Misc(true, 3.14, "bender")
         }
 
         "write" in {
@@ -227,7 +227,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Compound(protocol) mustEqual exemplar
+          Compound.decode(protocol) mustEqual exemplar
         }
 
         "write" in {
@@ -270,7 +270,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          RequiredString(protocol) mustEqual RequiredString("yo")
+          RequiredString.decode(protocol) mustEqual RequiredString("yo")
         }
 
         "missing required value throws exception during deserialization" in {
@@ -281,11 +281,11 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           }
 
           "with no default value" in {
-            RequiredString(protocol) must throwA[TProtocolException]
+            RequiredString.decode(protocol) must throwA[TProtocolException]
           }
 
           "with default value" in {
-            RequiredStringWithDefault(protocol) must throwA[TProtocolException]
+            RequiredStringWithDefault.decode(protocol) must throwA[TProtocolException]
           }
         }
 
@@ -310,7 +310,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          OptionalInt(protocol) mustEqual OptionalInt("Commie", Some(14))
+          OptionalInt.decode(protocol) mustEqual OptionalInt("Commie", Some(14))
         }
 
         "read with missing field" in {
@@ -320,7 +320,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          OptionalInt(protocol) mustEqual OptionalInt("Commie", None)
+          OptionalInt.decode(protocol) mustEqual OptionalInt("Commie", None)
         }
 
         "write" in {
@@ -354,7 +354,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             one(protocol).readStructEnd()
           }
 
-          DefaultValues(protocol) mustEqual DefaultValues("leela")
+          DefaultValues.decode(protocol) mustEqual DefaultValues("leela")
         }
 
         "read with value present" in {
@@ -366,7 +366,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             one(protocol).readStructEnd()
           }
 
-          DefaultValues(protocol) mustEqual DefaultValues("delilah")
+          DefaultValues.decode(protocol) mustEqual DefaultValues("delilah")
         }
       }
 
@@ -393,7 +393,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Empire(protocol) mustEqual Empire(
+          Empire.decode(protocol) mustEqual Empire(
             "United States of America",
             List("connecticut", "california"),
             Emperor("Bush", 42))
@@ -493,7 +493,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             emptyRead(protocol)
           }
 
-          Bird(protocol) must throwA[TProtocolException]
+          Bird.decode(protocol) must throwA[TProtocolException]
         }
 
         "write" in {
@@ -509,7 +509,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Bird(protocol) mustEqual Bird.Hummingbird("Ruby-Throated")
+          Bird.decode(protocol) mustEqual Bird.Hummingbird("Ruby-Throated")
         }
 
         "write" in {
@@ -533,7 +533,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Bird(protocol) must throwA[TProtocolException]
+          Bird.decode(protocol) must throwA[TProtocolException]
         }
 
         // no write test because it's not possible
@@ -551,7 +551,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Bird(protocol) mustEqual Bird.Raptor(Raptor(false, "peregrine"))
+          Bird.decode(protocol) mustEqual Bird.Raptor(Raptor(false, "peregrine"))
         }
 
         "write" in {
@@ -581,7 +581,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
             endRead(protocol)
           }
 
-          Bird(protocol) mustEqual Bird.Flock(List("starling", "kestrel", "warbler"))
+          Bird.decode(protocol) mustEqual Bird.Flock(List("starling", "kestrel", "warbler"))
         }
 
         "write" in {

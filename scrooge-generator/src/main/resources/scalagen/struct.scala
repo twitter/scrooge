@@ -34,8 +34,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
   override def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
 
-  def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
-
   def apply(
 {{#fields}}
     {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
