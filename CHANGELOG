@@ -1,3 +1,12 @@
+3.1.8 - 06/11/2013
+===============================================================================
+* generator: thrift idl containing UTF-8 produces
+  java.nio.charset.UnmappableCharacterException
+* generator: Replace backslash with forward slash in file URI
+* sbt-plugin: Include (and optionally compile) external thrift files.
+* generator: remove unnecessary apply method for decode (causes issues with
+  named args)
+
 3.1.7 - 06/06/2013
 ===============================================================================
 * Use explicit version numbers
