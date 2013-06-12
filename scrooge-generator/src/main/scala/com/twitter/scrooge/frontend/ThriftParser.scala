@@ -185,6 +185,10 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
       val transformedVal = ftype match {
         case TBool => value map {
           case IntLiteral(0) => BoolLiteral(false)
+          case IdRHS(SimpleID("false")) => {
+            System.err.println("WARNING: according to Apache Thrift 'false' will translate to a true value, use '0' if you really meant false")
+            BoolLiteral(true)
+          }
           case _ => BoolLiteral(true)
         }
         case _ => value
