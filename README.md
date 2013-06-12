@@ -36,6 +36,14 @@ There are two sub-projects:
   generated at the same time.
 
 
+## Downloading/installing Scrooge
+You can download the executables for Scrooge 3.0.1 here:
+http://maven.twttr.com/com/twitter/scrooge/3.0.1/scrooge-3.0.1.zip
+
+You run scrooge with
+
+    java -jar /path/to/scrooge-3.0.1.jar
+
 ## Building Scrooge
 
 To build scrooge, use sbt:
