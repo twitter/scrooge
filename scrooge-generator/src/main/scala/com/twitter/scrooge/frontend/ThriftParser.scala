@@ -21,6 +21,9 @@ import scala.util.parsing.combinator._
 import com.twitter.scrooge._
 import java.io.FileNotFoundException
 
+case class FileParseException(filename: String, cause: Throwable)
+  extends Exception("Exception parsing: %s".format(filename), cause)
+
 class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
 
   import com.twitter.scrooge.ast._
@@ -350,12 +353,14 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
 
   def annotationGroup = "(" ~> repsep(annotation, ",") <~ (opt(",") ~ ")")
 
-  def parse[T](in: String, parser: Parser[T]): T = {
+  def parse[T](in: String, parser: Parser[T], file: Option[String] = None): T = try {
     parseAll(parser, in) match {
       case Success(result, _) => result
       case x@Failure(msg, z) => throw new ParseException(x.toString)
       case x@Error(msg, _) => throw new ParseException(x.toString)
     }
+  } catch {
+    case e: Throwable => throw file.map(FileParseException(_, e)).getOrElse(e)
   }
 
   def parseFile(filename: String): Document = {
@@ -364,7 +369,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
     }
 
     val newParser = new ThriftParser(contents.importer, this.strict)
-    newParser.parse(contents.data, newParser.document)
+    newParser.parse(contents.data, newParser.document, Some(filename))
   }
 
   // helper functions
