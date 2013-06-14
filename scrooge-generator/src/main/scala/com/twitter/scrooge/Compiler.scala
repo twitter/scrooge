@@ -40,6 +40,7 @@ class Compiler {
   var verbose = false
   var strict = true
   var skipUnchanged = false
+  var enablePassthrough = false
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
   var dryRun: Boolean = false
@@ -71,7 +72,7 @@ class Compiler {
 
       if (verbose) println("+ Compiling %s".format(inputFile))
       val resolvedDoc = TypeResolver()(doc0)
-      val generator = Generator(language, resolvedDoc.resolver.includeMap, defaultNamespace, now)
+      val generator = Generator(language, resolvedDoc.resolver.includeMap, defaultNamespace, now, enablePassthrough)
       val generatedFiles = generator(
         resolvedDoc.document,
         flags.toSet,

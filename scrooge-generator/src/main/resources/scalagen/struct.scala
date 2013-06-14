@@ -1,8 +1,10 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftException, ThriftStruct, ThriftStructCodec3}
+import com.twitter.scrooge.{
+  ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryBuffer
 import java.nio.ByteBuffer
 {{#withFinagleClient}}
 import com.twitter.finagle.SourcedException
@@ -32,7 +34,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   }
 
   override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-  override def decode(_iprot: TProtocol) = Immutable.decode(_iprot)
+  override def decode(_iprot: TProtocol): {{StructName}} = Immutable.decode(_iprot)
 
   def apply(
 {{#fields}}
@@ -56,7 +58,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   object Immutable extends ThriftStructCodec3[{{StructName}}] {
     override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-    override def decode(_iprot: TProtocol) = {
+    override def decode(_iprot: TProtocol): {{StructName}} = {
+{{#enablePassthrough}}
+      var _passthroughs = ThriftUtil.EmptyPassthroughs
+{{/enablePassthrough}}
 {{#fields}}
       var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
       var {{gotName}} = false
@@ -74,7 +79,16 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
             {{>readField}}
 {{/readWriteInfo}}
 {{/fields}}
-            case _ => TProtocolUtil.skip(_iprot, _field.`type`)
+            case _ =>
+{{#enablePassthrough}}
+              val _pass_buff = new TMemoryBuffer(32)
+              val _pass_prot = new TCompactProtocol(_pass_buff)
+              ThriftUtil.transfer(_pass_prot, _iprot, _field.`type`)
+              _passthroughs += (_field -> _pass_buff)
+{{/enablePassthrough}}
+{{^enablePassthrough}}
+              TProtocolUtil.skip(_iprot, _field.`type`)
+{{/enablePassthrough}}
           }
           _iprot.readFieldEnd()
         }
@@ -85,7 +99,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
 {{/required}}
 {{/fields}}
-      new Immutable(
+      val obj = new Immutable(
 {{#fields}}
 {{#optional}}
         if ({{gotName}}) Some({{fieldName}}) else None
@@ -95,6 +109,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/optional}}
 {{/fields|,}}
       )
+{{#enablePassthrough}}
+      obj.__passthrough_fields = _passthroughs
+{{/enablePassthrough}}
+      obj
     }
   }
 
@@ -117,6 +135,9 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
    */
   trait Proxy extends {{StructName}} {
     protected def {{underlyingStructName}}: {{StructName}}
+{{#enablePassthrough}}
+    override def _passthrough_fields = {{underlyingStructName}}._passthrough_fields
+{{/enablePassthrough}}
 {{#fields}}
     def {{fieldName}}: {{>optionalType}} = {{underlyingStructName}}.{{fieldName}}
 {{/fields}}
@@ -129,6 +150,20 @@ trait {{StructName}} extends {{parentType}}
   with java.io.Serializable
 {
   import {{StructName}}._
+
+{{#enablePassthrough}}
+  private[{{StructName}}] var __passthrough_fields = ThriftUtil.EmptyPassthroughs
+  def _passthrough_fields = __passthrough_fields
+
+  def withoutPassthroughs(f: TField => Boolean) = {
+    val obj = copy()
+    obj.__passthrough_fields = _passthrough_fields.filterNot { case (field, _) => f(field) }
+    obj
+  }
+{{/enablePassthrough}}
+{{^enablePassthrough}}
+  def withoutPassthroughs(f: TField => Boolean) = this
+{{/enablePassthrough}}
 
 {{#fields}}
   def {{fieldName}}: {{>optionalType}}
@@ -146,6 +181,13 @@ trait {{StructName}} extends {{parentType}}
     {{>writeField}}
 {{/readWriteInfo}}
 {{/fields}}
+{{#enablePassthrough}}
+    _passthrough_fields foreach { case (field, buff) =>
+      _oprot.writeFieldBegin(field)
+      val prot = new TCompactProtocol(buff)
+      ThriftUtil.transfer(_oprot, prot, field.`type`)
+    }
+{{/enablePassthrough}}
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }
@@ -154,11 +196,17 @@ trait {{StructName}} extends {{parentType}}
 {{#fields}}
     {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
 {{/fields|, }}
-  ): {{StructName}} = new Immutable(
+  ): {{StructName}} = {
+    val obj = new Immutable(
 {{#fields}}
-    {{fieldName}}
+      {{fieldName}}
 {{/fields|, }}
-  )
+    )
+{{#enablePassthrough}}
+    obj.__passthrough_fields = this._passthrough_fields
+{{/enablePassthrough}}
+    obj
+  }
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 

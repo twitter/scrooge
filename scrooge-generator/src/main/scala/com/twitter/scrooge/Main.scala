@@ -92,6 +92,10 @@ object Main {
         }
         ()
       })
+      opt("enable-passthrough", "[EXPERIMENTAL] hold on to unknown fields during decode and pass them through on encode", {
+        compiler.enablePassthrough = true
+        ()
+      })
 
       opt("m", "include-map", "<include>=<directory>", "map an included idl to its directory (may be used multiple times)", { mapping: String =>
         mapping.split("=") match {

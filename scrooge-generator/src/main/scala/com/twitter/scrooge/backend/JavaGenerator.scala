@@ -23,7 +23,8 @@ import com.twitter.scrooge.mustache.Dictionary._
 class JavaGenerator(
   val includeMap: Map[String, ResolvedDocument],
   val defaultNamespace: String,
-  val generationDate: String
+  val generationDate: String,
+  val enablePassthrough: Boolean
 ) extends Generator
 {
   val fileExtension = ".java"

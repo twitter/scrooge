@@ -7,7 +7,7 @@ import org.specs.mock.{ClassMocker, JMocker}
 import org.apache.thrift.protocol._
 import com.twitter.finagle
 import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future}
 import com.twitter.scrooge.testutil.EvalHelper
 import com.twitter.scrooge.ThriftException
 import thrift.test._
@@ -253,27 +253,23 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "exception" in {
-        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
         val ex = Xception(1, "boom")
-        val response = encodeResponse("deliver", ExceptionalService.deliver$result(ex = Some(ex)))
 
         expect {
           one(impl).deliver("Boston") willReturn Future.exception(ex)
         }
-
-        client.deliver("Boston")() must throwA[ThriftException](ex)
+        assert(Xception(1, "boom") == ex)
+        Await.result(client.deliver("Boston")) must throwA(Xception(1, "boom"))
       }
 
       "void exception" in {
-        val request = encodeRequest("remove", ExceptionalService.remove$args(123))
         val ex = Xception(1, "boom")
-        val response = encodeResponse("remove", ExceptionalService.remove$result(ex = Some(ex)))
 
         expect {
           one(impl).remove(123) willReturn Future.exception(ex)
         }
 
-        client.remove(123)() must throwA[ThriftException](ex)
+        Await.result(client.remove(123)) must throwA[ThriftException](ex)
       }
     }
 
