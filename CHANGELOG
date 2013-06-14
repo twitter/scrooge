@@ -1,3 +1,13 @@
+3.1.9 - 06/14/2013
+===============================================================================
+* bump to util-6.3.6 / finagle-6.5.0
+* [EXPERIMENTAL] add ability to pass through additional fields
+  enable with --enable-passthrough
+* Create the ability to map includes to directories to bridge scrooge2 and
+  scrooge3 maven layouts
+* show the filename of the file being parsed in error messages
+* identify enums as TType.ENUM
+
 3.1.8 - 06/11/2013
 ===============================================================================
 * generator: thrift idl containing UTF-8 produces
