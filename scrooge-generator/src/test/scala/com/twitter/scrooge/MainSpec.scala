@@ -53,4 +53,32 @@ struct Point {
         input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala")+ "\n"
     manifestString mustEqual expected
   }
+
+  "Scrooge Compiler" should {
+    "handle import mappings" in {
+      val inDir1 = TempDirectory.create(Some(new File(".")))
+      val mapped1 = new File(inDir1, "mapped1.thrift")
+      val mapped1F = new FileWriter(mapped1)
+      mapped1F.write("""
+include "mapped2.thrift"
+      """)
+      mapped1F.close()
+
+      val inDir2 = TempDirectory.create(Some(new File(".")))
+      val mapped2 = new File(inDir2, "mapped2.thrift")
+      val mapped2F = new FileWriter(mapped2)
+      mapped2F.write("""
+struct Foo {}
+      """)
+      mapped2F.close()
+
+      val outDir = TempDirectory.create(Some(new File(".")))
+
+      val compiler = new Compiler()
+      compiler.includeMappings += ("mapped2.thrift" -> inDir2.getPath)
+      compiler.destFolder = outDir.getPath
+      compiler.thriftFiles ++= List(mapped1.getPath, mapped2.getPath)
+      compiler.run()
+    }
+  }
 }

@@ -114,6 +114,22 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    */
   private Set<ThriftNamespaceMapping> thriftNamespaceMappings = new HashSet<ThriftNamespaceMapping>();
 
+
+  /**
+   * A set of IDL mappings to pass to the thrift compiler, e.g.
+   * {@code
+   * <includeMappings>
+   *   <includeMapping>
+   *     <include>external.thrift</include>
+   *     <artifactId>some-external-project</artifactId>
+   *   </includeMapping>
+   * </includeMappings>
+   *}
+   *
+   * @parameter
+   */
+  private Set<IncludeMapping> includeMappings = new HashSet<IncludeMapping>();
+
   /**
    * A set of include patterns used to filter thrift files.
    * @parameter
@@ -178,6 +194,11 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
             thriftNamespaceMap.put(mapping.getFrom(), mapping.getTo());
           }
 
+          Map<String, String> includeMap = new HashMap<String, String>();
+          for (IncludeMapping mapping : includeMappings) {
+            includeMap.put(mapping.getInclude(), mapping.getArtifactId());
+          }
+
           // Include thrifts from resource as well.
           Set<File> includes = thriftIncludes;
           includes.add(getResourcesOutputDirectory());
@@ -188,6 +209,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
                   thriftFiles,
                   includes,
                   thriftNamespaceMap,
+                  includeMap,
                   language,
                   thriftOpts);
         }

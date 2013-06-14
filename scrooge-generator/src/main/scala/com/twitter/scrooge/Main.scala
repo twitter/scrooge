@@ -93,6 +93,13 @@ object Main {
         ()
       })
 
+      opt("m", "include-map", "<include>=<directory>", "map an included idl to its directory (may be used multiple times)", { mapping: String =>
+        mapping.split("=") match {
+          case Array(include, directory) => compiler.includeMappings(include) = directory
+        }
+        ()
+      })
+
       opt("finagle", "generate finagle classes", {
         compiler.flags += WithFinagleService
         compiler.flags += WithFinagleClient

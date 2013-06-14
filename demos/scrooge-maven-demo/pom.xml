@@ -161,6 +161,14 @@
           <dependencyIncludes>
             <include>event-logger-thrift</include>
           </dependencyIncludes>
+
+          <includeMappings>
+            <includeMapping>
+              <include>ibis.thrift</include>
+              <artifactId>ibis-thrift-service</artifactId>
+            </includeMapping>
+          </includeMappings>
+
         </configuration>
         <executions>
           <execution>

@@ -31,6 +31,7 @@ class ScroogeRunner {
     thriftFiles: Set[File],
     thriftIncludes: Set[File],
     namespaceMappings: Map[String, String],
+    includeMappings: Map[String, String],
     language: String,
     flags: Set[String]
   ) {
@@ -39,7 +40,10 @@ class ScroogeRunner {
     compiler.destFolder = outputDir.getPath
     thriftFiles.asScala.map { _.getPath }
     thriftIncludes.asScala.map { compiler.includePaths += _.getPath }
-    namespaceMappings.asScala.map { e => compiler.namespaceMappings.put(e._1, e._2)}
+    namespaceMappings.asScala.map { case (from, to) => compiler.namespaceMappings.put(from, to) }
+    includeMappings.asScala.map { case (file, artifactId) =>
+      compiler.includeMappings.put(file, "%s/%s".format(artifactId, file)) }
+
     Main.parseOptions(compiler, flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath })
     compiler.language = language.toLowerCase match {
       case "java" => Language.Java

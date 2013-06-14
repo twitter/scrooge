@@ -133,6 +133,23 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
   override def +:(head: Importer): Importer = MultiImporter(head +: importers)
 }
 
+case class TranslatingImporter(underlying: Importer, translations: Map[String, String]) extends Importer {
+  private[scrooge] def canonicalPaths = underlying.canonicalPaths
+
+  // try the given function with the original name first, if that doesn't work look for it
+  // in the translations list. If it's in the list send it to the function.
+  private[this] def find[T](name: String)(f: String => Option[T]): Option[T] =
+    translations.get(name) flatMap { n => f("%s/%s".format(n, name)) } orElse { f(name) }
+
+  def apply(filename: String) =
+    find[FileContents](filename) { n =>
+      underlying(n) map { c => c.copy(importer = TranslatingImporter(c.importer, translations)) }
+    }
+
+  def lastModified(filename: String) =
+    find[Long](filename) { underlying.lastModified(_) }
+}
+
 object NullImporter extends Importer {
   val canonicalPaths = Nil
   def lastModified(filename: String) = None
