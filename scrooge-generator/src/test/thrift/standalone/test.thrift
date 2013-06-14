@@ -51,6 +51,10 @@ enum NumberID
   Eight = 8
 }
 
+struct EnumStruct {
+  1: NumberID number
+}
+
 /** doc, ignored */
 typedef i64 UserId
 

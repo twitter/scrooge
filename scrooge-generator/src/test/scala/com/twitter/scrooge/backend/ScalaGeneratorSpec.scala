@@ -87,6 +87,13 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         obj.asInstanceOf[NumberID].getValue mustEqual NumberID.Two.getValue
         obj.asInstanceOf[NumberID].name mustEqual NumberID.Two.name
       }
+
+      "encode-decode" in {
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        val eStruct = EnumStruct(NumberID.One)
+        EnumStruct.encode(eStruct, prot)
+        EnumStruct.decode(prot) mustEqual eStruct
+      }
     }
 
     "generate constants" in {
