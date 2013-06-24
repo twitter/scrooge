@@ -15,6 +15,8 @@ struct TestValidate {
 struct naughty { // rewritten to title case Naughty
   1: string type  // `type` in Scala; getType() in Java
   2: i32 abstract // `abstract` in Scala, getAbstract() in Java
+  3: optional string runtime
+  4: optional string scala
 }
 
 union NaughtyUnion {

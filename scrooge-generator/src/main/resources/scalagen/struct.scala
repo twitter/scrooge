@@ -213,11 +213,11 @@ trait {{StructName}} extends {{parentType}}
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
-  override def equals(other: Any): Boolean = runtime.ScalaRunTime._equals(this, other)
+  override def equals(other: Any): Boolean = _root_.scala.runtime.ScalaRunTime._equals(this, other)
 
-  override def hashCode: Int = runtime.ScalaRunTime._hashCode(this)
+  override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
 
-  override def toString: String = runtime.ScalaRunTime._toString(this)
+  override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
 {{#hasExceptionMessage}}
   override def getMessage: String = String.valueOf({{exceptionMessageField}})
