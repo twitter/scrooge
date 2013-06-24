@@ -4,7 +4,7 @@ package {{package}}
 import com.twitter.scrooge.{
   ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.TMemoryBuffer
+import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
 {{#withFinagleClient}}
 import com.twitter.finagle.SourcedException
@@ -99,7 +99,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
 {{/required}}
 {{/fields}}
-      val obj = new Immutable(
+      new Immutable(
 {{#fields}}
 {{#optional}}
         if ({{gotName}}) Some({{fieldName}}) else None
@@ -108,11 +108,12 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
         {{fieldName}}
 {{/optional}}
 {{/fields|,}}
-      )
 {{#enablePassthrough}}
-      obj.__passthrough_fields = _passthroughs
+      ).setPassthroughs(_passthroughs)
 {{/enablePassthrough}}
-      obj
+{{^enablePassthrough}}
+      )
+{{/enablePassthrough}}
     }
   }
 
@@ -152,14 +153,16 @@ trait {{StructName}} extends {{parentType}}
   import {{StructName}}._
 
 {{#enablePassthrough}}
-  private[{{StructName}}] var __passthrough_fields = ThriftUtil.EmptyPassthroughs
+  private[this] var __passthrough_fields = ThriftUtil.EmptyPassthroughs
+  private[{{StructName}}] def setPassthroughs(fields: scala.collection.immutable.Map[TField, TTransport]) = {
+    __passthrough_fields = fields
+    this
+  }
+
   def _passthrough_fields = __passthrough_fields
 
-  def withoutPassthroughs(f: TField => Boolean) = {
-    val obj = copy()
-    obj.__passthrough_fields = _passthrough_fields.filterNot { case (field, _) => f(field) }
-    obj
-  }
+  def withoutPassthroughs(f: TField => Boolean) =
+    copy().setPassthroughs(_passthrough_fields.filterNot { case (field, _) => f(field) })
 {{/enablePassthrough}}
 {{^enablePassthrough}}
   def withoutPassthroughs(f: TField => Boolean) = this
@@ -196,17 +199,17 @@ trait {{StructName}} extends {{parentType}}
 {{#fields}}
     {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
 {{/fields|, }}
-  ): {{StructName}} = {
-    val obj = new Immutable(
+  ): {{StructName}} =
+    new Immutable(
 {{#fields}}
       {{fieldName}}
 {{/fields|, }}
-    )
 {{#enablePassthrough}}
-    obj.__passthrough_fields = this._passthrough_fields
+    ).setPassthroughs(this._passthrough_fields)
 {{/enablePassthrough}}
-    obj
-  }
+{{^enablePassthrough}}
+    )
+{{/enablePassthrough}}
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
