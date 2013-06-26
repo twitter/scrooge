@@ -1,3 +1,11 @@
+3.1.10 - 06/26/2013
+===============================================================================
+* do not use an intermedial `val` for passthroughs. Eliminates the possibility
+  of a name collision
+* eliminate the possibility of namespace collision for "runtime"
+* revert identification of Enums and TType.ENUM (back to I32)
+* eliminate all use of ThriftUtil unless it's needed
+
 3.1.9 - 06/14/2013
 ===============================================================================
 * bump to util-6.3.6 / finagle-6.5.0
