@@ -138,8 +138,12 @@ case class TranslatingImporter(underlying: Importer, translations: Map[String, S
 
   // try the given function with the original name first, if that doesn't work look for it
   // in the translations list. If it's in the list send it to the function.
+
+  // Look up the filename in the map of translations. If a translated path is
+  // found, apply the argument function to it. Otherwise, apply the function to
+  // the original filename.
   private[this] def find[T](name: String)(f: String => Option[T]): Option[T] =
-    translations.get(name) flatMap { n => f("%s/%s".format(n, name)) } orElse { f(name) }
+    translations.get(name) flatMap { f(_) } orElse { f(name) }
 
   def apply(filename: String) =
     find[FileContents](filename) { n =>

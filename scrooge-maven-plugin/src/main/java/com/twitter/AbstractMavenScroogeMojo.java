@@ -163,6 +163,36 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private static Object lock = new Object();
 
   /**
+   * Picks out a File from `thriftFiles` corresponding to a given artifact ID
+   * and file name. Returns null if `artifactId` and `fileName` do not map to a
+   * thrift file path.
+   *
+   * @parameter artifactId The artifact ID of which to look up the path
+   * @parameter fileName the name of the thrift file for which to extract a path
+   * @parameter thriftFiles The set of Thrift files in which to lookup the
+   *            artifact ID.
+   * @return The path of the directory containing Thrift files for the given
+   *         artifact ID. null if artifact ID not found.
+   */
+  private File extractThriftFile(String artifactId, String fileName, Set<File> thriftFiles) {
+    for (File thriftFile : thriftFiles) {
+      boolean fileFound = false;
+      if (fileName.equals(thriftFile.getName())) {
+        for (String pathComponent : thriftFile.getPath().split(File.separator)) {
+          if (pathComponent.equals(artifactId)) {
+            fileFound = true;
+          }
+        }
+      }
+
+      if (fileFound) {
+        return thriftFile;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Executes the mojo.
    */
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -196,7 +226,12 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
           Map<String, String> includeMap = new HashMap<String, String>();
           for (IncludeMapping mapping : includeMappings) {
-            includeMap.put(mapping.getInclude(), mapping.getArtifactId());
+            String fileName = mapping.getInclude();
+            File mappedFile = extractThriftFile(mapping.getArtifactId(), fileName, thriftFiles);
+
+            if (mappedFile != null) {
+              includeMap.put(fileName, mappedFile.getPath());
+            }
           }
 
           // Include thrifts from resource as well.
@@ -315,7 +350,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       if (dep.isFile() && dep.canRead() && dep.getName().endsWith(".jar")) {
         JarFile jar = new JarFile(dep);
         for (JarEntry entry : list(jar.entries())) {
-          if (entry.getName().endsWith(".thrift")) {
+          if (entry.getName().endsWith(THRIFT_FILE_SUFFIX)) {
             File destination = new File(destFolder, entry.getName());
             getLog().info(format("extracting %s to %s", entry.getName(), destination.getCanonicalPath()));
             copyStreamToFile(new RawInputStreamFacade(jar.getInputStream(entry)), destination);

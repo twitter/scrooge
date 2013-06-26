@@ -62,11 +62,17 @@ class Compiler {
       new FileWriter(file)
     }
 
+    val importer = {
+      val baseImporter = Importer(new File(".")) +: Importer(includePaths)
+      if (includeMappings.isEmpty) {
+        baseImporter
+      } else {
+        TranslatingImporter(baseImporter, includeMappings.toMap)
+      }
+    }
+
     // compile
     for (inputFile <- thriftFiles) {
-      var importer = Importer(new File(".")) +: Importer(includePaths)
-      if (!includeMappings.isEmpty) importer = TranslatingImporter(importer, includeMappings.toMap)
-
       val parser = new ThriftParser(importer, strict)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
