@@ -75,7 +75,7 @@ struct Foo {}
       val outDir = TempDirectory.create(Some(new File(".")))
 
       val compiler = new Compiler()
-      compiler.includeMappings += ("mapped2.thrift" -> inDir2.getPath)
+      compiler.includeMappings += ("mapped2.thrift" -> "%s/%s".format(inDir2.getPath, "mapped2.thrift"))
       compiler.destFolder = outDir.getPath
       compiler.thriftFiles ++= List(mapped1.getPath, mapped2.getPath)
       compiler.run()
