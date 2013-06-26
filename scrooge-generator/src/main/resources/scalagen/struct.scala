@@ -2,7 +2,10 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
+  ThriftException, ThriftStruct, ThriftStructCodec3}
+{{#enablePassthrough}}
+import com.twitter.scrooge.ThriftUtil
+{{/enablePassthrough}}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
