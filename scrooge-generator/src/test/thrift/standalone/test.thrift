@@ -53,6 +53,7 @@ enum NumberID
 
 enum NamespaceCollisions
 {
+  list,
   Any,
   AnyRef,
   Object,
@@ -67,7 +68,6 @@ enum NamespaceCollisions
   Option,
   None,
   Some,
-  List,
   Nil,
   Null,
   Set,

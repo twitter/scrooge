@@ -99,6 +99,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       }
 
       "handle namespace collisions" in {
+        NamespaceCollisions.List.name mustEqual "List"
         NamespaceCollisions.Any.name mustEqual "Any"
         NamespaceCollisions.AnyRef.name mustEqual "AnyRef"
         NamespaceCollisions.Object.name mustEqual "Object"
@@ -113,7 +114,6 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NamespaceCollisions.Option.name mustEqual "Option"
         NamespaceCollisions.None.name mustEqual "None"
         NamespaceCollisions.Some.name mustEqual "Some"
-        NamespaceCollisions.List.name mustEqual "List"
         NamespaceCollisions.Nil.name mustEqual "Nil"
         NamespaceCollisions.Null.name mustEqual "Null"
         NamespaceCollisions.Set.name mustEqual "Set"
