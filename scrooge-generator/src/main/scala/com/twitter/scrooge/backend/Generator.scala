@@ -41,7 +41,7 @@ object Generator {
     enablePassthrough: Boolean
   ): Generator = lan match {
     case Scala => new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
-    case Java => new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+    case ExperimentalJava => new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
   }
 }
 

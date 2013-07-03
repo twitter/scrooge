@@ -63,11 +63,11 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<File> thriftIncludes = new HashSet<File>();
 
   /**
-  * Which language the generated files should be ("java" or "scala")
+  * Which language the generated files should be ("experimental-java" or "scala")
   * @parameter default-value="scala"
    * {@code
    * <configuration>
-   *     <language>java</language>
+   *     <language>experimental-java</language>
    * </configuration>
    * }
   */

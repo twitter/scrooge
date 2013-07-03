@@ -44,7 +44,7 @@ class ScroogeRunner {
 
     Main.parseOptions(compiler, flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath })
     compiler.language = language.toLowerCase match {
-      case "java" => Language.Java
+      case "experimental-java" => Language.ExperimentalJava
       case "scala" => Language.Scala
       case _ => throw new MojoExecutionException("Unknown language option \""+language+"\"")
     }

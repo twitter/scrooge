@@ -25,7 +25,7 @@ import java.util.Date
 
 object Language extends Enumeration {
   type Language = Value
-  val Scala, Java = Value
+  val Scala, ExperimentalJava = Value
 }
 
 class Compiler {

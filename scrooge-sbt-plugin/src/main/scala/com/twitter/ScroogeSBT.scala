@@ -23,7 +23,7 @@ object ScroogeSBT extends Plugin {
     namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2)}
     Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
     compiler.language = language.toLowerCase match {
-      case "java" => Language.Java
+      case "experimental-java" => Language.ExperimentalJava
       case "scala" => Language.Scala
       case _ => throw new Exception("Unknown language option \""+language+"\"")
     }

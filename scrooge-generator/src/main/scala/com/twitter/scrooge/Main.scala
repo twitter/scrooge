@@ -82,10 +82,10 @@ object Main {
       { compiler.dryRun = true; () }
       )
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { compiler.skipUnchanged = true; () })
-      opt("l", "language", "name of language to generate code in ('java' and 'scala' are currently supported)", { languageString: String =>
+      opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)", { languageString: String =>
         languageString.toLowerCase match {
           case "scala" => compiler.language = Scala
-          case "java" => compiler.language = Java
+          case "experimental-java" => compiler.language = ExperimentalJava
           case _ =>
             println("language option %s not supported".format(languageString))
             System.exit(0)
