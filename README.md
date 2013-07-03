@@ -51,12 +51,12 @@ Maven users need to add the following to the pom.xml file:
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime_2.9.2</artifactId>
-      <version>3.1.10</version>
+      <version>3.2.0</version>
     </dependency>
 
 SBT users need this:
 
-    val scrooge_runtime = "com.twitter.scrooge" %% "scrooge-runtime" % "3.1.10"
+    val scrooge_runtime = "com.twitter.scrooge" %% "scrooge-runtime" % "3.2.0"
 
 ## Running Scrooge as a command line tool
 
