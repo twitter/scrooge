@@ -1,3 +1,9 @@
+3.1.0 - 07/03/2013
+===============================================================================
+* BREAKING CHANGE:
+    Make java gen experimental. There are changes coming down the pipe that
+		will dramatically refactor java's codegen.
+
 3.1.10 - 06/26/2013
 ===============================================================================
 * do not use an intermedial `val` for passthroughs. Eliminates the possibility
