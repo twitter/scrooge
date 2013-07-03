@@ -18,7 +18,7 @@ javaNamespace="-n thrift.test=thrift.java_test
 -n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_java
 --default-java-namespace java_thrift"
 
-javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l java $javaNamespace"
+javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l experimental-java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l scala"
 
 echo "Running Scrooge on relative/"
@@ -45,7 +45,7 @@ javaVanillaNamespace="-n thrift.test=vanilla_java.test
 -n thrift.test2=vanilla_java.test2"
 
 scalaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l scala $vanillaNamespace"
-javaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l java $javaVanillaNamespace"
+javaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l experimental-java $javaVanillaNamespace"
 $scalaVanillaRun $airport_thrifts
 $javaVanillaRun $airport_thrifts
 
