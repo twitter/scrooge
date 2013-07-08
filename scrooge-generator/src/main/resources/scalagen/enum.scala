@@ -47,6 +47,13 @@ case object {{EnumName}} {
       case _ => scala.None
     }
   }
+  
+  val list: List[{{EnumName}}] = {
+{{#values}}
+    {{name}} ::
+{{/values}}
+    scala.List.empty[{{EnumName}}]
+  }
 }
 
 
