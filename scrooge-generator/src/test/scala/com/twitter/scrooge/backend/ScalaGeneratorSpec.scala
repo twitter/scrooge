@@ -68,6 +68,16 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NumberID.valueOf("Ten") must beNone
       }
 
+      "correct list" in {
+        NumberID.list(0) mustEqual NumberID.One
+        NumberID.list(1) mustEqual NumberID.Two
+        NumberID.list(2) mustEqual NumberID.Three
+        NumberID.list(3) mustEqual NumberID.Five
+        NumberID.list(4) mustEqual NumberID.Six
+        NumberID.list(5) mustEqual NumberID.Eight
+        NumberID.list.size mustEqual 6
+      }
+
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
@@ -86,6 +96,33 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         obj.isInstanceOf[NumberID] must beTrue
         obj.asInstanceOf[NumberID].getValue mustEqual NumberID.Two.getValue
         obj.asInstanceOf[NumberID].name mustEqual NumberID.Two.name
+      }
+
+      "handle namespace collisions" in {
+        NamespaceCollisions.List.name mustEqual "List"
+        NamespaceCollisions.Any.name mustEqual "Any"
+        NamespaceCollisions.AnyRef.name mustEqual "AnyRef"
+        NamespaceCollisions.Object.name mustEqual "Object"
+        NamespaceCollisions.String.name mustEqual "String"
+        NamespaceCollisions.Byte.name mustEqual "Byte"
+        NamespaceCollisions.Short.name mustEqual "Short"
+        NamespaceCollisions.Char.name mustEqual "Char"
+        NamespaceCollisions.Int.name mustEqual "Int"
+        NamespaceCollisions.Long.name mustEqual "Long"
+        NamespaceCollisions.Float.name mustEqual "Float"
+        NamespaceCollisions.Double.name mustEqual "Double"
+        NamespaceCollisions.Option.name mustEqual "Option"
+        NamespaceCollisions.None.name mustEqual "None"
+        NamespaceCollisions.Some.name mustEqual "Some"
+        NamespaceCollisions.Nil.name mustEqual "Nil"
+        NamespaceCollisions.Null.name mustEqual "Null"
+        NamespaceCollisions.Set.name mustEqual "Set"
+        NamespaceCollisions.Map.name mustEqual "Map"
+        NamespaceCollisions.Seq.name mustEqual "Seq"
+        NamespaceCollisions.Array.name mustEqual "Array"
+        NamespaceCollisions.Iterable.name mustEqual "Iterable"
+        NamespaceCollisions.Unit.name mustEqual "Unit"
+        NamespaceCollisions.Nothing.name mustEqual "Nothing"
       }
     }
 
