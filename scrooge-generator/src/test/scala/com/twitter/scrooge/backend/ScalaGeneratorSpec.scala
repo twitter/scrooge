@@ -716,6 +716,22 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         pt2roundTripped mustEqual PassThrough2(1, null.asInstanceOf[Int])
       }
 
+      "be able to add more " in {
+        val pt1 = PassThrough(1)
+
+        val field2 = {
+          val prot = new TBinaryProtocol(new TMemoryBuffer(256))
+          val inter = PassThrough2.encode(PassThrough2(1, 2), prot)
+          PassThrough.decode(prot)._passthrough_fields find { case (f, _) => f.id == 2 } get
+        }
+
+        val pt1w = pt1.withPassthroughs(Map(field2))
+
+        val protocol2 = new TBinaryProtocol(new TMemoryBuffer(256))
+        PassThrough.encode(pt1w, protocol2)
+        PassThrough2.decode(protocol2) mustEqual PassThrough2(1, 2)
+      }
+
       "be proxy-able" in {
         val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
         val pt2 = PassThrough2(1, 2)

@@ -8,6 +8,7 @@ import com.twitter.scrooge.ThriftUtil
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException
 import scala.collection.mutable
 import scala.collection.{Map, Set}

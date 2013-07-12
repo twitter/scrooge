@@ -166,9 +166,13 @@ trait {{StructName}} extends {{parentType}}
 
   def withoutPassthroughs(f: TField => Boolean) =
     copy().setPassthroughs(_passthrough_fields.filterNot { case (field, _) => f(field) })
+
+  def withPassthroughs(pts: TraversableOnce[(TField, TTransport)]) =
+    copy().setPassthroughs(_passthrough_fields ++ pts)
 {{/enablePassthrough}}
 {{^enablePassthrough}}
   def withoutPassthroughs(f: TField => Boolean) = this
+  def withPassthroughs(pts: TraversableOnce[(TField, TTransport)]) = this
 {{/enablePassthrough}}
 
 {{#fields}}
