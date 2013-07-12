@@ -2,6 +2,9 @@ package {{package}}
 
 import com.twitter.scrooge.{
   ThriftStruct, ThriftStructCodec, ThriftStructCodec3}
+{{#enablePassthrough}}
+import com.twitter.scrooge.ThriftUtil
+{{/enablePassthrough}}
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
