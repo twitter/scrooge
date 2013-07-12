@@ -1,4 +1,10 @@
-3.1.0 - 07/03/2013
+3.2.1 - 07/12/2013
+===============================================================================
+* add list method to enums that lists all values
+* bugfix: ThriftUtil was not being imported for services
+* add ability to attach additional passthrough fields
+
+3.2.0 - 07/03/2013
 ===============================================================================
 * BREAKING CHANGE:
     Make java gen experimental. There are changes coming down the pipe that
