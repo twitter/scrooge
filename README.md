@@ -56,7 +56,7 @@ Maven users need to add the following to the pom.xml file:
 
 SBT users need this:
 
-    val scrooge_runtime = "com.twitter.scrooge" %% "scrooge-runtime" % "3.2.1"
+    val scrooge_runtime = "com.twitter" %% "scrooge-runtime" % "3.2.1"
 
 ## Running Scrooge as a command line tool
 
