@@ -750,5 +750,14 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         pt2roundTripped mustEqual pt2
       }
     }
+
+    "gracefully handle null fields" in {
+      val prot = new TBinaryProtocol(new TMemoryBuffer(256))
+      val emp = Emperor(null, 0)
+
+      // basically these shouldn't blow up
+      Emperor.encode(emp, prot)
+      Emperor.decode(prot) mustEqual emp
+    }
   }
 }
