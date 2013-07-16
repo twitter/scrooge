@@ -125,6 +125,7 @@ trait StructTemplate {
             case _ => false
           }),
           "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
+          "isEnum" -> v(field.fieldType.isInstanceOf[EnumType]),
           // "qualifiedFieldType" is used to generate qualified type name even if it's not
           // imported, in case other same-named entities are generated in the same file.
           "qualifiedFieldType" -> v(templates("qualifiedFieldType")),

@@ -20,6 +20,9 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   val Union = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
+{{#isEnum}}
+  private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
+{{/isEnum}}
 {{/fields}}
 
   override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }

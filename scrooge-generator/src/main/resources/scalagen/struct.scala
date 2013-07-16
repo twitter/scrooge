@@ -155,6 +155,11 @@ trait {{StructName}} extends {{parentType}}
 {
   import {{StructName}}._
 
+{{#fields}}
+{{#isEnum}}
+  private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
+{{/isEnum}}
+{{/fields}}
 {{#enablePassthrough}}
   private[this] var __passthrough_fields = ThriftUtil.EmptyPassthroughs
   private[{{StructName}}] def setPassthroughs(fields: scala.collection.immutable.Map[TField, TTransport]) = {

@@ -203,7 +203,7 @@ abstract class Generator
       case TString => "STRING"
       case TBinary => "STRING" // thrift's idea of "string" is based on old broken c++ semantics.
       case StructType(_, _) => "STRUCT"
-      case EnumType(_, _) => "I32" // enums are converted to ints
+      case EnumType(_, _) => "ENUM"
       case MapType(_, _, _) => "MAP"
       case SetType(_, _) => "SET"
       case ListType(_, _) => "LIST"

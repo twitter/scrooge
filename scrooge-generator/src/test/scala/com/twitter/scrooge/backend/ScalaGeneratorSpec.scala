@@ -124,6 +124,40 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NamespaceCollisions.Unit.name mustEqual "Unit"
         NamespaceCollisions.Nothing.name mustEqual "Nothing"
       }
+
+      "encode-decode in struct" in {
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        val eStruct = EnumStruct(NumberID.One)
+        EnumStruct.encode(eStruct, prot)
+        EnumStruct.decode(prot) mustEqual eStruct
+      }
+
+      "encode-decode in union" in {
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        val eUnion = EnumUnion.Number(NumberID.One)
+        EnumUnion.encode(eUnion, prot)
+        EnumUnion.decode(prot) mustEqual eUnion
+      }
+
+      "be identified as an ENUM" in {
+        EnumStruct.NumberField.`type` mustEqual TType.ENUM
+      }
+
+      "be identified as an I32 on the wire for structs" in {
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        EnumStruct.encode(EnumStruct(NumberID.One), prot)
+        prot.readStructBegin()
+        val field = prot.readFieldBegin()
+        field.`type` mustEqual TType.I32
+      }
+
+      "be identified as an I32 on the wire for unions" in {
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        EnumUnion.encode(EnumUnion.Number(NumberID.One), prot)
+        prot.readStructBegin()
+        val field = prot.readFieldBegin()
+        field.`type` mustEqual TType.I32
+      }
     }
 
     "generate constants" in {

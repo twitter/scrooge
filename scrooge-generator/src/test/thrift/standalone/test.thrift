@@ -51,6 +51,15 @@ enum NumberID
   Eight = 8
 }
 
+struct EnumStruct {
+  1: NumberID number
+}
+
+union EnumUnion {
+  1: NumberID number
+  2: string text
+}
+
 enum NamespaceCollisions
 {
   list,
