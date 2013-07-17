@@ -1,6 +1,13 @@
 package com.twitter;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -11,13 +18,13 @@ import org.codehaus.plexus.util.io.RawInputStreamFacade;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static com.google.common.base.Join.join;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
@@ -341,17 +348,19 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * @param dependencies A set of jar artifacts ths project depends on.
    * @param output The directory to copy any found files into.
    */
-  private void extractFilesFromDependencies(Collection<Artifact> dependencies, File output) throws IOException {
+  private void extractFilesFromDependencies(Collection<Artifact> dependencies, File destFolder) throws IOException {
     for (Artifact artifact : dependencies) {
       File dep = artifact.getFile();
       getLog().info("extracting thrift files from " + dep.getCanonicalPath());
-      File destFolder = new File(output, artifact.getArtifactId());
-      destFolder.mkdirs();
       if (dep.isFile() && dep.canRead() && dep.getName().endsWith(".jar")) {
         JarFile jar = new JarFile(dep);
         for (JarEntry entry : list(jar.entries())) {
           if (entry.getName().endsWith(THRIFT_FILE_SUFFIX)) {
             File destination = new File(destFolder, entry.getName());
+
+            if (destination.isFile() && !haveSameContents(destination, jar, entry))
+              throw new IOException(format("extracting %s from %s would overwrite %s", entry.getName(), dep.getCanonicalPath(), destination.getCanonicalPath()));
+
             getLog().info(format("extracting %s to %s", entry.getName(), destination.getCanonicalPath()));
             copyStreamToFile(new RawInputStreamFacade(jar.getInputStream(entry)), destination);
             if (!destination.setLastModified(dep.lastModified()))
@@ -362,6 +371,15 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
         getLog().warn(format("dep %s isn't a file or can't be read", dep.getCanonicalPath()));
       }
     }
+  }
+
+  private boolean haveSameContents(File file, final JarFile jar, final JarEntry entry) throws IOException {
+    HashFunction hashFun = Hashing.md5();
+    HashCode fileHash = Files.hash(file, hashFun);
+    HashCode streamHash = ByteStreams.hash(new InputSupplier<InputStream>() {
+      public InputStream getInput() throws IOException { return jar.getInputStream(entry); }
+    }, hashFun);
+    return fileHash.equals(streamHash);
   }
 
   /**
@@ -381,7 +399,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private ImmutableSet<File> findThriftFilesInDirectory(File directory) throws IOException {
     checkNotNull(directory);
     checkArgument(directory.isDirectory(), "%s is not a directory", directory);
-    List<File> thriftFilesInDirectory = getFiles(directory, join(",", includes), join(",", excludes));
+    List<File> thriftFilesInDirectory = getFiles(directory, Joiner.on(",").join(includes), Joiner.on(",").join(excludes));
     return ImmutableSet.copyOf(thriftFilesInDirectory);
   }
 
