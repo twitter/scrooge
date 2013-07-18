@@ -2,11 +2,24 @@ package com.twitter.scrooge
 
 import java.lang.reflect.Method
 import org.apache.thrift.protocol.{TField, TProtocol}
+import scala.collection.mutable.StringBuilder
 
 /**
  * A simple class for generic introspection on ThriftStruct classes.
  */
 final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec[T]) {
+  private[this] def toCamelCase(str: String): String = {
+    str.takeWhile(_ == '_') + str.
+      split('_').
+      filterNot(_.isEmpty).
+      zipWithIndex.map { case (part, ind) =>
+        val first = if (ind == 0) part(0).toLower else part(0).toUpper
+        val isAllUpperCase = part.forall(_.isUpper)
+        val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
+        new StringBuilder(part.size).append(first).append(rest)
+      }.
+      mkString
+  }
   /**
    * The Class object for the ThriftStructCodec subclass.
    */
@@ -35,7 +48,7 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
       m.getParameterTypes.size == 0 && m.getReturnType == classOf[TField]
     } map { m =>
       val tfield = m.invoke(codec).asInstanceOf[TField]
-      val method = structClass.getMethod(tfield.name)
+      val method = structClass.getMethod(toCamelCase(tfield.name))
       new ThriftStructField[T](tfield, method)
     }
 }
