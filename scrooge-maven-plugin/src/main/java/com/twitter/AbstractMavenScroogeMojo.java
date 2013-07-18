@@ -420,6 +420,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * Walk project references recursively, adding thrift files to the provided list.
    */
   List<File> getRecursiveThriftFiles(MavenProject project, String outputDirectory, List<File> files) throws IOException {
+    HashFunction hashFun = Hashing.md5();
     if (dependencyIncludes.contains(project.getArtifactId())) {
       File dir = new File(new File(project.getFile().getParent(), "target"), outputDirectory);
       if (dir.exists()) {
@@ -430,8 +431,10 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           File destFolder = new File(getResourcesOutputDirectory(), project.getArtifactId());
           destFolder.mkdirs();
           File destFile = new File(destFolder, relPath);
-          getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
-          copyFile(f, destFile);
+          if (destFile.isFile() && !Files.hash(f, hashFun).equals(Files.hash(destFile, hashFun))) {
+            getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
+            copyFile(f, destFile);
+          }
           files.add(destFile);
         }
       }
