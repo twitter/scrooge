@@ -1,3 +1,16 @@
+3.3.0 - 07/18/2013
+===============================================================================
+* Documenation fixes
+* fix ThriftStructMetaData use camelCase method names to match generated
+  code
+* maven-plugin: skip file copy from references if existing file is the
+  same
+* POTENTIALLY BREAKING CHANGES:
+    * Identify enum fields as TType.ENUM but maintain backward
+			compatibility by identifying them as I32 on the wire
+    * maven-plugin - do not extract dependencies into their own
+			subdirectories
+
 3.2.1 - 07/12/2013
 ===============================================================================
 * add list method to enums that lists all values
