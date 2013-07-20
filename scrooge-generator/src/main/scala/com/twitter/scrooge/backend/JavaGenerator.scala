@@ -20,13 +20,23 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.mustache.Dictionary._
 
+object JavaGeneratorFactory extends GeneratorFactory {
+  val lang = "experimental-java"
+  def apply(
+    includeMap: Map[String, ResolvedDocument],
+    defaultNamespace: String,
+    generationDate: String,
+    enablePassthrough: Boolean
+  ): Generator = new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+}
+
 class JavaGenerator(
   val includeMap: Map[String, ResolvedDocument],
   val defaultNamespace: String,
   val generationDate: String,
   val enablePassthrough: Boolean
-) extends Generator
-{
+) extends Generator {
+
   val fileExtension = ".java"
   val templateDirName = "/javagen/"
 

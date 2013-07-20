@@ -19,11 +19,9 @@ package com.twitter.scrooge
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
-import com.twitter.scrooge.backend.{WithOstrichServer, WithFinagleClient, WithFinagleService}
+import com.twitter.scrooge.backend.{Generator, WithOstrichServer, WithFinagleClient, WithFinagleService}
 
 object Main {
-  import Language._
-
   def main(args: Array[String]) {
     val compiler = new Compiler()
     if (!parseOptions(compiler, args)) {
@@ -83,12 +81,11 @@ object Main {
       )
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { compiler.skipUnchanged = true; () })
       opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)", { languageString: String =>
-        languageString.toLowerCase match {
-          case "scala" => compiler.language = Scala
-          case "experimental-java" => compiler.language = ExperimentalJava
-          case _ =>
-            println("language option %s not supported".format(languageString))
-            System.exit(0)
+        if (Generator.languages.toList contains languageString.toLowerCase) {
+          compiler.language = languageString
+        } else {
+          println("language option %s not supported".format(languageString))
+          System.exit(0)
         }
         ()
       })

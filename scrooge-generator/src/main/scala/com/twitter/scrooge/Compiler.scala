@@ -23,13 +23,7 @@ import com.twitter.scrooge.frontend.{ThriftParser, Importer, TranslatingImporter
 import org.apache.commons.lang.time.FastDateFormat
 import java.util.Date
 
-object Language extends Enumeration {
-  type Language = Value
-  val Scala, ExperimentalJava = Value
-}
-
 class Compiler {
-  import Language._
   val defaultDestFolder = "."
   var destFolder: String = defaultDestFolder
   val includePaths = new mutable.ListBuffer[String]
@@ -44,7 +38,7 @@ class Compiler {
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
   var dryRun: Boolean = false
-  var language: Language = Scala
+  var language: String = "scala"
   var defaultNamespace: String = "thrift"
   val now: String = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
 

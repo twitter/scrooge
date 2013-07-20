@@ -23,7 +23,7 @@ import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
-import com.twitter.scrooge.Language._
+import scala.collection.JavaConverters._
 
 abstract sealed class ServiceOption
 
@@ -33,20 +33,43 @@ case object WithOstrichServer extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 object Generator {
+  private[this] val Generators: Map[String, GeneratorFactory] = {
+    val klass = classOf[GeneratorFactory]
+    val generators =
+      List(JavaGeneratorFactory, ScalaGeneratorFactory) ++
+      java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator().asScala
+    Map(generators map { g => (g.lang -> g) }: _*)
+  }
+
+  def languages = Generators.keys
+
   def apply(
-    lan: Language,
+    lan: String,
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     generationDate: String,
     enablePassthrough: Boolean
-  ): Generator = lan match {
-    case Scala => new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
-    case ExperimentalJava => new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+  ): Generator = Generators.get(lan) match {
+    case Some(gen) => gen(includeMap, defaultNamespace, generationDate, enablePassthrough)
+    case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
 }
 
-abstract class Generator
-  extends StructTemplate with ServiceTemplate with ConstsTemplate with EnumTemplate
+trait GeneratorFactory {
+  def lang: String
+  def apply(
+    includeMap: Map[String, ResolvedDocument],
+    defaultNamespace: String,
+    generationDate: String,
+    enablePassthrough: Boolean
+  ): Generator
+}
+
+trait Generator
+  extends StructTemplate
+  with ServiceTemplate
+  with ConstsTemplate
+  with EnumTemplate
 {
   import Dictionary._
 

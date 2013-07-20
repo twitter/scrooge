@@ -20,13 +20,23 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.mustache.Dictionary._
 
+object ScalaGeneratorFactory extends GeneratorFactory {
+  val lang = "scala"
+  def apply(
+    includeMap: Map[String, ResolvedDocument],
+    defaultNamespace: String,
+    generationDate: String,
+    enablePassthrough: Boolean
+  ): Generator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+}
+
 class ScalaGenerator(
   val includeMap: Map[String, ResolvedDocument],
   val defaultNamespace: String,
   val generationDate: String,
   val enablePassthrough: Boolean
-) extends Generator
-{
+) extends Generator {
+
   val fileExtension = ".scala"
   val templateDirName = "/scalagen/"
 
