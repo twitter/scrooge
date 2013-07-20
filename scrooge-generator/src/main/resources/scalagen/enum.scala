@@ -47,8 +47,8 @@ case object {{EnumName}} {
       case _ => scala.None
     }
   }
-  
-  val list: List[{{EnumName}}] = {
+
+  lazy val list: List[{{EnumName}}] = {
 {{#values}}
     {{name}} ::
 {{/values}}
