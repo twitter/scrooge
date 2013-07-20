@@ -401,7 +401,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
         for (File f : findThriftFilesInDirectory(dir)) {
           URI fileURI = getFileURI(f);
           String relPath = baseDir.relativize(fileURI).getPath();
-          File destFolder = new File(getResourcesOutputDirectory(), project.getArtifactId());
+          File destFolder = getResourcesOutputDirectory();
           destFolder.mkdirs();
           File destFile = new File(destFolder, relPath);
           if (destFile.isFile() && !Files.hash(f, hashFun).equals(Files.hash(destFile, hashFun))) {
