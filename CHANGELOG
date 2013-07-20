@@ -1,3 +1,10 @@
+3.3.1 - 07/20/2013
+===============================================================================
+* provide a mechanism for dynamicallly pluggable backends
+* make enum list of values lazy
+* remove the include mapping hack
+* fix maven plugin references includes
+
 3.3.0 - 07/18/2013
 ===============================================================================
 * Documenation fixes
