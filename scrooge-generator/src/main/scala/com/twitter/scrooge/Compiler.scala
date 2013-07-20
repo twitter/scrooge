@@ -19,7 +19,7 @@ package com.twitter.scrooge
 import scala.collection.mutable
 import java.io.{File, FileWriter}
 import com.twitter.scrooge.backend.{Generator, ServiceOption}
-import com.twitter.scrooge.frontend.{ThriftParser, Importer, TranslatingImporter}
+import com.twitter.scrooge.frontend.{ThriftParser, Importer}
 import org.apache.commons.lang.time.FastDateFormat
 import java.util.Date
 
@@ -30,7 +30,6 @@ class Compiler {
   val thriftFiles = new mutable.ListBuffer[String]
   val flags = new mutable.HashSet[ServiceOption]
   val namespaceMappings = new mutable.HashMap[String, String]
-  val includeMappings = new mutable.HashMap[String, String]
   var verbose = false
   var strict = true
   var skipUnchanged = false
@@ -56,14 +55,7 @@ class Compiler {
       new FileWriter(file)
     }
 
-    val importer = {
-      val baseImporter = Importer(new File(".")) +: Importer(includePaths)
-      if (includeMappings.isEmpty) {
-        baseImporter
-      } else {
-        TranslatingImporter(baseImporter, includeMappings.toMap)
-      }
-    }
+    val importer = Importer(new File(".")) +: Importer(includePaths)
 
     // compile
     for (inputFile <- thriftFiles) {
