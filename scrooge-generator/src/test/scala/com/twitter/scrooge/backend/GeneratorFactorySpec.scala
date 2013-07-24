@@ -10,7 +10,7 @@ class TestGeneratorFactory extends GeneratorFactory {
     defaultNamespace: String,
     generationDate: String,
     enablePassthrough: Boolean
-  ): Generator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
 }
 
 class GeneratorFactorySpec extends SpecificationWithJUnit {

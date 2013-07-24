@@ -120,7 +120,8 @@ object Scrooge extends Build {
       "cglib" % "cglib" % "2.1_3" % "test",
       "asm" % "asm" % "1.5.3" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
-      "org.hamcrest" % "hamcrest-all" % "1.1" % "test"
+      "org.hamcrest" % "hamcrest-all" % "1.1" % "test",
+      "org.mockito" % "mockito-all" % "1.9.0" % "test"
     )
   )
 
