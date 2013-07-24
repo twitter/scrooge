@@ -1,0 +1,8 @@
+- Scrooge does not support default struct values right now since it can't parse the map into a struct in the TypeParser
+  If we fix this, we need to fix PrintConstController
+- struct metadata does not support retrieving the name for the typedef
+- Need to implement generate_javadoc
+- gen_hash_code_ not supported
+- annotations_ (is_final) not supported
+- unions not supported
+- oneway functions in the parser code

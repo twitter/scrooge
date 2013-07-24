@@ -24,7 +24,7 @@ import java.io.FileNotFoundException
 case class FileParseException(filename: String, cause: Throwable)
   extends Exception("Exception parsing: %s".format(filename), cause)
 
-class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
+class ThriftParser(importer: Importer, strict: Boolean, defaultOptional: Boolean = false) extends RegexParsers {
 
   import com.twitter.scrooge.ast._
 
@@ -193,9 +193,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
         case _ => value
       }
       // if field is marked optional and a default is defined, ignore the optional part.
-      val transformedReq = {
-        if (transformedVal.isDefined && req.isOptional) Requiredness.Default else req
-      }
+      val transformedReq = if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default else req
       Field(fid.getOrElse(0), sid, sid.name, ftype, transformedVal, transformedReq)
     }
   }
@@ -368,7 +366,7 @@ class ThriftParser(importer: Importer, strict: Boolean) extends RegexParsers {
       throw new FileNotFoundException(filename)
     }
 
-    val newParser = new ThriftParser(contents.importer, this.strict)
+    val newParser = new ThriftParser(contents.importer, this.strict, defaultOptional)
     newParser.parse(contents.data, newParser.document, Some(filename))
   }
 

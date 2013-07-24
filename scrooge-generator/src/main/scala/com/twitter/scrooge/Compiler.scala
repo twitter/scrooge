@@ -59,7 +59,8 @@ class Compiler {
 
     // compile
     for (inputFile <- thriftFiles) {
-      val parser = new ThriftParser(importer, strict)
+      val defaultOptional = language.equals("java")
+      val parser = new ThriftParser(importer, strict, defaultOptional)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))

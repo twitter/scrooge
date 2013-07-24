@@ -27,7 +27,7 @@ object ScalaGeneratorFactory extends GeneratorFactory {
     defaultNamespace: String,
     generationDate: String,
     enablePassthrough: Boolean
-  ): Generator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
 }
 
 class ScalaGenerator(
@@ -35,7 +35,7 @@ class ScalaGenerator(
   val defaultNamespace: String,
   val generationDate: String,
   val enablePassthrough: Boolean
-) extends Generator {
+) extends Generator with ThriftGenerator {
 
   val fileExtension = ".scala"
   val templateDirName = "/scalagen/"

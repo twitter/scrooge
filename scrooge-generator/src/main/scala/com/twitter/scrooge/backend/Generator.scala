@@ -23,6 +23,7 @@ import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
+import com.twitter.scrooge.java_generator.{ApacheJavaGeneratorFactory, ApacheJavaGenerator}
 import scala.collection.JavaConverters._
 
 abstract sealed class ServiceOption
@@ -32,11 +33,19 @@ case object WithFinagleService extends ServiceOption
 case object WithOstrichServer extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
+trait ThriftGenerator {
+  def apply(
+    _doc: Document,
+    serviceOptions: Set[ServiceOption],
+    outputPath: File,
+    dryRun: Boolean = false): Iterable[File]
+}
+
 object Generator {
   private[this] val Generators: Map[String, GeneratorFactory] = {
     val klass = classOf[GeneratorFactory]
     val generators =
-      List(JavaGeneratorFactory, ScalaGeneratorFactory) ++
+      List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory) ++
       java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator().asScala
     Map(generators map { g => (g.lang -> g) }: _*)
   }
@@ -49,7 +58,7 @@ object Generator {
     defaultNamespace: String,
     generationDate: String,
     enablePassthrough: Boolean
-  ): Generator = Generators.get(lan) match {
+  ): ThriftGenerator = Generators.get(lan) match {
     case Some(gen) => gen(includeMap, defaultNamespace, generationDate, enablePassthrough)
     case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
@@ -62,7 +71,7 @@ trait GeneratorFactory {
     defaultNamespace: String,
     generationDate: String,
     enablePassthrough: Boolean
-  ): Generator
+  ): ThriftGenerator
 }
 
 trait Generator

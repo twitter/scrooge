@@ -27,7 +27,7 @@ object JavaGeneratorFactory extends GeneratorFactory {
     defaultNamespace: String,
     generationDate: String,
     enablePassthrough: Boolean
-  ): Generator = new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
 }
 
 class JavaGenerator(
@@ -35,7 +35,7 @@ class JavaGenerator(
   val defaultNamespace: String,
   val generationDate: String,
   val enablePassthrough: Boolean
-) extends Generator {
+) extends Generator with ThriftGenerator {
 
   val fileExtension = ".java"
   val templateDirName = "/javagen/"
