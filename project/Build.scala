@@ -3,8 +3,8 @@ import Keys._
 
 object Scrooge extends Build {
   val scroogeVersion = "3.3.1"
-  val utilVersion = "6.3.6"
-  val finagleVersion = "6.5.0"
+  val utilVersion = "6.3.8"
+  val finagleVersion = "6.5.2"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
