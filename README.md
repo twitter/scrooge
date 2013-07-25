@@ -51,12 +51,12 @@ Maven users need to add the following to the pom.xml file:
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime_2.9.2</artifactId>
-      <version>3.3.1</version>
+      <version>3.3.2</version>
     </dependency>
 
 SBT users need this:
 
-    val scrooge_runtime = "com.twitter" %% "scrooge-runtime" % "3.3.1"
+    val scrooge_runtime = "com.twitter" %% "scrooge-runtime" % "3.3.2"
 
 ## Running Scrooge as a command line tool
 
@@ -118,7 +118,7 @@ In your `build.sbt` file:
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.twitter" %% "scrooge-runtime" % "3.3.1",
+      "com.twitter" %% "scrooge-runtime" % "3.3.2",
       "com.twitter" %% "finagle-thrift" % "6.4.0"
     )
 
