@@ -60,6 +60,12 @@ union EnumUnion {
   2: string text
 }
 
+struct EnumCollections {
+  1: map<NumberID, NumberID> aMap
+  2: list<NumberID> aList
+  3: set<NumberID> aSet
+}
+
 enum NamespaceCollisions
 {
   list,

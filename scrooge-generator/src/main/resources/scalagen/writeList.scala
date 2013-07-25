@@ -1,4 +1,4 @@
-_oprot.writeListBegin(new TList(TType.{{eltConstType}}, {{name}}.size))
+_oprot.writeListBegin(new TList(TType.{{eltWireConstType}}, {{name}}.size))
 {{name}}.foreach { {{eltName}} =>
 {{#eltReadWriteInfo}}
   {{>writeValue}}

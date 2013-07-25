@@ -35,6 +35,11 @@ trait StructTemplate {
       "isEnum" -> v(false),
       "isBase" -> v(false))
 
+  def genWireConstType(t: FunctionType): CodeFragment = t match {
+    case _: EnumType => codify("I32")
+    case _ => genConstType(t)
+  }
+
   def readWriteInfo[T <: FieldType](sid: SimpleID, t: FieldType): Dictionary = {
     t match {
       case t: ListType =>
@@ -44,6 +49,7 @@ trait StructTemplate {
             "name" -> genID(sid),
             "eltName" -> genID(elt),
             "eltConstType" -> genConstType(t.eltType),
+            "eltWireConstType" -> genWireConstType(t.eltType),
             "eltType" -> genType(t.eltType),
             "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
           )))
@@ -54,6 +60,7 @@ trait StructTemplate {
             "name" -> genID(sid),
             "eltName" -> genID(elt),
             "eltConstType" -> genConstType(t.eltType),
+            "eltWireConstType" -> genWireConstType(t.eltType),
             "eltType" -> genType(t.eltType),
             "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
           )))
@@ -64,7 +71,9 @@ trait StructTemplate {
           "isMap" -> v(Dictionary(
             "name" -> genID(sid),
             "keyConstType" -> genConstType(t.keyType),
+            "keyWireConstType" -> genWireConstType(t.keyType),
             "valueConstType" -> genConstType(t.valueType),
+            "valueWireConstType" -> genWireConstType(t.valueType),
             "keyType" -> genType(t.keyType),
             "valueType" -> genType(t.valueType),
             "keyName" -> genID(key),

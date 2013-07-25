@@ -158,6 +158,43 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         val field = prot.readFieldBegin()
         field.`type` mustEqual TType.I32
       }
+
+      "be identified as I32 on the wire for collections" in {
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        val eStruct = EnumCollections(
+          aMap = Map(NumberID.One -> NumberID.Two),
+          aList = List(NumberID.One),
+          aSet = Set(NumberID.One))
+
+        EnumCollections.encode(eStruct, prot)
+        EnumCollections.decode(prot) mustEqual eStruct
+
+        EnumCollections.encode(eStruct, prot)
+
+        prot.readStructBegin()
+
+        // Test Map encoding
+        prot.readFieldBegin()
+        val mapField = prot.readMapBegin()
+        mapField.keyType mustEqual TType.I32
+        mapField.valueType mustEqual TType.I32
+        prot.readI32(); prot.readI32()
+        prot.readMapEnd()
+        prot.readFieldEnd()
+
+        // Test List encoding
+        prot.readFieldBegin()
+        val listField = prot.readListBegin()
+        listField.elemType mustEqual TType.I32
+        prot.readI32()
+        prot.readListEnd()
+        prot.readFieldEnd()
+
+        // Test Set encoding
+        prot.readFieldBegin()
+        val setField = prot.readSetBegin()
+        setField.elemType mustEqual TType.I32
+      }
     }
 
     "generate constants" in {
