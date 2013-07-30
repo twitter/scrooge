@@ -1,0 +1,44 @@
+{{#consolidate_newlines}}
+{{#field_type.is_struct}}
+{{name}} = new {{{field_type.type_name}}}();
+{{name}}.read(iprot);
+{{/field_type.is_struct}}
+
+{{#field_type.is_container}}
+{
+T{{field_type.get_type}} {{obj}} = iprot.read{{field_type.get_type}}Begin();
+{{name}} = new {{{field_type.init_type_name}}}({{^field_type.is_list}}2*{{/field_type.is_list}}{{obj}}.size);
+for (int {{tmp_i}} = 0; {{tmp_i}} < {{obj}}.size; ++{{tmp_i}})
+{
+
+  {{#deserialize_map_element}}
+  {{{key_type.type_name}}} {{tmp_key}};
+  {{{val_type.type_name}}} {{tmp_val}};
+
+  {{{deserialize_key}}}
+  {{{deserialize_val}}}
+
+  {{name}}.put({{tmp_key}}, {{tmp_val}});
+  {{/deserialize_map_element}}
+
+  {{#deserialize_set_or_list_element}}
+  {{{elem_type.type_name}}} {{tmp_elem}};
+
+  {{{deserialize_elem}}}
+
+  {{name}}.add({{tmp_elem}});
+  {{/deserialize_set_or_list_element}}
+
+}
+iprot.read{{field_type.get_type}}End();
+}
+{{/field_type.is_container}}
+
+{{#field_type.is_base_type_or_binary}}
+{{name}} = iprot.read{{field_type.get_type}}();
+{{/field_type.is_base_type_or_binary}}
+
+{{#field_type.is_enum}}
+{{name}} = {{{field_type.type_name_in_container}}}.findByValue(iprot.readI32());
+{{/field_type.is_enum}}
+{{/consolidate_newlines}}

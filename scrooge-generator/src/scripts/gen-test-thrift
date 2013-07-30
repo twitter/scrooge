@@ -1,0 +1,70 @@
+#!/bin/bash
+
+args=("$@")
+cp=${args[0]}
+out=${args[1]}
+
+if [[ -n "${args[2]}" ]]; then
+  cd "${args[2]}"
+fi
+
+javaNamespace="-n thrift.test=thrift.java_test
+-n thrift.test1=thrift.java_test1
+-n thrift.test2=thrift.java_test2
+-n thrift.def.default=thrift.java_def.default
+-n foo=java_foo
+-n bar=java_bar
+-n com.fake=com.java_fake
+-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_java
+--default-java-namespace java_thrift"
+
+javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l experimental-java $javaNamespace"
+scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l scala"
+
+echo "Running Scrooge on relative/"
+dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`
+$javaRun $dependency_thrifts
+$scalaRun $dependency_thrifts
+importArg="-i src/test/thrift/relative/dir2:src/test/thrift/relative/include3.jar"
+$javaRun $importArg src/test/thrift/relative/candy.thrift
+$scalaRun $importArg src/test/thrift/relative/candy.thrift
+
+airport_thrifts=`find src/test/thrift/airport -name *.thrift`
+
+echo "Running Scrooge on airport/ for Finagle usage"
+$scalaRun $airport_thrifts
+$javaRun $airport_thrifts
+
+echo "Running Scrooge on airport/ for vanilla usage"
+vanillaNamespace="-n thrift.test=vanilla.test
+-n thrift.test1=vanilla.test1
+-n thrift.test2=vanilla.test2"
+
+javaVanillaNamespace="-n thrift.test=vanilla_java.test
+-n thrift.test1=vanilla_java.test1
+-n thrift.test2=vanilla_java.test2"
+
+scalaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l scala $vanillaNamespace"
+javaVanillaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l experimental-java $javaVanillaNamespace"
+$scalaVanillaRun $airport_thrifts
+$javaVanillaRun $airport_thrifts
+
+echo "Running Scrooge on namespace/ with bar and java_bar as default namespace"
+namespace_thrifts=`find src/test/thrift/namespace -name *.thrift`
+$scalaRun --default-java-namespace bar $namespace_thrifts
+$javaRun --default-java-namespace java_bar $namespace_thrifts
+
+echo "Running Scrooge on integration/"
+integration_thrifts=`find src/test/thrift/integration -name *.thrift`
+$scalaRun -n thrift.test=com.twitter.scrooge.integration_scala --disable-strict $integration_thrifts
+$javaRun -n thrift.test=com.twitter.scrooge.integration_java --disable-strict $integration_thrifts
+
+echo "Running Scrooge on standalone/"
+standalone_thrifts=`find src/test/thrift/standalone -name *.thrift`
+$javaRun $standalone_thrifts
+$scalaRun $standalone_thrifts
+
+echo "Running Scrooge on passthrough.thrift"
+passthrough="src/test/thrift/passthrough.thrift"
+$scalaRun --enable-passthrough $passthrough
+$javaRun --enable-passthrough $passthrough

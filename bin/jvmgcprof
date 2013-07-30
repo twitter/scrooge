@@ -1,0 +1,54 @@
+#!/bin/bash
+
+root=$(
+  cd $(dirname $0)
+  cd ..
+  echo $PWD
+)
+
+install_dir=$root/.gcprof
+tarball=gcprof.tgz
+
+if [ "$(uname)" == 'Darwin' ]; then
+  export DYLD_LIBRARY_PATH=$install_dir:$DYLD_LIBRARY_PATH
+elif [ "$(uname)" == 'Linux' ]; then
+  export LD_LIBRARY_PATH=$install_dir:$LD_LIBRARY_PATH
+fi
+
+if [ ! -d $install_dir ]; then
+  tmp_tarball=/tmp/$tarball
+  curl https://svn.twitter.biz/maven/birdcage/$tarball > $tmp_tarball
+  mkdir -p $install_dir
+  cat $tmp_tarball | tar -C $install_dir -zxf -
+  rm -f $tmp_tarball
+fi
+
+flags=""
+
+while true
+do
+  case "$1" in
+  -p)
+    flags="$flags -Dgcprof.period=$2"
+    shift 2
+    ;;
+  -n)
+    flags="$flags -Dgcprof.nwork=$2"
+    shift 2
+    ;;
+  -no)
+    flags="$flags -Dgcprof.nostrichwork=$2"
+    shift 2
+    ;;
+  -w)
+    flags="$flags -Dgcprof.nwarmup=$2"
+    shift 2
+    ;;
+  *)
+    break
+  esac
+done
+
+java=$1; shift
+
+$java -Xbootclasspath/a:$install_dir -agentlib:gcprof $flags "$@"

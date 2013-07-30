@@ -1,0 +1,1 @@
+{{>qualifiedFieldType}}.decode(_iprot)

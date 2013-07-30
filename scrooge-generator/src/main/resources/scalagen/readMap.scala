@@ -1,0 +1,24 @@
+val _map = _iprot.readMapBegin()
+if (_map.size == 0) {
+  _iprot.readMapEnd()
+  Map.empty[{{keyType}}, {{valueType}}]
+} else {
+  val _rv = new mutable.HashMap[{{keyType}}, {{valueType}}]
+  var _i = 0
+  while (_i < _map.size) {
+    val _key = {
+  {{#keyReadWriteInfo}}
+      {{>readValue}}
+  {{/keyReadWriteInfo}}
+    }
+    val _value = {
+  {{#valueReadWriteInfo}}
+      {{>readValue}}
+  {{/valueReadWriteInfo}}
+    }
+    _rv(_key) = _value
+    _i += 1
+  }
+  _iprot.readMapEnd()
+  _rv
+}

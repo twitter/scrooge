@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./sbt "project scrooge-benchmark" compile
+bin/jvmgcprof -n com.twitter.scrooge.benchmark.CollectionsTest:i\
+  "bin/run scrooge-benchmark com.twitter.scrooge.benchmark.CollectionsTest"\
+  $@

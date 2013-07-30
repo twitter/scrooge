@@ -1,0 +1,1 @@
+{{name}}.write(_oprot)

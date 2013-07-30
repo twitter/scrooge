@@ -1,0 +1,10 @@
+public static final Map<_Fields, FieldMetaData> metaDataMap;
+static {
+  Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+  {{#fields}}
+  tmpMap.put(_Fields.{{#constant_name}}{{name}}{{/constant_name}}, new FieldMetaData("{{name}}", {{field.requirement}},
+    {{{field_metadata}}}));
+  {{/fields}}
+  metaDataMap = Collections.unmodifiableMap(tmpMap);
+  FieldMetaData.addStructMetaDataMap({{name}}.class, metaDataMap);
+}
