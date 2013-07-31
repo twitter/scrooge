@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Maven Plugin &mdash; Scrooge 3.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Scrooge 3.3.2 documentation" href="index.html" />
+    <link rel="next" title="Command Line" href="CommandLine.html" />
+    <link rel="prev" title="SBT Plugin" href="SBTPlugin.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="CommandLine.html" title="Command Line"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SBTPlugin.html" title="SBT Plugin"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Scrooge</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="maven-plugin">
+<h1>Maven Plugin<a class="headerlink" href="#maven-plugin" title="Permalink to this headline">¶</a></h1>
+<p>Depending on the options used to generate the code, a few dependencies
+need to be declared.</p>
+<div class="highlight-text"><div class="highlight"><pre>&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.thrift&lt;/groupId&gt;
+  &lt;artifactId&gt;libthrift&lt;/artifactId&gt;
+  &lt;version&gt;0.8.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
+  &lt;artifactId&gt;scrooge-runtime_2.9.2&lt;/artifactId&gt;
+  &lt;version&gt;3.3.2&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- needed if the &quot;--finagle&quot; flag is provided --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
+  &lt;artifactId&gt;finagle-thrift_2.9.2&lt;/artifactId&gt;
+  &lt;version&gt;6.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- needed if the &quot;--ostrich&quot; flag is provided --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
+  &lt;artifactId&gt;finagle-ostrich4_2.9.2&lt;/artifactId&gt;
+  &lt;version&gt;6.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+</pre></div>
+</div>
+<p>In order to generate code with the maven plugin the following plugin
+configuration will need to be added to the build/plugins section of your
+pom.xml file.</p>
+<div class="highlight-text"><div class="highlight"><pre>&lt;plugin&gt;
+  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
+  &lt;artifactId&gt;scrooge-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.3.2&lt;/version&gt;
+  &lt;configuration&gt;
+    &lt;thriftNamespaceMappings&gt;
+      &lt;thriftNamespaceMapping&gt;
+        &lt;from&gt;com.twitter.demo&lt;/from&gt;
+        &lt;to&gt;com.twitter.mydemo.renamed&lt;/to&gt;
+      &lt;/thriftNamespaceMapping&gt;
+    &lt;/thriftNamespaceMappings&gt;
+    &lt;language&gt;scala&lt;/language&gt; &lt;!-- default is scala --&gt;
+    &lt;thriftOpts&gt;
+      &lt;!-- add other Scrooge command line options using thriftOpts --&gt;
+      &lt;thriftOpt&gt;--finagle&lt;/thriftOpt&gt;
+      &lt;thriftOpt&gt;--ostrich&lt;/thriftOpt&gt;
+    &lt;/thriftOpts&gt;
+    &lt;!-- tell scrooge to extract thrifts from these artifacts --&gt;
+    &lt;dependencyIncludes&gt;
+      &lt;include&gt;event-logger-thrift&lt;/include&gt;
+    &lt;/dependencyIncludes&gt;
+  &lt;/configuration&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;thrift-sources&lt;/id&gt;
+      &lt;phase&gt;generate-sources&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;compile&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+    &lt;execution&gt;
+      &lt;id&gt;thrift-test-sources&lt;/id&gt;
+      &lt;phase&gt;generate-test-sources&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;testCompile&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><a href="index.html"><h3>Scrooge</h3></a>
+<p>
+  Scrooge is a general purpose thrift parser/generator
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="http://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
+  <li><a href="http://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
+</ul><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="SBTPlugin.html" title="previous chapter">SBT Plugin</a></li>
+      <li>Next: <a href="CommandLine.html" title="next chapter">Command Line</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Search the contents of this site.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013 Twitter, Inc.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>
