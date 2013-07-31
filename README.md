@@ -18,31 +18,8 @@ syntax so the generated code is much more compact.
 There is a fairly comprehensive set of unit tests, which actually generate
 code, compile it, and execute it to verify expectations.
 
-There are two sub-projects:
-
-- scrooge-generator: the code generator
-- scrooge-runtime: some base traits used by the generated code
-
-
-## Features
-
-- Generates native Scala thrift codecs, in immutable and "builder" variants,
-  using case classes and functions.
-
-- Generated code is templated using a mustache variant, making it easy to
-  edit.
-
-- Finagle client/server adaptors, and Ostrich wrappers, can be optionally
-  generated at the same time.
-
-
-## Building Scrooge
-
-To build scrooge, use sbt:
-
-    $ ./sbt +publish-local
-
-## Runtime dependency
+Quick-start
+-----------
 
 There are a couple of classes needed by the generated code. These have been
 moved out of scrooge into a separate jar to keep dependencies small.
@@ -58,91 +35,19 @@ SBT users need this:
 
     val scrooge_runtime = "com.twitter" %% "scrooge-runtime" % "3.3.2"
 
-## Running Scrooge as a command line tool
+Full Documentation
+------------------
 
-To get command line help:
+<http://twitter.github.io/scrooge/>
 
-    $ scrooge --help
 
-To generate source with content written to the current directory:
 
-    $ scrooge <thrift-file1> [<thrift-file2> ...]
+## Building Scrooge
 
-To generate source with content written to a specified directory, using
-extra include paths, rebuilding only those files that have changed:
+To build scrooge, use sbt:
 
-    $ scrooge
-      -d <target-dir>
-      -i <include-path>
-      -s
-      <thrift-file1> [<thrift-file2> ...]
+    $ ./sbt +publish-local
 
-A complete command line help menu:
-
-    Usage: scrooge [options] <files...>
-
-      --help
-            show this help screen
-      -V | --version
-            print version and quit
-      -v | --verbose
-            log verbose messages about progress
-      -d <path> | --dest <path>
-            write generated code to a folder (default: .)
-      -i <path> | --import-path <path>
-            path(s) to search for imported thrift files (may be used multiple times)
-      -n <oldname>=<newname> | --namespace-map <oldname>=<newname>
-            map old namespace to new (may be used multiple times)
-      --disable-strict
-            issue warnings on non-severe parse errors instead of aborting
-      -s | --skip-unchanged
-            Don't re-generate if the target is newer than the input
-      -l <value> | --language <value>
-            name of language to generate code in ('Java' and 'Scala' are currently supported)
-      --finagle
-            generate finagle classes
-      --ostrich
-            generate ostrich server interface
-      <files...>
-            thrift files to compile
-
-## SBT Plugin
-
-Add a line like this to your `plugins.sbt` file:
-
-    addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "3.1.5")
-
-In your `build.sbt` file:
-
-    com.twitter.scrooge.ScroogeSBT.newSettings
-
-    libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.twitter" %% "scrooge-runtime" % "3.3.2",
-      "com.twitter" %% "finagle-thrift" % "6.4.0"
-    )
-
-### SBT Configuration
-
-A full list of settings is in the (only) source file. Here are the ones you're
-most likely to want to edit:
-
-- `scroogeBuildOptions: Seq[String]`
-
-  list of command-line arguments to pass to scrooge (default:
-  `Seq("--finagle", "--verbose")`)
-
-- `scroogeThriftIncludeFolders: Seq[File]`
-
-  list of folders to search when processing "include" directives (default: none)
-
-- `scroogeThriftSourceFolder: File`
-
-  where to find thrift files to compile (default: `src/main/thrift/`)
-
-- `scroogeThriftOutputFolder: File`
-
-  where to put the generated scala files (default: `target/<scala-ver>/src_managed`)
 
 ## Maven Plugin
 We ship a [scrooge-maven-plugin](https://github.com/twitter/scrooge/tree/master/scrooge-maven-plugin) with Scrooge,

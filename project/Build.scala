@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.site.SphinxSupport.Sphinx
 
 object Scrooge extends Build {
   val scroogeVersion = "3.3.2"
@@ -228,4 +230,28 @@ object Scrooge extends Build {
       "com.google.caliper" % "caliper" % "0.5-rc1"
     )
   ).dependsOn(scroogeGenerator, scroogeRuntime)
+
+  lazy val scroogeDoc = Project(
+    id = "scrooge-doc",
+    base = file("doc"),
+    settings =
+      Project.defaultSettings ++
+      sharedSettings ++
+      site.settings ++
+      site.sphinxSupport() ++
+      Seq(
+        scalacOptions in doc <++= (version).map(v => Seq("-doc-title", "Scrooge", "-doc-version", v)),
+        includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
+      )
+    ).configs(DocTest).settings(
+      inConfig(DocTest)(Defaults.testSettings): _*
+    ).settings(
+      unmanagedSourceDirectories in DocTest <+= baseDirectory { _ / "src/sphinx/code" },
+
+      // Make the "test" command run both, test and doctest:test
+      test <<= Seq(test in Test, test in DocTest).dependOn
+    )
+
+  /* Test Configuration for running tests on doc sources */
+  lazy val DocTest = config("testdoc") extend(Test)
 }
