@@ -371,7 +371,7 @@ class ThriftParser(
       throw new FileNotFoundException(filename)
     }
 
-    val newParser = new ThriftParser(contents.importer, this.strict, defaultOptional)
+    val newParser = new ThriftParser(contents.importer, this.strict, defaultOptional, allowOneways)
     newParser.parse(contents.data, newParser.document, Some(filename))
   }
 
