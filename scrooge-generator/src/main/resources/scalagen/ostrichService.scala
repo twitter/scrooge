@@ -3,6 +3,8 @@ trait ThriftServer extends Service with FutureIface {
 
   def thriftCodec = ThriftServerFramedCodec()
   def statsReceiver: StatsReceiver = new OstrichStatsReceiver
+  def tracer: Tracer = tracerFactory()
+  @deprecated("use tracer instead", "3.3.3")
   def tracerFactory: Tracer.Factory = NullTracer.factory
   val thriftProtocolFactory: TProtocolFactory = new TBinaryProtocol.Factory()
   val thriftPort: Int
@@ -28,9 +30,7 @@ trait ThriftServer extends Service with FutureIface {
       .name(serverName)
       .reportTo(statsReceiver)
       .bindTo(new InetSocketAddress(thriftPort))
-      // TODO: once everyone in Twitter is on Finagle 6+, change this to
-      // .tracer(tracerFactory())
-      .tracerFactory(tracerFactory)
+      .tracer(tracer)
 
   /**
    * Close the underlying server gracefully with the given grace
