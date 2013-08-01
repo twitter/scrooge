@@ -10,6 +10,6 @@ case object NullLiteral extends Literal
 
 case class ListRHS(elems: Seq[RHS]) extends RHS
 case class SetRHS(elems: Set[RHS]) extends RHS
-case class MapRHS(elems: Map[RHS, RHS]) extends RHS
+case class MapRHS(elems: Seq[(RHS, RHS)]) extends RHS
 case class EnumRHS(enum: Enum, value: EnumField) extends RHS
 case class IdRHS(id: Identifier) extends RHS

@@ -24,7 +24,7 @@ class ThriftParserSpec extends SpecificationWithJUnit {
       list must haveClass[ListRHS]
       list.asInstanceOf[ListRHS].elems.toList mustEqual List(IntLiteral(4), IntLiteral(5))
       parser.parse("{ 'name': 'Commie', 'home': 'San Francisco' }",
-        parser.rhs) mustEqual MapRHS(Map(StringLiteral("name") -> StringLiteral
+        parser.rhs) mustEqual MapRHS(Seq(StringLiteral("name") -> StringLiteral
         ("Commie"), StringLiteral("home") -> StringLiteral("San Francisco")))
     }
 

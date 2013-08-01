@@ -65,6 +65,14 @@ class ApacheJavaGeneratorSpec extends SpecificationWithJUnit with Mockito {
       verify(sw, getFileContents("apache_output/consts.txt"))
     }
 
+    "populate const map" in {
+      val doc = generateDoc(getFileContents("test_thrift/constant_map.thrift"))
+      val generator = getGenerator(doc, genHashcode = true)
+      val controller = new ConstController(doc.consts, generator, doc.namespace("java"))
+      val sw = renderMustache("consts.mustache", controller)
+      verify(sw, getFileContents("apache_output/constant_map.txt"))
+    }
+
     "generate struct" in {
       val doc = generateDoc(getFileContents("test_thrift/struct.thrift"))
       val controller = new StructController(doc.structs(1), false, getGenerator(doc), doc.namespace("java"))

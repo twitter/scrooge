@@ -137,9 +137,9 @@ class ThriftParser(
 
   def mapRHS = "{" ~> repsep(rhs ~ ":" ~ rhs, listSeparator) <~ "}" ^^ {
     list =>
-      MapRHS(Map(list.map {
+      MapRHS(list.map {
         case k ~ x ~ v => (k, v)
-      }: _*))
+      })
   }
 
   def idRHS = identifier ^^ {
