@@ -86,11 +86,6 @@ object Scrooge extends Build {
         case x => x
       },
       "junit" % "junit" % "4.8.1" % "test",
-      "com.novocode" % "junit-interface" % "0.8" % "test->default",
-      "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
-      "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
-      "com.google.code.findbugs" % "jsr305" % "1.3.9",
-      "commons-cli" % "commons-cli" % "1.2"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
@@ -165,6 +160,11 @@ object Scrooge extends Build {
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.8.0",
       "com.github.scopt" %% "scopt" % "2.1.0",
+      "com.novocode" % "junit-interface" % "0.8" % "test->default",
+      "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
+      "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
+      "com.google.code.findbugs" % "jsr305" % "1.3.9",
+      "commons-cli" % "commons-cli" % "1.2",
       finagle("core") % "test",
       finagle("thrift") % "test",
       finagle("ostrich4") % "test"
