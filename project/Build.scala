@@ -85,7 +85,7 @@ object Scrooge extends Build {
         case "2.10.0" => "2.10"
         case x => x
       },
-      "junit" % "junit" % "4.8.1" % "test",
+      "junit" % "junit" % "4.8.1" % "test"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
