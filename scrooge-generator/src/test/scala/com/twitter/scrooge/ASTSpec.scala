@@ -61,7 +61,8 @@ class ASTSpec extends SpecificationWithJUnit {
       "genhtmlreport" -> ("genhtmlreport", "Genhtmlreport"),
       "genHtmlReport" -> ("genHtmlReport", "GenHtmlReport"),
       "_genHtmlReport" -> ("_genHtmlReport", "_GenHtmlReport"),
-      "__genHtmlReport" -> ("__genHtmlReport", "__GenHtmlReport")
+      "__genHtmlReport" -> ("__genHtmlReport", "__GenHtmlReport"),
+      "WITH_NUMBER0" -> ("withNumber0", "WithNumber0")
     )
     "camel case conversion" in {
       simpleCases foreach {
