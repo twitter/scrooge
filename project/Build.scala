@@ -143,7 +143,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       sharedSettings
   ).aggregate(
-    scroogeGenerator, scroogeRuntime, scroogeSbtPlugin
+    scroogeGenerator, scroogeRuntime, scroogeSerializer, scroogeSbtPlugin
   )
 
   lazy val scroogeGenerator = Project(
@@ -179,12 +179,24 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-runtime",
     libraryDependencies ++= Seq(
-      util("codec"),
       finagle("core"),
       finagle("thrift"),
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
     )
   )
+
+  lazy val scroogeSerializer = Project(
+    id = "scrooge-serializer",
+    base = file("scrooge-serializer"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-serializer",
+    libraryDependencies ++= Seq(
+      util("codec"),
+      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+    )
+  ).dependsOn(scroogeRuntime)
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",

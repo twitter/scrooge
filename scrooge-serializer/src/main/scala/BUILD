@@ -1,0 +1,9 @@
+scala_library(name='scala',
+  dependencies=[
+    pants('3rdparty:commons-codec'),
+    pants('util/util-codec'),
+    pants('util/util-core'),
+    pants('scrooge/scrooge-runtime')
+  ],
+  sources=rglobs('*.scala'),
+)

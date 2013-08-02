@@ -21,5 +21,6 @@
     <module>scrooge-benchmark</module>
     <module>scrooge-generator</module>
     <module>scrooge-runtime</module>
+    <module>scrooge-serializer</module>
   </modules>
 </project>
