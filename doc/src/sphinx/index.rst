@@ -73,3 +73,12 @@ User's guide
    SBTPlugin
    MVNPlugin
    CommandLine
+
+Notes
+-----
+
+.. toctree::
+   :maxdepth: 2
+
+   changelog
+   license
