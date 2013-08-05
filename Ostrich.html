@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SBT Plugin &mdash; Scrooge 3.3.2 documentation</title>
+    <title>Ostrich Integration &mdash; Scrooge 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Scrooge 3.3.2 documentation" href="index.html" />
-    <link rel="next" title="Maven Plugin" href="MVNPlugin.html" />
-    <link rel="prev" title="Scrooge" href="index.html" />
+    <link rel="next" title="Dependencies of the generated code" href="CodeGenDep.html" />
+    <link rel="prev" title="Finagle Integration" href="Finagle.html" />
    
   
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
@@ -43,10 +43,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="MVNPlugin.html" title="Maven Plugin"
+          <a href="CodeGenDep.html" title="Dependencies of the generated code"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Scrooge"
+          <a href="Finagle.html" title="Finagle Integration"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Scrooge</a> &raquo;</li> 
       </ul>
@@ -57,62 +57,40 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="sbt-plugin">
-<h1>SBT Plugin<a class="headerlink" href="#sbt-plugin" title="Permalink to this headline">¶</a></h1>
-<p>Add a line like this to your <cite>project/plugins.sbt</cite> file:</p>
-<div class="highlight-text"><div class="highlight"><pre>addSbtPlugin(&quot;com.twitter&quot; %% &quot;scrooge-sbt-plugin&quot; % &quot;3.3.2&quot;)
-</pre></div>
-</div>
-<p>In your <cite>build.sbt</cite> file:</p>
-<div class="highlight-text"><div class="highlight"><pre>com.twitter.scrooge.ScroogeSBT.newSettings
+  <div class="section" id="ostrich-integration">
+<h1>Ostrich Integration<a class="headerlink" href="#ostrich-integration" title="Permalink to this headline">¶</a></h1>
+<p><strong>NOTE This is deprecated</strong></p>
+<p>If you pass the &#8220;&#8211;ostrich&#8221; option, Scrooge will generate a convenience
+wrapper ThriftServer. Following the BinaryService example:</p>
+<div class="highlight-text"><div class="highlight"><pre>import com.twitter.ostrich.admin.Service
+object BinaryService {
+  trait Iface { ... }
+  trait FutureIface  { ... }
+  trait ThriftServer extends Service with FutureIface {
+    val thriftPort: Int
+    val serverName: String
 
-libraryDependencies ++= Seq(
-  &quot;org.apache.thrift&quot; % &quot;libthrift&quot; % &quot;0.8.0&quot;,
-  &quot;com.twitter&quot; %% &quot;scrooge-runtime&quot; % &quot;3.3.2&quot;,
-  &quot;com.twitter&quot; %% &quot;finagle-thrift&quot; % &quot;6.5.0&quot;
-)
-</pre></div>
-</div>
-<p>or, in your <cite>project/Build.scala</cite> file:</p>
-<div class="highlight-text"><div class="highlight"><pre>import com.twitter.scrooge.ScroogeSBT
+    //You can override serverBuilder to provide additional configuration.
+    def serverBuilder = ...
 
-lazy val myProject = Project(
-  id = &quot;my-project&quot;,
-  settings = Project.defaultSettings ++
-    ScroogeSBT.newSettings
-).settings(
-  libraryDependencies ++= Seq(
-    &quot;org.apache.thrift&quot; % &quot;libthrift&quot; % &quot;0.8.0&quot;,
-    &quot;com.twitter&quot; %% &quot;scrooge-runtime&quot; % &quot;3.3.2&quot;,
-    &quot;com.twitter&quot; %% &quot;finagle-thrift&quot; % &quot;6.5.0&quot;
-  )
-)
+    // Ostrich interface implementation is generated. It operates on the server built by serverBuilder.
+    def start() { ... }
+    def shutdown() { ... }
+  }
+}
 </pre></div>
 </div>
-<p><strong>Configuration Options</strong></p>
-<p>A full list of settings is in the (only) source file. Here are the ones you&#8217;re
-most likely to want to edit:</p>
-<ul>
-<li><p class="first"><strong>scroogeBuildOptions: Seq[String]</strong></p>
-<p>list of command-line arguments to pass to scrooge
-(default: <cite>Seq(&#8220;&#8211;finagle&#8221;, &#8220;&#8211;verbose&#8221;)</cite>)</p>
-</li>
-<li><p class="first"><strong>scroogeThriftDependencies: Seq[String]</strong></p>
-<p>artifacts to extract and compile thrift files from</p>
-</li>
-<li><p class="first"><strong>scroogeThriftIncludeFolders: Seq[File]</strong></p>
-<p>list of folders to search when processing &#8220;include&#8221; directives
-(default: none)</p>
-</li>
-<li><p class="first"><strong>scroogeThriftSourceFolder: File</strong></p>
-<p>where to find thrift files to compile
-(default: <cite>src/main/thrift/</cite>)</p>
-</li>
-<li><p class="first"><strong>scroogeThriftOutputFolder: File</strong></p>
-<p>where to put the generated scala files
-(default: <cite>target/&lt;scala-ver&gt;/src_managed</cite>)</p>
-</li>
-</ul>
+<p>To use the generated code Ostrich server:</p>
+<div class="highlight-text"><div class="highlight"><pre>//First, you need to provide an implementation, as seen previously in the &quot;--finagle&quot; example
+class MyImpl extends BinaryService.FutureIface { ... }
+val ostrichServer = new MyImpl with ThriftServer {
+  // server configuration
+  val thriftPort = ..
+  val serverName = ..
+}
+ostrichServer.start()
+</pre></div>
+</div>
 </div>
 
 
@@ -132,8 +110,8 @@ most likely to want to edit:</p>
 </ul><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Scrooge</a></li>
-      <li>Next: <a href="MVNPlugin.html" title="next chapter">Maven Plugin</a></li>
+      <li>Previous: <a href="Finagle.html" title="previous chapter">Finagle Integration</a></li>
+      <li>Next: <a href="CodeGenDep.html" title="next chapter">Dependencies of the generated code</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none">
