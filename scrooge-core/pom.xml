@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.twitter</groupId>
-  <artifactId>scrooge-runtime</artifactId>
+  <artifactId>scrooge-core</artifactId>
   <packaging>jar</packaging>
   <version>3.3.3-SNAPSHOT</version>
   <parent>
@@ -15,17 +15,11 @@
     <git.dir>${project.basedir}/../../.git</git.dir>
   </properties>
   <dependencies>
-    <!-- library dependencies -->
-    <!-- project dependencies -->
     <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>scrooge-core</artifactId>
-      <version>3.3.3-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>finagle-thrift</artifactId>
-      <version>6.5.3-SNAPSHOT</version>
+      <groupId>org.apache.thrift</groupId>
+      <artifactId>libthrift</artifactId>
+      <version>0.8.0</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

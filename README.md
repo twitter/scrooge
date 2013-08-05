@@ -26,13 +26,13 @@ Maven users need to add the following to the pom.xml file:
 
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-runtime_2.9.2</artifactId>
+      <artifactId>scrooge-core_2.9.2</artifactId>
       <version>3.3.2</version>
     </dependency>
 
 SBT users need this:
 
-    val scrooge_runtime = "com.twitter" %% "scrooge-runtime" % "3.3.2"
+    val scroogeCore = "com.twitter" %% "scrooge-core" % "3.3.2"
 
 ## Full Documentation
 

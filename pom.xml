@@ -18,6 +18,7 @@
     </snapshotRepository>
   </distributionManagement>
   <modules>
+    <module>scrooge-core</module>
     <module>scrooge-benchmark</module>
     <module>scrooge-generator</module>
     <module>scrooge-runtime</module>
