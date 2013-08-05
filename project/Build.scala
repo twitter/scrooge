@@ -4,7 +4,7 @@ import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 
 object Scrooge extends Build {
-  val scroogeVersion = "3.3.2"
+  val libVersion = "3.3.2"
   val utilVersion = "6.3.8"
   val finagleVersion = "6.5.2"
 
@@ -64,7 +64,7 @@ object Scrooge extends Build {
   )
 
   val sharedSettings = Seq(
-    version := scroogeVersion,
+    version := libVersion,
     organization := "com.twitter",
     crossScalaVersions := Seq("2.9.2", "2.10.0"),
 
