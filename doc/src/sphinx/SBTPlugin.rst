@@ -38,8 +38,7 @@ or, in your `project/Build.scala` file:
     )
 
 
-Configuration Options
----------------------
+**Configuration Options**
 
 A full list of settings is in the (only) source file. Here are the ones you're
 most likely to want to edit:

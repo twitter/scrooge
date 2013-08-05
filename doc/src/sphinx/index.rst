@@ -73,6 +73,10 @@ User's guide
    SBTPlugin
    MVNPlugin
    CommandLine
+   Finagle
+   Ostrich
+   CodeGenDep
+   Symantics
 
 Notes
 -----
