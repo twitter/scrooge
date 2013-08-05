@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.twitter.scrooge
+package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast._
 import scala.collection.mutable.ArrayBuffer

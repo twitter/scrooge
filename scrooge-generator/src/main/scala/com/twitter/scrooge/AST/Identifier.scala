@@ -1,7 +1,7 @@
 package com.twitter.scrooge.ast
 
 import scala.collection.mutable
-import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.frontend.ScroogeInternalException
 
 sealed abstract class Identifier extends IdNode {
   // It was intentional not to override toString. Instead, use

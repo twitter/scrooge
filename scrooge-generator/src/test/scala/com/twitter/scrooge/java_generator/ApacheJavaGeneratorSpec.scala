@@ -1,14 +1,13 @@
 package com.twitter.scrooge.java_generator
 
 import org.specs.SpecificationWithJUnit
-import com.twitter.scrooge.frontend.{NullImporter, ThriftParser}
+import com.twitter.scrooge.frontend.{TypeResolver, NullImporter, ThriftParser}
 import java.io._
 import com.github.mustachejava.DefaultMustacheFactory
 import com.twitter.mustache.ScalaObjectHandler
 import org.specs.mock.Mockito
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
-import com.twitter.scrooge.TypeResolver
 import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 

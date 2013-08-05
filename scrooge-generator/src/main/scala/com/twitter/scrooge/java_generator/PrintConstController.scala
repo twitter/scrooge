@@ -1,7 +1,7 @@
 package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.frontend.ScroogeInternalException
 
 // The rendered represents what gets printed to the output stream.  value is what render_const_value returns
 class ConstValue(val rendered: String, val value: String)

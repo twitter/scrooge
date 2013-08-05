@@ -2,7 +2,7 @@ package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.ast.ListType
-import com.twitter.scrooge.ScroogeInternalException
+import com.twitter.scrooge.frontend.ScroogeInternalException
 
 class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerator) {
   def to_enum = generator.getTypeString(fieldType)

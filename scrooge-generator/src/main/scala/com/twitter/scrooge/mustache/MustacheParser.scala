@@ -17,7 +17,7 @@
 package com.twitter.scrooge.mustache
 
 import scala.util.parsing.combinator._
-import com.twitter.scrooge.ParseException
+import com.twitter.scrooge.frontend.ParseException
 
 object MustacheAST {
   case class Template(segments: Seq[Segment])

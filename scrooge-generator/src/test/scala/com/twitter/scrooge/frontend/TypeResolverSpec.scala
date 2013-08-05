@@ -1,7 +1,8 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.frontend
 
 import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.ast._
+
 class TypeResolverSpec extends SpecificationWithJUnit {
   "TypeResolve" should {
     val foo = EnumField(SimpleID("FOO"), 1, None)

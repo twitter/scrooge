@@ -18,7 +18,7 @@ package com.twitter.scrooge.mustache
 
 import MustacheAST._
 import org.specs.SpecificationWithJUnit
-import com.twitter.scrooge.ParseException
+import com.twitter.scrooge.frontend.ParseException
 
 class ParserSpec extends SpecificationWithJUnit {
   "Parser" should {

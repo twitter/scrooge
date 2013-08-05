@@ -17,8 +17,8 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.mustache.Dictionary._
+import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 object ScalaGeneratorFactory extends GeneratorFactory {
   val lang = "scala"

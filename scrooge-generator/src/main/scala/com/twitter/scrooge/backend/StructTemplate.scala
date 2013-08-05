@@ -18,8 +18,8 @@ package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
-import com.twitter.scrooge.ScroogeInternalException
 import com.twitter.scrooge.mustache.Dictionary._
+import com.twitter.scrooge.frontend.ScroogeInternalException
 
 trait StructTemplate {
   self: Generator =>

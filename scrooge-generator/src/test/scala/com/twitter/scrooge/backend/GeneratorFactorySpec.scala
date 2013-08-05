@@ -1,7 +1,7 @@
 package com.twitter.scrooge.backend
 
-import com.twitter.scrooge.ResolvedDocument
 import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.frontend.ResolvedDocument
 
 class TestGeneratorFactory extends GeneratorFactory {
   val lang = "test"

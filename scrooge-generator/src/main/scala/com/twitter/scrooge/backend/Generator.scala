@@ -22,9 +22,9 @@ import com.twitter.conversions.string._
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
-import com.twitter.scrooge.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.java_generator.{ApacheJavaGeneratorFactory, ApacheJavaGenerator}
 import scala.collection.JavaConverters._
+import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 abstract sealed class ServiceOption
 

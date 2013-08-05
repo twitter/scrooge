@@ -19,7 +19,7 @@ package com.twitter.scrooge
 import scala.collection.mutable
 import java.io.{File, FileWriter}
 import com.twitter.scrooge.backend.{Generator, ServiceOption}
-import com.twitter.scrooge.frontend.{ThriftParser, Importer}
+import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
 import org.apache.commons.lang.time.FastDateFormat
 import java.util.Date
 

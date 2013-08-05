@@ -1,11 +1,9 @@
 package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.ScroogeInternalException
 import com.twitter.scrooge.ast._
 import com.github.mustachejava.{Mustache, DefaultMustacheFactory}
 import com.twitter.mustache.ScalaObjectHandler
 import java.io.{FileWriter, File, StringWriter}
-import com.twitter.scrooge.ResolvedDocument
 import com.twitter.scrooge.ast.EnumType
 import com.twitter.scrooge.ast.StructType
 import com.twitter.scrooge.ast.SetType
@@ -15,6 +13,7 @@ import com.twitter.scrooge.ast.ReferenceType
 import com.twitter.conversions.string._
 import scala.collection.mutable
 import com.twitter.scrooge.backend.{ScalaGenerator, GeneratorFactory, ThriftGenerator, ServiceOption}
+import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 object ApacheJavaGeneratorFactory extends GeneratorFactory {
   val lang = "java"
