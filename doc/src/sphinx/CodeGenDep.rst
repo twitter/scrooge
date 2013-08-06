@@ -33,12 +33,11 @@ If you specify --finagle option, you need to have the following additional depen
          <artifactId>finagle-thrift</artifactId>
        </dependency>
 
-If you specify --ostrich option, in addition to the above finagle dependencies, you
-still need:
+If you need ostrich support you will need:
 
 ::
 
        <dependency>
          <groupId>com.twitter</groupId>
-         <artifactId>finagle-ostrich4</artifactId>
+         <artifactId>scrooge-ostrich</artifactId>
        </dependency>

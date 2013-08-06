@@ -29,8 +29,7 @@ Features
 - Generated code is templated using a mustache variant, making it easy to
   edit.
 
-- Finagle client/server adaptors, and Ostrich wrappers, can be optionally
-  generated at the same time.
+- Finagle client/server adaptors can be optionally generated at the same time.
 
 - Has a plugable backend providing a dynamic way to add more generator targets.
 

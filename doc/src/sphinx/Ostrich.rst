@@ -1,28 +1,15 @@
 Ostrich Integration
 ===================
 
-**NOTE This is deprecated**
+**NOTE: Ostrich is on the path to deprecation. Please use TwitterServer and the Finagle 6 APIs instead**
 
-If you pass the "--ostrich" option, Scrooge will generate a convenience
-wrapper ThriftServer. Following the BinaryService example:
+To use the deprecated ostrich integration
 
 ::
 
-    import com.twitter.ostrich.admin.Service
     object BinaryService {
       trait Iface { ... }
       trait FutureIface  { ... }
-      trait ThriftServer extends Service with FutureIface {
-        val thriftPort: Int
-        val serverName: String
-
-        //You can override serverBuilder to provide additional configuration.
-        def serverBuilder = ...
-
-        // Ostrich interface implementation is generated. It operates on the server built by serverBuilder.
-        def start() { ... }
-        def shutdown() { ... }
-      }
     }
 
 To use the generated code Ostrich server:
@@ -30,8 +17,9 @@ To use the generated code Ostrich server:
 ::
 
     //First, you need to provide an implementation, as seen previously in the "--finagle" example
+    import com.twitter.scrooge.OstrichThriftServer
     class MyImpl extends BinaryService.FutureIface { ... }
-    val ostrichServer = new MyImpl with ThriftServer {
+    val ostrichServer = new OstrichThriftServer with MyImpl {
       // server configuration
       val thriftPort = ..
       val serverName = ..
