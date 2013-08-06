@@ -1,0 +1,11 @@
+scala_library(name='scala',
+  dependencies=[
+    pants('3rdparty:libthrift-0.5.0'),
+    pants('finagle/finagle-core'),
+    pants('finagle/finagle-ostrich4'),
+    pants('finagle/finagle-thrift'),
+    pants('scrooge/scrooge-runtime'),
+    pants('util/util-core')
+  ],
+  sources=rglobs('*.scala'),
+)

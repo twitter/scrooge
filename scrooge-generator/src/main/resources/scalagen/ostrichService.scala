@@ -1,3 +1,4 @@
+@deprecated("long-term, use twitter-server, short term, use com.twitter.scrooge.OstrichThriftServer", "3.3.3")
 trait ThriftServer extends Service with FutureIface {
   val log = Logger.get(getClass)
 
