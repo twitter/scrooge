@@ -68,16 +68,6 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NumberID.valueOf("Ten") must beNone
       }
 
-      "correct list" in {
-        NumberID.list(0) mustEqual NumberID.One
-        NumberID.list(1) mustEqual NumberID.Two
-        NumberID.list(2) mustEqual NumberID.Three
-        NumberID.list(3) mustEqual NumberID.Five
-        NumberID.list(4) mustEqual NumberID.Six
-        NumberID.list(5) mustEqual NumberID.Eight
-        NumberID.list.size mustEqual 6
-      }
-
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
