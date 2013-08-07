@@ -4,7 +4,7 @@ import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 
 object Scrooge extends Build {
-  val libVersion = "3.3.2"
+  val libVersion = "3.4.0"
   val utilVersion = "6.3.8"
   val finagleVersion = "6.5.2"
 
@@ -143,7 +143,9 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       sharedSettings
   ).aggregate(
-    scroogeGenerator, scroogeCore, scroogeRuntime, scroogeSerializer, scroogeSbtPlugin
+    scroogeGenerator, scroogeCore,
+    scroogeRuntime, scroogeSerializer, scroogeOstrich,
+    scroogeSbtPlugin
   )
 
   lazy val scroogeGenerator = Project(
@@ -194,6 +196,18 @@ object Scrooge extends Build {
       finagle("thrift")
     )
   ).dependsOn(scroogeCore)
+
+  lazy val scroogeOstrich = Project(
+    id = "scrooge-ostrich",
+    base = file("scrooge-ostrich"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-ostrich",
+    libraryDependencies ++= Seq(
+      finagle("ostrich4")
+    )
+  ).dependsOn(scroogeRuntime)
 
   lazy val scroogeSerializer = Project(
     id = "scrooge-serializer",

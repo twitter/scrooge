@@ -104,7 +104,7 @@ object Main {
         compiler.flags += WithFinagleClient
         ()
       })
-      opt("ostrich", "generate ostrich server interface", {
+      opt("ostrich", "[DEPRECATED] generate ostrich server interface", {
         // --ostrich implies --finagle
         compiler.flags += WithOstrichServer
         compiler.flags += WithFinagleClient

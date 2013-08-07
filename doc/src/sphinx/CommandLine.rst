@@ -50,7 +50,5 @@ A complete command line help menu:
             name of language to generate
       --finagle
             generate finagle classes
-      --ostrich
-            generate ostrich server interface
       <files...>
             thrift files to compile
