@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SBT Plugin &mdash; Scrooge 3.3.2 documentation</title>
+    <title>SBT Plugin &mdash; Scrooge 3.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.3.2 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 3.4.0 documentation" href="index.html" />
     <link rel="next" title="Maven Plugin" href="MVNPlugin.html" />
     <link rel="prev" title="Scrooge" href="index.html" />
    
@@ -68,7 +68,7 @@
 
 libraryDependencies ++= Seq(
   &quot;org.apache.thrift&quot; % &quot;libthrift&quot; % &quot;0.8.0&quot;,
-  &quot;com.twitter&quot; %% &quot;scrooge-runtime&quot; % &quot;3.3.2&quot;,
+  &quot;com.twitter&quot; %% &quot;scrooge-core&quot; % &quot;3.3.2&quot;,
   &quot;com.twitter&quot; %% &quot;finagle-thrift&quot; % &quot;6.5.0&quot;
 )
 </pre></div>
@@ -83,7 +83,7 @@ lazy val myProject = Project(
 ).settings(
   libraryDependencies ++= Seq(
     &quot;org.apache.thrift&quot; % &quot;libthrift&quot; % &quot;0.8.0&quot;,
-    &quot;com.twitter&quot; %% &quot;scrooge-runtime&quot; % &quot;3.3.2&quot;,
+    &quot;com.twitter&quot; %% &quot;scrooge-core&quot; % &quot;3.3.2&quot;,
     &quot;com.twitter&quot; %% &quot;finagle-thrift&quot; % &quot;6.5.0&quot;
   )
 )

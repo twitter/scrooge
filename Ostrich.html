@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ostrich Integration &mdash; Scrooge 3.3.2 documentation</title>
+    <title>Ostrich Integration &mdash; Scrooge 3.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.3.2 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 3.4.0 documentation" href="index.html" />
     <link rel="next" title="Dependencies of the generated code" href="CodeGenDep.html" />
     <link rel="prev" title="Finagle Integration" href="Finagle.html" />
    
@@ -59,31 +59,19 @@
             
   <div class="section" id="ostrich-integration">
 <h1>Ostrich Integration<a class="headerlink" href="#ostrich-integration" title="Permalink to this headline">¶</a></h1>
-<p><strong>NOTE This is deprecated</strong></p>
-<p>If you pass the &#8220;&#8211;ostrich&#8221; option, Scrooge will generate a convenience
-wrapper ThriftServer. Following the BinaryService example:</p>
-<div class="highlight-text"><div class="highlight"><pre>import com.twitter.ostrich.admin.Service
-object BinaryService {
+<p><strong>NOTE: Ostrich is on the path to deprecation. Please use TwitterServer and the Finagle 6 APIs instead</strong></p>
+<p>To use the deprecated ostrich integration</p>
+<div class="highlight-text"><div class="highlight"><pre>object BinaryService {
   trait Iface { ... }
   trait FutureIface  { ... }
-  trait ThriftServer extends Service with FutureIface {
-    val thriftPort: Int
-    val serverName: String
-
-    //You can override serverBuilder to provide additional configuration.
-    def serverBuilder = ...
-
-    // Ostrich interface implementation is generated. It operates on the server built by serverBuilder.
-    def start() { ... }
-    def shutdown() { ... }
-  }
 }
 </pre></div>
 </div>
 <p>To use the generated code Ostrich server:</p>
 <div class="highlight-text"><div class="highlight"><pre>//First, you need to provide an implementation, as seen previously in the &quot;--finagle&quot; example
+import com.twitter.scrooge.OstrichThriftServer
 class MyImpl extends BinaryService.FutureIface { ... }
-val ostrichServer = new MyImpl with ThriftServer {
+val ostrichServer = new OstrichThriftServer with MyImpl {
   // server configuration
   val thriftPort = ..
   val serverName = ..

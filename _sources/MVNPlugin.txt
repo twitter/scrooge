@@ -13,7 +13,7 @@ need to be declared.
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-runtime_2.9.2</artifactId>
+      <artifactId>scrooge-core_2.9.2</artifactId>
       <version>3.3.2</version>
     </dependency>
     <!-- needed if the "--finagle" flag is provided -->

@@ -15,7 +15,7 @@ In your `build.sbt` file:
 
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.twitter" %% "scrooge-runtime" % "3.3.2",
+      "com.twitter" %% "scrooge-core" % "3.3.2",
       "com.twitter" %% "finagle-thrift" % "6.5.0"
     )
 
@@ -32,7 +32,7 @@ or, in your `project/Build.scala` file:
     ).settings(
       libraryDependencies ++= Seq(
         "org.apache.thrift" % "libthrift" % "0.8.0",
-        "com.twitter" %% "scrooge-runtime" % "3.3.2",
+        "com.twitter" %% "scrooge-core" % "3.3.2",
         "com.twitter" %% "finagle-thrift" % "6.5.0"
       )
     )

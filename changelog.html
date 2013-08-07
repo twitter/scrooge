@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Scrooge Changelog &mdash; Scrooge 3.3.2 documentation</title>
+    <title>Scrooge Changelog &mdash; Scrooge 3.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.3.2 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 3.4.0 documentation" href="index.html" />
     <link rel="next" title="License" href="license.html" />
     <link rel="prev" title="Implementation Semantics" href="Symantics.html" />
    
@@ -65,13 +65,28 @@ as it is included in Scoorge&#8217;s user&#8217;s guide.</p>
 <div class="section" id="x">
 <h2>3.x<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
-<h3>3.3.2<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>3.4.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>BREAKING: remove list generation from enums (was causing compile errors. will revisit)</li>
+<li>move TypeResolver and ParseException into the frontend package</li>
+<li>create scrooge-core leaving legacy finagle code in scrooge-runtime. (scrooge-runtime will be deprecated soon)</li>
+<li>treat non-letters as case-less</li>
+<li>update docs and release process for twitter-server, scrooge</li>
+<li>BREAKING: move serializer into its own project</li>
+<li>keep the order of the values in the constant map in the parser.  Should be a no-op for scala that converts it to a map in the generator</li>
+<li>Remove the tracerFactory usage and use tracer instead.</li>
+<li>create scrooge documentation site</li>
+<li>tiny fix for oneway support</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h3>3.3.2<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>bugfix: collections of enums now identify as i32 on the wire</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h3>3.3.1<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>3.3.1<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>provide a mechanism for dynamicallly pluggable backends</li>
 <li>make enum list of values lazy</li>
@@ -79,240 +94,191 @@ as it is included in Scoorge&#8217;s user&#8217;s guide.</p>
 <li>fix maven plugin references includes</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h3>3.3.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">Documenation fixes</p>
-</li>
-<li><p class="first">fix ThriftStructMetaData use camelCase method names to match generated
-code</p>
-</li>
-<li><p class="first">maven-plugin: skip file copy from references if existing file is the
-same</p>
-</li>
-<li><dl class="first docutils">
-<dt>POTENTIALLY BREAKING CHANGES:</dt>
-<dd><ul class="first last">
-<li><dl class="first docutils">
-<dt>Identify enum fields as TType.ENUM but maintain backward</dt>
-<dd><p class="first last">compatibility by identifying them as I32 on the wire</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>maven-plugin - do not extract dependencies into their own</dt>
-<dd><p class="first last">subdirectories</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</div>
 <div class="section" id="id4">
-<h3>3.2.1<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h3>3.3.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Documenation fixes</li>
+<li>fix ThriftStructMetaData use camelCase method names to match generated</li>
+</ul>
+<p>code
+- maven-plugin: skip file copy from references if existing file is the
+same
+- POTENTIALLY BREAKING CHANGES:
+- Identify enum fields as TType.ENUM but maintain backward
+compatibility by identifying them as I32 on the wire
+- maven-plugin - do not extract dependencies into their own
+subdirectories</p>
+</div>
+<div class="section" id="id5">
+<h3>3.2.1<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>add list method to enums that lists all values</li>
 <li>bugfix: ThriftUtil was not being imported for services</li>
 <li>add ability to attach additional passthrough fields</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h3>3.2.0<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><dl class="first docutils">
-<dt>BREAKING CHANGE:</dt>
-<dd><dl class="first last docutils">
-<dt>Make java gen experimental. There are changes coming down the pipe that</dt>
-<dd><p class="first last">will dramatically refactor java&#8217;s codegen.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</li>
-</ul>
-</div>
 <div class="section" id="id6">
-<h3>3.1.10<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<h3>3.2.0<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>do not use an intermedial <cite>val</cite> for passthroughs. Eliminates the possibility
-of a name collision</li>
-<li>eliminate the possibility of namespace collision for &#8220;runtime&#8221;</li>
-<li>revert identification of Enums and TType.ENUM (back to I32)</li>
-<li>eliminate all use of ThriftUtil unless it&#8217;s needed</li>
+<li>BREAKING CHANGE:</li>
 </ul>
+<p>Make java gen experimental. There are changes coming down the pipe that
+will dramatically refactor java&#8217;s codegen.</p>
 </div>
 <div class="section" id="id7">
-<h3>3.1.9<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<h3>3.1.10<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>bump to util-6.3.6 / finagle-6.5.0</li>
-<li>[EXPERIMENTAL] add ability to pass through additional fields
-enable with &#8211;enable-passthrough</li>
-<li>Create the ability to map includes to directories to bridge scrooge2 and
-scrooge3 maven layouts</li>
-<li>show the filename of the file being parsed in error messages</li>
-<li>identify enums as TType.ENUM</li>
+<li>do not use an intermedial <cite>val</cite> for passthroughs. Eliminates the possibility</li>
 </ul>
+<p>of a name collision
+- eliminate the possibility of namespace collision for &#8220;runtime&#8221;
+- revert identification of Enums and TType.ENUM (back to I32)
+- eliminate all use of ThriftUtil unless it&#8217;s needed</p>
 </div>
 <div class="section" id="id8">
-<h3>3.1.8<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<h3>3.1.9<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>generator: thrift idl containing UTF-8 produces
-java.nio.charset.UnmappableCharacterException</li>
-<li>generator: Replace backslash with forward slash in file URI</li>
-<li>sbt-plugin: Include (and optionally compile) external thrift files.</li>
-<li>generator: remove unnecessary apply method for decode (causes issues with
-named args)</li>
+<li>bump to util-6.3.6 / finagle-6.5.0</li>
+<li>[EXPERIMENTAL] add ability to pass through additional fields</li>
 </ul>
+<p>enable with &#8211;enable-passthrough
+- Create the ability to map includes to directories to bridge scrooge2 and
+scrooge3 maven layouts
+- show the filename of the file being parsed in error messages
+- identify enums as TType.ENUM</p>
 </div>
 <div class="section" id="id9">
-<h3>3.1.7<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<h3>3.1.8<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>generator: thrift idl containing UTF-8 produces</li>
+</ul>
+<p>java.nio.charset.UnmappableCharacterException
+- generator: Replace backslash with forward slash in file URI
+- sbt-plugin: Include (and optionally compile) external thrift files.
+- generator: remove unnecessary apply method for decode (causes issues with
+named args)</p>
+</div>
+<div class="section" id="id10">
+<h3>3.1.7<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Use explicit version numbers</li>
 </ul>
 </div>
-<div class="section" id="id10">
-<h3>3.1.6<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id11">
+<h3>3.1.6<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Depend on the latest patch version of util/finagle</li>
 </ul>
 </div>
-<div class="section" id="id11">
-<h3>3.1.5<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id12">
+<h3>3.1.5<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>add back the &#8211;import-path flag as a deprecation step</li>
 <li>add sbt-plugin</li>
 <li>use maven as the build system for the maven plugin</li>
 </ul>
 </div>
-<div class="section" id="id12">
-<h3>3.1.2<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><dl class="first docutils">
-<dt>BREAKING CHANGE:</dt>
-<dd><p class="first last">In the maven plugin: change the dependentConfigs param to dependentIncludes</p>
-</dd>
-</dl>
-</li>
-<li><p class="first">optimize empty collections on deserialization</p>
-</li>
-<li><p class="first">upgrade to finagle 6.4.0 and util 6.3.4</p>
-</li>
-</ul>
-</div>
 <div class="section" id="id13">
-<h3>3.1.1<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><dl class="first docutils">
-<dt>BREAKING CHANGE:</dt>
-<dd><p class="first last">We finally made scrooge-runtime to be backward with Scrooge 2. This requires
-a name change for the ThriftStructCodec. From now on, all objects generated
-by Scrooge 3 will use ThriftStructCodec3.
-This will affect you only if your code is using ThriftStructCodec directly,
-which is not common.</p>
-</dd>
-</dl>
-</li>
-<li><p class="first">scrooge now releases jar-with-dependencies</p>
-</li>
-<li><p class="first">add language option tag to scrooge-maven-plugin, thanks to &#64;eirslett</p>
-</li>
-<li><p class="first">some directory reorganization of the demos</p>
-</li>
+<h3>3.1.2<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>BREAKING CHANGE:</li>
+</ul>
+<p>In the maven plugin: change the dependentConfigs param to dependentIncludes</p>
+<ul class="simple">
+<li>optimize empty collections on deserialization</li>
+<li>upgrade to finagle 6.4.0 and util 6.3.4</li>
 </ul>
 </div>
 <div class="section" id="id14">
-<h3>3.1.0<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<h3>3.1.1<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Dependency changes: now on util/finagle 6.3.0</li>
-<li>demo project now shows how to construct finagle server and client using
-generated code</li>
-<li>&#8211;ostrich flag implies &#8211;finagle flag</li>
+<li>BREAKING CHANGE:</li>
 </ul>
+<p>We finally made scrooge-runtime to be backward with Scrooge 2. This requires
+a name change for the ThriftStructCodec. From now on, all objects generated
+by Scrooge 3 will use ThriftStructCodec3.
+This will affect you only if your code is using ThriftStructCodec directly,
+which is not common.
+- scrooge now releases jar-with-dependencies
+- add language option tag to scrooge-maven-plugin, thanks to &#64;eirslett
+- some directory reorganization of the demos</p>
 </div>
 <div class="section" id="id15">
-<h3>3.0.9<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<h3>3.1.0<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Remove &#8220;provided&#8221; scope of finagle in scrooge-runtime. So it brings Finagle
-6.1.0 as transit dependency to your project</li>
-<li>Make the generated Scala code backward compatible with Finagle 5. The impact
-to users on Finagle 6 is that you will see a lot of warnings saying that
-tracerFactory is deprecated.</li>
+<li>Dependency changes: now on util/finagle 6.3.0</li>
+<li>demo project now shows how to construct finagle server and client using</li>
 </ul>
+<p>generated code
+- &#8211;ostrich flag implies &#8211;finagle flag</p>
 </div>
 <div class="section" id="id16">
-<h3>3.0.8<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">When scrooge-maven-plugin extracts Thrift files from a dependency artifact, it
-now puts them in a sub folder named after the artifact id. This way, the user
-project can use same-named Thrift files from different artifacts.</p>
-</li>
-<li><p class="first">Title case and camel case more consistent with previous version before 3.0.7
-We still preserve consecutive upper cases but not in an all-up-case string, eg:</p>
-<div class="highlight-text"><div class="highlight"><pre>TBird (original) -&gt; tBird (camel case) -&gt; TBird (title case)
-HTML (original) -&gt; html (camel case) -&gt; Html (title case)
-</pre></div>
-</div>
-<p>Thanks to &#64;erikvanoosten</p>
-</li>
-<li><p class="first">Finagle client can throw exception on void function. Thanks to &#64;brancek</p>
-</li>
-<li><p class="first">Support documentation on enum values. Thanks to &#64;erikvanoosten</p>
-</li>
-<li><p class="first">Reorganizing test folder, and add Apache standard test</p>
-</li>
+<h3>3.0.9<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Remove &#8220;provided&#8221; scope of finagle in scrooge-runtime. So it brings Finagle</li>
 </ul>
+<p>6.1.0 as transit dependency to your project
+- Make the generated Scala code backward compatible with Finagle 5. The impact
+to users on Finagle 6 is that you will see a lot of warnings saying that
+tracerFactory is deprecated.</p>
 </div>
 <div class="section" id="id17">
-<h3>3.0.7<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">All on-wire names in the Thrift messages are now consistent with
-Apache generated code. This allows Scrooge generated services to exchange
-Thrift messages with Apache generated services.</p>
-</li>
-<li><p class="first">Title case ids now preserve consecutive upper case letters. Eg:</p>
-<div class="highlight-text"><div class="highlight"><pre>TBird (original) -&gt; Tbird (old) -&gt; TBird (now)
-</pre></div>
+<h3>3.0.8<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>When scrooge-maven-plugin extracts Thrift files from a dependency artifact, it</li>
+</ul>
+<p>now puts them in a sub folder named after the artifact id. This way, the user
+project can use same-named Thrift files from different artifacts.
+- Title case and camel case more consistent with previous version before 3.0.7
+We still preserve consecutive upper cases but not in an all-up-case string, eg:</p>
+<p>TBird (original) -&gt; tBird (camel case) -&gt; TBird (title case)
+HTML (original) -&gt; html (camel case) -&gt; Html (title case)</p>
+<p>Thanks to &#64;erikvanoosten
+- Finagle client can throw exception on void function. Thanks to &#64;brancek
+- Support documentation on enum values. Thanks to &#64;erikvanoosten
+- Reorganizing test folder, and add Apache standard test</p>
 </div>
-<p>See test case in scrooge-generator/src/test/scala/com/twitter/scrooge/ASTSpec.scala</p>
-</li>
-<li><p class="first">scrooge-maven-plugin now enforces an explicit white list in &lt;dependencyConfig&gt;.
+<div class="section" id="id18">
+<h3>3.0.7<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>All on-wire names in the Thrift messages are now consistent with</li>
+</ul>
+<p>Apache generated code. This allows Scrooge generated services to exchange
+Thrift messages with Apache generated services.
+- Title case ids now preserve consecutive upper case letters. Eg:</p>
+<p>TBird (original) -&gt; Tbird (old) -&gt; TBird (now)</p>
+<p>See test case in scrooge-generator/src/test/scala/com/twitter/scrooge/ASTSpec.scala
+- scrooge-maven-plugin now enforces an explicit white list in &lt;dependencyConfig&gt;.
 The old behavior is that if a dependency artifact has a &#8220;idl&#8221; classifier, we
 will extract thrift files from it to compile. The new behavior is that the
 artifact must be explicitly included in &lt;dependencyConfig&gt;. The dependencies
 here include both direct dependencies(specified in project pom file) and
-indirect dependencies (everything in the dependency tree).</p>
-</li>
-<li><p class="first">Now supports &#8220;scala&#8221; as a namespace scope. It is treated same as &#8220;java&#8221;.</p>
-</li>
-<li><p class="first">Now supports &#8220;*&#8221; as a default namespace scope</p>
-</li>
-</ul>
+indirect dependencies (everything in the dependency tree).
+- Now supports &#8220;scala&#8221; as a namespace scope. It is treated same as &#8220;java&#8221;.
+- Now supports &#8220;*&#8221; as a default namespace scope</p>
 </div>
-<div class="section" id="id18">
-<h3>3.0.6<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id19">
+<h3>3.0.6<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Released a scrooge-maven-plugin, for maven projects to integrate Scrooge in
-their pom files. Also released a demo of how to use scrooge-maven-plugin</li>
-<li>scrooge-runtime is now backward compatible with scrooge-runtime 2.X.X. The
+<li>Released a scrooge-maven-plugin, for maven projects to integrate Scrooge in</li>
+</ul>
+<p>their pom files. Also released a demo of how to use scrooge-maven-plugin
+- scrooge-runtime is now backward compatible with scrooge-runtime 2.X.X. The
 following classes and methods are deprecated:
 - FinagleThriftClient
 - FinagleThriftService
 - ThriftStructCodec.decoder
-- ThriftStructCodec.encoder</li>
-<li>scrooge-runtime now can introspect generated ThriftStruct. See the new
-ThriftStructMetaData class.</li>
-<li>BREAKING: in scrooge-runtime, com.twitter.ScroogeOption is now renamed to
+- ThriftStructCodec.encoder
+- scrooge-runtime now can introspect generated ThriftStruct. See the new
+ThriftStructMetaData class.
+- BREAKING: in scrooge-runtime, com.twitter.ScroogeOption is now renamed to
 just Option. This is mainly for Java code. But if you need to use it in
-Scala code, make sure to address ambiguity with scala.Option.</li>
-<li>Updated APIs of scrooge-generator. See com.twitter.scrooge.Compiler class</li>
-<li>Fix the stats reporting for the java scrooge thrift code generation</li>
-</ul>
+Scala code, make sure to address ambiguity with scala.Option.
+- Updated APIs of scrooge-generator. See com.twitter.scrooge.Compiler class
+- Fix the stats reporting for the java scrooge thrift code generation</p>
 </div>
-<div class="section" id="id19">
-<h3>3.0.5<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id20">
+<h3>3.0.5<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
 <p>Bug fixes</p>
 <ul class="simple">
 <li>Constant definitions now can be of &#8220;set&#8221; type.</li>
@@ -320,21 +286,21 @@ Scala code, make sure to address ambiguity with scala.Option.</li>
 </ul>
 <p>Dependencies</p>
 <ul class="simple">
-<li>Remove dependency on org.scalatest, com.twitter.scalatest (not in Maven
-Central)</li>
-<li>Update dependency of util/finagle/ostrich to 6.1.0</li>
-<li>Project dependencies are all in Maven Central now. You don&#8217;t need to have
-access to Twitter internal repository anymore.</li>
+<li>Remove dependency on org.scalatest, com.twitter.scalatest (not in Maven</li>
 </ul>
+<p>Central)
+- Update dependency of util/finagle/ostrich to 6.1.0
+- Project dependencies are all in Maven Central now. You don&#8217;t need to have
+access to Twitter internal repository anymore.</p>
 </div>
-<div class="section" id="id20">
-<h3>3.0.4<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id21">
+<h3>3.0.4<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
 <p>Features:</p>
 <ul class="simple">
-<li>add &#8211;dry-run option to parse and validate source thrift files, reports any
-errors, but does not emit any generated source code. It can be used with
-&#8211;gen-file-mapping to get the file mapping</li>
+<li>add &#8211;dry-run option to parse and validate source thrift files, reports any</li>
 </ul>
+<p>errors, but does not emit any generated source code. It can be used with
+&#8211;gen-file-mapping to get the file mapping</p>
 <p>Bug fixes</p>
 <ul class="simple">
 <li>union types now can contain primitive types.</li>
@@ -345,144 +311,105 @@ errors, but does not emit any generated source code. It can be used with
 <li>Update dependency of util/finagle/ostrich to 6.0.6</li>
 </ul>
 </div>
-<div class="section" id="id21">
-<h3>3.0.3<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id22">
+<h3>3.0.3<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Scrooge artifacts now deploys to Maven central via Sonatype</li>
 <li>Scrooge project builds in Travis CI</li>
-<li>Features
-- Fully qualifying ids imported by &#8220;include&#8221; statements. We don&#8217;t generate
-&#8220;import&#8221; statements anymore.
-- Remove unnecessary finagle jar dependencies for vanilla generated code.</li>
-<li>Add tests
+<li>Features</li>
+<li>Fully qualifying ids imported by &#8220;include&#8221; statements. We don&#8217;t generate</li>
+</ul>
+<p>&#8220;import&#8221; statements anymore.
+- Remove unnecessary finagle jar dependencies for vanilla generated code.
+- Add tests
 - non-finagle usage; see NonFinagleSpec.scala
-- struct immutability and deep copying; see ImmutableStructSpec.scala</li>
-<li>Bug fixes
+- struct immutability and deep copying; see ImmutableStructSpec.scala
+- Bug fixes
 - move &#8220;validate&#8221; method from Scala struct trait to object, so that the thrift
-struct can define a &#8220;validate&#8221; field without name clashing.</li>
-</ul>
-</div>
-<div class="section" id="id22">
-<h3>3.0.2<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">Adding a &#8220;&#8211;gen-file-map &lt;path&gt;&#8221; option to Scrooge command line. It tells
-what output files each input Thrift files generates, in the following format:</p>
-<div class="highlight-text"><div class="highlight"><pre>inputPath/input.thrift -&gt; outputPath/Constants.scala
-inputPath/input.thrift -&gt; outputPath/FooStruct.scala
-</pre></div>
-</div>
-</li>
-<li><p class="first">The generated enums now have a common trait ThriftEnum(defined in
-scrooge-runtime), that allows you to query the name as well as the value of
-the enum field.</p>
-</li>
-<li><p class="first">The generated Scala enums now are Java-serializable.</p>
-</li>
-<li><p class="first">The generated FinagledClient class takes val arguments to make &#8220;service&#8221;,
-&#8220;protocol&#8221; accessible:</p>
-<div class="highlight-text"><div class="highlight"><pre>class FinagledClient(
-  val service: ...,
-  val protocol: ...,
-  val serviceName: ...
-  stats: ...
-)
-</pre></div>
-</div>
-</li>
-</ul>
+struct can define a &#8220;validate&#8221; field without name clashing.</p>
 </div>
 <div class="section" id="id23">
-<h3>3.0.1<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
-<p>Features and bug fixes</p>
-<ul>
-<li><p class="first">Doc comments are included in the generated code.</p>
-</li>
-<li><p class="first">Generated exception structs now have getMessage() method</p>
-</li>
-<li><p class="first">Generate header that emits Scrooge version</p>
-</li>
-<li><p class="first">You can now import a directory or a Jar/Zip file through command line
-argument, which will be stored in a chain of paths maintained by Scrooge.
-Then refer to a file using relative path in the thrift &#8220;include&#8221; statement.
-Scrooge will locate the file in the path chain.</p>
-</li>
-<li><p class="first">Introduce a &#8220;strict&#8221; mode that defaults to on. Unfavored syntax throws an
-exception when &#8220;strict&#8221; mode is on and prints a warning when it&#8217;s off. The
-strict mode can be disabled by specifying the &#8220;&#8211;disable-strict&#8221; argument.</p>
-</li>
-<li><p class="first">The &#8220;oneway&#8221; modifier is treated as an OnewayNotSupportedException in strict
-mode and a warning in non-strict mode.</p>
-</li>
-<li><p class="first">Support Union types. Given:</p>
-<div class="highlight-text"><div class="highlight"><pre>union Point {
-  1: double x
-  2: double y
-  3: Color color = BLUE
-}
-
-Scrooge generates:
-  sealed trait Point
-  object Point {
-    case class X(x: Double) extends Point
-    case class Y(y: Double) extends Point
-    case class Count(color: Color = Color.Blue) extends Point
-  }
-</pre></div>
+<h3>3.0.2<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Adding a &#8220;&#8211;gen-file-map &lt;path&gt;&#8221; option to Scrooge command line. It tells</li>
+</ul>
+<p>what output files each input Thrift files generates, in the following format:</p>
+<p>inputPath/input.thrift -&gt; outputPath/Constants.scala
+inputPath/input.thrift -&gt; outputPath/FooStruct.scala</p>
+<ul class="simple">
+<li>The generated enums now have a common trait ThriftEnum(defined in</li>
+</ul>
+<p>scrooge-runtime), that allows you to query the name as well as the value of
+the enum field.
+- The generated Scala enums now are Java-serializable.
+- The generated FinagledClient class takes val arguments to make &#8220;service&#8221;,
+&#8220;protocol&#8221; accessible:</p>
+<p>class FinagledClient(
+val service: ...,
+val protocol: ...,
+val serviceName: ...
+stats: ...
+)</p>
 </div>
+<div class="section" id="id24">
+<h3>3.0.1<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<p>Features and bug fixes</p>
+<ul class="simple">
+<li>Doc comments are included in the generated code.</li>
+<li>Generated exception structs now have getMessage() method</li>
+<li>Generate header that emits Scrooge version</li>
+<li>You can now import a directory or a Jar/Zip file through command line</li>
+</ul>
+<p>argument, which will be stored in a chain of paths maintained by Scrooge.
+Then refer to a file using relative path in the thrift &#8220;include&#8221; statement.
+Scrooge will locate the file in the path chain.
+- Introduce a &#8220;strict&#8221; mode that defaults to on. Unfavored syntax throws an
+exception when &#8220;strict&#8221; mode is on and prints a warning when it&#8217;s off. The
+strict mode can be disabled by specifying the &#8220;&#8211;disable-strict&#8221; argument.
+- The &#8220;oneway&#8221; modifier is treated as an OnewayNotSupportedException in strict
+mode and a warning in non-strict mode.
+- Support Union types. Given:</p>
+<p>union Point {
+1: double x
+2: double y
+3: Color color = BLUE
+}</p>
+<p>Scrooge generates:
+sealed trait Point
+object Point {
+case class X(x: Double) extends Point
+case class Y(y: Double) extends Point
+case class Count(color: Color = Color.Blue) extends Point
+}</p>
 <p>The &#8220;required&#8221; and &#8220;optional&#8221; modifiers in a union type will throw
-exceptions in strict mode and print warnings in non-strict mode.</p>
-</li>
-<li><p class="first">Have a common trait ThriftException for all the thrift exception structs.</p>
-</li>
-<li><dl class="first docutils">
-<dt>Support cross file service inheritance. Now you can do</dt>
-<dd><p class="first last">include &#8220;foo.thrift&#8221;
-service MyService extends foo.FooService { ... }</p>
-</dd>
-</dl>
-</li>
-<li><p class="first">Bug fix: It couldn&#8217;t resolve a symbol imported through a relative path and
-threw an UndefinedSymbolException</p>
-</li>
-<li><p class="first">Bug fix: namespace aliasing put the parentheses in the wrong place.</p>
-</li>
-<li><p class="first">Bug fix: services using binary fields wouldn&#8217;t compile</p>
-</li>
-<li><p class="first">Bug fix: cross-file const referencing didn&#8217;t work</p>
-</li>
-</ul>
+exceptions in strict mode and print warnings in non-strict mode.
+- Have a common trait ThriftException for all the thrift exception structs.
+- Support cross file service inheritance. Now you can do
+include &#8220;foo.thrift&#8221;
+service MyService extends foo.FooService { ... }
+- Bug fix: It couldn&#8217;t resolve a symbol imported through a relative path and
+threw an UndefinedSymbolException
+- Bug fix: namespace aliasing put the parentheses in the wrong place.
+- Bug fix: services using binary fields wouldn&#8217;t compile
+- Bug fix: cross-file const referencing didn&#8217;t work</p>
 <p>Implementation updates</p>
-<ul>
-<li><dl class="first docutils">
-<dt>Project structure:</dt>
-<dd><ul class="first last simple">
+<ul class="simple">
+<li>Project structure:</li>
 <li>frontend: Importer and ThriftParser</li>
-<li>mustache: everything related to mustache, including template parser, loader
-and handlebar</li>
-<li>ast: Thrift AST definition</li>
-<li>backend: code generation include various generators and dictionaries to
-hydrate Mustache templates.</li>
+<li>mustache: everything related to mustache, including template parser, loader</li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>Redefine clear and separate responsibilities of each components:</dt>
-<dd><ul class="first last simple">
-<li>Move ID manipulation(concatenation, case conversion, keyword rewriting etc)
-to Generator phase.</li>
-<li>Utilizing Scala static type checking to enforce scoping correctness by
-introducing SimpleID and QualifiedID to AST.</li>
-<li>Enforce dictionary key uniqueness for nested Mustache templates.</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><p class="first">Scrooge project is now on Maven</p>
-</li>
-<li><p class="first">Delete obsolete code and tests</p>
-</li>
-</ul>
+<p>and handlebar
+- ast: Thrift AST definition
+- backend: code generation include various generators and dictionaries to
+hydrate Mustache templates.
+- Redefine clear and separate responsibilities of each components:
+- Move ID manipulation(concatenation, case conversion, keyword rewriting etc)
+to Generator phase.
+- Utilizing Scala static type checking to enforce scoping correctness by
+introducing SimpleID and QualifiedID to AST.
+- Enforce dictionary key uniqueness for nested Mustache templates.
+- Scrooge project is now on Maven
+- Delete obsolete code and tests</p>
 <p>Dependencies:</p>
 <ul class="simple">
 <li>Upgraded to util 5.3.13, finagle 5.3.30</li>
@@ -490,46 +417,30 @@ introducing SimpleID and QualifiedID to AST.</li>
 <li>Add dependency on maven</li>
 </ul>
 </div>
-<div class="section" id="id24">
-<h3>3.0.0<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">Java code generation is now supported!</p>
-</li>
-<li><dl class="first docutils">
-<dt>Scala code now generates a set of classes for each struct:</dt>
-<dd><ul class="first last simple">
+<div class="section" id="id25">
+<h3>3.0.0<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Java code generation is now supported!</li>
+<li>Scala code now generates a set of classes for each struct:</li>
 <li>a base trait</li>
 <li>an immutable case class (used as the default implementation)</li>
 <li>a proxy trait (to make it easy to build proxy classes)</li>
+<li>Moved scrooge-runtime into the same repo with scrooge, which is now called</li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><p class="first">Moved scrooge-runtime into the same repo with scrooge, which is now called
-scrooge-generator. Both projects will keep version numbers in sync now.</p>
-</li>
-<li><p class="first">Changed the way required/optional is treated on fields, and default values,
+<p>scrooge-generator. Both projects will keep version numbers in sync now.
+- Changed the way required/optional is treated on fields, and default values,
 to more closely match the way Apache Thrift works. (This is described in
-more detail in a new section of the README.)</p>
-</li>
-<li><p class="first">Fixed constant sets.</p>
-</li>
-<li><p class="first">Fixed thread safety in finagle ThriftServer.</p>
-</li>
-<li><p class="first">Fixed the resolution of #include directives that follow relative paths.</p>
-</li>
-<li><p class="first">Removed the finagle dependency from scrooge-runtime so that code generated
+more detail in a new section of the README.)
+- Fixed constant sets.
+- Fixed thread safety in finagle ThriftServer.
+- Fixed the resolution of #include directives that follow relative paths.
+- Removed the finagle dependency from scrooge-runtime so that code generated
 with scrooge can be loosely coupled with finagle, or optionally not depend
-on finagle at all (if you don&#8217;t build finagle bindings).</p>
-</li>
-<li><p class="first">Fixed typedef references that were relative to #included files.</p>
-</li>
-<li><p class="first">Made various improvements to the internal template system.</p>
-</li>
-<li><p class="first">Fixed test speed by using scrooge to generate code that the tests build
+on finagle at all (if you don&#8217;t build finagle bindings).
+- Fixed typedef references that were relative to #included files.
+- Made various improvements to the internal template system.
+- Fixed test speed by using scrooge to generate code that the tests build
 against, avoiding runtime evaluation.</p>
-</li>
-</ul>
 <p>Dependencies:</p>
 <ul class="simple">
 <li>Upgraded to thrift 0.8.0, util 4.0, and finagle 4.0.</li>
@@ -538,89 +449,89 @@ against, avoiding runtime evaluation.</p>
 </ul>
 </div>
 </div>
-<div class="section" id="id25">
-<h2>2.x<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id26">
-<h3>2.5.4<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>Addressed an issue where structs with the same name but from different
-namespaces/packages would conflict.  Now using a package alias to
-disambiguate.</li>
-</ul>
-</div>
+<h2>2.x<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id27">
-<h3>2.5.3<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<h3>2.5.4<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Addressed an issue where structs with the same name but from different</li>
+</ul>
+<p>namespaces/packages would conflict. Now using a package alias to
+disambiguate.</p>
+</div>
+<div class="section" id="id28">
+<h3>2.5.3<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Minor bug fix for serviceName name class with.</li>
 </ul>
 </div>
-<div class="section" id="id28">
-<h3>2.4.0<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id29">
+<h3>2.4.0<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>added support for structs with more than 22 fields, which previously was the
-limit as that is the max case-class size in scala.  For structs larger than
+<li>added support for structs with more than 22 fields, which previously was the</li>
+</ul>
+<p>limit as that is the max case-class size in scala. For structs larger than
 this, instead of using case-classes, normal classes are used but with most of
 the case-class boilerplate support code also generated, allowing these structs
-to be used as if they were case-classes.  The only exception is that there is
+to be used as if they were case-classes. The only exception is that there is
 no unapply method; but do you really want to unapply 23+ fields in a match
-statement?</li>
-</ul>
-</div>
-<div class="section" id="id29">
-<h3>2.3.1<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>thriftProtocolFactory in generated ThriftServer now has
-type of TProtocolFactory, so you can override it with other
-protocol factories.</li>
-</ul>
+statement?</p>
 </div>
 <div class="section" id="id30">
-<h3>2.3.0<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
+<h3>2.3.1<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>You can now override serverBuilder in ThriftServer to provide
-additional server configuration</li>
-<li>The protocol factory to the FinagledClient now has a default
-value of TBinaryProtocol.Factory, which means you don&#8217;t have
-to specify it when using the default.</li>
+<li>thriftProtocolFactory in generated ThriftServer now has</li>
 </ul>
+<p>type of TProtocolFactory, so you can override it with other
+protocol factories.</p>
 </div>
 <div class="section" id="id31">
-<h3>2.2.0<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<h3>2.3.0<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>You can now override serverBuilder in ThriftServer to provide</li>
+</ul>
+<p>additional server configuration
+- The protocol factory to the FinagledClient now has a default
+value of TBinaryProtocol.Factory, which means you don&#8217;t have
+to specify it when using the default.</p>
+</div>
+<div class="section" id="id32">
+<h3>2.2.0<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>tracerFactory support in ThriftServer.</li>
 </ul>
 </div>
-<div class="section" id="id32">
-<h3>2.1.0<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id33">
+<h3>2.1.0<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Support for tracing in server.</li>
 </ul>
 </div>
-<div class="section" id="id33">
-<h3>2.0.2<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>fixes a bug in which namespace mapping was not applied
-recursively to included documents.</li>
-</ul>
-</div>
 <div class="section" id="id34">
-<h3>2.0.1<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
+<h3>2.0.2<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>fixes a bug in which qualified service names from imported
-thrift files were not resolved properly.</li>
+<li>fixes a bug in which namespace mapping was not applied</li>
 </ul>
+<p>recursively to included documents.</p>
 </div>
 <div class="section" id="id35">
-<h3>2.0.0<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
+<h3>2.0.1<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>fixes a bug in which qualified service names from imported</li>
+</ul>
+<p>thrift files were not resolved properly.</p>
+</div>
+<div class="section" id="id36">
+<h3>2.0.0<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>fixes a bug with enum in which the first value was wrong.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id36">
-<h2>1.x<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id37">
-<h3>1.1.1<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h3>
+<h2>1.x<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id38">
+<h3>1.1.1<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>scrooge-runtime-1.0.1</li>
 <li>Each thrift struct companion object now extends ThriftStructCodec</li>
@@ -651,47 +562,48 @@ thrift files were not resolved properly.</li>
   <ul>
 <li><a class="reference internal" href="#">Scrooge Changelog</a><ul>
 <li><a class="reference internal" href="#x">3.x</a><ul>
-<li><a class="reference internal" href="#id1">3.3.2</a></li>
-<li><a class="reference internal" href="#id2">3.3.1</a></li>
-<li><a class="reference internal" href="#id3">3.3.0</a></li>
-<li><a class="reference internal" href="#id4">3.2.1</a></li>
-<li><a class="reference internal" href="#id5">3.2.0</a></li>
-<li><a class="reference internal" href="#id6">3.1.10</a></li>
-<li><a class="reference internal" href="#id7">3.1.9</a></li>
-<li><a class="reference internal" href="#id8">3.1.8</a></li>
-<li><a class="reference internal" href="#id9">3.1.7</a></li>
-<li><a class="reference internal" href="#id10">3.1.6</a></li>
-<li><a class="reference internal" href="#id11">3.1.5</a></li>
-<li><a class="reference internal" href="#id12">3.1.2</a></li>
-<li><a class="reference internal" href="#id13">3.1.1</a></li>
-<li><a class="reference internal" href="#id14">3.1.0</a></li>
-<li><a class="reference internal" href="#id15">3.0.9</a></li>
-<li><a class="reference internal" href="#id16">3.0.8</a></li>
-<li><a class="reference internal" href="#id17">3.0.7</a></li>
-<li><a class="reference internal" href="#id18">3.0.6</a></li>
-<li><a class="reference internal" href="#id19">3.0.5</a></li>
-<li><a class="reference internal" href="#id20">3.0.4</a></li>
-<li><a class="reference internal" href="#id21">3.0.3</a></li>
-<li><a class="reference internal" href="#id22">3.0.2</a></li>
-<li><a class="reference internal" href="#id23">3.0.1</a></li>
-<li><a class="reference internal" href="#id24">3.0.0</a></li>
+<li><a class="reference internal" href="#id1">3.4.0</a></li>
+<li><a class="reference internal" href="#id2">3.3.2</a></li>
+<li><a class="reference internal" href="#id3">3.3.1</a></li>
+<li><a class="reference internal" href="#id4">3.3.0</a></li>
+<li><a class="reference internal" href="#id5">3.2.1</a></li>
+<li><a class="reference internal" href="#id6">3.2.0</a></li>
+<li><a class="reference internal" href="#id7">3.1.10</a></li>
+<li><a class="reference internal" href="#id8">3.1.9</a></li>
+<li><a class="reference internal" href="#id9">3.1.8</a></li>
+<li><a class="reference internal" href="#id10">3.1.7</a></li>
+<li><a class="reference internal" href="#id11">3.1.6</a></li>
+<li><a class="reference internal" href="#id12">3.1.5</a></li>
+<li><a class="reference internal" href="#id13">3.1.2</a></li>
+<li><a class="reference internal" href="#id14">3.1.1</a></li>
+<li><a class="reference internal" href="#id15">3.1.0</a></li>
+<li><a class="reference internal" href="#id16">3.0.9</a></li>
+<li><a class="reference internal" href="#id17">3.0.8</a></li>
+<li><a class="reference internal" href="#id18">3.0.7</a></li>
+<li><a class="reference internal" href="#id19">3.0.6</a></li>
+<li><a class="reference internal" href="#id20">3.0.5</a></li>
+<li><a class="reference internal" href="#id21">3.0.4</a></li>
+<li><a class="reference internal" href="#id22">3.0.3</a></li>
+<li><a class="reference internal" href="#id23">3.0.2</a></li>
+<li><a class="reference internal" href="#id24">3.0.1</a></li>
+<li><a class="reference internal" href="#id25">3.0.0</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id25">2.x</a><ul>
-<li><a class="reference internal" href="#id26">2.5.4</a></li>
-<li><a class="reference internal" href="#id27">2.5.3</a></li>
-<li><a class="reference internal" href="#id28">2.4.0</a></li>
-<li><a class="reference internal" href="#id29">2.3.1</a></li>
-<li><a class="reference internal" href="#id30">2.3.0</a></li>
-<li><a class="reference internal" href="#id31">2.2.0</a></li>
-<li><a class="reference internal" href="#id32">2.1.0</a></li>
-<li><a class="reference internal" href="#id33">2.0.2</a></li>
-<li><a class="reference internal" href="#id34">2.0.1</a></li>
-<li><a class="reference internal" href="#id35">2.0.0</a></li>
+<li><a class="reference internal" href="#id26">2.x</a><ul>
+<li><a class="reference internal" href="#id27">2.5.4</a></li>
+<li><a class="reference internal" href="#id28">2.5.3</a></li>
+<li><a class="reference internal" href="#id29">2.4.0</a></li>
+<li><a class="reference internal" href="#id30">2.3.1</a></li>
+<li><a class="reference internal" href="#id31">2.3.0</a></li>
+<li><a class="reference internal" href="#id32">2.2.0</a></li>
+<li><a class="reference internal" href="#id33">2.1.0</a></li>
+<li><a class="reference internal" href="#id34">2.0.2</a></li>
+<li><a class="reference internal" href="#id35">2.0.1</a></li>
+<li><a class="reference internal" href="#id36">2.0.0</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id36">1.x</a><ul>
-<li><a class="reference internal" href="#id37">1.1.1</a></li>
+<li><a class="reference internal" href="#id37">1.x</a><ul>
+<li><a class="reference internal" href="#id38">1.1.1</a></li>
 </ul>
 </li>
 </ul>
