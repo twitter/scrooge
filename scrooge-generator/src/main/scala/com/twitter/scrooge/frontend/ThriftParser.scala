@@ -18,11 +18,7 @@ package com.twitter.scrooge.frontend
 
 import scala.collection.mutable
 import scala.util.parsing.combinator._
-import com.twitter.scrooge._
 import java.io.FileNotFoundException
-import com.twitter.scrooge.backend._
-import scala.Some
-import com.twitter.scrooge.frontend.FileParseException
 
 case class FileParseException(filename: String, cause: Throwable)
   extends Exception("Exception parsing: %s".format(filename), cause)
