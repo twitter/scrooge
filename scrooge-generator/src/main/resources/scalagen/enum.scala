@@ -47,6 +47,12 @@ case object {{EnumName}} {
       case _ => scala.None
     }
   }
+
+  lazy val list: List[{{EnumName}}] = scala.List[{{EnumName}}](
+{{#values}}
+    {{name}}
+{{/values|,}}
+  )
 }
 
 
