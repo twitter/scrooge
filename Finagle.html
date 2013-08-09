@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Finagle Integration &mdash; Scrooge 3.4.0 documentation</title>
+    <title>Finagle Integration &mdash; Scrooge 3.5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.4.0',
+        VERSION:     '3.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.4.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 3.5.0 documentation" href="index.html" />
     <link rel="next" title="Ostrich Integration" href="Ostrich.html" />
     <link rel="prev" title="Command Line" href="CommandLine.html" />
    
@@ -69,54 +69,44 @@ and client sides.</p>
 }
 </pre></div>
 </div>
-<p>Scrooge generates the following wrapper class:</p>
+<p>Scrooge generates the following wrapper classes:</p>
 <div class="highlight-text"><div class="highlight"><pre>import com.twitter.finagle.Service
 import com.twitter.finagle.thrift.{ThriftClientRequest,
   ThriftServerFramedCodec, ThriftClientFramedCodec}
-object BinaryService {
-  // vanilla interface
-  trait Iface {
-    def fetchBlob(id: Long): ByteBuffer
-  }
+import com.twitter.util.Future
 
-  // future-based Finagle interface
-  trait FutureIface {
-    def fetchBlob(id: Long): Future[ByteBuffer]
-  }
+/*
+ The server side service wrapper takes a thrift protocol factory (to
+ specify which wire protocol to use) and an implementation of
+ BinaryService[Future]
+*/
+class BinaryService$FinagleService(
+  iface: BinaryService[Future],
+  val protocolFactory: TProtocolFactory
+) extends Service[Array[Byte], Array[Byte]]
 
+/*
+ The client wrapper implements BinaryService[Future].
+*/
+class BinaryService$FinagleClient(
+  val service: Service[ThriftClientRequest, Array[Byte]],
+  val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+  override val serviceName: String = &quot;&quot;,
+  stats: StatsReceiver = NullStatsReceiver
+) extends BinaryService[Future] {
   /*
-   The server side service wrapper takes a thrift protocol factory (to
-   specify which wire protocol to use) and an implementation of
-   FutureIface
+    The method call encodes method name along with arguments in
+    ThriftClientRequest and sends to the server, then decodes server
+    response to reconstruct the return value.
   */
-  class FinagledService(
-    iface: FutureIface,
-    val protocolFactory: TProtocolFactory
-  ) extends Service[Array[Byte], Array[Byte]]
-
-  /*
-   The client wrapper implements FutureIface.
-  */
-  class FinagledClient(
-    val service: Service[ThriftClientRequest, Array[Byte]],
-    val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
-    override val serviceName: Option[String] = None,
-    stats: StatsReceiver = NullStatsReceiver
-  ) extends FutureIface {
-    /*
-      The method call encodes method name along with arguments in
-      ThriftClientRequest and sends to the server, then decodes server
-      response to reconstruct the return value.
-    */
-    def fetchBlob(id: Long): Future[ByteBuffer]
-  }
+  def fetchBlob(id: Long): Future[ByteBuffer]
 }
 </pre></div>
 </div>
-<p>To create a server, you need to provide an implementation of FutureIface,
-and use it with Finagle&#8217;s Thrift object.</p>
+<p>To create a server, you need to provide an implementation of the service
+interface and use it with Finagle&#8217;s Thrift object.</p>
 <div class="highlight-text"><div class="highlight"><pre>// provide an implementation of the future-base service interface
-class MyImpl extends BinaryService.FutureIface {
+class MyImpl extends BinaryService[Future] {
   ...
 }
 val service = Thrift.serve(&quot;host:port&quot;, new MyImpl)
@@ -124,7 +114,7 @@ val service = Thrift.serve(&quot;host:port&quot;, new MyImpl)
 </div>
 <p>Creating a client is easy, you just provide Finagle&#8217;s Thrift object the
 iface.</p>
-<div class="highlight-text"><div class="highlight"><pre>val client = Thrift.newIface[BinaryService.FutureIface](&quot;host:port&quot;)
+<div class="highlight-text"><div class="highlight"><pre>val client = Thrift.newIface[BinaryService[Future]](&quot;host:port&quot;)
 </pre></div>
 </div>
 <p>In both the server and client cases, you probably want to pass more
