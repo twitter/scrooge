@@ -35,11 +35,11 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
 
   "ScalaGenerator service" should {
     "generate a service interface" in {
-      val service: SimpleService.Iface = new SimpleService.Iface {
-        def deliver(where: String) = 3
+      val service: SimpleService[Some] = new SimpleService[Some] {
+        def deliver(where: String) = Some(3)
       }
 
-      service.deliver("Boston") mustEqual 3
+      service.deliver("Boston") mustEqual Some(3)
     }
 
     "generate a future-based service interface" in {
@@ -194,9 +194,9 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       ExceptionalService.deliver$result(None, None, None, Some(EmptyXception())).write(protocol) mustEqual ()
     }
 
-    "generate FinagledService" in {
-      val impl = mock[ExceptionalService.FutureIface]
-      val service = new ExceptionalService.FinagledService(impl, new TBinaryProtocol.Factory)
+    "generate FinagleService" in {
+      val impl = mock[ExceptionalService[Future]]
+      val service = new ExceptionalService$FinagleService(impl, new TBinaryProtocol.Factory)
 
       "success" in {
         val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston")).message
@@ -223,12 +223,12 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
     }
 
     "generate FinagledClient" in {
-      val impl = mock[ExceptionalService.FutureIface]
-      val service = new ExceptionalService.FinagledService(impl, new TBinaryProtocol.Factory)
+      val impl = mock[ExceptionalService[Future]]
+      val service = new ExceptionalService$FinagleService(impl, new TBinaryProtocol.Factory)
       val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
         def apply(req: ThriftClientRequest) = service(req.message)
       }
-      val client = new ExceptionalService.FinagledClient(clientService)
+      val client = new ExceptionalService$FinagleClient(clientService)
 
       "success" in {
         val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
@@ -274,14 +274,14 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
     }
 
     "correctly inherit traits across services" in {
-      "synchronous" in {
-        class BasicImpl extends ReadWriteService.Iface {
-          def getName() = "Rus"
-          def setName(name: String) { }
+      "generic" in {
+        class BasicImpl extends ReadWriteService[Some] {
+          def getName() = Some("Rus")
+          def setName(name: String) = Some(())
         }
 
-        new BasicImpl() must haveSuperClass[ReadOnlyService.Iface]
-        new BasicImpl() must haveSuperClass[ReadWriteService.Iface]
+        new BasicImpl() must haveSuperClass[ReadOnlyService[Some]]
+        new BasicImpl() must haveSuperClass[ReadWriteService[Some]]
       }
 
       "future-based" in {
@@ -295,18 +295,18 @@ class ServiceGeneratorSpec extends SpecificationWithJUnit with EvalHelper with J
       }
 
       "finagle" in {
-        val service = new ReadWriteService.FinagledService(null, null)
-        service must haveSuperClass[ReadOnlyService.FinagledService]
+        val service = new ReadWriteService$FinagleService(null, null)
+        service must haveSuperClass[ReadOnlyService$FinagleService]
 
-        val client = new ReadWriteService.FinagledClient(null, null)
-        client must haveSuperClass[ReadOnlyService.FinagledClient]
-        client must haveSuperClass[ReadOnlyService.FutureIface]
-        client must haveSuperClass[ReadWriteService.FutureIface]
+        val client = new ReadWriteService$FinagleClient(null, null)
+        client must haveSuperClass[ReadOnlyService$FinagleClient]
+        client must haveSuperClass[ReadOnlyService[Future]]
+        client must haveSuperClass[ReadWriteService[Future]]
       }
     }
 
     "camelize names only in the scala bindings" in {
-      val service = new Capsly.FinagledService(null, null) {
+      val service = new Capsly$FinagleService(null, null) {
         def getFunction2(name: String) = functionMap(name)
       }
       service.getFunction2("Bad_Name") must not(be_==(None))

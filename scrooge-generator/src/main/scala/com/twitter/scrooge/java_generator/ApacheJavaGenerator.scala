@@ -201,7 +201,7 @@ class ApacheJavaGenerator(
 
   // main entry
   def apply(doc: Document, serviceOptions: Set[ServiceOption], outputPath: File, dryRun: Boolean = false) = {
-    // TODO: Implement serviceOptions (WithFinagleClient, etc)
+    // TODO: Implement serviceOptions (WithFinagle, etc)
     val fileExtension = ".java"
     val generatedFiles = new mutable.ListBuffer[File]
     val namespace = getNamespace(doc)

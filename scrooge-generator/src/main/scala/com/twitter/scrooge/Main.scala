@@ -19,7 +19,7 @@ package com.twitter.scrooge
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
-import com.twitter.scrooge.backend.{Generator, WithOstrichServer, WithFinagleClient, WithFinagleService}
+import com.twitter.scrooge.backend.{Generator, WithOstrichServer, WithFinagle}
 
 object Main {
   def main(args: Array[String]) {
@@ -100,15 +100,13 @@ object Main {
       )
 
       opt("finagle", "generate finagle classes", {
-        compiler.flags += WithFinagleService
-        compiler.flags += WithFinagleClient
+        compiler.flags += WithFinagle
         ()
       })
       opt("ostrich", "[DEPRECATED] generate ostrich server interface", {
         // --ostrich implies --finagle
         compiler.flags += WithOstrichServer
-        compiler.flags += WithFinagleClient
-        compiler.flags += WithFinagleService
+        compiler.flags += WithFinagle
         () })
       arglist("<files...>", "thrift files to compile", { compiler.thriftFiles += _ })
     }

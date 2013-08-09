@@ -1,5 +1,6 @@
 package com.twitter.scrooge.backend
 
+import com.twitter.util.{Return, Throw, Try}
 import org.specs.SpecificationWithJUnit
 
 class NonFinagleSpec extends SpecificationWithJUnit {
@@ -10,19 +11,23 @@ class NonFinagleSpec extends SpecificationWithJUnit {
       import vanilla.test2._
       val chicago = Airport("ORD", "Chicago", Location(123, 321))
       val nyc = Airport("JFK", "New York", Location(789, 987))
-      val service: ExtendedAirportService.Iface = new ExtendedAirportService.Iface {
+      val service: ExtendedAirportService[Try] = new ExtendedAirportService[Try] {
         def fetchAirportsInBounds(nw: Location, se: Location) =
-          Seq(chicago, nyc)
-            .filter { airport =>
-              inRegion(airport.loc, nw, se)
+          Try {
+            Seq(chicago, nyc)
+              .filter { airport =>
+                inRegion(airport.loc, nw, se)
+            }
           }
-        def hasWifi(a: Airport): Boolean =
-          if (a.code == "ORD")
-            true
-          else if (a.code == "JFK")
-            false
-          else
-            throw AirportException(100)
+        def hasWifi(a: Airport) =
+          Try {
+            if (a.code == "ORD")
+              true
+            else if (a.code == "JFK")
+              false
+            else
+              throw AirportException(100)
+          }
 
         private[this] def inRegion(loc: Location, nw: Location, se: Location) =
           loc.latitude < nw.latitude &&
@@ -30,11 +35,11 @@ class NonFinagleSpec extends SpecificationWithJUnit {
           loc.longitude > nw.longitude &&
           loc.longitude < se.longitude
       }
-      service.hasWifi(chicago) mustEqual true
-      service.hasWifi(nyc) mustEqual false
+      service.hasWifi(chicago)() mustEqual true
+      service.hasWifi(nyc)() mustEqual false
       val sfo = Airport("SFO", "San Francisco", Location(10, 10))
-      service.hasWifi(sfo) must throwA[AirportException]
-      service.fetchAirportsInBounds(Location(500,0), Location(0, 500)) mustEqual Seq(chicago)
+      service.hasWifi(sfo)() must throwA[AirportException]
+      service.fetchAirportsInBounds(Location(500,0), Location(0, 500))() mustEqual Seq(chicago)
     }
 
     "work in Java" in {

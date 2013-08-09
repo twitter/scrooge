@@ -2,4 +2,4 @@
 {{#throws}}
 @throws(classOf[{{typeName}}])
 {{/throws}}
-def {{funcName}}({{fieldParams}}): {{#async}}Future[{{/async}}{{typeName}}{{#async}}]{{/async}}
+def {{funcName}}({{fieldParams}}): {{#generic}}{{generic}}[{{/generic}}{{typeName}}{{#generic}}]{{/generic}}

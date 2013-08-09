@@ -22,8 +22,8 @@ import com.twitter.scrooge.mustache.Dictionary._
 
 trait ServiceTemplate {
   self: Generator =>
-  def toDictionary(function: Function, async: Boolean): Dictionary = {
-    val hasThrows = !async && function.throws.size > 0
+  def toDictionary(function: Function, generic: Option[String]): Dictionary = {
+    val hasThrows = generic.isEmpty && function.throws.size > 0
     val throwsDictionaries =
       if (hasThrows) {
         function.throws map {
@@ -34,7 +34,7 @@ trait ServiceTemplate {
         Nil
       }
     Dictionary(
-      "async" -> v(async),
+      "generic" -> v(generic.map(codify)),
       "docstring" -> codify(function.docstring.getOrElse("")),
       "hasThrows" -> v(hasThrows),
       "throws" -> v(throwsDictionaries),
@@ -83,17 +83,23 @@ trait ServiceTemplate {
   def internalResultStructNameForWire(f: Function): String =
     f.funcName.name + "_result"
 
-  def finagleClient(s: Service) = {
+  def finagleClient(
+    service: Service,
+    namespace: Identifier
+  ) =
     Dictionary(
-      "hasParent" -> v(s.parent.isDefined),
-      "finagleClientParent" -> s.parent.map { p =>
-        genID(SimpleID("FinagledClient").addScope(getServiceParentID(p)))
-      }.getOrElse {codify("")},
-      "functions" -> v(s.functions.map {
+      "package" -> genID(namespace),
+      "ServiceName" -> genID(service.sid.toTitleCase),
+      "date" -> codify(generationDate),
+      "docstring" -> codify(service.docstring.getOrElse("")),
+      "hasParent" -> v(service.parent.isDefined),
+      "finagleClientParent" ->
+        service.parent.map(getParentFinagleClient).getOrElse(codify("")),
+      "functions" -> v(service.functions.map {
         f =>
           Dictionary(
             "header" -> v(templates("function")),
-            "headerInfo" -> v(toDictionary(f, true)),
+            "headerInfo" -> v(toDictionary(f, Some("Future"))),
             "clientFuncNameForWire" -> codify(f.originalName),
             "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "type" -> genType(f.funcType),
@@ -112,18 +118,21 @@ trait ServiceTemplate {
       }),
       "function" -> v(templates("finagleClientFunction"))
     )
-  }
 
-  def finagleService(s: Service) = {
+  def finagleService(
+    service: Service,
+    namespace: Identifier
+  ) =
     Dictionary(
-      "hasParent" -> v(s.parent.isDefined),
-      "finagleServiceParent" -> {s.parent match {
-        case Some(p) =>
-          genID(SimpleID("FinagledService").addScope(getServiceParentID(p)))
-        case None => genBaseFinagleService
-      }},
+      "package" -> genID(namespace),
+      "ServiceName" -> genID(service.sid.toTitleCase),
+      "date" -> codify(generationDate),
+      "docstring" -> codify(service.docstring.getOrElse("")),
+      "hasParent" -> v(service.parent.isDefined),
+      "finagleServiceParent" ->
+        service.parent.map(getParentFinagleService).getOrElse(genBaseFinagleService),
       "function" -> v(templates("finagleServiceFunction")),
-      "functions" -> v(s.functions map {
+      "functions" -> v(service.functions map {
         f =>
           Dictionary(
             "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
@@ -147,63 +156,73 @@ trait ServiceTemplate {
           )
       })
     )
-  }
 
-  def ostrichService(s: Service) = Dictionary()
+  def ostrichService(
+    service: Service,
+    namespace: Identifier
+  ) =
+    Dictionary(
+      "package" -> genID(namespace),
+      "ServiceName" -> genID(service.sid.toTitleCase),
+      "date" -> codify(generationDate),
+      "docstring" -> codify(service.docstring.getOrElse(""))
+    )
 
   def serviceDict(
-    s: JavaService,
+    service: Service,
     namespace: Identifier,
     includes: Seq[Include],
-    serviceOptions: Set[ServiceOption]
+    options: Set[ServiceOption]
   ) = {
-    val service = s.service
-
+    val withFinagle = options.contains(WithFinagle)
+    val withOstrichServer = options.contains(WithOstrichServer)
     Dictionary(
       "function" -> v(templates("function")),
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> codify(service.docstring.getOrElse("")),
-      "syncExtends" -> codify(service.parent.map { p =>
-          "extends " + genID(getServiceParentID(p)) + ".Iface "
-        }.getOrElse("")),
-      "asyncExtends" -> codify(service.parent.map { p =>
-        "extends " + genID(getServiceParentID(p)) + ".FutureIface "
-      }.getOrElse("")),
+      "syncParent" -> v(service.parent.map { p =>
+        genID(getServiceParentID(p)).append(".Iface")
+      }),
+      "futureIfaceParent" -> v(service.parent.map { p =>
+        genID(getServiceParentID(p)).append(".FutureIface")
+      }),
+      "genericParent" -> service.parent.map { p =>
+        genID(getServiceParentID(p)).append("[MM]")
+      }.getOrElse(codify("ThriftService")),
       "syncFunctions" -> v(service.functions.map {
-        f => toDictionary(f, false)
+        f => toDictionary(f, None)
       }),
       "asyncFunctions" -> v(service.functions.map {
-        f => toDictionary(f, true)
+        f => toDictionary(f, Some("Future"))
+      }),
+      "genericFunctions" -> v(service.functions.map {
+        f => toDictionary(f, Some("MM"))
       }),
       "struct" -> v(templates("struct")),
       "internalStructs" -> v(service.functions.map { f =>
         Dictionary(
           "internalArgsStruct" -> v(structDict(
             internalArgsStruct(f),
-            None, includes, serviceOptions)),
+            None, includes, options)),
           "internalResultStruct" -> v(structDict(
             internalResultStruct(f),
-            None, includes, serviceOptions))
+            None, includes, options))
         )
       }),
-      "finagleClient" -> v(templates("finagleClient")),
       "finagleService" -> v(templates("finagleService")),
       "ostrichServer" -> v(templates("ostrichService")),
       "finagleClients" -> v(
-        if (s.options contains WithFinagleClient) Seq(finagleClient(service)) else Seq()
+        if (withFinagle) Seq(finagleClient(service, namespace)) else Seq()
       ),
       "finagleServices" -> v(
-        if (s.options contains WithFinagleService) Seq(finagleService(service)) else Seq()
+        if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
       "ostrichServers" -> v(
-        if (s.options contains WithOstrichServer) Seq(ostrichService(service)) else Seq()
+        if (withOstrichServer) Seq(ostrichService(service, namespace)) else Seq()
       ),
-      "withFinagleClient" -> v(s.options contains WithFinagleService),
-      "withFinagleService" -> v(s.options contains WithFinagleService),
-      "withOstrichServer" -> v(s.options contains WithOstrichServer),
-      "withFinagle" -> v((s.options contains WithFinagleClient)
-        || (s.options contains WithFinagleService)),
+      "withFinagle" -> v(withFinagle),
+      "withOstrichServer" -> v(withOstrichServer),
       "date" -> codify(generationDate),
       "enablePassthrough" -> v(enablePassthrough)
     )

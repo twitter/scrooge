@@ -1,11 +1,24 @@
+package {{package}}
+
+import com.twitter.finagle.{Service => FinagleService}
+import com.twitter.scrooge.ThriftStruct
+import com.twitter.util.Future
+import java.nio.ByteBuffer
+import java.util.Arrays
+import org.apache.thrift.protocol._
+import org.apache.thrift.TApplicationException
+import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
+import scala.collection.mutable
+import scala.collection.{Map, Set}
 
 {{docstring}}
-class FinagledService(
-  iface: FutureIface,
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+class {{ServiceName}}$FinagleService(
+  iface: {{ServiceName}}[Future],
   protocolFactory: TProtocolFactory
 ) extends {{finagleServiceParent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}} {
+  import {{ServiceName}}._
 {{^hasParent}}
-  // ----- boilerplate that should eventually be moved into finagle:
 
   protected val functionMap = new mutable.HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
 

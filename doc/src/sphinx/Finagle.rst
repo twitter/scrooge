@@ -14,59 +14,49 @@ Here's an example, assuming your thrift service is
       binary fetchBlob(1: i64 id)
     }
 
-Scrooge generates the following wrapper class:
+Scrooge generates the following wrapper classes:
 
 ::
 
     import com.twitter.finagle.Service
     import com.twitter.finagle.thrift.{ThriftClientRequest,
       ThriftServerFramedCodec, ThriftClientFramedCodec}
-    object BinaryService {
-      // vanilla interface
-      trait Iface {
-        def fetchBlob(id: Long): ByteBuffer
-      }
+    import com.twitter.util.Future
 
-      // future-based Finagle interface
-      trait FutureIface {
-        def fetchBlob(id: Long): Future[ByteBuffer]
-      }
+    /*
+     The server side service wrapper takes a thrift protocol factory (to
+     specify which wire protocol to use) and an implementation of
+     BinaryService[Future]
+    */
+    class BinaryService$FinagleService(
+      iface: BinaryService[Future],
+      val protocolFactory: TProtocolFactory
+    ) extends Service[Array[Byte], Array[Byte]]
 
+    /*
+     The client wrapper implements BinaryService[Future].
+    */
+    class BinaryService$FinagleClient(
+      val service: Service[ThriftClientRequest, Array[Byte]],
+      val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+      override val serviceName: String = "",
+      stats: StatsReceiver = NullStatsReceiver
+    ) extends BinaryService[Future] {
       /*
-       The server side service wrapper takes a thrift protocol factory (to
-       specify which wire protocol to use) and an implementation of
-       FutureIface
+        The method call encodes method name along with arguments in
+        ThriftClientRequest and sends to the server, then decodes server
+        response to reconstruct the return value.
       */
-      class FinagledService(
-        iface: FutureIface,
-        val protocolFactory: TProtocolFactory
-      ) extends Service[Array[Byte], Array[Byte]]
-
-      /*
-       The client wrapper implements FutureIface.
-      */
-      class FinagledClient(
-        val service: Service[ThriftClientRequest, Array[Byte]],
-        val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
-        override val serviceName: Option[String] = None,
-        stats: StatsReceiver = NullStatsReceiver
-      ) extends FutureIface {
-        /*
-          The method call encodes method name along with arguments in
-          ThriftClientRequest and sends to the server, then decodes server
-          response to reconstruct the return value.
-        */
-        def fetchBlob(id: Long): Future[ByteBuffer]
-      }
+      def fetchBlob(id: Long): Future[ByteBuffer]
     }
 
-To create a server, you need to provide an implementation of FutureIface,
-and use it with Finagle's Thrift object.
+To create a server, you need to provide an implementation of the service
+interface and use it with Finagle's Thrift object.
 
 ::
 
     // provide an implementation of the future-base service interface
-    class MyImpl extends BinaryService.FutureIface {
+    class MyImpl extends BinaryService[Future] {
       ...
     }
     val service = Thrift.serve("host:port", new MyImpl)
@@ -76,7 +66,7 @@ iface.
 
 ::
 
-    val client = Thrift.newIface[BinaryService.FutureIface]("host:port")
+    val client = Thrift.newIface[BinaryService[Future]]("host:port")
 
 In both the server and client cases, you probably want to pass more
 configuration parameters to finagle, so check the finagle documentation for

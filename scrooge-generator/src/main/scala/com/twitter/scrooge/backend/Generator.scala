@@ -28,8 +28,7 @@ import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 abstract sealed class ServiceOption
 
-case object WithFinagleClient extends ServiceOption
-case object WithFinagleService extends ServiceOption
+case object WithFinagle extends ServiceOption
 case object WithOstrichServer extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
@@ -146,6 +145,9 @@ trait Generator
       case None => parent.sid
     }
   }
+
+  def getParentFinagleService(parent: ServiceParent): CodeFragment
+  def getParentFinagleClient(parent: ServiceParent): CodeFragment
 
   def isPrimitive(t: FunctionType): Boolean = {
     t match {
@@ -309,6 +311,27 @@ trait Generator
 
   def genBaseFinagleService: CodeFragment
 
+  def finagleClientFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    None
+
+  def finagleServiceFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    None
+
+  def ostrichServiceFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    None
+
   // main entry
   def apply(
     _doc: Document,
@@ -362,12 +385,34 @@ trait Generator
 
     doc.services.foreach {
       service =>
-        val file = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
+        val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
+        val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
+        val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
+        val ostrichFileOpt = ostrichServiceFile(packageDir, service, serviceOptions)
+
         if (!dryRun) {
-          val dict = serviceDict(JavaService(service, serviceOptions), namespace, includes, serviceOptions)
-          writeFile(file, templates.header, templates("service").generate(dict))
+          val dict = serviceDict(service, namespace, includes, serviceOptions)
+          writeFile(interfaceFile, templates.header, templates("service").generate(dict))
+
+          finagleClientFileOpt foreach { file =>
+            val dict = finagleClient(service, namespace)
+            writeFile(file, templates.header, templates("finagleClient").generate(dict))
+          }
+
+          finagleServiceFileOpt foreach { file =>
+            val dict = finagleService(service, namespace)
+            writeFile(file, templates.header, templates("finagleService").generate(dict))
+          }
+
+          ostrichFileOpt foreach { file =>
+            val dict = ostrichService(service, namespace)
+            writeFile(file, templates.header, templates("ostrichService").generate(dict))
+          }
         }
-        generatedFiles += file
+        generatedFiles += interfaceFile
+        generatedFiles ++= ostrichFileOpt
+        generatedFiles ++= finagleServiceFileOpt
+        generatedFiles ++= finagleClientFileOpt
     }
 
     generatedFiles

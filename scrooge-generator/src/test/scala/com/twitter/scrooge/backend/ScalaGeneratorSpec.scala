@@ -737,10 +737,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
     "hide internal helper function to avoid naming conflict" in {
       import thrift.`def`.default._
-      val impl = new NaughtyService.Iface {
-        def foo(): FooResult = FooResult("dummy message")
+      val impl = new NaughtyService[Some] {
+        def foo() = Some(FooResult("dummy message"))
       }
-      impl.foo().message mustEqual("dummy message")
+      impl.foo().get.message mustEqual("dummy message")
     }
 
     "pass through fields" in {
