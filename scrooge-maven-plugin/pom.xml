@@ -5,26 +5,23 @@
   <artifactId>scrooge-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>scrooge-maven-plugin</name>
-  <version>3.4.0</version>
+  <version>3.5.0</version>
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>
   <url>http://github.com/twitter/scrooge</url>
   <description>A Thrift generator for Scala</description>
-
   <scm>
     <connection>scm:git:git@github.com:twitter/scrooge.git</connection>
     <url>scm:git:git@github.com:twitter/scrooge.git</url>
     <developerConnection>scm:git:git@github.com:twitter/scrooge.git</developerConnection>
   </scm>
-
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-
   <distributionManagement>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
@@ -37,7 +34,6 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-
   <developers>
     <developer>
       <name>Twitter CSL</name>
@@ -45,7 +41,6 @@
       <organization>Twitter, Inc</organization>
     </developer>
   </developers>
-
   <profiles>
     <profile>
       <id>sonatype-oss-release</id>
@@ -95,7 +90,6 @@
       </build>
     </profile>
   </profiles>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -122,7 +116,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>net.alchim31.maven</groupId>
@@ -224,7 +217,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.9.2</artifactId>
-      <version>3.4.0</version>
+      <version>3.5.0</version>
     </dependency>
   </dependencies>
   <reporting>
@@ -236,5 +229,4 @@
       </plugin>
     </plugins>
   </reporting>
-
 </project>
