@@ -244,4 +244,10 @@ class JavaGenerator(
   }
 
   def genBaseFinagleService = codify("Service<byte[], byte[]>")
+
+  def getParentFinagleService(p: ServiceParent): CodeFragment =
+    genID(SimpleID("FinagledService").addScope(getServiceParentID(p)))
+
+  def getParentFinagleClient(p: ServiceParent): CodeFragment =
+    genID(SimpleID("FinagledClient").addScope(getServiceParentID(p)))
 }

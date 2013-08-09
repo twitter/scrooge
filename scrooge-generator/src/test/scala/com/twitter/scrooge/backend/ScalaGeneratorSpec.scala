@@ -68,6 +68,16 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NumberID.valueOf("Ten") must beNone
       }
 
+      "correct list" in {
+        NumberID.list(0) mustEqual NumberID.One
+        NumberID.list(1) mustEqual NumberID.Two
+        NumberID.list(2) mustEqual NumberID.Three
+        NumberID.list(3) mustEqual NumberID.Five
+        NumberID.list(4) mustEqual NumberID.Six
+        NumberID.list(5) mustEqual NumberID.Eight
+        NumberID.list.size mustEqual 6
+      }
+
       "java-serializable" in {
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
@@ -727,10 +737,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
     "hide internal helper function to avoid naming conflict" in {
       import thrift.`def`.default._
-      val impl = new NaughtyService.Iface {
-        def foo(): FooResult = FooResult("dummy message")
+      val impl = new NaughtyService[Some] {
+        def foo() = Some(FooResult("dummy message"))
       }
-      impl.foo().message mustEqual("dummy message")
+      impl.foo().get.message mustEqual("dummy message")
     }
 
     "pass through fields" in {

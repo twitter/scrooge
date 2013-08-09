@@ -30,6 +30,7 @@ object Dictionary {
     def toData = data
     def children = Nil
     override def toString = toData
+    def append(suffix: String): CodeFragment = CodeFragment(data + suffix)
   }
 
   case class BooleanValue(data: Boolean) extends Value {
@@ -75,6 +76,11 @@ object Dictionary {
    * Add children dictionaries. This is used to process Sections in mustache templates
    */
   def v(data: Seq[Dictionary]): Value = ListValue(data)
+
+  /**
+   * Unwraps the given value, if any, or returns NoValue.
+   */
+  def v(data: Option[Value]): Value = data.getOrElse(NoValue)
 
   /**
    * Wrap a handle bar in dictionary value. This is used to process Partial in mustache templates

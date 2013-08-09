@@ -1,60 +1,28 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  ThriftStruct, ThriftStructCodec, ThriftStructCodec3}
+  ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3}
 {{#enablePassthrough}}
 import com.twitter.scrooge.ThriftUtil
 {{/enablePassthrough}}
-import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException
+import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.mutable
 import scala.collection.{Map, Set}
-{{#withFinagle}}
-import com.twitter.util.Future
-import com.twitter.conversions.time._
-{{/withFinagle}}
-{{#withFinagleClient}}
-import com.twitter.finagle.{Service => FinagleService}
-import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.finagle.SourcedException
-{{/withFinagleClient}}
-{{#withFinagleService}}
-import com.twitter.finagle.{Service => FinagleService}
-import java.util.Arrays
-import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport, TTransport}
-{{/withFinagleService}}
-{{#withOstrichServer}}
-import com.twitter.finagle.builder.{Server, ServerBuilder}
-import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
-import com.twitter.finagle.thrift.ThriftServerFramedCodec
-import com.twitter.finagle.tracing.{NullTracer, Tracer}
-import com.twitter.logging.Logger
-import com.twitter.ostrich.admin.Service
-import com.twitter.util.Duration
-import java.util.concurrent.atomic.AtomicReference
-{{/withOstrichServer}}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/genericParent}}{
+{{#genericFunctions}}
+  {{>function}}
+{{/genericFunctions}}
+}
+
+{{docstring}}
 object {{ServiceName}} {
-  trait Iface {{syncExtends}}{
-{{#syncFunctions}}
-    {{>function}}
-{{/syncFunctions}}
-  }
-
-{{#withFinagle}}
-  trait FutureIface {{asyncExtends}}{
-{{#asyncFunctions}}
-    {{>function}}
-{{/asyncFunctions}}
-  }
-{{/withFinagle}}
-
 {{#internalStructs}}
 {{#internalArgsStruct}}
   {{>struct}}
@@ -64,13 +32,40 @@ object {{ServiceName}} {
 {{/internalResultStruct}}
 {{/internalStructs}}
 
-{{#finagleClients}}
-  {{>finagleClient}}
-{{/finagleClients}}
-{{#finagleServices}}
-  {{>finagleService}}
-{{/finagleServices}}
-{{#ostrichServers}}
-  {{>ostrichServer}}
-{{/ostrichServers}}
+{{#withFinagle}}
+  import com.twitter.util.Future
+
+  @deprecated("use {{ServiceName}}[Future]", "3.4.0")
+  trait FutureIface extends {{#futureIfaceParent}}{{futureIfaceParent}} with{{/futureIfaceParent}} {{ServiceName}}[Future] {
+{{#asyncFunctions}}
+    {{>function}}
+{{/asyncFunctions}}
+  }
+
+  @deprecated("use {{ServiceName}}$FinagleClient", "3.4.0")
+  class FinagledClient(
+      service: com.twitter.finagle.Service[com.twitter.finagle.thrift.ThriftClientRequest, Array[Byte]],
+      protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+      serviceName: String = "",
+      stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver)
+    extends {{ServiceName}}$FinagleClient(
+      service,
+      protocolFactory,
+      serviceName,
+      stats)
+    with FutureIface
+
+  @deprecated("use {{ServiceName}}$FinagleService", "3.4.0")
+  class FinagledService(
+      iface: FutureIface,
+      protocolFactory: TProtocolFactory)
+    extends {{ServiceName}}$FinagleService(
+      iface,
+      protocolFactory)
+
+{{#withOstrichServer}}
+  @deprecated("use twitter-server or com.twitter.scrooge.OstrichThriftServer", "3.4.0")
+  trait ThriftServer extends {{ServiceName}}$ThriftServer with FutureIface
+{{/withOstrichServer}}
+{{/withFinagle}}
 }

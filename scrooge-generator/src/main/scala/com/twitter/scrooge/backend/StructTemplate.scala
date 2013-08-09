@@ -224,8 +224,8 @@ trait StructTemplate {
   ) = {
     val isException = struct.isInstanceOf[Exception_]
     val parentType = if (isException) {
-      if (serviceOptions contains WithFinagleClient) {
-        "ThriftException with SourcedException with ThriftStruct"
+      if (serviceOptions contains WithFinagle) {
+        "ThriftException with com.twitter.finagle.SourcedException with ThriftStruct"
       } else {
         "ThriftException with ThriftStruct"
       }
@@ -274,7 +274,6 @@ trait StructTemplate {
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withProxy" -> v(struct.isInstanceOf[Struct]),
-      "withFinagleClient" -> v(serviceOptions contains WithFinagleClient),
       "date" -> codify(generationDate),
       "enablePassthrough" -> v(enablePassthrough)
     )

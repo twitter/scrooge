@@ -1,5 +1,25 @@
+package {{package}}
+
+import com.twitter.conversions.time._
+import com.twitter.finagle.builder.{Server, ServerBuilder}
+import com.twitter.finagle.stats.StatsReceiver
+import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
+import com.twitter.finagle.thrift.ThriftServerFramedCodec
+import com.twitter.finagle.tracing.{NullTracer, Tracer}
+import com.twitter.logging.Logger
+import com.twitter.ostrich
+import com.twitter.util.{Duration, Future}
+import java.net.InetSocketAddress
+import java.util.concurrent.atomic.AtomicReference
+import org.apache.thrift.protocol.{TBinaryProtocol, TProtocolFactory}
+import org.apache.thrift.transport.TTransport
+
+{{docstring}}
 @deprecated("long-term, use twitter-server, short term, use com.twitter.scrooge.OstrichThriftServer", "3.3.3")
-trait ThriftServer extends Service with FutureIface {
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+trait {{ServiceName}}$ThriftServer extends ostrich.admin.Service
+  with {{ServiceName}}[Future]
+{
   val log = Logger.get(getClass)
 
   def thriftCodec = ThriftServerFramedCodec()
@@ -17,7 +37,7 @@ trait ThriftServer extends Service with FutureIface {
   def server_=(value: Server) = _server.set(value)
 
   def start() {
-    val thriftImpl = new FinagledService(this, thriftProtocolFactory)
+    val thriftImpl = new {{ServiceName}}$FinagleService(this, thriftProtocolFactory)
     server_=(serverBuilder.build(thriftImpl))
   }
 

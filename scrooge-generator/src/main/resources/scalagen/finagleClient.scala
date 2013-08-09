@@ -1,12 +1,29 @@
+package {{package}}
+
+import com.twitter.finagle.SourcedException
+import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.finagle.{Service => FinagleService}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import com.twitter.util.Future
+import java.nio.ByteBuffer
+import java.util.Arrays
+import org.apache.thrift.protocol._
+import org.apache.thrift.TApplicationException
+import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
+import scala.collection.mutable
+import scala.collection.{Map, Set}
+
 {{docstring}}
-class FinagledClient(
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+class {{ServiceName}}$FinagleClient(
   {{#hasParent}}override {{/hasParent}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
   {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
   {{#hasParent}}override {{/hasParent}}val serviceName: String = "",
   stats: StatsReceiver = NullStatsReceiver
-) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}FutureIface {
+) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}{{ServiceName}}[Future] {
+  import {{ServiceName}}._
 {{^hasParent}}
-  // ----- boilerplate that should eventually be moved into finagle:
 
   protected def encodeRequest(name: String, args: ThriftStruct) = {
     val buf = new TMemoryBuffer(512)

@@ -17,8 +17,9 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.scrooge.mustache.Dictionary._
+import java.io.File
 
 object ScalaGeneratorFactory extends GeneratorFactory {
   val lang = "scala"
@@ -235,4 +236,37 @@ class ScalaGenerator(
   }
 
   def genBaseFinagleService: CodeFragment = codify("FinagleService[Array[Byte], Array[Byte]]")
+
+  def getParentFinagleService(p: ServiceParent): CodeFragment =
+    genID(Identifier(getServiceParentID(p).fullName + "$FinagleService"))
+
+  def getParentFinagleClient(p: ServiceParent): CodeFragment =
+    genID(Identifier(getServiceParentID(p).fullName + "$FinagleClient"))
+
+  override def finagleClientFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    options.find(_ == WithFinagle) map { _ =>
+      new File(packageDir, service.sid.toTitleCase.name + "$FinagleClient" + fileExtension)
+    }
+
+  override def finagleServiceFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    options.find(_ == WithFinagle) map { _ =>
+      new File(packageDir, service.sid.toTitleCase.name + "$FinagleService" + fileExtension)
+    }
+
+  override def ostrichServiceFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    options.find(_ == WithOstrichServer) map { _ =>
+      new File(packageDir, service.sid.toTitleCase.name + "$ThriftServer" + fileExtension)
+    }
 }

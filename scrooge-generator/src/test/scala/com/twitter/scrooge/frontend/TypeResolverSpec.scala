@@ -155,6 +155,14 @@ class TypeResolverSpec extends SpecificationWithJUnit {
           Some(service1))))
     }
 
+    "resolve a parameter from an included scope" in {
+      val oneInt = Struct(SimpleID("TestRequest"), "TestRequest", Seq(), None)
+      val doc = Document(Nil, Seq(oneInt))
+      val resolver = TypeResolver().withMapping(Include("other.thrift", doc))
+      val resolveFieldType: FieldType = resolver.resolveFieldType(QualifiedID(Seq("other", "TestRequest")))
+      resolveFieldType.asInstanceOf[StructType].scopePrefix must_== Some(SimpleID("other"))
+    }
+
     "resolve a service parent from an included scope" in {
       val service1 = Service(SimpleID("Super"), None, Nil, None)
       val otherDoc = Document(Nil, Seq(service1))

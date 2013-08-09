@@ -6,6 +6,15 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.5.0
+~~~~~
+
+- scrooge: breaking out finagle, higher-kinded-type interface
+- use apply instead of cons for enum list all
+- Cleanup around the TypeResolver
+- update ostrich related docs
+- scrooge-ostrich This review introduces a new, temporary scrooge subproject, which is intended to help in the migration away from generating ostrich code in scrooge.
+
 3.4.0
 ~~~~~
 
@@ -15,7 +24,7 @@ as it is included in Scoorge's user's guide.
 - treat non-letters as case-less
 - update docs and release process for twitter-server, scrooge
 - BREAKING: move serializer into its own project
-- keep the order of the values in the constant map in the parser.  Should be a no-op for scala that converts it to a map in the generator
+- keep the order of the values in the constant map in the parser. Should be a no-op for scala that converts it to a map in the generator
 - Remove the tracerFactory usage and use tracer instead.
 - create scrooge documentation site
 - tiny fix for oneway support

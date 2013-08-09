@@ -9,9 +9,6 @@ import com.twitter.scrooge.ThriftUtil
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
-{{#withFinagleClient}}
-import com.twitter.finagle.SourcedException
-{{/withFinagleClient}}
 import scala.collection.mutable
 import scala.collection.{Map, Set}
 
