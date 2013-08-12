@@ -129,12 +129,12 @@ class ThriftParser(
 
   def listSeparator = "[,;]?".r
 
-  def listOrMapRHS = "[" ~> repsep(rhs, listSeparator) <~ "]" ^^ {
+  def listOrMapRHS = "[" ~> repsep(rhs, listSeparator) <~ opt(listSeparator) <~ "]" ^^ {
     list =>
       ListRHS(list)
   }
 
-  def mapRHS = "{" ~> repsep(rhs ~ ":" ~ rhs, listSeparator) <~ "}" ^^ {
+  def mapRHS = "{" ~> repsep(rhs ~ ":" ~ rhs, listSeparator) <~ opt(listSeparator) <~ "}" ^^ {
     list =>
       MapRHS(list.map {
         case k ~ x ~ v => (k, v)

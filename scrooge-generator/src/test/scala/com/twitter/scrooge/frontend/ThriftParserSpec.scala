@@ -20,10 +20,10 @@ class ThriftParserSpec extends SpecificationWithJUnit {
       parser.parse("\"hello!\"", parser.rhs) mustEqual StringLiteral("hello!")
       parser.parse("'hello!'", parser.rhs) mustEqual StringLiteral("hello!")
       parser.parse("cat", parser.rhs) mustEqual IdRHS(SimpleID("cat"))
-      val list = parser.parse("[ 4, 5 ]", parser.rhs)
+      val list = parser.parse("[ 4, 5, ]", parser.rhs)
       list must haveClass[ListRHS]
       list.asInstanceOf[ListRHS].elems.toList mustEqual List(IntLiteral(4), IntLiteral(5))
-      parser.parse("{ 'name': 'Commie', 'home': 'San Francisco' }",
+      parser.parse("{ 'name': 'Commie', 'home': 'San Francisco', }",
         parser.rhs) mustEqual MapRHS(Seq(StringLiteral("name") -> StringLiteral
         ("Commie"), StringLiteral("home") -> StringLiteral("San Francisco")))
     }
