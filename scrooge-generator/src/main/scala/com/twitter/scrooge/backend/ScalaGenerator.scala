@@ -267,6 +267,6 @@ class ScalaGenerator(
     Set[ServiceOption]
   ): Option[File] =
     options.find(_ == WithOstrichServer) map { _ =>
-      new File(packageDir, service.sid.toTitleCase.name + "$ThriftServer" + fileExtension)
+      new File(packageDir, service.sid.toTitleCase.name + "$OstrichThriftServer" + fileExtension)
     }
 }

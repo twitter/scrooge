@@ -65,7 +65,7 @@ object {{ServiceName}} {
 
 {{#withOstrichServer}}
   @deprecated("use twitter-server or com.twitter.scrooge.OstrichThriftServer", "3.4.0")
-  trait ThriftServer extends {{ServiceName}}$ThriftServer with FutureIface
+  trait ThriftServer extends {{ServiceName}}$OstrichThriftServer with FutureIface
 {{/withOstrichServer}}
 {{/withFinagle}}
 }
