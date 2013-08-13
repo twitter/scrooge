@@ -2,6 +2,7 @@ package com.twitter.scrooge.frontend
 
 import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.frontend.TypeMismatchException
 
 class TypeResolverSpec extends SpecificationWithJUnit {
   "TypeResolve" should {
@@ -20,11 +21,15 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     val structRef = ReferenceType(struct.sid)
     val ex = Exception_(SimpleID("Boom"), "Boom", Seq(Field(1, SimpleID("msg"), "msg", enumRef)), None)
     val exType = new StructType(ex)
-    val exRef = ReferenceType(ex.sid)
     val resolver = TypeResolver()
       .withMapping(enum.sid.name, enumType)
       .withMapping(struct.sid.name, structType)
       .withMapping(ex.sid.name, exType)
+
+    def createStruct(structName: String, fieldType: FieldType) = {
+      val fieldName: String = structName + "_field"
+      Struct(SimpleID(structName), structName, Seq(Field(1, SimpleID(fieldName), fieldName, fieldType)), None)
+    }
 
     "throw exception on unknown type" in {
       resolver(ReferenceType(Identifier("wtf"))) must throwA[TypeNotFoundException]
@@ -44,10 +49,6 @@ class TypeResolverSpec extends SpecificationWithJUnit {
           }
           true
       }
-    }
-
-    "resolve a scoped type" in {
-      //todo: CSL-272
     }
 
     "transform MapType" in {
@@ -131,6 +132,30 @@ class TypeResolverSpec extends SpecificationWithJUnit {
       //   const string copy = noSuchConst
       val copyWrongId = ConstDefinition(SimpleID("copy"), TString, IdRHS(SimpleID("noSuchConst")), None)
       newResolver(copyWrongId, None) must throwA[UndefinedConstantException]
+    }
+
+    "throw a TypeMismatchException for a StructType with a MapRHS if resolver allowStructRHS disabled" in {
+      val structType = StructType(Struct(SimpleID("Test"), "test", Seq(), None))
+      resolver(MapRHS(Seq((StringLiteral("foo"), StringLiteral("bar")))), structType) must throwA[TypeMismatchException]
+    }
+
+    "allow a valid MapRHS for a StructType if resolver allowStructRHS enabled" in {
+      val resolver = TypeResolver(allowStructRHS = true)
+      val testStruct1 = createStruct("Test1", TI32)
+      val testStruct2 = createStruct("Test2", StructType(testStruct1))
+      val structType = StructType(testStruct2)
+      val mapRHS = MapRHS(Seq((StringLiteral("Test1_field"), IntLiteral(3))))
+      val mapRHS1 = MapRHS(Seq((StringLiteral("Test2_field"), mapRHS)))
+      val value = resolver(mapRHS1, structType)
+      val structElems = Map(SimpleID("Test2_field") -> StructRHS(elems = Map(SimpleID("Test1_field") -> IntLiteral(3))))
+      value must_== StructRHS(elems = structElems)
+    }
+
+    "throw a TypeMismatchException if invalid MapRHS passed in for a StructType" in {
+      val resolver = TypeResolver(allowStructRHS = true)
+      val structType = StructType(createStruct("Test1", TString))
+      val mapRHS = MapRHS(Seq((StringLiteral("invalid_field"), StringLiteral("Hello"))))
+      resolver(mapRHS, structType) must throwA[TypeMismatchException]
     }
 
     "transform a Service" in {

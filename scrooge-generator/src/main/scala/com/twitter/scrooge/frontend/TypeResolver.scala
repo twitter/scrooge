@@ -32,7 +32,8 @@ case class TypeResolver(
   typeMap: Map[String, FieldType] = Map(),
   constMap: Map[String, ConstDefinition] = Map(),
   serviceMap: Map[String, Service] = Map(),
-  includeMap: Map[String, ResolvedDocument] = Map()) {
+  includeMap: Map[String, ResolvedDocument] = Map(),
+  allowStructRHS: Boolean = false) {
 
   def getResolver(qid: QualifiedID) = {
     includeMap.get(qid.names.head).getOrElse(throw new QualifierNotFoundException(qid.fullName)).resolver
@@ -59,7 +60,8 @@ case class TypeResolver(
    * Returns a new TypeResolver with the given include mapping added.
    */
   def withMapping(inc: Include): TypeResolver = {
-    val resolvedDocument = TypeResolver()(inc.document, Some(inc.prefix))
+    val resolver = TypeResolver(allowStructRHS = allowStructRHS)
+    val resolvedDocument = resolver(inc.document, Some(inc.prefix))
     copy(includeMap = includeMap + (inc.prefix.name -> resolvedDocument))
   }
 
@@ -191,6 +193,23 @@ case class TypeResolver(
       fieldType match {
         case MapType(keyType, valType, _) =>
           m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
+        case StructType(s, _) if allowStructRHS =>
+          val structMap = Map.newBuilder[SimpleID, RHS]
+          s.fields.foreach { f =>
+            val filtered = elems.filter {
+              case (StringLiteral(fieldName), _) => fieldName == f.sid.name
+              case _ => false
+            }
+            if (filtered.size == 1) {
+              val (k, v) = filtered.head
+              structMap += f.sid -> apply(v, f.fieldType)
+            } else if (filtered.size > 1) {
+              throw new TypeMismatchException("Duplicate default values for " + f.sid.name + " found for " + fieldType)
+            } else if (!f.requiredness.isOptional && f.default.isEmpty) {
+              throw new TypeMismatchException("Default value for " + f.sid.name + " needed for " + fieldType)
+            }
+          }
+          StructRHS(elems = structMap.result())
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
       }
     case i @ IdRHS(id) => {

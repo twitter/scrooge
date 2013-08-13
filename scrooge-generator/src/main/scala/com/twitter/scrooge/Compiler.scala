@@ -65,7 +65,7 @@ class Compiler {
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
-      val resolvedDoc = TypeResolver()(doc0)
+      val resolvedDoc = TypeResolver(allowStructRHS = isJava)(doc0) // TODO: THRIFT-54
       val generator = Generator(
         language,
         resolvedDoc.resolver.includeMap,

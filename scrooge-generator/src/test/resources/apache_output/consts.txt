@@ -58,4 +58,9 @@ public class Constants {
     SETCONSTANT.add(tmp1);
   }
 
+  public static final TestStruct STRUCTCONST = new TestStruct();
+  static {
+    STRUCTCONST.setSome_int(32);
+  }
+
 }

@@ -49,6 +49,19 @@ class PrintConstController(
     }
   }
 
+  def struct_values = {
+    val values = value.asInstanceOf[StructRHS]
+    val structType = fieldType.asInstanceOf[StructType]
+    structType.struct.fields map { f =>
+      values.elems.get(f.sid) match {
+        case Some(v) =>
+          val renderedValue = renderConstValue(v, f.fieldType)
+          Map("key" -> f.sid.name, "value" -> renderedValue.value, "rendered_value" -> renderedValue.rendered)
+        case None => // These items are optional or have a default value.
+      }
+    }
+  }
+
   private def renderConstValue(constant: RHS, fieldType: FieldType): ConstValue = {
     fieldType match {
       case TString => new ConstValue(null, generator.quote(constant.asInstanceOf[StringLiteral].value))
