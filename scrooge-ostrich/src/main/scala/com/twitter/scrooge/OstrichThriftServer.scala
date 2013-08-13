@@ -32,7 +32,7 @@ trait OstrichThriftServer extends ostrich.admin.Service {
   val serverName: String
 
   protected def finagleService: Service[Array[Byte], Array[Byte]] =
-    getClass.getInterfaces.find(_.getName.endsWith("$FutureIface")) match {
+    findFutureIface(getClass) match {
       case None => throw new IllegalStateException("Can't infer Service class, you must implement finagleService method")
       case Some(iface) =>
         val serviceName = iface.getName.dropRight(12) + "$FinagledService"
@@ -41,6 +41,12 @@ trait OstrichThriftServer extends ostrich.admin.Service {
         constructor.newInstance(this, new TBinaryProtocol.Factory())
           .asInstanceOf[Service[Array[Byte], Array[Byte]]]
     }
+
+  private def findFutureIface(cls: Class[_]): scala.Option[Class[_]] =
+    if (cls.getName.endsWith("$FutureIface"))
+      Some(cls)
+    else
+      (scala.Option(cls.getSuperclass) ++ cls.getInterfaces).view.flatMap(findFutureIface).headOption
 
   // Must be thread-safe as different threads can start and shutdown the service.
   private[this] val _server = new AtomicReference[Server]
