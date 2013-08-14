@@ -18,7 +18,7 @@ package com.twitter.scrooge
 
 import scala.collection.mutable
 import java.io.{File, FileWriter}
-import com.twitter.scrooge.backend.{Generator, ServiceOption}
+import com.twitter.scrooge.backend.{Generator, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
 import org.apache.commons.lang.time.FastDateFormat
 import java.util.Date
@@ -40,6 +40,7 @@ class Compiler {
   var dryRun: Boolean = false
   var language: String = "scala"
   var defaultNamespace: String = "thrift"
+  var scalaWarnOnJavaNSFallback: Boolean = false
   val now: String = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
 
   def run() {
@@ -73,6 +74,12 @@ class Compiler {
         now,
         enablePassthrough,
         experimentFlags)
+
+      generator match {
+        case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback
+        case _ => ()
+      }
+
       val generatedFiles = generator(
         resolvedDoc.document,
         flags.toSet,

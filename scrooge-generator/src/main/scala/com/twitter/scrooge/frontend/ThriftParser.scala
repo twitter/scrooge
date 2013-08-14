@@ -333,9 +333,7 @@ class ThriftParser(
       Namespace(scope, id)
   }
 
-  def namespaceScope = "*" ^^^ "*" | (identifier ^^ {
-    id => if (id.fullName == "scala") "java" else id.fullName
-  })
+  def namespaceScope = "*" ^^^ "*" | (identifier ^^ { _.fullName })
 
   /**
    * Matches scaladoc/javadoc style comments.

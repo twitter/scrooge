@@ -19,7 +19,7 @@ class NamespaceSpec extends SpecificationWithJUnit {
   }
 
   "Java Generator" should {
-    import java_foo._
+    import foo._
     import java_bar._
     import com.java_fake._
     "import from another namespace" in {
