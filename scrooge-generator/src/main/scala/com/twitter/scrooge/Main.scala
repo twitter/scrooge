@@ -99,10 +99,6 @@ object Main {
         { flag: String => compiler.experimentFlags += flag; () }
       )
 
-      opt("scala-warn-on-java-ns-fallback", "Print a warning when the scala generator falls back to the java namespace", {
-        compiler.scalaWarnOnJavaNSFallback = true; ()
-      })
-
       opt("finagle", "generate finagle classes", {
         compiler.flags += WithFinagle
         ()

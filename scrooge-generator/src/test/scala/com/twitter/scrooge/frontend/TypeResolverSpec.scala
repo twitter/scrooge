@@ -2,6 +2,7 @@ package com.twitter.scrooge.frontend
 
 import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.frontend.TypeMismatchException
 
 class TypeResolverSpec extends SpecificationWithJUnit {
   "TypeResolve" should {

@@ -43,8 +43,6 @@ class ScalaGenerator(
   val fileExtension = ".scala"
   val templateDirName = "/scalagen/"
 
-  var warnOnJavaNamespaceFallback: Boolean = false
-
   private object ScalaKeywords {
     private[this] val set = Set[String](
       "abstract", "case", "catch", "class", "def", "do", "else", "extends",
@@ -96,24 +94,6 @@ class ScalaGenerator(
       case n => n
     }).asInstanceOf[N]
   }
-
-  private[this] def getNamespaceWithWarning(doc: Document): Option[Identifier] =
-    doc.namespace("scala") orElse {
-      val ns = doc.namespace("java")
-      if (ns.isDefined && warnOnJavaNamespaceFallback)
-        println("falling back to the java namespace. this will soon be deprecated")
-      ns
-    }
-
-  override protected def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => getNamespaceWithWarning(doc.document)
-    }
-    javaNamespace.getOrElse(SimpleID(defaultNamespace))
-  }
-
-  override def getNamespace(doc: Document): Identifier =
-    getNamespaceWithWarning(doc) getOrElse (SimpleID(defaultNamespace))
 
   def genList(list: ListRHS, mutable: Boolean = false): CodeFragment = {
     val code = (if (mutable) "mutable.Buffer(" else "Seq(") +
