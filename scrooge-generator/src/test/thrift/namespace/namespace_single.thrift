@@ -1,4 +1,4 @@
-namespace scala foo
+namespace java foo
 
 include "namespace_none.thrift"
 
