@@ -68,3 +68,8 @@ echo "Running Scrooge on passthrough.thrift"
 passthrough="src/test/thrift/passthrough.thrift"
 $scalaRun --enable-passthrough $passthrough
 $javaRun --enable-passthrough $passthrough
+
+echo "Running Scrooge on constant_sets.thrift"
+constant_sets="src/test/thrift/constant_sets.thrift"
+$scalaRun $constant_sets
+# $javaRun $constant_sets
