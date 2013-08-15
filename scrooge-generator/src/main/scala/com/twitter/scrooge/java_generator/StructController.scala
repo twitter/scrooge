@@ -9,10 +9,9 @@ class StructController(
     generator: ApacheJavaGenerator,
     ns: Option[Identifier],
     val is_result: Boolean = false)
-  extends BaseController(generator, ns) {
+  extends TypeController(struct, generator, ns) {
   val struct_type_name = generator.typeName(StructType(struct))
   val is_final = false // TODO: not sure if we need this annotations support
-  val name = struct.sid.name
   val is_exception = struct.isInstanceOf[Exception_]
   val is_union = struct.isInstanceOf[Union]
   val allFields = struct.fields
