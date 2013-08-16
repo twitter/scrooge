@@ -15,15 +15,27 @@ class ThriftParserSpec extends SpecificationWithJUnit {
       parser.parse("# hello\n 300", parser.rhs) mustEqual IntLiteral(300)
     }
 
-    "constant" in {
-      parser.parse("300.5", parser.rhs) mustEqual DoubleLiteral(300.5)
+    "strings" in {
       parser.parse("\"hello!\"", parser.rhs) mustEqual StringLiteral("hello!")
       parser.parse("'hello!'", parser.rhs) mustEqual StringLiteral("hello!")
+      // parser.parse("""hello
+      //   there""", parser.rhs) mustEqual StringLiteral("hello!")
+      parser.parse("\"hello\\nthere!\"", parser.rhs) mustEqual StringLiteral("hello\\nthere!")
+      parser.parse("\"hello\nthere!\"", parser.rhs) mustEqual StringLiteral("hello\nthere!")
+      parser.parse("'hello\\nthere!'", parser.rhs) mustEqual StringLiteral("hello\\nthere!")
+      parser.parse("'hello\nthere!'", parser.rhs) mustEqual StringLiteral("hello\nthere!")
+      parser.parse("'hello//there!'", parser.rhs) mustEqual StringLiteral("hello//there!")
+      parser.parse("\"hello'there!\"", parser.rhs) mustEqual StringLiteral("hello'there!")
+      parser.parse("'hello\"there!'", parser.rhs) mustEqual StringLiteral("hello\"there!")
+    }
+
+    "constant" in {
+      parser.parse("300.5", parser.rhs) mustEqual DoubleLiteral(300.5)
       parser.parse("cat", parser.rhs) mustEqual IdRHS(SimpleID("cat"))
-      val list = parser.parse("[ 4, 5 ]", parser.rhs)
+      val list = parser.parse("[ 4, 5, ]", parser.rhs)
       list must haveClass[ListRHS]
       list.asInstanceOf[ListRHS].elems.toList mustEqual List(IntLiteral(4), IntLiteral(5))
-      parser.parse("{ 'name': 'Commie', 'home': 'San Francisco' }",
+      parser.parse("{ 'name': 'Commie', 'home': 'San Francisco', }",
         parser.rhs) mustEqual MapRHS(Seq(StringLiteral("name") -> StringLiteral
         ("Commie"), StringLiteral("home") -> StringLiteral("San Francisco")))
     }

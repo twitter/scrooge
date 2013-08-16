@@ -53,9 +53,14 @@ public class Constants {
   static {
     List<String> tmp1 = new ArrayList<String>();
     tmp1.add("item1");
-    tmp1.add("item2");
+    tmp1.add("itém2");
 
     SETCONSTANT.add(tmp1);
+  }
+
+  public static final TestStruct STRUCTCONST = new TestStruct();
+  static {
+    STRUCTCONST.setSome_int(32);
   }
 
 }

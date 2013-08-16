@@ -6,6 +6,19 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.6.0
+~~~~~
+
+- scrooge-generator: fixed whitespace eating in strings ThriftParser extends RegexParsers.
+- scrooge-generator: Fixup java codegen issues surfaced by converting ads:ad-review-tests in science to scrooge.
+- scrooge-generator: add support for scala namepsace
+- scrooge-generator: Need to filter out items that are not set when rendering default struct values.
+- scrooge-maven-plugin: Make scrooge plugin find thrift files in idls when run only with reactor projects in a clean env
+- scrooge-generator: Allow default struct values in the java generator.
+- scrooge-ostrich: search harder for FutureIface
+- scrooge-generator: rename Service$ThriftServer to Service$OstrichThriftServer - fixes breakage under scala 2.10 - also removed ostrichService.java which wasn't used
+- scrooge-generator: allow trailing comma at the end of a map
+
 3.5.0
 ~~~~~
 

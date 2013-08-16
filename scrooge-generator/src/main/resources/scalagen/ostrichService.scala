@@ -17,7 +17,7 @@ import org.apache.thrift.transport.TTransport
 {{docstring}}
 @deprecated("long-term, use twitter-server, short term, use com.twitter.scrooge.OstrichThriftServer", "3.3.3")
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
-trait {{ServiceName}}$ThriftServer extends ostrich.admin.Service
+trait {{ServiceName}}$OstrichThriftServer extends ostrich.admin.Service
   with {{ServiceName}}[Future]
 {
   val log = Logger.get(getClass)

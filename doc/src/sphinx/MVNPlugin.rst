@@ -51,7 +51,6 @@ pom.xml file.
         <thriftOpts>
           <!-- add other Scrooge command line options using thriftOpts -->
           <thriftOpt>--finagle</thriftOpt>
-          <thriftOpt>--ostrich</thriftOpt>
         </thriftOpts>
         <!-- tell scrooge to extract thrifts from these artifacts -->
         <dependencyIncludes>

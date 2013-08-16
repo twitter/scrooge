@@ -404,7 +404,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           File destFolder = getResourcesOutputDirectory();
           destFolder.mkdirs();
           File destFile = new File(destFolder, relPath);
-          if (destFile.isFile() && !Files.hash(f, hashFun).equals(Files.hash(destFile, hashFun))) {
+          if (!destFile.exists() || (destFile.isFile() && !Files.hash(f, hashFun).equals(Files.hash(destFile, hashFun)))) {
             getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
             copyFile(f, destFile);
           }

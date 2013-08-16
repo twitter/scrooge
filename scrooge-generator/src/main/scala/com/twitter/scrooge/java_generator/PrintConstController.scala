@@ -49,6 +49,18 @@ class PrintConstController(
     }
   }
 
+  def struct_values = {
+    val values = value.asInstanceOf[StructRHS].elems
+    val structType = fieldType.asInstanceOf[StructType]
+    for {
+      f <- structType.struct.fields
+      v <- values.get(f.sid)
+    } yield {
+      val renderedValue = renderConstValue(v, f.fieldType)
+      Map("key" -> f.sid.name, "value" -> renderedValue.value, "rendered_value" -> renderedValue.rendered)
+    }
+  }
+
   private def renderConstValue(constant: RHS, fieldType: FieldType): ConstValue = {
     fieldType match {
       case TString => new ConstValue(null, generator.quote(constant.asInstanceOf[StringLiteral].value))

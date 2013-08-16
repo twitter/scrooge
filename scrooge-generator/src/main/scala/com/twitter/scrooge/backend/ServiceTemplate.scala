@@ -210,8 +210,6 @@ trait ServiceTemplate {
             None, includes, options))
         )
       }),
-      "finagleService" -> v(templates("finagleService")),
-      "ostrichServer" -> v(templates("ostrichService")),
       "finagleClients" -> v(
         if (withFinagle) Seq(finagleClient(service, namespace)) else Seq()
       ),

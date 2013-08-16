@@ -20,7 +20,7 @@ class ApacheJavaGeneratorSpec extends SpecificationWithJUnit with Mockito {
   def generateDoc(str: String) = {
     val parser = new ThriftParser(NullImporter, true, allowOneways = true)
     val doc = parser.parse(str, parser.document)
-    TypeResolver()(doc).document
+    TypeResolver(allowStructRHS = true)(doc).document
   }
 
   def getGenerator(doc0: Document, genHashcode: Boolean = false) = {

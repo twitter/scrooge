@@ -32,7 +32,17 @@ class ApacheJavaGenerator(
     val genHashcode: Boolean = true // Defaulting to true for pants.
   ) extends ThriftGenerator {
   var counter = 0
-  def quote(str: String) = "\"" + str.quoteC() + "\""
+  def quote(str: String) = {
+    val quoted = str map {
+      case '\n' => "\\n"
+      case '\r' => "\\r"
+      case '\t' => "\\t"
+      case '"'  => "\\\""
+      case '\\' => "\\\\"
+      case x    => x
+    } mkString ""
+    "\"" + quoted + "\""
+  }
 
   def printConstValue(
       name: String,
@@ -186,50 +196,41 @@ class ApacheJavaGenerator(
     }
   }
 
-  def createFile(packageDir: File, name: String, fileExtension: String, dryRun: Boolean, fileContent: String) = {
-    val file = new File(packageDir, name + fileExtension)
-    if (!dryRun) {
-      val writer = new FileWriter(file)
-      try {
-        writer.write(fileContent)
-      } finally {
-        writer.close()
-      }
-    }
-    file
-  }
-
   // main entry
   def apply(doc: Document, serviceOptions: Set[ServiceOption], outputPath: File, dryRun: Boolean = false) = {
     // TODO: Implement serviceOptions (WithFinagle, etc)
-    val fileExtension = ".java"
     val generatedFiles = new mutable.ListBuffer[File]
     val namespace = getNamespace(doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
 
+    def renderFile(templateName: String, controller: TypeController) = {
+      val fileContent = renderMustache(templateName, controller)
+      val file = new File(packageDir, controller.name + ".java")
+      if (!dryRun) {
+        val writer = new FileWriter(file)
+        try {
+          writer.write(fileContent)
+        } finally {
+          writer.close()
+        }
+      }
+      file
+    }
+
     if (doc.consts.nonEmpty) {
-      val name = "Constants"
-      val controller = new ConstController(doc.consts, this, Some(namespace))
-      val mustache = renderMustache("consts.mustache", controller)
-      generatedFiles += createFile(packageDir, name, fileExtension, dryRun, mustache)
+      generatedFiles += renderFile("consts.mustache", new ConstController(doc.consts, this, Some(namespace)))
     }
 
     doc.enums.foreach { enum =>
-      val name = enum.sid.toTitleCase.name
-      val mustache = renderMustache("enum.mustache", new EnumController(enum, this, Some(namespace)))
-      generatedFiles += createFile(packageDir, name, fileExtension, dryRun, mustache)
+      generatedFiles += renderFile("enum.mustache", new EnumController(enum, this, Some(namespace)))
     }
 
     doc.structs.foreach { struct =>
-      val name = struct.sid.toTitleCase.name
-      val mustache = renderMustache("struct.mustache", new StructController(struct, false, this, Some(namespace)))
-      generatedFiles += createFile(packageDir, name, fileExtension, dryRun, mustache)
+      generatedFiles += renderFile("struct.mustache", new StructController(struct, false, this, Some(namespace)))
     }
 
     doc.services.foreach { service =>
-      val name = service.sid.toTitleCase.name
-      val mustache = renderMustache("service.mustache", new ServiceController(service, this, Some(namespace)))
-      generatedFiles += createFile(packageDir, name, fileExtension, dryRun, mustache)
+      generatedFiles += renderFile("service.mustache", new ServiceController(service, this, Some(namespace)))
     }
 
     generatedFiles
