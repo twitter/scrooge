@@ -29,7 +29,6 @@ import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 abstract sealed class ServiceOption
 
 case object WithFinagle extends ServiceOption
-case object WithOstrichServer extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 trait ThriftGenerator {
@@ -325,13 +324,6 @@ trait Generator
   ): Option[File] =
     None
 
-  def ostrichServiceFile(
-    packageDir: File,
-    service: Service, options:
-    Set[ServiceOption]
-  ): Option[File] =
-    None
-
   // main entry
   def apply(
     _doc: Document,
@@ -388,7 +380,6 @@ trait Generator
         val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
         val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
         val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
-        val ostrichFileOpt = ostrichServiceFile(packageDir, service, serviceOptions)
 
         if (!dryRun) {
           val dict = serviceDict(service, namespace, includes, serviceOptions)
@@ -403,14 +394,8 @@ trait Generator
             val dict = finagleService(service, namespace)
             writeFile(file, templates.header, templates("finagleService").generate(dict))
           }
-
-          ostrichFileOpt foreach { file =>
-            val dict = ostrichService(service, namespace)
-            writeFile(file, templates.header, templates("ostrichService").generate(dict))
-          }
         }
         generatedFiles += interfaceFile
-        generatedFiles ++= ostrichFileOpt
         generatedFiles ++= finagleServiceFileOpt
         generatedFiles ++= finagleClientFileOpt
     }

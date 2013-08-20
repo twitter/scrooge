@@ -18,8 +18,8 @@ javaNamespace="-n thrift.test=thrift.java_test
 -n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_java
 --default-java-namespace java_thrift"
 
-javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l experimental-java $javaNamespace"
-scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --ostrich -d $out -l scala"
+javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l experimental-java $javaNamespace"
+scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l scala"
 
 echo "Running Scrooge on relative/"
 dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`

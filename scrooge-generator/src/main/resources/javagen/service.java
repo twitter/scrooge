@@ -32,14 +32,6 @@ import org.apache.thrift.transport.TMemoryBuffer;
 import org.apache.thrift.transport.TMemoryInputTransport;
 import org.apache.thrift.transport.TTransport;
 {{/withFinagle}}
-{{#withOstrichServer}}
-import com.twitter.finagle.builder.Server;
-import com.twitter.finagle.builder.ServerBuilder;
-import com.twitter.finagle.thrift.ThriftServerFramedCodec;
-import com.twitter.finagle.tracing.NullTracer;
-import com.twitter.finagle.tracing.Tracer;
-import com.twitter.logging.Logger;
-{{/withOstrichServer}}
 
 {{docstring}}
 @javax.annotation.Generated(value = "com.twitter.scrooge.Compiler", date = "{{date}}")
@@ -72,7 +64,4 @@ public class {{ServiceName}} {
 {{#finagleServices}}
   {{>finagleService}}
 {{/finagleServices}}
-{{#ostrichServers}}
-  {{>ostrichServer}}
-{{/ostrichServers}}
 }

@@ -168,8 +168,7 @@ object Scrooge extends Build {
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
       finagle("core") % "test",
-      finagle("thrift") % "test",
-      finagle("ostrich4") % "test"
+      finagle("thrift") % "test"
     )
   ).dependsOn(scroogeRuntime % "test")
 

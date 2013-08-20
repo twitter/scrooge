@@ -280,13 +280,4 @@ class ScalaGenerator(
     options.find(_ == WithFinagle) map { _ =>
       new File(packageDir, service.sid.toTitleCase.name + "$FinagleService" + fileExtension)
     }
-
-  override def ostrichServiceFile(
-    packageDir: File,
-    service: Service, options:
-    Set[ServiceOption]
-  ): Option[File] =
-    options.find(_ == WithOstrichServer) map { _ =>
-      new File(packageDir, service.sid.toTitleCase.name + "$OstrichThriftServer" + fileExtension)
-    }
 }

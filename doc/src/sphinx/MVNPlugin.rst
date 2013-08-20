@@ -22,12 +22,6 @@ need to be declared.
       <artifactId>finagle-thrift_2.9.2</artifactId>
       <version>6.5.1</version>
     </dependency>
-    <!-- needed if the "--ostrich" flag is provided -->
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>finagle-ostrich4_2.9.2</artifactId>
-      <version>6.5.1</version>
-    </dependency>
 
 
 In order to generate code with the maven plugin the following plugin

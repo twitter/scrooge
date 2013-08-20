@@ -33,7 +33,8 @@ If you specify --finagle option, you need to have the following additional depen
          <artifactId>finagle-thrift</artifactId>
        </dependency>
 
-If you need ostrich support you will need:
+If you need ostrich-service support, the following dependency provides a simple trait
+for adapting a generated finagle-service into an ostrich-service.
 
 ::
 
