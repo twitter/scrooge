@@ -1,15 +1,17 @@
 package com.twitter.scrooge.java_generator
 
 import org.specs.SpecificationWithJUnit
-import com.twitter.scrooge.frontend.{TypeResolver, NullImporter, ThriftParser}
+import com.twitter.scrooge.frontend._
 import java.io._
 import com.github.mustachejava.DefaultMustacheFactory
 import com.twitter.mustache.ScalaObjectHandler
 import org.specs.mock.Mockito
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
-import com.twitter.scrooge.ast.Document
+import com.twitter.scrooge.ast._
 import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
+import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
+import com.twitter.scrooge.ast.Document
 
 /**
  * To generate the apache output for birdcage compatible thrift:
@@ -18,7 +20,8 @@ import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
  */
 class ApacheJavaGeneratorSpec extends SpecificationWithJUnit with Mockito {
   def generateDoc(str: String) = {
-    val parser = new ThriftParser(NullImporter, true, allowOneways = true)
+    val importer = Importer("src/test/resources/test_thrift")
+    val parser = new ThriftParser(importer, true, allowOneways = true)
     val doc = parser.parse(str, parser.document)
     TypeResolver(allowStructRHS = true)(doc).document
   }
@@ -128,6 +131,18 @@ class ApacheJavaGeneratorSpec extends SpecificationWithJUnit with Mockito {
       val controller = new ServiceController(doc.services(0), getGenerator(doc), doc.namespace("java"))
       val sw = renderMustache("service.mustache", controller)
       verify(sw, getFileContents("apache_output/test_service_without_parent.txt"))
+    }
+
+    "generate service with a parent from a different namespace" in {
+      val baseDoc = mock[Document]
+      val parentDoc = mock[ResolvedDocument]
+      doReturn(Some(QualifiedID(Seq("com", "twitter", "thrift")))).when(baseDoc).namespace("java")
+      doReturn(baseDoc).when(parentDoc).document
+      val doc = generateDoc(getFileContents("test_thrift/service_with_parent_different_namespace.thrift"))
+      val generator = new ApacheJavaGenerator(Map("service" -> parentDoc), "thrift", false)
+      val controller = new ServiceController(doc.services(0), generator, doc.namespace("java"))
+      val sw = renderMustache("service.mustache", controller)
+      verify(sw, getFileContents("apache_output/other_service.txt"))
     }
   }
 
