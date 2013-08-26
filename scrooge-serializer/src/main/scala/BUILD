@@ -3,7 +3,7 @@ scala_library(name='scala',
     pants('3rdparty:commons-codec'),
     pants('util/util-codec'),
     pants('util/util-core'),
-    pants('scrooge/scrooge-runtime')
+    pants('scrooge/scrooge-core')
   ],
   sources=rglobs('*.scala'),
 )
