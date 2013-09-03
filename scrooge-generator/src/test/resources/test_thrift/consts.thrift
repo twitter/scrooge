@@ -24,3 +24,7 @@ const map<map<TestEnum, string>, string> MAPCONSTANT = {{1 :"world", 2 :"moon"} 
 const set<list<string>> SETCONSTANT = [["item1", "itém2"]]
 
 const TestStruct STRUCTCONST = { "some_int" : 32 }
+
+const string STRINGWITHSPECIALCHARS = "^[\\w\\-\\.]+$"
+
+const string STRINGWITHSPECIALCHARS2 = "\\\n\r\t"

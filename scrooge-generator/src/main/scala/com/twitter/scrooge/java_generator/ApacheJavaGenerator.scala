@@ -32,17 +32,6 @@ class ApacheJavaGenerator(
     val genHashcode: Boolean = true // Defaulting to true for pants.
   ) extends ThriftGenerator {
   var counter = 0
-  def quote(str: String) = {
-    val quoted = str map {
-      case '\n' => "\\n"
-      case '\r' => "\\r"
-      case '\t' => "\\t"
-      case '"'  => "\\\""
-      case '\\' => "\\\\"
-      case x    => x
-    } mkString ""
-    "\"" + quoted + "\""
-  }
 
   def printConstValue(
       name: String,

@@ -63,7 +63,10 @@ class PrintConstController(
 
   private def renderConstValue(constant: RHS, fieldType: FieldType): ConstValue = {
     fieldType match {
-      case TString => new ConstValue(null, generator.quote(constant.asInstanceOf[StringLiteral].value))
+      case TString => {
+        val constValue = constant.asInstanceOf[StringLiteral].value
+        new ConstValue(null, "\"" + constValue + "\"")
+      }
       case TBool => {
         constant match {
           case intValue: IntLiteral =>
