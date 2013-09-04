@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-ostrich</artifactId>
   <packaging>jar</packaging>
-  <version>3.6.1-SNAPSHOT</version>
+  <version>3.7.1-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-292</artifactId>
@@ -26,11 +26,6 @@
       <groupId>com.twitter</groupId>
       <artifactId>finagle-ostrich4</artifactId>
       <version>6.5.3-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>scrooge-runtime</artifactId>
-      <version>3.6.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

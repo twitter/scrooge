@@ -85,7 +85,6 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * {@code
    * <thriftOpts>
    *   <thriftOpt>--finagle</thriftOpt>
-   *   <thriftOpt>--ostrich</thriftOpt>
    * </thriftOpts>
    *}
    * @parameter

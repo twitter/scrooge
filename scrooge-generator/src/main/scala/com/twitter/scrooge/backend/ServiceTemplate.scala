@@ -157,17 +157,6 @@ trait ServiceTemplate {
       })
     )
 
-  def ostrichService(
-    service: Service,
-    namespace: Identifier
-  ) =
-    Dictionary(
-      "package" -> genID(namespace),
-      "ServiceName" -> genID(service.sid.toTitleCase),
-      "date" -> codify(generationDate),
-      "docstring" -> codify(service.docstring.getOrElse(""))
-    )
-
   def serviceDict(
     service: Service,
     namespace: Identifier,
@@ -175,7 +164,6 @@ trait ServiceTemplate {
     options: Set[ServiceOption]
   ) = {
     val withFinagle = options.contains(WithFinagle)
-    val withOstrichServer = options.contains(WithOstrichServer)
     Dictionary(
       "function" -> v(templates("function")),
       "package" -> genID(namespace),
@@ -216,11 +204,7 @@ trait ServiceTemplate {
       "finagleServices" -> v(
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
-      "ostrichServers" -> v(
-        if (withOstrichServer) Seq(ostrichService(service, namespace)) else Seq()
-      ),
       "withFinagle" -> v(withFinagle),
-      "withOstrichServer" -> v(withOstrichServer),
       "date" -> codify(generationDate),
       "enablePassthrough" -> v(enablePassthrough)
     )

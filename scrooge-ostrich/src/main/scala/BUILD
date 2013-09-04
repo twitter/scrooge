@@ -4,7 +4,6 @@ scala_library(name='scala',
     pants('finagle/finagle-core'),
     pants('finagle/finagle-ostrich4'),
     pants('finagle/finagle-thrift'),
-    pants('scrooge/scrooge-runtime'),
     pants('util/util-core')
   ],
   sources=rglobs('*.scala'),

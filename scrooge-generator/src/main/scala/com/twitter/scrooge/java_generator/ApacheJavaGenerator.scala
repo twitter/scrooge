@@ -32,17 +32,6 @@ class ApacheJavaGenerator(
     val genHashcode: Boolean = true // Defaulting to true for pants.
   ) extends ThriftGenerator {
   var counter = 0
-  def quote(str: String) = {
-    val quoted = str map {
-      case '\n' => "\\n"
-      case '\r' => "\\r"
-      case '\t' => "\\t"
-      case '"'  => "\\\""
-      case '\\' => "\\\\"
-      case x    => x
-    } mkString ""
-    "\"" + quoted + "\""
-  }
 
   def printConstValue(
       name: String,
@@ -127,10 +116,10 @@ class ApacheJavaGenerator(
     javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
 
-  def qualifyNamedType(t: NamedType): Identifier =
-    t.scopePrefix match {
-      case Some(scope) => t.sid.addScope(getIncludeNamespace(scope.name))
-      case None => t.sid
+  def qualifyNamedType(sid: SimpleID, scopePrefix: Option[SimpleID]): Identifier =
+    scopePrefix match {
+      case Some(scope) => sid.addScope(getIncludeNamespace(scope.name))
+      case None => sid
     }
 
   def typeName(
@@ -149,7 +138,7 @@ class ApacheJavaGenerator(
       case TDouble => if (inContainer) "Double" else "double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case n: NamedType => qualifyNamedType(n).fullName
+      case n: NamedType => qualifyNamedType(n.sid, n.scopePrefix).fullName
       case MapType(k, v, _) => {
         val prefix = if (inInit) "HashMap" else "Map"
         prefix + (if (skipGeneric) "" else "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")

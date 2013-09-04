@@ -62,10 +62,5 @@ object {{ServiceName}} {
     extends {{ServiceName}}$FinagleService(
       iface,
       protocolFactory)
-
-{{#withOstrichServer}}
-  @deprecated("use twitter-server or com.twitter.scrooge.OstrichThriftServer", "3.4.0")
-  trait ThriftServer extends {{ServiceName}}$OstrichThriftServer with FutureIface
-{{/withOstrichServer}}
 {{/withFinagle}}
 }

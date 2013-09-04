@@ -4,8 +4,8 @@ import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 
 object Scrooge extends Build {
-  val libVersion = "3.6.0"
-  val utilVersion = "6.3.8"
+  val libVersion = "3.7.0"
+  val utilVersion = "6.4.0"
   val finagleVersion = "6.5.2"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
@@ -168,8 +168,7 @@ object Scrooge extends Build {
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
       finagle("core") % "test",
-      finagle("thrift") % "test",
-      finagle("ostrich4") % "test"
+      finagle("thrift") % "test"
     )
   ).dependsOn(scroogeRuntime % "test")
 

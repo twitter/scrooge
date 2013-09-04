@@ -63,4 +63,8 @@ public class Constants {
     STRUCTCONST.setSome_int(32);
   }
 
+  public static final String STRINGWITHSPECIALCHARS = "^[\\w\\-\\.]+$";
+
+  public static final String STRINGWITHSPECIALCHARS2 = "\\\n\r\t";
+
 }

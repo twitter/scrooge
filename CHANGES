@@ -6,6 +6,18 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.7.0
+~~~~~
+
+- scrooge-serializer: tighten up dependencies scrooge-serializer only needs to depend on scrooge-core, not scrooge-runtime (the pants BUILD file already did this).
+- We think that mustache actually handles the escaping so that this additional escaping is not needed.
+- bump util to 6.4.1-SNAPSHOT
+- scrooge-runtime => scrooge-core
+- properly qualify service parents
+- scrooge-ostrich: add thriftProtocolFactory as val The generated ThriftServer class has a thriftProtocolFactory field that some subclasses use.
+- scrooge: removed ostrich generation.
+- remove use of deprecated generated ostrich ThriftServer
+
 3.6.0
 ~~~~~
 
