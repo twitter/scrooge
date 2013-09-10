@@ -3,7 +3,7 @@ if (_set.size == 0) {
   _iprot.readSetEnd()
   Set.empty[{{eltType}}]
 } else {
-  val _rv = new mutable.HashSet[{{eltType}}]
+  val _rv = new mutable$HashSet[{{eltType}}]
   var _i = 0
   while (_i < _set.size) {
     _rv += {

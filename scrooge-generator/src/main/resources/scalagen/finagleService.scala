@@ -8,7 +8,8 @@ import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
-import scala.collection.mutable
+import scala.collection.mutable.{
+  ArrayBuffer => mutable$ArrayBuffer, HashMap => mutable$HashMap}
 import scala.collection.{Map, Set}
 
 {{docstring}}
@@ -20,7 +21,7 @@ class {{ServiceName}}$FinagleService(
   import {{ServiceName}}._
 {{^hasParent}}
 
-  protected val functionMap = new mutable.HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
+  protected val functionMap = new mutable$HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
 
   protected def addFunction(name: String, f: (TProtocol, Int) => Future[Array[Byte]]) {
     functionMap(name) = f

@@ -11,7 +11,6 @@ import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
-import scala.collection.mutable
 import scala.collection.{Map, Set}
 
 {{docstring}}

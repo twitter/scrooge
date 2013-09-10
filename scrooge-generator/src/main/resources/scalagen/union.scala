@@ -4,10 +4,7 @@ package {{package}}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
-{{#withFinagleClient}}
-import com.twitter.finagle.SourcedException
-{{/withFinagleClient}}
-import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer => mutable$ArrayBuffer}
 import scala.collection.{Map, Set}
 
 {{/public}}

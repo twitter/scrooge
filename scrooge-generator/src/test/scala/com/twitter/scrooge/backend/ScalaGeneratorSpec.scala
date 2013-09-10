@@ -745,80 +745,116 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
     "pass through fields" in {
       "pass through" in {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
         val pt2 = PassThrough2(1, 2)
-        PassThrough2.encode(pt2, protocol)
 
-        val pt1 = PassThrough.decode(protocol)
-        pt1 mustEqual PassThrough(1)
+        val pt1 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
+        }
 
-        val protocol2 = new TBinaryProtocol(new TMemoryBuffer(256))
-        PassThrough.encode(pt1, protocol2)
-        val pt2roundTripped = PassThrough2.decode(protocol2)
+        val pt2roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough.encode(pt1, protocol)
+          PassThrough2.decode(protocol)
+        }
+
         pt2roundTripped mustEqual pt2
       }
 
       "be copied" in {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
         val pt2 = PassThrough2(1, 2)
-        PassThrough2.encode(pt2, protocol)
 
-        val pt1 = PassThrough.decode(protocol)
-        pt1 mustEqual PassThrough(1)
+        val pt1 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
+        }
 
-        val protocol2 = new TBinaryProtocol(new TMemoryBuffer(256))
-        PassThrough.encode(pt1.copy(f1 = 2), protocol2)
-        val pt2roundTripped = PassThrough2.decode(protocol2)
+        val pt1Copy = pt1.copy(f1 = 2)
+
+        val pt2roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough.encode(pt1Copy, protocol)
+          PassThrough2.decode(protocol)
+        }
+
         pt2roundTripped mustEqual PassThrough2(2, 2)
       }
 
-      "be filterable" in {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+      "be removable" in {
         val pt2 = PassThrough2(1, 2)
-        PassThrough2.encode(pt2, protocol)
 
-        val pt1 = PassThrough.decode(protocol)
-        pt1 mustEqual PassThrough(1)
-
-        val protocol2 = new TBinaryProtocol(new TMemoryBuffer(256))
-        val pt1f = pt1.withoutPassthroughs { _.id == 2 }
-        PassThrough.encode(pt1f, protocol2)
-        val pt2roundTripped = PassThrough2.decode(protocol2)
-        pt2roundTripped mustEqual PassThrough2(1, null.asInstanceOf[Int])
-      }
-
-      "be able to add more " in {
-        val pt1 = PassThrough(1)
-
-        val field2 = {
-          val prot = new TBinaryProtocol(new TMemoryBuffer(256))
-          val inter = PassThrough2.encode(PassThrough2(1, 2), prot)
-          PassThrough.decode(prot)._passthrough_fields find { case (f, _) => f.id == 2 } get
+        val pt1 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
         }
 
-        val pt1w = pt1.withPassthroughs(Map(field2))
+        val pt1f = pt1.unsetField(PassThrough2.F2Field.id)
 
-        val protocol2 = new TBinaryProtocol(new TMemoryBuffer(256))
-        PassThrough.encode(pt1w, protocol2)
-        PassThrough2.decode(protocol2) mustEqual PassThrough2(1, 2)
+        val pt2roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough.encode(pt1f, protocol)
+          PassThrough2.decode(protocol)
+        }
+
+        pt2roundTripped mustEqual PassThrough2(1, 0)
+      }
+
+      "be able to add more" in {
+        val pt1 = PassThrough(1)
+        val pt2 = PassThrough2(1, 2)
+        val f2 = pt2.getFieldBlob(PassThrough2.F2Field.id).get
+        val pt1w = pt1.setField(f2)
+
+        val pt2roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough.encode(pt1w, protocol)
+          PassThrough2.decode(protocol)
+        }
+
+        pt2roundTripped mustEqual pt2
       }
 
       "be proxy-able" in {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
         val pt2 = PassThrough2(1, 2)
-        PassThrough2.encode(pt2, protocol)
 
-        val pt1 = PassThrough.decode(protocol)
-        pt1 mustEqual PassThrough(1)
+        val pt1 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
+        }
 
         val proxy = new PassThrough.Proxy {
           val _underlying_PassThrough = pt1
         }
 
-        val protocol2 = new TBinaryProtocol(new TMemoryBuffer(256))
-        PassThrough.encode(proxy, protocol2)
-        val pt2roundTripped = PassThrough2.decode(protocol2)
+        val pt2roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough.encode(proxy, protocol)
+          PassThrough2.decode(protocol)
+        }
+
         pt2roundTripped mustEqual pt2
+      }
+
+      "be equallable" in {
+        val pt2 = PassThrough2(1, 2)
+
+        val pt1a = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
+        }
+
+        val pt1b = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
+        }
+
+        pt1a mustEqual pt1b
       }
     }
 
