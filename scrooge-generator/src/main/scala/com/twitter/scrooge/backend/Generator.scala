@@ -139,10 +139,11 @@ trait Generator
    * get the ID of a service parent.  Java and Scala implementations are different.
    */
   def getServiceParentID(parent: ServiceParent): Identifier = {
-    parent.prefix match {
+    val identifier: Identifier with Product = parent.prefix match {
       case Some(scope) => parent.sid.addScope(getIncludeNamespace(scope.name))
       case None => parent.sid
     }
+    identifier.toTitleCase
   }
 
   def getParentFinagleService(parent: ServiceParent): CodeFragment

@@ -39,32 +39,32 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core_2.9.2</artifactId>
-      <version>6.3.4</version>
+      <version>6.4.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-codec_2.9.2</artifactId>
-      <version>6.3.4</version>
+      <version>6.4.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.9.2</artifactId>
-      <version>6.4.0</version>
+      <version>6.5.2</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.9.2</artifactId>
-      <version>6.4.0</version>
+      <version>6.5.2</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-ostrich4_2.9.2</artifactId>
-      <version>6.4.0</version>
+      <version>6.5.2</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-runtime_2.9.2</artifactId>
-      <version>3.3.2</version>
+      <artifactId>scrooge-core_2.9.2</artifactId>
+      <version>3.7.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -143,7 +143,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>3.3.2</version>
+        <version>3.7.0</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
@@ -155,7 +155,6 @@
           <thriftOpts>
             <!-- add other Scrooge command line options using thriftOpts -->
             <thriftOpt>--finagle</thriftOpt>
-            <thriftOpt>--ostrich</thriftOpt>
           </thriftOpts>
           <!-- tell scrooge to extract thrifts from these artifacts -->
           <dependencyIncludes>
