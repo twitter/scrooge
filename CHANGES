@@ -6,6 +6,14 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.8.0
+~~~~~
+
+- scrooge: passthrough field improvements
+- Scrooge doesn't title case extended services properly
+- update scrooge demo
+- fix test breakage on sbt
+
 3.7.0
 ~~~~~
 
