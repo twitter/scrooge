@@ -15,18 +15,26 @@ class ThriftParserSpec extends SpecificationWithJUnit {
       parser.parse("# hello\n 300", parser.rhs) mustEqual IntLiteral(300)
     }
 
-    "strings" in {
-      parser.parse("\"hello!\"", parser.rhs) mustEqual StringLiteral("hello!")
-      parser.parse("'hello!'", parser.rhs) mustEqual StringLiteral("hello!")
-      // parser.parse("""hello
-      //   there""", parser.rhs) mustEqual StringLiteral("hello!")
-      parser.parse("\"hello\\nthere!\"", parser.rhs) mustEqual StringLiteral("hello\\nthere!")
-      parser.parse("\"hello\nthere!\"", parser.rhs) mustEqual StringLiteral("hello\nthere!")
-      parser.parse("'hello\\nthere!'", parser.rhs) mustEqual StringLiteral("hello\\nthere!")
-      parser.parse("'hello\nthere!'", parser.rhs) mustEqual StringLiteral("hello\nthere!")
-      parser.parse("'hello//there!'", parser.rhs) mustEqual StringLiteral("hello//there!")
-      parser.parse("\"hello'there!\"", parser.rhs) mustEqual StringLiteral("hello'there!")
-      parser.parse("'hello\"there!'", parser.rhs) mustEqual StringLiteral("hello\"there!")
+    "double-quoted strings" in {
+      parser.parse(""" "hello!" """, parser.rhs) mustEqual StringLiteral("hello!")
+      parser.parse(""" "hello\nthere!" """, parser.rhs) mustEqual StringLiteral("""hello\nthere!""")
+      parser.parse(""" "hello\\nthere!" """, parser.rhs) mustEqual StringLiteral("""hello\\nthere!""")
+      parser.parse(""" "hello//there!" """, parser.rhs) mustEqual StringLiteral("""hello//there!""")
+      parser.parse(""" "hello'there!" """, parser.rhs) mustEqual StringLiteral("""hello'there!""")
+      parser.parse(""" "hello\'there!" """, parser.rhs) mustEqual StringLiteral("""hello\'there!""")
+      parser.parse(""" "hello\"there!" """, parser.rhs) mustEqual StringLiteral("""hello\"there!""")
+      parser.parse(""" "\"" """, parser.rhs) mustEqual StringLiteral("\\\"")
+    }
+
+    "single-quoted strings" in {
+      parser.parse(""" 'hello!' """, parser.rhs) mustEqual StringLiteral("hello!")
+      parser.parse(""" 'hello\nthere!' """, parser.rhs) mustEqual StringLiteral("""hello\nthere!""")
+      parser.parse(""" 'hello\\nthere!' """, parser.rhs) mustEqual StringLiteral("""hello\\nthere!""")
+      parser.parse(""" 'hello//there!' """, parser.rhs) mustEqual StringLiteral("""hello//there!""")
+      parser.parse(""" 'hello"there!' """, parser.rhs) mustEqual StringLiteral("""hello"there!""")
+      parser.parse(""" 'hello\"there!' """, parser.rhs) mustEqual StringLiteral("""hello\"there!""")
+      parser.parse(""" 'hello\'there!' """, parser.rhs) mustEqual StringLiteral("""hello\'there!""")
+      parser.parse(""" '\'' """, parser.rhs) mustEqual StringLiteral("\\'")
     }
 
     "constant" in {
