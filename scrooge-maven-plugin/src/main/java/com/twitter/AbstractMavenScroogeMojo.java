@@ -9,6 +9,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -302,14 +303,31 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    */
   private Set<Artifact> findThriftDependencies(Set<String> whitelist) throws IOException {
     Set<Artifact> thriftDependencies = new HashSet<Artifact>();
-    Set<Artifact> allDependencies = new HashSet<Artifact>();
-    allDependencies.addAll(project.getArtifacts());
-    allDependencies.addAll(project.getDependencyArtifacts());
 
-    for(Artifact artifact : allDependencies) {
-      String artifactId = artifact.getArtifactId();
-      if (whitelist.contains(artifactId)) {
+    Set<Artifact> deps = new HashSet<Artifact>();
+    deps.addAll(project.getArtifacts());
+    deps.addAll(project.getDependencyArtifacts());
+
+    Map<String, Artifact> depsMap = new HashMap<String, Artifact>();
+    for (Artifact dep : deps) {
+      depsMap.put(dep.getId(), dep);
+    }
+
+    for (Artifact artifact : deps) {
+      // This artifact is on the whitelist directly.
+      if (whitelist.contains(artifact.getArtifactId())) {
         thriftDependencies.add(artifact);
+
+      // Check if this artifact is being pulled in by an idl jar that's been whitelisted
+      } else {
+        List<String> depTrail = artifact.getDependencyTrail();
+        for (String name : depTrail) {
+          Artifact dep = depsMap.get(name);
+          if (dep != null && "idl".equals(dep.getClassifier()) && whitelist.contains(dep.getArtifactId())) {
+            thriftDependencies.add(artifact);
+            break;
+          }
+        }
       }
     }
     return thriftDependencies;
