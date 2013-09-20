@@ -48,7 +48,7 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
       m.getParameterTypes.size == 0 && m.getReturnType == classOf[TField]
     } map { m =>
       val tfield = m.invoke(codec).asInstanceOf[TField]
-      val manifest = try {
+      val manifest: scala.Option[Manifest[_]] = try {
         Some {
           codecClass
             .getMethod(m.getName + "Manifest")
@@ -61,7 +61,7 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
     }
 }
 
-final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method: Method, val manifest: Option[Manifest[_]]) {
+final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method: Method, val manifest: scala.Option[Manifest[_]]) {
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
    */
