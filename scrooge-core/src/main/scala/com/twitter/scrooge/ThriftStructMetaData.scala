@@ -48,12 +48,20 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
       m.getParameterTypes.size == 0 && m.getReturnType == classOf[TField]
     } map { m =>
       val tfield = m.invoke(codec).asInstanceOf[TField]
+      val manifest = try {
+        Some {
+          codecClass
+            .getMethod(m.getName + "Manifest")
+            .invoke(codec)
+            .asInstanceOf[Manifest[_]]
+        }
+      } catch { case _: Throwable => None }
       val method = structClass.getMethod(toCamelCase(tfield.name))
-      new ThriftStructField[T](tfield, method)
+      new ThriftStructField[T](tfield, method, manifest)
     }
 }
 
-final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method: Method) {
+final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method: Method, val manifest: Option[Manifest[_]]) {
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
    */

@@ -21,6 +21,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
+  val {{fieldConst}}Manifest = implicitly[Manifest[{{fieldType}}]]
 {{/fields}}
 
   /**
