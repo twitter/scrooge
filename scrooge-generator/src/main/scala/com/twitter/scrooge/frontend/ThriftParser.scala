@@ -116,16 +116,14 @@ class ThriftParser(
 
   lazy val numberLiteral = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ {
     x =>
-      if (x.exists {
-        c => "eE." contains c
-      }) DoubleLiteral(x.toDouble)
+      if (x.exists { c => "eE." contains c }) DoubleLiteral(x.toDouble)
       else IntLiteral(x.toLong)
   }
 
   // use a single regex to match string quote-to-quote, so that whitespace parser doesn't
   // get executed inside the quotes
-  lazy val doubleQuotedString = "\"[^\"]*\"".r
-  lazy val singleQuotedString = "'[^']*'".r
+  lazy val doubleQuotedString = """(")(\\.|[^\\"])*(")""".r
+  lazy val singleQuotedString = """'(\\.|[^\\'])*'""".r
 
   lazy val stringLiteral = (doubleQuotedString | singleQuotedString) ^^ {
     // strip off quotes

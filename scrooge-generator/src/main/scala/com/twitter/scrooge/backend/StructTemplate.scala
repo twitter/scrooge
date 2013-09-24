@@ -147,25 +147,13 @@ trait StructTemplate {
           "optional" -> v(field.requiredness.isOptional),
           "nullable" -> v(isNullableType(field.fieldType, field.requiredness.isOptional)),
           "collection" -> v {
-            field.fieldType match {
-              case ListType(eltType, _) => List(
-                Dictionary(
-                  "elementType" -> genType(eltType)
-                )
-              )
-              case SetType(eltType, _) => List(
-                Dictionary(
-                  "elementType" -> genType(eltType)
-                )
-              )
+            (field.fieldType match {
+              case ListType(eltType, _) => List(genType(eltType))
+              case SetType(eltType, _) => List(genType(eltType))
               case MapType(keyType, valueType, _) => List(
-                Dictionary(
-                  "elementType" ->
-                    codify("(" + genType(keyType).toData + ", " + genType(valueType).toData + ")")
-                )
-              )
+                codify("(" + genType(keyType).toData + ", " + genType(valueType).toData + ")"))
               case _ => Nil
-            }
+            }) map { t => Dictionary("elementType" -> t) }
           },
           "readField" -> v(templates("readField")),
           "readUnionField" -> v(templates("readUnionField")),
