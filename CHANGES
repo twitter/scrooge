@@ -6,6 +6,18 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.9.0
+~~~~~
+
+- scrooge use scala option in metadata
+- provide type parameters in metadata
+- automatically whitelist all idl jar dependencies
+- fix scrooge build properties
+- bump finagle to 6.6.3-SNAPSHOT
+- scrooge: support backslash escapes
+- bump poms to finagle 6.6.1-SNAPSHOT
+- bump util to 6.5.1-SNAPSHOT
+
 3.8.0
 ~~~~~
 
