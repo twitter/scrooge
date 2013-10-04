@@ -38,14 +38,12 @@ object {{ServiceName}} {
 {{#withFinagle}}
   import com.twitter.util.Future
 
-  @deprecated("use {{ServiceName}}[Future]", "3.4.0")
   trait FutureIface extends {{#futureIfaceParent}}{{futureIfaceParent}} with{{/futureIfaceParent}} {{ServiceName}}[Future] {
 {{#asyncFunctions}}
     {{>function}}
 {{/asyncFunctions}}
   }
 
-  @deprecated("use {{ServiceName}}$FinagleClient", "3.4.0")
   class FinagledClient(
       service: com.twitter.finagle.Service[com.twitter.finagle.thrift.ThriftClientRequest, Array[Byte]],
       protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
@@ -58,7 +56,6 @@ object {{ServiceName}} {
       stats)
     with FutureIface
 
-  @deprecated("use {{ServiceName}}$FinagleService", "3.4.0")
   class FinagledService(
       iface: FutureIface,
       protocolFactory: TProtocolFactory)
