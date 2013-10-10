@@ -4,7 +4,9 @@ package {{package}}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
-import scala.collection.mutable.{ArrayBuffer => mutable$ArrayBuffer}
+import scala.collection.mutable.{
+  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
+  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
 import scala.collection.{Map, Set}
 
 {{/public}}
