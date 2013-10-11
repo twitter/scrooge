@@ -244,7 +244,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
 {{#fields}}
 {{#isPrimitive}}
 {{#optional}}
-    hash = hash * (this.{{fieldName}}.isDefined() ? 0 : new {{fieldType}}(this.{{fieldName}}.get()).hashCode());
+    hash = hash * (!this.{{fieldName}}.isDefined() ? 0 : new {{fieldType}}(this.{{fieldName}}.get()).hashCode());
 {{/optional}}
 {{^optional}}
     hash = hash * new {{fieldType}}(this.{{fieldName}}).hashCode();
@@ -252,7 +252,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
 {{/isPrimitive}}
 {{^isPrimitive}}
 {{#optional}}
-    hash = hash * (this.{{fieldName}}.isDefined() ? 0 : this.{{fieldName}}.get().hashCode());
+    hash = hash * (!this.{{fieldName}}.isDefined() ? 0 : this.{{fieldName}}.get().hashCode());
 {{/optional}}
 {{^optional}}
     hash = hash * (this.{{fieldName}} == null ? 0 : this.{{fieldName}}.hashCode());
