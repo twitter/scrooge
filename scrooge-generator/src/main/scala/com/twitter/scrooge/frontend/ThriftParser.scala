@@ -26,8 +26,7 @@ case class FileParseException(filename: String, cause: Throwable)
 class ThriftParser(
     importer: Importer,
     strict: Boolean,
-    defaultOptional: Boolean = false,
-    allowOneways: Boolean = false)
+    defaultOptional: Boolean = false)
   extends RegexParsers {
 
   import com.twitter.scrooge.ast._
@@ -220,12 +219,10 @@ class ThriftParser(
   lazy val function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(field) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ^^ {
     case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
-      if (!allowOneways && oneway.isDefined) failOrWarn(new OnewayNotSupportedException(id.fullName))
-
       Function(
         id,
         id.name,
-        if (allowOneways && oneway.isDefined) OnewayVoid else ftype,
+        if (oneway.isDefined) OnewayVoid else ftype,
         fixFieldIds(args),
         throws.map {
           fixFieldIds(_)
@@ -371,7 +368,7 @@ class ThriftParser(
       throw new FileNotFoundException(filename)
     }
 
-    val newParser = new ThriftParser(contents.importer, this.strict, defaultOptional, allowOneways)
+    val newParser = new ThriftParser(contents.importer, this.strict, defaultOptional)
     newParser.parse(contents.data, newParser.document, Some(filename))
   }
 

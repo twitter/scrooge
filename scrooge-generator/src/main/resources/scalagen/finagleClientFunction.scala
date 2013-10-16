@@ -16,12 +16,12 @@ private[this] object {{__stats_name}} {
 {{^hasThrows}}
       None
 {{/hasThrows}}
-{{#void}}
+{{#isVoid}}
     exception.getOrElse(Future.Done)
-{{/void}}
-{{^void}}
+{{/isVoid}}
+{{^isVoid}}
     exception.orElse(result.success.map(Future.value)).getOrElse(Future.exception(missingResult("{{clientFuncNameForWire}}")))
-{{/void}}
+{{/isVoid}}
   } rescue {
     case ex: SourcedException => {
       if (this.serviceName != "") { ex.serviceName = this.serviceName }

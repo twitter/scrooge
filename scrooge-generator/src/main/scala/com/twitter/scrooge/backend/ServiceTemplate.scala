@@ -103,7 +103,7 @@ trait ServiceTemplate {
             "clientFuncNameForWire" -> codify(f.originalName),
             "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "type" -> genType(f.funcType),
-            "void" -> v(f.funcType eq Void),
+            "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
             "ArgsStruct" -> genID(internalArgsStructName(f)),
             "ResultStruct" -> genID(internalResultStructName(f)),
             "argNames" -> {
@@ -144,8 +144,9 @@ trait ServiceTemplate {
                 "args." + genID(field.sid).toData
               } mkString (", ")),
             "typeName" -> genType(f.funcType),
-            "isVoid" -> v(f.funcType eq Void),
-            "resultNamedArg" -> codify(if (f.funcType ne Void) "success = Some(value)" else ""),
+            "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
+            "resultNamedArg" ->
+              codify(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(value)" else ""),
             "exceptions" -> v(f.throws map {
               t =>
                 Dictionary(
