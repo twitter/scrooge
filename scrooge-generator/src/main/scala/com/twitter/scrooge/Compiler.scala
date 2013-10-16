@@ -33,7 +33,6 @@ class Compiler {
   var verbose = false
   var strict = true
   var skipUnchanged = false
-  var enablePassthrough = false
   var experimentFlags = new mutable.ListBuffer[String]
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
@@ -72,7 +71,6 @@ class Compiler {
         resolvedDoc.resolver.includeMap,
         defaultNamespace,
         now,
-        enablePassthrough,
         experimentFlags)
 
       generator match {

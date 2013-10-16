@@ -205,8 +205,7 @@ trait ServiceTemplate {
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
       "withFinagle" -> v(withFinagle),
-      "date" -> codify(generationDate),
-      "enablePassthrough" -> v(enablePassthrough)
+      "date" -> codify(generationDate)
     )
   }
 }

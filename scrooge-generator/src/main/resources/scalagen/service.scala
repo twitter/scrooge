@@ -1,10 +1,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3}
-{{#enablePassthrough}}
-import com.twitter.scrooge.{TFieldBlob, ThriftUtil}
-{{/enablePassthrough}}
+  TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftUtil}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport

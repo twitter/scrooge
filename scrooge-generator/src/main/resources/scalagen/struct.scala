@@ -2,10 +2,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  ThriftException, ThriftStruct, ThriftStructCodec3}
-{{#enablePassthrough}}
-import com.twitter.scrooge.{TFieldBlob, ThriftUtil}
-{{/enablePassthrough}}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -42,17 +39,14 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
-{{/fields|,}}
-{{#enablePassthrough}},
+    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+{{/fields}}
     _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
-{{/enablePassthrough}}
   ): {{StructName}} = new Immutable(
 {{#fields}}
-    {{fieldName}}
-{{/fields|,}}{{#enablePassthrough}},
+    {{fieldName}},
+{{/fields}}
     _passthroughFields
-{{/enablePassthrough}}
   )
 
 {{#arity0}}
@@ -68,9 +62,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   object Immutable extends ThriftStructCodec3[{{StructName}}] {
     override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
     override def decode(_iprot: TProtocol): {{StructName}} = {
-{{#enablePassthrough}}
       var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-{{/enablePassthrough}}
 {{#fields}}
       var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
       var {{gotName}} = false
@@ -89,12 +81,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/readWriteInfo}}
 {{/fields}}
             case _ =>
-{{#enablePassthrough}}
               _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
-{{/enablePassthrough}}
-{{^enablePassthrough}}
-              TProtocolUtil.skip(_iprot, _field.`type`)
-{{/enablePassthrough}}
           }
           _iprot.readFieldEnd()
         }
@@ -108,14 +95,13 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       new Immutable(
 {{#fields}}
 {{#optional}}
-        if ({{gotName}}) Some({{fieldName}}) else None
+        if ({{gotName}}) Some({{fieldName}}) else None,
 {{/optional}}
 {{^optional}}
-        {{fieldName}}
+        {{fieldName}},
 {{/optional}}
-{{/fields|,}}{{#enablePassthrough}},
+{{/fields}}
         _passthroughFields.result()
-{{/enablePassthrough}}
       )
     }
   }
@@ -127,10 +113,9 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
    */
   class Immutable(
 {{#fields}}
-    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
-{{/fields|,}}{{#enablePassthrough}},
+    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+{{/fields}}
     val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
-{{/enablePassthrough}}
   ) extends {{StructName}}
 
 {{#withProxy}}
@@ -144,9 +129,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#fields}}
     override def {{fieldName}}: {{>optionalType}} = {{underlyingStructName}}.{{fieldName}}
 {{/fields}}
-{{#enablePassthrough}}
     override def _passthroughFields = {{underlyingStructName}}._passthroughFields
-{{/enablePassthrough}}
   }
 {{/withProxy}}
 }
@@ -171,7 +154,6 @@ trait {{StructName}} extends {{parentType}}
   def _{{indexP1}} = {{fieldName}}
 {{/fields}}
 
-{{#enablePassthrough}}
   def _passthroughFields: immutable$Map[Short, TFieldBlob]
 
   /**
@@ -244,7 +226,6 @@ if (true) {
       case _ => copy(_passthroughFields = _passthroughFields + (_blob.id -> _blob))
     }
   }
-{{/enablePassthrough}}
 
   /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
@@ -255,18 +236,13 @@ if (true) {
     _fieldId match {
 {{#fields}}
 {{#optional}}
-      case {{id}} => copy({{fieldName}} = None{{#enablePassthrough}}, _passthroughFields = _passthroughFields - _fieldId{{/enablePassthrough}})
+      case {{id}} => copy({{fieldName}} = None, _passthroughFields = _passthroughFields - _fieldId)
 {{/optional}}
 {{^optional}}
-      case {{id}} => copy({{fieldName}} = {{defaultReadValue}}{{#enablePassthrough}}, _passthroughFields = _passthroughFields - _fieldId{{/enablePassthrough}})
+      case {{id}} => copy({{fieldName}} = {{defaultReadValue}}, _passthroughFields = _passthroughFields - _fieldId)
 {{/optional}}
 {{/fields}}
-{{#enablePassthrough}}
       case _ => copy(_passthroughFields = _passthroughFields - _fieldId)
-{{/enablePassthrough}}
-{{^enablePassthrough}}
-      case _ => this
-{{/enablePassthrough}}
     }
 
   override def write(_oprot: TProtocol) {
@@ -277,34 +253,29 @@ if (true) {
     {{>writeField}}
 {{/readWriteInfo}}
 {{/fields}}
-{{#enablePassthrough}}
     _passthroughFields.values foreach { _.write(_oprot) }
-{{/enablePassthrough}}
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }
 
   def copy(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
-{{/fields|, }}{{#enablePassthrough}},
+    {{fieldName}}: {{>optionalType}} = this.{{fieldName}},
+{{/fields}}
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
-{{/enablePassthrough}}
   ): {{StructName}} =
     new Immutable(
 {{#fields}}
-      {{fieldName}}
-{{/fields|,}}{{#enablePassthrough}},
+      {{fieldName}},
+{{/fields}}
       _passthroughFields
-{{/enablePassthrough}}
     )
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
   override def equals(other: Any): Boolean =
-    _root_.scala.runtime.ScalaRunTime._equals(this, other){{#enablePassthrough}} &&
+    _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
       _passthroughFields == other.asInstanceOf[{{StructName}}]._passthroughFields
-{{/enablePassthrough}}
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
 

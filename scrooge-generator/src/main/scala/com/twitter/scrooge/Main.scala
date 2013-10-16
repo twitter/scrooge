@@ -38,6 +38,7 @@ object Main {
 
     val parser = new OptionParser("scrooge") {
       help(None, "help", "show this help screen")
+
       opt("V", "version", "print version and quit", {
         println("scrooge " + buildProperties.getProperty("version", "0.0"))
         println("    build " + buildProperties.getProperty("build_name", "unknown"))
@@ -45,68 +46,68 @@ object Main {
         System.exit(0)
         ()
       })
+
       opt("v", "verbose", "log verbose messages about progress", { compiler.verbose = true; () })
+
       opt("d", "dest", "<path>",
-      "write generated code to a folder (default: %s)".format(compiler.defaultDestFolder), { x: String =>
-        compiler.destFolder = x
-      })
-      opt(None, "import-path", "<path>", "[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)", { path: String =>
-        compiler.includePaths ++= path.split(File.pathSeparator); ()
-      })
-      opt("i", "include-path", "<path>", "path(s) to search for included thrift files (may be used multiple times)", { path: String =>
-        compiler.includePaths ++= path.split(File.pathSeparator); ()
-      })
-      opt("n", "namespace-map", "<oldname>=<newname>", "map old namespace to new (may be used multiple times)", { mapping: String =>
-        mapping.split("=") match {
-          case Array(from, to) => compiler.namespaceMappings(from) = to
-        }
-        ()
-      })
+        "write generated code to a folder (default: %s)".format(compiler.defaultDestFolder), { x: String =>
+          compiler.destFolder = x
+        })
+
+      opt(None, "import-path", "<path>", "[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)",
+        { path: String => compiler.includePaths ++= path.split(File.pathSeparator); () })
+
+      opt("i", "include-path", "<path>", "path(s) to search for included thrift files (may be used multiple times)",
+        { path: String => compiler.includePaths ++= path.split(File.pathSeparator); () })
+
+      opt("n", "namespace-map", "<oldname>=<newname>", "map old namespace to new (may be used multiple times)",
+        { mapping: String =>
+          mapping.split("=") match {
+            case Array(from, to) => compiler.namespaceMappings(from) = to
+          }
+          ()
+        })
+
       opt(None, "default-java-namespace", "<name>",
-      "Use <name> as default namespace if the thrift file doesn't define its own namespace. " +
-        "If this option is not specified either, then use \"thrift\" as default namespace",
-      { name: String => compiler.defaultNamespace = name }
-      )
+        "Use <name> as default namespace if the thrift file doesn't define its own namespace. " +
+          "If this option is not specified either, then use \"thrift\" as default namespace",
+        { name: String => compiler.defaultNamespace = name })
+
       opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting",
-      { compiler.strict = false; () })
-      opt(None, "gen-file-map", "<path>", "generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files", { path: String =>
-        compiler.fileMapPath = Some(path)
-        ()
-      })
+        { compiler.strict = false; () })
+
+      opt(None, "gen-file-map", "<path>", "generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files",
+        { path: String => compiler.fileMapPath = Some(path); () })
+
       opt("dry-run",
-      "parses and validates source thrift files, reporting any errors, but" +
-        " does not emit any generated source code.  can be used with " +
-        "--gen-file-mapping to get the file mapping",
-      { compiler.dryRun = true; () }
-      )
-      opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input", { compiler.skipUnchanged = true; () })
-      opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)", { languageString: String =>
-        if (Generator.languages.toList contains languageString.toLowerCase) {
-          compiler.language = languageString
-        } else {
-          println("language option %s not supported".format(languageString))
-          System.exit(0)
-        }
-        ()
-      })
-      opt("enable-passthrough", "[EXPERIMENTAL] hold on to unknown fields during decode and pass them through on encode", {
-        compiler.enablePassthrough = true
-        ()
-      })
+        "parses and validates source thrift files, reporting any errors, but" +
+          " does not emit any generated source code.  can be used with " +
+          "--gen-file-mapping to get the file mapping",
+        { compiler.dryRun = true; () })
+
+      opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input",
+        { compiler.skipUnchanged = true; () })
+
+      opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)",
+        { languageString: String =>
+          if (Generator.languages.toList contains languageString.toLowerCase) {
+            compiler.language = languageString
+          } else {
+            println("language option %s not supported".format(languageString))
+            System.exit(0)
+          }
+          ()
+        })
 
       opt(None, "experiment-flag", "<flag>",
         "[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking",
-        { flag: String => compiler.experimentFlags += flag; () }
-      )
+        { flag: String => compiler.experimentFlags += flag; () })
 
-      opt("scala-warn-on-java-ns-fallback", "Print a warning when the scala generator falls back to the java namespace", {
-        compiler.scalaWarnOnJavaNSFallback = true; ()
-      })
+      opt("scala-warn-on-java-ns-fallback", "Print a warning when the scala generator falls back to the java namespace",
+        { compiler.scalaWarnOnJavaNSFallback = true; () })
 
-      opt("finagle", "generate finagle classes", {
-        compiler.flags += WithFinagle
-        ()
-      })
+      opt("finagle", "generate finagle classes",
+        { compiler.flags += WithFinagle; () })
 
       arglist("<files...>", "thrift files to compile", { compiler.thriftFiles += _ })
     }
