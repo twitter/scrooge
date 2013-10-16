@@ -1,16 +1,14 @@
-case {{id}} => { /* {{fieldName}} */
-  _field.`type` match {
+_field.`type` match {
 {{#isEnum}}
-    case TType.I32 | TType.ENUM => {
+  case TType.I32 | TType.ENUM => {
 {{/isEnum}}
 {{^isEnum}}
-    case TType.{{constType}} => {
+  case TType.{{constType}} => {
 {{/isEnum}}
-      {{fieldName}} = {
-        {{>readValue}}
-      }
-      {{gotName}} = true
+    {{fieldName}} = {
+      {{>readValue}}
     }
-    case _ => TProtocolUtil.skip(_iprot, _field.`type`)
+    {{gotName}} = true
   }
+  case _ => TProtocolUtil.skip(_iprot, _field.`type`)
 }

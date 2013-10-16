@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-292</artifactId>
-    <version>0.0.4</version>
+    <version>0.1.2</version>
     <relativePath>../../parents/scala-parent-292/pom.xml</relativePath>
   </parent>
   <properties>
@@ -60,6 +60,12 @@
       <groupId>org.scala-tools.testing</groupId>
       <artifactId>specs_2.9.1</artifactId>
       <version>1.6.9</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.9.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -247,6 +253,24 @@
             <goals>
               <goal>single</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- disable -->
+      <plugin>
+        <groupId>com.twitter</groupId>
+        <artifactId>maven-finagle-thrift-plugin</artifactId>
+        <version>0.0.13</version>
+        <executions>
+          <execution>
+            <id>thrift-sources</id>
+            <phase>none</phase>
+            <goals/>
+          </execution>
+          <execution>
+            <id>thrift-test-sources</id>
+            <phase>none</phase>
+            <goals/>
           </execution>
         </executions>
       </plugin>
