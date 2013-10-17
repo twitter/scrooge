@@ -321,11 +321,14 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       // Check if this artifact is being pulled in by an idl jar that's been whitelisted
       } else {
         List<String> depTrail = artifact.getDependencyTrail();
-        for (String name : depTrail) {
-          Artifact dep = depsMap.get(name);
-          if (dep != null && "idl".equals(dep.getClassifier()) && whitelist.contains(dep.getArtifactId())) {
-            thriftDependencies.add(artifact);
-            break;
+        // depTrail can be null sometimes, which seems like a maven bug
+        if (depTrail != null) {
+          for (String name : depTrail) {
+            Artifact dep = depsMap.get(name);
+            if (dep != null && "idl".equals(dep.getClassifier()) && whitelist.contains(dep.getArtifactId())) {
+              thriftDependencies.add(artifact);
+              break;
+            }
           }
         }
       }
