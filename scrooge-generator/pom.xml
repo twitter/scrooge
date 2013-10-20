@@ -101,13 +101,13 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core</artifactId>
-      <version>6.7.4-SNAPSHOT</version>
+      <version>6.7.5-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift</artifactId>
-      <version>6.7.4-SNAPSHOT</version>
+      <version>6.7.5-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
