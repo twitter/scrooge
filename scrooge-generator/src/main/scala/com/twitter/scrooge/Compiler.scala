@@ -33,7 +33,6 @@ class Compiler {
   var verbose = false
   var strict = true
   var skipUnchanged = false
-  var enablePassthrough = false
   var experimentFlags = new mutable.ListBuffer[String]
   var fileMapPath: Option[String] = None
   var fileMapWriter: Option[FileWriter] = None
@@ -62,7 +61,7 @@ class Compiler {
     // compile
     for (inputFile <- thriftFiles) {
       val isJava = language.equals("java")
-      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, allowOneways = isJava)
+      val parser = new ThriftParser(importer, strict, defaultOptional = isJava)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
@@ -72,7 +71,6 @@ class Compiler {
         resolvedDoc.resolver.includeMap,
         defaultNamespace,
         now,
-        enablePassthrough,
         experimentFlags)
 
       generator match {

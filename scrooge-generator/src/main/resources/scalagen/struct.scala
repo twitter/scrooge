@@ -2,10 +2,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  ThriftException, ThriftStruct, ThriftStructCodec3}
-{{#enablePassthrough}}
-import com.twitter.scrooge.{TFieldBlob, ThriftUtil}
-{{/enablePassthrough}}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -42,17 +39,14 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
-{{/fields|,}}
-{{#enablePassthrough}},
+    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+{{/fields}}
     _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
-{{/enablePassthrough}}
   ): {{StructName}} = new Immutable(
 {{#fields}}
-    {{fieldName}}
-{{/fields|,}}{{#enablePassthrough}},
+    {{fieldName}},
+{{/fields}}
     _passthroughFields
-{{/enablePassthrough}}
   )
 
 {{#arity0}}
@@ -65,16 +59,22 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
-  object Immutable extends ThriftStructCodec3[{{StructName}}] {
-    override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-    override def decode(_iprot: TProtocol): {{StructName}} = {
-{{#enablePassthrough}}
-      var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-{{/enablePassthrough}}
+  private class Decoder(_iprot: TProtocol) {
+    private[this] var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
 {{#fields}}
-      var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
-      var {{gotName}} = false
+    private[this] var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+    private[this] var {{gotName}} = false
 {{/fields}}
+
+{{#fields}}
+{{#readWriteInfo}}
+    def readField{{id}}(_field: TField) {
+      {{>readField}}
+    }
+{{/readWriteInfo}}
+{{/fields}}
+
+    def read(): {{StructName}} = {
       var _done = false
       _iprot.readStructBegin()
       while (!_done) {
@@ -84,22 +84,19 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
         } else {
           _field.id match {
 {{#fields}}
-{{#readWriteInfo}}
-            {{>readField}}
-{{/readWriteInfo}}
+            case {{id}} => readField{{id}}(_field) // {{fieldName}}
 {{/fields}}
             case _ =>
-{{#enablePassthrough}}
               _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
-{{/enablePassthrough}}
-{{^enablePassthrough}}
-              TProtocolUtil.skip(_iprot, _field.`type`)
-{{/enablePassthrough}}
           }
           _iprot.readFieldEnd()
         }
       }
       _iprot.readStructEnd()
+      result()
+    }
+
+    def result(): {{StructName}} = {
 {{#fields}}
 {{#required}}
       if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
@@ -108,16 +105,20 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       new Immutable(
 {{#fields}}
 {{#optional}}
-        if ({{gotName}}) Some({{fieldName}}) else None
+        if ({{gotName}}) Some({{fieldName}}) else None,
 {{/optional}}
 {{^optional}}
-        {{fieldName}}
+        {{fieldName}},
 {{/optional}}
-{{/fields|,}}{{#enablePassthrough}},
+{{/fields}}
         _passthroughFields.result()
-{{/enablePassthrough}}
       )
     }
+  }
+
+  object Immutable extends ThriftStructCodec3[{{StructName}}] {
+    override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
+    override def decode(_iprot: TProtocol): {{StructName}} = new Decoder(_iprot).read()
   }
 
   /**
@@ -127,10 +128,9 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
    */
   class Immutable(
 {{#fields}}
-    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
-{{/fields|,}}{{#enablePassthrough}},
+    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+{{/fields}}
     val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
-{{/enablePassthrough}}
   ) extends {{StructName}}
 
 {{#withProxy}}
@@ -144,9 +144,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#fields}}
     override def {{fieldName}}: {{>optionalType}} = {{underlyingStructName}}.{{fieldName}}
 {{/fields}}
-{{#enablePassthrough}}
     override def _passthroughFields = {{underlyingStructName}}._passthroughFields
-{{/enablePassthrough}}
   }
 {{/withProxy}}
 }
@@ -171,7 +169,6 @@ trait {{StructName}} extends {{parentType}}
   def _{{indexP1}} = {{fieldName}}
 {{/fields}}
 
-{{#enablePassthrough}}
   def _passthroughFields: immutable$Map[Short, TFieldBlob]
 
   /**
@@ -183,34 +180,38 @@ trait {{StructName}} extends {{parentType}}
     _passthroughFields.get(_fieldId) orElse {
       _fieldId match {
 {{#fields}}
-        case {{id}} =>
-{{#readWriteInfo}}
-{{#optional}}
-          if ({{fieldName}}.isDefined) {
-{{/optional}}
-{{^optional}}
-{{#nullable}}
-          if ({{fieldName}} ne null) {
-{{/nullable}}
-{{^nullable}}
-if (true) {
-{{/nullable}}
-{{/optional}}
-            Some(
-              TFieldBlob.capture({{StructName}}.{{fieldConst}}) { _oprot =>
-                val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
-                {{>writeValue}}
-              }
-            )
-          } else {
-            None
-          }
-{{/readWriteInfo}}
+        case {{id}} => getFieldBlob{{id}}
 {{/fields}}
         case _ => None
       }
     }
   }
+
+{{#fields}}
+    private def getFieldBlob{{id}}: Option[TFieldBlob] =
+{{#readWriteInfo}}
+{{#optional}}
+      if ({{fieldName}}.isDefined) {
+{{/optional}}
+{{^optional}}
+{{#nullable}}
+      if ({{fieldName}} ne null) {
+{{/nullable}}
+{{^nullable}}
+      if (true) {
+{{/nullable}}
+{{/optional}}
+        Some(
+          TFieldBlob.capture({{StructName}}.{{fieldConst}}) { _oprot =>
+            val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
+            {{>writeValue}}
+          }
+        )
+      } else {
+        None
+      }
+{{/readWriteInfo}}
+{{/fields}}
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
@@ -228,23 +229,29 @@ if (true) {
     _blob.id match {
 {{#fields}}
 {{#readWriteInfo}}
-      case {{id}} =>
-        val {{fieldName}} = {
-          val _iprot = _blob.read
-          {{>readValue}}
-        }
-{{#optional}}
-        copy({{fieldName}} = Some({{fieldName}}))
-{{/optional}}
-{{^optional}}
-        copy({{fieldName}} = {{fieldName}})
-{{/optional}}
+      case {{id}} => setField{{id}}(_blob)
 {{/readWriteInfo}}
 {{/fields}}
       case _ => copy(_passthroughFields = _passthroughFields + (_blob.id -> _blob))
     }
   }
-{{/enablePassthrough}}
+
+{{#fields}}
+  private def setField{{id}}(_blob: TFieldBlob): {{StructName}} = {
+{{#readWriteInfo}}
+    val {{fieldName}} = {
+      val _iprot = _blob.read
+      {{>readValue}}
+    }
+{{#optional}}
+    copy({{fieldName}} = Some({{fieldName}}))
+{{/optional}}
+{{^optional}}
+    copy({{fieldName}} = {{fieldName}})
+{{/optional}}
+{{/readWriteInfo}}
+  }
+{{/fields}}
 
   /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
@@ -254,20 +261,26 @@ if (true) {
   def unsetField(_fieldId: Short): {{StructName}} =
     _fieldId match {
 {{#fields}}
+      case {{id}} => {{unsetName}}
+{{/fields}}
+      case _ => copy(_passthroughFields = _passthroughFields - _fieldId)
+    }
+
+  /**
+   * If the specified field is optional, it is set to None.  Otherwise, if the field is
+   * known, it is reverted to its default value; if the field is unknown, it is subtracked
+   * from the passthroughFields map, if present.
+   */
+{{#fields}}
+  def {{unsetName}}: {{StructName}} =
 {{#optional}}
-      case {{id}} => copy({{fieldName}} = None{{#enablePassthrough}}, _passthroughFields = _passthroughFields - _fieldId{{/enablePassthrough}})
+    copy({{fieldName}} = None, _passthroughFields = _passthroughFields - {{id}})
 {{/optional}}
 {{^optional}}
-      case {{id}} => copy({{fieldName}} = {{defaultReadValue}}{{#enablePassthrough}}, _passthroughFields = _passthroughFields - _fieldId{{/enablePassthrough}})
+    copy({{fieldName}} = {{defaultReadValue}}, _passthroughFields = _passthroughFields - {{id}})
 {{/optional}}
+
 {{/fields}}
-{{#enablePassthrough}}
-      case _ => copy(_passthroughFields = _passthroughFields - _fieldId)
-{{/enablePassthrough}}
-{{^enablePassthrough}}
-      case _ => this
-{{/enablePassthrough}}
-    }
 
   override def write(_oprot: TProtocol) {
     {{StructName}}.validate(this)
@@ -277,34 +290,29 @@ if (true) {
     {{>writeField}}
 {{/readWriteInfo}}
 {{/fields}}
-{{#enablePassthrough}}
     _passthroughFields.values foreach { _.write(_oprot) }
-{{/enablePassthrough}}
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }
 
   def copy(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
-{{/fields|, }}{{#enablePassthrough}},
+    {{fieldName}}: {{>optionalType}} = this.{{fieldName}},
+{{/fields}}
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
-{{/enablePassthrough}}
   ): {{StructName}} =
     new Immutable(
 {{#fields}}
-      {{fieldName}}
-{{/fields|,}}{{#enablePassthrough}},
+      {{fieldName}},
+{{/fields}}
       _passthroughFields
-{{/enablePassthrough}}
     )
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
   override def equals(other: Any): Boolean =
-    _root_.scala.runtime.ScalaRunTime._equals(this, other){{#enablePassthrough}} &&
+    _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
       _passthroughFields == other.asInstanceOf[{{StructName}}]._passthroughFields
-{{/enablePassthrough}}
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
 

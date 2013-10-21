@@ -26,16 +26,14 @@ object JavaGeneratorFactory extends GeneratorFactory {
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     generationDate: String,
-    enablePassthrough: Boolean,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough)
+  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, generationDate)
 }
 
 class JavaGenerator(
   val includeMap: Map[String, ResolvedDocument],
   val defaultNamespace: String,
-  val generationDate: String,
-  val enablePassthrough: Boolean
+  val generationDate: String
 ) extends Generator with ThriftGenerator {
 
   val fileExtension = ".java"

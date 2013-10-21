@@ -55,10 +55,9 @@ object Generator {
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     generationDate: String,
-    enablePassthrough: Boolean,
     experimentFlags: Seq[String]
   ): ThriftGenerator = Generators.get(lan) match {
-    case Some(gen) => gen(includeMap, defaultNamespace, generationDate, enablePassthrough, experimentFlags)
+    case Some(gen) => gen(includeMap, defaultNamespace, generationDate, experimentFlags)
     case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
 }
@@ -69,7 +68,6 @@ trait GeneratorFactory {
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     generationDate: String,
-    enablePassthrough: Boolean,
     experimentFlags: Seq[String]
   ): ThriftGenerator
 }
@@ -88,7 +86,6 @@ trait Generator
   val includeMap: Map[String, ResolvedDocument]
   val defaultNamespace: String
   val generationDate: String
-  val enablePassthrough: Boolean
   val experimentFlags: Seq[String]
 
   /******************** helper functions ************************/

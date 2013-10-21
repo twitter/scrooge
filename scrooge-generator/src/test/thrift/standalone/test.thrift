@@ -179,6 +179,69 @@ struct Biggie {
   25: i32 num25 = 25
 }
 
+struct ReallyBig {
+   1: Empire empire1
+   2: Empire empire2
+   3: Empire empire3
+   4: Empire empire4
+   5: Empire empire5
+   6: Empire empire6
+   7: Empire empire7
+   8: Empire empire8
+   9: Empire empire9
+  10: Empire empire10
+  11: optional Empire empire11
+  12: optional Empire empire12
+  13: optional Empire empire13
+  14: optional Empire empire14
+  15: optional Empire empire15
+  16: optional Empire empire16
+  17: optional Empire empire17
+  18: optional Empire empire18
+  19: optional Empire empire19
+  20: optional Empire empire20
+  21: i32 num21 = 21
+  22: i32 num22 = 22
+  23: i32 num23 = 23
+  24: i32 num24 = 24
+  25: i32 num25 = 25
+  26: i32 num26 = 26
+  27: i32 num27 = 27
+  28: i32 num28 = 28
+  29: i32 num29 = 29
+  30: i32 num30 = 30
+  31: optional i32 num31
+  32: optional i32 num32
+  33: optional i32 num33
+  34: optional i32 num34
+  35: optional i32 num35
+  36: optional i32 num36
+  37: optional i32 num37
+  38: optional i32 num38
+  39: optional i32 num49
+  40: optional i32 num40
+  41: list<Empire> empire_list41
+  42: list<Empire> empire_list42
+  43: list<Empire> empire_list43
+  44: list<Empire> empire_list44
+  45: list<Empire> empire_list45
+  46: list<Empire> empire_list46
+  47: list<Empire> empire_list47
+  48: list<Empire> empire_list48
+  49: list<Empire> empire_list49
+  50: list<Empire> empire_list50
+  51: optional list<Empire> empire_list51
+  52: optional list<Empire> empire_list52
+  53: optional list<Empire> empire_list53
+  54: optional list<Empire> empire_list54
+  55: optional list<Empire> empire_list55
+  56: optional list<Empire> empire_list56
+  57: optional list<Empire> empire_list57
+  58: optional list<Empire> empire_list58
+  59: optional list<Empire> empire_list59
+  60: optional list<Empire> empire_list60
+}
+
 struct OneOfEach {
   1: bool z
   2: byte b

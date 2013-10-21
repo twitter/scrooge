@@ -9,15 +9,14 @@ class TestGeneratorFactory extends GeneratorFactory {
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     generationDate: String,
-    enablePassthrough: Boolean,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, enablePassthrough, experimentFlags)
+  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, experimentFlags)
 }
 
 class GeneratorFactorySpec extends SpecificationWithJUnit {
   "GeneratorFactory" should {
     "be loadable" in {
-      val generator = Generator("test", Map.empty[String, ResolvedDocument], "", "", false, Seq.empty[String])
+      val generator = Generator("test", Map.empty[String, ResolvedDocument], "", "", Seq.empty[String])
       generator must haveClass[ScalaGenerator]
     }
   }

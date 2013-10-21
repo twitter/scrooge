@@ -24,13 +24,13 @@ private __Stats {{__stats_name}}() {
         if (exception != null) return Future.exception(exception);
 {{/hasThrows}}
 
-{{#void}}
+{{#isVoid}}
         return Future.value(null);
-{{/void}}
-{{^void}}
+{{/isVoid}}
+{{^isVoid}}
         if (result.success.isDefined()) return Future.value(result.success.get());
         return Future.exception(missingResult("{{clientFuncNameForWire}}"));
-{{/void}}
+{{/isVoid}}
       } catch (TException e) {
         return Future.exception(e);
       }

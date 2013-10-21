@@ -21,7 +21,6 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     generationDate: String,
-    enablePassthrough: Boolean,
     experimentFlags: Seq[String]
   ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace)
 }

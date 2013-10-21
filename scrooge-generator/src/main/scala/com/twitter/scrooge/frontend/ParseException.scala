@@ -22,9 +22,6 @@ class ParseWarning(reason: String, cause: Throwable)
   def this(reason: String) = this(reason, null)
 }
 
-class OnewayNotSupportedException(name: String)
-  extends ParseWarning("oneway modifier not supported by Scrooge in function " + name)
-
 class UnionFieldRequiredException(union: String, field: String)
   extends ParseWarning("Field " + field + " in union " + union + " cannot be required")
 

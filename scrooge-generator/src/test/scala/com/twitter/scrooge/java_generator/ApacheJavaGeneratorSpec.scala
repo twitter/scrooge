@@ -20,8 +20,8 @@ import com.twitter.scrooge.ast.Document
  */
 class ApacheJavaGeneratorSpec extends SpecificationWithJUnit with Mockito {
   def generateDoc(str: String) = {
-    val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator/src/test/resources/test_thrift"))  
-    val parser = new ThriftParser(importer, true, allowOneways = true)
+    val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator/src/test/resources/test_thrift"))
+    val parser = new ThriftParser(importer, true)
     val doc = parser.parse(str, parser.document)
     TypeResolver(allowStructRHS = true)(doc).document
   }

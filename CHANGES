@@ -6,10 +6,17 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.9.2
+~~~~~
+
+- scrooge: support larger structs
+- scrooge: allow oneway
+- scrooge: always generate passthrough code
+
 3.9.1
 ~~~~~
 
-- scrooge-generator: remove deprecation warnings removed deprecation warnings for FutureIface, FinagledClient, and FinagledServer.  Since Jeff is working on finagle-free code generation, there is no good reason to push people off of these classes onto the replacements I added, only to deprecate those classes in the near future.
+- scrooge-generator: remove deprecation warnings removed deprecation warnings for FutureIface, FinagledClient, and FinagledServer. Since Jeff is working on finagle-free code generation, there is no good reason to push people off of these classes onto the replacements I added, only to deprecate those classes in the near future.
 - scrooge-generator: fixed imports for union
 
 3.9.0

@@ -114,7 +114,7 @@ trait StructTemplate {
           "index" -> codify(index.toString),
           "indexP1" -> codify((index + 1).toString),
           "_fieldName" -> genID(field.sid.prepend("_")), // for Java only
-          "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")), // for Java only
+          "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")),
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> genID(field.sid),
@@ -262,8 +262,7 @@ trait StructTemplate {
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withProxy" -> v(struct.isInstanceOf[Struct]),
-      "date" -> codify(generationDate),
-      "enablePassthrough" -> v(enablePassthrough)
+      "date" -> codify(generationDate)
     )
   }
 }
