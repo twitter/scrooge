@@ -115,6 +115,9 @@ trait StructTemplate {
           "indexP1" -> codify((index + 1).toString),
           "_fieldName" -> genID(field.sid.prepend("_")), // for Java only
           "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")),
+          "readName" -> genID(field.sid.toTitleCase.prepend("read")),
+          "getBlobName" -> genID(field.sid.toTitleCase.prepend("get").append("Blob")),
+          "setBlobName" -> genID(field.sid.toTitleCase.prepend("set").append("Blob")),
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> genID(field.sid),
