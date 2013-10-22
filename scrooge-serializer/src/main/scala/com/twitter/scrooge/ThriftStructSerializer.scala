@@ -38,11 +38,32 @@ trait BinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSerial
   val protocolFactory = new TBinaryProtocol.Factory
 }
 
+object BinaryThriftStructSerializer {
+  def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): BinaryThriftStructSerializer[T] =
+    new BinaryThriftStructSerializer[T] {
+      def codec = _codec
+    }
+}
+
 trait CompactThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
   val protocolFactory = new TCompactProtocol.Factory
+}
+
+object CompactThriftSerializer {
+  def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): CompactThriftSerializer[T] =
+    new CompactThriftSerializer[T] {
+      def codec = _codec
+    }
 }
 
 trait JsonThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
   override def encoder = StringEncoder
   val protocolFactory = new TSimpleJSONProtocol.Factory
+}
+
+object JsonThriftSerializer {
+  def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): JsonThriftSerializer[T] =
+    new JsonThriftSerializer[T] {
+      def codec = _codec
+    }
 }
