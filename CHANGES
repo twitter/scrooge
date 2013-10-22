@@ -1,10 +1,16 @@
 .. Author notes: this file is formatted with restructured text
 
-(http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
-as it is included in Scoorge's user's guide.
+  (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
+  as it is included in Scoorge's user's guide.
 
 3.x
 -----
+
+3.10.0
+~~~~~
+
+- scrooge-serializer: simpler BinaryThriftStructSerializer builder
+- scrooge-maven-plugin: check for null from Artifact.getDependencyTrail
 
 3.9.2
 ~~~~~
