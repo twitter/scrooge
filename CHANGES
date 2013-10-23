@@ -6,6 +6,11 @@
 3.x
 -----
 
+3.10.1
+~~~~~
+
+- scrooge-generator: default passthrough value, valid method names.
+
 3.10.0
 ~~~~~
 
