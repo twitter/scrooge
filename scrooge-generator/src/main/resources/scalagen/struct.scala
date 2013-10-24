@@ -68,7 +68,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 {{#fields}}
 {{#readWriteInfo}}
-    def readField{{id}}(_field: TField) {
+    def {{readName}}(_field: TField) {
       {{>readField}}
     }
 {{/readWriteInfo}}
@@ -84,7 +84,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
         } else {
           _field.id match {
 {{#fields}}
-            case {{id}} => readField{{id}}(_field) // {{fieldName}}
+            case {{id}} => {{readName}}(_field) // {{fieldName}}
 {{/fields}}
             case _ =>
               _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
@@ -130,7 +130,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#fields}}
     val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
 {{/fields}}
-    val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
+    override val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
   ) extends {{StructName}}
 
 {{#withProxy}}
@@ -169,7 +169,7 @@ trait {{StructName}} extends {{parentType}}
   def _{{indexP1}} = {{fieldName}}
 {{/fields}}
 
-  def _passthroughFields: immutable$Map[Short, TFieldBlob]
+  def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
   /**
    * Gets a field value encoded as a binary blob using TCompactProtocol.  If the specified field
@@ -180,7 +180,7 @@ trait {{StructName}} extends {{parentType}}
     _passthroughFields.get(_fieldId) orElse {
       _fieldId match {
 {{#fields}}
-        case {{id}} => getFieldBlob{{id}}
+        case {{id}} => {{getBlobName}}
 {{/fields}}
         case _ => None
       }
@@ -188,28 +188,28 @@ trait {{StructName}} extends {{parentType}}
   }
 
 {{#fields}}
-    private def getFieldBlob{{id}}: Option[TFieldBlob] =
+  private def {{getBlobName}}: Option[TFieldBlob] =
 {{#readWriteInfo}}
 {{#optional}}
-      if ({{fieldName}}.isDefined) {
+    if ({{fieldName}}.isDefined) {
 {{/optional}}
 {{^optional}}
 {{#nullable}}
-      if ({{fieldName}} ne null) {
+    if ({{fieldName}} ne null) {
 {{/nullable}}
 {{^nullable}}
-      if (true) {
+    if (true) {
 {{/nullable}}
 {{/optional}}
-        Some(
-          TFieldBlob.capture({{StructName}}.{{fieldConst}}) { _oprot =>
-            val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
-            {{>writeValue}}
-          }
-        )
-      } else {
-        None
-      }
+      Some(
+        TFieldBlob.capture({{StructName}}.{{fieldConst}}) { _oprot =>
+          val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
+          {{>writeValue}}
+        }
+      )
+    } else {
+      None
+    }
 {{/readWriteInfo}}
 {{/fields}}
 
@@ -229,7 +229,7 @@ trait {{StructName}} extends {{parentType}}
     _blob.id match {
 {{#fields}}
 {{#readWriteInfo}}
-      case {{id}} => setField{{id}}(_blob)
+      case {{id}} => {{setBlobName}}(_blob)
 {{/readWriteInfo}}
 {{/fields}}
       case _ => copy(_passthroughFields = _passthroughFields + (_blob.id -> _blob))
@@ -237,7 +237,7 @@ trait {{StructName}} extends {{parentType}}
   }
 
 {{#fields}}
-  private def setField{{id}}(_blob: TFieldBlob): {{StructName}} = {
+  private def {{setBlobName}}(_blob: TFieldBlob): {{StructName}} = {
 {{#readWriteInfo}}
     val {{fieldName}} = {
       val _iprot = _blob.read
