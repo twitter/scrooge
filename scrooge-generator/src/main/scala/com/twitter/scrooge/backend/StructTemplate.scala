@@ -117,7 +117,7 @@ trait StructTemplate {
           "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")),
           "readName" -> genID(field.sid.toTitleCase.prepend("read")),
           "getBlobName" -> genID(field.sid.toTitleCase.prepend("get").append("Blob")),
-          "setBlobName" -> genID(field.sid.toTitleCase.prepend("set").append("Blob")),
+          "readBlobName" -> genID(field.sid.toTitleCase.prepend("read").append("Blob")),
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> genID(field.sid),
@@ -158,6 +158,9 @@ trait StructTemplate {
               case _ => Nil
             }) map { t => Dictionary("elementType" -> t) }
           },
+          "readFieldValueName" -> genID(field.sid.toTitleCase.prepend("read").append("Value")),
+          "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
+          "writeFieldValueName" -> genID(field.sid.toTitleCase.prepend("write").append("Value")),
           "readField" -> v(templates("readField")),
           "readUnionField" -> v(templates("readUnionField")),
           "readValue" -> v(templates("readValue")),
