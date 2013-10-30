@@ -1,10 +1,15 @@
 .. Author notes: this file is formatted with restructured text
 
-  (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
-  as it is included in Scoorge's user's guide.
+(http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
+as it is included in Scoorge's user's guide.
 
 3.x
 -----
+
+3.10.2
+~~~~~
+
+- scrooge-generator: produce slimmer code, remove _passthroughFields from object apply method
 
 3.10.1
 ~~~~~
