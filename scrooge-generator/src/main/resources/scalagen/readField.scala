@@ -5,9 +5,7 @@ _field.`type` match {
 {{^isEnum}}
   case TType.{{constType}} => {
 {{/isEnum}}
-    {{fieldName}} = {
-      {{>readValue}}
-    }
+    {{fieldName}} = {{readFieldValueName}}(_iprot)
     {{gotName}} = true
   }
   case _ => TProtocolUtil.skip(_iprot, _field.`type`)

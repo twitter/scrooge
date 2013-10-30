@@ -3,6 +3,7 @@ package {{package}}
 import com.twitter.scrooge.{
   TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftUtil}
 import java.nio.ByteBuffer
+import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException

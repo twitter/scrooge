@@ -6,6 +6,7 @@ import com.twitter.scrooge.{
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
+import java.util.Arrays
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.{
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
@@ -18,6 +19,9 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
+{{#isEnum}}
+  val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
+{{/isEnum}}
   val {{fieldConst}}Manifest = implicitly[Manifest[{{fieldType}}]]
 {{/fields}}
 
@@ -39,14 +43,12 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
-{{/fields}}
-    _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
+    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+{{/fields|,}}
   ): {{StructName}} = new Immutable(
 {{#fields}}
-    {{fieldName}},
-{{/fields}}
-    _passthroughFields
+    {{fieldName}}
+{{/fields|,}}
   )
 
 {{#arity0}}
@@ -59,16 +61,40 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
+
+{{#fields}}
+  private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
+{{#readWriteInfo}}
+    {{>readValue}}
+{{/readWriteInfo}}
+  }
+
+  private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol) {
+{{#readWriteInfo}}
+    _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
+    {{writeFieldValueName}}({{valueVariableName}}, _oprot)
+    _oprot.writeFieldEnd()
+{{/readWriteInfo}}
+  }
+
+  private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol) {
+{{#readWriteInfo}}
+    {{>writeValue}}
+{{/readWriteInfo}}
+  }
+
+{{/fields}}
+
   private class Decoder(_iprot: TProtocol) {
-    private[this] var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
 {{#fields}}
     private[this] var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
     private[this] var {{gotName}} = false
 {{/fields}}
+    private[this] var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
 
 {{#fields}}
 {{#readWriteInfo}}
-    def {{readName}}(_field: TField) {
+    private def {{readName}}(_field: TField) {
       {{>readField}}
     }
 {{/readWriteInfo}}
@@ -84,7 +110,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
         } else {
           _field.id match {
 {{#fields}}
-            case {{id}} => {{readName}}(_field) // {{fieldName}}
+            case {{id}} => {{readName}}(_field)
 {{/fields}}
             case _ =>
               _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
@@ -156,12 +182,6 @@ trait {{StructName}} extends {{parentType}}
   import {{StructName}}._
 
 {{#fields}}
-{{#isEnum}}
-  private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
-{{/isEnum}}
-{{/fields}}
-
-{{#fields}}
   def {{fieldName}}: {{>optionalType}}
 {{/fields}}
 
@@ -177,41 +197,43 @@ trait {{StructName}} extends {{parentType}}
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): Option[TFieldBlob] = {
+    lazy val _buff = new TMemoryBuffer(32)
+    lazy val _oprot = new TCompactProtocol(_buff)
     _passthroughFields.get(_fieldId) orElse {
-      _fieldId match {
+      val _fieldOpt: Option[TField] =
+        _fieldId match {
 {{#fields}}
-        case {{id}} => {{getBlobName}}
-{{/fields}}
-        case _ => None
-      }
-    }
-  }
-
-{{#fields}}
-  private def {{getBlobName}}: Option[TFieldBlob] =
+          case {{id}} =>
 {{#readWriteInfo}}
 {{#optional}}
-    if ({{fieldName}}.isDefined) {
+            if ({{fieldName}}.isDefined) {
 {{/optional}}
 {{^optional}}
 {{#nullable}}
-    if ({{fieldName}} ne null) {
+            if ({{fieldName}} ne null) {
 {{/nullable}}
 {{^nullable}}
-    if (true) {
+            if (true) {
 {{/nullable}}
 {{/optional}}
-      Some(
-        TFieldBlob.capture({{StructName}}.{{fieldConst}}) { _oprot =>
-          val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
-          {{>writeValue}}
-        }
-      )
-    } else {
-      None
-    }
+              {{writeFieldValueName}}({{fieldName}}{{#optional}}.get{{/optional}}, _oprot)
+              Some({{StructName}}.{{fieldConst}})
+            } else {
+              None
+            }
 {{/readWriteInfo}}
 {{/fields}}
+          case _ => None
+        }
+      _fieldOpt match {
+        case Some(_field) =>
+          val _data = Arrays.copyOfRange(_buff.getArray, 0, _buff.length)
+          Some(TFieldBlob(_field, _data))
+        case None =>
+          None
+      }
+    }
+  }
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
@@ -226,45 +248,61 @@ trait {{StructName}} extends {{parentType}}
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): {{StructName}} = {
+{{#fields}}
+    var {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
+{{/fields}}
+    var _passthroughFields = this._passthroughFields
     _blob.id match {
 {{#fields}}
 {{#readWriteInfo}}
-      case {{id}} => {{setBlobName}}(_blob)
-{{/readWriteInfo}}
-{{/fields}}
-      case _ => copy(_passthroughFields = _passthroughFields + (_blob.id -> _blob))
-    }
-  }
-
-{{#fields}}
-  private def {{setBlobName}}(_blob: TFieldBlob): {{StructName}} = {
-{{#readWriteInfo}}
-    val {{fieldName}} = {
-      val _iprot = _blob.read
-      {{>readValue}}
-    }
+      case {{id}} =>
 {{#optional}}
-    copy({{fieldName}} = Some({{fieldName}}))
+        {{fieldName}} = Some({{readFieldValueName}}(_blob.read))
 {{/optional}}
 {{^optional}}
-    copy({{fieldName}} = {{fieldName}})
+        {{fieldName}} = {{readFieldValueName}}(_blob.read)
 {{/optional}}
 {{/readWriteInfo}}
-  }
 {{/fields}}
+      case _ => _passthroughFields += (_blob.id -> _blob)
+    }
+    new Immutable(
+{{#fields}}
+      {{fieldName}},
+{{/fields}}
+      _passthroughFields
+    )
+  }
 
   /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
    * known, it is reverted to its default value; if the field is unknown, it is subtracked
    * from the passthroughFields map, if present.
    */
-  def unsetField(_fieldId: Short): {{StructName}} =
+  def unsetField(_fieldId: Short): {{StructName}} = {
+{{#fields}}
+    var {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
+{{/fields}}
+
     _fieldId match {
 {{#fields}}
-      case {{id}} => {{unsetName}}
+      case {{id}} =>
+{{#optional}}
+        {{fieldName}} = None
+{{/optional}}
+{{^optional}}
+        {{fieldName}} = {{defaultReadValue}}
+{{/optional}}
 {{/fields}}
-      case _ => copy(_passthroughFields = _passthroughFields - _fieldId)
+      case _ =>
     }
+    new Immutable(
+{{#fields}}
+      {{fieldName}},
+{{/fields}}
+      _passthroughFields - _fieldId
+    )
+  }
 
   /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
@@ -272,13 +310,7 @@ trait {{StructName}} extends {{parentType}}
    * from the passthroughFields map, if present.
    */
 {{#fields}}
-  def {{unsetName}}: {{StructName}} =
-{{#optional}}
-    copy({{fieldName}} = None, _passthroughFields = _passthroughFields - {{id}})
-{{/optional}}
-{{^optional}}
-    copy({{fieldName}} = {{defaultReadValue}}, _passthroughFields = _passthroughFields - {{id}})
-{{/optional}}
+  def {{unsetName}}: {{StructName}} = unsetField({{id}})
 
 {{/fields}}
 
@@ -287,7 +319,17 @@ trait {{StructName}} extends {{parentType}}
     _oprot.writeStructBegin(Struct)
 {{#fields}}
 {{#readWriteInfo}}
-    {{>writeField}}
+{{#optional}}
+    if ({{fieldName}}.isDefined) {{writeFieldName}}({{fieldName}}.get, _oprot)
+{{/optional}}
+{{^optional}}
+{{#nullable}}
+    if ({{fieldName}} ne null) {{writeFieldName}}({{fieldName}}, _oprot)
+{{/nullable}}
+{{^nullable}}
+    {{writeFieldName}}({{fieldName}}, _oprot)
+{{/nullable}}
+{{/optional}}
 {{/readWriteInfo}}
 {{/fields}}
     _passthroughFields.values foreach { _.write(_oprot) }
