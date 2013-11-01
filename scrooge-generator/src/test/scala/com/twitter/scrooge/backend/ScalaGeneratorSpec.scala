@@ -870,5 +870,9 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
       Emperor.encode(emp, prot)
       Emperor.decode(prot) mustEqual emp
     }
+
+    "generate with special scala namespace syntax" in {
+      scrooge.test.thriftscala.Thingymabob() must haveSuperClass[scrooge.test.thriftscala.Thingymabob]
+    }
   }
 }

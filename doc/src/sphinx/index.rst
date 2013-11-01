@@ -69,6 +69,7 @@ User's guide
 .. toctree::
    :maxdepth: 4
 
+   Namespaces
    SBTPlugin
    MVNPlugin
    CommandLine
