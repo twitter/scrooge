@@ -16,7 +16,7 @@ class NamingConventionSpec extends SpecificationWithJUnit {
 
       Super.Trait.getValue mustEqual 20
       Super.get(99) must beSome(Super.Native)
-      Super.valueOf("`trait`") must beSome(Super.Trait)
+      Super.valueOf("trait") must beSome(Super.Trait)
     }
   }
 

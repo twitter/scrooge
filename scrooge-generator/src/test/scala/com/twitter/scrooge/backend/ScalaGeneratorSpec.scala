@@ -123,6 +123,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NamespaceCollisions.Iterable.name mustEqual "Iterable"
         NamespaceCollisions.Unit.name mustEqual "Unit"
         NamespaceCollisions.Nothing.name mustEqual "Nothing"
+        NamespaceCollisions.Protected.name mustEqual "Protected"
+
+        NamespaceCollisions.valueOf("null") must beSome(NamespaceCollisions.Null)
+        NamespaceCollisions.valueOf("protected") must beSome(NamespaceCollisions.Protected)
       }
 
       "encode-decode in struct" in {

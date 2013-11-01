@@ -91,7 +91,8 @@ enum NamespaceCollisions
   Array,
   Iterable,
   Unit,
-  Nothing
+  Nothing,
+  protected
 }
 
 /** doc, ignored */
