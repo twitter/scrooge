@@ -38,18 +38,72 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields}}
   }
 
-  override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-  override def decode(_iprot: TProtocol): {{StructName}} = Immutable.decode(_iprot)
+  override def encode(_item: {{StructName}}, _oproto: TProtocol) {
+    _item.write(_oproto)
+  }
+
+  override def decode(_iprot: TProtocol): {{StructName}} = {
+{{#fields}}
+{{#optional}}
+    var {{fieldName}}: Option[{{fieldType}}] = None
+{{/optional}}
+{{^optional}}
+    var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+{{#required}}
+    var {{gotName}} = false
+{{/required}}
+{{/optional}}
+{{/fields}}
+    var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+    var _done = false
+
+    _iprot.readStructBegin()
+    while (!_done) {
+      val _field = _iprot.readFieldBegin()
+      if (_field.`type` == TType.STOP) {
+        _done = true
+      } else {
+        var _readField = false
+        _field.id match {
+{{#fields}}
+          case {{id}} =>
+            {{>readField}}
+{{/fields}}
+          case _ =>
+            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _readField = true
+        }
+        if (!_readField) {
+          TProtocolUtil.skip(_iprot, _field.`type`)
+        }
+        _iprot.readFieldEnd()
+      }
+    }
+    _iprot.readStructEnd()
+
+{{#fields}}
+{{#required}}
+    if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
+{{/required}}
+{{/fields}}
+    new {{InstanceClassName}}(
+{{#fields}}
+      {{fieldName}},
+{{/fields}}
+      _passthroughFields.result()
+    )
+  }
 
   def apply(
 {{#fields}}
     {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
 {{/fields|,}}
-  ): {{StructName}} = new Immutable(
+  ): {{StructName}} =
+    new {{InstanceClassName}}(
 {{#fields}}
-    {{fieldName}}
+      {{fieldName}}
 {{/fields|,}}
-  )
+    )
 
 {{#arity0}}
   def unapply(_item: {{StructName}}): Boolean = true
@@ -85,66 +139,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 {{/fields}}
 
-  private class Decoder(_iprot: TProtocol) {
-{{#fields}}
-    private[this] var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
-    private[this] var {{gotName}} = false
-{{/fields}}
-    private[this] var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-
-{{#fields}}
-{{#readWriteInfo}}
-    private def {{readName}}(_field: TField) {
-      {{>readField}}
-    }
-{{/readWriteInfo}}
-{{/fields}}
-
-    def read(): {{StructName}} = {
-      var _done = false
-      _iprot.readStructBegin()
-      while (!_done) {
-        val _field = _iprot.readFieldBegin()
-        if (_field.`type` == TType.STOP) {
-          _done = true
-        } else {
-          _field.id match {
-{{#fields}}
-            case {{id}} => {{readName}}(_field)
-{{/fields}}
-            case _ =>
-              _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
-          }
-          _iprot.readFieldEnd()
-        }
-      }
-      _iprot.readStructEnd()
-      result()
-    }
-
-    def result(): {{StructName}} = {
-{{#fields}}
-{{#required}}
-      if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
-{{/required}}
-{{/fields}}
-      new Immutable(
-{{#fields}}
-{{#optional}}
-        if ({{gotName}}) Some({{fieldName}}) else None,
-{{/optional}}
-{{^optional}}
-        {{fieldName}},
-{{/optional}}
-{{/fields}}
-        _passthroughFields.result()
-      )
-    }
-  }
-
+{{#withTrait}}
   object Immutable extends ThriftStructCodec3[{{StructName}}] {
     override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
-    override def decode(_iprot: TProtocol): {{StructName}} = new Decoder(_iprot).read()
+    override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}.decode(_iprot)
   }
 
   /**
@@ -159,7 +157,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
     override val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
   ) extends {{StructName}}
 
-{{#withProxy}}
   /**
    * This Proxy trait allows you to extend the {{StructName}} trait with additional state or
    * behavior and implement the read-only methods from {{StructName}} using an underlying
@@ -172,25 +169,38 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields}}
     override def _passthroughFields = {{underlyingStructName}}._passthroughFields
   }
-{{/withProxy}}
+{{/withTrait}}
 }
 
-trait {{StructName}} extends {{parentType}}
+{{#withTrait}}
+trait {{StructName}}
+{{/withTrait}}
+{{^withTrait}}
+class {{StructName}}(
+{{#fields}}
+    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+{{/fields}}
+    val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty)
+{{/withTrait}}
+  extends {{parentType}}
   with {{product}}
   with java.io.Serializable
 {
   import {{StructName}}._
+{{#withTrait}}
 
 {{#fields}}
   def {{fieldName}}: {{>optionalType}}
 {{/fields}}
 
+  def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
+{{/withTrait}}
+
 {{#fields}}
   def _{{indexP1}} = {{fieldName}}
 {{/fields}}
 
-  def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
-
+{{#withFieldGettersAndSetters}}
   /**
    * Gets a field value encoded as a binary blob using TCompactProtocol.  If the specified field
    * is present in the passthrough map, that value is returend.  Otherwise, if the specified field
@@ -266,7 +276,7 @@ trait {{StructName}} extends {{parentType}}
 {{/fields}}
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
-    new Immutable(
+    new {{InstanceClassName}}(
 {{#fields}}
       {{fieldName}},
 {{/fields}}
@@ -296,7 +306,7 @@ trait {{StructName}} extends {{parentType}}
 {{/fields}}
       case _ =>
     }
-    new Immutable(
+    new {{InstanceClassName}}(
 {{#fields}}
       {{fieldName}},
 {{/fields}}
@@ -313,6 +323,7 @@ trait {{StructName}} extends {{parentType}}
   def {{unsetName}}: {{StructName}} = unsetField({{id}})
 
 {{/fields}}
+{{/withFieldGettersAndSetters}}
 
   override def write(_oprot: TProtocol) {
     {{StructName}}.validate(this)
@@ -343,7 +354,7 @@ trait {{StructName}} extends {{parentType}}
 {{/fields}}
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): {{StructName}} =
-    new Immutable(
+    new {{InstanceClassName}}(
 {{#fields}}
       {{fieldName}},
 {{/fields}}
