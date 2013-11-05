@@ -216,6 +216,7 @@ trait StructTemplate {
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption]
   ) = {
+    val isStruct = struct.isInstanceOf[Struct]
     val isException = struct.isInstanceOf[Exception_]
     val parentType = if (isException) {
       if (serviceOptions contains WithFinagle) {
@@ -243,6 +244,7 @@ trait StructTemplate {
       if (isException) Seq("message") else Seq())
 
     val isPublic = namespace.isDefined
+    val structName = if (isPublic) genID(struct.sid.toTitleCase) else genID(struct.sid)
 
     Dictionary(
       "public" -> v(isPublic),
@@ -257,7 +259,8 @@ trait StructTemplate {
       "StructName" ->
         // if isPublic, the struct comes from a Thrift definition. Otherwise
         // it's an internal struct: fooMethod$args or fooMethod$result
-        (if (isPublic) genID(struct.sid.toTitleCase) else genID(struct.sid)),
+        structName,
+      "InstanceClassName" -> (if (isStruct) codify("Immutable") else structName),
       "underlyingStructName" -> genID(struct.sid.prepend("_underlying_")),
       "arity" -> codify(arity.toString),
       "isException" -> v(isException),
@@ -267,7 +270,8 @@ trait StructTemplate {
       "arity0" -> v(arity == 0),
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
-      "withProxy" -> v(struct.isInstanceOf[Struct]),
+      "withFieldGettersAndSetters" -> v(isStruct || isException),
+      "withTrait" -> v(isStruct),
       "date" -> codify(generationDate)
     )
   }

@@ -19,7 +19,7 @@ trait EnumTemplate {
           Dictionary(
             "valuedocstring" -> codify(value.docstring.getOrElse("")),
             "name" -> genID(value.sid),
-            "nameLowerCase" -> genID(value.sid.toLowerCase),
+            "unquotedNameLowerCase" -> codify(value.sid.fullName.toLowerCase),
             "value" -> codify(value.value.toString)
           )
       }),

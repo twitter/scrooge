@@ -32,10 +32,10 @@ class ThriftParser(
   import com.twitter.scrooge.ast._
 
   //                            1    2        3       4         4a    4b 4c       4d
-  override val whiteSpace = """(\s+|(//.*\n)|(#.*\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
+  override val whiteSpace = """(\s+|(//.*\n)|(#[^@].*\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
   // 1: whitespace, 1 or more
   // 2: leading // followed by anything 0 or more, until \n
-  // 3: leading #  followed by anything 0 or more, until \n
+  // 3: leading #  then NOT a @ followed by anything 0 or more, until \n
   // 4: leading /* then NOT a *, then...
   // 4a:  not a *, 1 or more times
   // 4b:  OR a newline
@@ -328,7 +328,7 @@ class ThriftParser(
     s => CppInclude(s.value)
   }
 
-  lazy val namespace = opt(comments) ~> "namespace" ~> namespaceScope ~ identifier ^^ {
+  lazy val namespace = opt(comments) ~> opt("#@") ~> "namespace" ~> namespaceScope ~ identifier ^^ {
     case scope ~ id =>
       Namespace(scope, id)
   }

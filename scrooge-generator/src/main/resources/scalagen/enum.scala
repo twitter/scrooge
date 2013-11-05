@@ -20,7 +20,7 @@ case object {{EnumName}} {
   def apply(value: Int): {{EnumName}} = {
     value match {
 {{#values}}
-      case {{value}} => {{name}}
+      case {{value}} => {{EnumName}}.{{name}}
 {{/values}}
       case _ => throw new NoSuchElementException(value.toString)
     }
@@ -33,7 +33,7 @@ case object {{EnumName}} {
   def get(value: Int): Option[{{EnumName}}] = {
     value match {
 {{#values}}
-      case {{value}} => scala.Some({{name}})
+      case {{value}} => scala.Some({{EnumName}}.{{name}})
 {{/values}}
       case _ => scala.None
     }
@@ -42,7 +42,7 @@ case object {{EnumName}} {
   def valueOf(name: String): Option[{{EnumName}}] = {
     name.toLowerCase match {
 {{#values}}
-      case "{{nameLowerCase}}" => scala.Some({{EnumName}}.{{name}})
+      case "{{unquotedNameLowerCase}}" => scala.Some({{EnumName}}.{{name}})
 {{/values}}
       case _ => scala.None
     }
@@ -50,7 +50,7 @@ case object {{EnumName}} {
 
   lazy val list: List[{{EnumName}}] = scala.List[{{EnumName}}](
 {{#values}}
-    {{name}}
+    {{EnumName}}.{{name}}
 {{/values|,}}
   )
 }
