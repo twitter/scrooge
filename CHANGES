@@ -6,6 +6,13 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.11.0
+~~~~~
+
+- scrooge-generator: simplify synthesized structs For synthesized service method arg and results structs
+- scrooge-generator: special, scrooge-only syntax for scala namespace
+- scrooge-generator: don't backquote scala identifiers in Enum.valueOf string constants
+
 3.10.2
 ~~~~~
 
