@@ -38,6 +38,9 @@ namespace go ThriftTest
 namespace php ThriftTest
 namespace * thrift.test
 
+#
+# blah
+#
 /**
  * Docstring!
  */
