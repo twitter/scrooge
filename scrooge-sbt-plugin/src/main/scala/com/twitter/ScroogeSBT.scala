@@ -16,7 +16,7 @@ object ScroogeSBT extends Plugin {
     namespaceMappings: Map[String, String],
     language: String,
     flags: Set[String]
-  ) {
+  ) { synchronized {
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath
     thriftIncludes.map { compiler.includePaths += _.getPath }
@@ -24,7 +24,7 @@ object ScroogeSBT extends Plugin {
     Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
     compiler.language = language.toLowerCase
     compiler.run()
-  }
+  }}
 
   def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
     dependencies.filter { dep =>
@@ -197,14 +197,14 @@ object ScroogeSBT extends Plugin {
       scroogeBuildOptions,
       scroogeThriftIncludes,
       scroogeThriftNamespaceMap
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
+    ) map { (out, isDirty, sources, outputDir, opts, inc, ns) => synchronized {
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && !sources.isEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
         compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
       }
       (outputDir ** "*.scala").get.toSeq
-    },
+    }},
     sourceGenerators <+= scroogeGen
   )
 
