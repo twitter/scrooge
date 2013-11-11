@@ -152,10 +152,21 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
    */
   class Immutable(
 {{#fields}}
-    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+    val {{fieldName}}: {{>optionalType}},
 {{/fields}}
-    override val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
-  ) extends {{StructName}}
+    override val _passthroughFields: immutable$Map[Short, TFieldBlob]
+  ) extends {{StructName}} {
+    def this(
+{{#fields}}
+      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+{{/fields|,}}
+    ) = this(
+{{#fields}}
+      {{fieldName}},
+{{/fields}}
+      Map.empty
+    )
+  }
 
   /**
    * This Proxy trait allows you to extend the {{StructName}} trait with additional state or
@@ -178,15 +189,27 @@ trait {{StructName}}
 {{^withTrait}}
 class {{StructName}}(
 {{#fields}}
-    val {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}},
+    val {{fieldName}}: {{>optionalType}},
 {{/fields}}
-    val _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty)
+    val _passthroughFields: immutable$Map[Short, TFieldBlob])
 {{/withTrait}}
   extends {{parentType}}
   with {{product}}
   with java.io.Serializable
 {
   import {{StructName}}._
+{{^withTrait}}
+    def this(
+{{#fields}}
+      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+{{/fields|,}}
+    ) = this(
+{{#fields}}
+      {{fieldName}},
+{{/fields}}
+      Map.empty
+    )
+{{/withTrait}}
 {{#withTrait}}
 
 {{#fields}}
