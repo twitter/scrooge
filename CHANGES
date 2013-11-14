@@ -6,6 +6,14 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.11.1
+~~~~~
+
+scrooge: bump finagle version to 6.8.0
+scrooge: bump util version to 6.8.0
+scrooge: secondary struct class constructors without _passthroughFields for backwards compatibility
+scrooge-generator: fixed comment parsing bug
+
 3.11.0
 ~~~~~
 
