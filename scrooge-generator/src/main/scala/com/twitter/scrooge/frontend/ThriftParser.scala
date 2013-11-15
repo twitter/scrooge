@@ -31,8 +31,8 @@ class ThriftParser(
 
   import com.twitter.scrooge.ast._
 
-  //                            1    2        3       4         4a    4b 4c       4d
-  override val whiteSpace = """(\s+|(//.*\n)|(#[^@].*\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
+  //                            1    2        3                   4         4a    4b 4c       4d
+  override val whiteSpace = """(\s+|(//.*\n)|(#([^@\n][^\n]*)?\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
   // 1: whitespace, 1 or more
   // 2: leading // followed by anything 0 or more, until \n
   // 3: leading #  then NOT a @ followed by anything 0 or more, until \n
