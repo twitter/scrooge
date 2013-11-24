@@ -226,7 +226,7 @@ class {{StructName}}(
 {{#withFieldGettersAndSetters}}
   /**
    * Gets a field value encoded as a binary blob using TCompactProtocol.  If the specified field
-   * is present in the passthrough map, that value is returend.  Otherwise, if the specified field
+   * is present in the passthrough map, that value is returned.  Otherwise, if the specified field
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): Option[TFieldBlob] = {
