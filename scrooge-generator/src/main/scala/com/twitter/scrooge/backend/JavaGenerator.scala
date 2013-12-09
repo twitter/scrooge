@@ -187,21 +187,26 @@ class JavaGenerator(
     codify(code)
   }
 
-  def genType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
+  def genType(t: FunctionType, mutable: Boolean = false, fullyQualify: Boolean = false): CodeFragment = {
+
+    val qualify = (pkg : String, cls : String) => {
+      (if (fullyQualify) pkg + "." else "") + cls
+    }
+
     val code = t match {
       case Void => "Void"
       case OnewayVoid => "Void"
-      case TBool => "Boolean"
-      case TByte => "Byte"
-      case TI16 => "Short"
-      case TI32 => "Integer"
-      case TI64 => "Long"
-      case TDouble => "Double"
-      case TString => "String"
-      case TBinary => "ByteBuffer"
-      case MapType(k, v, _) => "Map<" + genType(k).toData + ", " + genType(v).toData + ">"
-      case SetType(x, _) => "Set<" + genType(x).toData + ">"
-      case ListType(x, _) => "List<" + genType(x).toData + ">"
+      case TBool => qualify("java.lang", "Boolean")
+      case TByte => qualify("java.lang", "Byte")
+      case TI16 => qualify("java.lang", "Short")
+      case TI32 => qualify("java.lang", "Integer")
+      case TI64 => qualify("java.lang", "Long")
+      case TDouble => qualify("java.lang", "Double")
+      case TString => qualify("java.lang", "String")
+      case TBinary => qualify("java.nio", "ByteBuffer")
+      case MapType(k, v, _) => qualify("java.util", "Map<" + genType(k).toData + ", " + genType(v).toData + ">")
+      case SetType(x, _) => qualify("java.util", "Set<" + genType(x).toData + ">")
+      case ListType(x, _) => qualify("java.util", "List<" + genType(x).toData + ">")
       case n: NamedType => genID(qualifyNamedType(n).toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")

@@ -728,6 +728,56 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         NaughtyUnion.encode(original, protocol)
         NaughtyUnion.decode(protocol) mustEqual(original)
       }
+
+      "avoid overriding built-in types" in {
+        import thrift.`def`.default._
+        val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
+
+
+        val testRoundTrip = (original: NaughtyPrimitiveValue) => {
+          NaughtyPrimitiveValue.encode(original, protocol)
+          var decoded = NaughtyPrimitiveValue.decode(protocol)
+          decoded mustEqual(original)
+        }
+
+
+        "Fields named Byte" in {
+          val original: NaughtyPrimitiveValue = NaughtyPrimitiveValue.Byte(10.toByte)
+          original.asInstanceOf[NaughtyPrimitiveValue.Byte].Byte mustEqual(10.toByte)
+          testRoundTrip(original)
+        }
+
+        "Fields named Short" in {
+          val original: NaughtyPrimitiveValue = NaughtyPrimitiveValue.Short(20.toShort)
+          original.asInstanceOf[NaughtyPrimitiveValue.Short].Short mustEqual(20.toShort)
+          testRoundTrip(original)
+        }
+
+        "Fields named Int" in {
+          val original: NaughtyPrimitiveValue = NaughtyPrimitiveValue.Int(30)
+          original.asInstanceOf[NaughtyPrimitiveValue.Int].Int mustEqual(30)
+          testRoundTrip(original)
+        }
+
+        "Fields named Long" in {
+          val original: NaughtyPrimitiveValue = NaughtyPrimitiveValue.Long(40.toLong)
+          original.asInstanceOf[NaughtyPrimitiveValue.Long].Long mustEqual(40.toLong)
+
+          testRoundTrip(original)
+        }
+
+        "Fields named Double" in {
+          val original: NaughtyPrimitiveValue = NaughtyPrimitiveValue.Double(50.0)
+          original.asInstanceOf[NaughtyPrimitiveValue.Double].Double mustEqual(50.0)
+          testRoundTrip(original)
+        }
+
+        "Fields named Unit" in {
+          val original: NaughtyPrimitiveValue = NaughtyPrimitiveValue.Unit(60)
+          original.asInstanceOf[NaughtyPrimitiveValue.Unit].Unit mustEqual(60)
+          testRoundTrip(original)
+        }
+      }
     }
 
     "typedef relative fields" in {

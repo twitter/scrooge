@@ -21,6 +21,7 @@ import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.frontend.ScroogeInternalException
 
+
 trait StructTemplate {
   self: Generator =>
 
@@ -85,13 +86,15 @@ trait StructTemplate {
         TypeTemplate + Dictionary(
           "isStruct" -> v(Dictionary(
             "name" -> genID(sid),
-            "fieldType" -> genType(t)
+            "fieldType" -> genType(t),
+            "fieldTypeWithPackage" -> genType(t, false, true)
           )))
       case t: EnumType =>
         TypeTemplate + Dictionary(
           "isEnum" -> v(Dictionary(
             "name" -> genID(sid),
-            "fieldType" -> genType(t)
+            "fieldType" -> genType(t),
+            "fieldTypeWithPackage" -> genType(t, false, true)
           )))
       case t: BaseType =>
         TypeTemplate + Dictionary(
@@ -132,6 +135,7 @@ trait StructTemplate {
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
           "primitiveFieldType" -> genPrimitiveType(field.fieldType, mutable = false),
           "fieldType" -> genType(field.fieldType, mutable = false),
+          "fieldTypeWithPackage" -> genType(field.fieldType, mutable = false, fullyQualify = true),
           "isImported" -> v(field.fieldType match {
             case n: NamedType => n.scopePrefix.isDefined
             case _ => false

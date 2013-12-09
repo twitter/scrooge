@@ -298,7 +298,7 @@ trait Generator
    */
   def genToImmutable(f: Field): CodeFragment
 
-  def genType(t: FunctionType, mutable: Boolean = false): CodeFragment
+  def genType(t: FunctionType, mutable: Boolean = false, fullyQualify: Boolean = false): CodeFragment
 
   def genPrimitiveType(t: FunctionType, mutable: Boolean = false): CodeFragment
 
