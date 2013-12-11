@@ -54,7 +54,7 @@ class FunctionController(function: TFunction, generator: ApacheJavaGenerator, ns
       Field(a.index, a.sid, a.originalName, a.fieldType, a.default, requiredness)
     }
     val structName = function.funcName.name + "_args"
-    val struct = Struct(SimpleID(structName), structName, args, function.docstring)
+    val struct = Struct(SimpleID(structName), structName, args, function.docstring, Map.empty)
     val controller = new StructController(struct, true, generator, ns)
     generator.renderMustache("struct_inner.mustache", controller)
   }
@@ -66,7 +66,7 @@ class FunctionController(function: TFunction, generator: ApacheJavaGenerator, ns
       val fieldType = function.funcType.asInstanceOf[FieldType]
       Seq(Field(0, SimpleID("success"), "success", fieldType, None, Requiredness.Default))
     }) ++ function.throws
-    val struct = Struct(SimpleID(function.funcName.name + "_result"), function.originalName + "_result", fields, None)
+    val struct = Struct(SimpleID(function.funcName.name + "_result"), function.originalName + "_result", fields, None, Map.empty)
     val controller = new StructController(struct, true, generator, ns, is_result = true)
     generator.renderMustache("struct_inner.mustache", controller)
   }

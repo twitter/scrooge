@@ -188,9 +188,12 @@ class ThriftParser(
   // fields
 
   lazy val field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~
-    (fieldType ~ (opt(annotationGroup) ~> simpleID)) ~
-    (opt("=" ~> rhs) <~ opt(annotationGroup) <~ opt(listSeparator)) ^^ {
-    case (fid ~ req) ~ (ftype ~ sid) ~ value => {
+    (fieldType ~ defaultedAnnotations ~ simpleID) ~
+    opt("=" ~> (rhs ~ defaultedAnnotations)) <~ opt(listSeparator) ^^ {
+    case (fid ~ req) ~ (ftype ~ fieldAnnotations ~ sid) ~ optDefault => {
+      val value = optDefault map { _._1 }
+      val valueAnnotations = optDefault map { _._2 } getOrElse Map.empty
+
       val transformedVal = ftype match {
         case TBool => value map {
           case IntLiteral(0) => BoolLiteral(false)
@@ -198,9 +201,20 @@ class ThriftParser(
         }
         case _ => value
       }
+
       // if field is marked optional and a default is defined, ignore the optional part.
       val transformedReq = if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default else req
-      Field(fid.getOrElse(0), sid, sid.name, ftype, transformedVal, transformedReq)
+
+      Field(
+        fid.getOrElse(0),
+        sid,
+        sid.name,
+        ftype,
+        transformedVal,
+        transformedReq,
+        fieldAnnotations,
+        valueAnnotations
+      )
     }
   }
 
@@ -241,8 +255,8 @@ class ThriftParser(
     case comment ~ ftype ~ sid ~ const ~ _ => ConstDefinition(sid, ftype, const, comment)
   }
 
-  lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ (opt(annotationGroup) ~> simpleID) ^^ {
-    case dtype ~ sid => Typedef(sid, dtype)
+  lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ^^ {
+    case dtype ~ annotations ~ sid => Typedef(sid, dtype, annotations)
   }
 
   lazy val enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(opt(comments) ~ simpleID ~ opt("=" ~> intConstant) <~
@@ -277,22 +291,23 @@ class ThriftParser(
   }
 
   def structLike(keyword: String) =
-    (opt(comments) ~ ((keyword ~> simpleID) <~ "{")) ~ rep(field) <~ "}" <~ opt(annotationGroup)
+    (opt(comments) ~ ((keyword ~> simpleID) <~ "{")) ~ rep(field) ~ ("}" ~> defaultedAnnotations)
 
   lazy val struct = structLike("struct") ^^ {
-    case comment ~ sid ~ fields => Struct(sid, sid.name, fixFieldIds(fields), comment)
+    case comment ~ sid ~ fields ~ annotations =>
+      Struct(sid, sid.name, fixFieldIds(fields), comment, annotations)
   }
 
   lazy val union = structLike("union") ^^ {
-    case comment ~ sid ~ fields =>
+    case comment ~ sid ~ fields ~ annotations =>
       val fields0 = fields.map {
-        case f @ Field(_, _, _, _, _, r) if r == Requiredness.Default => f
+        case f @ Field(_, _, _, _, _, r, _, _) if r == Requiredness.Default => f
         case f @ _ =>
           failOrWarn(UnionFieldRequirednessException(sid.name, f.sid.name, f.requiredness.toString))
           f.copy(requiredness = Requiredness.Default)
       }
 
-      Union(sid, sid.name, fixFieldIds(fields0), comment)
+      Union(sid, sid.name, fixFieldIds(fields0), comment, annotations)
   }
 
   lazy val exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
@@ -349,9 +364,13 @@ class ThriftParser(
 
   // annotations
 
-  lazy val annotation = identifier ~ ("=" ~> stringLiteral)
+  lazy val annotation = identifier ~ ("=" ~> stringLiteral) ^^ {
+    case id ~ StringLiteral(value) => id.fullName -> value
+  }
 
-  lazy val annotationGroup = "(" ~> repsep(annotation, ",") <~ (opt(",") ~ ")")
+  lazy val annotationGroup = "(" ~> repsep(annotation, ",") <~ (opt(",") ~ ")") ^^ { _.toMap }
+
+  lazy val defaultedAnnotations = opt(annotationGroup) ^^ { _ getOrElse Map.empty }
 
   def parse[T](in: String, parser: Parser[T], file: Option[String] = None): T = try {
     parseAll(parser, in) match {

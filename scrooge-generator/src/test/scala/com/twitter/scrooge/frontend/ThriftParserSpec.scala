@@ -98,8 +98,15 @@ const string tyrion = "lannister"
     }
 
     "typedef" in {
-      parser.parse("typedef list<i32> Ladder", parser.definition) mustEqual Typedef(SimpleID("Ladder"),
-        ListType(TI32, None))
+      parser.parse(
+        """typedef list<i32> (information="important", more="better") Ladder""",
+        parser.definition
+      ) mustEqual
+        Typedef(
+          SimpleID("Ladder"),
+          ListType(TI32, None),
+          Map("information" -> "important", "more" -> "better")
+        )
     }
 
     "enum" in {
@@ -152,13 +159,16 @@ enum Foo
           /** comments*/
           2: double y
           3: Color color = BLUE
-        }
+        } (
+          annotation="supported",
+          multiline="also supported",
+        )
                  """
       parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Point"), "Point", Seq(
         Field(1, SimpleID("x"), "x", TDouble, None, Requiredness.Default),
         Field(2, SimpleID("y"), "y", TDouble, None, Requiredness.Default),
         Field(3, SimpleID("color"), "color", ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
-      ), Some("/** docs up here */"))
+      ), Some("/** docs up here */"), Map("annotation" -> "supported", "multiline" -> "also supported"))
     }
 
     "union" in {
@@ -171,14 +181,14 @@ enum Foo
             2: Rotorcraft r
             3: Glider g
             4: LighterThanAir lta
-          }
+          } (maxTypes="4")
                    """
         parser.parse(code, parser.definition) mustEqual Union(SimpleID("Aircraft"), "Aircraft", Seq(
           Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
           Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
           Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default),
           Field(4, SimpleID("lta"), "lta", ReferenceType(Identifier("LighterThanAir")), None, Requiredness.Default)
-        ), Some("/** docs up here */"))
+        ), Some("/** docs up here */"), Map("maxTypes" -> "4"))
       }
 
       "requiredness" in {
@@ -200,7 +210,7 @@ enum Foo
           Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
           Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
           Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default)
-        ), None)
+        ), None, Map.empty)
       }
     }
 
@@ -301,25 +311,47 @@ enum Foo
       parser.parse(code, parser.definition) must throwA[RepeatingEnumValueException]
     }
 
-    "ignore annotations" in {
-      parser.parse("""typedef string (dbtype="fixedchar(4)", nullable="false") AirportCode""",
-        parser.definition) mustEqual Typedef(SimpleID("AirportCode"), TString)
+    "handle struct annotations" in {
+      parser.parse(
+        """typedef string (dbtype="fixedchar(4)", nullable="false") AirportCode""",
+        parser.definition
+      ) mustEqual
+        Typedef(
+          SimpleID("AirportCode"),
+          TString,
+          Map("dbtype" -> "fixedchar(4)", "nullable" -> "false")
+        )
 
+      val idAnnotations = Map("autoincrement" -> "true")
+      val idValueAnnotations = Map("initialValue" -> "0")
+      val codeAnnotations = Map("dbtype" -> "varchar(255)")
+      val structAnnotations = Map(
+        "primary_key" -> "(id)",
+        "index" -> "code_idx(code)",
+        "sql_name" -> "airports"
+      )
       val code =
         """
           struct Airport {
-            1: optional i64 id(autoincrement="true"),
+            1: optional i64 (autoincrement="true") id = 0(initialValue="0"),
             2: optional string(dbtype="varchar(255)") code,
             3: optional string name
           } (primary_key="(id)",
              index="code_idx(code)",
              sql_name="airports",)
         """
-      parser.parse(code, parser.definition) mustEqual Struct(SimpleID("Airport"), "Airport", Seq(
-        Field(1, SimpleID("id"), "id", TI64, None, Requiredness.Optional),
-        Field(2, SimpleID("code"), "code", TString, None, Requiredness.Optional),
-        Field(3, SimpleID("name"), "name", TString, None, Requiredness.Optional)
-      ), None)
+      parser.parse(code, parser.definition) mustEqual
+        Struct(
+          SimpleID("Airport"),
+          "Airport",
+          Seq(
+            Field(1, SimpleID("id"), "id", TI64, Some(IntLiteral(0)), Requiredness.Default, idAnnotations, idValueAnnotations),
+            Field(2, SimpleID("code"), "code", TString, None, Requiredness.Optional, codeAnnotations, Map.empty),
+            Field(3, SimpleID("name"), "name", TString, None, Requiredness.Optional, Map.empty, Map.empty)
+          ),
+          None,
+          structAnnotations
+        )
     }
   }
 }
