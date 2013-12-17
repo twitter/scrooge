@@ -115,17 +115,17 @@ case class TypeResolver(
    */
   def apply(definition: Definition, scopePrefix: Option[SimpleID]): ResolvedDefinition = {
     definition match {
-      case d @ Typedef(sid, t) =>
+      case d @ Typedef(sid, t, _) =>
         val resolved = apply(t)
         ResolvedDefinition(
           d.copy(fieldType = resolved),
           withMapping(sid.name, resolved))
-      case s @ Struct(sid, _, fs, _) =>
+      case s @ Struct(sid, _, fs, _, _) =>
         val resolved = s.copy(fields = fs.map(apply))
         ResolvedDefinition(
           resolved,
           withMapping(sid.name, StructType(resolved, scopePrefix)))
-      case u @ Union(sid, _, fs, _) =>
+      case u @ Union(sid, _, fs, _, _) =>
         val resolved = u.copy(fields = fs.map(apply))
         ResolvedDefinition(
           resolved,

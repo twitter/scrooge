@@ -351,14 +351,18 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           if (entry.getName().endsWith(THRIFT_FILE_SUFFIX)) {
             File destination = new File(destFolder, entry.getName());
 
-            if (destination.isFile()) {
+            if (destination.isFile() && dep.lastModified() <= destination.lastModified()) {
               if (!haveSameContents(destination, jar, entry)) {
                 throw new IOException(format("extracting %s from %s would overwrite %s", entry.getName(), dep.getCanonicalPath(), destination.getCanonicalPath()));
               } else {
                 getLog().info(format("skipping extraction of %s from %s", entry.getName(), dep.getCanonicalPath()));
               }
             } else {
-              getLog().info(format("extracting %s to %s", entry.getName(), destination.getCanonicalPath()));
+              if (destination.isFile()) {
+                getLog().warn(format("overwriting %s with %s", entry.getName(), destination.getCanonicalPath()));
+              } else {
+                getLog().info(format("extracting %s to %s", entry.getName(), destination.getCanonicalPath()));
+              }
               copyStreamToFile(new RawInputStreamFacade(jar.getInputStream(entry)), destination);
               if (!destination.setLastModified(dep.lastModified()))
                 getLog().warn(format("fail to set last modified time for %s", destination.getCanonicalPath()));

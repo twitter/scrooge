@@ -4,9 +4,9 @@ import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 
 object Scrooge extends Build {
-  val libVersion = "3.11.1"
-  val utilVersion = "6.8.0"
-  val finagleVersion = "6.8.0"
+  val libVersion = "3.11.2"
+  val utilVersion = "6.10.0"
+  val finagleVersion = "6.10.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -80,7 +80,7 @@ object Scrooge extends Build {
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" %"1.9.1" % "test",
-      "org.scala-tools.testing" %% "specs" % "1.6.9" % "test" withSources() cross CrossVersion.binaryMapped {
+      "org.scala-tools.testing" %% "specs" % "1.6.9" % "test" cross CrossVersion.binaryMapped {
         case "2.9.2" => "2.9.1"
         case "2.10.0" => "2.10"
         case x => x
@@ -123,7 +123,19 @@ object Scrooge extends Build {
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-    }
+    },
+
+    resourceGenerators in Compile <+=
+      (resourceManaged in Compile, name, version) map { (dir, name, ver) =>
+        val file = dir / "com" / "twitter" / name / "build.properties"
+        val buildRev = Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
+        val buildName = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date)
+        val contents = (
+          "name=%s\nversion=%s\nbuild_revision=%s\nbuild_name=%s"
+        ).format(name, ver, buildRev, buildName)
+        IO.write(file, contents)
+        Seq(file)
+      }
   )
 
   val jmockSettings = Seq(

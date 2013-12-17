@@ -15,7 +15,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
       Field(2, SimpleID("mama"), "mama", TI32),
       Field(3, SimpleID("papa"), "papa", TI64),
       Field(4, SimpleID("pupu"), "pupu", enumRef)
-    ), None)
+    ), None, Map.empty)
     val structType = new StructType(struct)
     val structRef = ReferenceType(struct.sid)
     val ex = Exception_(SimpleID("Boom"), "Boom", Seq(Field(1, SimpleID("msg"), "msg", enumRef)), None)
@@ -27,7 +27,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
 
     def createStruct(structName: String, fieldType: FieldType) = {
       val fieldName: String = structName + "_field"
-      Struct(SimpleID(structName), structName, Seq(Field(1, SimpleID(fieldName), fieldName, fieldType)), None)
+      Struct(SimpleID(structName), structName, Seq(Field(1, SimpleID(fieldName), fieldName, fieldType)), None, Map.empty)
     }
 
     "throw exception on unknown type" in {
@@ -92,8 +92,9 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "transform a TypeDef" in {
-      val typedef = Typedef(SimpleID("foo"), enumRef)
-      resolver(typedef, None).definition mustEqual typedef.copy(fieldType = enumType)
+      val typedef = Typedef(SimpleID("foo"), enumRef, Map("some" -> "annotation"))
+      resolver(typedef, None).definition mustEqual
+        typedef.copy(fieldType = enumType)
     }
 
     "transform a Struct" in {
@@ -134,7 +135,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "throw a TypeMismatchException for a StructType with a MapRHS if resolver allowStructRHS disabled" in {
-      val structType = StructType(Struct(SimpleID("Test"), "test", Seq(), None))
+      val structType = StructType(Struct(SimpleID("Test"), "test", Seq(), None, Map.empty))
       resolver(MapRHS(Seq((StringLiteral("foo"), StringLiteral("bar")))), structType) must throwA[TypeMismatchException]
     }
 
@@ -180,7 +181,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "resolve a parameter from an included scope" in {
-      val oneInt = Struct(SimpleID("TestRequest"), "TestRequest", Seq(), None)
+      val oneInt = Struct(SimpleID("TestRequest"), "TestRequest", Seq(), None, Map.empty)
       val doc = Document(Nil, Seq(oneInt))
       val resolver = TypeResolver().withMapping(Include("other.thrift", doc))
       val resolveFieldType: FieldType = resolver.resolveFieldType(QualifiedID(Seq("other", "TestRequest")))
@@ -205,26 +206,26 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "resolve a typedef from an included scope" in {
-      val oneInt = Struct(SimpleID("OneInt"), "OneInt",
-        Seq(Field(1, SimpleID("id"), "id", TI32, None, Requiredness.Default)), None)
-      val typedefInt = Typedef(SimpleID("ManyInts"), ListType(ReferenceType(Identifier("OneInt")), None))
+      val oneInt = Struct(SimpleID("OneInt"), "OneInt", Seq(Field(1, SimpleID("id"), "id", TI32, None, Requiredness.Default)), None, Map.empty)
+      val typedefInt = Typedef(SimpleID("ManyInts"), ListType(ReferenceType(Identifier("OneInt")), None), Map.empty)
       val doc1 = Document(Nil, Seq(oneInt, typedefInt))
 
       val collectionStruct = Struct(SimpleID("IntCollection"), "IntCollection", Seq(
         Field(1, SimpleID("scores1"), "scores1", ReferenceType(Identifier("typedef1.ManyInts")), None, Requiredness.Default),
         Field(2, SimpleID("scores2"), "scores2", SetType(ReferenceType(Identifier("typedef1.OneInt")), None), None, Requiredness.Default)
-      ), None)
+      ), None, Map("foo" -> "bar"))
       val doc2 = Document(Seq(Include("src/test/thrift/typedef1.thrift", doc1)), Seq(collectionStruct))
 
       val resolvedDoc = TypeResolver()(doc2).document
       resolvedDoc.defs(0) must beLike {
-        case Struct(_, _, fields, _) => {
+        case Struct(_, _, fields, _, annotations) => {
           fields(0) must beLike {
-            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1"))), None), _, _) => true
+            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1"))), None), _, _, _, _) => true
           }
           fields(1) must beLike {
-            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1"))), None), _, _) => true
+            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1"))), None), _, _, _, _) => true
           }
+          annotations mustEqual Map("foo" -> "bar")
         }
       }
     }

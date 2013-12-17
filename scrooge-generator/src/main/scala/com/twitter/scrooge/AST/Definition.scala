@@ -12,7 +12,7 @@ case class ConstDefinition(
   docstring: Option[String]
 ) extends Definition
 
-case class Typedef(sid: SimpleID, fieldType: FieldType) extends Definition
+case class Typedef(sid: SimpleID, fieldType: FieldType, annotations: Map[String, String] = Map.empty) extends Definition
 
 case class Enum(
   sid: SimpleID,
@@ -27,20 +27,23 @@ sealed abstract class StructLike extends Definition {
   val originalName: String
   val fields: Seq[Field]
   val docstring: Option[String]
+  val annotations: Map[String, String]
 }
 
 case class Struct(
   sid: SimpleID,
   originalName: String,
   fields: Seq[Field],
-  docstring: Option[String]
+  docstring: Option[String],
+  annotations: Map[String, String] = Map.empty
 ) extends StructLike
 
 case class Union(
   sid: SimpleID,
   originalName: String,
   fields: Seq[Field],
-  docstring: Option[String]
+  docstring: Option[String],
+  annotations: Map[String, String] = Map.empty
 ) extends StructLike
 
 case class FunctionArgs(
@@ -49,6 +52,7 @@ case class FunctionArgs(
   fields: Seq[Field]
 ) extends StructLike {
   override val docstring: Option[String] = None
+  override val annotations: Map[String, String] = Map.empty
 }
 case class FunctionResult(
   sid: SimpleID,
@@ -56,6 +60,7 @@ case class FunctionResult(
   fields: Seq[Field]
 ) extends StructLike {
   override val docstring: Option[String] = None
+  override val annotations: Map[String, String] = Map.empty
 }
 
 case class Exception_(
@@ -63,7 +68,9 @@ case class Exception_(
   originalName: String,
   fields: Seq[Field],
   docstring: Option[String]
-) extends StructLike
+) extends StructLike {
+  override val annotations: Map[String, String] = Map.empty
+}
 
 
 case class Service(

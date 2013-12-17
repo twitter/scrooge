@@ -35,3 +35,7 @@ struct fooResult {
 service naughtyService {
   fooResult foo()
 }
+
+enum SameName {
+  SameName = 1;
+}
