@@ -4,33 +4,41 @@ private[this] object {{__stats_name}} {
   val FailuresCounter = scopedStats.scope("{{clientFuncNameForWire}}").counter("failures")
   val FailuresScope = scopedStats.scope("{{clientFuncNameForWire}}").scope("failures")
 }
-
 {{#headerInfo}}{{>header}}{{/headerInfo}} = {
   {{__stats_name}}.RequestsCounter.incr()
   this.service(encodeRequest("{{clientFuncNameForWire}}", {{ArgsStruct}}({{argNames}}))) flatMap { response =>
     val result = decodeResponse(response, {{ResultStruct}})
-    val exception =
+    val exception: Future[Nothing] =
 {{#hasThrows}}
-      ({{#throws}}result.{{throwName}}{{/throws| orElse }}).map(Future.exception)
+      if (false)
+        null // can never happen, but needed to open a block
+{{#throws}}
+      else if (result.{{throwName}}.isDefined)
+        Future.exception(setServiceName(result.{{throwName}}.get))
+{{/throws}}
+      else
+        null
 {{/hasThrows}}
 {{^hasThrows}}
-      None
+      null
 {{/hasThrows}}
+
 {{#isVoid}}
-    exception.getOrElse(Future.Done)
+    if (exception != null) exception else Future.Done
 {{/isVoid}}
 {{^isVoid}}
-    exception.orElse(result.success.map(Future.value)).getOrElse(Future.exception(missingResult("{{clientFuncNameForWire}}")))
+    if (result.success.isDefined)
+      Future.value(result.success.get)
+    else if (exception != null)
+      exception
+    else
+      Future.exception(missingResult("{{clientFuncNameForWire}}"))
 {{/isVoid}}
-  } rescue {
-    case ex: SourcedException => {
-      if (this.serviceName != "") { ex.serviceName = this.serviceName }
-      Future.exception(ex)
-    }
-  } onSuccess { _ =>
-    {{__stats_name}}.SuccessCounter.incr()
-  } onFailure { ex =>
-    {{__stats_name}}.FailuresCounter.incr()
-    {{__stats_name}}.FailuresScope.counter(ex.getClass.getName).incr()
+  } respond {
+    case Return(_) =>
+      {{__stats_name}}.SuccessCounter.incr()
+    case Throw(ex) =>
+      {{__stats_name}}.FailuresCounter.incr()
+      {{__stats_name}}.FailuresScope.counter(ex.getClass.getName).incr()
   }
 }

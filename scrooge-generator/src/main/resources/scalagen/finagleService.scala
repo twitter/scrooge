@@ -64,11 +64,15 @@ class {{ServiceName}}$FinagleService(
 
     try {
       val msg = iprot.readMessageBegin()
-      functionMap.get(msg.name) map { _.apply(iprot, msg.seqid) } getOrElse {
-        TProtocolUtil.skip(iprot, TType.STRUCT)
-        exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD,
-          "Invalid method name: '" + msg.name + "'")
-      }
+      val func = functionMap.get(msg.name)
+      func match {
+        case Some(fn) => 
+          fn(iprot, msg.seqid)
+        case _ =>
+          TProtocolUtil.skip(iprot, TType.STRUCT)
+          exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD,
+            "Invalid method name: '" + msg.name + "'")
+      }      
     } catch {
       case e: Exception => Future.exception(e)
     }

@@ -8,6 +8,7 @@ import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import scala.collection.immutable.{Map => immutable$Map}
+import scala.collection.mutable.Builder
 import scala.collection.mutable.{
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
   HashMap => mutable$HashMap, HashSet => mutable$HashSet}
@@ -16,6 +17,7 @@ import scala.collection.{Map, Set}
 {{/public}}
 {{docstring}}
 object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
+  private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
@@ -54,7 +56,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/required}}
 {{/optional}}
 {{/fields}}
-    var _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
     _iprot.readStructBegin()
@@ -70,6 +72,8 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
             {{>readField}}
 {{/fields}}
           case _ =>
+            if (_passthroughFields == null)
+              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
             _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
             _readField = true
         }
@@ -90,7 +94,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#fields}}
       {{fieldName}},
 {{/fields}}
-      _passthroughFields.result()
+      if (_passthroughFields == null)
+        NoPassthroughFields
+      else
+        _passthroughFields.result()
     )
   }
 
