@@ -1,8 +1,8 @@
 package com.twitter.scrooge.backend
 
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 
-class NamespaceSpec extends SpecificationWithJUnit {
+class NamespaceSpec extends Spec {
   "Scala Generator" should {
     import foo._
     import bar._
@@ -13,8 +13,8 @@ class NamespaceSpec extends SpecificationWithJUnit {
         def makeReservation(whichDay: Weekday, howMany: Int) =
           Some(if (whichDay == Weekday.Monday) 0 else howMany)
       }
-      service.makeReservation(Weekday.Monday, 2) mustEqual Some(0)
-      service.makeReservation(Weekday.Tuesday, 2) mustEqual Some(2)
+      service.makeReservation(Weekday.Monday, 2) must be(Some(0))
+      service.makeReservation(Weekday.Tuesday, 2) must be(Some(2))
     }
   }
 
@@ -28,8 +28,8 @@ class NamespaceSpec extends SpecificationWithJUnit {
         def makeReservation(whichDay: Weekday, howMany: Int) =
           if (whichDay == Weekday.MONDAY) 0 else howMany
       }
-      service.makeReservation(Weekday.MONDAY, 2) mustEqual 0
-      service.makeReservation(Weekday.TUESDAY, 2) mustEqual 2
+      service.makeReservation(Weekday.MONDAY, 2) must be(0)
+      service.makeReservation(Weekday.TUESDAY, 2) must be(2)
     }
   }
 }

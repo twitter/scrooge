@@ -3,71 +3,102 @@ package com.twitter.scrooge.testutil
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
-import org.specs.matcher.Matcher
-import org.specs.mock.JMocker
+import org.hamcrest.{BaseMatcher, Description}
+import org.jmock.Expectations
+import org.jmock.Expectations.{any, anything, equal, returnValue}
 import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.scrooge.ThriftStruct
 
-trait EvalHelper { self: JMocker =>
-  case class matchEqualsTField(a: TField) extends Matcher[TField]() {
-    def apply(v: => TField) = (
-      v.equals(a),
-      "%s equals %s".format(v, a),
-      "%s does not equal %s".format(v, a)
-    )
+trait EvalHelper {
+  class TFieldMatcher(obj: TField) extends BaseMatcher[TField] {
+    def matches(item: Object): Boolean = {
+      // unfortunately it's equals(TField), not equals(Object)
+      obj.equals(item.asInstanceOf[TField])
+    }
+
+    def describeTo(description: Description) {
+      description.appendValue(obj)
+    }
   }
 
-  case class matchEqualsTList(a: TList) extends Matcher[TList]() {
-    def apply(v: => TList) = (v.elemType == a.elemType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  class TListMatcher(obj: TList) extends BaseMatcher[TList] {
+    def matches(item: Object): Boolean = {
+      val other = item.asInstanceOf[TList]
+      obj.elemType == other.elemType && obj.size == other.size
+    }
+
+    def describeTo(description: Description) {
+      description.appendValue(obj)
+    }
   }
 
-  case class matchEqualsTSet(a: TSet) extends Matcher[TSet]() {
-    def apply(v: => TSet) = (v.elemType == a.elemType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  class TSetMatcher(obj: TSet) extends BaseMatcher[TSet] {
+    def matches(item: Object): Boolean = {
+      val other = item.asInstanceOf[TSet]
+      obj.elemType == other.elemType && obj.size == other.size
+    }
+
+    def describeTo(description: Description) {
+      description.appendValue(obj)
+    }
   }
 
-  case class matchEqualsTMap(a: TMap) extends Matcher[TMap]() {
-    def apply(v: => TMap) = (v.keyType == a.keyType && v.valueType == a.valueType && v.size == a.size, "%s equals %s".format(v, a), "%s does not equal %s".format(v, a))
+  class TMapMatcher(obj: TMap) extends BaseMatcher[TMap] {
+    def matches(item: Object): Boolean = {
+      val other = item.asInstanceOf[TMap]
+      obj.keyType == other.keyType && obj.valueType == other.valueType && obj.size == other.size
+    }
+
+    def describeTo(description: Description) {
+      description.appendValue(obj)
+    }
   }
 
-  def equal(a: TField) = will(matchEqualsTField(a))
-  def equal(a: TList) = will(matchEqualsTList(a))
-  def equal(a: TSet) = will(matchEqualsTSet(a))
-  def equal(a: TMap) = will(matchEqualsTMap(a))
+  def fieldEqual(obj: TField) = new TFieldMatcher(obj)
+  def listEqual(obj: TList) = new TListMatcher(obj)
+  def setEqual(obj: TSet) = new TSetMatcher(obj)
+  def mapEqual(obj: TMap) = new TMapMatcher(obj)
 
-  def emptyRead(protocol: TProtocol) {
+  def emptyRead(expectations: Expectations, protocol: TProtocol) {
+    import expectations._
     one(protocol).readStructBegin()
-    one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+    one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
     one(protocol).readStructEnd()
   }
 
-  def startRead(protocol: TProtocol, field: TField) {
+  def startRead(expectations: Expectations, protocol: TProtocol, field: TField) {
+    import expectations._
     one(protocol).readStructBegin()
-    one(protocol).readFieldBegin() willReturn field
+    one(protocol).readFieldBegin(); will(returnValue(field))
   }
 
-  def nextRead(protocol: TProtocol, field: TField) {
+  def nextRead(expectations: Expectations, protocol: TProtocol, field: TField) {
+    import expectations._
     one(protocol).readFieldEnd()
-    one(protocol).readFieldBegin() willReturn field
+    one(protocol).readFieldBegin(); will(returnValue(field))
   }
 
-  def endRead(protocol: TProtocol) {
+  def endRead(expectations: Expectations, protocol: TProtocol) {
+    import expectations._
     one(protocol).readFieldEnd()
-    one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+    one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
     one(protocol).readStructEnd()
   }
 
-  def startWrite(protocol: TProtocol, field: TField) {
-    val s = capturingParam[TStruct]
-    one(protocol).writeStructBegin(s.capture)
-    one(protocol).writeFieldBegin(equal(field))
+  def startWrite(expectations: Expectations, protocol: TProtocol, field: TField) {
+    import expectations._
+    one(protocol).writeStructBegin(`with`(any(classOf[TStruct])))
+    one(protocol).writeFieldBegin(`with`(fieldEqual(field)))
   }
 
-  def nextWrite(protocol: TProtocol, field: TField) {
+  def nextWrite(expectations: Expectations, protocol: TProtocol, field: TField) {
+    import expectations._
     one(protocol).writeFieldEnd()
-    one(protocol).writeFieldBegin(equal(field))
+    one(protocol).writeFieldBegin(`with`(fieldEqual(field)))
   }
 
-  def endWrite(protocol: TProtocol) {
+  def endWrite(expectations: Expectations, protocol: TProtocol) {
+    import expectations._
     one(protocol).writeFieldEnd()
     one(protocol).writeFieldStop()
     one(protocol).writeStructEnd()
@@ -96,3 +127,4 @@ trait EvalHelper { self: JMocker =>
     Arrays.copyOfRange(buf.getArray, 0, buf.length)
   }
 }
+

@@ -1,10 +1,10 @@
 package com.twitter.scrooge.frontend
 
 import java.io.{File, FileOutputStream}
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.TempDirectory
 
-class ImporterSpec extends SpecificationWithJUnit {
+class ImporterSpec extends Spec {
   "fileImporter" should {
     val testFolder = TempDirectory.create(None)
 
@@ -20,8 +20,8 @@ class ImporterSpec extends SpecificationWithJUnit {
 
       val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
       val c = importer.apply("a.thrift")
-      c.isDefined must beTrue
-      c.get.data mustEqual "hello"
+      c.isDefined must be(true)
+      c.get.data must be("hello")
     }
 
     "follows relative links correctly" in {
@@ -36,9 +36,9 @@ class ImporterSpec extends SpecificationWithJUnit {
 
       val importer = Importer(Seq(folder1.getAbsolutePath))
       val c = importer.apply("../f2/a.thrift")
-      c.isDefined must beTrue
-      c.get.data mustEqual "hello"
-      (c.get.importer.canonicalPaths contains folder2.getCanonicalPath) must beTrue
+      c.isDefined must be(true)
+      c.get.data must be("hello")
+      (c.get.importer.canonicalPaths contains folder2.getCanonicalPath) must be(true)
     }
     
     "reads utf-8 data correctly" in {
@@ -53,8 +53,8 @@ class ImporterSpec extends SpecificationWithJUnit {
 
       val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
       val c = importer.apply("a.thrift")
-      c.isDefined must beTrue
-      c.get.data mustEqual "你好"
+      c.isDefined must be(true)
+      c.get.data must be("你好")
     }
   }
 }

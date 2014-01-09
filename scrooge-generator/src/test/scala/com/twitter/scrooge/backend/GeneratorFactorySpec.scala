@@ -1,7 +1,7 @@
 package com.twitter.scrooge.backend
 
-import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.frontend.ResolvedDocument
+import com.twitter.scrooge.testutil.Spec
 
 class TestGeneratorFactory extends GeneratorFactory {
   val lang = "test"
@@ -13,11 +13,11 @@ class TestGeneratorFactory extends GeneratorFactory {
   ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, experimentFlags)
 }
 
-class GeneratorFactorySpec extends SpecificationWithJUnit {
+class GeneratorFactorySpec extends Spec {
   "GeneratorFactory" should {
     "be loadable" in {
       val generator = Generator("test", Map.empty[String, ResolvedDocument], "", "", Seq.empty[String])
-      generator must haveClass[ScalaGenerator]
+      generator.isInstanceOf[ScalaGenerator] must be(true)
     }
   }
 }

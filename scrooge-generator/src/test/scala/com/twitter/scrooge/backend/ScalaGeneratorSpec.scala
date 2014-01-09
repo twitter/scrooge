@@ -1,84 +1,82 @@
 package com.twitter.scrooge.backend
 
+import com.twitter.finagle.SourcedException
+import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
+import com.twitter.scrooge.{ThriftStruct, ThriftException}
 import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
-import org.specs.mock.{ClassMocker, JMocker}
-import org.specs.SpecificationWithJUnit
-import com.twitter.finagle.SourcedException
-import com.twitter.scrooge.testutil.EvalHelper
-import com.twitter.scrooge.{ThriftStruct, ThriftException}
+import org.jmock.Expectations
+import org.jmock.Expectations.{any, returnValue}
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
 
-class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMocker with ClassMocker {
-  val protocol = mock[TProtocol]
-
+class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
 
   "ScalaGenerator" should {
-    "generate an enum" in {
-      "correct constants" in {
-        NumberID.One.getValue mustEqual 1
-        NumberID.Two.getValue mustEqual 2
-        NumberID.Three.getValue mustEqual 3
-        NumberID.Five.getValue mustEqual 5
-        NumberID.Six.getValue mustEqual 6
-        NumberID.Eight.getValue mustEqual 8
+    "generate an enum" should {
+      "correct constants" in { _ =>
+        NumberID.One.getValue must be(1)
+        NumberID.Two.getValue must be(2)
+        NumberID.Three.getValue must be(3)
+        NumberID.Five.getValue must be(5)
+        NumberID.Six.getValue must be(6)
+        NumberID.Eight.getValue must be(8)
       }
 
-      "correct names" in {
-        NumberID.One.name mustEqual "One"
-        NumberID.Two.name mustEqual "Two"
-        NumberID.Three.name mustEqual "Three"
-        NumberID.Five.name mustEqual "Five"
-        NumberID.Six.name mustEqual "Six"
-        NumberID.Eight.name mustEqual "Eight"
+      "correct names" in { _ =>
+        NumberID.One.name must be("One")
+        NumberID.Two.name must be("Two")
+        NumberID.Three.name must be("Three")
+        NumberID.Five.name must be("Five")
+        NumberID.Six.name must be("Six")
+        NumberID.Eight.name must be("Eight")
       }
 
-      "apply" in {
-        NumberID(1) mustEqual NumberID.One
-        NumberID(2) mustEqual NumberID.Two
-        NumberID(3) mustEqual NumberID.Three
-        NumberID(5) mustEqual NumberID.Five
-        NumberID(6) mustEqual NumberID.Six
-        NumberID(8) mustEqual NumberID.Eight
+      "apply" in { _ =>
+        NumberID(1) must be(NumberID.One)
+        NumberID(2) must be(NumberID.Two)
+        NumberID(3) must be(NumberID.Three)
+        NumberID(5) must be(NumberID.Five)
+        NumberID(6) must be(NumberID.Six)
+        NumberID(8) must be(NumberID.Eight)
       }
 
-      "get" in {
-        NumberID.get(1) must beSome(NumberID.One)
-        NumberID.get(2) must beSome(NumberID.Two)
-        NumberID.get(3) must beSome(NumberID.Three)
-        NumberID.get(5) must beSome(NumberID.Five)
-        NumberID.get(6) must beSome(NumberID.Six)
-        NumberID.get(8) must beSome(NumberID.Eight)
-        NumberID.get(10) must beNone
+      "get" in { _ =>
+        NumberID.get(1) must be(Some(NumberID.One))
+        NumberID.get(2) must be(Some(NumberID.Two))
+        NumberID.get(3) must be(Some(NumberID.Three))
+        NumberID.get(5) must be(Some(NumberID.Five))
+        NumberID.get(6) must be(Some(NumberID.Six))
+        NumberID.get(8) must be(Some(NumberID.Eight))
+        NumberID.get(10) must be(None)
       }
 
-      "valueOf" in {
-        NumberID.valueOf("One") must beSome(NumberID.One)
-        NumberID.valueOf("Two") must beSome(NumberID.Two)
-        NumberID.valueOf("Three") must beSome(NumberID.Three)
-        NumberID.valueOf("Five") must beSome(NumberID.Five)
-        NumberID.valueOf("Six") must beSome(NumberID.Six)
-        NumberID.valueOf("Eight") must beSome(NumberID.Eight)
-        NumberID.valueOf("Ten") must beNone
+      "valueOf" in { _ =>
+        NumberID.valueOf("One") must be(Some(NumberID.One))
+        NumberID.valueOf("Two") must be(Some(NumberID.Two))
+        NumberID.valueOf("Three") must be(Some(NumberID.Three))
+        NumberID.valueOf("Five") must be(Some(NumberID.Five))
+        NumberID.valueOf("Six") must be(Some(NumberID.Six))
+        NumberID.valueOf("Eight") must be(Some(NumberID.Eight))
+        NumberID.valueOf("Ten") must be(None)
       }
 
-      "correct list" in {
-        NumberID.list(0) mustEqual NumberID.One
-        NumberID.list(1) mustEqual NumberID.Two
-        NumberID.list(2) mustEqual NumberID.Three
-        NumberID.list(3) mustEqual NumberID.Five
-        NumberID.list(4) mustEqual NumberID.Six
-        NumberID.list(5) mustEqual NumberID.Eight
-        NumberID.list.size mustEqual 6
+      "correct list" in { _ =>
+        NumberID.list(0) must be(NumberID.One)
+        NumberID.list(1) must be(NumberID.Two)
+        NumberID.list(2) must be(NumberID.Three)
+        NumberID.list(3) must be(NumberID.Five)
+        NumberID.list(4) must be(NumberID.Six)
+        NumberID.list(5) must be(NumberID.Eight)
+        NumberID.list.size must be(6)
       }
 
-      "java-serializable" in {
+      "java-serializable" in { _ =>
         val bos = new ByteArrayOutputStream()
         val out = new ObjectOutputStream(bos)
         out.writeObject(NumberID.One)
@@ -88,82 +86,82 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
 
         val in = new ObjectInputStream(new ByteArrayInputStream(bytes))
         var obj = in.readObject()
-        obj.isInstanceOf[NumberID] must beTrue
-        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.One.getValue
-        obj.asInstanceOf[NumberID].name mustEqual NumberID.One.name
+        obj.isInstanceOf[NumberID] must be(true)
+        obj.asInstanceOf[NumberID].getValue must be(NumberID.One.getValue)
+        obj.asInstanceOf[NumberID].name must be(NumberID.One.name)
 
         obj = in.readObject()
-        obj.isInstanceOf[NumberID] must beTrue
-        obj.asInstanceOf[NumberID].getValue mustEqual NumberID.Two.getValue
-        obj.asInstanceOf[NumberID].name mustEqual NumberID.Two.name
+        obj.isInstanceOf[NumberID] must be(true)
+        obj.asInstanceOf[NumberID].getValue must be(NumberID.Two.getValue)
+        obj.asInstanceOf[NumberID].name must be(NumberID.Two.name)
       }
 
-      "handle namespace collisions" in {
-        NamespaceCollisions.List.name mustEqual "List"
-        NamespaceCollisions.Any.name mustEqual "Any"
-        NamespaceCollisions.AnyRef.name mustEqual "AnyRef"
-        NamespaceCollisions.Object.name mustEqual "Object"
-        NamespaceCollisions.String.name mustEqual "String"
-        NamespaceCollisions.Byte.name mustEqual "Byte"
-        NamespaceCollisions.Short.name mustEqual "Short"
-        NamespaceCollisions.Char.name mustEqual "Char"
-        NamespaceCollisions.Int.name mustEqual "Int"
-        NamespaceCollisions.Long.name mustEqual "Long"
-        NamespaceCollisions.Float.name mustEqual "Float"
-        NamespaceCollisions.Double.name mustEqual "Double"
-        NamespaceCollisions.Option.name mustEqual "Option"
-        NamespaceCollisions.None.name mustEqual "None"
-        NamespaceCollisions.Some.name mustEqual "Some"
-        NamespaceCollisions.Nil.name mustEqual "Nil"
-        NamespaceCollisions.Null.name mustEqual "Null"
-        NamespaceCollisions.Set.name mustEqual "Set"
-        NamespaceCollisions.Map.name mustEqual "Map"
-        NamespaceCollisions.Seq.name mustEqual "Seq"
-        NamespaceCollisions.Array.name mustEqual "Array"
-        NamespaceCollisions.Iterable.name mustEqual "Iterable"
-        NamespaceCollisions.Unit.name mustEqual "Unit"
-        NamespaceCollisions.Nothing.name mustEqual "Nothing"
-        NamespaceCollisions.Protected.name mustEqual "Protected"
+      "handle namespace collisions" in { _ =>
+        NamespaceCollisions.List.name must be("List")
+        NamespaceCollisions.Any.name must be("Any")
+        NamespaceCollisions.AnyRef.name must be("AnyRef")
+        NamespaceCollisions.Object.name must be("Object")
+        NamespaceCollisions.String.name must be("String")
+        NamespaceCollisions.Byte.name must be("Byte")
+        NamespaceCollisions.Short.name must be("Short")
+        NamespaceCollisions.Char.name must be("Char")
+        NamespaceCollisions.Int.name must be("Int")
+        NamespaceCollisions.Long.name must be("Long")
+        NamespaceCollisions.Float.name must be("Float")
+        NamespaceCollisions.Double.name must be("Double")
+        NamespaceCollisions.Option.name must be("Option")
+        NamespaceCollisions.None.name must be("None")
+        NamespaceCollisions.Some.name must be("Some")
+        NamespaceCollisions.Nil.name must be("Nil")
+        NamespaceCollisions.Null.name must be("Null")
+        NamespaceCollisions.Set.name must be("Set")
+        NamespaceCollisions.Map.name must be("Map")
+        NamespaceCollisions.Seq.name must be("Seq")
+        NamespaceCollisions.Array.name must be("Array")
+        NamespaceCollisions.Iterable.name must be("Iterable")
+        NamespaceCollisions.Unit.name must be("Unit")
+        NamespaceCollisions.Nothing.name must be("Nothing")
+        NamespaceCollisions.Protected.name must be("Protected")
 
-        NamespaceCollisions.valueOf("null") must beSome(NamespaceCollisions.Null)
-        NamespaceCollisions.valueOf("protected") must beSome(NamespaceCollisions.Protected)
+        NamespaceCollisions.valueOf("null") must be(Some(NamespaceCollisions.Null))
+        NamespaceCollisions.valueOf("protected") must be(Some(NamespaceCollisions.Protected))
       }
 
-      "encode-decode in struct" in {
+      "encode-decode in struct" in { _ =>
         val prot = new TBinaryProtocol(new TMemoryBuffer(64))
         val eStruct = EnumStruct(NumberID.One)
         EnumStruct.encode(eStruct, prot)
-        EnumStruct.decode(prot) mustEqual eStruct
+        EnumStruct.decode(prot) must be(eStruct)
       }
 
-      "encode-decode in union" in {
+      "encode-decode in union" in { _ =>
         val prot = new TBinaryProtocol(new TMemoryBuffer(64))
         val eUnion = EnumUnion.Number(NumberID.One)
         EnumUnion.encode(eUnion, prot)
-        EnumUnion.decode(prot) mustEqual eUnion
+        EnumUnion.decode(prot) must be(eUnion)
       }
 
-      "be identified as an ENUM" in {
-        EnumStruct.NumberField.`type` mustEqual TType.ENUM
+      "be identified as an ENUM" in { _ =>
+        EnumStruct.NumberField.`type` must be(TType.ENUM)
       }
 
-      "be identified as an I32 on the wire for structs" in {
+      "be identified as an I32 on the wire for structs" in { _ =>
         val prot = new TBinaryProtocol(new TMemoryBuffer(64))
         EnumStruct.encode(EnumStruct(NumberID.One), prot)
         prot.readStructBegin()
         val field = prot.readFieldBegin()
-        field.`type` mustEqual TType.I32
+        field.`type` must be(TType.I32)
       }
 
-      "be identified as an I32 on the wire for unions" in {
+      "be identified as an I32 on the wire for unions" in { _ =>
         val prot = new TBinaryProtocol(new TMemoryBuffer(64))
         EnumUnion.encode(EnumUnion.Number(NumberID.One), prot)
         prot.readStructBegin()
         val field = prot.readFieldBegin()
-        field.`type` mustEqual TType.I32
+        field.`type` must be(TType.I32)
       }
 
-      "be identified as I32 on the wire for collections" in {
+      "be identified as I32 on the wire for collections" in { _ =>
         val prot = new TBinaryProtocol(new TMemoryBuffer(64))
         val eStruct = EnumCollections(
           aMap = Map(NumberID.One -> NumberID.Two),
@@ -171,7 +169,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           aSet = Set(NumberID.One))
 
         EnumCollections.encode(eStruct, prot)
-        EnumCollections.decode(prot) mustEqual eStruct
+        EnumCollections.decode(prot) must be(eStruct)
 
         EnumCollections.encode(eStruct, prot)
 
@@ -180,8 +178,8 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         // Test Map encoding
         prot.readFieldBegin()
         val mapField = prot.readMapBegin()
-        mapField.keyType mustEqual TType.I32
-        mapField.valueType mustEqual TType.I32
+        mapField.keyType must be(TType.I32)
+        mapField.valueType must be(TType.I32)
         prot.readI32(); prot.readI32()
         prot.readMapEnd()
         prot.readFieldEnd()
@@ -189,7 +187,7 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         // Test List encoding
         prot.readFieldBegin()
         val listField = prot.readListBegin()
-        listField.elemType mustEqual TType.I32
+        listField.elemType must be(TType.I32)
         prot.readI32()
         prot.readListEnd()
         prot.readFieldEnd()
@@ -197,558 +195,666 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
         // Test Set encoding
         prot.readFieldBegin()
         val setField = prot.readSetBegin()
-        setField.elemType mustEqual TType.I32
+        setField.elemType must be(TType.I32)
       }
     }
 
-    "generate constants" in {
-      thrift.test.Constants.myWfhDay mustEqual WeekDay.Thu
-      thrift.test.Constants.myDaysOut mustEqual List(WeekDay.Thu, WeekDay.Sat, WeekDay.SUN)
-      thrift.test.Constants.name mustEqual "Columbo"
-      thrift.test.Constants.someInt mustEqual 1
-      thrift.test.Constants.someDouble mustEqual 3.0
-      thrift.test.Constants.someList mustEqual List("piggy")
-      thrift.test.Constants.emptyList mustEqual List()
-      thrift.test.Constants.someMap mustEqual Map("foo" -> "bar")
-      thrift.test.Constants.someSimpleSet mustEqual Set("foo", "bar")
-      thrift.test.Constants.someSet mustEqual Set(
+    "generate constants" in { _ =>
+      thrift.test.Constants.myWfhDay must be(WeekDay.Thu)
+      thrift.test.Constants.myDaysOut must be(List(WeekDay.Thu, WeekDay.Sat, WeekDay.SUN))
+      thrift.test.Constants.name must be("Columbo")
+      thrift.test.Constants.someInt must be(1)
+      thrift.test.Constants.someDouble must be(3.0)
+      thrift.test.Constants.someList must be(List("piggy"))
+      thrift.test.Constants.emptyList must be(List())
+      thrift.test.Constants.someMap must be(Map("foo" -> "bar"))
+      thrift.test.Constants.someSimpleSet must be(Set("foo", "bar"))
+      thrift.test.Constants.someSet must be(Set(
         List("piggy"),
         List("kitty")
-      )
+      ))
     }
 
-    "basic structs" in {
-      "ints" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("baby", TType.I16, 1))
-            one(protocol).readI16() willReturn (16: Short)
-            nextRead(protocol, new TField("mama", TType.I32, 2))
-            one(protocol).readI32() willReturn 32
-            nextRead(protocol, new TField("papa", TType.I64, 3))
-            one(protocol).readI64() willReturn 64L
-            endRead(protocol)
+    "basic structs" should {
+      "ints" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("baby", TType.I16, 1))
+            one(protocol).readI16(); will(returnValue((16: Short)))
+            nextRead(e, protocol, new TField("mama", TType.I32, 2))
+            one(protocol).readI32(); will(returnValue(32))
+            nextRead(e, protocol, new TField("papa", TType.I64, 3))
+            one(protocol).readI64(); will(returnValue(64L))
+            endRead(e, protocol)
           }
 
-          Ints.decode(protocol) mustEqual Ints(16, 32, 64L)
+          whenExecuting {
+            Ints.decode(protocol) must be(Ints(16, 32, 64L))
+          }
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("baby", TType.I16, 1))
-            one(protocol).writeI16(16)
-            nextWrite(protocol, new TField("mama", TType.I32, 2))
-            one(protocol).writeI32(32)
-            nextWrite(protocol, new TField("papa", TType.I64, 3))
-            one(protocol).writeI64(64)
-            endWrite(protocol)
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("baby", TType.I16, 1))
+            one(protocol).writeI16(`with`(Expectations.equal(16: Short)))
+            nextWrite(e, protocol, new TField("mama", TType.I32, 2))
+            one(protocol).writeI32(`with`(Expectations.equal(32)))
+            nextWrite(e, protocol, new TField("papa", TType.I64, 3))
+            one(protocol).writeI64(`with`(Expectations.equal(64L)))
+            endWrite(e, protocol)
           }
 
-          Ints(16, 32, 64L).write(protocol) mustEqual ()
-        }
-      }
-
-      "bytes" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("x", TType.BYTE, 1))
-            one(protocol).readByte() willReturn 3.toByte
-            nextRead(protocol, new TField("y", TType.STRING, 2))
-            one(protocol).readBinary() willReturn stringToBytes("hello")
-            endRead(protocol)
+          whenExecuting {
+            Ints(16, 32, 64L).write(protocol) must be(())
           }
-
-          val bytes = Bytes.decode(protocol)
-          bytes.x mustEqual 3.toByte
-          new String(bytes.y.array) mustEqual "hello"
-        }
-
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("x", TType.BYTE, 1))
-            one(protocol).writeByte(16.toByte)
-            nextWrite(protocol, new TField("y", TType.STRING, 2))
-            one(protocol).writeBinary(stringToBytes("goodbye"))
-            endWrite(protocol)
-          }
-
-          Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) mustEqual ()
         }
       }
 
-      "bool, double, string" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("alive", TType.BOOL, 1))
-            one(protocol).readBool() willReturn true
-            nextRead(protocol, new TField("pi", TType.DOUBLE, 2))
-            one(protocol).readDouble() willReturn 3.14
-            nextRead(protocol, new TField("name", TType.STRING, 3))
-            one(protocol).readString() willReturn "bender"
-            endRead(protocol)
+      "bytes" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("x", TType.BYTE, 1))
+            one(protocol).readByte(); will(returnValue(3.toByte))
+            nextRead(e, protocol, new TField("y", TType.STRING, 2))
+            one(protocol).readBinary(); will(returnValue(stringToBytes("hello")))
+            endRead(e, protocol)
           }
 
-          Misc.decode(protocol) mustEqual Misc(true, 3.14, "bender")
+          whenExecuting {
+            val bytes = Bytes.decode(protocol)
+            bytes.x must be(3.toByte)
+            new String(bytes.y.array) must be("hello")
+          }
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("alive", TType.BOOL, 1))
-            one(protocol).writeBool(false)
-            nextWrite(protocol, new TField("pi", TType.DOUBLE, 2))
-            one(protocol).writeDouble(6.28)
-            nextWrite(protocol, new TField("name", TType.STRING, 3))
-            one(protocol).writeString("fry")
-            endWrite(protocol)
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("x", TType.BYTE, 1))
+            one(protocol).writeByte(`with`(Expectations.equal(16.toByte)))
+            nextWrite(e, protocol, new TField("y", TType.STRING, 2))
+            one(protocol).writeBinary(`with`(Expectations.equal(stringToBytes("goodbye"))))
+            endWrite(e, protocol)
           }
 
-          Misc(false, 6.28, "fry").write(protocol) mustEqual ()
+          whenExecuting {
+            Bytes(16.toByte, stringToBytes("goodbye")).write(protocol) must be(())
+          }
         }
       }
 
-      "lists, sets, and maps" in {
+      "bool, double, string" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("alive", TType.BOOL, 1))
+            one(protocol).readBool(); will(returnValue(true))
+            nextRead(e, protocol, new TField("pi", TType.DOUBLE, 2))
+            one(protocol).readDouble(); will(returnValue(3.14))
+            nextRead(e, protocol, new TField("name", TType.STRING, 3))
+            one(protocol).readString(); will(returnValue("bender"))
+            endRead(e, protocol)
+          }
+
+          whenExecuting {
+            Misc.decode(protocol) must be(Misc(true, 3.14, "bender"))
+          }
+        }
+
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("alive", TType.BOOL, 1))
+            one(protocol).writeBool(`with`(Expectations.equal(false)))
+            nextWrite(e, protocol, new TField("pi", TType.DOUBLE, 2))
+            one(protocol).writeDouble(`with`(Expectations.equal(6.28)))
+            nextWrite(e, protocol, new TField("name", TType.STRING, 3))
+            one(protocol).writeString(`with`(Expectations.equal("fry")))
+            endWrite(e, protocol)
+          }
+
+          whenExecuting {
+            Misc(false, 6.28, "fry").write(protocol) must be(())
+          }
+        }
+      }
+
+      "lists, sets, and maps" should {
         val exemplar = Compound(
           intlist = List(10, 20),
           intset = Set(44, 55),
           namemap = Map("wendy" -> 500),
           nested = List(Set(9)))
 
-        "read" in {
-          expect {
-            startRead(protocol, new TField("intlist", TType.LIST, 1))
-            one(protocol).readListBegin() willReturn new TList(TType.I32, 2)
-            one(protocol).readI32() willReturn 10
-            one(protocol).readI32() willReturn 20
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("intlist", TType.LIST, 1))
+            one(protocol).readListBegin(); will(returnValue(new TList(TType.I32, 2)))
+            one(protocol).readI32(); will(returnValue(10))
+            one(protocol).readI32(); will(returnValue(20))
             one(protocol).readListEnd()
-            nextRead(protocol, new TField("intset", TType.SET, 2))
-            one(protocol).readSetBegin() willReturn new TSet(TType.I32, 2)
-            one(protocol).readI32() willReturn 44
-            one(protocol).readI32() willReturn 55
+            nextRead(e, protocol, new TField("intset", TType.SET, 2))
+            one(protocol).readSetBegin(); will(returnValue(new TSet(TType.I32, 2)))
+            one(protocol).readI32(); will(returnValue(44))
+            one(protocol).readI32(); will(returnValue(55))
             one(protocol).readSetEnd()
-            nextRead(protocol, new TField("namemap", TType.MAP, 3))
-            one(protocol).readMapBegin() willReturn new TMap(TType.STRING, TType.I32, 1)
-            one(protocol).readString() willReturn "wendy"
-            one(protocol).readI32() willReturn 500
+            nextRead(e, protocol, new TField("namemap", TType.MAP, 3))
+            one(protocol).readMapBegin(); will(returnValue(new TMap(TType.STRING, TType.I32, 1)))
+            one(protocol).readString(); will(returnValue("wendy"))
+            one(protocol).readI32(); will(returnValue(500))
             one(protocol).readMapEnd()
-            nextRead(protocol, new TField("nested", TType.LIST, 4))
-            one(protocol).readListBegin() willReturn new TList(TType.SET, 1)
-            one(protocol).readSetBegin() willReturn new TSet(TType.I32, 1)
-            one(protocol).readI32() willReturn 9
+            nextRead(e, protocol, new TField("nested", TType.LIST, 4))
+            one(protocol).readListBegin(); will(returnValue(new TList(TType.SET, 1)))
+            one(protocol).readSetBegin(); will(returnValue(new TSet(TType.I32, 1)))
+            one(protocol).readI32(); will(returnValue(9))
             one(protocol).readSetEnd()
             one(protocol).readListEnd()
-            endRead(protocol)
+            endRead(e, protocol)
           }
 
-          Compound.decode(protocol) mustEqual exemplar
+          whenExecuting {
+            Compound.decode(protocol) must be(exemplar)
+          }
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("intlist", TType.LIST, 1))
-            one(protocol).writeListBegin(equal(new TList(TType.I32, 2)))
-            one(protocol).writeI32(10)
-            one(protocol).writeI32(20)
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("intlist", TType.LIST, 1))
+            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.I32, 2))))
+            one(protocol).writeI32(`with`(Expectations.equal(10)))
+            one(protocol).writeI32(`with`(Expectations.equal(20)))
             one(protocol).writeListEnd()
-            nextWrite(protocol, new TField("intset", TType.SET, 2))
-            one(protocol).writeSetBegin(equal(new TSet(TType.I32, 2)))
-            one(protocol).writeI32(44)
-            one(protocol).writeI32(55)
+            nextWrite(e, protocol, new TField("intset", TType.SET, 2))
+            one(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 2))))
+            one(protocol).writeI32(`with`(Expectations.equal(44)))
+            one(protocol).writeI32(`with`(Expectations.equal(55)))
             one(protocol).writeSetEnd()
-            nextWrite(protocol, new TField("namemap", TType.MAP, 3))
-            one(protocol).writeMapBegin(equal(new TMap(TType.STRING, TType.I32, 1)))
-            one(protocol).writeString("wendy")
-            one(protocol).writeI32(500)
+            nextWrite(e, protocol, new TField("namemap", TType.MAP, 3))
+            one(protocol).writeMapBegin(`with`(mapEqual(new TMap(TType.STRING, TType.I32, 1))))
+            one(protocol).writeString(`with`(Expectations.equal("wendy")))
+            one(protocol).writeI32(`with`(Expectations.equal(500)))
             one(protocol).writeMapEnd()
-            nextWrite(protocol, new TField("nested", TType.LIST, 4))
-            one(protocol).writeListBegin(equal(new TList(TType.SET, 1)))
-            one(protocol).writeSetBegin(equal(new TSet(TType.I32, 1)))
-            one(protocol).writeI32(9)
+            nextWrite(e, protocol, new TField("nested", TType.LIST, 4))
+            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.SET, 1))))
+            one(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 1))))
+            one(protocol).writeI32(`with`(Expectations.equal(9)))
             one(protocol).writeSetEnd()
             one(protocol).writeListEnd()
-            endWrite(protocol)
+            endWrite(e, protocol)
           }
 
-          exemplar.write(protocol) mustEqual ()
+          whenExecuting {
+            exemplar.write(protocol) must be(())
+          }
         }
       }
     }
 
-    "complicated structs" in {
-      "with required fields" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("string", TType.STRING, 1))
-            one(protocol).readString() willReturn "yo"
-            endRead(protocol)
+    "complicated structs" should {
+      "with required fields" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("string", TType.STRING, 1))
+            one(protocol).readString(); will(returnValue("yo"))
+            endRead(e, protocol)
           }
 
-          RequiredString.decode(protocol) mustEqual RequiredString("yo")
+          whenExecuting {
+            RequiredString.decode(protocol) must be(RequiredString("yo"))
+          }
         }
 
-        "missing required value throws exception during deserialization" in {
-          doBefore {
-            expect {
-              emptyRead(protocol)
+        "missing required value throws exception during deserialization" should {
+          "with no default value" in { cycle => import cycle._
+            val protocol = mock[TProtocol]
+            expecting { e => import e._
+              emptyRead(e, protocol)
+            }
+
+            whenExecuting {
+              intercept[TProtocolException] {
+                RequiredString.decode(protocol)
+              }
             }
           }
 
-          "with no default value" in {
-            RequiredString.decode(protocol) must throwA[TProtocolException]
-          }
+          "with default value" in { cycle => import cycle._
+            val protocol = mock[TProtocol]
+            expecting { e => import e._
+              emptyRead(e, protocol)
+            }
 
-          "with default value" in {
-            RequiredStringWithDefault.decode(protocol) must throwA[TProtocolException]
+            whenExecuting {
+              intercept[TProtocolException] {
+                RequiredStringWithDefault.decode(protocol)
+              }
+            }
           }
         }
 
-        "null required value throws exception during serialization" in {
-          "with no default value" in {
-            RequiredString(value = null).write(protocol) must throwA[TProtocolException]
+        "null required value throws exception during serialization" should {
+          "with no default value" in { cycle => import cycle._
+            val protocol = mock[TProtocol]
+
+            whenExecuting {
+              intercept[TProtocolException] {
+                RequiredString(value = null).write(protocol)
+              }
+            }
           }
 
-          "with default value" in {
-            RequiredStringWithDefault(value = null).write(protocol) must throwA[TProtocolException]
+          "with default value" in { cycle => import cycle._
+            val protocol = mock[TProtocol]
+
+            whenExecuting {
+              intercept[TProtocolException] {
+                RequiredStringWithDefault(value = null).write(protocol)
+              }
+            }
+          }
+        }
+      }
+
+      "with optional fields" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString(); will(returnValue("Commie"))
+            nextRead(e, protocol, new TField("age", TType.I32, 2))
+            one(protocol).readI32(); will(returnValue(14))
+            endRead(e, protocol)
+          }
+
+          whenExecuting {
+            OptionalInt.decode(protocol) must be(OptionalInt("Commie", Some(14)))
+          }
+        }
+
+        "read with missing field" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString(); will(returnValue("Commie"))
+            endRead(e, protocol)
+          }
+
+          whenExecuting {
+            OptionalInt.decode(protocol) must be(OptionalInt("Commie", None))
+          }
+        }
+
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString(`with`(Expectations.equal("Commie")))
+            nextWrite(e, protocol, new TField("age", TType.I32, 2))
+            one(protocol).writeI32(`with`(Expectations.equal(14)))
+            endWrite(e, protocol)
+          }
+
+          whenExecuting {
+            OptionalInt("Commie", Some(14)).write(protocol) must be(())
+          }
+        }
+
+        "write with missing field" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString(`with`(Expectations.equal("Commie")))
+            endWrite(e, protocol)
+          }
+
+          whenExecuting {
+            OptionalInt("Commie", None).write(protocol) must be(())
           }
         }
       }
 
-      "with optional fields" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString() willReturn "Commie"
-            nextRead(protocol, new TField("age", TType.I32, 2))
-            one(protocol).readI32() willReturn 14
-            endRead(protocol)
-          }
-
-          OptionalInt.decode(protocol) mustEqual OptionalInt("Commie", Some(14))
-        }
-
-        "read with missing field" in {
-          expect {
-            startRead(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString() willReturn "Commie"
-            endRead(protocol)
-          }
-
-          OptionalInt.decode(protocol) mustEqual OptionalInt("Commie", None)
-        }
-
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString("Commie")
-            nextWrite(protocol, new TField("age", TType.I32, 2))
-            one(protocol).writeI32(14)
-            endWrite(protocol)
-          }
-
-          OptionalInt("Commie", Some(14)).write(protocol) mustEqual ()
-        }
-
-        "write with missing field" in {
-          expect {
-            startWrite(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString("Commie")
-            endWrite(protocol)
-          }
-
-          OptionalInt("Commie", None).write(protocol) mustEqual ()
-        }
-      }
-
-      "with default values" in {
-        "read with value missing, using default" in {
-          expect {
+      "with default values" should {
+        "read with value missing, using default" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
             one(protocol).readStructBegin()
-            one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+            one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
             one(protocol).readStructEnd()
           }
 
-          DefaultValues.decode(protocol) mustEqual DefaultValues("leela")
+          whenExecuting {
+            DefaultValues.decode(protocol) must be(DefaultValues("leela"))
+          }
         }
 
-        "read with value present" in {
-          expect {
+        "read with value present" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
             one(protocol).readStructBegin()
-            nextRead(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString() willReturn "delilah"
-            one(protocol).readFieldBegin() willReturn new TField("stop", TType.STOP, 10)
+            nextRead(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString(); will(returnValue("delilah"))
+            one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
             one(protocol).readStructEnd()
           }
 
-          DefaultValues.decode(protocol) mustEqual DefaultValues("delilah")
+          whenExecuting {
+            DefaultValues.decode(protocol) must be(DefaultValues("delilah"))
+          }
         }
       }
 
-      "nested" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString() willReturn "United States of America"
-            nextRead(protocol, new TField("provinces", TType.LIST, 2))
-            one(protocol).readListBegin() willReturn new TList(TType.STRING, 2)
-            one(protocol).readString() willReturn "connecticut"
-            one(protocol).readString() willReturn "california"
+      "nested" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString(); will(returnValue("United States of America"))
+            nextRead(e, protocol, new TField("provinces", TType.LIST, 2))
+            one(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 2)))
+            one(protocol).readString(); will(returnValue("connecticut"))
+            one(protocol).readString(); will(returnValue("california"))
             one(protocol).readListEnd()
-            nextRead(protocol, new TField("emperor", TType.STRUCT, 5))
+            nextRead(e, protocol, new TField("emperor", TType.STRUCT, 5))
 
             /** Start of Emperor struct **/
-            startRead(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString() willReturn "Bush"
-            nextRead(protocol, new TField("age", TType.I32, 2))
-            one(protocol).readI32() willReturn 42
-            endRead(protocol)
+            startRead(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).readString(); will(returnValue("Bush"))
+            nextRead(e, protocol, new TField("age", TType.I32, 2))
+            one(protocol).readI32(); will(returnValue(42))
+            endRead(e, protocol)
             /** End of Emperor struct **/
 
-            endRead(protocol)
+            endRead(e, protocol)
           }
 
-          Empire.decode(protocol) mustEqual Empire(
-            "United States of America",
-            List("connecticut", "california"),
-            Emperor("Bush", 42))
+          whenExecuting {
+            Empire.decode(protocol) must be(Empire(
+              "United States of America",
+              List("connecticut", "california"),
+              Emperor("Bush", 42)))
+          }
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString("Canada")
-            nextWrite(protocol, new TField("provinces", TType.LIST, 2))
-            one(protocol).writeListBegin(equal(new TList(TType.STRING, 2)))
-            one(protocol).writeString("Manitoba")
-            one(protocol).writeString("Alberta")
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString(`with`(Expectations.equal("Canada")))
+            nextWrite(e, protocol, new TField("provinces", TType.LIST, 2))
+            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 2))))
+            one(protocol).writeString(`with`(Expectations.equal("Manitoba")))
+            one(protocol).writeString(`with`(Expectations.equal("Alberta")))
             one(protocol).writeListEnd()
-            nextWrite(protocol, new TField("emperor", TType.STRUCT, 5))
+            nextWrite(e, protocol, new TField("emperor", TType.STRUCT, 5))
 
             // emperor
-            startWrite(protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString("Larry")
-            nextWrite(protocol, new TField("age", TType.I32, 2))
-            one(protocol).writeI32(13)
-            endWrite(protocol)
+            startWrite(e, protocol, new TField("name", TType.STRING, 1))
+            one(protocol).writeString(`with`(Expectations.equal("Larry")))
+            nextWrite(e, protocol, new TField("age", TType.I32, 2))
+            one(protocol).writeI32(`with`(Expectations.equal(13)))
+            endWrite(e, protocol)
 
-            endWrite(protocol)
+            endWrite(e, protocol)
           }
 
-          Empire(
-            "Canada",
-            List("Manitoba", "Alberta"),
-            Emperor("Larry", 13)
-          ).write(protocol) mustEqual ()
+          whenExecuting {
+            Empire(
+              "Canada",
+              List("Manitoba", "Alberta"),
+              Emperor("Larry", 13)
+            ).write(protocol) must be(())
+          }
         }
       }
 
-      "exception" in {
-        Xception(1, "boom") must haveSuperClass[Exception]
-        Xception(1, "boom") must haveSuperClass[ThriftException]
-        Xception(1, "boom") must haveSuperClass[SourcedException]
-        Xception(1, "boom") must haveSuperClass[ThriftStruct]
-        Xception(2, "kathunk").getMessage mustEqual "kathunk"
+      "exception" in { _ =>
+        Xception(1, "boom").isInstanceOf[Exception] must be(true)
+        Xception(1, "boom").isInstanceOf[ThriftException] must be(true)
+        Xception(1, "boom").isInstanceOf[SourcedException] must be(true)
+        Xception(1, "boom").isInstanceOf[ThriftStruct] must be(true)
+        Xception(2, "kathunk").getMessage must be("kathunk")
       }
 
-      "exception getMessage" in {
-        StringMsgException(1, "jeah").getMessage mustEqual "jeah"
-        NonStringMessageException(5).getMessage mustEqual "5"
+      "exception getMessage" in { _ =>
+        StringMsgException(1, "jeah").getMessage must be("jeah")
+        NonStringMessageException(5).getMessage must be("5")
       }
 
-      "with more than 22 fields" in {
-        "apply" in {
-          Biggie().num25 mustEqual 25
+      "with more than 22 fields" should {
+        "apply" in { _ =>
+          Biggie().num25 must be(25)
         }
 
-        "two default object must be equal" in {
-          Biggie() mustEqual Biggie()
+        "two default object must be equal" in { _ =>
+          Biggie() must be(Biggie())
         }
 
-        "copy and equals" in {
-          Biggie().copy(num10 = -5) mustEqual Biggie(num10 = -5)
+        "copy and equals" in { _ =>
+          Biggie().copy(num10 = -5) must be(Biggie(num10 = -5))
         }
 
-        "hashCode is the same for two similar objects" in {
-          Biggie().hashCode mustEqual Biggie().hashCode
-          Biggie(num10 = -5).hashCode mustEqual Biggie(num10 = -5).hashCode
+        "hashCode is the same for two similar objects" in { _ =>
+          Biggie().hashCode must be(Biggie().hashCode)
+          Biggie(num10 = -5).hashCode must be(Biggie(num10 = -5).hashCode)
         }
 
-        "hashCode is different for two different objects" in {
-          Biggie(num10 = -5).hashCode mustNot beEqual(Biggie().hashCode)
+        "hashCode is different for two different objects" in { _ =>
+          Biggie(num10 = -5).hashCode must not be(Biggie().hashCode)
         }
 
-        "toString" in {
-          Biggie().toString mustEqual ("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")")
+        "toString" in { _ =>
+          Biggie().toString must be(("Biggie(" + 1.to(25).map(_.toString).mkString(",") + ")"))
         }
       }
 
-      "unapply single field" in {
+      "unapply single field" in { _ =>
         val struct: Any = RequiredString("hello")
         struct match {
           case RequiredString(value) =>
-            value mustEqual "hello"
+            value must be("hello")
         }
       }
 
-      "unapply multiple fields" in {
+      "unapply multiple fields" in { _ =>
         val struct: Any = OptionalInt("foo", Some(32))
         struct match {
           case OptionalInt(name, age) =>
-            name mustEqual "foo"
-            age must beSome(32)
+            name must be("foo")
+            age must be(Some(32))
         }
       }
     }
 
-    "unions" in {
-      "zero fields" in {
-        "read" in {
-          expect {
-            emptyRead(protocol)
+    "unions" should {
+      "zero fields" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            emptyRead(e, protocol)
           }
 
-          Bird.decode(protocol) must throwA[TProtocolException]
-        }
-
-        "write" in {
-          Bird.Raptor(null).write(protocol) must throwA[TProtocolException]
-        }
-      }
-
-      "one field" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("hummingbird", TType.STRING, 2))
-            one(protocol).readString() willReturn "Ruby-Throated"
-            endRead(protocol)
+          whenExecuting {
+            intercept[TProtocolException] {
+              Bird.decode(protocol)
+            }
           }
-
-          Bird.decode(protocol) mustEqual Bird.Hummingbird("Ruby-Throated")
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("owlet_nightjar", TType.STRING, 3))
-            one(protocol).writeString("foo")
-            endWrite(protocol)
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          whenExecuting {
+            intercept[TProtocolException] {
+              Bird.Raptor(null).write(protocol)
+            }
           }
-
-          Bird.OwletNightjar("foo").write(protocol)
         }
       }
 
-      "more than one field" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("hummingbird", TType.STRING, 2))
-            one(protocol).readString() willReturn "Anna's Hummingbird"
-            nextRead(protocol, new TField("owlet_nightjar", TType.STRING, 3))
-            one(protocol).readBinary() willReturn ByteBuffer.allocate(1)
-            endRead(protocol)
+      "one field" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("hummingbird", TType.STRING, 2))
+            one(protocol).readString(); will(returnValue("Ruby-Throated"))
+            endRead(e, protocol)
           }
 
-          Bird.decode(protocol) must throwA[TProtocolException]
+          whenExecuting {
+            Bird.decode(protocol) must be(Bird.Hummingbird("Ruby-Throated"))
+          }
+        }
+
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
+            one(protocol).writeString(`with`(Expectations.equal("foo")))
+            endWrite(e, protocol)
+          }
+
+          whenExecuting {
+            Bird.OwletNightjar("foo").write(protocol)
+          }
+        }
+      }
+
+      "more than one field" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("hummingbird", TType.STRING, 2))
+            one(protocol).readString(); will(returnValue("Anna's Hummingbird"))
+            nextRead(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
+            one(protocol).readBinary(); will(returnValue(ByteBuffer.allocate(1)))
+            endRead(e, protocol)
+          }
+
+          whenExecuting {
+            intercept[TProtocolException] {
+              Bird.decode(protocol)
+            }
+          }
         }
 
         // no write test because it's not possible
       }
 
-      "nested struct" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("raptor", TType.STRUCT, 1))
-            startRead(protocol, new TField("isOwl", TType.BOOL, 1))
-            one(protocol).readBool() willReturn false
-            nextRead(protocol, new TField("species", TType.STRING, 2))
-            one(protocol).readString() willReturn "peregrine"
-            endRead(protocol)
-            endRead(protocol)
+      "nested struct" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("raptor", TType.STRUCT, 1))
+            startRead(e, protocol, new TField("isOwl", TType.BOOL, 1))
+            one(protocol).readBool(); will(returnValue(false))
+            nextRead(e, protocol, new TField("species", TType.STRING, 2))
+            one(protocol).readString(); will(returnValue("peregrine"))
+            endRead(e, protocol)
+            endRead(e, protocol)
           }
 
-          Bird.decode(protocol) mustEqual Bird.Raptor(Raptor(false, "peregrine"))
+          whenExecuting {
+            Bird.decode(protocol) must be(Bird.Raptor(Raptor(false, "peregrine")))
+          }
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("raptor", TType.STRUCT, 1))
-            startWrite(protocol, new TField("isOwl", TType.BOOL, 1))
-            one(protocol).writeBool(true)
-            nextWrite(protocol, new TField("species", TType.STRING, 2))
-            one(protocol).writeString("Tyto alba")
-            endWrite(protocol)
-            endWrite(protocol)
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("raptor", TType.STRUCT, 1))
+            startWrite(e, protocol, new TField("isOwl", TType.BOOL, 1))
+            one(protocol).writeBool(`with`(Expectations.equal(true)))
+            nextWrite(e, protocol, new TField("species", TType.STRING, 2))
+            one(protocol).writeString(`with`(Expectations.equal("Tyto alba")))
+            endWrite(e, protocol)
+            endWrite(e, protocol)
           }
 
-          Bird.Raptor(Raptor(true, "Tyto alba")).write(protocol)
+          whenExecuting {
+            Bird.Raptor(Raptor(true, "Tyto alba")).write(protocol)
+          }
         }
       }
 
-      "collection" in {
-        "read" in {
-          expect {
-            startRead(protocol, new TField("flock", TType.LIST, 4))
-            one(protocol).readListBegin() willReturn new TList(TType.STRING, 3)
-            one(protocol).readString() willReturn "starling"
-            one(protocol).readString() willReturn "kestrel"
-            one(protocol).readString() willReturn "warbler"
+      "collection" should {
+        "read" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startRead(e, protocol, new TField("flock", TType.LIST, 4))
+            one(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 3)))
+            one(protocol).readString(); will(returnValue("starling"))
+            one(protocol).readString(); will(returnValue("kestrel"))
+            one(protocol).readString(); will(returnValue("warbler"))
             one(protocol).readListEnd()
-            endRead(protocol)
+            endRead(e, protocol)
           }
 
-          Bird.decode(protocol) mustEqual Bird.Flock(List("starling", "kestrel", "warbler"))
+          whenExecuting {
+            Bird.decode(protocol) must be(Bird.Flock(List("starling", "kestrel", "warbler")))
+          }
         }
 
-        "write" in {
-          expect {
-            startWrite(protocol, new TField("flock", TType.LIST, 4))
-            one(protocol).writeListBegin(equal(new TList(TType.STRING, 3)))
-            one(protocol).writeString("starling")
-            one(protocol).writeString("kestrel")
-            one(protocol).writeString("warbler")
+        "write" in { cycle => import cycle._
+          val protocol = mock[TProtocol]
+          expecting { e => import e._
+            startWrite(e, protocol, new TField("flock", TType.LIST, 4))
+            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 3))))
+            one(protocol).writeString(`with`(Expectations.equal("starling")))
+            one(protocol).writeString(`with`(Expectations.equal("kestrel")))
+            one(protocol).writeString(`with`(Expectations.equal("warbler")))
             one(protocol).writeListEnd()
-            endWrite(protocol)
+            endWrite(e, protocol)
           }
 
-          Bird.Flock(List("starling", "kestrel", "warbler")).write(protocol)
+          whenExecuting {
+            Bird.Flock(List("starling", "kestrel", "warbler")).write(protocol)
+          }
         }
       }
 
-      "default value" in {
-        Bird.Hummingbird() mustEqual Bird.Hummingbird("Calypte anna")
+      "default value" in { _ =>
+        Bird.Hummingbird() must be(Bird.Hummingbird("Calypte anna"))
       }
 
-      "primitive field type" in {
+      "primitive field type" in { _ =>
         import thrift.`def`.default._
         val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
         var original: NaughtyUnion = NaughtyUnion.Value(1)
         NaughtyUnion.encode(original, protocol)
-        NaughtyUnion.decode(protocol) mustEqual(original)
+        NaughtyUnion.decode(protocol) must be(original)
         original = NaughtyUnion.Flag(true)
         NaughtyUnion.encode(original, protocol)
-        NaughtyUnion.decode(protocol) mustEqual(original)
+        NaughtyUnion.decode(protocol) must be(original)
         original = NaughtyUnion.Text("false")
         NaughtyUnion.encode(original, protocol)
-        NaughtyUnion.decode(protocol) mustEqual(original)
+        NaughtyUnion.decode(protocol) must be(original)
       }
     }
 
-    "typedef relative fields" in {
+    "typedef relative fields" in { _ =>
       val candy = Candy(100, CandyType.DeliCIous)
-      candy.sweetnessIso mustEqual 100
-      candy.candyType.value mustEqual 1
-      candy.brand mustEqual "Hershey"
-      candy.count mustEqual 10
-      candy.headline mustEqual "Life is short, eat dessert first"
+      candy.sweetnessIso must be(100)
+      candy.candyType.value must be(1)
+      candy.brand must be("Hershey")
+      candy.count must be(10)
+      candy.headline must be("Life is short, eat dessert first")
     }
 
-    "hide internal helper function to avoid naming conflict" in {
+    "hide internal helper function to avoid naming conflict" in { _ =>
       import thrift.`def`.default._
       val impl = new NaughtyService[Some] {
         def foo() = Some(FooResult("dummy message"))
       }
-      impl.foo().get.message mustEqual("dummy message")
+      impl.foo().get.message must be("dummy message")
     }
 
-    "pass through fields" in {
-      "pass through" in {
+    "pass through fields" should {
+      "pass through" in { _ =>
         val pt2 = PassThrough2(1, 2)
 
         val pt1 = {
@@ -763,10 +869,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped mustEqual pt2
+        pt2roundTripped must be(pt2)
       }
 
-      "be copied" in {
+      "be copied" in { _ =>
         val pt2 = PassThrough2(1, 2)
 
         val pt1 = {
@@ -783,10 +889,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped mustEqual PassThrough2(2, 2)
+        pt2roundTripped must be(PassThrough2(2, 2))
       }
 
-      "be removable" in {
+      "be removable" in { _ =>
         val pt2 = PassThrough2(1, 2)
 
         val pt1 = {
@@ -803,10 +909,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped mustEqual PassThrough2(1, 0)
+        pt2roundTripped must be(PassThrough2(1, 0))
       }
 
-      "be able to add more" in {
+      "be able to add more" in {  _ =>
         val pt1 = PassThrough(1)
         val pt2 = PassThrough2(1, 2)
         val f2 = pt2.getFieldBlob(PassThrough2.F2Field.id).get
@@ -818,10 +924,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped mustEqual pt2
+        pt2roundTripped must be(pt2)
       }
 
-      "be proxy-able" in {
+      "be proxy-able" in {  _ =>
         val pt2 = PassThrough2(1, 2)
 
         val pt1 = {
@@ -840,10 +946,10 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped mustEqual pt2
+        pt2roundTripped must be(pt2)
       }
 
-      "be equallable" in {
+      "be equallable" in { _ =>
         val pt2 = PassThrough2(1, 2)
 
         val pt1a = {
@@ -858,21 +964,21 @@ class ScalaGeneratorSpec extends SpecificationWithJUnit with EvalHelper with JMo
           PassThrough.decode(protocol)
         }
 
-        pt1a mustEqual pt1b
+        pt1a must be(pt1b)
       }
     }
 
-    "gracefully handle null fields" in {
+    "gracefully handle null fields" in { _ =>
       val prot = new TBinaryProtocol(new TMemoryBuffer(256))
       val emp = Emperor(null, 0)
 
       // basically these shouldn't blow up
       Emperor.encode(emp, prot)
-      Emperor.decode(prot) mustEqual emp
+      Emperor.decode(prot) must be(emp)
     }
 
-    "generate with special scala namespace syntax" in {
-      scrooge.test.thriftscala.Thingymabob() must haveSuperClass[scrooge.test.thriftscala.Thingymabob]
+    "generate with special scala namespace syntax" in { _ =>
+      scrooge.test.thriftscala.Thingymabob().isInstanceOf[scrooge.test.thriftscala.Thingymabob] must be(true)
     }
   }
 }

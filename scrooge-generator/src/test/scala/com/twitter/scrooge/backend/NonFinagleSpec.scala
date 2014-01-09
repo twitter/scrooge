@@ -1,9 +1,9 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.util.{Return, Throw, Try}
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 
-class NonFinagleSpec extends SpecificationWithJUnit {
+class NonFinagleSpec extends Spec {
   "None Finagle Service " should {
     "work in Scala" in {
       import vanilla.test._
@@ -35,11 +35,13 @@ class NonFinagleSpec extends SpecificationWithJUnit {
           loc.longitude > nw.longitude &&
           loc.longitude < se.longitude
       }
-      service.hasWifi(chicago)() mustEqual true
-      service.hasWifi(nyc)() mustEqual false
+      service.hasWifi(chicago).get() must be(true)
+      service.hasWifi(nyc).get() must be(false)
       val sfo = Airport("SFO", "San Francisco", Location(10, 10))
-      service.hasWifi(sfo)() must throwA[AirportException]
-      service.fetchAirportsInBounds(Location(500,0), Location(0, 500))() mustEqual Seq(chicago)
+      intercept[AirportException] {
+        service.hasWifi(sfo).get()
+      }
+      service.fetchAirportsInBounds(Location(500,0), Location(0, 500))() must be(Seq(chicago))
     }
 
     "work in Java" in {
@@ -70,11 +72,13 @@ class NonFinagleSpec extends SpecificationWithJUnit {
             loc.getLongitude() > nw.getLongitude() &&
             loc.getLongitude() < se.getLongitude()
       }
-      service.hasWifi(chicago) mustEqual true
-      service.hasWifi(nyc) mustEqual false
+      service.hasWifi(chicago).asInstanceOf[Boolean] must be(true)
+      service.hasWifi(nyc).asInstanceOf[Boolean] must be(false)
       val sfo = new Airport("SFO", "San Francisco", new Location(10, 10))
-      service.hasWifi(sfo) must throwA[AirportException]
-      service.fetchAirportsInBounds(new Location(500,0), new Location(0, 500)).toSeq mustEqual Seq(chicago)
+      intercept[AirportException] {
+        service.hasWifi(sfo)
+      }
+      service.fetchAirportsInBounds(new Location(500,0), new Location(0, 500)).toSeq must be(Seq(chicago))
     }
   }
 }

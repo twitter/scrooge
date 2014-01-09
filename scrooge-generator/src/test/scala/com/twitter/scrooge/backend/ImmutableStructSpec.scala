@@ -1,10 +1,10 @@
 package com.twitter.scrooge.backend
 
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TMemoryBuffer
 
-class ImmutableStructSpec extends SpecificationWithJUnit {
+class ImmutableStructSpec extends Spec {
 
   "Scala objects" should {
     import thrift.test._
@@ -12,7 +12,7 @@ class ImmutableStructSpec extends SpecificationWithJUnit {
       val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
       val originalBonk = Bonk("This is Bonk message", 13)
       Bonk.encode(originalBonk, protocol)
-      Bonk.decode(protocol) mustEqual(originalBonk)
+      Bonk.decode(protocol) must be(originalBonk)
     }
 
     "deep copy" in {
@@ -49,10 +49,10 @@ class ImmutableStructSpec extends SpecificationWithJUnit {
           structThing = xtructSwapped
         )
       )
-      copied.x1 mustEqual(nested.x1)
-      copied.x2.structThing must_!=(nested.x2.structThing) //swapped
-      copied.x2 must_!=(nested.x2)
-      copied.x3 mustEqual(nested.x3)
+      copied.x1 must be(nested.x1)
+      copied.x2.structThing must not be(nested.x2.structThing) //swapped
+      copied.x2 must not be(nested.x2)
+      copied.x3 must be(nested.x3)
     }
   }
 
@@ -62,7 +62,7 @@ class ImmutableStructSpec extends SpecificationWithJUnit {
       val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
       val originalBonk = new Bonk("This is Bonk message", 13)
       Bonk.encode(originalBonk, protocol)
-      Bonk.decode(protocol) mustEqual(originalBonk)
+      Bonk.decode(protocol) must be(originalBonk)
     }
 
     "deep copy" in {
@@ -96,13 +96,13 @@ class ImmutableStructSpec extends SpecificationWithJUnit {
         .x2(xtruct2.copy().structThing(xtructSwapped).build())
         .build()
 
-      copied.getX1 mustEqual(nested.getX1)
-      copied.getX2.getStructThing must_!=(nested.getX2.getStructThing) //swapped
-      copied.getX2 must_!=(nested.getX2)
-      copied.getX3 mustEqual(nested.getX3)
+      copied.getX1 must be(nested.getX1)
+      copied.getX2.getStructThing must not be(nested.getX2.getStructThing) //swapped
+      copied.getX2 must not be(nested.getX2)
+      copied.getX3 must be(nested.getX3)
 
       val copiedPartial = nested.copy().unsetX2().build()
-      copiedPartial.isSetX2 must beFalse
+      copiedPartial.isSetX2 must be(false)
     }
   }
 }

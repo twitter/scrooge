@@ -1,9 +1,9 @@
 package com.twitter.scrooge.frontend
 
-import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.testutil.Spec
 
-class TypeResolverSpec extends SpecificationWithJUnit {
+class TypeResolverSpec extends Spec {
   "TypeResolve" should {
     val foo = EnumField(SimpleID("FOO"), 1, None)
     val bar = EnumField(SimpleID("BAR"), 2, Some("/** I am a doc. */"))
@@ -31,83 +31,96 @@ class TypeResolverSpec extends SpecificationWithJUnit {
     }
 
     "throw exception on unknown type" in {
-      resolver(ReferenceType(Identifier("wtf"))) must throwA[TypeNotFoundException]
+      intercept[TypeNotFoundException] {
+        resolver(ReferenceType(Identifier("wtf")))
+      }
     }
 
     "resolve a known type" in {
-      resolver(enumRef) mustEqual enumType
+      resolver(enumRef) must be(enumType)
     }
 
     "resolve dependent types" in {
-      TypeResolver()(enum, None) must beLike {
+      TypeResolver()(enum, None) match {
         case ResolvedDefinition(enum2, resolver2) =>
-          resolver2(struct, None) must beLike {
+          resolver2(struct, None) match {
             case ResolvedDefinition(struct2: Struct, _) =>
-              struct2.fields(3).fieldType mustEqual enumType
-              true
+              struct2.fields(3).fieldType must be(enumType)
+              // pass
+            case _ =>
+              fail()
           }
-          true
+        case _ => fail()
       }
     }
 
     "transform MapType" in {
-      resolver(MapType(enumRef, structRef, None)) must beLike {
-        case MapType(enumType, structType, None) => true
+      resolver(MapType(enumRef, structRef, None)) match {
+        case MapType(enumType, structType, None) =>
+          // pass
+        case _ =>
+          fail()
       }
     }
 
     "transform SetType" in {
-      resolver(SetType(structRef, None)) must beLike {
-        case SetType(structType, None) => true
+      resolver(SetType(structRef, None)) match {
+        case SetType(structType, None) =>
+          // pass
+        case _ =>
+          fail()
       }
     }
 
     "transform ListType" in {
-      resolver(ListType(structRef, None)) must beLike {
-        case ListType(structType, None) => true
+      resolver(ListType(structRef, None)) match {
+        case ListType(structType, None) =>
+          // pass
+        case _ =>
+          fail()
       }
     }
 
     "not break on Void" in {
-      resolver(Void) mustEqual Void
+      resolver(Void) must be(Void)
     }
 
     "transform a Field" in {
       val field = Field(42, SimpleID("foo"), "foo", structRef)
-      resolver(field) mustEqual field.copy(fieldType = structType)
+      resolver(field) must be(field.copy(fieldType = structType))
     }
 
     "transform a Field with enum constant default" in {
       val field = Field(1, SimpleID("field"), "field", enumRef, Some(IdRHS(Identifier("SomeEnum.FOO"))))
-      resolver(field) mustEqual
-        Field(1, SimpleID("field"), "field", enumType, Some(EnumRHS(enum, foo)))
+      resolver(field) must be(
+        Field(1, SimpleID("field"), "field", enumType, Some(EnumRHS(enum, foo))))
     }
 
     "transform a Function" in {
       val field = Field(1, SimpleID("foo"), "foo", structRef)
       val ex = Field(2, SimpleID("ex"), "ex", structRef)
       val fun = Function(SimpleID("foo"), "foo", structRef, Seq(field), Seq(ex), None)
-      resolver(fun) mustEqual
-        Function(SimpleID("foo"), "foo", resolver(fun.funcType), Seq(resolver(field)), Seq(resolver(ex)), None)
+      resolver(fun) must be(
+        Function(SimpleID("foo"), "foo", resolver(fun.funcType), Seq(resolver(field)), Seq(resolver(ex)), None))
     }
 
     "transform a TypeDef" in {
       val typedef = Typedef(SimpleID("foo"), enumRef, Map("some" -> "annotation"))
-      resolver(typedef, None).definition mustEqual
-        typedef.copy(fieldType = enumType)
+      resolver(typedef, None).definition must be(
+        typedef.copy(fieldType = enumType))
     }
 
     "transform a Struct" in {
-      resolver(struct, None).definition mustEqual struct.copy(fields = struct.fields.map(resolver.apply))
+      resolver(struct, None).definition must be(struct.copy(fields = struct.fields.map(resolver.apply)))
     }
 
     "transform an Exception" in {
-      resolver(ex, None).definition mustEqual ex.copy(fields = ex.fields.map(resolver.apply))
+      resolver(ex, None).definition must be(ex.copy(fields = ex.fields.map(resolver.apply)))
     }
 
     "transform a Const" in {
       val const = ConstDefinition(SimpleID("foo"), enumRef, IdRHS(Identifier("SomeEnum.FOO")), None)
-      resolver(const, None).definition mustEqual ConstDefinition(SimpleID("foo"), enumType, EnumRHS(enum, foo), None)
+      resolver(const, None).definition must be(ConstDefinition(SimpleID("foo"), enumType, EnumRHS(enum, foo), None))
     }
 
     "const definition transitivity" in {
@@ -117,26 +130,32 @@ class TypeResolverSpec extends SpecificationWithJUnit {
       val line = ConstDefinition(SimpleID("line"), TString, StringLiteral("hi"), None)
       val newResolver = resolver(line, None).resolver
       val copy = ConstDefinition(SimpleID("copy"), TString, IdRHS(SimpleID("line")), None)
-      newResolver(copy, None).definition mustEqual
-        ConstDefinition(SimpleID("copy"), TString, StringLiteral("hi"), None)
+      newResolver(copy, None).definition must be(
+        ConstDefinition(SimpleID("copy"), TString, StringLiteral("hi"), None))
 
       // this code has type mismatch
       //   const string line = "hi"
       //   const i32 copy = line
       //
       val copyWrongType = ConstDefinition(SimpleID("copy"), TI32, IdRHS(SimpleID("line")), None)
-      newResolver(copyWrongType, None) must throwA[TypeMismatchException]
+      intercept[TypeMismatchException] {
+        newResolver(copyWrongType, None)
+      }
 
       // this code has undefined symbol
       //   const string line = "hi"
       //   const string copy = noSuchConst
       val copyWrongId = ConstDefinition(SimpleID("copy"), TString, IdRHS(SimpleID("noSuchConst")), None)
-      newResolver(copyWrongId, None) must throwA[UndefinedConstantException]
+      intercept[UndefinedConstantException] {
+        newResolver(copyWrongId, None)
+      }
     }
 
     "throw a TypeMismatchException for a StructType with a MapRHS if resolver allowStructRHS disabled" in {
       val structType = StructType(Struct(SimpleID("Test"), "test", Seq(), None, Map.empty))
-      resolver(MapRHS(Seq((StringLiteral("foo"), StringLiteral("bar")))), structType) must throwA[TypeMismatchException]
+      intercept[TypeMismatchException] {
+        resolver(MapRHS(Seq((StringLiteral("foo"), StringLiteral("bar")))), structType)
+      }
     }
 
     "allow a valid MapRHS for a StructType if resolver allowStructRHS enabled" in {
@@ -148,21 +167,23 @@ class TypeResolverSpec extends SpecificationWithJUnit {
       val mapRHS1 = MapRHS(Seq((StringLiteral("Test2_field"), mapRHS)))
       val value = resolver(mapRHS1, structType)
       val structElems = Map(SimpleID("Test2_field") -> StructRHS(elems = Map(SimpleID("Test1_field") -> IntLiteral(3))))
-      value must_== StructRHS(elems = structElems)
+      value must be(StructRHS(elems = structElems))
     }
 
     "throw a TypeMismatchException if invalid MapRHS passed in for a StructType" in {
       val resolver = TypeResolver(allowStructRHS = true)
       val structType = StructType(createStruct("Test1", TString))
       val mapRHS = MapRHS(Seq((StringLiteral("invalid_field"), StringLiteral("Hello"))))
-      resolver(mapRHS, structType) must throwA[TypeMismatchException]
+      intercept[TypeMismatchException] {
+        resolver(mapRHS, structType)
+      }
     }
 
     "transform a Service" in {
       val fun = Function(SimpleID("foo"), "foo", structRef,
         Seq(Field(1, SimpleID("foo"), "foo", structRef)), Nil, None)
       val service = Service(SimpleID("Glurb"), None, Seq(fun), None)
-      resolver(service, None).definition mustEqual service.copy(functions = Seq(resolver(fun)))
+      resolver(service, None).definition must be(service.copy(functions = Seq(resolver(fun))))
     }
 
     "resolve a service parent from same scope" in {
@@ -173,11 +194,11 @@ class TypeResolverSpec extends SpecificationWithJUnit {
         Nil,
         None)
       val resolver = TypeResolver().withMapping(service1)
-      resolver(service2, None).definition mustEqual service2.copy(parent =
+      resolver(service2, None).definition must be(service2.copy(parent =
         Some(ServiceParent(
           service1.sid,
           None,
-          Some(service1))))
+          Some(service1)))))
     }
 
     "resolve a parameter from an included scope" in {
@@ -185,7 +206,7 @@ class TypeResolverSpec extends SpecificationWithJUnit {
       val doc = Document(Nil, Seq(oneInt))
       val resolver = TypeResolver().withMapping(Include("other.thrift", doc))
       val resolveFieldType: FieldType = resolver.resolveFieldType(QualifiedID(Seq("other", "TestRequest")))
-      resolveFieldType.asInstanceOf[StructType].scopePrefix must_== Some(SimpleID("other"))
+      resolveFieldType.asInstanceOf[StructType].scopePrefix must be(Some(SimpleID("other")))
     }
 
     "resolve a service parent from an included scope" in {
@@ -198,11 +219,11 @@ class TypeResolverSpec extends SpecificationWithJUnit {
         Nil,
         None)
       val resolver = TypeResolver().withMapping(include)
-      resolver(service2, None).definition mustEqual
+      resolver(service2, None).definition must be(
         service2.copy(parent = Some(ServiceParent(
           SimpleID("Super"),
           Some(SimpleID("other")),
-          Some(service1))))
+          Some(service1)))))
     }
 
     "resolve a typedef from an included scope" in {
@@ -217,16 +238,20 @@ class TypeResolverSpec extends SpecificationWithJUnit {
       val doc2 = Document(Seq(Include("src/test/thrift/typedef1.thrift", doc1)), Seq(collectionStruct))
 
       val resolvedDoc = TypeResolver()(doc2).document
-      resolvedDoc.defs(0) must beLike {
+      resolvedDoc.defs(0) match {
         case Struct(_, _, fields, _, annotations) => {
-          fields(0) must beLike {
-            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1"))), None), _, _, _, _) => true
+          fields(0) match {
+            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1"))), None), _, _, _, _) => // pass
+            case _ => fail()
           }
-          fields(1) must beLike {
-            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1"))), None), _, _, _, _) => true
+          fields(1) match {
+            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1"))), None), _, _, _, _) => // pass
+            case _ => fail()
           }
-          annotations mustEqual Map("foo" -> "bar")
+          annotations must be(Map("foo" -> "bar"))
         }
+        case _ =>
+          fail()
       }
     }
   }

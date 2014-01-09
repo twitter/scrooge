@@ -1,13 +1,13 @@
 package com.twitter.scrooge.integration
 
-import org.specs.SpecificationWithJUnit
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TMemoryBuffer
 import com.twitter.scrooge.{integration_apache => apacheGen}
 import com.twitter.scrooge.{integration_scala => scroogeGen}
+import com.twitter.scrooge.testutil.Spec
 
 // TODO CSL-401: test apache service/Scrooge client and Scrooge service/Apache client
-class ScalaIntegrationSpec extends SpecificationWithJUnit {
+class ScalaIntegrationSpec extends Spec {
   "Apache" should {
     "transfer struct to Scrooge" in {
       val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
@@ -15,12 +15,12 @@ class ScalaIntegrationSpec extends SpecificationWithJUnit {
       apacheStruct.write(protocol)
       val scroogeStruct = scroogeGen.BonkStruct.decode(protocol)
       // test transferred values
-      scroogeStruct.message mustEqual("howdy world")
-      scroogeStruct.intThing mustEqual(123)
+      scroogeStruct.message must be("howdy world")
+      scroogeStruct.intThing must be(123)
       // test transferred names
-      scroogeGen.BonkStruct.MessageField.name mustEqual(
+      scroogeGen.BonkStruct.MessageField.name must be(
         apacheStruct.fieldForId(1).getFieldName) // == "message"
-      scroogeGen.BonkStruct.IntThingField.name mustEqual(
+      scroogeGen.BonkStruct.IntThingField.name must be(
         apacheStruct.fieldForId(2).getFieldName) // == "int_thing"
     }
 
@@ -33,14 +33,14 @@ class ScalaIntegrationSpec extends SpecificationWithJUnit {
 
       // test transferred values
       val scroogeStruct = scroogeUnion.asInstanceOf[scroogeGen.BonkOrBoolUnion.Bonk]
-      scroogeStruct.bonk must notBeNull
-      scroogeStruct.bonk.message mustEqual("howdy world")
-      scroogeStruct.bonk.intThing mustEqual(123)
+      scroogeStruct.bonk must not be(null)
+      scroogeStruct.bonk.message must be("howdy world")
+      scroogeStruct.bonk.intThing must be(123)
       // test transferred names
-      scroogeGen.BonkOrBoolUnion.Union.name mustEqual ("bonk_or_bool_union")
-      scroogeGen.BonkOrBoolUnion.BonkField.name mustEqual(
+      scroogeGen.BonkOrBoolUnion.Union.name must be("bonk_or_bool_union")
+      scroogeGen.BonkOrBoolUnion.BonkField.name must be(
         apacheUnion.fieldForId(1).getFieldName) // == "bonk"
-      scroogeGen.BonkOrBoolUnion.BoolThingField.name mustEqual(
+      scroogeGen.BonkOrBoolUnion.BoolThingField.name must be(
         apacheUnion.fieldForId(2).getFieldName) // == "bool_thing"
 
     }
@@ -54,12 +54,12 @@ class ScalaIntegrationSpec extends SpecificationWithJUnit {
       val apacheStruct = new apacheGen.Bonk_struct()
       apacheStruct.read(protocol)
       // test transferred values
-      apacheStruct.getInt_thing mustEqual(123)
-      apacheStruct.getMessage mustEqual("howdy world")
+      apacheStruct.getInt_thing must be(123)
+      apacheStruct.getMessage must be("howdy world")
       // test transferred names
-      apacheStruct.fieldForId(1).getFieldName mustEqual(
+      apacheStruct.fieldForId(1).getFieldName must be(
         scroogeGen.BonkStruct.MessageField.name) // == "message"
-      apacheStruct.fieldForId(2).getFieldName mustEqual(
+      apacheStruct.fieldForId(2).getFieldName must be(
         scroogeGen.BonkStruct.IntThingField.name) // == "int_thing"
     }
 
@@ -72,13 +72,15 @@ class ScalaIntegrationSpec extends SpecificationWithJUnit {
       apacheUnion.read(protocol)
       // test transferred values
       val bonk = apacheUnion.getBonk
-      bonk.getMessage mustEqual("howdy world")
-      bonk.getInt_thing mustEqual(123)
-      apacheUnion.getBool_thing must throwA[RuntimeException]
+      bonk.getMessage must be("howdy world")
+      bonk.getInt_thing must be(123)
+      intercept[RuntimeException] {
+        apacheUnion.getBool_thing
+      }
       // test transferred names
-      apacheUnion.fieldForId(1).getFieldName mustEqual(
+      apacheUnion.fieldForId(1).getFieldName must be(
         scroogeGen.BonkOrBoolUnion.BonkField.name) // == "bonk"
-      apacheUnion.fieldForId(2).getFieldName mustEqual(
+      apacheUnion.fieldForId(2).getFieldName must be(
         scroogeGen.BonkOrBoolUnion.BoolThingField.name) // == "bonk"
     }
   }

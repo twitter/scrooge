@@ -48,7 +48,7 @@ object Main {
     val oldGenMap = new mutable.HashMap[String, File]
     if (newGenMap.size != oldGenMap.size) {
       println("Wrong number of files generated")
-      exit(1)
+      sys.exit(1)
     }
     FileUtils.getFiles(new File(compiler.destFolder), "**/*.java", "") foreach { s =>
       val file = s.asInstanceOf[File]

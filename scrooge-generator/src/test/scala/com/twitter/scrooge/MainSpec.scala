@@ -2,10 +2,9 @@ package com.twitter.scrooge
 
 import java.io.{FileWriter, File}
 import scala.io.Source
-import org.specs.SpecificationWithJUnit
-import com.twitter.scrooge.testutil.TempDirectory
+import com.twitter.scrooge.testutil.{Spec, TempDirectory}
 
-class MainSpec extends SpecificationWithJUnit {
+class MainSpec extends Spec {
   "Scrooge Main" should {
     "gen file mapping with absolute paths" in {
       val inDir = TempDirectory.create(None)
@@ -51,6 +50,6 @@ struct Point {
       input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Constants.scala") + "\n" +
         input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Direction.scala") + "\n" +
         input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala")+ "\n"
-    manifestString mustEqual expected
+    manifestString must be(expected)
   }
 }

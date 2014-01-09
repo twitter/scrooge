@@ -17,54 +17,56 @@
 package com.twitter.scrooge.mustache
 
 import MustacheAST._
-import org.specs.SpecificationWithJUnit
 import com.twitter.scrooge.frontend.ParseException
+import com.twitter.scrooge.testutil.Spec
 
-class ParserSpec extends SpecificationWithJUnit {
+class ParserSpec extends Spec {
   "Parser" should {
     "all text" in {
-      MustacheParser("hello\nthere") mustEqual Template(Seq(Data("hello\nthere")))
+      MustacheParser("hello\nthere") must be(Template(Seq(Data("hello\nthere"))))
     }
 
     "interpolates" in {
       val text = "say hello to {{friend}}, {{name}}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("say hello to "),
         Interpolation("friend"),
         Data(", "),
         Interpolation("name")
-      ))
+      )))
     }
 
     "doesn't get confused by other {" in {
       val text = "say { to {{friend}}, {{name}}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("say { to "),
         Interpolation("friend"),
         Data(", "),
         Interpolation("name")
-      ))
+      )))
     }
 
     "errors on impossible ids" in {
       val text = "hello {{"
-      MustacheParser(text) must throwA[ParseException]
+      intercept[ParseException] {
+        MustacheParser(text)
+      }
     }
 
     "section" in {
       val text = "Classmates: {{#students}}Name: {{name}}{{/students}}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("Classmates: "),
         Section("students", Template(Seq(
           Data("Name: "),
           Interpolation("name")
         )), false)
-      ))
+      )))
     }
 
     "nested section" in {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/moons}} :) {{/planets}}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("Planets: "),
         Section("planets", Template(Seq(
           Interpolation("name"),
@@ -74,58 +76,60 @@ class ParserSpec extends SpecificationWithJUnit {
           )), false),
           Data(" :) ")
         )), false)
-      ))
+      )))
     }
 
     "complains about mismatched section headers" in {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/planets}}"
-      MustacheParser(text) must throwA[ParseException]
+      intercept[ParseException] {
+        MustacheParser(text)
+      }
     }
 
     "inverted section" in {
       val text = "{{^space}}no space{{/space}}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Section("space", Template(Seq(
           Data("no space")
         )), true)
-      ))
+      )))
     }
 
     "comments" in {
       val text = "remember {{! these comments look stupid, like xml}} nothing."
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("remember "),
         Data(" nothing.")
-      ))
+      )))
     }
 
     "partial" in {
       val text = "{{#foo}}ok {{>other}}{{/foo}}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Section("foo", Template(Seq(
           Data("ok "),
           Partial("other")
         )), false)
-      ))
+      )))
     }
 
     "triple braces is fine" in {
       val text = "Hello, {{{foo}}}."
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("Hello, {"),
         Interpolation("foo"),
         Data("}.")
-      ))
+      )))
     }
 
     "section with joiner" in {
       val text = "Students: {{#students}}{{name}}{{/students|, }}"
-      MustacheParser(text) mustEqual Template(Seq(
+      MustacheParser(text) must be(Template(Seq(
         Data("Students: "),
         Section("students", Template(Seq(
           Interpolation("name")
         )), false, Some(", "))
-      ))
+      )))
     }
   }
 }

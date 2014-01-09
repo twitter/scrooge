@@ -17,9 +17,9 @@
 package com.twitter.scrooge.mustache
 
 import Dictionary._
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 
-class DictionarySpec extends SpecificationWithJUnit {
+class DictionarySpec extends Spec {
   def v(data: Dictionary): Value = ListValue(Seq(data))
   def v(data: String): Value = CodeFragment(data)
   def v(data: Boolean): Value = BooleanValue(data)
@@ -28,31 +28,31 @@ class DictionarySpec extends SpecificationWithJUnit {
   "Dictionary" should {
     "can be empty" in {
       val d = Dictionary()
-      d("nothing") mustEqual Dictionary.NoValue
+      d("nothing") must be(Dictionary.NoValue)
     }
 
-    "stores" in {
+    "stores" should {
       "boolean" in {
         val d = Dictionary("live" -> v(true), "banned" -> v(false))
-        d("live").toBoolean must beTrue
-        !d("banned").toBoolean must beTrue
-        !d("not-here").toBoolean must beTrue
+        d("live").toBoolean must be(true)
+        !d("banned").toBoolean must be(true)
+        !d("not-here").toBoolean must be(true)
       }
 
       "string" in {
         val d = Dictionary("name" -> v("Commie"))
-        d("name").toData mustEqual "Commie"
-        d("name").toBoolean must beTrue
-        d("not-here").toData mustEqual ""
+        d("name").toData must be("Commie")
+        d("name").toBoolean must be(true)
+        d("not-here").toData must be("")
       }
 
       "dictionaries" in {
         val stats = Seq(Dictionary("age" -> v("14")))
         val d = Dictionary("name" -> v("Commie"), "stats" -> v(stats))
-        d("stats").children.size mustEqual 1
-        d("nothing").children.size mustEqual 0
-        d("stats").children.map { _("age").toData }.toList mustEqual List("14")
-        d("stats").children.map { _("name").toData }.toList mustEqual List("Commie")
+        d("stats").children.size must be(1)
+        d("nothing").children.size must be(0)
+        d("stats").children.map { _("age").toData }.toList must be(List("14"))
+        d("stats").children.map { _("name").toData }.toList must be(List("Commie"))
       }
     }
   }
