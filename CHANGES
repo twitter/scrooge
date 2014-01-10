@@ -6,6 +6,16 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.12.0
+~~~~~
+
+- scrooge: use a TReusableMemoryTransport in finagle services
+- Bump guava to 15.0
+- scrooge-generator: trim some allocations from generated scala code
+- scrooge: use scalatest, remove specs
+- added scala namespace to demo
+- Rm all imports of `scala.Some`
+
 3.11.2
 ~~~~~
 
