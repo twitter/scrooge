@@ -10,6 +10,7 @@ import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.{
+  Builder,
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
   HashMap => mutable$HashMap, HashSet => mutable$HashSet}
 import scala.collection.{Map, Set}

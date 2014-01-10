@@ -17,9 +17,9 @@
 package com.twitter.scrooge.mustache
 
 import com.twitter.scrooge.mustache.Dictionary._
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 
-class HandlebarSpec extends SpecificationWithJUnit {
+class HandlebarSpec extends Spec {
   def v(data: Dictionary): Value = ListValue(Seq(data))
   def v(data: String): Value = CodeFragment(data)
   def v(data: Boolean): Value = BooleanValue(data)
@@ -28,24 +28,24 @@ class HandlebarSpec extends SpecificationWithJUnit {
   "Handlebar" should {
     "without directives" in {
       val template = "there are no directives here"
-      Handlebar.generate(template, Dictionary()) mustEqual template
+      Handlebar.generate(template, Dictionary()) must be(template)
     }
 
     "simple interpolation" in {
       val template = "Hello {{name}}!\nYou're looking {{how}} today."
-      Handlebar.generate(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) mustEqual
-        "Hello Mary!\nYou're looking sad today."
+      Handlebar.generate(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) must be(
+        "Hello Mary!\nYou're looking sad today.")
     }
 
     "optional blocks" in {
       val template = "You {{#money}}have ${{money}}{{/money}}{{^money}}are broke{{/money}}."
-      Handlebar.generate(template, Dictionary("money" -> v("5"))) mustEqual "You have $5."
-      Handlebar.generate(template, Dictionary()) mustEqual "You are broke."
-      Handlebar.generate(template, Dictionary("money" -> v(true))) mustEqual "You have $true."
-      Handlebar.generate(template, Dictionary("money" -> v(false))) mustEqual "You are broke."
+      Handlebar.generate(template, Dictionary("money" -> v("5"))) must be("You have $5.")
+      Handlebar.generate(template, Dictionary()) must be("You are broke.")
+      Handlebar.generate(template, Dictionary("money" -> v(true))) must be("You have $true.")
+      Handlebar.generate(template, Dictionary("money" -> v(false))) must be("You are broke.")
     }
 
-    "iterates items" in {
+    "iterates items" should {
       val cats = Seq(
         Dictionary("name" -> v("Commie")),
         Dictionary("name" -> v("Lola")),
@@ -54,18 +54,18 @@ class HandlebarSpec extends SpecificationWithJUnit {
 
       "normally" in {
         val template = "The cats are named: {{#cats}}'{{name}}' {{/cats}}."
-        Handlebar.generate(template, Dictionary("cats" -> v(cats))) mustEqual
-          "The cats are named: 'Commie' 'Lola' 'Lexi' ."
+        Handlebar.generate(template, Dictionary("cats" -> v(cats))) must be(
+          "The cats are named: 'Commie' 'Lola' 'Lexi' .")
       }
 
       "with a joiner" in {
         val template = "The cats are named: {{#cats}}{{name}}{{/cats|, }}."
-        Handlebar.generate(template, Dictionary("cats" -> v(cats))) mustEqual
-          "The cats are named: Commie, Lola, Lexi."
+        Handlebar.generate(template, Dictionary("cats" -> v(cats))) must be(
+          "The cats are named: Commie, Lola, Lexi.")
       }
     }
 
-    "partial" in {
+    "partial" should {
       val cities = Seq(
         Dictionary("city" -> v("New York"), "state" -> v("NY")),
         Dictionary("city" -> v("Atlanta"), "state" -> v("GA"))
@@ -75,14 +75,14 @@ class HandlebarSpec extends SpecificationWithJUnit {
 
       "works" in {
         val template = "We have these cities:\n{{#cities}}\n{{>description}}\n{{/cities}}\n"
-        Handlebar.generate(template, dictionary) mustEqual
-          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n"
+        Handlebar.generate(template, dictionary) must be(
+          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n")
       }
 
       "indents" in {
         val template = "We have these cities:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n"
-        Handlebar.generate(template, dictionary) mustEqual
-          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n"
+        Handlebar.generate(template, dictionary) must be(
+          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n")
       }
 
       "indents nestedly" in {
@@ -92,8 +92,8 @@ class HandlebarSpec extends SpecificationWithJUnit {
           "cities" -> v(cities),
           "header" -> v(headerTemplate),
           "description" -> v(cityTemplate))
-        Handlebar.generate(template, dictionary) mustEqual
-          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n"
+        Handlebar.generate(template, dictionary) must be(
+          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n")
       }
     }
 
@@ -134,7 +134,7 @@ One of our students is Mira.
 Mira has a cat that lives in Chicago.
 Mira has a cat that lives in Knoxville.
 """
-      rv mustEqual expect
+      rv must be(expect)
     }
   }
 }

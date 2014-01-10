@@ -1,18 +1,18 @@
 package com.twitter.scrooge.ast
 
-import org.specs.SpecificationWithJUnit
+import com.twitter.scrooge.testutil.Spec
 
-class ASTSpec extends SpecificationWithJUnit {
+class ASTSpec extends Spec {
   "Namespace" should {
     "generate correct namespace from java" in {
       val doc = Document(Seq(Namespace("java", Identifier("com.twitter.oatmeal"))), Nil)
-      doc.namespace("java").isDefined must beTrue
-      doc.namespace("java").get.fullName mustEqual ("com.twitter.oatmeal")
+      doc.namespace("java").isDefined must be(true)
+      doc.namespace("java").get.fullName must be("com.twitter.oatmeal")
     }
 
     "reject undefined namespace" in {
       val doc = Document(Seq(Namespace("warble", Identifier("com.twitter.oatmeal"))), Nil)
-      doc.namespace("garble") mustEqual None
+      doc.namespace("garble") must be(None)
     }
 
     "map namespaces" in {
@@ -21,8 +21,8 @@ class ASTSpec extends SpecificationWithJUnit {
       val rbOatmealNs = Namespace("rb", Identifier("Oatmeal"))
       val doc = Document(Seq(javaOatmealNs, rbOatmealNs), Nil)
       val namespaceMap = Map(javaOatmealNs.id.fullName -> javaGranolaNs.id.fullName)
-      doc.mapNamespaces(namespaceMap) mustEqual
-        Document(Seq(javaGranolaNs, rbOatmealNs), Nil)
+      doc.mapNamespaces(namespaceMap) must be(
+        Document(Seq(javaGranolaNs, rbOatmealNs), Nil))
     }
 
     "map namespaces recursively" in {
@@ -31,10 +31,9 @@ class ASTSpec extends SpecificationWithJUnit {
       val doc1 = Document(Seq(javaOatmealNs), Nil)
       val doc2 = Document(Seq(javaOatmealNs, Include("other", doc1)), Nil)
       val namespaceMap = Map(javaOatmealNs.id.fullName -> javaGranolaNs.id.fullName)
-      doc2.mapNamespaces(namespaceMap) must beLike {
+      doc2.mapNamespaces(namespaceMap) match {
         case Document(Seq(javaGranolaNs, Include(_, included)), Nil) =>
-          included mustEqual Document(Seq(javaGranolaNs), Nil)
-          true
+          included must be(Document(Seq(javaGranolaNs), Nil))
       }
     }
   }
@@ -68,7 +67,7 @@ class ASTSpec extends SpecificationWithJUnit {
       simpleCases foreach {
         case (input, (expected, _)) =>
           val sid = SimpleID(input)
-          sid.toCamelCase.name mustEqual expected
+          sid.toCamelCase.name must be(expected)
       }
     }
 
@@ -76,7 +75,7 @@ class ASTSpec extends SpecificationWithJUnit {
       simpleCases foreach {
         case (input, (_, expected)) =>
           val sid = SimpleID(input)
-          sid.toTitleCase.name mustEqual expected
+          sid.toTitleCase.name must be(expected)
       }
     }
   }

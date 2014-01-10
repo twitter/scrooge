@@ -1,11 +1,10 @@
 package {{package}}
 
-import com.twitter.finagle.SourcedException
+import com.twitter.finagle.{SourcedException, Service => FinagleService}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.finagle.{Service => FinagleService}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Return, Throw}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
@@ -62,6 +61,17 @@ class {{ServiceName}}$FinagleClient(
       name + " failed: unknown result"
     )
   }
+
+  protected def setServiceName(ex: Exception): Exception =
+    if (this.serviceName == "") ex
+    else {
+      ex match {
+        case se: SourcedException =>
+          se.serviceName = this.serviceName
+          se
+        case _ => ex
+      }
+    }
 
   // ----- end boilerplate.
 

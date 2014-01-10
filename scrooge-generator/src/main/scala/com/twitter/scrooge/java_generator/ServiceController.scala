@@ -2,7 +2,6 @@ package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.ast.Service
-import scala.Some
 
 class ServiceController(service: Service, generator: ApacheJavaGenerator, ns: Option[Identifier])
   extends TypeController(service, generator, ns) {
