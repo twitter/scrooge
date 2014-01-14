@@ -6,6 +6,11 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.12.1
+~~~~~
+
+- scrooge: properly handle field annotations
+
 3.12.0
 ~~~~~
 

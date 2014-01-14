@@ -189,32 +189,29 @@ class ThriftParser(
 
   lazy val field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~
     (fieldType ~ defaultedAnnotations ~ simpleID) ~
-    opt("=" ~> (rhs ~ defaultedAnnotations)) <~ opt(listSeparator) ^^ {
-    case (fid ~ req) ~ (ftype ~ fieldAnnotations ~ sid) ~ optDefault => {
-      val value = optDefault map { _._1 }
-      val valueAnnotations = optDefault map { _._2 } getOrElse Map.empty
-
-      val transformedVal = ftype match {
-        case TBool => value map {
-          case IntLiteral(0) => BoolLiteral(false)
-          case _ => BoolLiteral(true)
+    opt("=" ~> rhs) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
+      case (fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations => {
+        val transformedVal = ftype match {
+          case TBool => value map {
+            case IntLiteral(0) => BoolLiteral(false)
+            case _ => BoolLiteral(true)
+          }
+          case _ => value
         }
-        case _ => value
-      }
 
-      // if field is marked optional and a default is defined, ignore the optional part.
-      val transformedReq = if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default else req
+        // if field is marked optional and a default is defined, ignore the optional part.
+        val transformedReq = if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default else req
 
-      Field(
-        fid.getOrElse(0),
-        sid,
-        sid.name,
-        ftype,
-        transformedVal,
-        transformedReq,
-        fieldAnnotations,
-        valueAnnotations
-      )
+        Field(
+          fid.getOrElse(0),
+          sid,
+          sid.name,
+          ftype,
+          transformedVal,
+          transformedReq,
+          typeAnnotations,
+          fieldAnnotations
+        )
     }
   }
 

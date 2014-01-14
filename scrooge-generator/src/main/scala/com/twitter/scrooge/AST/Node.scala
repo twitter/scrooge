@@ -41,8 +41,8 @@ case class Field(
   fieldType: FieldType,
   default: Option[RHS] = None,
   requiredness: Requiredness = Requiredness.Default,
-  fieldAnnotations: Map[String, String] = Map.empty,
-  defaultValueAnnotations: Map[String, String] = Map.empty
+  typeAnnotations: Map[String, String] = Map.empty,
+  fieldAnnotations: Map[String, String] = Map.empty
 ) extends Node
 
 case class Function(

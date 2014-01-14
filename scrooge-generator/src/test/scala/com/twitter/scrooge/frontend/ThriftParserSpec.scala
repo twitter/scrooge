@@ -332,9 +332,10 @@ enum Foo
           Map("dbtype" -> "fixedchar(4)", "nullable" -> "false")
         ))
 
-      val idAnnotations = Map("autoincrement" -> "true")
-      val idValueAnnotations = Map("initialValue" -> "0")
-      val codeAnnotations = Map("dbtype" -> "varchar(255)")
+      val idTypeAnnotations = Map("autoincrement" -> "true")
+      val idFieldAnnotations = Map("initialValue" -> "0")
+      val codeTypeAnnotations = Map("dbtype" -> "varchar(255)")
+      val nameFieldAnnotations = Map("postid" -> "varchar(255)")
       val structAnnotations = Map(
         "primary_key" -> "(id)",
         "index" -> "code_idx(code)",
@@ -345,7 +346,7 @@ enum Foo
           struct Airport {
             1: optional i64 (autoincrement="true") id = 0(initialValue="0"),
             2: optional string(dbtype="varchar(255)") code,
-            3: optional string name
+            3: optional string name(postid="varchar(255)")
           } (primary_key="(id)",
              index="code_idx(code)",
              sql_name="airports",)
@@ -355,9 +356,9 @@ enum Foo
           SimpleID("Airport"),
           "Airport",
           Seq(
-            Field(1, SimpleID("id"), "id", TI64, Some(IntLiteral(0)), Requiredness.Default, idAnnotations, idValueAnnotations),
-            Field(2, SimpleID("code"), "code", TString, None, Requiredness.Optional, codeAnnotations, Map.empty),
-            Field(3, SimpleID("name"), "name", TString, None, Requiredness.Optional, Map.empty, Map.empty)
+            Field(1, SimpleID("id"), "id", TI64, Some(IntLiteral(0)), Requiredness.Default, idTypeAnnotations, idFieldAnnotations),
+            Field(2, SimpleID("code"), "code", TString, None, Requiredness.Optional, codeTypeAnnotations, Map.empty),
+            Field(3, SimpleID("name"), "name", TString, None, Requiredness.Optional, Map.empty, nameFieldAnnotations)
           ),
           None,
           structAnnotations
