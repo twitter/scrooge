@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-serializer</artifactId>
   <packaging>jar</packaging>
-  <version>3.12.1-SNAPSHOT</version>
+  <version>3.12.2-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-292</artifactId>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-core</artifactId>
-      <version>3.12.1-SNAPSHOT</version>
+      <version>3.12.2-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
