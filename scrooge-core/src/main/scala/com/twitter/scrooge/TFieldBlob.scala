@@ -34,6 +34,7 @@ case class TFieldBlob(field: TField, data: Array[Byte]) {
   def write(oprot: TProtocol): Unit = {
     oprot.writeFieldBegin(field)
     ThriftUtil.transfer(oprot, read, field.`type`)
+    oprot.writeFieldEnd()
   }
 
   /**
