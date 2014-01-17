@@ -42,10 +42,11 @@ object ThriftUtil {
         var done = false
         while (!done) {
           val field = inProt.readFieldBegin()
-          outProt.writeFieldBegin(field)
           if (field.`type` == TType.STOP) {
+            outProt.writeFieldStop()
             done = true
           } else {
+            outProt.writeFieldBegin(field)
             transfer(outProt, inProt, field.`type`, maxDepth - 1)
             inProt.readFieldEnd()
             outProt.writeFieldEnd()
