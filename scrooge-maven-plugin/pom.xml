@@ -5,7 +5,7 @@
   <artifactId>scrooge-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>scrooge-maven-plugin</name>
-  <version>3.12.1</version>
+  <version>3.12.2</version>
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>
@@ -217,7 +217,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.9.2</artifactId>
-      <version>3.12.1</version>
+      <version>3.12.2</version>
     </dependency>
   </dependencies>
   <reporting>
