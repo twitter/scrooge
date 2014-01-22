@@ -843,6 +843,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       candy.brand must be("Hershey")
       candy.count must be(10)
       candy.headline must be("Life is short, eat dessert first")
+      candy.defaultCandyType.value must be(0)
     }
 
     "hide internal helper function to avoid naming conflict" in { _ =>
