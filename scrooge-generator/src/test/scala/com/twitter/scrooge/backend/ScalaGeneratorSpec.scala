@@ -855,7 +855,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "pass through fields" should {
       "pass through" in { _ =>
-        val pt2 = PassThrough2(1, 2)
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1 = {
           val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
@@ -873,7 +873,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "be copied" in { _ =>
-        val pt2 = PassThrough2(1, 2)
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1 = {
           val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
@@ -889,11 +889,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped must be(PassThrough2(2, 2))
+        pt2roundTripped must be(PassThrough2(2, PassThroughStruct(), PassThroughStruct()))
       }
 
       "be removable" in { _ =>
-        val pt2 = PassThrough2(1, 2)
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1 = {
           val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
@@ -909,12 +909,12 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           PassThrough2.decode(protocol)
         }
 
-        pt2roundTripped must be(PassThrough2(1, 0))
+        pt2roundTripped must be(PassThrough2(1, null, PassThroughStruct()))
       }
 
       "be able to add more" in {  _ =>
         val pt1 = PassThrough(1)
-        val pt2 = PassThrough2(1, 2)
+        val pt2 = PassThrough2(1, PassThroughStruct(), null)
         val f2 = pt2.getFieldBlob(PassThrough2.F2Field.id).get
         val pt1w = pt1.setField(f2)
 
@@ -928,7 +928,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "be proxy-able" in {  _ =>
-        val pt2 = PassThrough2(1, 2)
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1 = {
           val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
@@ -950,7 +950,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "be equallable" in { _ =>
-        val pt2 = PassThrough2(1, 2)
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1a = {
           val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
