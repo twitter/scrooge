@@ -317,7 +317,9 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       // This artifact is on the whitelist directly.
       if (whitelist.contains(artifact.getArtifactId())) {
         thriftDependencies.add(artifact);
-
+      } else if ("idl".equalsIgnoreCase(artifact.getClassifier())){
+          // This artiface has an IDL classifier, whitelist it
+          thriftDependencies.add(artifact);
       // Check if this artifact is being pulled in by an idl jar that's been whitelisted
       } else {
         List<String> depTrail = artifact.getDependencyTrail();
