@@ -27,6 +27,15 @@ union NaughtyUnion {
 }
 
 
+union NaughtyPrimitiveValue {
+    1: byte Byte,
+    2: i16  Short,
+    3: i32  Int,
+    4: i64  Long,
+    5: double Double,
+    6: i32 Unit
+}
+
 // csl-389
 struct fooResult {
   1: string message

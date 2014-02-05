@@ -203,24 +203,43 @@ class ScalaGenerator(
     }
   }
 
-  def genType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
+
+  def genType(t: FunctionType, mutable: Boolean = false, fullyQualify: Boolean = false): CodeFragment = {
+
+    val qualify = (pkg : String, cls : String) => {
+      (if (fullyQualify) pkg + "." else "") + cls
+    }
+
+    val qualifyCollection = (cls : String) => {
+
+      val pkg =
+        if (fullyQualify)
+          if (mutable)  "scala.collection.mutable." else "scala.collection.immutable."
+        else
+          if (mutable)  "mutable." else ""
+
+      pkg + cls
+    }
+
     val code = t match {
-      case Void => "Unit"
-      case OnewayVoid => "Unit"
-      case TBool => "Boolean"
-      case TByte => "Byte"
-      case TI16 => "Short"
-      case TI32 => "Int"
-      case TI64 => "Long"
-      case TDouble => "Double"
-      case TString => "String"
-      case TBinary => "ByteBuffer"
+      case Void => qualify("scala", "Unit")
+      case OnewayVoid => qualify("scala", "Unit")
+      case TBool => qualify("scala", "Boolean")
+      case TByte => qualify("scala", "Byte")
+      case TI16 => qualify("scala", "Short")
+      case TI32 => qualify("scala", "Int")
+      case TI64 => qualify("scala", "Long")
+      case TDouble => qualify("scala", "Double")
+      case TString => qualify("scala.Predef", "String")
+      case TBinary => qualify("java.nio", "ByteBuffer")
       case MapType(k, v, _) =>
-        (if (mutable) "mutable." else "") + "Map[" + genType(k).toData + ", " + genType(v).toData + "]"
+        qualifyCollection("Map[" + genType(k, false, fullyQualify).toData + ", " + genType(v, false, fullyQualify).toData + "]")
       case SetType(x, _) =>
-        (if (mutable) "mutable." else "") + "Set[" + genType(x).toData + "]"
+        qualifyCollection("Set[" + genType(x, false, fullyQualify).toData + "]")
       case ListType(x, _) =>
-        (if (mutable) "mutable.Buffer" else "Seq") + "[" + genType(x).toData + "]"
+        val typePortion = "[" + genType(x, false, fullyQualify).toData + "]"
+        val clsPortion = if (mutable) qualifyCollection("mutable.Buffer") else qualify("scala",  "Seq")
+        clsPortion + typePortion
       case n: NamedType => genID(qualifyNamedType(n).toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
