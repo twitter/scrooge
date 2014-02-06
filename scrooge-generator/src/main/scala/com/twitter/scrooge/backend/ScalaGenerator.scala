@@ -133,8 +133,13 @@ class ScalaGenerator(
     codify(code)
   }
 
-  def genEnum(enum: EnumRHS): CodeFragment =
-    genID(enum.value.sid.toTitleCase.addScope(enum.enum.sid.toTitleCase))
+  def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+    def getTypeId: Identifier = fieldType.getOrElse(Void) match {
+      case n: NamedType => qualifyNamedType(n)
+      case _ =>  enum.enum.sid
+    }
+    genID(enum.value.sid.toTitleCase.addScope(getTypeId.toTitleCase))
+  }
 
   override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
     val code = fieldType match {

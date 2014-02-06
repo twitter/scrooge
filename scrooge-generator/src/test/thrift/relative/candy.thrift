@@ -22,4 +22,5 @@ struct Candy {
   3: string headline = include1.HEADLINE
   4: optional string brand = include2.BRAND
   5: i32 count = include3.PIECES
+  6: CandyType default_candy_type = CandyType.OLD
 }

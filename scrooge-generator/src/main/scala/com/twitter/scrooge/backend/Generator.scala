@@ -169,7 +169,7 @@ trait Generator
     case QualifiedID(names) => codify(names.map { quoteKeyword(_) }.mkString("."))
   }
 
-  def genConstant(constant: RHS, mutable: Boolean = false): CodeFragment = {
+  def genConstant(constant: RHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
     constant match {
       case NullLiteral => codify("null")
       case StringLiteral(value) => codify(quote(value))
@@ -179,7 +179,7 @@ trait Generator
       case c@ListRHS(_) => genList(c, mutable)
       case c@SetRHS(_) => genSet(c, mutable)
       case c@MapRHS(_) => genMap(c, mutable)
-      case c: EnumRHS => genEnum(c)
+      case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
     }
   }
@@ -190,7 +190,7 @@ trait Generator
 
   def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
 
-  def genEnum(enum: EnumRHS): CodeFragment
+  def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment
 
   /**
    * The default value for the specified type and mutability.
@@ -209,7 +209,7 @@ trait Generator
     if (f.requiredness.isOptional) {
       None
     } else {
-      f.default.map(genConstant(_, false)) orElse {
+      f.default.map(genConstant(_, false, Some(f.fieldType))) orElse {
         if (f.fieldType.isInstanceOf[ContainerType]) {
           Some(genDefaultValue(f.fieldType))
         } else {
