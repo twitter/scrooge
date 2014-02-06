@@ -108,8 +108,8 @@ object ScroogeSBT extends Plugin {
     scroogeBuildOptions := Seq("--finagle"),
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
-    scroogeThriftOutputFolder <<= (sourceManaged) { x => x },
-    scroogeThriftIncludeFolders := Seq(),
+    scroogeThriftOutputFolder <<= (sourceManaged) { identity },
+    scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
 

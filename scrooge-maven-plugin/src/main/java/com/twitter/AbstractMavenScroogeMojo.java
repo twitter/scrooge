@@ -219,6 +219,12 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           Set<File> includes = thriftIncludes;
           includes.add(getResourcesOutputDirectory());
 
+          // Include thrift root
+          final File thriftSourceRoot = getThriftSourceRoot();
+          if (thriftSourceRoot != null && thriftSourceRoot.exists()) {
+            includes.add(thriftSourceRoot);
+          }
+
           runner.compile(
                   getLog(),
                   new File(outputDirectory, "scrooge"),
