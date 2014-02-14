@@ -10,16 +10,18 @@ import thrift.test._
 // generation and testing and anyway requires scrooge-runtime for
 // tests.
 class ThriftStructMetaDataSpec extends Spec {
+  val metaData = XtructColl.metaData
+  val fields = metaData.fields.sortBy(_.id)
+
   "Provide useful metadata" in {
     val s = XtructColl(Map(1 -> 2L), Seq("test"), Set(10.toByte), 123)
-    val metaData = XtructColl.metaData
 
     assert(metaData.codecClass == XtructColl.getClass) // mustEqual doesn't work here
     metaData.structClassName must be("thrift.test.XtructColl")
     metaData.structName must be("XtructColl")
     metaData.structClass must be(classOf[XtructColl])
 
-    val Seq(f1, f2, f3, f4) = metaData.fields.sortBy(_.id)
+    val Seq(f1, f2, f3, f4) = fields
 
     f1.name must be("a_map")
     f1.id must be(1)
@@ -44,5 +46,40 @@ class ThriftStructMetaDataSpec extends Spec {
     f4.`type` must be(TType.I32)
     f4.manifest must be(Some(implicitly[Manifest[Int]]))
     f4.getValue[Int](s) must be(123)
+  }
+
+  "fieldInfos" in {
+    (XtructColl.fieldInfos zip fields).foreach { pairs =>
+      val (info, field) = pairs
+      info.tfield.name must be(field.name)
+      // All of the XtructColl fields are required
+      info.isOptional must be(false)
+
+      field.id match {
+        case 1 =>
+          info.manifest must be(implicitly[Manifest[Map[Int, Long]]])
+          info.keyManifest must be(Some(implicitly[Manifest[Int]]))
+          info.valueManifest must be(Some(implicitly[Manifest[Long]]))
+        case 2 =>
+          info.manifest must be(implicitly[Manifest[Seq[String]]])
+          info.keyManifest must be(None)
+          info.valueManifest must be(Some(implicitly[Manifest[String]]))
+        case 3 =>
+          info.manifest must be(implicitly[Manifest[Set[Byte]]])
+          info.keyManifest must be(None)
+          info.valueManifest must be(Some(implicitly[Manifest[Byte]]))
+        case 4 =>
+          info.manifest must be(implicitly[Manifest[Int]])
+          info.keyManifest must be(None)
+          info.valueManifest must be(None)
+        case _ =>
+          throw new Exception("Unexpected field")
+      }
+    }
+
+    // All of the OneOfEachOptional fields are optional:
+    OneOfEachOptional.fieldInfos.foreach { fieldInfo =>
+      fieldInfo.isOptional must be(true)
+    }
   }
 }

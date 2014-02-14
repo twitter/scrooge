@@ -2,7 +2,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -26,6 +26,31 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/isEnum}}
   val {{fieldConst}}Manifest = implicitly[Manifest[{{fieldType}}]]
 {{/fields}}
+
+  /**
+   * Field information in declaration order.
+   */
+  lazy val fieldInfos: scala.List[ThriftStructFieldInfo] = scala.List[ThriftStructFieldInfo](
+{{#fields}}
+    new ThriftStructFieldInfo(
+      {{fieldConst}},
+      {{optional}},
+      {{fieldConst}}Manifest,
+{{#fieldKeyType}}
+      Some(implicitly[Manifest[{{fieldKeyType}}]]),
+{{/fieldKeyType}}
+{{^fieldKeyType}}
+      None,
+{{/fieldKeyType}}
+{{#fieldValueType}}
+      Some(implicitly[Manifest[{{fieldValueType}}]])
+{{/fieldValueType}}
+{{^fieldValueType}}
+      None
+{{/fieldValueType}}
+    )
+{{/fields|,}}
+  )
 
   /**
    * Checks that all required fields are non-null.

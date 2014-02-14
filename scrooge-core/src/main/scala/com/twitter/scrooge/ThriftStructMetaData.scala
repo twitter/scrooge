@@ -20,6 +20,7 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
       }.
       mkString
   }
+
   /**
    * The Class object for the ThriftStructCodec subclass.
    */
@@ -83,3 +84,16 @@ final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method:
    */
   def getValue[R](struct: T): R = method.invoke(struct).asInstanceOf[R]
 }
+
+/**
+ * Field information to be embedded in a generated struct's companion class.
+ * Allows for reflection on field types.
+ */
+final class ThriftStructFieldInfo(
+  val tfield: TField,
+  val isOptional: Boolean,
+  val manifest: Manifest[_],
+  val keyManifest: scala.Option[Manifest[_]],
+  val valueManifest: scala.Option[Manifest[_]]
+)
+

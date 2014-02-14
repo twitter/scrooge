@@ -1,7 +1,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftUtil}
+  TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
