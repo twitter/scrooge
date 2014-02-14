@@ -119,7 +119,7 @@
     <dependency>
       <groupId>com.github.spullara.mustache.java</groupId>
       <artifactId>compiler</artifactId>
-      <version>0.8.12</version>
+      <version>0.8.12.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
