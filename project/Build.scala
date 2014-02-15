@@ -6,7 +6,7 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 object Scrooge extends Build {
   val libVersion = "3.12.2"
   val utilVersion = "6.12.0"
-  val finagleVersion = "6.11.1"
+  val finagleVersion = "6.12.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
