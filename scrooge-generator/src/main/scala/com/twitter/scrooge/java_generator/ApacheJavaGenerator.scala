@@ -25,10 +25,10 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
   ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace)
 }
 
-class ApacheJavaGenerator(
+case class ApacheJavaGenerator(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
-    val genHashcode: Boolean = true // Defaulting to true for pants.
+    genHashcode: Boolean = true // Defaulting to true for pants.
   ) extends ThriftGenerator {
   var counter = 0
 

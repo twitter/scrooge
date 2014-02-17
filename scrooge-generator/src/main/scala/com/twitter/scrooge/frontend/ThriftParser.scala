@@ -105,13 +105,19 @@ class ThriftParser(
   // ride hand side (RHS)
 
   lazy val rhs: Parser[RHS] = {
-    numberLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS |
+    boolLiteral | numberLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS | 
       failure("constant expected")
   }
 
   lazy val intConstant = "[-+]?\\d+(?!\\.)".r ^^ {
     x => IntLiteral(x.toLong)
   }
+
+  lazy val trueLiteral = "true" ^^^ BoolLiteral(true)
+
+  lazy val falseLiteral = "false" ^^^ BoolLiteral(false)
+
+  lazy val boolLiteral = trueLiteral | falseLiteral
 
   lazy val numberLiteral = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ {
     x =>
@@ -194,7 +200,8 @@ class ThriftParser(
         val transformedVal = ftype match {
           case TBool => value map {
             case IntLiteral(0) => BoolLiteral(false)
-            case _ => BoolLiteral(true)
+            case IntLiteral(_) => BoolLiteral(true)
+            case other => other
           }
           case _ => value
         }

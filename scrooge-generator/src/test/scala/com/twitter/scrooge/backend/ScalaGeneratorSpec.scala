@@ -215,6 +215,15 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       ))
     }
 
+    "assign complex defaults" in {_ =>
+      val innerDefaultedValue = InnerDefaultedValue(firstBoolean = true, secondBoolean = false, innerStringValue = "innerDefaultedStringValue")
+      thrift.test.StructWithDefaults() must be(StructWithDefaults(stringValue = "defaultedStringValue", intValue = 90909, innerValue = innerDefaultedValue))
+    }
+
+    "assign simple defaults" in {_ =>
+      SimpleDefaults() must be (SimpleDefaults(requiredTrueBool = true, requiredFalseBool = false, optionalTrueBool = true, optionalFalseBool = false))
+    }
+
     "basic structs" should {
       "ints" should {
         "read" in { cycle => import cycle._
