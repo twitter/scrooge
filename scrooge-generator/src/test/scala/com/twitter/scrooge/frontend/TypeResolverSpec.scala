@@ -151,27 +151,24 @@ class TypeResolverSpec extends Spec {
       }
     }
 
-    "throw a TypeMismatchException for a StructType with a MapRHS if resolver allowStructRHS disabled" in {
-      val structType = StructType(Struct(SimpleID("Test"), "test", Seq(), None, Map.empty))
-      intercept[TypeMismatchException] {
-        resolver(MapRHS(Seq((StringLiteral("foo"), StringLiteral("bar")))), structType)
-      }
-    }
-
-    "allow a valid MapRHS for a StructType if resolver allowStructRHS enabled" in {
-      val resolver = TypeResolver(allowStructRHS = true)
+    "allow a valid MapRHS for a StructType" in {
+      val resolver = TypeResolver()
       val testStruct1 = createStruct("Test1", TI32)
       val testStruct2 = createStruct("Test2", StructType(testStruct1))
       val structType = StructType(testStruct2)
       val mapRHS = MapRHS(Seq((StringLiteral("Test1_field"), IntLiteral(3))))
       val mapRHS1 = MapRHS(Seq((StringLiteral("Test2_field"), mapRHS)))
       val value = resolver(mapRHS1, structType)
-      val structElems = Map(SimpleID("Test2_field") -> StructRHS(elems = Map(SimpleID("Test1_field") -> IntLiteral(3))))
-      value must be(StructRHS(elems = structElems))
+      val expectedValue = StructRHS(Map(
+        SimpleID("Test2_field") -> StructRHS(Map(SimpleID("Test1_field") -> IntLiteral(3)),Map(SimpleID("Test1_field") -> TI32))
+      ),Map(
+        SimpleID("Test2_field") -> StructType(Struct(SimpleID("Test1"),"Test1",List(Field(1,SimpleID("Test1_field"),"Test1_field",TI32,None,Requiredness.Default,Map(),Map())),None,Map()),None)
+      ))
+      value must be(expectedValue)
     }
 
     "throw a TypeMismatchException if invalid MapRHS passed in for a StructType" in {
-      val resolver = TypeResolver(allowStructRHS = true)
+      val resolver = TypeResolver()
       val structType = StructType(createStruct("Test1", TString))
       val mapRHS = MapRHS(Seq((StringLiteral("invalid_field"), StringLiteral("Hello"))))
       intercept[TypeMismatchException] {

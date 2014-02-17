@@ -80,7 +80,25 @@ class ThriftParserSpec extends Spec {
           Field(-1, SimpleID("id"), "id", TI32, None, Requiredness.Optional),
           Field(3, SimpleID("name"), "name", TString, Some(StringLiteral("cat")), Requiredness.Required)
         ), Seq(Field(1, SimpleID("ex"), "ex", ReferenceType(Identifier("Exception")), None, Requiredness.Default)), None))
-    }
+      parser.parse(
+        """list<string> get_tables(optional i32 id, /**DOC*/3: required User user = {"name": "dave", "yesOrNo": true}) throws (1: Exception ex);""",
+        parser.function) must be(
+          Function(
+            SimpleID("get_tables"),
+            "get_tables",
+            ListType(TString,None),
+            List(
+              Field(-1,SimpleID("id"),"id",TI32,None,Requiredness.Optional,Map(),Map()), 
+              Field(3,SimpleID("user"),"user",ReferenceType(SimpleID("User")),Some(MapRHS(List(
+                (StringLiteral("name"),StringLiteral("dave")),
+                (StringLiteral("yesOrNo"),BoolLiteral(true))
+              ))),Requiredness.Required,Map(),Map())
+            ),
+            List(Field(1,SimpleID("ex"),"ex",ReferenceType(SimpleID("Exception")),None,Requiredness.Default,Map(),Map())),
+            None
+          )
+        )
+     }
 
     "const" in {
       parser.parse("/** COMMENT */ const string name = \"Columbo\"", parser.definition) must be(ConstDefinition(SimpleID("name"),

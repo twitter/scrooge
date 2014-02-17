@@ -523,6 +523,29 @@ struct LargeDeltas {
   4000: list<i32> big_numbers
 }
 
+struct SimpleDefaults {
+  1:required bool requiredTrueBool = true;
+  2:required bool requiredFalseBool = false;
+  3:optional bool optionalTrueBool = true;
+  4:optional bool optionalFalseBool = false;
+}
+
+struct InnerDefaultedValue {
+  1:bool firstBoolean;
+  2:bool secondBoolean;
+  3:string innerStringValue;
+}
+
+struct StructWithDefaults {
+  1:string stringValue = "defaultedStringValue"
+  2:i32 intValue = 90909
+  3:InnerDefaultedValue innerValue = {"firstBoolean": true, "secondBoolean": false, "innerStringValue": "innerDefaultedStringValue"}
+}
+
+service ServiceWithDefaults {
+  void defaultedService(1:StructWithDefaults structWithDefaults = {"stringValue": "anotherDefaultedStringValue"}, 2:bool firstBoolParameter = true, 3:bool secondBoolParameter = false, 4:string stringParameter = "stringParameterDefault");
+}
+
 service ReadOnlyService {
   string getName()
 }

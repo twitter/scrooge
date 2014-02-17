@@ -117,7 +117,7 @@ trait Generator
         case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
         case _ => true
       }
-      )
+    )
   }
 
   /**
@@ -169,18 +169,22 @@ trait Generator
     case QualifiedID(names) => codify(names.map { quoteKeyword(_) }.mkString("."))
   }
 
-  def genConstant(constant: RHS, mutable: Boolean = false): CodeFragment = {
-    constant match {
-      case NullLiteral => codify("null")
-      case StringLiteral(value) => codify(quote(value))
-      case DoubleLiteral(value) => codify(value.toString)
-      case IntLiteral(value) => codify(value.toString)
-      case BoolLiteral(value) => codify(value.toString)
-      case c@ListRHS(_) => genList(c, mutable)
-      case c@SetRHS(_) => genSet(c, mutable)
-      case c@MapRHS(_) => genMap(c, mutable)
-      case c: EnumRHS => genEnum(c)
-      case iv@IdRHS(id) => genID(id)
+  def genConstant(constant: RHS, mutable: Boolean = false, optionalFieldType: Option[FieldType] = None): CodeFragment = {
+    (constant, optionalFieldType) match {
+      case (NullLiteral, _) => codify("null")
+      case (StringLiteral(value), _) => codify(quote(value))
+      case (DoubleLiteral(value), _) => codify(value.toString)
+      case (IntLiteral(value), _) => codify(value.toString)
+      case (BoolLiteral(value), _) => codify(value.toString)
+      case (c@ListRHS(_), _) => genList(c, mutable)
+      case (c@SetRHS(_), _) => genSet(c, mutable)
+      case (c@MapRHS(_), _) => genMap(c, mutable)
+      case (c: EnumRHS, _) => genEnum(c)
+      case (iv@IdRHS(id), _) => genID(id)
+      case (struct@ StructRHS(elems, typeMappings), Some(fieldType@ StructType(Struct(fieldID, _, _, _,_), _))) => {
+        genStruct(fieldID, fieldType, elems, typeMappings, mutable)
+      }
+      case (struct@ StructRHS(_, _), None) => throw new ScroogeInternalException("No field type for StructRHS: " + struct)
     }
   }
 
@@ -189,6 +193,8 @@ trait Generator
   def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment
 
   def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
+
+  def genStruct(fieldID: SimpleID, fieldType: FieldType, elems: Map[SimpleID, RHS], typeMappings: Map[SimpleID, FieldType], mutable: Boolean = false): CodeFragment
 
   def genEnum(enum: EnumRHS): CodeFragment
 
@@ -206,10 +212,12 @@ trait Generator
   }
 
   def genDefaultFieldValue(f: Field): Option[CodeFragment] = {
-    if (f.requiredness.isOptional) {
-      None
-    } else {
-      f.default.map(genConstant(_, false)) orElse {
+    f.default.map{defaultValue =>
+      genConstant(defaultValue, false, Some(f.fieldType))
+    }.orElse{
+      if (f.requiredness.isOptional) {
+        None
+      } else {
         if (f.fieldType.isInstanceOf[ContainerType]) {
           Some(genDefaultValue(f.fieldType))
         } else {

@@ -30,10 +30,10 @@ object JavaGeneratorFactory extends GeneratorFactory {
   ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, generationDate)
 }
 
-class JavaGenerator(
-  val includeMap: Map[String, ResolvedDocument],
-  val defaultNamespace: String,
-  val generationDate: String
+case class JavaGenerator(
+  includeMap: Map[String, ResolvedDocument],
+  defaultNamespace: String,
+  generationDate: String
 ) extends Generator with ThriftGenerator {
 
   val fileExtension = ".java"
@@ -114,6 +114,10 @@ class JavaGenerator(
         "Utilities.makeTuple(" + genConstant(k).toData + ", " + genConstant(v).toData + ")"
     } mkString (", ")) + ")"
     codify(code)
+  }
+
+  def genStruct(fieldID: SimpleID, fieldType: FieldType, elems: Map[SimpleID, RHS], typeMappings: Map[SimpleID, FieldType], mutable: Boolean = false): CodeFragment = {
+    genDefaultValue(fieldType, mutable)
   }
 
   def genEnum(enum: EnumRHS): CodeFragment =
