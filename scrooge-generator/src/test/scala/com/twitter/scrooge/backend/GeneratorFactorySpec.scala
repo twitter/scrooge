@@ -8,15 +8,14 @@ class TestGeneratorFactory extends GeneratorFactory {
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
-    generationDate: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, experimentFlags)
+  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, experimentFlags)
 }
 
 class GeneratorFactorySpec extends Spec {
   "GeneratorFactory" should {
     "be loadable" in {
-      val generator = Generator("test", Map.empty[String, ResolvedDocument], "", "", Seq.empty[String])
+      val generator = Generator("test", Map.empty[String, ResolvedDocument], "", Seq.empty[String])
       generator.isInstanceOf[ScalaGenerator] must be(true)
     }
   }

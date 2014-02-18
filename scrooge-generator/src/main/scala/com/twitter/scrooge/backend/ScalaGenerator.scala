@@ -26,15 +26,13 @@ object ScalaGeneratorFactory extends GeneratorFactory {
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
-    generationDate: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, generationDate, experimentFlags)
+  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, experimentFlags)
 }
 
 class ScalaGenerator(
   val includeMap: Map[String, ResolvedDocument],
   val defaultNamespace: String,
-  val generationDate: String,
   val experimentFlags: Seq[String]
 ) extends Generator with ThriftGenerator {
 

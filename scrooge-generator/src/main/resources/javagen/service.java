@@ -34,7 +34,7 @@ import org.apache.thrift.transport.TTransport;
 {{/withFinagle}}
 
 {{docstring}}
-@javax.annotation.Generated(value = "com.twitter.scrooge.Compiler", date = "{{date}}")
+@javax.annotation.Generated(value = "com.twitter.scrooge.Compiler")
 public class {{ServiceName}} {
   public interface Iface {{#syncParent}}extends {{syncParent}} {{/syncParent}}{
 {{#syncFunctions}}

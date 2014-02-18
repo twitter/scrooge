@@ -281,8 +281,7 @@ trait StructTemplate {
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
-      "withTrait" -> v(isStruct),
-      "date" -> codify(generationDate)
+      "withTrait" -> v(isStruct)
     )
   }
 }

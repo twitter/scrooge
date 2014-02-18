@@ -13,7 +13,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 {{docstring}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleService(
   iface: {{ServiceName}}[Future],
   protocolFactory: TProtocolFactory

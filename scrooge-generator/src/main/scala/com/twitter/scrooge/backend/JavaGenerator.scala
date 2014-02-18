@@ -25,15 +25,13 @@ object JavaGeneratorFactory extends GeneratorFactory {
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
-    generationDate: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, generationDate)
+  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace)
 }
 
 class JavaGenerator(
   val includeMap: Map[String, ResolvedDocument],
-  val defaultNamespace: String,
-  val generationDate: String
+  val defaultNamespace: String
 ) extends Generator with ThriftGenerator {
 
   val fileExtension = ".java"

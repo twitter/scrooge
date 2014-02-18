@@ -11,11 +11,11 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 {{/public}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 sealed trait {{StructName}} extends {{parentType}}
 
 {{docstring}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   val Union = new TStruct("{{StructNameForWire}}")
 {{#fields}}
