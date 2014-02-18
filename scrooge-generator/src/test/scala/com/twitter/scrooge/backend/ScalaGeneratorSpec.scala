@@ -141,6 +141,23 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         EnumUnion.decode(prot) must be(eUnion)
       }
 
+      "encode-decode union with unknown field" in { _ =>
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        val unionField = NewUnionField(
+          14653230,
+          SomeInnerUnionStruct(26, "a_a")
+        )
+        val newUnion = UnionPostEvolution.NewField(unionField)
+        UnionPostEvolution.encode(newUnion, prot)
+        val decoded = UnionPreEvolution.decode(prot)
+        decoded.isInstanceOf[UnionPreEvolution.UnknownUnionField] must be(true)
+
+        val oldProt = new TBinaryProtocol(new TMemoryBuffer(64))
+        UnionPreEvolution.encode(decoded, oldProt)
+        val decodedNew = UnionPostEvolution.decode(oldProt)
+        decodedNew must be(UnionPostEvolution.NewField(unionField))
+      }
+
       "be identified as an ENUM" in { _ =>
         EnumStruct.NumberField.`type` must be(TType.ENUM)
       }

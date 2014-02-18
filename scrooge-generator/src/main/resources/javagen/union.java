@@ -29,7 +29,8 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
   public enum Field {
 {{#fields}}
     {{FIELD_NAME}}{{/fields|,
-}}
+}},
+UNKNOWN_UNION_VALUE;
 
   }
 
@@ -53,6 +54,9 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
 {{/readWriteInfo}}
 {{/fields}}
         default:
+          if (_field.type != TType.STOP) {
+            result = new {{StructName}}();
+          }
           TProtocolUtil.skip(_iprot, _field.type);
       }
       if (_field.type != TType.STOP) {
@@ -91,6 +95,13 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}} implements T
 
   public static void encode({{StructName}} struct, TProtocol oprot) throws org.apache.thrift.TException {
     CODEC.encode(struct, oprot);
+  }
+
+  private {{StructName}}() {
+    this.setField = Field.UNKNOWN_UNION_VALUE;
+    {{#fields}}
+    this.{{fieldName}} = null;
+    {{/fields}}
   }
 
   public {{StructName}}(

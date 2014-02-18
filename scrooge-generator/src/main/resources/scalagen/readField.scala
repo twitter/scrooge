@@ -9,7 +9,6 @@ _field.`type` match {
 {{#required}}
     {{gotName}} = true
 {{/required}}
-    _readField = true
   }
   case _ => // skip
 }

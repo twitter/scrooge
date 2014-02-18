@@ -90,7 +90,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       if (_field.`type` == TType.STOP) {
         _done = true
       } else {
-        var _readField = false
         _field.id match {
 {{#fields}}
           case {{id}} =>
@@ -100,10 +99,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
             _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
-            _readField = true
-        }
-        if (!_readField) {
-          TProtocolUtil.skip(_iprot, _field.`type`)
         }
         _iprot.readFieldEnd()
       }

@@ -295,10 +295,15 @@ class ThriftParser(
       Struct(sid, sid.name, fixFieldIds(fields), comment, annotations)
   }
 
+  private[this] val disallowedUnionFieldNames = Set("unknown_union_field", "unknownunionfield") map { _.toLowerCase }
+
   lazy val union = structLike("union") ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       val fields0 = fields.map {
-        case f @ Field(_, _, _, _, _, r, _, _) if r == Requiredness.Default => f
+        case f @ Field(_, _, _, _, _, r, _, _) if r == Requiredness.Default =>
+          if (disallowedUnionFieldNames.contains(f.sid.name.toLowerCase)) {
+            throw new UnionFieldInvalidNameException(sid.name, f.sid.name)
+          } else f
         case f @ _ =>
           failOrWarn(UnionFieldRequirednessException(sid.name, f.sid.name, f.requiredness.toString))
           f.copy(requiredness = Requiredness.Default)

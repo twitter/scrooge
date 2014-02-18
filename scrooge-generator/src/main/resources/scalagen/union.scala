@@ -1,7 +1,7 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, TFieldBlob}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -36,7 +36,12 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       {{>readUnionField}}
 {{/readWriteInfo}}
 {{/fields}}
-      case _ => TProtocolUtil.skip(_iprot, _field.`type`)
+      case _ =>
+        if (_field.`type` != TType.STOP) {
+          _result = UnknownUnionField(TFieldBlob.read(_field, _iprot))
+        } else {
+          TProtocolUtil.skip(_iprot, _field.`type`)
+        }
     }
     if (_field.`type` != TType.STOP) {
       _iprot.readFieldEnd()
@@ -79,4 +84,13 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
     }
   }
 {{/fields}}
+
+  case class UnknownUnionField private[{{StructName}}](private val field: TFieldBlob) extends {{StructName}} {
+    override def write(_oprot: TProtocol) {
+      _oprot.writeStructBegin(Union)
+      field.write(_oprot)
+      _oprot.writeFieldStop()
+      _oprot.writeStructEnd()
+    }
+  }
 }
