@@ -43,14 +43,46 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       None,
 {{/fieldKeyType}}
 {{#fieldValueType}}
-      Some(implicitly[Manifest[{{fieldValueType}}]])
+      Some(implicitly[Manifest[{{fieldValueType}}]]),
 {{/fieldValueType}}
 {{^fieldValueType}}
-      None
+      None,
 {{/fieldValueType}}
+{{#fieldTypeAnnotations}}
+      immutable$Map(
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+      ),
+{{/fieldTypeAnnotations}}
+{{^fieldTypeAnnotations}}
+      immutable$Map.empty[String, String],
+{{/fieldTypeAnnotations}}
+{{#fieldFieldAnnotations}}
+      immutable$Map(
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+      )
+{{/fieldFieldAnnotations}}
+{{^fieldFieldAnnotations}}
+      immutable$Map.empty[String, String]
+{{/fieldFieldAnnotations}}
     )
 {{/fields|,}}
   )
+
+  lazy val structAnnotations: immutable$Map[String, String] =
+{{#structAnnotations}}
+    immutable$Map[String, String](
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+    )
+{{/structAnnotations}}
+{{^structAnnotations}}
+    immutable$Map.empty[String, String]
+{{/structAnnotations}}
 
   /**
    * Checks that all required fields are non-null.

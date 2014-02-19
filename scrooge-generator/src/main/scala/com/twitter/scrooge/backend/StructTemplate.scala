@@ -142,6 +142,8 @@ trait StructTemplate {
             case SetType(valueType, _) => Some(genType(valueType))
             case _ => None
           }),
+          "fieldTypeAnnotations" -> v(StructTemplate.renderPairs(field.typeAnnotations)),
+          "fieldFieldAnnotations" -> v(StructTemplate.renderPairs(field.fieldAnnotations)),
           "isImported" -> v(field.fieldType match {
             case n: NamedType => n.scopePrefix.isDefined
             case _ => false
@@ -281,7 +283,22 @@ trait StructTemplate {
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
-      "withTrait" -> v(isStruct)
+      "withTrait" -> v(isStruct),
+      "structAnnotations" -> v(StructTemplate.renderPairs(struct.annotations))
     )
   }
 }
+
+object StructTemplate {
+  /**
+   * Renders a map as:
+   *   Dictionary("pairs" -> ListValue(Seq(Dictionary("key" -> ..., "value" -> ...)))
+   */
+  def renderPairs(pairs: Map[String, String]): Dictionary = {
+    val pairDicts: Seq[Dictionary] = (pairs.map { kv =>
+      Dictionary("key" -> codify(kv._1), "value" -> codify(kv._2))
+    } toSeq)
+    Dictionary("pairs" -> v(pairDicts))
+  }
+}
+

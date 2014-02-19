@@ -94,6 +94,29 @@ final class ThriftStructFieldInfo(
   val isOptional: Boolean,
   val manifest: Manifest[_],
   val keyManifest: scala.Option[Manifest[_]],
-  val valueManifest: scala.Option[Manifest[_]]
-)
+  val valueManifest: scala.Option[Manifest[_]],
+  val typeAnnotations: Map[String, String],
+  val fieldAnnotations: Map[String, String]
+) {
+  /**
+   * Secondary constructor provided for backwards compatibility:
+   * Older scrooge-generator does not produce annotations.
+   */
+  def this(
+    tfield: TField,
+    isOptional: Boolean,
+    manifest: Manifest[_],
+    keyManifest: scala.Option[Manifest[_]],
+    valueManifest: scala.Option[Manifest[_]]
+  ) =
+    this(
+      tfield,
+      isOptional,
+      manifest,
+      keyManifest,
+      valueManifest,
+      Map.empty[String, String],
+      Map.empty[String, String]
+    )
+}
 

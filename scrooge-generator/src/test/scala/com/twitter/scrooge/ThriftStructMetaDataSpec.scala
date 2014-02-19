@@ -3,6 +3,7 @@ package com.twitter.scrooge
 import com.twitter.scrooge.testutil.Spec
 import org.apache.thrift.protocol.TType
 import scala.collection.{Map, Set}
+import scrooge.test.annotations.thriftscala._
 import thrift.test._
 
 // This is a cross project test and I feel bad for putting it here
@@ -81,5 +82,59 @@ class ThriftStructMetaDataSpec extends Spec {
     OneOfEachOptional.fieldInfos.foreach { fieldInfo =>
       fieldInfo.isOptional must be(true)
     }
+  }
+
+  // XtructColl has no annotations:
+
+  "reports no annotations in field infos" in {
+    val info = XtructColl.fieldInfos(0)
+    info.tfield.name must be("a_map")
+    info.typeAnnotations must be(Map.empty[String, String])
+    info.fieldAnnotations must be(Map.empty[String, String])
+  }
+
+  "reports no struct annotations" in {
+    XtructColl.structAnnotations must be(Map.empty[String, String])
+  }
+
+  // AnnoStruct has one annotation in each position:
+
+  "reports single annotations in field infos" in {
+    val info = AnnoStruct.fieldInfos(0)
+    info.tfield.name must be("structField")
+    info.typeAnnotations must be(Map(
+      "structTypeKey" -> "structTypeValue"
+    ))
+    info.fieldAnnotations must be(Map(
+      "structFieldKey" -> "structFieldValue"
+    ))
+  }
+
+  "reports single struct annotations" in {
+    AnnoStruct.structAnnotations must be(Map(
+      "structKey" -> "structValue"
+    ))
+  }
+
+  // MultiAnnoStruct has two annotations in each position:
+
+  "reports multiple annotations in field infos" in {
+    val info = MultiAnnoStruct.fieldInfos(0)
+    info.tfield.name must be("multiStructField")
+    info.typeAnnotations must be(Map(
+      "structTypeKey1" -> "structTypeValue1",
+      "structTypeKey2" -> "structTypeValue2"
+    ))
+    info.fieldAnnotations must be(Map(
+      "structFieldKey1" -> "structFieldValue1",
+      "structFieldKey2" -> "structFieldValue2"
+    ))
+  }
+
+  "reports multiple struct annotations" in {
+    MultiAnnoStruct.structAnnotations must be(Map(
+      "structKey1" -> "structValue1",
+      "structKey2" -> "structValue2"
+    ))
   }
 }
