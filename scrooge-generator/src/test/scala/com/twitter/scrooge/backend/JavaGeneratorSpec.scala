@@ -574,6 +574,23 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
         // no write test because it's not possible
       }
 
+      "unknown field" should {
+        "read as unknown" in { _ =>
+          val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+          val unionField = new NewUnionField(
+            14653230,
+            new SomeInnerUnionStruct(26, "a_a")
+          )
+          val newUnion = UnionPostEvolution.newNewField(unionField)
+          UnionPostEvolution.encode(newUnion, prot)
+          val decoded = UnionPreEvolution.decode(prot)
+
+          // work around weird error when trying to reference java enums from scala.
+          // java.lang.AssertionError: thrift/java_test/UnionPreEvolution$AnotherName already declared as ch.epfl.lamp.fjbg.JInnerClassesAttribute$Entry@3ac8b10
+          decoded.setField.toString must be("UNKNOWN_UNION_VALUE")
+        }
+      }
+
       "nested struct" should {
         "read" in { cycle => import cycle._
           val protocol = mock[TProtocol]

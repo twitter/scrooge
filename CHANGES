@@ -6,6 +6,20 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.12.3
+~~~~~
+
+- scrooge: add the thrift root to the list of includes for scrooge
+- scrooge: Automatically whitelist all idl jar dependencies
+- scrooge: fixed issue when default value is enum from other namespace where namespace is missing in generated code
+- scrooge: Update mustache to 0.8.13
+- scrooge: update util to 6.12.0
+- scrooge: update finagle to 6.12.1
+- scrooge: update util to 6.12.1
+- scrooge: add extra fields to generated companion object for reflection use
+- scrooge: capture unknown union values as its own value (THRIFT-99)
+- scrooge: Update scrooge to remove date from Generated annotation so generated code is reproducible.
+
 3.12.2
 ~~~~~
 

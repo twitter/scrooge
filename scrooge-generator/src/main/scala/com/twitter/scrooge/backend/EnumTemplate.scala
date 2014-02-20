@@ -22,7 +22,6 @@ trait EnumTemplate {
             "unquotedNameLowerCase" -> codify(value.sid.fullName.toLowerCase),
             "value" -> codify(value.value.toString)
           )
-      }),
-      "date" -> codify(generationDate)
+      })
     )
 }

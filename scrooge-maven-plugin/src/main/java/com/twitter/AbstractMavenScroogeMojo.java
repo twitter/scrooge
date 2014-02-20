@@ -219,6 +219,12 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           Set<File> includes = thriftIncludes;
           includes.add(getResourcesOutputDirectory());
 
+          // Include thrift root
+          final File thriftSourceRoot = getThriftSourceRoot();
+          if (thriftSourceRoot != null && thriftSourceRoot.exists()) {
+            includes.add(thriftSourceRoot);
+          }
+
           runner.compile(
                   getLog(),
                   new File(outputDirectory, "scrooge"),
@@ -317,7 +323,9 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       // This artifact is on the whitelist directly.
       if (whitelist.contains(artifact.getArtifactId())) {
         thriftDependencies.add(artifact);
-
+      // This artifact has an IDL classifier, whitelist it
+      } else if ("idl".equalsIgnoreCase(artifact.getClassifier())) {
+        thriftDependencies.add(artifact);
       // Check if this artifact is being pulled in by an idl jar that's been whitelisted
       } else {
         List<String> depTrail = artifact.getDependencyTrail();

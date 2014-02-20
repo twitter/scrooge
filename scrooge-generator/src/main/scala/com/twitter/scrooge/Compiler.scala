@@ -20,8 +20,6 @@ import scala.collection.mutable
 import java.io.{File, FileWriter}
 import com.twitter.scrooge.backend.{Generator, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
-import org.apache.commons.lang.time.FastDateFormat
-import java.util.Date
 
 class Compiler {
   val defaultDestFolder = "."
@@ -40,7 +38,6 @@ class Compiler {
   var language: String = "scala"
   var defaultNamespace: String = "thrift"
   var scalaWarnOnJavaNSFallback: Boolean = false
-  val now: String = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
 
   def run() {
     // if --gen-file-map is specified, prepare the map file.
@@ -70,7 +67,6 @@ class Compiler {
         language,
         resolvedDoc.resolver.includeMap,
         defaultNamespace,
-        now,
         experimentFlags)
 
       generator match {

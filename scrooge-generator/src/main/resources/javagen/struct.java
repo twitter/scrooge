@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 {{docstring}}
-@javax.annotation.Generated(value = "com.twitter.scrooge.Compiler", date = "{{date}}")
+@javax.annotation.Generated(value = "com.twitter.scrooge.Compiler")
 public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isException}} extends Exception{{/isException}} implements ThriftStruct {
   private static final TStruct STRUCT = new TStruct("{{StructNameForWire}}");
 {{#fields}}

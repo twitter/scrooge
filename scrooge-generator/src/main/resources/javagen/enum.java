@@ -1,7 +1,7 @@
 package {{package}};
 
 {{docstring}}
-@javax.annotation.Generated(value = "com.twitter.scrooge.Compiler", date = "{{date}}")
+@javax.annotation.Generated(value = "com.twitter.scrooge.Compiler")
 public enum {{EnumName}} {
 {{#values}}
   {{valuedocstring}}

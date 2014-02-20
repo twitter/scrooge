@@ -2,7 +2,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftUtil}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -26,6 +26,31 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/isEnum}}
   val {{fieldConst}}Manifest = implicitly[Manifest[{{fieldType}}]]
 {{/fields}}
+
+  /**
+   * Field information in declaration order.
+   */
+  lazy val fieldInfos: scala.List[ThriftStructFieldInfo] = scala.List[ThriftStructFieldInfo](
+{{#fields}}
+    new ThriftStructFieldInfo(
+      {{fieldConst}},
+      {{optional}},
+      {{fieldConst}}Manifest,
+{{#fieldKeyType}}
+      Some(implicitly[Manifest[{{fieldKeyType}}]]),
+{{/fieldKeyType}}
+{{^fieldKeyType}}
+      None,
+{{/fieldKeyType}}
+{{#fieldValueType}}
+      Some(implicitly[Manifest[{{fieldValueType}}]])
+{{/fieldValueType}}
+{{^fieldValueType}}
+      None
+{{/fieldValueType}}
+    )
+{{/fields|,}}
+  )
 
   /**
    * Checks that all required fields are non-null.
@@ -65,7 +90,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       if (_field.`type` == TType.STOP) {
         _done = true
       } else {
-        var _readField = false
         _field.id match {
 {{#fields}}
           case {{id}} =>
@@ -75,10 +99,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
             _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
-            _readField = true
-        }
-        if (!_readField) {
-          TProtocolUtil.skip(_iprot, _field.`type`)
         }
         _iprot.readFieldEnd()
       }

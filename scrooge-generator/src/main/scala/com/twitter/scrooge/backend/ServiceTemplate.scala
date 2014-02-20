@@ -90,7 +90,6 @@ trait ServiceTemplate {
     Dictionary(
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
-      "date" -> codify(generationDate),
       "docstring" -> codify(service.docstring.getOrElse("")),
       "hasParent" -> v(service.parent.isDefined),
       "finagleClientParent" ->
@@ -126,7 +125,6 @@ trait ServiceTemplate {
     Dictionary(
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
-      "date" -> codify(generationDate),
       "docstring" -> codify(service.docstring.getOrElse("")),
       "hasParent" -> v(service.parent.isDefined),
       "finagleServiceParent" ->
@@ -205,8 +203,7 @@ trait ServiceTemplate {
       "finagleServices" -> v(
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
-      "withFinagle" -> v(withFinagle),
-      "date" -> codify(generationDate)
+      "withFinagle" -> v(withFinagle)
     )
   }
 }

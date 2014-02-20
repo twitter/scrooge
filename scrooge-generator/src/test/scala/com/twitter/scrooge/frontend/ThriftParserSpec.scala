@@ -214,6 +214,18 @@ enum Foo
           Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default)
         ), None, Map.empty))
       }
+
+      "invalid field name" in {
+        intercept[UnionFieldInvalidNameException] {
+          parser.parse("""
+            union Fruit {
+              1: Apple apple
+              2: Banana banana
+              3: UnknownFruit unknown_union_field
+            }
+          """, parser.definition)
+        }
+      }
     }
 
     "exception" in {

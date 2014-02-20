@@ -132,6 +132,16 @@ trait StructTemplate {
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
           "primitiveFieldType" -> genPrimitiveType(field.fieldType, mutable = false),
           "fieldType" -> genType(field.fieldType, mutable = false),
+          "fieldKeyType" -> v(field.fieldType match {
+            case MapType(keyType, _, _) => Some(genType(keyType))
+            case _ => None
+          }),
+          "fieldValueType" -> v(field.fieldType match {
+            case MapType(_, valueType, _) => Some(genType(valueType))
+            case ListType(valueType, _) => Some(genType(valueType))
+            case SetType(valueType, _) => Some(genType(valueType))
+            case _ => None
+          }),
           "isImported" -> v(field.fieldType match {
             case n: NamedType => n.scopePrefix.isDefined
             case _ => false
@@ -271,8 +281,7 @@ trait StructTemplate {
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
-      "withTrait" -> v(isStruct),
-      "date" -> codify(generationDate)
+      "withTrait" -> v(isStruct)
     )
   }
 }

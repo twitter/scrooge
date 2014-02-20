@@ -1,7 +1,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftUtil}
+  TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
@@ -16,7 +16,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 {{docstring}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/genericParent}}{
 {{#genericFunctions}}
   {{>function}}

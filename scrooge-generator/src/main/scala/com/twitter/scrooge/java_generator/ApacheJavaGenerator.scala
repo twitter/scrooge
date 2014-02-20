@@ -20,7 +20,6 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
-    generationDate: String,
     experimentFlags: Seq[String]
   ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace)
 }

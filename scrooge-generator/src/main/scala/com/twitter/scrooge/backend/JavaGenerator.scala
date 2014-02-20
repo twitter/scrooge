@@ -25,15 +25,13 @@ object JavaGeneratorFactory extends GeneratorFactory {
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
-    generationDate: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, generationDate)
+  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace)
 }
 
 class JavaGenerator(
   val includeMap: Map[String, ResolvedDocument],
-  val defaultNamespace: String,
-  val generationDate: String
+  val defaultNamespace: String
 ) extends Generator with ThriftGenerator {
 
   val fileExtension = ".java"
@@ -116,8 +114,13 @@ class JavaGenerator(
     codify(code)
   }
 
-  def genEnum(enum: EnumRHS): CodeFragment =
-    genID(enum.value.sid.toUpperCase.addScope(enum.enum.sid.toTitleCase))
+  def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+    def getTypeId: Identifier = fieldType.getOrElse(Void) match {
+      case n: NamedType => qualifyNamedType(n)
+      case _ =>  enum.enum.sid
+    }
+    genID(enum.value.sid.toUpperCase.addScope(getTypeId.toTitleCase))
+  }
 
   /**
    * Generates a suffix to append to a field expression that will
