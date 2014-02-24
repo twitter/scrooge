@@ -476,6 +476,27 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             }
           }
         }
+
+        "wrong type" should {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
+
+          protocol.writeStructBegin(new TStruct("test"))
+          protocol.writeFieldBegin(new TField("number", TType.I32, 1))
+          protocol.writeI32(4000)
+          protocol.writeFieldEnd()
+          protocol.writeFieldStop()
+          protocol.writeStructEnd()
+
+          "throw an exception" in { _ =>
+            val ex = intercept[TProtocolException] {
+              RequiredString.decode(protocol)
+            }
+
+            ex.toString.contains("value") must be(true)
+            ex.toString.contains("actual=I32") must be(true)
+            ex.toString.contains("expected=STRING") must be(true)
+          }
+        }
       }
 
       "with optional fields" should {
