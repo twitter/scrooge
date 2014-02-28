@@ -43,14 +43,46 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       None,
 {{/fieldKeyType}}
 {{#fieldValueType}}
-      Some(implicitly[Manifest[{{fieldValueType}}]])
+      Some(implicitly[Manifest[{{fieldValueType}}]]),
 {{/fieldValueType}}
 {{^fieldValueType}}
-      None
+      None,
 {{/fieldValueType}}
+{{#fieldTypeAnnotations}}
+      immutable$Map(
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+      ),
+{{/fieldTypeAnnotations}}
+{{^fieldTypeAnnotations}}
+      immutable$Map.empty[String, String],
+{{/fieldTypeAnnotations}}
+{{#fieldFieldAnnotations}}
+      immutable$Map(
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+      )
+{{/fieldFieldAnnotations}}
+{{^fieldFieldAnnotations}}
+      immutable$Map.empty[String, String]
+{{/fieldFieldAnnotations}}
     )
 {{/fields|,}}
   )
+
+  lazy val structAnnotations: immutable$Map[String, String] =
+{{#structAnnotations}}
+    immutable$Map[String, String](
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+    )
+{{/structAnnotations}}
+{{^structAnnotations}}
+    immutable$Map.empty[String, String]
+{{/structAnnotations}}
 
   /**
    * Checks that all required fields are non-null.
@@ -165,6 +197,28 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   }
 
 {{/fields}}
+
+
+  private def ttypeToHuman(byte: Byte) = {
+    // from https://github.com/apache/thrift/blob/master/lib/java/src/org/apache/thrift/protocol/TType.java
+    byte match {
+      case TType.STOP   => "STOP"
+      case TType.VOID   => "VOID"
+      case TType.BOOL   => "BOOL"
+      case TType.BYTE   => "BYTE"
+      case TType.DOUBLE => "DOUBLE"
+      case TType.I16    => "I16"
+      case TType.I32    => "I32"
+      case TType.I64    => "I64"
+      case TType.STRING => "STRING"
+      case TType.STRUCT => "STRUCT"
+      case TType.MAP    => "MAP"
+      case TType.SET    => "SET"
+      case TType.LIST   => "LIST"
+      case TType.ENUM   => "ENUM"
+      case _            => "UNKNOWN"
+    }
+  }
 
 {{#withTrait}}
   object Immutable extends ThriftStructCodec3[{{StructName}}] {

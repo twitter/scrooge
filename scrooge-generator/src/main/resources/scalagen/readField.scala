@@ -10,5 +10,13 @@ _field.`type` match {
     {{gotName}} = true
 {{/required}}
   }
-  case _ => // skip
+  case _actualType =>
+    val _expectedType = TType.{{#isEnum}}ENUM{{/isEnum}}{{^isEnum}}{{constType}}{{/isEnum}}
+
+    throw new TProtocolException(
+      "Received wrong type for field '{{fieldName}}' (expected=%s, actual=%s).".format(
+        ttypeToHuman(_expectedType),
+        ttypeToHuman(_actualType)
+      )
+    )
 }
