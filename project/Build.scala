@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
+import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
   val libVersion = "3.12.3"
@@ -63,10 +64,13 @@ object Scrooge extends Build {
     sourceGenerators <+= compileThrift
   )
 
+  val nonSbtPluginSettings = Seq(
+    crossScalaVersions := Seq("2.9.2", "2.10.0")
+  )
+  
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.9.2", "2.10.0"),
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -143,12 +147,18 @@ object Scrooge extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test"
     )
   )
+  
+  lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
+    CrossBuilding.crossSbtVersions := Seq("0.13"),
+	crossScalaVersions := Seq("2.10.0")
+  )
 
   lazy val scrooge = Project(
     id = "scrooge",
     base = file("."),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+	  nonSbtPluginSettings
   ).aggregate(
     scroogeGenerator, scroogeCore,
     scroogeRuntime, scroogeSerializer, scroogeOstrich,
@@ -161,6 +171,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Test)(thriftSettings) ++
       sharedSettings ++
+	  nonSbtPluginSettings ++
       jmockSettings
   ).settings(
     name := "scrooge-generator",
@@ -183,7 +194,8 @@ object Scrooge extends Build {
     id = "scrooge-core",
     base = file("scrooge-core"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+	  nonSbtPluginSettings
   ).settings(
     name := "scrooge-core",
     libraryDependencies ++= Seq(
@@ -195,7 +207,8 @@ object Scrooge extends Build {
     id = "scrooge-runtime",
     base = file("scrooge-runtime"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+	  nonSbtPluginSettings
   ).settings(
     name := "scrooge-runtime",
     libraryDependencies ++= Seq(
@@ -207,7 +220,8 @@ object Scrooge extends Build {
     id = "scrooge-ostrich",
     base = file("scrooge-ostrich"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+	  nonSbtPluginSettings
   ).settings(
     name := "scrooge-ostrich",
     libraryDependencies ++= Seq(
@@ -219,7 +233,8 @@ object Scrooge extends Build {
     id = "scrooge-serializer",
     base = file("scrooge-serializer"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+	  nonSbtPluginSettings
   ).settings(
     name := "scrooge-serializer",
     libraryDependencies ++= Seq(
@@ -231,8 +246,9 @@ object Scrooge extends Build {
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++
-      sharedSettings
+    settings = Project.defaultSettings ++ 
+      sharedSettings ++
+	  crossBuildSettings
   ).settings(
     sbtPlugin := true
   ).dependsOn(scroogeGenerator)
@@ -265,6 +281,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Compile)(benchThriftSettings) ++
       sharedSettings ++
+	  nonSbtPluginSettings ++
       dumpClasspathSettings
   ).settings(
     libraryDependencies ++= Seq(
@@ -279,6 +296,7 @@ object Scrooge extends Build {
     settings =
       Project.defaultSettings ++
       sharedSettings ++
+	  nonSbtPluginSettings ++
       site.settings ++
       site.sphinxSupport() ++
       Seq(
