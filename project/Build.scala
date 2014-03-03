@@ -63,11 +63,11 @@ object Scrooge extends Build {
     },
     sourceGenerators <+= compileThrift
   )
-  
+
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-	crossScalaVersions := Seq("2.9.2", "2.10.0"),
+    crossScalaVersions := Seq("2.9.2", "2.10.0"),
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -237,7 +237,7 @@ object Scrooge extends Build {
     base = file("scrooge-sbt-plugin"),
     settings = Project.defaultSettings ++ 
       sharedSettings ++
-	  crossBuildSettings
+      crossBuildSettings
   ).settings(
     sbtPlugin := true
   ).dependsOn(scroogeGenerator)
