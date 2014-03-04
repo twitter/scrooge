@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
+import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
   val libVersion = "3.12.3"
@@ -143,6 +144,10 @@ object Scrooge extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test"
     )
   )
+  
+  lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
+    CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
+  )
 
   lazy val scrooge = Project(
     id = "scrooge",
@@ -151,8 +156,7 @@ object Scrooge extends Build {
       sharedSettings
   ).aggregate(
     scroogeGenerator, scroogeCore,
-    scroogeRuntime, scroogeSerializer, scroogeOstrich,
-    scroogeSbtPlugin
+    scroogeRuntime, scroogeSerializer, scroogeOstrich
   )
 
   lazy val scroogeGenerator = Project(
@@ -231,8 +235,9 @@ object Scrooge extends Build {
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++
-      sharedSettings
+    settings = Project.defaultSettings ++ 
+      sharedSettings ++
+      crossBuildSettings
   ).settings(
     sbtPlugin := true
   ).dependsOn(scroogeGenerator)
