@@ -11,6 +11,7 @@ fi
 javaNamespace="-n thrift.test=thrift.java_test
 -n thrift.test1=thrift.java_test1
 -n thrift.test2=thrift.java_test2
+-n thrift.collision=thrift.java_collision
 -n thrift.def.default=thrift.java_def.default
 -n foo=java_foo
 -n bar=java_bar
