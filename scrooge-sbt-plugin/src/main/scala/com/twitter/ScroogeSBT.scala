@@ -17,13 +17,19 @@ object ScroogeSBT extends Plugin {
     language: String,
     flags: Set[String]
   ) {
-    val compiler = new Compiler()
-    compiler.destFolder = outputDir.getPath
-    thriftIncludes.map { compiler.includePaths += _.getPath }
-    namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2)}
-    Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
-    compiler.language = language.toLowerCase
-    compiler.run()
+    val contextClassLoader = Thread.currentThread.getContextClassLoader
+    try {
+      Thread.currentThread.setContextClassLoader(classOf[Compiler].getClassLoader)
+      val compiler = new Compiler()
+      compiler.destFolder = outputDir.getPath
+      thriftIncludes.map { compiler.includePaths += _.getPath }
+      namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2) }
+      Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
+      compiler.language = language.toLowerCase
+      compiler.run()
+    } finally {
+      Thread.currentThread.setContextClassLoader(contextClassLoader)
+    }
   }
 
   def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
@@ -90,6 +96,11 @@ object ScroogeSBT extends Plugin {
     "unpack thrift files from dependencies, generating a sequence of source directories"
   )
 
+  val scroogeLanguage = SettingKey[String](
+    "scrooge-language",
+    "language in which the code is generated"
+  )
+
   val scroogeGen = TaskKey[Seq[File]](
     "scrooge-gen",
     "generate scala code from thrift files using scrooge"
@@ -112,6 +123,7 @@ object ScroogeSBT extends Plugin {
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
+    scroogeLanguage := "scala",
 
     // complete list of source files
     scroogeThriftSources <<= (
@@ -167,8 +179,9 @@ object ScroogeSBT extends Plugin {
       streams,
       scroogeThriftSources,
       scroogeThriftOutputFolder,
-      scroogeThriftIncludes
-    ) map { (out, sources, outputDir, inc) =>
+      scroogeThriftIncludes,
+      scroogeLanguage
+    ) map { (out, sources, outputDir, inc, lang) =>
       // figure out if we need to actually rebuild, based on mtimes.
       val allSourceDeps = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
         files ++ (dir ** "*.thrift").get
@@ -179,7 +192,7 @@ object ScroogeSBT extends Plugin {
       } else {
         Long.MaxValue
       }
-      val outputsLastModified = (outputDir ** "*.scala").get.map(_.lastModified)
+      val outputsLastModified = (outputDir ** ("*." + lang.replaceAll("experimental-", ""))).get.map(_.lastModified)
       val oldestOutput = if (outputsLastModified.size > 0) {
         outputsLastModified.min
       } else {
@@ -196,14 +209,15 @@ object ScroogeSBT extends Plugin {
       scroogeThriftOutputFolder,
       scroogeBuildOptions,
       scroogeThriftIncludes,
-      scroogeThriftNamespaceMap
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
+      scroogeThriftNamespaceMap,
+      scroogeLanguage
+    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, lang) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && !sources.isEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
+        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, lang, opts.toSet)
       }
-      (outputDir ** "*.scala").get.toSeq
+      (outputDir ** ("*." + lang.replaceAll("experimental-", ""))).get.toSeq
     },
     sourceGenerators <+= scroogeGen
   )
