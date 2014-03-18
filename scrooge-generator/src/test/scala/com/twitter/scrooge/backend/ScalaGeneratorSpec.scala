@@ -1019,5 +1019,21 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     "generate with special scala namespace syntax" in { _ =>
       scrooge.test.thriftscala.Thingymabob().isInstanceOf[scrooge.test.thriftscala.Thingymabob] must be(true)
     }
+
+    "generate productElement correctly" in { _ =>
+      val struct = thrift.collision.ProductElementStruct(a = "a", n = "n")
+
+      struct.isInstanceOf[scala.Product] must be(true)
+      struct.isInstanceOf[scala.Product2[_, _]] must be(true)
+      struct.productArity must be(2)
+
+      struct.a must be("a")
+      struct._1 must be("a")
+      struct.productElement(0) must be("a")
+
+      struct.n must be("n")
+      struct._2 must be("n")
+      struct.productElement(1) must be("n")
+    }
   }
 }

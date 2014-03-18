@@ -483,7 +483,7 @@ class {{StructName}}(
 
   override def productElement(n: Int): Any = n match {
 {{#fields}}
-    case {{index}} => {{fieldName}}
+    case {{index}} => this.{{fieldName}}
 {{/fields}}
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }

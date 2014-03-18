@@ -15,3 +15,9 @@ struct Product1 { }
 struct VictimOfScalaDotProduct1NameCollision {
   1: i64 giveVictimArity1
 }
+
+// Defined to test productElement for fields named "n"
+struct ProductElementStruct {
+  1: string a
+  2: string n
+}
