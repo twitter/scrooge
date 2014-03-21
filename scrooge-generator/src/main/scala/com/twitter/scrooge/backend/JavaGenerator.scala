@@ -122,6 +122,10 @@ class JavaGenerator(
     genID(enum.value.sid.toUpperCase.addScope(getTypeId.toTitleCase))
   }
 
+  // TODO
+  def genStruct(struct: StructRHS): CodeFragment =
+    throw new Exception("not implemented")
+
   /**
    * Generates a suffix to append to a field expression that will
    * convert the value to an immutable equivalent.

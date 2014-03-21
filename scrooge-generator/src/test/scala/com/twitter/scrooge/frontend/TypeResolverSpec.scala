@@ -161,13 +161,14 @@ class TypeResolverSpec extends Spec {
     "allow a valid MapRHS for a StructType if resolver allowStructRHS enabled" in {
       val resolver = TypeResolver(allowStructRHS = true)
       val testStruct1 = createStruct("Test1", TI32)
-      val testStruct2 = createStruct("Test2", StructType(testStruct1))
-      val structType = StructType(testStruct2)
+      val structType1 = StructType(testStruct1)
+      val testStruct2 = createStruct("Test2", structType1)
+      val structType2 = StructType(testStruct2)
       val mapRHS = MapRHS(Seq((StringLiteral("Test1_field"), IntLiteral(3))))
       val mapRHS1 = MapRHS(Seq((StringLiteral("Test2_field"), mapRHS)))
-      val value = resolver(mapRHS1, structType)
-      val structElems = Map(SimpleID("Test2_field") -> StructRHS(elems = Map(SimpleID("Test1_field") -> IntLiteral(3))))
-      value must be(StructRHS(elems = structElems))
+      val value = resolver(mapRHS1, structType2)
+      val structElems = Map(SimpleID("Test2_field") -> StructRHS(sid = structType1.sid, elems = Map(SimpleID("Test1_field") -> IntLiteral(3))))
+      value must be(StructRHS(sid = structType2.sid, elems = structElems))
     }
 
     "throw a TypeMismatchException if invalid MapRHS passed in for a StructType" in {

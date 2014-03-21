@@ -178,6 +178,7 @@ trait Generator
       case c@MapRHS(_) => genMap(c, mutable)
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
+      case s: StructRHS => genStruct(s)
     }
   }
 
@@ -188,6 +189,8 @@ trait Generator
   def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment
+
+  def genStruct(struct: StructRHS): CodeFragment
 
   /**
    * The default value for the specified type and mutability.

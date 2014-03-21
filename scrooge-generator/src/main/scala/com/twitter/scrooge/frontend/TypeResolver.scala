@@ -193,7 +193,7 @@ case class TypeResolver(
       fieldType match {
         case MapType(keyType, valType, _) =>
           m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
-        case StructType(s, _) if allowStructRHS =>
+        case st @ StructType(s, _) if allowStructRHS =>
           val structMap = Map.newBuilder[SimpleID, RHS]
           s.fields.foreach { f =>
             val filtered = elems.filter {
@@ -209,7 +209,7 @@ case class TypeResolver(
               throw new TypeMismatchException("Default value for " + f.sid.name + " needed for " + fieldType)
             }
           }
-          StructRHS(elems = structMap.result())
+          StructRHS(sid = st.sid, elems = structMap.result())
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
       }
     case i @ IdRHS(id) => {

@@ -65,6 +65,10 @@ standalone_thrifts=`find src/test/thrift/standalone -name *.thrift`
 $javaRun $standalone_thrifts
 $scalaRun $standalone_thrifts
 
+echo "Running Scrooge on defaults/"
+defaults_thrifts=`find src/test/thrift/defaults -name *.thrift`
+$scalaRun $defaults_thrifts
+
 echo "Running Scrooge on constant_sets.thrift"
 constant_sets="src/test/thrift/constant_sets.thrift"
 $scalaRun $constant_sets
