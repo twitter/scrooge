@@ -18,7 +18,6 @@ package com.twitter.scrooge.backend
 
 import java.io.{FileWriter, File}
 import scala.collection.mutable
-import com.twitter.conversions.string._
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
@@ -106,7 +105,7 @@ trait Generator
   val fileExtension: String
   val templateDirName: String
   lazy val templates = new HandlebarLoader(templateDirName, fileExtension)
-  def quote(str: String) = "\"" + str.quoteC() + "\""
+  def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String
   def isNullableType(t: FieldType, isOptional: Boolean = false) = {
     !isOptional && (

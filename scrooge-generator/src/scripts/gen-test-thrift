@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 args=("$@")
 cp=${args[0]}
 out=${args[1]}
@@ -21,6 +23,10 @@ javaNamespace="-n thrift.test=thrift.java_test
 
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l experimental-java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l scala"
+
+echo "Running Scrooge on defaults/"
+defaults_thrifts=`find src/test/thrift/defaults -name *.thrift`
+$scalaRun $defaults_thrifts
 
 echo "Running Scrooge on relative/"
 dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`
@@ -64,10 +70,6 @@ echo "Running Scrooge on standalone/"
 standalone_thrifts=`find src/test/thrift/standalone -name *.thrift`
 $javaRun $standalone_thrifts
 $scalaRun $standalone_thrifts
-
-echo "Running Scrooge on defaults/"
-defaults_thrifts=`find src/test/thrift/defaults -name *.thrift`
-$scalaRun $defaults_thrifts
 
 echo "Running Scrooge on constant_sets.thrift"
 constant_sets="src/test/thrift/constant_sets.thrift"

@@ -54,7 +54,7 @@ class PrintConstController(
     val structType = fieldType.asInstanceOf[StructType]
     for {
       f <- structType.struct.fields
-      v <- values.get(f.sid)
+      v <- values.get(f)
     } yield {
       val renderedValue = renderConstValue(v, f.fieldType)
       Map("key" -> f.sid.name, "value" -> renderedValue.value, "rendered_value" -> renderedValue.rendered)

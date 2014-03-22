@@ -167,7 +167,10 @@ class TypeResolverSpec extends Spec {
       val mapRHS = MapRHS(Seq((StringLiteral("Test1_field"), IntLiteral(3))))
       val mapRHS1 = MapRHS(Seq((StringLiteral("Test2_field"), mapRHS)))
       val value = resolver(mapRHS1, structType2)
-      val structElems = Map(SimpleID("Test2_field") -> StructRHS(sid = structType1.sid, elems = Map(SimpleID("Test1_field") -> IntLiteral(3))))
+
+      val test1Field = testStruct1.fields(0)
+      val test2Field = testStruct2.fields(0)
+      val structElems = Map(test2Field -> StructRHS(sid = structType1.sid, elems = Map(test1Field -> IntLiteral(3))))
       value must be(StructRHS(sid = structType2.sid, elems = structElems))
     }
 

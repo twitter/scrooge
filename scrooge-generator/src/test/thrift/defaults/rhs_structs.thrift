@@ -1,10 +1,49 @@
 namespace java thrift.defaults
 
-struct Foo {
-  1: string field1
-  2: i32 field2
+struct StructA {
+  1: i64 id
 }
 
-const map<string, Foo> Foos = {
-  "identifier": {"field1": "field1 val", "field2": 123},
+struct StructB {
+  1: i64 snake_case_field
+  2: i64 camelCaseField
+  3: optional string optional_field
+  4: required i64 required_field
+  5: optional StructA struct_field
+  6: i64 default_field = 10
 }
+
+const map<string, StructA> MapOfStructVals = {
+  "key1" : {"id": 1},
+  "key2" : {"id": 2}
+}
+
+const map<StructA, string> MapOfStructKeys = {
+  {"id": 1} : "val1",
+  {"id": 2} : "val2",
+}
+
+const map<StructA, StructA> MapOfStructKeyVals = {
+  {"id": 1} : {"id": 1},
+  {"id": 2} : {"id": 2},
+}
+
+const list<StructA> ListOfStructs = [
+  {"id": 1},
+  {"id": 2},
+  {"id": 2}
+]
+
+const set<StructA> SetOfStructs = [
+  {"id": 1},
+  {"id": 2},
+  {"id": 2}
+]
+
+const StructA DEFAULT_STRUCT = {"id": 1}
+
+const list<StructB> ListOfComplexStructs = [
+  {"snake_case_field": 1, "camelCaseField": 2, "optional_field": "val", "required_field": 3, "struct_field": {"id": 1}, "default_field": 1},
+  {"snake_case_field": 1, "camelCaseField": 2, "required_field": 3, "struct_field": {"id": 1}, "default_field": 1},
+  {"snake_case_field": 1, "camelCaseField": 2, "required_field": 3, "struct_field": {"id": 1}}
+]

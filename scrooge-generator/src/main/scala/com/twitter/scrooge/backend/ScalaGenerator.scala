@@ -141,8 +141,9 @@ class ScalaGenerator(
 
   def genStruct(struct: StructRHS): CodeFragment = {
     val values = struct.elems
-    val fields = values map { case (sid, v) =>
-      genID(sid) + "=" + genConstant(v)
+    val fields = values map { case (f, value) =>
+      val v = genConstant(value)
+      genID(f.sid.toCamelCase) + "=" + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
     }
     codify(genID(struct.sid) + "(" + fields.mkString(", ") + ")")
   }
