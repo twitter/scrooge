@@ -12,3 +12,9 @@ const set<string> INVALID_IDENTIFIERS = ["dev/prod",
                                          "///",
                                          "new\nline",
                                          "    hello world."]
+
+const string STRINGWITHSPECIALCHARS = "^[\\w\\-\\.]+$"
+
+const string STRINGWITHSPECIALCHARS2 = "\\\n\r\t"
+
+const string STRINGWITHSPECIALCHARS3 = "ãáíô"

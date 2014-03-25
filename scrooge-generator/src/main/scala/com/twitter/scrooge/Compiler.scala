@@ -58,11 +58,13 @@ class Compiler {
     // compile
     for (inputFile <- thriftFiles) {
       val isJava = language.equals("java")
+      val isScala = language.equals("scala")
+      val rhsStructs = isJava || isScala
       val parser = new ThriftParser(importer, strict, defaultOptional = isJava)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
-      val resolvedDoc = TypeResolver(allowStructRHS = isJava)(doc0) // TODO: THRIFT-54
+      val resolvedDoc = TypeResolver(allowStructRHS = rhsStructs)(doc0) // TODO: THRIFT-54
       val generator = Generator(
         language,
         resolvedDoc.resolver.includeMap,

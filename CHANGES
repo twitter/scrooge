@@ -6,6 +6,20 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.13.0
+~~~~~~~
+
+- scrooge: add sbt 0.13 variant of scrooge-sbt-plugin
+- scrooge: Add scrooge/scrooge-generator/BUILD
+- scrooge: enable structs for the RHS of consts in scala
+- scrooge: handle all shapes of RHS structs
+- scrooge: scrooge: expose IDL annotations in generated structs
+- scrooge: scrooge: throw an error when reading a field with the wrong type
+- scrooge: Test uses of scala.Product are fully qualified
+- scrooge: Thrift structs with fields named "n" can't use productElement to get that field
+- scrooge: upgrade finagle to 6.13.1
+- scrooge: upgrade util to 6.13.2
+
 3.12.3
 ~~~~~
 

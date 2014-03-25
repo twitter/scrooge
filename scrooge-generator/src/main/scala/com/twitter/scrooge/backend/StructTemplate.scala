@@ -244,9 +244,9 @@ trait StructTemplate {
       val fieldTypes = struct.fields.map {
         f => genFieldType(f).toData
       }.mkString(", ")
-      "Product" + arity + "[" + fieldTypes + "]"
+      "scala.Product" + arity + "[" + fieldTypes + "]"
     } else {
-      "Product"
+      "scala.Product"
     }
 
     val exceptionMsgField: Option[SimpleID] = if (isException) exceptionMsgFieldName(struct) else None

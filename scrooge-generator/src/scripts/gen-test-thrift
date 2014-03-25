@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 args=("$@")
 cp=${args[0]}
 out=${args[1]}
@@ -11,6 +13,7 @@ fi
 javaNamespace="-n thrift.test=thrift.java_test
 -n thrift.test1=thrift.java_test1
 -n thrift.test2=thrift.java_test2
+-n thrift.collision=thrift.java_collision
 -n thrift.def.default=thrift.java_def.default
 -n foo=java_foo
 -n bar=java_bar
@@ -20,6 +23,10 @@ javaNamespace="-n thrift.test=thrift.java_test
 
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l experimental-java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l scala"
+
+echo "Running Scrooge on defaults/"
+defaults_thrifts=`find src/test/thrift/defaults -name *.thrift`
+$scalaRun $defaults_thrifts
 
 echo "Running Scrooge on relative/"
 dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`

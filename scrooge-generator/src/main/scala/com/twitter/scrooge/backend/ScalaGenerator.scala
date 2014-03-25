@@ -139,6 +139,15 @@ class ScalaGenerator(
     genID(enum.value.sid.toTitleCase.addScope(getTypeId.toTitleCase))
   }
 
+  def genStruct(struct: StructRHS): CodeFragment = {
+    val values = struct.elems
+    val fields = values map { case (f, value) =>
+      val v = genConstant(value)
+      genID(f.sid.toCamelCase) + "=" + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
+    }
+    codify(genID(struct.sid) + "(" + fields.mkString(", ") + ")")
+  }
+
   override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
     val code = fieldType match {
       case TI64 => "0L"

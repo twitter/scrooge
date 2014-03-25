@@ -18,7 +18,6 @@ package com.twitter.scrooge.backend
 
 import java.io.{FileWriter, File}
 import scala.collection.mutable
-import com.twitter.conversions.string._
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
@@ -106,7 +105,7 @@ trait Generator
   val fileExtension: String
   val templateDirName: String
   lazy val templates = new HandlebarLoader(templateDirName, fileExtension)
-  def quote(str: String) = "\"" + str.quoteC() + "\""
+  def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String
   def isNullableType(t: FieldType, isOptional: Boolean = false) = {
     !isOptional && (
@@ -178,6 +177,7 @@ trait Generator
       case c@MapRHS(_) => genMap(c, mutable)
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
+      case s: StructRHS => genStruct(s)
     }
   }
 
@@ -188,6 +188,8 @@ trait Generator
   def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment
+
+  def genStruct(struct: StructRHS): CodeFragment
 
   /**
    * The default value for the specified type and mutability.

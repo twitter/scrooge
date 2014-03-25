@@ -23,7 +23,7 @@ object TFieldBlob {
  * binary blob.
  */
 case class TFieldBlob(field: TField, data: Array[Byte]) {
-  def id = field.id
+  def id = field.id 
 
   /**
    * Creates a TCompactProtocol to read the encoded data.
