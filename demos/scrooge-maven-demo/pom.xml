@@ -64,7 +64,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-core_2.9.2</artifactId>
-      <version>3.7.0</version>
+      <version>3.13.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -138,7 +138,7 @@
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
         <!-- this version must match the version from scrooge-gen.ivy.xml -->
-        <version>3.12.1</version>
+        <version>3.13.0</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
