@@ -11,7 +11,6 @@
   </properties>
   <dependencies>
     <!-- Project dependencies -->
-
     <!-- Notes to users:
     Suppose your project depends on some artifact from which you want to pull
     out the thrift files to compile using Scrooge. Add the dependency as usual
@@ -24,7 +23,6 @@
       <version>0.0.3</version>
       <scope>provided</scope>
     </dependency>
-
     <!-- common library dependencies -->
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -91,7 +89,7 @@
           <fork>true</fork>
           <meminitial>128m</meminitial>
           <maxmem>512m</maxmem>
-       </configuration>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>net.alchim31.maven</groupId>
@@ -138,7 +136,7 @@
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
         <!-- this version must match the version from scrooge-gen.ivy.xml -->
-        <version>3.13.0</version>
+        <version>3.13.1</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
@@ -146,7 +144,8 @@
               <to>com.twitter.mydemo.renamed</to>
             </thriftNamespaceMapping>
           </thriftNamespaceMappings>
-          <language>scala</language> <!-- default is scala, can also be java -->
+          <language>scala</language>
+          <!-- default is scala, can also be java -->
           <thriftOpts>
             <!-- add other Scrooge command line options using thriftOpts -->
             <thriftOpt>--finagle</thriftOpt>
@@ -176,4 +175,3 @@
     </plugins>
   </build>
 </project>
-
