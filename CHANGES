@@ -1,10 +1,14 @@
 .. Author notes: this file is formatted with restructured text
-
-(http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
-as it is included in Scoorge's user's guide.
+  (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
+  as it is included in Scoorge's user's guide.
 
 3.x
 -----
+
+3.13.1
+~~~~~~~
+
+scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly.
 
 3.13.0
 ~~~~~~~

@@ -16,12 +16,12 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 
-import java.io.{FileWriter, File}
+import java.io.{OutputStreamWriter, FileOutputStream, File}
 import scala.collection.mutable
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
-import com.twitter.scrooge.java_generator.{ApacheJavaGeneratorFactory, ApacheJavaGenerator}
+import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
 import scala.collection.JavaConverters._
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
@@ -150,12 +150,14 @@ trait Generator
   }
 
   private[this] def writeFile(file: File, fileHeader: String, fileContent: String) {
-    val writer = new FileWriter(file)
+    val stream = new FileOutputStream(file)
+    val writer = new OutputStreamWriter(stream, "UTF-8")
     try {
       writer.write(fileHeader)
       writer.write(fileContent)
     } finally {
       writer.close()
+      stream.close()
     }
   }
 
