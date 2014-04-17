@@ -217,7 +217,9 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-ostrich",
     libraryDependencies ++= Seq(
-      finagle("ostrich4")
+      finagle("ostrich4"),
+      finagle("thriftmux"),
+      util("app")
     )
   ).dependsOn(scroogeRuntime)
 
