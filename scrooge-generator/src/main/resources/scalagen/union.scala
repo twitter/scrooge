@@ -73,8 +73,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#fields}}
   case class {{FieldName}}({{fieldName}}: {{>qualifiedFieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}) extends {{StructName}} {
     override def write(_oprot: TProtocol) {
+{{^isPrimitive}}
       if ({{fieldName}} == null)
         throw new TProtocolException("Cannot write a TUnion with no set value!")
+{{/isPrimitive}}
       _oprot.writeStructBegin(Union)
 {{#readWriteInfo}}
       {{>writeField}}

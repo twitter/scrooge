@@ -33,7 +33,7 @@ pom.xml file.
     <plugin>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-maven-plugin</artifactId>
-      <version>3.12.4.3</version>
+      <version>3.13.1</version>
       <configuration>
         <thriftNamespaceMappings>
           <thriftNamespaceMapping>

@@ -1,15 +1,13 @@
 import sbt._
 import Keys._
-import bintray.Plugin._
-import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
-  val libVersion = "3.13.1"
-  val utilVersion = "6.13.2"
-  val finagleVersion = "6.13.1"
+  val libVersion = "3.13.2"
+  val utilVersion = "6.14.0"
+  val finagleVersion = "6.14.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -146,7 +144,7 @@ object Scrooge extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test"
     )
   )
-
+  
   lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
     CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
   )
@@ -217,7 +215,9 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-ostrich",
     libraryDependencies ++= Seq(
-      finagle("ostrich4")
+      finagle("ostrich4"),
+      finagle("thriftmux"),
+      util("app")
     )
   ).dependsOn(scroogeRuntime)
 
@@ -237,16 +237,11 @@ object Scrooge extends Build {
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++
+    settings = Project.defaultSettings ++ 
       sharedSettings ++
-      crossBuildSettings ++
-      bintrayPublishSettings
+      crossBuildSettings
   ).settings(
-    sbtPlugin := true,
-    publishMavenStyle := false,
-    repository in bintray := "sbt-plugins",
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayOrganization in bintray := Some("twittercsl")
+    sbtPlugin := true
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
