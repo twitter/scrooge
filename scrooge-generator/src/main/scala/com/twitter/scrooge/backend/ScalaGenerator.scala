@@ -158,6 +158,13 @@ class ScalaGenerator(
     codify(code)
   }
 
+  override def genConstant(constant: RHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
+    (constant, fieldType) match {
+      case (IntLiteral(value), Some(TI64)) => codify(value.toString + "L")
+      case _ => super.genConstant(constant, mutable, fieldType)
+    }
+  }
+
   /**
    * Generates a suffix to append to a field expression that will
    * convert the value to an immutable equivalent.

@@ -7,6 +7,7 @@ const string copyName = name;
  */
 // not a doc, just a comment, but the doc should still get included.
 const i32 someInt = 1;
+const i64 someLong = 9223372036854775807;
 const double someDouble = 3.0;
 const list<string> someList = ["piggy"];
 const list<string> emptyList = [];
