@@ -32,7 +32,7 @@ object Main {
 
   def parseOptions(compiler: Compiler, args: Seq[String]): Boolean = {
     val buildProperties = new Properties
-    Option(getClass.getResource("build.properties")) foreach { resource =>
+    scala.Option(getClass.getResource("build.properties")) foreach { resource =>
       buildProperties.load(resource.openStream)
     }
 

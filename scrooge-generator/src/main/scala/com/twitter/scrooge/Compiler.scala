@@ -32,8 +32,8 @@ class Compiler {
   var strict = true
   var skipUnchanged = false
   var experimentFlags = new mutable.ListBuffer[String]
-  var fileMapPath: Option[String] = None
-  var fileMapWriter: Option[FileWriter] = None
+  var fileMapPath: scala.Option[String] = None
+  var fileMapWriter: scala.Option[FileWriter] = None
   var dryRun: Boolean = false
   var language: String = "scala"
   var defaultNamespace: String = "thrift"
