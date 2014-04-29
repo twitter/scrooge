@@ -5,6 +5,15 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.14.0
+~~~~~~~
+
+- scrooge: Use scala.Option in all com.twitter.scrooge files to avoid conflict with com.twitter.scrooge.Option
+- scrooge: Allow for Longs as const values
+- scrooge: Make mustache parser threadsafe
+- scrooge: Removing scrooge-generated null checks for primitive Scala types
+- scrooge-ostrich: Add a flag for enabling ThriftMux
+
 3.13.2
 ~~~~~~~
 
