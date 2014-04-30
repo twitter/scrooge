@@ -124,8 +124,17 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       } else {
         _field.id match {
 {{#fields}}
-          case {{id}} =>
+          case {{id}} => {
+{{#isLarge}}
+            {{fieldName}} = {{decodeFieldValueName}}(_field.`type`, _iprot)
+{{#required}}
+            {{gotName}} = true
+{{/required}}
+{{/isLarge}}
+{{^isLarge}}
             {{>readField}}
+{{/isLarge}}
+          }
 {{/fields}}
           case _ =>
             if (_passthroughFields == null)
@@ -174,8 +183,13 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
-
 {{#fields}}
+{{#isLarge}}
+  private def {{decodeFieldValueName}}(_typ: Byte, _iprot: TProtocol): {{#optional}}Option[{{/optional}}{{fieldType}}{{#optional}}]{{/optional}} = {
+    {{>readFieldLarge}}
+  }
+
+{{/isLarge}}
   private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
 {{#readWriteInfo}}
     {{>readValue}}
