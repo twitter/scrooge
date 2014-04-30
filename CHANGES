@@ -5,6 +5,11 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.14.1
+~~~~~~~
+
+- scrooge-generator: Allow union field names to match struct names
+
 3.14.0
 ~~~~~~~
 

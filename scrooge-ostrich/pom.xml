@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-ostrich</artifactId>
   <packaging>jar</packaging>
-  <version>3.14.1-SNAPSHOT</version>
+  <version>3.14.2-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-292</artifactId>
