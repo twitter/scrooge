@@ -16,7 +16,7 @@ trait ConstsTemplate {
         Dictionary(
           "name" -> genID(c.sid),
           "fieldType" -> genType(c.fieldType),
-          "value" -> genConstant(c.value),
+          "value" -> genConstant(c.value, false, Some(c.fieldType)),
           "docstring" -> codify(c.docstring.getOrElse(""))
         )
     })

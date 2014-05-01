@@ -194,6 +194,13 @@ class JavaGenerator(
     codify(code)
   }
 
+  override def genConstant(constant: RHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
+    (constant, fieldType) match {
+      case (IntLiteral(value), Some(TI64)) => codify(value.toString + "L")
+      case _ => super.genConstant(constant, mutable, fieldType)
+    }
+  }
+
   def genType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
     val code = t match {
       case Void => "Void"

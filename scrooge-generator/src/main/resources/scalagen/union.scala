@@ -14,19 +14,8 @@ import scala.collection.{Map, Set}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 sealed trait {{StructName}} extends {{parentType}}
 
-{{docstring}}
-@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
-  val Union = new TStruct("{{StructNameForWire}}")
-{{#fields}}
-  val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
-{{#isEnum}}
-  private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
-{{/isEnum}}
-{{/fields}}
-
-  override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
-  override def decode(_iprot: TProtocol): {{StructName}} = {
+private object {{StructName}}Decoder {
+  def apply(_iprot: TProtocol, newUnknown: TFieldBlob => {{StructName}}): {{StructName}} = {
     var _result: {{StructName}} = null
     _iprot.readStructBegin()
     val _field = _iprot.readFieldBegin()
@@ -38,7 +27,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields}}
       case _ =>
         if (_field.`type` != TType.STOP) {
-          _result = UnknownUnionField(TFieldBlob.read(_field, _iprot))
+          _result = newUnknown(TFieldBlob.read(_field, _iprot))
         } else {
           TProtocolUtil.skip(_iprot, _field.`type`)
         }
@@ -67,11 +56,35 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       throw new TProtocolException("Cannot read a TUnion with no set value!")
     _result
   }
+}
+
+object {{StructName}}Aliases {
+{{#fields}}
+  type {{FieldName}}Alias = {{>qualifiedFieldType}}
+  {{#hasDefaultValue}}val {{FieldName}}DefaultValue = {{defaultFieldValue}}{{/hasDefaultValue}}
+{{/fields}}
+}
+
+{{docstring}}
+@javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
+  val Union = new TStruct("{{StructNameForWire}}")
+{{#fields}}
+  val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
+{{#isEnum}}
+  private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
+{{/isEnum}}
+{{/fields}}
+
+  override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
+  override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}Decoder(_iprot, UnknownUnionField(_))
 
   def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
 
+  import {{StructName}}Aliases._
+
 {{#fields}}
-  case class {{FieldName}}({{fieldName}}: {{>qualifiedFieldType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}) extends {{StructName}} {
+  case class {{FieldName}}({{fieldName}}: {{FieldName}}Alias{{#hasDefaultValue}} = {{FieldName}}DefaultValue{{/hasDefaultValue}}) extends {{StructName}} {
     override def write(_oprot: TProtocol) {
 {{^isPrimitive}}
       if ({{fieldName}} == null)

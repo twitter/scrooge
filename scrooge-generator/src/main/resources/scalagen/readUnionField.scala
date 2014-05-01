@@ -6,7 +6,7 @@ case {{id}} => { /* {{fieldName}} */
 {{^isEnum}}
     case TType.{{constType}} => {
 {{/isEnum}}
-      _result = {{FieldName}}({
+      _result = {{StructName}}.{{FieldName}}({
         {{>readValue}}
       })
     }

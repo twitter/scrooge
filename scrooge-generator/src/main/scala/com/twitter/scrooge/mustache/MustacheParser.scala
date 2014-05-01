@@ -28,7 +28,27 @@ object MustacheAST {
   case class Partial(name: String) extends Segment
 }
 
-object MustacheParser extends RegexParsers {
+class ParserPool(size: Int = 10) {
+  private[this] val queue = new java.util.concurrent.LinkedBlockingQueue[MustacheParser]()
+  (0 until size) foreach { _ => queue.offer(new MustacheParser) }
+
+  def apply[T](f: MustacheParser => T) = {
+    val parser = queue.take()
+    try {
+      f(parser)
+    } finally {
+      queue.offer(parser)
+    }
+  }
+}
+
+object MustacheParser {
+  private[this] val pool = new ParserPool
+  def apply(in: String): MustacheAST.Template =
+    pool { _(in) }
+}
+
+class MustacheParser extends RegexParsers {
   import MustacheAST._
 
   override def skipWhitespace = false
