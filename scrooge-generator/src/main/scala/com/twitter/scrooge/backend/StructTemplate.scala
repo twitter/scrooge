@@ -180,6 +180,7 @@ trait StructTemplate {
           "readFieldValueName" -> genID(field.sid.toTitleCase.prepend("read").append("Value")),
           "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
           "writeFieldValueName" -> genID(field.sid.toTitleCase.prepend("write").append("Value")),
+          "writeFieldValueNamePlus" -> genID(field.sid.toTitleCase.prepend("write").append("ValuePlus")),
           "readField" -> v(templates("readField")),
           "readFieldLarge" -> v(templates("readFieldLarge")),
           "readUnionField" -> v(templates("readUnionField")),
