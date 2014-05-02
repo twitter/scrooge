@@ -124,8 +124,17 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       } else {
         _field.id match {
 {{#fields}}
-          case {{id}} =>
+          case {{id}} => {
+{{#isLarge}}
+            {{fieldName}} = {{decodeFieldValueName}}(_field.`type`, _iprot)
+{{#required}}
+            {{gotName}} = true
+{{/required}}
+{{/isLarge}}
+{{^isLarge}}
             {{>readField}}
+{{/isLarge}}
+          }
 {{/fields}}
           case _ =>
             if (_passthroughFields == null)
@@ -174,8 +183,13 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
 {{/arityN}}
 
-
 {{#fields}}
+{{#isLarge}}
+  private def {{decodeFieldValueName}}(_typ: Byte, _iprot: TProtocol): {{#optional}}Option[{{/optional}}{{fieldType}}{{#optional}}]{{/optional}} = {
+    {{>readFieldLarge}}
+  }
+
+{{/isLarge}}
   private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
 {{#readWriteInfo}}
     {{>readValue}}
@@ -196,6 +210,33 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/readWriteInfo}}
   }
 
+  private def {{writeFieldValueNamePlus}}({{#optional}}opt{{/optional}}{{valueVariableName}}: {{#optional}}Option[{{/optional}}{{fieldType}}{{#optional}}]{{/optional}}, _oprot: TProtocol) = {
+{{#readWriteInfo}}
+{{#optional}}
+    if (opt{{valueVariableName}}.isDefined) {
+      val {{valueVariableName}} =  opt{{valueVariableName}}.get
+{{/optional}}
+{{^optional}}
+{{#nullable}}
+    if ({{valueVariableName}} ne null) {
+{{/nullable}}
+{{^nullable}}
+{{/nullable}}
+{{/optional}}
+      {{>writeValue}}
+      Some({{StructName}}.{{fieldConst}})
+{{#optional}}
+    } else None
+{{/optional}}
+{{^optional}}
+{{#nullable}}
+    } else None
+{{/nullable}}
+{{^nullable}}
+{{/nullable}}
+{{/optional}}
+{{/readWriteInfo}}
+  }
 {{/fields}}
 
 
@@ -317,25 +358,7 @@ class {{StructName}}(
       val _fieldOpt: Option[TField] =
         _fieldId match {
 {{#fields}}
-          case {{id}} =>
-{{#readWriteInfo}}
-{{#optional}}
-            if ({{fieldName}}.isDefined) {
-{{/optional}}
-{{^optional}}
-{{#nullable}}
-            if ({{fieldName}} ne null) {
-{{/nullable}}
-{{^nullable}}
-            if (true) {
-{{/nullable}}
-{{/optional}}
-              {{writeFieldValueName}}({{fieldName}}{{#optional}}.get{{/optional}}, _oprot)
-              Some({{StructName}}.{{fieldConst}})
-            } else {
-              None
-            }
-{{/readWriteInfo}}
+          case {{id}} => {{writeFieldValueNamePlus}}({{fieldName}},  _oprot)
 {{/fields}}
           case _ => None
         }

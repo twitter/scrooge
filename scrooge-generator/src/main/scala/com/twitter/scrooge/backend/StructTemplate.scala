@@ -24,6 +24,12 @@ import com.twitter.scrooge.frontend.ScroogeInternalException
 trait StructTemplate {
   self: Generator =>
 
+  /*
+   The number of fields after which decode should call separate decode functions for each field
+   instead of inlining the decoding.
+   */
+  val LARGE_STRUCT_CUTOFF = 500
+
   case class Binding[FT <: FieldType](name: String, fieldType: FT)
 
   val TypeTemplate =
@@ -170,10 +176,13 @@ trait StructTemplate {
               case _ => Nil
             }) map { t => Dictionary("elementType" -> t) }
           },
+          "decodeFieldValueName" -> genID(field.sid.toTitleCase.prepend("decode").append("Field")),
           "readFieldValueName" -> genID(field.sid.toTitleCase.prepend("read").append("Value")),
           "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
           "writeFieldValueName" -> genID(field.sid.toTitleCase.prepend("write").append("Value")),
+          "writeFieldValueNamePlus" -> genID(field.sid.toTitleCase.prepend("write").append("ValuePlus")),
           "readField" -> v(templates("readField")),
+          "readFieldLarge" -> v(templates("readFieldLarge")),
           "readUnionField" -> v(templates("readUnionField")),
           "readValue" -> v(templates("readValue")),
           "writeField" -> v(templates("writeField")),
@@ -275,6 +284,7 @@ trait StructTemplate {
       "InstanceClassName" -> (if (isStruct) codify("Immutable") else structName),
       "underlyingStructName" -> genID(struct.sid.prepend("_underlying_")),
       "arity" -> codify(arity.toString),
+      "isLarge" -> v(struct.fields.length > LARGE_STRUCT_CUTOFF),
       "isException" -> v(isException),
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
       "exceptionMessageField" -> exceptionMsgField.map { genID(_) }.getOrElse { codify("")},

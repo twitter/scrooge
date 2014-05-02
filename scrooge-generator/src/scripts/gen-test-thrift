@@ -75,3 +75,7 @@ echo "Running Scrooge on constant_sets.thrift"
 constant_sets="src/test/thrift/constant_sets.thrift"
 $scalaRun $constant_sets
 # $javaRun $constant_sets
+
+echo "Running Scrooge on large_struct.thrift"
+large_struct="src/test/thrift/large_struct.thrift"
+$scalaRun $large_struct
