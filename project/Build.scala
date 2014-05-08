@@ -180,7 +180,7 @@ object Scrooge extends Build {
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
-      finagle("core") % "test",
+      finagle("core"),
       finagle("thrift") % "test"
     )
   ).dependsOn(scroogeRuntime % "test")

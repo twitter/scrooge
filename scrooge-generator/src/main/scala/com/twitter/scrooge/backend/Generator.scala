@@ -24,6 +24,7 @@ import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
 import scala.collection.JavaConverters._
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.finagle.util.LoadService
 
 abstract sealed class ServiceOption
 
@@ -40,10 +41,11 @@ trait ThriftGenerator {
 
 object Generator {
   private[this] val Generators: Map[String, GeneratorFactory] = {
-    val klass = classOf[GeneratorFactory]
+    val loadedGenerators = LoadService[GeneratorFactory]()
     val generators =
       List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory) ++
-      java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator().asScala
+      loadedGenerators
+
     Map(generators map { g => (g.lang -> g) }: _*)
   }
 
