@@ -2,5 +2,8 @@ scala_library(name='scala',
   dependencies=[
     pants('3rdparty:libthrift-0.5.0')
   ],
-  sources=rglobs('*.scala')
+  sources=rglobs('*.scala'),
+  provides=artifact(org='com.twitter',
+                    name='scrooge-core',
+                    repo='pants-support/ivy:internal',),
 )
