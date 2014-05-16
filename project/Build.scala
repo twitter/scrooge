@@ -5,9 +5,9 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
-  val libVersion = "3.14.1"
-  val utilVersion = "6.15.0"
-  val finagleVersion = "6.15.0"
+  val libVersion = "3.15.0"
+  val utilVersion = "6.16.0"
+  val finagleVersion = "6.16.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -178,7 +178,7 @@ object Scrooge extends Build {
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
-      finagle("core") % "test",
+      finagle("core"),
       finagle("thrift") % "test"
     )
   ).dependsOn(scroogeRuntime % "test")

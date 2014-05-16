@@ -4,7 +4,7 @@ import com.twitter.app.GlobalFlag
 import com.twitter.conversions.time._
 import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
-import com.twitter.finagle.exp.ThriftMuxServer
+import com.twitter.finagle.thriftmux.exp.ThriftMuxServer
 import com.twitter.finagle.thrift.ThriftServerFramedCodec
 import com.twitter.finagle.tracing.{NullTracer, Tracer}
 import com.twitter.finagle.Service
