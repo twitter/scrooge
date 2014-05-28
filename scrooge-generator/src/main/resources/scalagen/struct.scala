@@ -35,6 +35,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
     new ThriftStructFieldInfo(
       {{fieldConst}},
       {{optional}},
+      {{required}},
       {{fieldConst}}Manifest,
 {{#fieldKeyType}}
       Some(implicitly[Manifest[{{fieldKeyType}}]]),

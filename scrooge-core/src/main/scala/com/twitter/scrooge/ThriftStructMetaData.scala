@@ -92,6 +92,7 @@ final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method:
 final class ThriftStructFieldInfo(
   val tfield: TField,
   val isOptional: Boolean,
+  val isRequired: Boolean,
   val manifest: Manifest[_],
   val keyManifest: scala.Option[Manifest[_]],
   val valueManifest: scala.Option[Manifest[_]],
@@ -105,6 +106,7 @@ final class ThriftStructFieldInfo(
   def this(
     tfield: TField,
     isOptional: Boolean,
+    isRequired: Boolean,
     manifest: Manifest[_],
     keyManifest: scala.Option[Manifest[_]],
     valueManifest: scala.Option[Manifest[_]]
@@ -112,6 +114,7 @@ final class ThriftStructFieldInfo(
     this(
       tfield,
       isOptional,
+      isRequired,
       manifest,
       keyManifest,
       valueManifest,
