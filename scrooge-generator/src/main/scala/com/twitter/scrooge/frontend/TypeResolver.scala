@@ -40,17 +40,17 @@ case class TypeResolver(
   }
 
   def resolveFieldType(id: Identifier): FieldType = id match {
-    case SimpleID(name) => typeMap.get(name).getOrElse(throw new TypeNotFoundException(name))
+    case SimpleID(name, _) => typeMap.get(name).getOrElse(throw new TypeNotFoundException(name))
     case qid: QualifiedID => getResolver(qid).resolveFieldType(qid.tail)
   }
 
   def resolveService(id: Identifier): Service = id match {
-    case SimpleID(name) => serviceMap.get(name).getOrElse(throw new UndefinedSymbolException(name))
+    case SimpleID(name, _) => serviceMap.get(name).getOrElse(throw new UndefinedSymbolException(name))
     case qid: QualifiedID => getResolver(qid).resolveService(qid.tail)
   }
 
   def resolveConst(id: Identifier): (FieldType, RHS) = id match {
-    case SimpleID(name) =>
+    case SimpleID(name, _) =>
       val const = constMap.get(name).getOrElse(throw new UndefinedConstantException(name))
       (const.fieldType, const.value)
     case qid: QualifiedID => getResolver(qid).resolveConst(qid.tail)

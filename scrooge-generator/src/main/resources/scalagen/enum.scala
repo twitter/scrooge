@@ -10,6 +10,7 @@ case object {{EnumName}} {
   case object {{name}} extends {{package}}.{{EnumName}} {
     val value = {{value}}
     val name = "{{name}}"
+    val originalName = "{{originalName}}"
   }
 {{/values}}
 

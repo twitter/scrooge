@@ -165,7 +165,7 @@ trait Generator
 
   // methods that convert AST nodes to CodeFragment
   def genID(data: Identifier): CodeFragment = data match {
-    case SimpleID(name) => codify(quoteKeyword(name))
+    case SimpleID(name, _) => codify(quoteKeyword(name))
     case QualifiedID(names) => codify(names.map { quoteKeyword(_) }.mkString("."))
   }
 
