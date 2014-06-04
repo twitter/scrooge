@@ -21,6 +21,7 @@
     <module>scrooge-core</module>
     <module>scrooge-benchmark</module>
     <module>scrooge-generator</module>
+    <module>scrooge-linter</module>
     <module>scrooge-ostrich</module>
     <module>scrooge-runtime</module>
     <module>scrooge-serializer</module>

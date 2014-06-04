@@ -77,6 +77,7 @@ User's guide
    Ostrich
    CodeGenDep
    Symantics
+   Linter
 
 Notes
 -----

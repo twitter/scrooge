@@ -69,7 +69,8 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.9.2", "2.10.0"),
+    crossScalaVersions := Seq("2.9.2", "2.10.4"),
+    scalaVersion := "2.9.2",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -158,7 +159,8 @@ object Scrooge extends Build {
       sharedSettings
   ).aggregate(
     scroogeGenerator, scroogeCore,
-    scroogeRuntime, scroogeSerializer, scroogeOstrich
+    scroogeRuntime, scroogeSerializer, scroogeOstrich,
+    scroogeLinter
   )
 
   lazy val scroogeGenerator = Project(
@@ -249,6 +251,15 @@ object Scrooge extends Build {
     repository in bintray := "sbt-plugins",
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     bintrayOrganization in bintray := Some("twittercsl")
+  ).dependsOn(scroogeGenerator)
+
+  lazy val scroogeLinter = Project(
+    id = "scrooge-linter",
+    base = file("scrooge-linter"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
