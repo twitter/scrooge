@@ -88,7 +88,7 @@ object Main {
       opt("s", "skip-unchanged", "Don't re-generate if the target is newer than the input",
         { compiler.skipUnchanged = true; () })
 
-      opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)",
+      opt("l", "language", "name of language to generate code in ('experimental-java',  'scala' and 'lint' are currently supported)",
         { languageString: String =>
           if (Generator.languages.toList contains languageString.toLowerCase) {
             compiler.language = languageString
