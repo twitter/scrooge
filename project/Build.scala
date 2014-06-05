@@ -8,7 +8,7 @@ import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
   val libVersion = "3.15.0"
-  val utilVersion = "6.16.0"
+  val utilVersion = "6.17.0"
   val finagleVersion = "6.16.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
