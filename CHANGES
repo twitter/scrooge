@@ -5,6 +5,13 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.16.0
+~~~~~~~
+
+- Upgrade dependencies to latest versions
+- scrooge: Move scrooge-linter into scrooge
+- scrooge: Add SimpleID.originalName for enum fields.
+
 3.15.0
 ~~~~~~~
 
