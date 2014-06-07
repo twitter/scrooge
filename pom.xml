@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge</artifactId>
   <packaging>pom</packaging>
-  <version>3.15.1-SNAPSHOT</version>
+  <version>3.16.1-SNAPSHOT</version>
   <distributionManagement>
     <repository>
       <id>artifactory-release</id>
@@ -21,6 +21,7 @@
     <module>scrooge-core</module>
     <module>scrooge-benchmark</module>
     <module>scrooge-generator</module>
+    <module>scrooge-linter</module>
     <module>scrooge-ostrich</module>
     <module>scrooge-runtime</module>
     <module>scrooge-serializer</module>

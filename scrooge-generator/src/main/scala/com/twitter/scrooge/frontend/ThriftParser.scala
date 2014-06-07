@@ -26,7 +26,8 @@ case class FileParseException(filename: String, cause: Throwable)
 class ThriftParser(
     importer: Importer,
     strict: Boolean,
-    defaultOptional: Boolean = false)
+    defaultOptional: Boolean = false,
+    skipIncludes: Boolean = false)
   extends RegexParsers {
 
   import com.twitter.scrooge.ast._
@@ -336,8 +337,14 @@ class ThriftParser(
 
   lazy val header: Parser[Header] = include | cppInclude | namespace
 
-  lazy val include = opt(comments) ~> "include" ~> stringLiteral ^^ {
-    s => Include(s.value, parseFile(s.value))
+  lazy val include = opt(comments) ~> "include" ~> stringLiteral ^^ { s =>
+    val doc =
+      if (skipIncludes) {
+        Document(Seq(), Seq())
+      } else {
+        parseFile(s.value)
+      }
+    Include(s.value, doc)
   }
 
   // bogus dude.
@@ -389,7 +396,7 @@ class ThriftParser(
       throw new FileNotFoundException(filename)
     }
 
-    val newParser = new ThriftParser(contents.importer, this.strict, defaultOptional)
+    val newParser = new ThriftParser(contents.importer, this.strict, this.defaultOptional, this.skipIncludes)
     newParser.parse(contents.data, newParser.document, Some(filename))
   }
 

@@ -68,14 +68,16 @@ object Identifier {
   }
 }
 
-case class SimpleID(name: String) extends Identifier {
+case class SimpleID(name: String, origName: Option[String] = None) extends Identifier {
   assert(!name.contains(".") && !name.isEmpty) // name is a simple string
   val fullName: String = name
 
-  def toCamelCase = SimpleID(Identifier.toCamelCase(name))
-  def toTitleCase = SimpleID(Identifier.toTitleCase(name))
-  def toUpperCase = SimpleID(name.toUpperCase)
-  def toLowerCase = SimpleID(name.toLowerCase)
+  val originalName = origName.getOrElse(fullName)
+
+  def toCamelCase = SimpleID(Identifier.toCamelCase(name), origName = Some(originalName))
+  def toTitleCase = SimpleID(Identifier.toTitleCase(name), origName = Some(originalName))
+  def toUpperCase = SimpleID(name.toUpperCase, origName = Some(originalName))
+  def toLowerCase = SimpleID(name.toLowerCase, origName = Some(originalName))
 
   // append and prepend only available for SimpleID
   // To encourage correct usage of SimpleID, we intentionally don't use implicit
@@ -92,7 +94,7 @@ case class SimpleID(name: String) extends Identifier {
 
   def addScope(scope: Identifier): QualifiedID =
     QualifiedID(scope match {
-      case SimpleID(s) => Seq(s, this.name)
+      case SimpleID(s, _) => Seq(s, this.name)
       case QualifiedID(names) => names :+ name
     })
 }

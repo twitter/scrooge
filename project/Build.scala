@@ -5,9 +5,9 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
-  val libVersion = "3.15.0"
-  val utilVersion = "6.16.0"
-  val finagleVersion = "6.16.0"
+  val libVersion = "3.16.0"
+  val utilVersion = "6.17.0"
+  val finagleVersion = "6.17.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -67,7 +67,8 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.9.2", "2.10.0"),
+    crossScalaVersions := Seq("2.9.2", "2.10.4"),
+    scalaVersion := "2.9.2",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -156,7 +157,8 @@ object Scrooge extends Build {
       sharedSettings
   ).aggregate(
     scroogeGenerator, scroogeCore,
-    scroogeRuntime, scroogeSerializer, scroogeOstrich
+    scroogeRuntime, scroogeSerializer, scroogeOstrich,
+    scroogeLinter
   )
 
   lazy val scroogeGenerator = Project(
@@ -242,6 +244,15 @@ object Scrooge extends Build {
       crossBuildSettings
   ).settings(
     sbtPlugin := true
+  ).dependsOn(scroogeGenerator)
+
+  lazy val scroogeLinter = Project(
+    id = "scrooge-linter",
+    base = file("scrooge-linter"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
