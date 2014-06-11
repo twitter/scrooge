@@ -29,12 +29,12 @@ import org.scalatest.matchers.MustMatchers
 
 
 @RunWith(classOf[JUnitRunner])
-class LintGeneratorSpec extends WordSpec with MustMatchers {
+class LinterSpec extends WordSpec with MustMatchers {
 
   def mustPass(errors: Iterable[LintMessage]) =
     errors.size must equal(0)
 
-  "LintGenerator" should {
+  "Linter" should {
     "pass Namespaces" in {
       mustPass(
         LintRule.Namespaces(Document(Seq(

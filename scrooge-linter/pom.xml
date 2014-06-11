@@ -13,7 +13,7 @@
   </parent>
   <properties>
     <git.dir>${project.basedir}/../.git</git.dir>
-    <mainClass>com.twitter.scrooge.Main</mainClass>
+    <mainClass>com.twitter.scrooge.linter.Main</mainClass>
   </properties>
   <distributionManagement>
     <repository>
@@ -79,6 +79,27 @@
             <jvmArg>-Xmx4g</jvmArg>
           </jvmArgs>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <executions>
+          <execution>
+            <id>Compiling Test Thrift Files</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>src/scripts/linter-test</executable>
+              <arguments>
+                <classpath/>
+                <argument>target/test-sources</argument>
+              </arguments>
+              <testSourceRoot>target/test-sources</testSourceRoot>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -16,15 +16,12 @@
 
 package com.twitter.scrooge.linter
 
-import com.twitter.scrooge.ast._
-import com.twitter.scrooge.backend.{GeneratorFactory, ThriftGenerator, ServiceOption}
-import com.twitter.scrooge.mustache.Dictionary._
-import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 import com.twitter.finagle.NoStacktrace
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser}
 
 import java.io.File
 import java.util.logging.{Logger, Level}
-
 import scala.collection.mutable.ArrayBuffer
 
 object LintLevel extends Enumeration {
@@ -33,15 +30,6 @@ object LintLevel extends Enumeration {
 }
 
 import LintLevel._
-
-class LintGeneratorFactory extends GeneratorFactory {
-  val lang = "lint"
-  def apply(
-    includeMap: Map[String, ResolvedDocument],
-    defaultNamespace: String,
-    experimentFlags: Seq[String]
-  ): ThriftGenerator = new LintGenerator()
-}
 
 case class LintMessage(msg: String, level: LintLevel = Warning)
 
@@ -204,13 +192,10 @@ object WarningLogLevel extends Level("LINT-WARN", 998)
 
 case class LintException(msg: String) extends Exception(msg) with NoStacktrace
 
-class LintGenerator(rules: Seq[LintRule] = LintRule.DefaultRules) extends ThriftGenerator {
+class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
   def apply(
-    doc: Document,
-    serviceOptions: Set[ServiceOption],
-    outputPath: File,
-    dryRun: Boolean = false
-  ): Iterable[File] = {
+    doc: Document
+  ) {
     val log = Logger.getLogger("linter")
 
     val messages = LintRule.all(rules)(doc)
@@ -232,7 +217,25 @@ class LintGenerator(rules: Seq[LintRule] = LintRule.DefaultRules) extends Thrift
     if (errorCount > 0) {
       throw new LintException("Lint errors found!")
     }
+  }
 
-    Iterable()
+  def lint() {
+    val importer = Importer(new File("."))
+    val parser = new ThriftParser(importer, cfg.strict, defaultOptional = false, skipIncludes = true)
+
+    for (inputFile <- cfg.files) {
+      if (cfg.verbose) println("+ Linting %s".format(inputFile))
+
+      try {
+        val doc0 = parser.parseFile(inputFile)
+
+        apply(doc0)
+      } catch {
+        case e: FileParseException if (cfg.ignoreErrors) =>
+          e.printStackTrace()
+        case e: LintException if (cfg.ignoreErrors) =>
+          e.printStackTrace()
+      }
+    }
   }
 }

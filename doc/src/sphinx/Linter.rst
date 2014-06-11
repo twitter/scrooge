@@ -10,7 +10,7 @@ To run the linter, pass the '--language lint' flag into the scrooge command line
 For example:
 ::
 
-    ./sbt 'scrooge-linter/run-main com.twitter.scrooge.Main -l lint /path/to/thrift/file.thrift'
+   ./sbt 'scrooge-linter/run /path/to/thrift/file.thrift'
 
 List of rules
 -------------

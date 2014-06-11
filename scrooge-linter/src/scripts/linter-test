@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+args=("$@")
+cp=${args[0]}
+out=${args[1]}
+
+if [[ -n "${args[2]}" ]]; then
+  cd "${args[2]}"
+fi
+
+
+linterRun="java -cp $cp com.twitter.scrooge.linter.Main --verbose"
+
+echo "Running linter (should pass)"
+linter_pass="src/test/thrift/pass.thrift"
+
+$linterRun $linter_pass
+
+set +e
+echo "Running linter (should fail)"
+linter_fail=`find src/test/thrift/fail -name *.thrift`
+
+for input in $linter_fail; do
+    $linterRun $input && echo RETURNED $? && echo ERROR: Lint errors expected when linting $input, no error found. Exiting.&&\
+                         echo command line: $linterRun $input &&  exit 1
+done
+
+set -e
