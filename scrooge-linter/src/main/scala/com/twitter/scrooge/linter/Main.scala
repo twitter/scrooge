@@ -57,7 +57,9 @@ object Main {
         opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting")
           { (_, cfg) => cfg.copy(strict = false) },
 
-        arglist("<files...>", "thrift files to compile") { (input, cfg) => cfg.copy(files = input.split(" ")) }
+        arglist("<files...>", "thrift files to compile") { (input, cfg) =>
+          cfg.copy(files = cfg.files :+ input)
+        }
       )
     }
 
