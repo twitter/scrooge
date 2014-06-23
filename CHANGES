@@ -5,6 +5,15 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.16.1
+~~~~~~~
+
+- release finagle v6.18.0
+- release util v6.18.0
+- scrooge-linter: Fix multiple arguments to linter + pants/mvn fixes
+- scrooge: Separate flow for linter
+- scrooge: Skip includes when linting
+
 3.16.0
 ~~~~~~~
 

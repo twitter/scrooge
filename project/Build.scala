@@ -7,7 +7,7 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
-  val libVersion = "3.16.0"
+  val libVersion = "3.16.1"
   val utilVersion = "6.18.0"
   val finagleVersion = "6.18.0"
 
