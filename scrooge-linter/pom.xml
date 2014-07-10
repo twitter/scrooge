@@ -9,7 +9,7 @@
     <groupId>com.twitter</groupId>
     <artifactId>service-292</artifactId>
     <version>0.0.10</version>
-    <relativePath>../parents/service-292/pom.xml</relativePath>
+    <relativePath>../../parents/service-292/pom.xml</relativePath>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../.git</git.dir>
