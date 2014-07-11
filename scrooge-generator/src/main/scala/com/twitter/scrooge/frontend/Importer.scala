@@ -21,7 +21,7 @@ import java.util.zip.{ZipFile, ZipEntry}
 import scala.io.Source
 
 // an imported file should have its own path available for nested importing.
-case class FileContents(importer: Importer, data: String)
+case class FileContents(importer: Importer, data: String, thriftFilename: Option[String])
 
 // an Importer turns a filename into its string contents.
 trait Importer extends (String => Option[FileContents]) {
@@ -90,7 +90,7 @@ case class DirImporter(dir: File) extends Importer {
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename) map { case (file, importer) =>
-      FileContents(importer, Source.fromFile(file, "UTF-8").mkString)
+      FileContents(importer, Source.fromFile(file, "UTF-8").mkString, Some(file.getName))
     }
 }
 
@@ -109,7 +109,7 @@ case class ZipImporter(file: File) extends Importer {
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename) map { entry =>
-      FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString)
+      FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString, Some(entry.getName))
     }
 }
 
@@ -124,10 +124,10 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
 
   def apply(filename: String): Option[FileContents] =
     first[FileContents] { _(filename) } map {
-      case FileContents(importer, data) =>
+      case FileContents(importer, data, thriftFilename) =>
         // take the importer that found the file and prepend it to importer list returned,
         // that way it is used first when finding relative imports
-        FileContents(importer +: this, data)
+        FileContents(importer +: this, data, thriftFilename)
     }
 
   override def +:(head: Importer): Importer = MultiImporter(head +: importers)

@@ -41,6 +41,9 @@ object UnionFieldRequirednessException {
   }
 }
 
+class InvalidThriftFilenameException(filename: String, regex: String)
+  extends ParseWarning("Thrift filename " + filename + " is invalid, did not pass this check: " + regex)
+
 /**
  * ScroogeInternalException indicates a Scrooge bug
  */
