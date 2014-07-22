@@ -5,16 +5,15 @@ import com.twitter.conversions.time._
 import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
 import com.twitter.finagle.ThriftMuxServer
-import com.twitter.finagle.thrift.ThriftServerFramedCodec
+import com.twitter.finagle.thrift.{Protocols, ThriftServerFramedCodec}
 import com.twitter.finagle.tracing.{NullTracer, Tracer}
 import com.twitter.finagle.Service
 import com.twitter.logging.Logger
 import com.twitter.ostrich
-import com.twitter.util.{Duration, Future}
-
+import com.twitter.util.Duration
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicReference
-import org.apache.thrift.protocol.{TBinaryProtocol, TProtocolFactory}
+import org.apache.thrift.protocol.TProtocolFactory
 
 /**
  * A [[com.twitter.app.GlobalFlag]] for enabling use of ThriftMux.
@@ -38,7 +37,7 @@ trait OstrichThriftServer extends ostrich.admin.Service {
   def tracer: Tracer = NullTracer
   @deprecated("use tracer instead", "3.3.3")
   def tracerFactory: Tracer.Factory = NullTracer.factory
-  val thriftProtocolFactory: TProtocolFactory = new TBinaryProtocol.Factory()
+  val thriftProtocolFactory: TProtocolFactory = Protocols.binaryFactory()
   val thriftPort: Int
   val serverName: String
 
@@ -90,7 +89,7 @@ trait OstrichThriftServer extends ostrich.admin.Service {
   /**
    * Close the underlying server gracefully with the given grace
    * period. close() will drain the current channels, waiting up to
-   * ``timeout'', after which channels are forcibly closed.
+   * ``timeout``, after which channels are forcibly closed.
    */
   def shutdown(timeout: Duration = 0.seconds) {
     synchronized {
