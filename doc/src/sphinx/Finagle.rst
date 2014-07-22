@@ -59,7 +59,7 @@ interface and use it with Finagle's Thrift object.
     class MyImpl extends BinaryService[Future] {
       ...
     }
-    val service = Thrift.serve("host:port", new MyImpl)
+    val service = Thrift.serveIface("host:port", new MyImpl)
 
 Creating a client is easy, you just provide Finagle's Thrift object the
 iface.
