@@ -1,10 +1,11 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, TFieldBlob}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 import java.util.Arrays
+import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.{
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
   HashMap => mutable$HashMap, HashSet => mutable$HashSet}
@@ -62,6 +63,18 @@ object {{StructName}}Aliases {
 {{#fields}}
   type {{FieldName}}Alias = {{>qualifiedFieldType}}
   {{#hasDefaultValue}}val {{FieldName}}DefaultValue = {{defaultFieldValue}}{{/hasDefaultValue}}
+{{#fieldKeyType}}
+  val {{FieldName}}KeyTypeManifest = Some(implicitly[Manifest[{{fieldKeyType}}]])
+{{/fieldKeyType}}
+{{^fieldKeyType}}
+  val {{FieldName}}KeyTypeManifest = None
+{{/fieldKeyType}}
+{{#fieldValueType}}
+  val {{FieldName}}ValueTypeManifest = Some(implicitly[Manifest[{{fieldValueType}}]])
+{{/fieldValueType}}
+{{^fieldValueType}}
+  val {{FieldName}}ValueTypeManifest = None
+{{/fieldValueType}}
 {{/fields}}
 }
 
@@ -74,7 +87,20 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#isEnum}}
   private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
 {{/isEnum}}
+  val {{fieldConst}}Manifest = implicitly[Manifest[{{FieldName}}]]
 {{/fields}}
+
+  lazy val structAnnotations: immutable$Map[String, String] =
+{{#structAnnotations}}
+    immutable$Map[String, String](
+{{#pairs}}
+        "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+    )
+{{/structAnnotations}}
+{{^structAnnotations}}
+    immutable$Map.empty[String, String]
+{{/structAnnotations}}
 
   override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
   override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}Decoder(_iprot, UnknownUnionField(_))
@@ -84,6 +110,37 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   import {{StructName}}Aliases._
 
 {{#fields}}
+  object {{FieldName}} {
+    val fieldInfo =
+      new ThriftStructFieldInfo(
+        {{fieldConst}},
+        false,
+        manifest[{{FieldName}}Alias],
+        {{FieldName}}KeyTypeManifest,
+        {{FieldName}}ValueTypeManifest,
+{{#fieldTypeAnnotations}}
+        immutable$Map(
+{{#pairs}}
+          "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+        ),
+{{/fieldTypeAnnotations}}
+{{^fieldTypeAnnotations}}
+        immutable$Map.empty[String, String],
+{{/fieldTypeAnnotations}}
+{{#fieldFieldAnnotations}}
+        immutable$Map(
+{{#pairs}}
+          "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+        )
+{{/fieldFieldAnnotations}}
+{{^fieldFieldAnnotations}}
+        immutable$Map.empty[String, String]
+{{/fieldFieldAnnotations}}
+      )
+  }
+
   case class {{FieldName}}({{fieldName}}: {{FieldName}}Alias{{#hasDefaultValue}} = {{FieldName}}DefaultValue{{/hasDefaultValue}}) extends {{StructName}} {
     override def write(_oprot: TProtocol) {
 {{^isPrimitive}}
@@ -98,8 +155,8 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       _oprot.writeStructEnd()
     }
   }
-{{/fields}}
 
+{{/fields}}
   case class UnknownUnionField private[{{StructName}}](private val field: TFieldBlob) extends {{StructName}} {
     override def write(_oprot: TProtocol) {
       _oprot.writeStructBegin(Union)
