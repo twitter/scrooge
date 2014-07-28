@@ -331,8 +331,8 @@ class ThriftParser(
 
   // document
 
-  lazy val document: Parser[Document] = rep(header) ~ rep(definition) ^^ {
-    case hs ~ ds => Document(hs, ds)
+  lazy val document: Parser[Document] = rep(header) ~ rep(definition) ~ opt(comments) ^^ {
+    case hs ~ ds ~ _ => Document(hs, ds)
   }
 
   lazy val header: Parser[Header] = include | cppInclude | namespace
