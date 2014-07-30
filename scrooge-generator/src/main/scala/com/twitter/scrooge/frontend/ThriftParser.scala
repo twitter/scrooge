@@ -332,7 +332,7 @@ class ThriftParser(
 
   // document
 
-  lazy val document: Parser[Document] = rep(header) ~ rep(definition) ^^ {
+  lazy val document: Parser[Document] = rep(header) ~ rep(definition) <~ opt(comments) ^^ {
     case hs ~ ds => Document(hs, ds)
   }
 
