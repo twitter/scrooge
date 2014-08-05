@@ -1,16 +1,17 @@
 Scrooge thrift linter
 =====================
 
-Scrooge thrift linter enforces guidelines for thrift files. These guidelines make sharing thrift files between projects easy.
+Scrooge thrift linter enforces usage guidelines for thrift files. These guidelines make sharing thrift files between projects easy.
 
 Running the linter
 ------------------------
 
-To run the linter, pass the '--language lint' flag into the scrooge command line with the linter jar on the classpath.
-For example:
+To run the thrift linter with sbt:
 ::
 
-   ./sbt 'scrooge-linter/run /path/to/thrift/file.thrift'
+    $ ./sbt 'scrooge-linter/run-main com.twitter.scrooge.linter.Main --help'
+
+    $ ./sbt 'scrooge-linter/run-main com.twitter.scrooge.linter.Main /path/to/thrift/file.thrift'
 
 List of rules
 -------------

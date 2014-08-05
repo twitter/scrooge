@@ -76,7 +76,7 @@ User's guide
    Finagle
    Ostrich
    CodeGenDep
-   Symantics
+   Semantics
    Linter
 
 Notes
