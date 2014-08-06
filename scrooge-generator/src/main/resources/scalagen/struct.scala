@@ -139,7 +139,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 {{#fields}}
 {{#required}}
-    if (!{{gotName}}) throw new TProtocolException("Required field '{{StructNameForWire}}' was not found in serialized data for struct {{StructName}}")
+    if (!{{gotName}}) throw new TProtocolException("Required field '{{fieldName}}' was not found in serialized data for struct {{StructName}}")
 {{/required}}
 {{/fields}}
     new {{InstanceClassName}}(

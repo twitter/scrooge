@@ -22,6 +22,7 @@ class ImporterSpec extends Spec {
       val c = importer.apply("a.thrift")
       c.isDefined must be(true)
       c.get.data must be("hello")
+      c.get.thriftFilename.get must be("a.thrift")
     }
 
     "follows relative links correctly" in {
@@ -39,6 +40,7 @@ class ImporterSpec extends Spec {
       c.isDefined must be(true)
       c.get.data must be("hello")
       (c.get.importer.canonicalPaths contains folder2.getCanonicalPath) must be(true)
+      c.get.thriftFilename.get must be("a.thrift")
     }
     
     "reads utf-8 data correctly" in {
@@ -55,6 +57,7 @@ class ImporterSpec extends Spec {
       val c = importer.apply("a.thrift")
       c.isDefined must be(true)
       c.get.data must be("你好")
+      c.get.thriftFilename.get must be("a.thrift")
     }
   }
 }

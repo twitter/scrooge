@@ -8,6 +8,11 @@ trait ThriftStruct {
 }
 
 /**
+ * Unions are tagged with this trait as well as with ThriftStruct.
+ */
+trait ThriftUnion
+
+/**
  * A trait encapsulating the logic for encoding and decoding a specific thrift struct
  * type.  The methods encoder and decoder are used by scrooge2 generated code, but are
  * now deprecated.  scrooge3 generated code uses encode and decode.

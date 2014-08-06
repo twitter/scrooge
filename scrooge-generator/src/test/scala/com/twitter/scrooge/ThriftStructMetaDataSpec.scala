@@ -137,4 +137,83 @@ class ThriftStructMetaDataSpec extends Spec {
       "structKey2" -> "structValue2"
     ))
   }
+
+  // Announion has one annotation in each position - EXCEPT for type annotations.
+  // For some reason, the thrift code generator doesn't allow that.
+  "reports single union annotations" in {
+    AnnoUnion.structAnnotations must be(Map(
+      "unionKey" -> "unionValue"
+    ))
+  }
+
+  "contains union field annotations" in {
+    AnnoUnion.UnionFieldFieldManifest must be(manifest[AnnoUnion.UnionField])
+    val info = AnnoUnion.UnionField.fieldInfo
+    info.tfield.name must be("unionField")
+    info.tfield.id must be(1: Short)
+    info.typeAnnotations must be(Map.empty[String, String])
+    info.fieldAnnotations must be(Map(
+      "unionFieldKey" -> "unionFieldValue"
+    ))
+    info.manifest must be(manifest[AnnoStruct])
+    info.isOptional must be(false)
+    info.keyManifest must be(None)
+    info.valueManifest must be(None)
+  }
+
+  "contains union manifest info with field types" {
+    {
+      MatchingFieldAndStruct.MatchingStructFieldFieldManifest must be(
+        manifest[MatchingFieldAndStruct.MatchingStructField])
+      val info = MatchingFieldAndStruct.MatchingStructField.fieldInfo
+      info.tfield.name must be("matchingStructField")
+      info.tfield.id must be(1: Short)
+      info.typeAnnotations must be(Map.empty[String, String])
+      info.fieldAnnotations must be(Map.empty[String, String])
+      info.manifest must be(manifest[MatchingStructField])
+      info.isOptional must be(false)
+      info.keyManifest must be(None)
+      info.valueManifest must be(None)
+    }
+    {
+      MatchingFieldAndStruct.MatchingStructListFieldManifest must be(
+        manifest[MatchingFieldAndStruct.MatchingStructList])
+      val info = MatchingFieldAndStruct.MatchingStructList.fieldInfo
+      info.tfield.name must be("matchingStructList")
+      info.tfield.id must be(2: Short)
+      info.typeAnnotations must be(Map.empty[String, String])
+      info.fieldAnnotations must be(Map.empty[String, String])
+      info.manifest must be(manifest[Seq[MatchingStructList]])
+      info.isOptional must be(false)
+      info.keyManifest must be(None)
+      info.valueManifest must be(Some(manifest[MatchingStructList]))
+    }
+    {
+      MatchingFieldAndStruct.MatchingStructSetFieldManifest must be(
+        manifest[MatchingFieldAndStruct.MatchingStructSet])
+      val info = MatchingFieldAndStruct.MatchingStructSet.fieldInfo
+      info.tfield.name must be("matchingStructSet")
+      info.tfield.id must be(3: Short)
+      info.typeAnnotations must be(Map.empty[String, String])
+      info.fieldAnnotations must be(Map.empty[String, String])
+      info.manifest must be(manifest[Set[MatchingStructSet]])
+      info.isOptional must be(false)
+      info.keyManifest must be(None)
+      info.valueManifest must be(Some(manifest[MatchingStructSet]))
+    }
+    {
+      MatchingFieldAndStruct.MatchingStructMapFieldManifest must be(
+        manifest[MatchingFieldAndStruct.MatchingStructMap])
+      val info = MatchingFieldAndStruct.MatchingStructMap.fieldInfo
+      info.tfield.name must be("matchingStructMap")
+      info.tfield.id must be(4: Short)
+      info.typeAnnotations must be(Map.empty[String, String])
+      info.fieldAnnotations must be(Map.empty[String, String])
+      info.manifest must be(manifest[Map[MatchingStructMap, MatchingStructMap]])
+      info.isOptional must be(false)
+      info.keyManifest must be(Some(manifest[MatchingStructMap]))
+      info.valueManifest must be(Some(manifest[MatchingStructMap]))
+    }
+    0
+  }
 }

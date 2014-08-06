@@ -4,16 +4,16 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-linter</artifactId>
   <packaging>jar</packaging>
-  <version>3.16.1-SNAPSHOT</version>
+  <version>3.16.4-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>service-292</artifactId>
     <version>0.0.10</version>
-    <relativePath>../parents/service-292/pom.xml</relativePath>
+    <relativePath>../../parents/service-292/pom.xml</relativePath>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../.git</git.dir>
-    <mainClass>com.twitter.scrooge.Main</mainClass>
+    <mainClass>com.twitter.scrooge.linter.Main</mainClass>
   </properties>
   <distributionManagement>
     <repository>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator</artifactId>
-      <version>3.16.1-SNAPSHOT</version>
+      <version>3.16.3</version>
     </dependency>
     <dependency>
       <groupId>org.scalatest</groupId>
@@ -79,6 +79,52 @@
             <jvmArg>-Xmx4g</jvmArg>
           </jvmArgs>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <executions>
+          <execution>
+            <id>Compiling Test Thrift Files</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>src/scripts/linter-test</executable>
+              <arguments>
+                <classpath/>
+                <argument>target/test-sources</argument>
+              </arguments>
+              <testSourceRoot>target/test-sources</testSourceRoot>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.1</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>${mainClass}</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <!-- this is used for inheritance merges -->
+            <id>make-assembly</id>
+            <!-- bind to the packaging phase -->
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

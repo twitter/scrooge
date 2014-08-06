@@ -376,5 +376,30 @@ enum Foo
           structAnnotations
         ))
     }
+
+    "handle illegal filenames" in {
+      val illegalFilename = "illegal-name.thrift"
+
+      intercept[InvalidThriftFilenameException] {
+        getParserForFilenameTest(illegalFilename).parseFile(illegalFilename)
+      }
+    }
+
+    "handle legal filenames" in {
+      val illegalFilename = "legal_name.thrift"
+      getParserForFilenameTest(illegalFilename).parseFile(illegalFilename)
+    }
+
+  }
+
+
+  private def getParserForFilenameTest(thriftFilename: String): ThriftParser = {
+    val importer = new Importer {
+      override def apply(v1: String): scala.Option[FileContents] =
+        scala.Some(FileContents(NullImporter, "", scala.Some(thriftFilename)))
+      override private[scrooge] def canonicalPaths: Seq[String] = Nil
+      override def lastModified(filename: String): scala.Option[Long] = None
+    }
+    new ThriftParser(importer, true)
   }
 }

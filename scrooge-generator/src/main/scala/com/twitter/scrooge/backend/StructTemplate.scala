@@ -230,15 +230,19 @@ trait StructTemplate {
   ) = {
     val isStruct = struct.isInstanceOf[Struct]
     val isException = struct.isInstanceOf[Exception_]
-    val parentType = if (isException) {
-      if (serviceOptions contains WithFinagle) {
-        "ThriftException with com.twitter.finagle.SourcedException with ThriftStruct"
+    val isUnion = struct.isInstanceOf[Union]
+    val parentType =
+      if (isException) {
+        if (serviceOptions contains WithFinagle) {
+          "ThriftException with com.twitter.finagle.SourcedException with ThriftStruct"
+        } else {
+          "ThriftException with ThriftStruct"
+        }
+      } else if (isUnion) {
+        "ThriftUnion with ThriftStruct"
       } else {
-        "ThriftException with ThriftStruct"
+        "ThriftStruct"
       }
-    } else {
-      "ThriftStruct"
-    }
     val arity = struct.fields.size
     val product = if (arity >= 1 && arity <= 22) {
       val fieldTypes = struct.fields.map {

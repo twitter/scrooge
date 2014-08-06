@@ -95,7 +95,8 @@ class ThriftParser(
       def identifier: Parser[Identifier] = qualifiedID | simpleID
    */
 
-  lazy val identifier = "[A-Za-z_][A-Za-z0-9\\._]*".r ^^ {
+  val identifierRegex = "[A-Za-z_][A-Za-z0-9\\._]*".r
+  lazy val identifier = identifierRegex ^^ {
     x => Identifier(x)
   }
 
@@ -331,7 +332,7 @@ class ThriftParser(
 
   // document
 
-  lazy val document: Parser[Document] = rep(header) ~ rep(definition) ^^ {
+  lazy val document: Parser[Document] = rep(header) ~ rep(definition) <~ opt(comments) ^^ {
     case hs ~ ds => Document(hs, ds)
   }
 
@@ -394,6 +395,18 @@ class ThriftParser(
   def parseFile(filename: String): Document = {
     val contents = importer(filename) getOrElse {
       throw new FileNotFoundException(filename)
+    }
+
+    // one thrift file can be included in another and referenced like this:
+    // list<includedthriftfilenamehere.Request> requests
+    //
+    // thus we need to ensure includedthriftfilenamehere is valid, otherwise the first person
+    // to include the thrift file, with for example a dash in the name, will run into problems
+    contents.thriftFilename foreach { f =>
+      identifierRegex.findFirstIn(f) match {
+        case Some(`f`) => ()
+        case _ => failOrWarn(new InvalidThriftFilenameException(f, identifierRegex.toString()))
+      }
     }
 
     val newParser = new ThriftParser(contents.importer, this.strict, this.defaultOptional, this.skipIncludes)
