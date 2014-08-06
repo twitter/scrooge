@@ -5,6 +5,18 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.17.0
+~~~~~~~
+
+- bump finagle to 6.20.0
+- bump util to 6.18.4
+- upgrade sbt to 0.13
+- scrooge-core: Add union metadata for reflection
+- scrooge-generator: Fix error message for missing required field
+- scrooge-generator: Normalize scalatest versions between poms and 3rdparty
+- scrooge-generator: Stricter checks for invalid Thrift filenames
+- scrooge-ostrich: Default to using `Protocols.binaryFactory`
+
 3.16.1
 ~~~~~~~
 

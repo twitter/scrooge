@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-benchmark</artifactId>
   <packaging>jar</packaging>
-  <version>3.16.2-SNAPSHOT</version>
+  <version>3.16.4-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-292</artifactId>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime</artifactId>
-      <version>3.16.2-SNAPSHOT</version>
+      <version>3.16.4-SNAPSHOT</version>
     </dependency>
     <!-- library dependencies -->
     <dependency>
@@ -30,12 +30,12 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator</artifactId>
-      <version>3.16.2-SNAPSHOT</version>
+      <version>3.16.3</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-app</artifactId>
-      <version>6.18.3-SNAPSHOT</version>
+      <version>6.19.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.google.caliper</groupId>
