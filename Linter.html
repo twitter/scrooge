@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ostrich Integration &mdash; Scrooge 3.16.3 documentation</title>
+    <title>Scrooge thrift linter &mdash; Scrooge 3.16.3 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Scrooge 3.16.3 documentation" href="index.html" />
-    <link rel="next" title="Dependencies of the generated code" href="CodeGenDep.html" />
-    <link rel="prev" title="Finagle Integration" href="Finagle.html" />
+    <link rel="next" title="Scrooge Changelog" href="changelog.html" />
+    <link rel="prev" title="Implementation Semantics" href="Semantics.html" />
    
   
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
@@ -43,10 +43,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="CodeGenDep.html" title="Dependencies of the generated code"
+          <a href="changelog.html" title="Scrooge Changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Finagle.html" title="Finagle Integration"
+          <a href="Semantics.html" title="Implementation Semantics"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Scrooge</a> &raquo;</li> 
       </ul>
@@ -57,27 +57,35 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="ostrich-integration">
-<h1>Ostrich Integration<a class="headerlink" href="#ostrich-integration" title="Permalink to this headline">¶</a></h1>
-<p><strong>NOTE: Ostrich is on the path to deprecation. Please use TwitterServer and the Finagle 6 APIs instead</strong></p>
-<p>To use the deprecated ostrich integration</p>
-<div class="highlight-text"><div class="highlight"><pre>object BinaryService {
-  trait Iface { ... }
-  trait FutureIface  { ... }
-}
+  <div class="section" id="scrooge-thrift-linter">
+<h1>Scrooge thrift linter<a class="headerlink" href="#scrooge-thrift-linter" title="Permalink to this headline">¶</a></h1>
+<p>Scrooge thrift linter enforces usage guidelines for thrift files. These guidelines make sharing thrift files between projects easy.</p>
+<div class="section" id="running-the-linter">
+<h2>Running the linter<a class="headerlink" href="#running-the-linter" title="Permalink to this headline">¶</a></h2>
+<p>To run the thrift linter with sbt:</p>
+<div class="highlight-text"><div class="highlight"><pre>$ ./sbt &#39;scrooge-linter/run-main com.twitter.scrooge.linter.Main --help&#39;
+
+$ ./sbt &#39;scrooge-linter/run-main com.twitter.scrooge.linter.Main /path/to/thrift/file.thrift&#39;
 </pre></div>
 </div>
-<p>To use the generated code Ostrich server:</p>
-<div class="highlight-text"><div class="highlight"><pre>//First, you need to provide an implementation, as seen previously in the &quot;--finagle&quot; example
-import com.twitter.scrooge.OstrichThriftServer
-class MyImpl extends BinaryService.FutureIface { ... }
-val ostrichServer = new OstrichThriftServer with MyImpl {
-  // server configuration
-  val thriftPort = ..
-  val serverName = ..
-}
-ostrichServer.start()
-</pre></div>
+</div>
+<div class="section" id="list-of-rules">
+<h2>List of rules<a class="headerlink" href="#list-of-rules" title="Permalink to this headline">¶</a></h2>
+<p>The current rules are:</p>
+<ol class="arabic">
+<li><p class="first">Each thrift file must have a scala and a java namespace.</p>
+</li>
+<li><p class="first">No relative includes ouside the current directory, i.e. no &#8216;..&#8217; in included paths.</p>
+<p>Absolute paths are preferred. Including files in the subdirectories is fine.</p>
+</li>
+<li><p class="first">Struct names must be UpperCamelCase.</p>
+<p>Field names must be lowerCamelCase.</p>
+</li>
+<li><p class="first">No default values for required fields.</p>
+</li>
+<li><p class="first">Struct and field names must not be keywords in Scala, Java, Ruby, Python, PHP.</p>
+</li>
+</ol>
 </div>
 </div>
 
@@ -95,11 +103,20 @@ ostrichServer.start()
 <ul>
   <li><a href="http://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
   <li><a href="http://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
-</ul><h3>Related Topics</h3>
+</ul>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Scrooge thrift linter</a><ul>
+<li><a class="reference internal" href="#running-the-linter">Running the linter</a></li>
+<li><a class="reference internal" href="#list-of-rules">List of rules</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="Finagle.html" title="previous chapter">Finagle Integration</a></li>
-      <li>Next: <a href="CodeGenDep.html" title="next chapter">Dependencies of the generated code</a></li>
+      <li>Previous: <a href="Semantics.html" title="previous chapter">Implementation Semantics</a></li>
+      <li>Next: <a href="changelog.html" title="next chapter">Scrooge Changelog</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none">

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Maven Plugin &mdash; Scrooge 3.5.0 documentation</title>
+    <title>Maven Plugin &mdash; Scrooge 3.16.3 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.5.0',
+        VERSION:     '3.16.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.5.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 3.16.3 documentation" href="index.html" />
     <link rel="next" title="Command Line" href="CommandLine.html" />
     <link rel="prev" title="SBT Plugin" href="SBTPlugin.html" />
    
@@ -77,12 +77,6 @@ need to be declared.</p>
   &lt;artifactId&gt;finagle-thrift_2.9.2&lt;/artifactId&gt;
   &lt;version&gt;6.5.1&lt;/version&gt;
 &lt;/dependency&gt;
-&lt;!-- needed if the &quot;--ostrich&quot; flag is provided --&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
-  &lt;artifactId&gt;finagle-ostrich4_2.9.2&lt;/artifactId&gt;
-  &lt;version&gt;6.5.1&lt;/version&gt;
-&lt;/dependency&gt;
 </pre></div>
 </div>
 <p>In order to generate code with the maven plugin the following plugin
@@ -91,7 +85,7 @@ pom.xml file.</p>
 <div class="highlight-text"><div class="highlight"><pre>&lt;plugin&gt;
   &lt;groupId&gt;com.twitter&lt;/groupId&gt;
   &lt;artifactId&gt;scrooge-maven-plugin&lt;/artifactId&gt;
-  &lt;version&gt;3.3.2&lt;/version&gt;
+  &lt;version&gt;3.14.1&lt;/version&gt;
   &lt;configuration&gt;
     &lt;thriftNamespaceMappings&gt;
       &lt;thriftNamespaceMapping&gt;
@@ -103,7 +97,6 @@ pom.xml file.</p>
     &lt;thriftOpts&gt;
       &lt;!-- add other Scrooge command line options using thriftOpts --&gt;
       &lt;thriftOpt&gt;--finagle&lt;/thriftOpt&gt;
-      &lt;thriftOpt&gt;--ostrich&lt;/thriftOpt&gt;
     &lt;/thriftOpts&gt;
     &lt;!-- tell scrooge to extract thrifts from these artifacts --&gt;
     &lt;dependencyIncludes&gt;

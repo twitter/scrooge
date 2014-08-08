@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Scrooge &mdash; Scrooge 3.5.0 documentation</title>
+    <title>Scrooge &mdash; Scrooge 3.16.3 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.5.0',
+        VERSION:     '3.16.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.5.0 documentation" href="#" />
-    <link rel="next" title="SBT Plugin" href="SBTPlugin.html" />
+    <link rel="top" title="Scrooge 3.16.3 documentation" href="#" />
+    <link rel="next" title="Namespaces" href="Namespaces.html" />
    
   
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
@@ -44,7 +44,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="SBTPlugin.html" title="SBT Plugin"
+          <a href="Namespaces.html" title="Namespaces"
              accesskey="N">next</a> |</li>
         <li><a href="#">Scrooge</a> &raquo;</li> 
       </ul>
@@ -109,15 +109,21 @@ Maven users need to add the following to the pom.xml file:</p>
 <h2>User&#8217;s guide<a class="headerlink" href="#user-s-guide" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Namespaces.html">Namespaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SBTPlugin.html">SBT Plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="MVNPlugin.html">Maven Plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CommandLine.html">Command Line</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Finagle.html">Finagle Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Ostrich.html">Ostrich Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CodeGenDep.html">Dependencies of the generated code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Symantics.html">Implementation Semantics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Symantics.html#default-values-by-type">Default values by type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Symantics.html#missing-values">Missing values</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Semantics.html">Implementation Semantics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Semantics.html#default-values-by-type">Default values by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Semantics.html#missing-values">Missing values</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Linter.html">Scrooge thrift linter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Linter.html#running-the-linter">Running the linter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Linter.html#list-of-rules">List of rules</a></li>
 </ul>
 </li>
 </ul>
@@ -129,8 +135,8 @@ Maven users need to add the following to the pom.xml file:</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Scrooge Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#x">3.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id27">2.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id38">1.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id54">2.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id65">1.x</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>

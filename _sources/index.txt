@@ -69,13 +69,15 @@ User's guide
 .. toctree::
    :maxdepth: 4
 
+   Namespaces
    SBTPlugin
    MVNPlugin
    CommandLine
    Finagle
    Ostrich
    CodeGenDep
-   Symantics
+   Semantics
+   Linter
 
 Notes
 -----
