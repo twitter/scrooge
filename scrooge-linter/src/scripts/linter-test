@@ -11,7 +11,7 @@ if [[ -n "${args[2]}" ]]; then
 fi
 
 
-linterRun="java -cp $cp com.twitter.scrooge.linter.Main --verbose"
+linterRun="java -cp $cp com.twitter.scrooge.linter.Main"
 
 echo "Running linter (should pass)"
 linter_pass="src/test/thrift/pass.thrift"

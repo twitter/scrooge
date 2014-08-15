@@ -21,7 +21,6 @@ import java.util.Properties
 import scopt.immutable.OptionParser
 
 case class Config(
-  val verbose: Boolean = false,
   val strict: Boolean = false,
   val files: Seq[String] = Seq(),
   val ignoreErrors: Boolean = false
@@ -30,7 +29,9 @@ case class Config(
 
 object Main {
   def main(args: Array[String]) {
-    new Linter(parseOptions(args)).lint()
+    val numErrors = new Linter(parseOptions(args)).lint()
+    if (numErrors > 0)
+      System.exit(1)
   }
 
   def parseOptions(args: Seq[String]): Config = {
@@ -50,9 +51,7 @@ object Main {
           sys.exit()
         },
 
-        flag("v", "verbose", "log verbose messages about progress") { cfg => cfg.copy(verbose = true) },
-
-        flag("i", "ignore-errors", "continue if linter errors are found (for batch processing)") {cfg => cfg.copy(ignoreErrors = true) },
+        flag("i", "ignore-errors", "continue if parse errors are found (for batch processing)") { cfg => cfg.copy(ignoreErrors = true) },
 
         opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting")
           { (_, cfg) => cfg.copy(strict = false) },
