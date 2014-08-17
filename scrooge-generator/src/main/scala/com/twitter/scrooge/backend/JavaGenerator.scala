@@ -122,9 +122,12 @@ class JavaGenerator(
     genID(enum.value.sid.toUpperCase.addScope(getTypeId.toTitleCase))
   }
 
-  // TODO
   def genStruct(struct: StructRHS): CodeFragment =
-    throw new Exception("not implemented")
+   codify("new " + struct.sid.name + ".Builder()" +
+        struct.elems.map {
+          case (field, rhs) => "." + field.sid.name + "(" + genConstant(rhs) + ")"
+        }.mkString("") +
+        ".build()")
 
   /**
    * Generates a suffix to append to a field expression that will
