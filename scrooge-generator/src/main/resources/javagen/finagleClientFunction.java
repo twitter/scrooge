@@ -38,7 +38,7 @@ private __Stats {{__stats_name}}() {
   }).rescue(new Function<Throwable, Future<{{type}}>>() {
     public Future<{{type}}> apply(Throwable t) {
       if (t instanceof SourcedException) {
-        ((SourcedException) t).serviceName_$eq(FinagledClient.this.serviceName);
+        ((SourcedException) t).serviceName_$eq({{ServiceName}}$FinagleClient.this.serviceName);
       }
       return Future.exception(t);
     }

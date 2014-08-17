@@ -48,6 +48,27 @@ public class {{ServiceName}} {
     {{>function}};
 {{/asyncFunctions}}
   }
+
+  class FinagledClient extends {{ServiceName}}$FinagleClient {
+      public FinagledClient (
+        com.twitter.finagle.Service<com.twitter.finagle.thrift.ThriftClientRequest, byte[]> service,
+        TProtocolFactory protocolFactory,
+        String serviceName,
+        com.twitter.finagle.stats.StatsReceiver stats
+        ) {
+          super(service, protocolFactory, serviceName, stats);
+        }
+  }
+
+  class FinagledService extends {{ServiceName}}$FinagleService {
+      public FinagledService (
+        FutureIface iface,
+        TProtocolFactory protocolFactory
+        ) {
+          super(iface, protocolFactory);
+      }
+  }
+
 {{/withFinagle}}
 
 {{#internalStructs}}
