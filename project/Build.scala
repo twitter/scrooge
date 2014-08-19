@@ -81,7 +81,7 @@ object Scrooge extends Build {
     otherResolvers += m2Repo,
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "1.9.1" % "test",
+      "org.scalatest" %% "scalatest" % (if ((scalaVersion in Compile).value.startsWith("2.11")) "2.2.1" else "1.9.2") % "test",
       "junit" % "junit" % "4.8.1" % "test"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
@@ -194,7 +194,8 @@ object Scrooge extends Build {
     name := "scrooge-core",
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
+    ),
+    crossScalaVersions += "2.11.2"
   )
 
   lazy val scroogeRuntime = Project(
