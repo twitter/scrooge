@@ -81,7 +81,7 @@ object Scrooge extends Build {
     otherResolvers += m2Repo,
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % (if ((scalaVersion in Compile).value.startsWith("2.11")) "2.2.1" else "1.9.2") % "test",
+      "org.scalatest" %% "scalatest" % (if ((scalaVersion in Compile).value.startsWith("2.11")) "2.1.3" else "1.9.1") % "test",
       "junit" % "junit" % "4.8.1" % "test"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
