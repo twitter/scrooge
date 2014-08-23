@@ -1,6 +1,11 @@
 maven_layout()
 
 scala_library(name='scala',
+  provides = artifact(
+    org = 'com.twitter',
+    name = 'scrooge-generator',
+    repo = pants('pants-support/ivy:internal'),
+  ),
   dependencies=[
     pants('3rdparty:scala-library'),
     pants('3rdparty:commons-cli'),

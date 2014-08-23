@@ -1,6 +1,11 @@
 maven_layout()
 
 scala_library(
+  provides = artifact(
+    org = 'com.twitter',
+    name = 'scrooge-linter',
+    repo = pants('pants-support/ivy:internal'),
+  ),
   name='scala',
   dependencies=[
     pants('3rdparty:libthrift-0.5.0'),

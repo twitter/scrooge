@@ -1,4 +1,9 @@
 scala_library(name='scala',
+  provides = artifact(
+    org = 'com.twitter',
+    name = 'scrooge-ostrich',
+    repo = pants('pants-support/ivy:internal'),
+  ),
   dependencies=[
     pants('3rdparty:libthrift-0.5.0'),
     pants('finagle/finagle-core'),
