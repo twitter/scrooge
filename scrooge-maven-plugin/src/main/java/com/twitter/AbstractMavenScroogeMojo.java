@@ -134,6 +134,17 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<String> excludes = ImmutableSet.of();
 
   /**
+   * Whether or not to build the thrift extracted from dependencies, if any
+   * @parameter
+   * {@code
+   * <configuration>
+   *     <buildExtractedThrift>false</buildExtractedThrift>
+   * </configuration>
+   * }
+   */
+  private boolean buildExtractedThrift = true;
+
+  /**
    * Whether or not to fix hashcode being default 0
    * @parameter
    */
@@ -296,7 +307,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     }
     getLog().info("finding thrift files in dependencies");
     extractFilesFromDependencies(findThriftDependencies(dependencyIncludes), getResourcesOutputDirectory());
-    if (getResourcesOutputDirectory().exists()) {
+    if (buildExtractedThrift && getResourcesOutputDirectory().exists()) {
       thriftFiles.addAll(findThriftFilesInDirectory(getResourcesOutputDirectory()));
     }
     getLog().info("finding thrift files in referenced (reactor) projects");
