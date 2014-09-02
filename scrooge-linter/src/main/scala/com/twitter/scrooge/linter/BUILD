@@ -1,7 +1,7 @@
 maven_layout()
 
 scala_library(
-  provides = artifact(
+  provides = scala_artifact(
     org = 'com.twitter',
     name = 'scrooge-linter',
     repo = pants('pants-support/ivy:internal'),

@@ -12,6 +12,8 @@ import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
 import scala.collection.{Map, Set}
 
+import scala.language.higherKinds
+
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleClient(

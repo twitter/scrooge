@@ -1,5 +1,5 @@
 scala_library(name='scala',
-  provides = artifact(
+  provides = scala_artifact(
     org = 'com.twitter',
     name = 'scrooge-ostrich',
     repo = pants('pants-support/ivy:internal'),
