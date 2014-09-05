@@ -97,6 +97,17 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields}}
   }
 
+  def withoutPassthroughFields(original: {{StructName}}): {{StructName}} =
+    new {{InstanceClassName}}(
+{{#fields}}
+      {{fieldName}} =
+        {
+          val field = original.{{fieldName}}
+          {{#passthroughFields}}{{>withoutPassthrough}}{{/passthroughFields}}
+        }
+{{/fields|,}}
+    )
+
   override def encode(_item: {{StructName}}, _oproto: TProtocol) {
     _item.write(_oproto)
   }
