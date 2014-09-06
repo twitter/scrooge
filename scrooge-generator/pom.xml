@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-generator_2.10</artifactId>
   <packaging>jar</packaging>
-  <version>3.16.4-TWOTEN-1407871523</version>
+  <version>3.16.5-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-2104_2.10</artifactId>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime_2.10</artifactId>
-      <version>3.16.4-TWOTEN-1407871523</version>
+      <version>3.16.5-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <!-- library dependencies -->
@@ -37,12 +37,12 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core_2.10</artifactId>
-      <version>6.20.1-TWOTEN-1407871523</version>
+      <version>6.21.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-codec_2.10</artifactId>
-      <version>6.20.1-TWOTEN-1407871523</version>
+      <version>6.21.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -101,12 +101,12 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.10</artifactId>
-      <version>6.20.1-TWOTEN-1407871523</version>
+      <version>6.20.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.10</artifactId>
-      <version>6.20.1-TWOTEN-1407871523</version>
+      <version>6.20.2-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -259,7 +259,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>maven-finagle-thrift-plugin</artifactId>
-        <version>0.0.13</version>
+        <version>0.0.14</version>
         <executions>
           <execution>
             <id>thrift-sources</id>

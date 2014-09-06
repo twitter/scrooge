@@ -5,7 +5,7 @@
   <artifactId>scrooge-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>scrooge-maven-plugin</name>
-  <version>3.16.3</version>
+  <version>3.16.4</version>
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>

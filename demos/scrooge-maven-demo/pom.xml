@@ -5,7 +5,7 @@
   <artifactId>scrooge-demo</artifactId>
   <packaging>jar</packaging>
   <name>scrooge-demo</name>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <properties>
     <git.dir>${project.basedir}/../../../.git</git.dir>
   </properties>
