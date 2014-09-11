@@ -4,7 +4,7 @@ import com.twitter.app.GlobalFlag
 import com.twitter.conversions.time._
 import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
-import com.twitter.finagle.ThriftMuxServer
+import com.twitter.finagle.ThriftMux
 import com.twitter.finagle.thrift.{Protocols, ThriftServerFramedCodec}
 import com.twitter.finagle.tracing.{NullTracer, Tracer}
 import com.twitter.finagle.Service
@@ -75,7 +75,7 @@ trait OstrichThriftServer extends ostrich.admin.Service {
     val baseBuilder =
       if (enableThriftMuxServer()) {
         log.info("Configuring server to use ThriftMux")
-        ServerBuilder().stack(ThriftMuxServer)
+        ServerBuilder().stack(ThriftMux.server)
       } else {
         ServerBuilder().codec(thriftCodec)
       }
