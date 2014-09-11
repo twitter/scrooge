@@ -1,0 +1,26 @@
+{{#consolidate_newlines}}
+{{#field_type.is_struct_not_exception}}
+new StructMetaData({{field_type.to_enum}}, {{{field_type.type_name}}}.class)
+{{/field_type.is_struct_not_exception}}
+
+{{#field_type.is_enum}}
+new EnumMetaData(TType.ENUM, {{{field_type.type_name}}}.class)
+{{/field_type.is_enum}}
+
+{{#map_element}}
+new {{{field_type.get_type}}}MetaData({{field_type.to_enum}},
+    {{{field_value_meta_data_key}}},
+    {{{field_value_meta_data_val}}})
+{{/map_element}}
+
+{{#set_or_list_element}}
+new {{{field_type.get_type}}}MetaData({{field_type.to_enum}},
+        {{{field_value_meta_data_elem}}})
+{{/set_or_list_element}}
+
+{{^field_type.is_struct_or_enum}}
+{{^field_type.is_container}}
+new FieldValueMetaData({{field_type.to_enum}})
+{{/field_type.is_container}}
+{{/field_type.is_struct_or_enum}}
+{{/consolidate_newlines}}

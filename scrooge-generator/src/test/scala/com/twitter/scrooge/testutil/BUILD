@@ -1,0 +1,13 @@
+scala_library(name='testutil',
+  dependencies=[
+    '3rdparty:jmock',
+    '3rdparty:junit',
+    '3rdparty:libthrift-0.5.0',
+    '3rdparty:mockito-all',
+    '3rdparty:scalatest',
+    'finagle/finagle-thrift',
+    'scrooge/scrooge-core',
+    'util/util-core',
+],
+  sources=rglobs('*.scala'),
+)

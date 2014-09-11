@@ -1,0 +1,35 @@
+{{#consolidate_newlines}}
+{{#field_type.is_struct}}
+{{name}}.write(oprot);
+{{/field_type.is_struct}}
+
+{{#field_type.is_container}}
+{
+  {{#deserialize_map_element}}
+  oprot.writeMapBegin(new TMap({{{key_type.to_enum}}}, {{{val_type.to_enum}}}, {{name}}.size()));
+  for (Map.Entry<{{{key_type.type_name_in_container}}}, {{{val_type.type_name_in_container}}}> {{tmp_iter}} : {{name}}.entrySet())
+  {
+    {{{serialize_key}}}
+    {{{serialize_val}}}
+  }
+  {{/deserialize_map_element}}
+
+  {{#deserialize_set_or_list_element}}
+  oprot.write{{field_type.get_type}}Begin(new T{{field_type.get_type}}({{{elem_type.to_enum}}}, {{name}}.size()));
+  for ({{{elem_type.type_name}}} {{tmp_iter}} : {{name}})
+  {
+    {{{serialize_elem}}}
+  }
+  {{/deserialize_set_or_list_element}}
+  oprot.write{{field_type.get_type}}End();
+}
+{{/field_type.is_container}}
+
+{{#field_type.is_base_type_or_binary}}
+oprot.write{{field_type.get_type}}({{name}});
+{{/field_type.is_base_type_or_binary}}
+
+{{#field_type.is_enum}}
+oprot.writeI32({{name}}.getValue());
+{{/field_type.is_enum}}
+{{/consolidate_newlines}}

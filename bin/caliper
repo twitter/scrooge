@@ -1,0 +1,56 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+  echo 'usage: '$0' projectpath caliperopts...' 1>&2
+  exit 1
+fi
+
+set -e
+
+root=$(
+  cd $(dirname $0)
+  cd ..
+  echo $PWD
+)
+
+function path_append {
+  _var=$1
+  _path=$2
+  eval "
+    if [[ -z \"\$$_var\" ]] ; then
+      export $_var=$_path
+    elif ! echo \$$_var | egrep -q \"(^|:)$_path($|:)\" ; then
+      export $_var=\$$_var:$_path
+    fi"
+}
+
+function include {
+  dir=$1
+  f=$dir/.classpath.txt
+
+  if [ \! -f $f ]; then
+    echo "$f not found!" >&2
+  else
+    for path in $(cat $f|tr ':' '\n'); do
+      path_append CP $path
+    done
+  fi
+}
+
+allocationjar=$root/bin/allocation.jar
+test -f $allocationjar || (
+  curl https://svn.twitter.biz/maven/birdcage/allocation.jar > ${allocationjar}.tmp
+  if [ $(openssl md5 < ${allocationjar}.tmp) != "f2ae4009d7eeba1c286e7aeb7c84842f" ]; then
+    echo 'Bad JAR' 1>&2
+    exit 1
+  fi
+  mv ${allocationjar}.tmp $allocationjar
+)
+
+include $root/$1
+shift
+
+path_append CP $allocationjar
+
+export ALLOCATION_JAR=$allocationjar
+exec java -cp $CP com.google.caliper.Runner "$@"

@@ -1,0 +1,11 @@
+junit_tests(name='frontend',
+  dependencies=[
+    '3rdparty:jmock',
+    '3rdparty:junit',
+    '3rdparty:scalatest',
+    '3rdparty:mockito-all',
+    'scrooge/scrooge-generator/src/main/scala',
+    'scrooge/scrooge-generator/src/test/scala/com/twitter/scrooge/testutil',
+],
+  sources=rglobs('*.scala'),
+)

@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+
+root=$(
+  cd $(dirname $0)
+  cd ..
+  echo $PWD
+)
+
+function path_append {
+  _var=$1
+  _path=$2
+  eval "
+    if [[ -z \"\$$_var\" ]] ; then
+      export $_var=$_path
+    elif ! echo \$$_var | egrep -q \"(^|:)$_path($|:)\" ; then
+      export $_var=\$$_var:$_path
+    fi"
+}
+
+function include {
+  dir=$1
+  f=$dir/.classpath.txt
+
+  if [ \! -f $f ]; then
+    echo "$f not found!" >&2
+  else
+    for path in $(cat $f|tr ':' '\n'); do
+      path_append CP $path
+    done
+  fi
+}
+
+include $root/$1
+shift
+
+xflags=()
+javaflags=()
+args=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -D*)
+      javaflags=("${javaflags[@]}" "$1")
+      args=("${args[@]}" "$1")
+      shift
+      ;;
+    -X*)
+      xflags=("${xflags[@]}" "$1")
+      shift
+      ;;
+    -J*)
+      flag=$(echo $1|cut -c 3-)
+      javaflags=("${javaflags[@]}" "$flag")
+      shift
+      ;;
+    -agentlib*)
+      xflags=("${xflags[@]}" "$1")
+      shift
+      ;;
+    --)
+      shift
+      while [ $# -gt 0 ]; do
+        args=("${args[@]}" "$1")
+        shift
+      done
+      ;;
+    *)
+      args=("${args[@]}" "$1")
+      shift
+      ;;
+
+  esac
+done
+
+javaflags=("${javaflags[@]}" "${xflags[@]}")
+
+java "${javaflags[@]}" -cp $CP "${args[@]}"

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+args=("$@")
+cp=${args[0]}
+out=${args[1]}
+
+if [[ -n "${args[2]}" ]]; then
+  cd "${args[2]}"
+fi
+
+scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose -d $out -l scala"
+
+echo "Generating thrift"
+files=`find src/main/thrift -name *.thrift`
+$scalaRun $files

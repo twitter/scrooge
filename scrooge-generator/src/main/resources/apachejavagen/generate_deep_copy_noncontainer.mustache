@@ -1,0 +1,13 @@
+{{#consolidate_newlines}}
+{{#direct_copy}}
+{{#field_type.is_binary}}
+TBaseHelper.copyBinary({{source_name}})
+{{/field_type.is_binary}}
+{{^field_type.is_binary}}
+{{source_name}}
+{{/field_type.is_binary}}
+{{/direct_copy}}
+{{^direct_copy}}
+new {{{field_type.init_type_name}}}({{source_name}})
+{{/direct_copy}}
+{{/consolidate_newlines}}

@@ -1,0 +1,37 @@
+{{#newlines_to_spaces}}
+{{^defval}}
+{{^in_static}}public static final {{/in_static}}{{{field_type.type_name}}}
+{{/defval}}
+{{name}} =
+{{#field_type.is_base_type_or_enum}}{{{rendered_value}}}{{/field_type.is_base_type_or_enum}}{{^field_type.is_base_type_or_enum}}new {{{field_type.init_type_name}}}(){{/field_type.is_base_type_or_enum}};
+{{/newlines_to_spaces}}
+
+{{#consolidate_newlines}}
+{{^field_type.is_base_type_or_enum}}
+{{^in_static}}static { {{/in_static}}
+
+  {{#field_type.map_types}}
+  {{#map_values}}
+  {{#consolidate_newlines}}{{{rendered_key}}}{{/consolidate_newlines}}
+  {{#consolidate_newlines}}{{{rendered_value}}}{{/consolidate_newlines}}
+  {{name}}.put({{{key}}}, {{{value}}});
+  {{/map_values}}
+  {{/field_type.map_types}}
+
+  {{#field_type.is_list_or_set}}
+  {{#list_or_set_values}}
+  {{#consolidate_newlines}}{{{rendered_value}}}{{/consolidate_newlines}}
+  {{name}}.add({{{value}}});
+  {{/list_or_set_values}}
+  {{/field_type.is_list_or_set}}
+
+  {{#field_type.is_struct}}
+  {{#struct_values}}
+  {{#consolidate_newlines}}{{{rendered_value}}}{{/consolidate_newlines}}
+  {{name}}.set{{#cap}}{{{key}}}{{/cap}}({{{value}}});
+  {{/struct_values}}
+  {{/field_type.is_struct}}
+
+{{^in_static}}}{{/in_static}}
+{{/field_type.is_base_type_or_enum}}
+{{/consolidate_newlines}}

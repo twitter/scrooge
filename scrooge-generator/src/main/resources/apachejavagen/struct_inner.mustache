@@ -1,0 +1,492 @@
+public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{name}} {{#is_exception}}extends Exception {{/is_exception}}implements TBase<{{name}}, {{name}}._Fields>, java.io.Serializable, Cloneable {
+  {{#i_2}}{{>generate_struct_desc}}{{/i_2}}
+  {{#i_2}}{{>generate_field_descs}}{{/i_2}}
+
+  {{#fields}}
+  public {{{field_type.type_name}}} {{name}};
+  {{/fields}}
+
+  {{#i_2}}{{>generate_field_name_constants}}{{/i_2}}
+
+  {{#consolidate_newlines}}
+  {{#has_fields}}
+  // isset id assignments
+  {{/has_fields}}
+  {{#non_nullable_fields}}
+  private static final int {{#isset_field_id}}{{name}}{{/isset_field_id}} = {{i}};
+  {{/non_nullable_fields}}
+  {{#has_non_nullable_fields}}
+  private BitSet __isset_bit_vector = new BitSet({{non_nullable_fields.size}});
+  {{/has_non_nullable_fields}}
+  {{/consolidate_newlines}}
+
+  {{#i_2}}{{>generate_java_meta_data_map}}{{/i_2}}
+
+  public {{name}}() {
+    {{#consolidate_newlines}}
+    {{#default_fields}}
+    {{{print_const}}}
+    {{/default_fields}}
+    {{/consolidate_newlines}}
+  }
+
+  {{#non_default_constructor}}
+  public {{name}}(
+    {{#non_optional_fields}}
+    {{{field_type.type_name}}} {{name}}{{^last}},{{/last}}{{#last}}){{/last}}
+    {{/non_optional_fields}}
+  {
+    this();
+    {{#non_optional_fields}}
+    this.{{name}} = {{name}};
+    {{^field_type.nullable}}
+    set{{#cap}}{{name}}{{/cap}}IsSet(true);
+    {{/field_type.nullable}}
+    {{/non_optional_fields}}
+  }
+  {{/non_default_constructor}}
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public {{name}}({{name}} other) {
+    {{#has_bit_vector}}
+    __isset_bit_vector.clear();
+    __isset_bit_vector.or(other.__isset_bit_vector);
+    {{/has_bit_vector}}
+    {{#consolidate_newlines}}
+    {{#fields}}
+
+    {{#field_type.nullable}}
+    if (other.{{>generate_isset_check}}) {
+    {{/field_type.nullable}}
+    {{#field.i_if_nullable}}
+    {{#field_type.is_container}}
+    {{{generate_deep_copy_container}}}
+    this.{{name}} = __this__{{name}};
+    {{/field_type.is_container}}
+    {{^field_type.is_container}}
+    this.{{name}} = {{{generate_deep_copy_non_container}}};
+    {{/field_type.is_container}}
+    {{/field.i_if_nullable}}
+
+    {{#field_type.nullable}}
+    }
+    {{/field_type.nullable}}
+
+    {{/fields}}
+    {{/consolidate_newlines}}
+  }
+
+  public {{name}} deepCopy() {
+    return new {{name}}(this);
+  }
+
+  @Override
+  public void clear() {
+    {{#fields}}
+    {{#consolidate_newlines}}
+    {{#field.default}}
+    {{{print_const}}}
+    {{/field.default}}
+
+    {{^field.default}}
+    {{#field_type.nullable}}
+    this.{{name}} = null;
+    {{/field_type.nullable}}
+    {{^field_type.nullable}}
+    set{{#cap}}{{name}}{{/cap}}IsSet(false);
+    {{#field_type.double}}
+    this.{{name}} = 0.0;
+    {{/field_type.double}}
+    {{#field_type.boolean}}
+    this.{{name}} = false;
+    {{/field_type.boolean}}
+    {{#field_type.base_int_type}}
+    this.{{name}} = 0;
+    {{/field_type.base_int_type}}
+    {{/field_type.nullable}}
+    {{/field.default}}
+    {{/consolidate_newlines}}
+    {{/fields}}
+  }
+
+  {{#fields}}
+  {{#field_type.is_container}}
+  public int get{{#cap}}{{name}}{{/cap}}Size() {
+    return (this.{{name}} == null) ? 0 : this.{{name}}.size();
+  }
+
+  {{/field_type.is_container}}
+  {{#field_type.is_list_or_set}}
+  public java.util.Iterator<{{{elem_type.type_name_in_container}}}> get{{#cap}}{{name}}{{/cap}}Iterator() {
+    return (this.{{name}} == null) ? null : this.{{name}}.iterator();
+  }
+
+  public void addTo{{#cap}}{{name}}{{/cap}}({{{elem_type.type_name}}} elem) {
+    if (this.{{name}} == null) {
+      this.{{name}} = new {{{field_type.init_type_name}}}();
+    }
+    this.{{name}}.add(elem);
+  }
+
+  {{/field_type.is_list_or_set}}
+  {{#field_type.map_types}}
+  public void putTo{{#cap}}{{name}}{{/cap}}({{{key_type.type_name}}} key, {{{value_type.type_name}}} val) {
+    if (this.{{name}} == null) {
+      this.{{name}} = new {{{field_type.init_type_name}}}();
+    }
+    this.{{name}}.put(key, val);
+  }
+
+  {{/field_type.map_types}}
+  {{#field_type.is_binary}}
+  public byte[] get{{#cap}}{{name}}{{/cap}}() {
+    set{{#cap}}{{name}}{{/cap}}(TBaseHelper.rightSize({{name}}));
+    return {{name}}.array();
+  }
+
+  public ByteBuffer BufferFor{{#cap}}{{name}}{{/cap}}() {
+    return {{name}};
+  }
+
+  {{/field_type.is_binary}}
+  {{^field_type.is_binary}}
+  public {{{field_type.type_name}}} {{#field_type.boolean}}is{{/field_type.boolean}}{{^field_type.boolean}}get{{/field_type.boolean}}{{#cap}}{{name}}{{/cap}}() {
+    return this.{{name}};
+  }
+
+  {{/field_type.is_binary}}
+  {{#field_type.is_binary}}
+  public {{struct_type_name}} set{{#cap}}{{name}}{{/cap}}(byte[] {{name}}) {
+    set{{#cap}}{{name}}{{/cap}}(ByteBuffer.wrap({{name}}));
+    return this;
+  }
+
+  {{/field_type.is_binary}}
+  public {{struct_type_name}} set{{#cap}}{{name}}{{/cap}}({{{field_type.type_name}}} {{name}}) {
+    this.{{name}} = {{name}};
+    {{>generate_isset_set}}
+    return this;
+  }
+
+  public void unset{{#cap}}{{name}}{{/cap}}() {
+  {{#field_type.nullable}}
+    this.{{name}} = null;
+  {{/field_type.nullable}}
+  {{^field_type.nullable}}
+  __isset_bit_vector.clear({{#isset_field_id}}{{name}}{{/isset_field_id}});
+  {{/field_type.nullable}}
+  }
+
+  /** Returns true if field {{name}} is set (has been asigned a value) and false otherwise */
+  public boolean isSet{{#cap}}{{name}}{{/cap}}() {
+    {{#field_type.nullable}}
+    return this.{{name}} != null;
+    {{/field_type.nullable}}
+    {{^field_type.nullable}}
+    return __isset_bit_vector.get({{#isset_field_id}}{{name}}{{/isset_field_id}});
+    {{/field_type.nullable}}
+  }
+
+  public void set{{#cap}}{{name}}{{/cap}}IsSet(boolean value) {
+    {{#field_type.nullable}}
+    if (!value) {
+      this.{{name}} = null;
+    }
+    {{/field_type.nullable}}
+    {{^field_type.nullable}}
+    __isset_bit_vector.set({{#isset_field_id}}{{name}}{{/isset_field_id}}, value);
+    {{/field_type.nullable}}
+  }
+
+  {{/fields}}
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    {{#fields}}
+    {{#consolidate_newlines}}
+    case {{#constant_name}}{{name}}{{/constant_name}}:
+      if (value == null) {
+        unset{{#cap}}{{name}}{{/cap}}();
+      } else {
+        set{{#cap}}{{name}}{{/cap}}(({{{field_type.type_name_in_container}}})value);
+      }
+      break;
+    {{/consolidate_newlines}}
+    {{/fields}}
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    {{#fields}}
+    {{#consolidate_newlines}}
+    case {{#constant_name}}{{name}}{{/constant_name}}:
+      {{#field_type.is_base_type_not_string}}
+      return new {{{field_type.type_name_in_container}}}({{#field_type.boolean}}is{{/field_type.boolean}}{{^field_type.boolean}}get{{/field_type.boolean}}{{#cap}}{{name}}{{/cap}}());
+      {{/field_type.is_base_type_not_string}}
+      {{^field_type.is_base_type_not_string}}
+      return get{{#cap}}{{name}}{{/cap}}();
+      {{/field_type.is_base_type_not_string}}
+    {{/consolidate_newlines}}
+    {{/fields}}
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
+    }
+
+    switch (field) {
+    {{#fields}}
+    {{#consolidate_newlines}}
+    case {{#constant_name}}{{name}}{{/constant_name}}:
+      return {{>generate_isset_check}};
+    {{/consolidate_newlines}}
+    {{/fields}}
+    }
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
+      return false;
+    if (that instanceof {{struct_type_name}})
+      return this.equals(({{struct_type_name}})that);
+    return false;
+  }
+
+  public boolean equals({{struct_type_name}} that) {
+    if (that == null)
+      return false;
+    {{#fields}}
+    {{#consolidate_newlines}}
+    boolean this_present_{{name}} = true{{#field_type.nullable}} && this.{{>generate_isset_check}}{{/field_type.nullable}}{{^field_type.nullable}}{{#field.optional}} && this.{{>generate_isset_check}}{{/field.optional}}{{/field_type.nullable}};
+    boolean that_present_{{name}} = true{{#field_type.nullable}} && that.{{>generate_isset_check}}{{/field_type.nullable}}{{^field_type.nullable}}{{#field.optional}} && that.{{>generate_isset_check}}{{/field.optional}}{{/field_type.nullable}};
+    if (this_present_{{name}} || that_present_{{name}}) {
+      if (!(this_present_{{name}} && that_present_{{name}}))
+        return false;
+      if ({{#trim}}
+{{#field_type.is_binary}}
+!this.{{name}}.equals(that.{{name}})
+{{/field_type.is_binary}}
+{{^field_type.is_binary}}{{#field_type.nullable}}
+!this.{{name}}.equals(that.{{name}})
+{{/field_type.nullable}}{{/field_type.is_binary}}
+{{^field_type.is_binary}}{{^field_type.nullable}}
+this.{{name}} != that.{{name}}
+{{/field_type.nullable}}{{/field_type.is_binary}}
+){{/trim}}
+        return false;
+    }
+    {{/consolidate_newlines}}
+    {{/fields}}
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    {{#gen_hash_code}}
+    HashCodeBuilder builder = new HashCodeBuilder();
+    {{#fields}}
+    boolean present_{{name}} = true{{#optional_or_nullable}} && ({{>generate_isset_check}}){{/optional_or_nullable}};
+    builder.append(present_{{name}});
+    if (present_{{name}})
+      builder.append({{name}}{{#field_type.is_enum}}.getValue(){{/field_type.is_enum}});
+    {{/fields}}
+    return builder.toHashCode();
+    {{/gen_hash_code}}
+    {{^gen_hash_code}}
+    return 0;
+    {{/gen_hash_code}}
+  }
+
+  public int compareTo({{struct_type_name}} other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
+    }
+
+    int lastComparison = 0;
+    {{struct_type_name}} typedOther = ({{struct_type_name}})other;
+
+    {{#fields}}
+    lastComparison = Boolean.valueOf({{>generate_isset_check}}).compareTo(typedOther.{{>generate_isset_check}});
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if ({{>generate_isset_check}}) {
+      lastComparison = TBaseHelper.compareTo(this.{{name}}, typedOther.{{name}});
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    {{/fields}}
+    return 0;
+  }
+
+  {{#i_2}}{{>generate_java_struct_field_by_id}}{{/i_2}}
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        {{#fields}}
+        case {{key}}: // {{#constant_name}}{{name}}{{/constant_name}}
+          if (field.type == {{field_type.to_enum}}) {
+            {{#consolidate_newlines}}
+            {{{deserialize_field}}}
+            {{>generate_isset_set}}
+            {{/consolidate_newlines}}
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        {{/fields}}
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    {{#consolidate_newlines}}
+    {{#fields}}
+    {{#field.required}}{{^field_type.nullable}}
+    if (!{{>generate_isset_check}}) {
+      throw new TProtocolException("Required field '{{name}}' was not found in serialized data! Struct: " + toString());
+    }
+    {{/field_type.nullable}}{{/field.required}}
+    {{/fields}}
+    {{/consolidate_newlines}}
+    validate();
+  }
+
+  {{#consolidate_newlines}}
+  {{#is_result}}
+  public void write(TProtocol oprot) throws TException {
+    oprot.writeStructBegin(STRUCT_DESC);
+    {{#fields}}
+    {{#first}}if{{/first}}{{^first}}} else if{{/first}} (this.{{>generate_isset_check}}) {
+      oprot.writeFieldBegin({{#constant_name}}{{name}}{{/constant_name}}_FIELD_DESC);
+      {{{serialize_field}}}
+      oprot.writeFieldEnd();
+    {{#last}}}{{/last}}
+    {{/fields}}
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+  {{/is_result}}
+  {{^is_result}}
+  public void write(TProtocol oprot) throws TException {
+    validate();
+    <br/>
+    oprot.writeStructBegin(STRUCT_DESC);
+    {{#sorted_fields}}
+    {{#field_type.nullable}}
+    if (this.{{name}} != null) {
+    {{/field_type.nullable}}
+
+    {{#field.i_if_nullable}}
+    {{#field.optional}}
+    if ({{>generate_isset_check}}) {
+    {{/field.optional}}
+
+    {{#field.i_if_optional}}
+    oprot.writeFieldBegin({{#constant_name}}{{name}}{{/constant_name}}_FIELD_DESC);
+
+    {{{serialize_field}}}
+
+    oprot.writeFieldEnd();
+
+    {{/field.i_if_optional}}
+
+    {{#field.optional}}
+    }
+    {{/field.optional}}
+    {{/field.i_if_nullable}}
+
+    {{#field_type.nullable}}
+    }
+    {{/field_type.nullable}}
+    {{/sorted_fields}}
+
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+  {{/is_result}}
+  {{/consolidate_newlines}}
+
+  @Override
+  public String toString() {
+    {{#consolidate_newlines}}
+    StringBuilder sb = new StringBuilder("{{name}}(");
+    boolean first = true;
+
+    {{#fields}}
+    {{#field.optional}}
+    if ({{>generate_isset_check}}) {
+    {{/field.optional}}
+    {{#field.i_if_optional}}
+    {{^first}}
+    if (!first) sb.append(", ");
+    {{/first}}
+    sb.append("{{name}}:");
+    {{#field_type.nullable}}
+    if (this.{{name}} == null) {
+      sb.append("null");
+    } else {
+    {{/field_type.nullable}}
+
+    {{#field.i_if_nullable}}
+    {{#field_type.is_binary}}
+    TBaseHelper.toString(this.{{name}}, sb);
+    {{/field_type.is_binary}}
+    {{^field_type.is_binary}}
+    sb.append(this.{{name}});
+    {{/field_type.is_binary}}
+    {{/field.i_if_nullable}}
+
+    {{#field_type.nullable}}
+    }
+    {{/field_type.nullable}}
+    first = false;
+    {{#field.optional}}
+    }
+    {{/field.optional}}
+    {{/field.i_if_optional}}
+    {{/fields}}
+    sb.append(")");
+    return sb.toString();
+    {{/consolidate_newlines}}
+  }
+
+  public void validate() throws TException {
+    {{#consolidate_newlines}}
+    // check for required fields
+    {{#fields}}
+    {{#field.required}}
+    {{#field_type.nullable}}
+    if ({{name}} == null) {
+      throw new TProtocolException("Required field '{{name}}' was not present! Struct: " + toString());
+    }
+    {{/field_type.nullable}}
+    {{^field_type.nullable}}
+    // alas, we cannot check '{{name}}' because it's a primitive and you chose the non-beans generator.
+    {{/field_type.nullable}}
+    {{/field.required}}
+    {{/fields}}
+    {{/consolidate_newlines}}
+  }
+}

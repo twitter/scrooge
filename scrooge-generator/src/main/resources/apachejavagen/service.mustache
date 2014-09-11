@@ -1,0 +1,512 @@
+{{>autogen}}
+{{>package}}
+{{>type_imports}}
+{{>thrift_imports}}
+
+import com.twitter.util.Future;
+import com.twitter.util.Function;
+import com.twitter.util.Function2;
+import com.twitter.util.Try;
+import com.twitter.util.Return;
+import com.twitter.util.Throw;
+import com.twitter.finagle.thrift.ThriftClientRequest;
+
+public class {{name}} {
+  public interface Iface{{#extends_iface}} extends {{name}}.Iface{{/extends_iface}} {
+    {{#functions}}
+    public {{{return_type.type_name}}} {{name}}({{{argument_list_with_types}}}) throws {{exceptions_string}}TException;
+    {{/functions}}
+  }
+
+  public interface AsyncIface{{#extends_iface}} extends {{name}}.AsyncIface{{/extends_iface}} {
+    {{#functions}}
+    public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<AsyncClient.{{name}}_call> resultHandler) throws TException;
+    {{/functions}}
+  }
+
+  public interface ServiceIface{{#extends_iface}} extends {{name}}.ServiceIface{{/extends_iface}} {
+    {{#functions}}
+    public Future<{{{return_type.type_name_in_container}}}> {{name}}({{{argument_list_with_types}}});
+    {{/functions}}
+  }
+
+  public static class Client{{#extends_iface}} extends {{name}}.Client{{/extends_iface}} implements TServiceClient, Iface {
+    public static class Factory implements TServiceClientFactory<Client> {
+      public Factory() {}
+      public Client getClient(TProtocol prot) {
+        return new Client(prot);
+      }
+      public Client getClient(TProtocol iprot, TProtocol oprot) {
+        return new Client(iprot, oprot);
+      }
+    }
+
+    public Client(TProtocol prot)
+    {
+      this(prot, prot);
+    }
+
+    public Client(TProtocol iprot, TProtocol oprot)
+    {
+      {{#extends_iface}}
+      super(iprot, oprot);
+      {{/extends_iface}}
+      {{^extends_iface}}
+      iprot_ = iprot;
+      oprot_ = oprot;
+      {{/extends_iface}}
+    }
+    {{^extends_iface}}
+
+    protected TProtocol iprot_;
+    protected TProtocol oprot_;
+
+    protected int seqid_;
+
+    public TProtocol getInputProtocol()
+    {
+      return this.iprot_;
+    }
+
+    public TProtocol getOutputProtocol()
+    {
+      return this.oprot_;
+    }
+
+    {{/extends_iface}}
+    {{#functions}}
+    public {{{return_type.type_name}}} {{name}}({{{argument_list_with_types}}}) throws {{exceptions_string}}TException
+    {
+      send_{{name}}({{{argument_list}}});
+      {{^is_oneway}}
+      {{^return_type.is_void}}return {{/return_type.is_void}}recv_{{name}}();
+      {{/is_oneway}}
+    }
+
+    public void send_{{name}}({{{argument_list_with_types}}}) throws TException
+    {
+      oprot_.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, ++seqid_));
+      {{name}}_args args = new {{name}}_args();
+      {{#fields}}
+      args.set{{#cap}}{{name}}{{/cap}}({{name}});
+      {{/fields}}
+      args.write(oprot_);
+      oprot_.writeMessageEnd();
+      oprot_.getTransport().flush();
+    }
+    {{^is_oneway}}
+
+    public {{{return_type.type_name}}} recv_{{name}}() throws {{exceptions_string}}TException
+    {
+      TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == TMessageType.EXCEPTION) {
+        TApplicationException x = TApplicationException.read(iprot_);
+        iprot_.readMessageEnd();
+        throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new TApplicationException(TApplicationException.BAD_SEQUENCE_ID, "{{name}} failed: out of sequence response");
+      }
+      {{name}}_result result = new {{name}}_result();
+      result.read(iprot_);
+      iprot_.readMessageEnd();
+      {{^return_type.is_void}}
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      {{/return_type.is_void}}
+      {{#exceptions}}
+      if (result.{{name}} != null) {
+        throw result.{{name}};
+      }
+      {{/exceptions}}
+      {{#return_type.is_void}}
+      return;
+      {{/return_type.is_void}}
+      {{^return_type.is_void}}
+      throw new TApplicationException(TApplicationException.MISSING_RESULT, "{{name}} failed: unknown result");
+      {{/return_type.is_void}}
+    }
+    {{/is_oneway}}
+    {{/functions}}
+  }
+
+  public static class AsyncClient extends {{#extends_iface}}{{name}}.AsyncClient{{/extends_iface}}{{^extends_iface}}TAsyncClient{{/extends_iface}} implements AsyncIface {
+    public static class Factory implements TAsyncClientFactory<AsyncClient> {
+      private TAsyncClientManager clientManager;
+      private TProtocolFactory protocolFactory;
+      public Factory(TAsyncClientManager clientManager, TProtocolFactory protocolFactory) {
+        this.clientManager = clientManager;
+        this.protocolFactory = protocolFactory;
+      }
+      public AsyncClient getAsyncClient(TNonblockingTransport transport) {
+        return new AsyncClient(protocolFactory, clientManager, transport);
+      }
+    }
+
+    public AsyncClient(TProtocolFactory protocolFactory, TAsyncClientManager clientManager, TNonblockingTransport transport) {
+      super(protocolFactory, clientManager, transport);
+    }
+
+    {{#functions}}
+    public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{name}}_call> resultHandler) throws TException {
+      checkReady();
+      {{name}}_call method_call = new {{name}}_call({{{argument_list}}}{{#has_args}}, {{/has_args}}resultHandler, this, protocolFactory, transport);
+      manager.call(method_call);
+    }
+
+    public static class {{name}}_call extends TAsyncMethodCall {
+      {{#fields}}
+      private {{{field_type.type_name}}} {{name}};
+      {{/fields}}
+
+      public {{name}}_call({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{name}}_call> resultHandler, TAsyncClient client, TProtocolFactory protocolFactory, TNonblockingTransport transport) throws TException {
+        super(client, protocolFactory, transport, resultHandler, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
+        {{#fields}}
+        this.{{name}} = {{name}};
+        {{/fields}}
+      }
+
+      public void write_args(TProtocol prot) throws TException {
+        prot.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, 0));
+        {{name}}_args args = new {{name}}_args();
+        {{#fields}}
+        args.set{{#cap}}{{name}}{{/cap}}({{name}});
+        {{/fields}}
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public {{{return_type.type_name}}} getResult() throws {{exceptions_string}}TException {
+        if (getState() != State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        TMemoryInputTransport memoryTransport = new TMemoryInputTransport(getFrameBuffer().array());
+        TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        {{^is_oneway}}
+        {{^return_type.is_void}}return {{/return_type.is_void}}(new Client(prot)).recv_{{name}}();
+        {{/is_oneway}}
+      }
+     }
+   {{/functions}}
+   }
+
+
+  public static class ServiceToClient{{#extends_iface}} extends {{name}}.ServiceToClient{{/extends_iface}} implements ServiceIface {
+    private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
+    private TProtocolFactory protocolFactory;
+    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
+      {{#extends_iface}}super(service, protocolFactory);{{/extends_iface}}
+      this.service = service;
+      this.protocolFactory = protocolFactory;
+    }
+
+    {{#functions}}
+    public Future<{{{return_type.type_name_in_container}}}> {{name}}({{{argument_list_with_types}}}) {
+      try {
+        // TODO: size
+        TMemoryBuffer __memoryTransport__ = new TMemoryBuffer(512);
+        TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
+        __prot__.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, 0));
+        {{name}}_args __args__ = new {{name}}_args();
+        {{#fields}}
+        __args__.set{{#cap}}{{name}}{{/cap}}({{name}});
+        {{/fields}}
+        __args__.write(__prot__);
+        __prot__.writeMessageEnd();
+
+
+        byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
+        ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
+        Future<byte[]> __done__ = this.service.apply(__request__);
+        return __done__.flatMap(new Function<byte[], Future<{{{return_type.type_name_in_container}}}>>() {
+          public Future<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {
+            TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+            TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+            try {
+              {{#is_oneway_or_void}}
+              {{^is_oneway}}
+              (new Client(__prot__)).recv_{{name}}();
+              {{/is_oneway}}
+              return Future.value(null);
+              {{/is_oneway_or_void}}
+              {{^is_oneway_or_void}}
+              return Future.value((new Client(__prot__)).recv_{{name}}());
+              {{/is_oneway_or_void}}
+            } catch (Exception e) {
+              return Future.exception(e);
+            }
+          }
+        });
+      } catch (TException e) {
+        return Future.exception(e);
+      }
+    }
+    {{/functions}}
+  }
+
+  public static class Processor{{#extends_iface}} extends {{name}}.Processor{{/extends_iface}} implements TProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
+    public Processor(Iface iface)
+    {
+      {{#extends_iface}}
+      super(iface);
+      {{/extends_iface}}
+      iface_ = iface;
+      {{#functions}}
+      processMap_.put("{{name}}", new {{name}}());
+      {{/functions}}
+    }
+
+    {{^extends_iface}}
+    protected static interface ProcessFunction {
+      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException;
+    }
+
+    {{/extends_iface}}
+    private Iface iface_;
+    {{^extends_iface}}
+    protected final HashMap<String,ProcessFunction> processMap_ = new HashMap<String,ProcessFunction>();
+    {{/extends_iface}}
+
+    public boolean process(TProtocol iprot, TProtocol oprot) throws TException
+    {
+      TMessage msg = iprot.readMessageBegin();
+      ProcessFunction fn = processMap_.get(msg.name);
+      if (fn == null) {
+        TProtocolUtil.skip(iprot, TType.STRUCT);
+        iprot.readMessageEnd();
+        TApplicationException x = new TApplicationException(TApplicationException.UNKNOWN_METHOD, "Invalid method name: '"+msg.name+"'");
+        oprot.writeMessageBegin(new TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));
+        x.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+        return true;
+      }
+      fn.process(msg.seqid, iprot, oprot);
+      return true;
+    }
+
+    {{#functions}}
+    private class {{name}} implements ProcessFunction {
+      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      {
+        {{name}}_args args = new {{name}}_args();
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        iprot.readMessageEnd();
+        {{^is_oneway}}
+        {{name}}_result result = new {{name}}_result();
+        {{/is_oneway}}
+        {{#has_exceptions}}
+        try {
+        {{/has_exceptions}}
+        {{#i_if_has_exceptions}}
+        {{^is_oneway}}{{^return_type.is_void}}result.success = {{/return_type.is_void}}{{/is_oneway}}iface_.{{name}}({{{argument_list_with_args}}});
+        {{^is_oneway}}{{^return_type.is_void}}{{^return_type.nullable}}result.setSuccessIsSet(true);{{/return_type.nullable}}{{/return_type.is_void}}{{/is_oneway}}
+        {{/i_if_has_exceptions}}
+        {{^is_oneway}}{{#exceptions}}
+        } catch ({{{field_type.type_name}}} {{name}}) {
+          {{^is_oneway}}
+          result.{{name}} = {{name}};
+          {{/is_oneway}}
+        {{/exceptions}}
+        {{#has_exceptions}}
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing {{name}}", th);
+          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}");
+          oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        {{/has_exceptions}}{{/is_oneway}}
+        {{#is_oneway}}
+        return;
+        {{/is_oneway}}
+        {{^is_oneway}}
+        oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+        {{/is_oneway}}
+      }
+    }
+    {{/functions}}
+  }
+
+  public static class Service {{#extends_iface}}extends {{name}}.Service{{/extends_iface}}{{^extends_iface}}extends com.twitter.finagle.Service<byte[], byte[]>{{/extends_iface}} {
+    private final ServiceIface iface;
+    private final TProtocolFactory protocolFactory;
+    {{^extends_iface}}
+    protected HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>> functionMap = new HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>>();
+    {{/extends_iface}}
+    public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
+      {{#extends_iface}}
+      super(iface, protocolFactory);
+      {{/extends_iface}}
+      this.iface = iface;
+      this.protocolFactory = protocolFactory;
+      {{#functions}}
+      functionMap.put("{{name}}", new Function2<TProtocol, Integer, Future<byte[]>>() {
+        public Future<byte[]> apply(final TProtocol iprot, final Integer seqid) {
+          {{name}}_args args = new {{name}}_args();
+          try {
+            args.read(iprot);
+          } catch (TProtocolException e) {
+            try {
+              iprot.readMessageEnd();
+              TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+              TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+              TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+              oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.EXCEPTION, seqid));
+              x.write(oprot);
+              oprot.writeMessageEnd();
+              oprot.getTransport().flush();
+              byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+              return Future.value(buffer);
+            } catch (Exception e1) {
+              return Future.exception(e1);
+            }
+          } catch (Exception e) {
+            return Future.exception(e);
+          }
+
+          try {
+            iprot.readMessageEnd();
+          } catch (Exception e) {
+            return Future.exception(e);
+          }
+          Future<{{{return_type.type_name_in_container}}}> future;
+          try {
+            future = iface.{{name}}({{{argument_list_with_args}}});
+          } catch (Exception e) {
+            future = Future.exception(e);
+          }
+
+          {{#is_oneway}}
+          return future.map(new Function<{{{return_type.type_name_in_container}}}, byte[]>() {
+            public byte[] apply({{{return_type.type_name_in_container}}} value) {
+              return new byte[0];
+            }
+          });
+          {{/is_oneway}}
+          {{^is_oneway}}
+          try {
+            return future.flatMap(new Function<{{{return_type.type_name_in_container}}}, Future<byte[]>>() {
+              public Future<byte[]> apply({{{return_type.type_name_in_container}}} value) {
+                {{name}}_result result = new {{name}}_result();
+                {{^is_oneway}}{{^return_type.is_void}}
+                result.success = value;
+                result.setSuccessIsSet(true);
+                {{/return_type.is_void}}{{/is_oneway}}
+
+                try {
+                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+                  oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.REPLY, seqid));
+                  result.write(oprot);
+                  oprot.writeMessageEnd();
+
+                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+                } catch (Exception e) {
+                  return Future.exception(e);
+                }
+              }
+            }).rescue(new Function<Throwable, Future<byte[]>>() {
+              public Future<byte[]> apply(Throwable t) {
+                {{^is_oneway}}{{#has_exceptions}}
+                try {
+                  {{name}}_result result = new {{name}}_result();
+                  {{#exceptions}}
+                  {{^first}}else {{/first}}if (t instanceof {{{field_type.type_name}}}) {
+                    result.{{name}} = ({{{field_type.type_name}}})t;
+                  }
+                  {{/exceptions}}
+                  else {
+                    return Future.exception(t);
+                  }
+                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+                  oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.REPLY, seqid));
+                  result.write(oprot);
+                  oprot.writeMessageEnd();
+                  oprot.getTransport().flush();
+                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+                } catch (Exception e) {
+                  return Future.exception(e);
+                }
+                {{/has_exceptions}}
+                {{^has_exceptions}}
+                return Future.exception(t);
+                {{/has_exceptions}}
+                {{/is_oneway}}
+                {{#is_oneway}}
+                return Future.exception(t);
+                {{/is_oneway}}
+              }
+            });
+          } catch (Exception e) {
+            return Future.exception(e);
+          }
+          {{/is_oneway}}
+        }
+      });
+      {{/functions}}
+    }
+
+    public Future<byte[]> apply(byte[] request) {
+      TTransport inputTransport = new TMemoryInputTransport(request);
+      TProtocol iprot = protocolFactory.getProtocol(inputTransport);
+
+      TMessage msg;
+      try {
+        msg = iprot.readMessageBegin();
+      } catch (Exception e) {
+        return Future.exception(e);
+      }
+
+      Function2<TProtocol, Integer, Future<byte[]>> fn = functionMap.get(msg.name);
+      if (fn == null) {
+        try {
+          TProtocolUtil.skip(iprot, TType.STRUCT);
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.UNKNOWN_METHOD, "Invalid method name: '"+msg.name+"'");
+          TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+          TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+          oprot.writeMessageBegin(new TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+        } catch (Exception e) {
+          return Future.exception(e);
+        }
+      }
+
+      return fn.apply(iprot, msg.seqid);
+    }
+  }
+
+  {{#functions}}
+  {{{arg_struct}}}
+
+  {{^is_oneway}}
+  {{{result_struct}}}
+
+  {{/is_oneway}}
+
+  {{/functions}}
+}
