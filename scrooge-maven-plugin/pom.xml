@@ -217,7 +217,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.10</artifactId>
-      <version>3.16.4-TWOTEN-1407871523</version>
+      <version>3.16.5-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <reporting>
