@@ -100,8 +100,42 @@ class ThriftParser(
     x => Identifier(x)
   }
 
-  lazy val simpleID = "[A-Za-z_][A-Za-z0-9_]*".r ^^ {
-    x => SimpleID(x)
+  private[this] val thriftKeywords = Set[String](
+    "async",
+    "const",
+    "enum",
+    "exception",
+    "extends",
+    "include",
+    "namespace",
+    "optional",
+    "required",
+    "service",
+    "struct",
+    "throws",
+    "typedef",
+    "union",
+    "void",
+    // Built-in types are also keywords.
+    "binary",
+    "bool",
+    "byte",
+    "double",
+    "i16",
+    "i32",
+    "i64",
+    "list",
+    "map",
+    "set",
+    "string"
+  )
+
+  lazy val simpleIDRegex = "[A-Za-z_][A-Za-z0-9_]*".r
+  lazy val simpleID = simpleIDRegex ^^ { x =>
+    if (thriftKeywords.contains(x))
+      failOrWarn(new KeywordException(x))
+
+    SimpleID(x)
   }
 
   // ride hand side (RHS)
@@ -324,9 +358,10 @@ class ThriftParser(
       Service(sid, extend, functions, comment)
   }
 
-  lazy val serviceParentID = opt(simpleID <~ ".") ~ simpleID ^^ {
+  // This is a simpleID without the keyword check. Filenames that are thrift keywords are allowed.
+  lazy val serviceParentID = opt(simpleIDRegex <~ ".") ~ simpleID ^^ {
     case prefix ~ sid => {
-      ServiceParent(sid, prefix)
+      ServiceParent(sid, prefix.map(SimpleID(_)))
     }
   }
 

@@ -71,7 +71,7 @@ struct EnumCollections {
 
 enum NamespaceCollisions
 {
-  list,
+  List,
   Any,
   AnyRef,
   Object,

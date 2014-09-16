@@ -1,5 +1,6 @@
 package {{package}}
 
+import com.twitter.finagle.thrift.Protocols
 import com.twitter.scrooge.{
   TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
 import java.nio.ByteBuffer
@@ -14,6 +15,8 @@ import scala.collection.mutable.{
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
   HashMap => mutable$HashMap, HashSet => mutable$HashSet}
 import scala.collection.{Map, Set}
+
+import scala.language.higherKinds
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -45,7 +48,7 @@ object {{ServiceName}} {
 
   class FinagledClient(
       service: com.twitter.finagle.Service[com.twitter.finagle.thrift.ThriftClientRequest, Array[Byte]],
-      protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+      protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver)
     extends {{ServiceName}}$FinagleClient(

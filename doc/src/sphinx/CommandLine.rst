@@ -27,7 +27,8 @@ extra include paths, rebuilding only those files that have changed:
 A complete command line help menu:
 
 ::
-    Usage: scrooge [options] <files...>
+
+    Usage: ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main [options] <files...>
 
       --help
             show this help screen
