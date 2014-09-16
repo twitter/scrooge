@@ -18,7 +18,7 @@ package com.twitter.scrooge.linter
 
 import java.io.File
 import java.util.Properties
-import scopt.immutable.OptionParser
+import scopt.OptionParser
 
 case class Config(
   val verbose: Boolean = false,
@@ -40,27 +40,34 @@ object Main {
     }
 
     val parser = new OptionParser[Config]("scrooge-linter") {
-      def options = Seq(
-        help("h", "help", "show this help screen"),
+        help("help") text ("show this help screen")
 
-        flag("V", "version", "print version and quit") { _ =>
+        opt[Unit]('V', "version") text ("print version and quit") action { (_, c) => {
           println("scrooge linter " + buildProperties.getProperty("version", "0.0"))
           println("    build " + buildProperties.getProperty("build_name", "unknown"))
           println("    git revision " + buildProperties.getProperty("build_revision", "unknown"))
           sys.exit()
-        },
+          c
+        }}
 
-        flag("v", "verbose", "log verbose messages about progress") { cfg => cfg.copy(verbose = true) },
+        opt[Boolean]('v', "verbose") text ("log verbose messages about progress") action { (_, c) => {
+          c.copy(verbose = true)
+          c
+        }}
 
-        flag("i", "ignore-errors", "continue if linter errors are found (for batch processing)") {cfg => cfg.copy(ignoreErrors = true) },
+        opt[Boolean]('i', "ignore-errors") text ("continue if linter errors are found (for batch processing)") action { (_, c) => {
+          c.copy(ignoreErrors = true)
+          c
+        }}
 
-        opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting")
-          { (_, cfg) => cfg.copy(strict = false) },
-
-        arglist("<files...>", "thrift files to compile") { (input, cfg) =>
-          cfg.copy(files = cfg.files :+ input)
+        opt[Boolean]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action { (_, c) =>
+          c.copy(strict = false)
+          c
         }
-      )
+
+        opt[String]("<files...>") text ("thrift files to compile") action { (input, c) =>
+          c.copy(files = c.files :+ input)
+        }
     }
 
     parser.parse(args, Config()) match {

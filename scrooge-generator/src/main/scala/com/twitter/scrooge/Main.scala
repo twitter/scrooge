@@ -57,17 +57,17 @@ object Main {
           c
         }} text("write generated code to a folder (default: %s)".format(compiler.defaultDestFolder))
 
-      opt[String]("import-path") valueName("<path>") action { (path, c) => {
+      opt[String]("import-path") unbounded() valueName("<path>") action { (path, c) => {
           c.includePaths ++= path.split(File.pathSeparator)
           c
         }} text("[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)")
 
-      opt[String]('i', "include-path") valueName("<path>") action { (path, c) => { 
+      opt[String]('i', "include-path") unbounded() valueName("<path>") action { (path, c) => { 
           c.includePaths ++= path.split(File.pathSeparator)
           c
         }} text("path(s) to search for included thrift files (may be used multiple times)")
 
-      opt[String]('n', "namespace-map") valueName("<oldname>=<newname>") action { (mapping, c) =>
+      opt[String]('n', "namespace-map") unbounded() valueName("<oldname>=<newname>") action { (mapping, c) =>
           mapping.split("=") match {
             case Array(from, to) => {
               c.namespaceMappings(from) = to
@@ -76,7 +76,7 @@ object Main {
           }
         } text("map old namespace to new (may be used multiple times)")
 
-      opt[String]("default-java-namespace") valueName("<name>") action { (name, c) => {
+      opt[String]("default-java-namespace") unbounded() valueName("<name>") action { (name, c) => {
           c.defaultNamespace = name
           c
         }} text("Use <name> as default namespace if the thrift file doesn't define its own namespace. " +
