@@ -174,7 +174,7 @@ object Scrooge extends Build {
       util("core"),
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.github.scopt" %% "scopt" % "2.1.0",
+      "com.github.scopt" %% "scopt" % "3.2.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default",
       "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
