@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import bintray.Plugin._
+import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
@@ -145,7 +147,7 @@ object Scrooge extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test"
     )
   )
-  
+
   lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
     CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
   )
@@ -239,11 +241,16 @@ object Scrooge extends Build {
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++ 
+    settings = Project.defaultSettings ++
       sharedSettings ++
-      crossBuildSettings
+      crossBuildSettings ++
+      bintrayPublishSettings
   ).settings(
-    sbtPlugin := true
+    sbtPlugin := true,
+    publishMavenStyle := false,
+    repository in bintray := "sbt-plugins",
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
