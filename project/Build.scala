@@ -77,7 +77,13 @@ object Scrooge extends Build {
     ),
 
     publishM2Configuration <<= (packagedArtifacts, checksums in publish, ivyLoggingLevel) map { (arts, cs, level) =>
-      Classpaths.publishConfig(arts, None, resolverName = m2Repo.name, checksums = cs, logging = level)
+      Classpaths.publishConfig(
+        artifacts = arts,
+        ivyFile = None,
+        resolverName = m2Repo.name,
+        checksums = cs,
+        logging = level,
+        overwrite = true)
     },
     publishM2 <<= Classpaths.publishTask(publishM2Configuration, deliverLocal),
     otherResolvers += m2Repo,
@@ -90,7 +96,7 @@ object Scrooge extends Build {
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
+    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.6"),
 
     // Sonatype publishing
