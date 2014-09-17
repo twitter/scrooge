@@ -50,6 +50,8 @@ pom.xml file.
         <dependencyIncludes>
           <include>event-logger-thrift</include>
         </dependencyIncludes>
+        <!-- tell scrooge to not to build the extracted thrift files (defaults to true) -->
+        <buildExtractedThrift>false</buildExtractedThrift>
       </configuration>
       <executions>
         <execution>

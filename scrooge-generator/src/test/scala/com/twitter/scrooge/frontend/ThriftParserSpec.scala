@@ -390,6 +390,25 @@ enum Foo
       getParserForFilenameTest(illegalFilename).parseFile(illegalFilename)
     }
 
+    "No thrift keywords as identifiers" in {
+      val inputs = Seq(
+        "struct MyStruct { 1: optional i64 struct }",
+        "struct struct { 1: optional i64 count }",
+        "enum list { alpha, beta }",
+        "enum Stuff { alpha, beta, include }",
+        "exception MyException { 1: string extends }",
+        "service service { i32 getNum() }",
+        "service MyService { i32 i32() }",
+        "service MyService { i32 myMethod(1: bool optional) }",
+        "typedef string binary"
+      )
+
+      inputs.foreach { code =>
+        intercept[KeywordException] {
+          parser.parse(code, parser.definition)
+        }
+      }
+    }
   }
 
 
