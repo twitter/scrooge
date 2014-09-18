@@ -5,6 +5,16 @@ as it is included in Scoorge's user's guide.
 3.x
 -----
 
+3.16.6
+~~~~~~~
+
+- scrooge-core: Added scala 2.11 support
+- scrooge-core: scrooge: add .withoutPassthrough method that recursively removes passthrough fields
+- scrooge-doc: Fix formatting in the CLI help page.
+- scrooge-linter: Cleaner logging and options.
+- scrooge-linter: remove invalid CONFIG.ini.
+- scrooge: prefer Protocols.binaryFactory over TBinaryProtocol.Factory
+
 3.16.3
 ~~~~~~~
 
