@@ -7,9 +7,9 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
-  val libVersion = "3.16.3"
-  val utilVersion = "6.21.1"
-  val finagleVersion = "6.20.0"
+  val libVersion = "3.16.6"
+  val utilVersion = "6.21.2"
+  val finagleVersion = "6.21.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
