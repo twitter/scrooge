@@ -21,12 +21,10 @@ public class Utilities {
     }
   }
 
-  @SafeVarargs
   public static <T> List<T> makeList(T... elements) {
     return Arrays.asList(elements);
   }
 
-  @SafeVarargs
   public static <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
     Map<A, B> map = new HashMap<A, B>();
     for (Tuple<A, B> element : elements) {
@@ -35,7 +33,6 @@ public class Utilities {
     return map;
   }
 
-  @SafeVarargs
   public static <T> Set<T> makeSet(T... elements) {
     Set<T> set = new HashSet<T>();
     for (T element : elements) {
