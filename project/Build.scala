@@ -242,8 +242,9 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
-  ).dependsOn(scroogeRuntime)
+    ),
+    crossScalaVersions += "2.11.2"
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
