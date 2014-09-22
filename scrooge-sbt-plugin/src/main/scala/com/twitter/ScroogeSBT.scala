@@ -4,7 +4,7 @@ import sbt._
 import Keys._
 
 import java.io.File
-import scala.collection.JavaConverters._
+import com.twitter.scrooge.backend.{WithFinagle, ServiceOption}
 
 object ScroogeSBT extends Plugin {
 
@@ -15,13 +15,14 @@ object ScroogeSBT extends Plugin {
     thriftIncludes: Set[File],
     namespaceMappings: Map[String, String],
     language: String,
-    flags: Set[String]
+    flags: Set[ServiceOption]
   ) {
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath
     thriftIncludes.map { compiler.includePaths += _.getPath }
     namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2)}
-    Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
+    compiler.flags ++= flags
+    compiler.thriftFiles ++= thriftFiles.map(_.getPath())
     compiler.language = language.toLowerCase
     compiler.run()
   }
@@ -35,7 +36,7 @@ object ScroogeSBT extends Plugin {
     }
   }
 
-  val scroogeBuildOptions = SettingKey[Seq[String]](
+  val scroogeBuildOptions = SettingKey[Seq[ServiceOption]](
     "scrooge-build-options",
     "command line args to pass to scrooge"
   )
@@ -105,7 +106,7 @@ object ScroogeSBT extends Plugin {
    * e.g. inConfig(Assembly)(genThriftSettings)
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
-    scroogeBuildOptions := Seq("--finagle"),
+    scroogeBuildOptions := Seq(WithFinagle),
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { identity },
