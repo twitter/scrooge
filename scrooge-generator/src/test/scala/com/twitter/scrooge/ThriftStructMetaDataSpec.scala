@@ -55,6 +55,7 @@ class ThriftStructMetaDataSpec extends Spec {
       info.tfield.name must be(field.name)
       // All of the XtructColl fields are required
       info.isOptional must be(false)
+      info.isRequired must be(true)
 
       field.id match {
         case 1 =>
@@ -81,6 +82,13 @@ class ThriftStructMetaDataSpec extends Spec {
     // All of the OneOfEachOptional fields are optional:
     OneOfEachOptional.fieldInfos.foreach { fieldInfo =>
       fieldInfo.isOptional must be(true)
+      fieldInfo.isRequired must be(false)
+    }
+
+    //All of the OneOfEachWithDefault fields are default:
+    OneOfEachWithDefault.fieldInfos.foreach { fieldInfo =>
+      fieldInfo.isRequired must be(false)
+      fieldInfo.isOptional must be(false)
     }
   }
 
