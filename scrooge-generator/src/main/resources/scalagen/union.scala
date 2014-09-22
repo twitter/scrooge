@@ -136,6 +136,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       new ThriftStructFieldInfo(
         {{fieldConst}},
         false,
+        false,
         manifest[{{FieldName}}Alias],
         {{FieldName}}KeyTypeManifest,
         {{FieldName}}ValueTypeManifest,
