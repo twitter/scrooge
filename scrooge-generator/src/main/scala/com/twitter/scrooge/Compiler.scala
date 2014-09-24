@@ -56,7 +56,7 @@ class Compiler {
     val importer = Importer(new File(".")) +: Importer(includePaths)
 
     // compile
-    for (inputFile <- thriftFiles) {
+    thriftFiles.par.foreach { inputFile =>
       val isJava = language.equals("java")
       val isScala = language.equals("scala")
       val isLint = language.equals("lint")
