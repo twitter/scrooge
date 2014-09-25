@@ -1,6 +1,5 @@
 package com.twitter.scrooge.ast
 
-
 case class Document(headers: Seq[Header], defs: Seq[Definition],
   filename: Option[String] = None) extends DocumentNode {
   def namespace(language: String): Option[Identifier] = {
