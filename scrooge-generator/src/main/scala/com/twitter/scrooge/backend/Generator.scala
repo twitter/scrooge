@@ -25,6 +25,7 @@ import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
 import scala.collection.JavaConverters._
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 import com.twitter.finagle.util.LoadService
+import org.apache.commons.io.FilenameUtils
 
 abstract sealed class ServiceOption
 
@@ -342,10 +343,10 @@ trait Generator
     }
 
     if (doc.consts.nonEmpty) {
-      val filename = ""//doc.filename.getOrElse("").replaceAll(".thrift", "")
-      val file = new File(packageDir, filename + "Constants" + fileExtension)
+      val basename = FilenameUtils.getBaseName(doc.filename.getOrElse(""))
+      val file = new File(packageDir, basename + "Constants" + fileExtension)
       if (!dryRun) {
-        val dict = constDict(namespace, doc.consts)
+        val dict = constDict(basename, namespace, doc.consts)
         writeFile(file, templates.header, templates("consts").generate(dict))
       }
       generatedFiles += file

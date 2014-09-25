@@ -54,16 +54,16 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "generate constants" in { _ =>
-      Constants.myWfhDay must be(WeekDay.THU)
-      Constants.myDaysOut must be(Utilities.makeList(WeekDay.THU, WeekDay.SAT, WeekDay.SUN))
-      Constants.name must be("Columbo")
-      Constants.someInt must be(1)
-      Constants.someDouble must be(3.0)
-      Constants.someList must be(Utilities.makeList("piggy"))
-      Constants.emptyList must be(Utilities.makeList())
-      Constants.someMap must be(Utilities.makeMap(Utilities.makeTuple("foo", "bar")))
-      Constants.someSimpleSet must be(Utilities.makeSet("foo", "bar"))
-      Constants.someSet must be(Utilities.makeSet(
+      constConstants.myWfhDay must be(WeekDay.THU)
+      constConstants.myDaysOut must be(Utilities.makeList(WeekDay.THU, WeekDay.SAT, WeekDay.SUN))
+      constConstants.name must be("Columbo")
+      constConstants.someInt must be(1)
+      constConstants.someDouble must be(3.0)
+      constConstants.someList must be(Utilities.makeList("piggy"))
+      constConstants.emptyList must be(Utilities.makeList())
+      constConstants.someMap must be(Utilities.makeMap(Utilities.makeTuple("foo", "bar")))
+      constConstants.someSimpleSet must be(Utilities.makeSet("foo", "bar"))
+      constConstants.someSet must be(Utilities.makeSet(
         Utilities.makeList("piggy"),
         Utilities.makeList("kitty")
       ))

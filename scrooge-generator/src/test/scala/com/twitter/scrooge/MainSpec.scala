@@ -47,9 +47,9 @@ struct Point {
     Main.main(args)
     val manifestString = Source.fromFile(fileMap).mkString
     val expected =
-      input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Constants.scala") + "\n" +
-        input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Direction.scala") + "\n" +
-        input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala")+ "\n"
+      input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "inputConstants.scala") + "\n" +
+      input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Direction.scala") + "\n" +
+      input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala")+ "\n"
     manifestString must be(expected)
   }
 }

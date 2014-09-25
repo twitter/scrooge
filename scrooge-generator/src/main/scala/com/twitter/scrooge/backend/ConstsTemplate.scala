@@ -7,10 +7,12 @@ import com.twitter.scrooge.ast.{Identifier, ConstDefinition}
 trait ConstsTemplate {
   self: Generator =>
   def constDict(
+    basename: String,
     namespace: Identifier,
     consts: Seq[ConstDefinition]
   ): Dictionary = Dictionary(
     "package" -> genID(namespace),
+    "basename" -> codify(basename),
     "constants" -> v(consts map {
       c =>
         Dictionary(

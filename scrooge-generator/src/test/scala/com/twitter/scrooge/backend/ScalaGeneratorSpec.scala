@@ -217,16 +217,16 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "generate constants" in { _ =>
-      thrift.test.Constants.myWfhDay must be(WeekDay.Thu)
-      thrift.test.Constants.myDaysOut must be(List(WeekDay.Thu, WeekDay.Sat, WeekDay.SUN))
-      thrift.test.Constants.name must be("Columbo")
-      thrift.test.Constants.someInt must be(1)
-      thrift.test.Constants.someDouble must be(3.0)
-      thrift.test.Constants.someList must be(List("piggy"))
-      thrift.test.Constants.emptyList must be(List())
-      thrift.test.Constants.someMap must be(Map("foo" -> "bar"))
-      thrift.test.Constants.someSimpleSet must be(Set("foo", "bar"))
-      thrift.test.Constants.someSet must be(Set(
+      thrift.test.constConstants.myWfhDay must be(WeekDay.Thu)
+      thrift.test.constConstants.myDaysOut must be(List(WeekDay.Thu, WeekDay.Sat, WeekDay.SUN))
+      thrift.test.constConstants.name must be("Columbo")
+      thrift.test.constConstants.someInt must be(1)
+      thrift.test.constConstants.someDouble must be(3.0)
+      thrift.test.constConstants.someList must be(List("piggy"))
+      thrift.test.constConstants.emptyList must be(List())
+      thrift.test.constConstants.someMap must be(Map("foo" -> "bar"))
+      thrift.test.constConstants.someSimpleSet must be(Set("foo", "bar"))
+      thrift.test.constConstants.someSet must be(Set(
         List("piggy"),
         List("kitty")
       ))
