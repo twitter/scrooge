@@ -435,8 +435,6 @@ class ThriftParser(
       throw new FileNotFoundException(filename)
     }
 
-    val newImporter = contents.importer
-
     // one thrift file can be included in another and referenced like this:
     // list<includedthriftfilenamehere.Request> requests
     //
