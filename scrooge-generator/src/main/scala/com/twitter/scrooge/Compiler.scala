@@ -38,6 +38,7 @@ class Compiler {
   var language: String = "scala"
   var defaultNamespace: String = "thrift"
   var scalaWarnOnJavaNSFallback: Boolean = false
+  var multithreaded: Boolean = true
 
   def run() {
     // if --gen-file-map is specified, prepare the map file.
@@ -60,7 +61,12 @@ class Compiler {
     val rhsStructs = isJava || isScala
 
     // compile
-    thriftFiles.par.foreach { inputFile =>
+    val inputs = if (multithreaded)
+      thriftFiles.par
+    else
+      thriftFiles
+
+    inputs.foreach { inputFile =>
       val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = false)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 

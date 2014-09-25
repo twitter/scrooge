@@ -90,7 +90,6 @@ trait Generator
   /******************** helper functions ************************/
   private[this] def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean) = {
     val file = new File(destFolder, namespace.replace('.', File.separatorChar))
-
     if (!dryRun) file.mkdirs()
     file
   }
