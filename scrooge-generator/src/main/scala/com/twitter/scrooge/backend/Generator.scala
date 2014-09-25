@@ -89,6 +89,7 @@ trait Generator
   /******************** helper functions ************************/
   private[this] def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean) = {
     val file = new File(destFolder, namespace.replace('.', File.separatorChar))
+
     if (!dryRun) file.mkdirs()
     file
   }
@@ -341,7 +342,8 @@ trait Generator
     }
 
     if (doc.consts.nonEmpty) {
-      val file = new File(packageDir, "Constants" + fileExtension)
+      val filename = ""//doc.filename.getOrElse("").replaceAll(".thrift", "")
+      val file = new File(packageDir, filename + "Constants" + fileExtension)
       if (!dryRun) {
         val dict = constDict(namespace, doc.consts)
         writeFile(file, templates.header, templates("consts").generate(dict))

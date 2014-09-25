@@ -1,6 +1,6 @@
 package com.twitter.scrooge.ast
 
-case class Document(headers: Seq[Header], defs: Seq[Definition]) extends DocumentNode {
+case class Document(headers: Seq[Header], defs: Seq[Definition], filename: Option[String]) extends DocumentNode {
   def namespace(language: String): Option[Identifier] = {
     (headers collect {
       // first try to find language specific namespace scope
