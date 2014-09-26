@@ -208,8 +208,14 @@ object ScroogeSBT extends Plugin {
     sourceGenerators <+= scroogeGen
   )
 
+  val packageThrift = mappings in (Compile, packageBin) ++= {
+    (scroogeThriftSources in Compile).value.map { file =>
+      file -> s"${name.value}/${file.name}"
+    }
+  }
+
   val newSettings =
     Seq(ivyConfigurations += thriftConfig) ++
     inConfig(Test)(genThriftSettings) ++
-    inConfig(Compile)(genThriftSettings)
+    inConfig(Compile)(genThriftSettings) :+ packageThrift
 }
