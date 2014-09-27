@@ -21,12 +21,14 @@ import java.util.Properties
 import scala.collection.mutable.HashMap
 import scala.io.Source
 
-class HandlebarLoader(prefix: String, suffix: String = ".scala") {
+object HandlebarLoader {
   private val cache = new HashMap[String, Handlebar]
+}
 
+class HandlebarLoader(prefix: String, suffix: String = ".scala") {
   def apply(name: String): Handlebar = {
     val fullName = prefix + name + suffix
-    cache.getOrElseUpdate(name,
+    HandlebarLoader.cache.getOrElseUpdate(name,
       getClass.getResourceAsStream(fullName) match {
         case null => {
           throw new NoSuchElementException("template not found: " + fullName)
