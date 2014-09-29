@@ -92,12 +92,35 @@ final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method:
 final class ThriftStructFieldInfo(
   val tfield: TField,
   val isOptional: Boolean,
+  val isRequired: Boolean,
   val manifest: Manifest[_],
   val keyManifest: scala.Option[Manifest[_]],
   val valueManifest: scala.Option[Manifest[_]],
   val typeAnnotations: Map[String, String],
   val fieldAnnotations: Map[String, String]
 ) {
+  /**
+    * Provide backwards compatibility for older scrooge-generator that does not generate the isRequired flag 
+    */
+  def this(
+    tfield: TField,
+    isOptional: Boolean,
+    manifest: Manifest[_],
+    keyManifest: scala.Option[Manifest[_]],
+    valueManifest: scala.Option[Manifest[_]],
+    typeAnnotations: Map[String, String],
+    fieldAnnotations: Map[String, String]
+  ) = this(
+    tfield,
+    isOptional,
+    !isOptional,
+    manifest,
+    keyManifest,
+    valueManifest,
+    typeAnnotations,
+    fieldAnnotations
+  )
+
   /**
    * Secondary constructor provided for backwards compatibility:
    * Older scrooge-generator does not produce annotations.
@@ -112,6 +135,7 @@ final class ThriftStructFieldInfo(
     this(
       tfield,
       isOptional,
+      !isOptional,
       manifest,
       keyManifest,
       valueManifest,

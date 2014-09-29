@@ -1,5 +1,3 @@
-maven_layout()
-
 scala_library(
   provides = scala_artifact(
     org = 'com.twitter',

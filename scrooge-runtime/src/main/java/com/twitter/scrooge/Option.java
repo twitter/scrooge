@@ -14,6 +14,7 @@ public abstract class Option<A> {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <A> Option<A> none() {
     return (Option<A>) NONE;
   }
@@ -43,6 +44,7 @@ public abstract class Option<A> {
       return true;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean equals(Object other) {
       if (!(other instanceof Some)) return false;
       Some<A> that = (Some<A>) other;
