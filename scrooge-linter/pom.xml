@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-linter_2.10</artifactId>
   <packaging>jar</packaging>
-  <version>3.16.5-SNAPSHOT</version>
+  <version>3.16.7-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>service-2104_2.10</artifactId>
@@ -32,12 +32,12 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.10</artifactId>
-      <version>3.16.5-SNAPSHOT</version>
+      <version>3.16.7-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.scalatest</groupId>
       <artifactId>scalatest_2.10</artifactId>
-      <version>1.9.1</version>
+      <version>2.2.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -69,28 +69,34 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.9.2", "2.10.4"),
-    scalaVersion := "2.9.2",
+    crossScalaVersions := Seq("2.10.4"),
+    scalaVersion := "2.10.4",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
     ),
 
     publishM2Configuration <<= (packagedArtifacts, checksums in publish, ivyLoggingLevel) map { (arts, cs, level) =>
-      Classpaths.publishConfig(arts, None, resolverName = m2Repo.name, checksums = cs, logging = level)
+      Classpaths.publishConfig(
+        artifacts = arts,
+        ivyFile = None,
+        resolverName = m2Repo.name,
+        checksums = cs,
+        logging = level,
+        overwrite = true)
     },
     publishM2 <<= Classpaths.publishTask(publishM2Configuration, deliverLocal),
     otherResolvers += m2Repo,
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % (if ((scalaVersion in Compile).value.startsWith("2.11")) "2.1.3" else "1.9.1") % "test",
+      "org.scalatest" %% "scalatest" % "2.2.2" % "test",
       "junit" % "junit" % "4.8.1" % "test"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
+    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.6"),
 
     // Sonatype publishing
@@ -236,8 +242,9 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
-  ).dependsOn(scroogeRuntime)
+    ),
+    crossScalaVersions += "2.11.2"
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
