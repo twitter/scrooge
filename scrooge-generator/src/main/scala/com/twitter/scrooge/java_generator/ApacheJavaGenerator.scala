@@ -24,6 +24,10 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
   ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace)
 }
 
+object ApacheJavaGenerator {
+  lazy val templateCache = new mutable.HashMap[String, Mustache]
+}
+
 class ApacheJavaGenerator(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
@@ -78,15 +82,12 @@ class ApacheJavaGenerator(
     renderMustache("generate_field_value_meta_data.mustache", controller).trim
   }
 
-  val templateCache = new mutable.HashMap[String, Mustache]
-
   def renderMustache(template: String, controller: Any = this) = {
     val sw = new StringWriter()
-    val mustache = templateCache.getOrElseUpdate(template, {
+    val mustache = ApacheJavaGenerator.templateCache.getOrElseUpdate(template, {
       val mf = new DefaultMustacheFactory("apachejavagen/")
       mf.setObjectHandler(new ScalaObjectHandler)
       val m = mf.compile(template)
-      templateCache.put(template, m)
       m
     })
     mustache.execute(sw, controller).flush()
