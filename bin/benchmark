@@ -35,7 +35,7 @@ function generateThrift {
     gen_big_structs=$3
     mkdir -p $gen_big_structs
 
-    for i in i$(seq 10); do
+    for i in $(seq 10); do
         genBigStruct $gen_big_structs/s$i.thrift
     done
 }
