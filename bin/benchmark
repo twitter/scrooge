@@ -2,7 +2,7 @@
 
 set -e
 
-#./sbt scrooge-generator/assembly
+./sbt scrooge-generator/assembly
 
 jar=$(ls scrooge-generator/target/scala-2.10/scrooge-generator-assembly-*.jar | tail -1)
 
@@ -14,15 +14,16 @@ for i in $(seq 1000); do
     echo "service MyService$i { i32 getNumber(1: string someInput) }" > $gen_service/MyService$i.thrift;
 done
 
-
 function generateThrift {
     input=$1
     echo Running on $input
 
     for lang in scala java experimental-java; do
-        opt="--language $lang"
-        echo $opt
-        time java -jar $jar $input/*.thrift $opt
+        lang_opt="--language $lang"
+        echo $lang_opt
+        dest="$input/$lang"
+
+        time java -jar $jar $input/*.thrift --dest $dest $lang_opt
     done
 }
 
