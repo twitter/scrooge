@@ -39,9 +39,11 @@ function bigStruct {
     done
 }
 
-gen_big_struct=$gen_root/bigstruct
+gen_big_struct=$gen_root/bigstructs
 
-bigStruct $gen_big_struct/s1.thrift
+for i in i$(seq 10); do
+    bigStruct $gen_big_struct/s$i.thrift
+done
 
 function compileThrift {
     input=$1
@@ -55,9 +57,8 @@ function compileThrift {
         time java -jar $jar $input/*.thrift --dest $dest $lang_opt
     done
 }
-compileThrift $gen_big_struct
 
 compileThrift $gen_services
-
 compileThrift $gen_structs
+compileThrift $gen_big_struct
 
