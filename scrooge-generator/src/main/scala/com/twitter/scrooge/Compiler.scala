@@ -55,13 +55,13 @@ class Compiler {
 
     val importer = Importer(new File(".")) +: Importer(includePaths)
 
+    val isJava = language.equals("java")
+    val isScala = language.equals("scala")
+    val rhsStructs = isJava || isScala
+
     // compile
     for (inputFile <- thriftFiles) {
-      val isJava = language.equals("java")
-      val isScala = language.equals("scala")
-      val isLint = language.equals("lint")
-      val rhsStructs = isJava || isScala
-      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = isLint)
+      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = false)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
