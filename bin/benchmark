@@ -6,15 +6,44 @@ set -e
 
 jar=$(ls scrooge-generator/target/scala-2.10/scrooge-generator-assembly-*.jar | tail -1)
 
-gen_service=scrooge-benchmark/src/generated/thrift/services
+gen_root=scrooge-benchmark/src/generated/thrift
 
-mkdir -p $gen_service
+gen_services=$gen_root/services
+
+mkdir -p $gen_services
 
 for i in $(seq 1000); do
-    echo "service MyService$i { i32 getNumber(1: string someInput) }" > $gen_service/MyService$i.thrift;
+    echo "service MyService$i { i32 getNumber(1: string someInput) }" > $gen_services/MyService$i.thrift;
 done
 
-function generateThrift {
+gen_structs=$gen_root/structs
+
+mkdir -p $gen_structs
+
+for i in $(seq 1000); do
+    echo "struct MyStruct$i { 1: string aaaa; 2: i32 bbbb }" > $gen_structs/MyStruct$i.thrift;
+done
+
+function bigStruct {
+    dest=$1
+    set -x
+    mkdir -p $(dirname $dest)
+    set +x
+    echo namespace scala a.b.c.d > $dest
+    for i in $(seq 10); do
+        echo "struct BigStruct$i {" >> $dest
+        for j in $(seq 100); do
+            echo "  $j: i64 Field$j" >> $dest
+        done
+        echo "}" >> $dest
+    done
+}
+
+gen_big_struct=$gen_root/bigstruct
+
+bigStruct $gen_big_struct/s1.thrift
+
+function compileThrift {
     input=$1
     echo Running on $input
 
@@ -26,7 +55,9 @@ function generateThrift {
         time java -jar $jar $input/*.thrift --dest $dest $lang_opt
     done
 }
+compileThrift $gen_big_struct
 
-generateThrift $gen_service
+compileThrift $gen_services
 
+compileThrift $gen_structs
 
