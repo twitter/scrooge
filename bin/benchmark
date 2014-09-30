@@ -2,33 +2,9 @@
 
 set -e
 
-./sbt scrooge-generator/assembly
 
-jar=$(ls scrooge-generator/target/scala-2.10/scrooge-generator-assembly-*.jar | tail -1)
-
-gen_root=scrooge-benchmark/src/generated/thrift
-
-gen_services=$gen_root/services
-
-mkdir -p $gen_services
-
-for i in $(seq 1000); do
-    echo "service MyService$i { i32 getNumber(1: string someInput) }" > $gen_services/MyService$i.thrift;
-done
-
-gen_structs=$gen_root/structs
-
-mkdir -p $gen_structs
-
-for i in $(seq 1000); do
-    echo "struct MyStruct$i { 1: string aaaa; 2: i32 bbbb }" > $gen_structs/MyStruct$i.thrift;
-done
-
-function bigStruct {
+function genBigStruct {
     dest=$1
-    set -x
-    mkdir -p $(dirname $dest)
-    set +x
     echo namespace scala a.b.c.d > $dest
     for i in $(seq 10); do
         echo "struct BigStruct$i {" >> $dest
@@ -39,15 +15,35 @@ function bigStruct {
     done
 }
 
-gen_big_struct=$gen_root/bigstructs
+function generateThrift {
+    gen_services=$1
 
-for i in i$(seq 10); do
-    bigStruct $gen_big_struct/s$i.thrift
-done
+    mkdir -p $gen_services
+
+    for i in $(seq 1000); do
+        echo "service MyService$i { i32 getNumber(1: string someInput) }" > $gen_services/MyService$i.thrift;
+    done
+
+    gen_structs=$2
+
+    mkdir -p $gen_structs
+
+    for i in $(seq 1000); do
+        echo "struct MyStruct$i { 1: string aaaa; 2: i32 bbbb }" > $gen_structs/MyStruct$i.thrift;
+    done
+
+    gen_big_structs=$3
+    mkdir -p $gen_big_structs
+
+    for i in i$(seq 10); do
+        genBigStruct $gen_big_structs/s$i.thrift
+    done
+}
 
 function compileThrift {
     input=$1
-    echo Running on $input
+    echo
+    echo Running scrooge on $input
 
     for lang in scala java experimental-java; do
         lang_opt="--language $lang"
@@ -58,7 +54,18 @@ function compileThrift {
     done
 }
 
+./sbt scrooge-generator/assembly
+
+jar=$(ls scrooge-generator/target/scala-2.10/scrooge-generator-assembly-*.jar | tail -1)
+
+gen_root=scrooge-benchmark/src/generated/thrift
+
+gen_services=$gen_root/services
+gen_structs=$gen_root/structs
+gen_big_structs=$gen_root/bigstructs
+
+generateThrift $gen_services $gen_structs $gen_big_structs
+
 compileThrift $gen_services
 compileThrift $gen_structs
-compileThrift $gen_big_struct
-
+compileThrift $gen_big_structs
