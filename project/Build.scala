@@ -270,7 +270,8 @@ object Scrooge extends Build {
     id = "scrooge-linter",
     base = file("scrooge-linter"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+      assemblySettings
   ).settings(
     name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)
