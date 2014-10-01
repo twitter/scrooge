@@ -5,7 +5,7 @@
   <artifactId>scrooge-demo</artifactId>
   <packaging>jar</packaging>
   <name>scrooge-demo</name>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <properties>
     <git.dir>${project.basedir}/../../../.git</git.dir>
   </properties>
@@ -19,16 +19,11 @@
     -->
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>event-logger-thrift</artifactId>
-      <version>0.0.3</version>
+      <artifactId>event-logger-thrift_2.10</artifactId>
+      <version>0.0.6-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <!-- common library dependencies -->
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>2.9.2</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
@@ -36,33 +31,33 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-core_2.9.2</artifactId>
-      <version>6.4.0</version>
+      <artifactId>util-core_2.10</artifactId>
+      <version>6.21.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-codec_2.9.2</artifactId>
-      <version>6.4.0</version>
+      <artifactId>util-codec_2.10</artifactId>
+      <version>6.21.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-core_2.9.2</artifactId>
-      <version>6.5.2</version>
+      <artifactId>finagle-core_2.10</artifactId>
+      <version>6.21.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-thrift_2.9.2</artifactId>
-      <version>6.5.2</version>
+      <artifactId>finagle-thrift_2.10</artifactId>
+      <version>6.21.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-ostrich4_2.9.2</artifactId>
-      <version>6.5.2</version>
+      <artifactId>finagle-ostrich4_2.10</artifactId>
+      <version>6.21.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-core_2.9.2</artifactId>
-      <version>3.14.1-SNAPSHOT</version>
+      <artifactId>scrooge-core_2.10</artifactId>
+      <version>3.16.5-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -136,7 +131,7 @@
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
         <!-- this version must match the version from scrooge-gen.ivy.xml -->
-        <version>3.14.1</version>
+        <version>3.16.1-TWOTEN</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
@@ -152,7 +147,7 @@
           </thriftOpts>
           <!-- tell scrooge to extract thrifts from these artifacts -->
           <dependencyIncludes>
-            <include>event-logger-thrift</include>
+            <include>event-logger-thrift_2.10</include>
           </dependencyIncludes>
         </configuration>
         <executions>

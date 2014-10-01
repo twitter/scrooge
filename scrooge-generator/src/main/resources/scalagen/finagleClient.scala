@@ -2,7 +2,7 @@ package {{package}}
 
 import com.twitter.finagle.{SourcedException, Service => FinagleService}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import com.twitter.util.{Future, Return, Throw}
 import java.nio.ByteBuffer
@@ -12,11 +12,13 @@ import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
 import scala.collection.{Map, Set}
 
+import scala.language.higherKinds
+
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleClient(
   {{#hasParent}}override {{/hasParent}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
-  {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
+  {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
   {{#hasParent}}override {{/hasParent}}val serviceName: String = "",
   stats: StatsReceiver = NullStatsReceiver
 ) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}{{ServiceName}}[Future] {

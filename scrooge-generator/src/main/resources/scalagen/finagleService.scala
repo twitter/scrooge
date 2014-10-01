@@ -12,6 +12,8 @@ import scala.collection.mutable.{
   ArrayBuffer => mutable$ArrayBuffer, HashMap => mutable$HashMap}
 import scala.collection.{Map, Set}
 
+import scala.language.higherKinds
+
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleService(

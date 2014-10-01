@@ -44,6 +44,9 @@ object UnionFieldRequirednessException {
 class InvalidThriftFilenameException(filename: String, regex: String)
   extends ParseWarning("Thrift filename " + filename + " is invalid, did not pass this check: " + regex)
 
+class KeywordException(id: String)
+  extends ParseWarning(s"Identifier '$id' is invalid: it is a thrift keyword.")
+
 /**
  * ScroogeInternalException indicates a Scrooge bug
  */

@@ -35,6 +35,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
     new ThriftStructFieldInfo(
       {{fieldConst}},
       {{optional}},
+      {{required}},
       {{fieldConst}}Manifest,
 {{#fieldKeyType}}
       Some(implicitly[Manifest[{{fieldKeyType}}]]),
@@ -96,6 +97,17 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/required}}
 {{/fields}}
   }
+
+  def withoutPassthroughFields(original: {{StructName}}): {{StructName}} =
+    new {{InstanceClassName}}(
+{{#fields}}
+      {{fieldName}} =
+        {
+          val field = original.{{fieldName}}
+          {{#passthroughFields}}{{>withoutPassthrough}}{{/passthroughFields}}
+        }
+{{/fields|,}}
+    )
 
   override def encode(_item: {{StructName}}, _oproto: TProtocol) {
     _item.write(_oproto)

@@ -1,12 +1,14 @@
 import sbt._
 import Keys._
+import bintray.Plugin._
+import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
 
 object Scrooge extends Build {
   val libVersion = "3.16.3"
-  val utilVersion = "6.19.0"
+  val utilVersion = "6.20.0"
   val finagleVersion = "6.20.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
@@ -67,28 +69,34 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.9.2", "2.10.4"),
-    scalaVersion := "2.9.2",
+    crossScalaVersions := Seq("2.10.4"),
+    scalaVersion := "2.10.4",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
     ),
 
     publishM2Configuration <<= (packagedArtifacts, checksums in publish, ivyLoggingLevel) map { (arts, cs, level) =>
-      Classpaths.publishConfig(arts, None, resolverName = m2Repo.name, checksums = cs, logging = level)
+      Classpaths.publishConfig(
+        artifacts = arts,
+        ivyFile = None,
+        resolverName = m2Repo.name,
+        checksums = cs,
+        logging = level,
+        overwrite = true)
     },
     publishM2 <<= Classpaths.publishTask(publishM2Configuration, deliverLocal),
     otherResolvers += m2Repo,
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "1.9.1" % "test",
+      "org.scalatest" %% "scalatest" % "2.2.2" % "test",
       "junit" % "junit" % "4.8.1" % "test"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
+    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.6"),
 
     // Sonatype publishing
@@ -145,7 +153,7 @@ object Scrooge extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test"
     )
   )
-  
+
   lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
     CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
   )
@@ -194,7 +202,8 @@ object Scrooge extends Build {
     name := "scrooge-core",
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
+    ),
+    crossScalaVersions += "2.11.2"
   )
 
   lazy val scroogeRuntime = Project(
@@ -233,17 +242,23 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
-  ).dependsOn(scroogeRuntime)
+    ),
+    crossScalaVersions += "2.11.2"
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++ 
+    settings = Project.defaultSettings ++
       sharedSettings ++
-      crossBuildSettings
+      crossBuildSettings ++
+      bintrayPublishSettings
   ).settings(
-    sbtPlugin := true
+    sbtPlugin := true,
+    publishMavenStyle := false,
+    repository in bintray := "sbt-plugins",
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(

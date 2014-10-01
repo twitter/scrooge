@@ -21,7 +21,6 @@ import java.util.Properties
 import scopt.OptionParser
 
 case class Config(
-  val verbose: Boolean = false,
   val strict: Boolean = false,
   val files: Seq[String] = Seq(),
   val ignoreErrors: Boolean = false
@@ -30,7 +29,9 @@ case class Config(
 
 object Main {
   def main(args: Array[String]) {
-    new Linter(parseOptions(args)).lint()
+    val numErrors = new Linter(parseOptions(args)).lint()
+    if (numErrors > 0)
+      System.exit(1)
   }
 
   def parseOptions(args: Seq[String]): Config = {
@@ -55,7 +56,7 @@ object Main {
           c
         }}
 
-        opt[Boolean]('i', "ignore-errors") text ("continue if linter errors are found (for batch processing)") action { (_, c) => {
+        opt[Boolean]('i', "ignore-errors") text ("continue if parse errors are found (for batch processing)") action { (_, c) => {
           c.copy(ignoreErrors = true)
           c
         }}
