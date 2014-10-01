@@ -51,11 +51,6 @@ object Main {
           c
         }}
 
-        opt[Boolean]('v', "verbose") text ("log verbose messages about progress") action { (_, c) => {
-          c.copy(verbose = true)
-          c
-        }}
-
         opt[Boolean]('i', "ignore-errors") text ("continue if parse errors are found (for batch processing)") action { (_, c) => {
           c.copy(ignoreErrors = true)
           c
