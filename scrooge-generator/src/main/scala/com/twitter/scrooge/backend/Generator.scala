@@ -39,25 +39,25 @@ trait ThriftGenerator {
     dryRun: Boolean = false): Iterable[File]
 }
 
-object Generator {
-  private[this] val Generators: Map[String, GeneratorFactory] = {
+object GeneratorFactory {
+  private[this] val factories: Map[String, GeneratorFactory] = {
     val loadedGenerators = LoadService[GeneratorFactory]()
-    val generators =
+    val factories =
       List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory) ++
       loadedGenerators
 
-    Map(generators map { g => (g.lang -> g) }: _*)
+    Map(factories map { g => (g.lang -> g) }: _*)
   }
 
-  def languages = Generators.keys
+  def languages = factories.keys
 
   def apply(
     lan: String,
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = Generators.get(lan) match {
-    case Some(gen) => gen(includeMap, defaultNamespace, experimentFlags)
+  ): ThriftGenerator = factories.get(lan) match {
+    case Some(factory) => factory(includeMap, defaultNamespace, experimentFlags)
     case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
 }

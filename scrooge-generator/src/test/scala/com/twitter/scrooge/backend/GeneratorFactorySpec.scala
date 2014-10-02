@@ -15,7 +15,7 @@ class TestGeneratorFactory extends GeneratorFactory {
 class GeneratorFactorySpec extends Spec {
   "GeneratorFactory" should {
     "be loadable" in {
-      val generator = Generator("test", Map.empty[String, ResolvedDocument], "", Seq.empty[String])
+      val generator = GeneratorFactory("test", Map.empty[String, ResolvedDocument], "", Seq.empty[String])
       generator.isInstanceOf[ScalaGenerator] must be(true)
     }
   }

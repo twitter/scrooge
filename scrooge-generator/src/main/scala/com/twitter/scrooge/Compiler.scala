@@ -20,7 +20,7 @@ import java.io.{File, FileWriter}
 import scala.collection.mutable
 import scala.collection.concurrent.TrieMap
 import com.twitter.scrooge.ast.Document
-import com.twitter.scrooge.backend.{Generator, ScalaGenerator, ServiceOption}
+import com.twitter.scrooge.backend.{Generator, GeneratorFactory, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
 
 class Compiler {
@@ -69,7 +69,7 @@ class Compiler {
 
       if (verbose) println("+ Compiling %s".format(inputFile))
       val resolvedDoc = TypeResolver(allowStructRHS = rhsStructs)(doc0) // TODO: THRIFT-54
-      val generator = Generator(
+      val generator = GeneratorFactory(
         language,
         resolvedDoc.resolver.includeMap,
         defaultNamespace,
