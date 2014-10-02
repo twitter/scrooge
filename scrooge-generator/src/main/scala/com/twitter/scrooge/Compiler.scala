@@ -16,12 +16,12 @@
 
 package com.twitter.scrooge
 
-import java.io.{File, FileWriter}
-import scala.collection.mutable
-import scala.collection.concurrent.TrieMap
 import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
+import java.io.{File, FileWriter}
+import scala.collection.concurrent.TrieMap
+import scala.collection.mutable
 
 class Compiler {
   val defaultDestFolder = "."
