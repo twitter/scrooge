@@ -69,3 +69,5 @@ generateThrift $gen_services $gen_structs $gen_big_structs
 compileThrift $gen_services
 compileThrift $gen_structs
 compileThrift $gen_big_structs
+
+time java -jar $jar  ./scrooge-benchmark/src/main/thrift/includes/top.thrift
