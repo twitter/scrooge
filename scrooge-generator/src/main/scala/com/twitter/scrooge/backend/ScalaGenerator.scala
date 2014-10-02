@@ -45,7 +45,6 @@ class ScalaGenerator(
   def templates: HandlebarLoader = templatesLoader
 
   val fileExtension = ".scala"
-  val templateDirName = "/scalagen/"
 
   var warnOnJavaNamespaceFallback: Boolean = false
 

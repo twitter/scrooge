@@ -99,8 +99,6 @@ trait Generator extends ThriftGenerator {
   def getNamespace(doc: Document): Identifier =
     doc.namespace("java") getOrElse (SimpleID(defaultNamespace))
 
-  def fileExtension: String
-
   def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String
   def isNullableType(t: FieldType, isOptional: Boolean = false) = {
@@ -327,6 +325,7 @@ trait TemplateGenerator extends Generator
   with EnumTemplate
  {
   def templates: HandlebarLoader
+  def fileExtension: String
 
   def apply(
     _doc: Document,
