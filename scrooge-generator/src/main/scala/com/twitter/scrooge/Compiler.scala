@@ -16,7 +16,6 @@
 
 package com.twitter.scrooge
 
-import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
 import java.io.{File, FileWriter}
@@ -60,11 +59,10 @@ class Compiler {
     val isJava = language.equals("java")
     val isScala = language.equals("scala")
     val rhsStructs = isJava || isScala
-    val documentCache = new TrieMap[String, Document]
 
     // compile
     for (inputFile <- thriftFiles) {
-      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = false, documentCache)
+      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = false)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
