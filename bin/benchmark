@@ -70,4 +70,6 @@ compileThrift $gen_services
 compileThrift $gen_structs
 compileThrift $gen_big_structs
 
+echo
+echo "Running scrooge on ./scrooge-benchmark/src/main/thrift/includes/top.thrift (Multiple includes)"
 time java -jar $jar  ./scrooge-benchmark/src/main/thrift/includes/top.thrift
