@@ -418,6 +418,7 @@ enum Foo
         scala.Some(FileContents(NullImporter, "", scala.Some(thriftFilename)))
       override private[scrooge] def canonicalPaths: Seq[String] = Nil
       override def lastModified(filename: String): scala.Option[Long] = None
+      def getResolvedPath(filename: String): Option[String] = None
     }
     new ThriftParser(importer, true)
   }
