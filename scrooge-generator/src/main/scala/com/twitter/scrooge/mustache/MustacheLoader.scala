@@ -22,9 +22,9 @@ import scala.collection.mutable.HashMap
 import scala.io.Source
 
 
-class HandlebarLoader(prefix: String,
-  suffix: String = ".scala",
-  cache: HashMap[String, Handlebar] = new HashMap[String, Handlebar]) {
+class HandlebarLoader(prefix: String, suffix: String = ".scala") {
+  private[this] val cache = new HashMap[String, Handlebar]
+
   def apply(name: String): Handlebar = {
     val fullName = prefix + name + suffix
     cache.getOrElseUpdate(name,
