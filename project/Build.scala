@@ -5,7 +5,8 @@ import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
-import com.github.retronym.SbtOneJar.{oneJar, oneJarSettings}
+import sbtassembly.Plugin._
+import AssemblyKeys._
 
 object Scrooge extends Build {
   val libVersion = "3.16.3"
@@ -176,7 +177,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Test)(thriftSettings) ++
       sharedSettings ++
-      oneJarSettings ++
+      assemblySettings ++
       jmockSettings
   ).settings(
     name := "scrooge-generator",
@@ -193,7 +194,8 @@ object Scrooge extends Build {
       finagle("core"),
       finagle("thrift") % "test"
     ),
-    mainClass in oneJar := Some("com.twitter.scrooge.Main")
+    test in assembly := {},  // Skip tests when running assembly.
+    mainClass in assembly := Some("com.twitter.scrooge.Main")
   ).dependsOn(scroogeRuntime % "test")
 
   lazy val scroogeCore = Project(
@@ -269,7 +271,7 @@ object Scrooge extends Build {
     base = file("scrooge-linter"),
     settings = Project.defaultSettings ++
       sharedSettings ++
-      oneJarSettings
+      assemblySettings
   ).settings(
     name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)

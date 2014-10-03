@@ -54,9 +54,9 @@ function compileThrift {
     done
 }
 
-./sbt scrooge-generator/one-jar
+./sbt scrooge-generator/assembly
 
-jar=$(ls scrooge-generator/target/scala-2.10/scrooge-generator*-one-jar.jar | tail -1)
+jar=$(ls scrooge-generator/target/scala-2.10/scrooge-generator-assembly-*.jar | tail -1)
 
 gen_root=scrooge-benchmark/src/generated/thrift
 
