@@ -1,15 +1,15 @@
 #!/bin/bash
 
 set -e
-
+#set -x
 
 function genBigStruct {
     dest=$1
-    echo namespace scala a.b.c.d > $dest
-    for i in $(seq 10); do
-        echo "struct BigStruct$i {" >> $dest
-        for j in $(seq 100); do
-            echo "  $j: i64 Field$j" >> $dest
+    echo namespace java a.b.c.d > $dest
+    for p in $(seq 10); do
+        echo "struct BigStruct$p {" >> $dest
+        for q in $(seq 100); do
+            echo "  $q: i64 Field$q" >> $dest
         done
         echo "}" >> $dest
     done
@@ -17,7 +17,6 @@ function genBigStruct {
 
 function generateThrift {
     gen_services=$1
-
     mkdir -p $gen_services
 
     for i in $(seq 1000); do
@@ -25,7 +24,6 @@ function generateThrift {
     done
 
     gen_structs=$2
-
     mkdir -p $gen_structs
 
     for i in $(seq 1000); do
@@ -37,6 +35,21 @@ function generateThrift {
 
     for i in $(seq 10); do
         genBigStruct $gen_big_structs/s$i.thrift
+    done
+
+    gen_includes=$4
+    mkdir -p $gen_includes
+
+    for i in $(seq 10); do
+        genBigStruct $gen_includes/a$i.thrift
+
+        for j in $(seq 10); do
+            echo namespace java a.b.c.d > $gen_includes/b$j.thrift
+            echo namespace java a.b.c.d > $gen_includes/c$j.thrift
+
+            echo "include \"a$i.thrift\"" >> $gen_includes/b$j.thrift
+            echo "include \"b$i.thrift\"" >> $gen_includes/c$j.thrift
+        done
     done
 }
 
@@ -63,13 +76,12 @@ gen_root=scrooge-benchmark/src/generated/thrift
 gen_services=$gen_root/services
 gen_structs=$gen_root/structs
 gen_big_structs=$gen_root/bigstructs
+gen_includes=$gen_root/includes
 
-generateThrift $gen_services $gen_structs $gen_big_structs
+generateThrift $gen_services $gen_structs $gen_big_structs $gen_includes
 
 compileThrift $gen_services
 compileThrift $gen_structs
 compileThrift $gen_big_structs
+compileThrift $gen_includes
 
-echo
-echo "Running scrooge on ./scrooge-benchmark/src/main/thrift/includes/top.thrift (Multiple includes)"
-time java -jar $jar  ./scrooge-benchmark/src/main/thrift/includes/top.thrift
