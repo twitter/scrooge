@@ -32,7 +32,7 @@ class ASTSpec extends Spec {
       val doc2 = Document(Seq(javaOatmealNs, Include("other", doc1)), Nil)
       val namespaceMap = Map(javaOatmealNs.id.fullName -> javaGranolaNs.id.fullName)
       doc2.mapNamespaces(namespaceMap) match {
-        case Document(Seq(javaGranolaNs, Include(_, included)), Nil) =>
+        case Document(Seq(javaGranolaNs, Include(_, included)), Nil, _) =>
           included must be(Document(Seq(javaGranolaNs), Nil))
       }
     }

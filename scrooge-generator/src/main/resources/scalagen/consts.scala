@@ -1,7 +1,7 @@
 package {{package}}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-object Constants {
+object {{basename}}Constants {
 {{#constants}}
   {{docstring}}
   val {{name}}: {{fieldType}} = {{value}}

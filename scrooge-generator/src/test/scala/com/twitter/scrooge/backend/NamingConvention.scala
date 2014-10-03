@@ -7,8 +7,8 @@ class NamingConventionSpec extends Spec {
 
     "follow naming conventions" in {
       import thrift.`def`.default._
-      Constants.`val` must be(10)
-      Constants.`try` must be(123)
+      naughtyConstants.`val` must be(10)
+      naughtyConstants.`try` must be(123)
 
       val naughty = Naughty("car", 100)
       naughty.`type` must be("car")
@@ -23,8 +23,8 @@ class NamingConventionSpec extends Spec {
   "Java Generator" should {
     "follow naming convention" in {
       import thrift.java_def._default_._ // package name "default" got rewritten in Java
-      Constants.`val` must be(10)
-      Constants._try_ must be(123)
+      naughtyConstants.`val` must be(10)
+      naughtyConstants._try_ must be(123)
 
       val naughty = new Naughty("car", 100)
       naughty.getType() must be("car")

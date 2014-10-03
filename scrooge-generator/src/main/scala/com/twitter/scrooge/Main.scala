@@ -76,6 +76,9 @@ object Main {
       opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting",
         { compiler.strict = false; () })
 
+      opt("singlethreaded", "run scrooge-generator sequentially over multiple input files (default is parallel)",
+        { compiler.multithreaded = false; () })
+
       opt(None, "gen-file-map", "<path>", "generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files",
         { path: String => compiler.fileMapPath = Some(path); () })
 

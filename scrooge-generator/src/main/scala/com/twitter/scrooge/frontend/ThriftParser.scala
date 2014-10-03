@@ -27,7 +27,9 @@ class ThriftParser(
     importer: Importer,
     strict: Boolean,
     defaultOptional: Boolean = false,
-    skipIncludes: Boolean = false)
+    skipIncludes: Boolean = false,
+    filename: Option[String] = None
+)
   extends RegexParsers {
 
   import com.twitter.scrooge.ast._
@@ -368,19 +370,20 @@ class ThriftParser(
   // document
 
   lazy val document: Parser[Document] = rep(header) ~ rep(definition) <~ opt(comments) ^^ {
-    case hs ~ ds => Document(hs, ds)
+    case hs ~ ds => Document(hs, ds, filename)
   }
 
   lazy val header: Parser[Header] = include | cppInclude | namespace
 
   lazy val include = opt(comments) ~> "include" ~> stringLiteral ^^ { s =>
+    val includedPath = s.value
     val doc =
       if (skipIncludes) {
-        Document(Seq(), Seq())
+        Document(Seq(), Seq(), Some(includedPath))
       } else {
-        parseFile(s.value)
+        parseFile(includedPath)
       }
-    Include(s.value, doc)
+    Include(includedPath, doc)
   }
 
   // bogus dude.
@@ -417,14 +420,14 @@ class ThriftParser(
 
   lazy val defaultedAnnotations = opt(annotationGroup) ^^ { _ getOrElse Map.empty }
 
-  def parse[T](in: String, parser: Parser[T], file: Option[String] = None): T = try {
+  def parse[T](in: String, parser: Parser[T]): T = try {
     parseAll(parser, in) match {
       case Success(result, _) => result
       case x@Failure(msg, z) => throw new ParseException(x.toString)
       case x@Error(msg, _) => throw new ParseException(x.toString)
     }
   } catch {
-    case e: Throwable => throw file.map(FileParseException(_, e)).getOrElse(e)
+    case e: Throwable => throw filename.map(FileParseException(_, e)).getOrElse(e)
   }
 
   def parseFile(filename: String): Document = {
@@ -444,8 +447,9 @@ class ThriftParser(
       }
     }
 
-    val newParser = new ThriftParser(contents.importer, this.strict, this.defaultOptional, this.skipIncludes)
-    newParser.parse(contents.data, newParser.document, Some(filename))
+    val newParser = new ThriftParser(contents.importer, this.strict, this.defaultOptional,
+      this.skipIncludes, Some(filename))
+    newParser.parse(contents.data, newParser.document)
   }
 
   // helper functions
