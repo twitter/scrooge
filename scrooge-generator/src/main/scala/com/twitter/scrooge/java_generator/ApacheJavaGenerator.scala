@@ -17,16 +17,19 @@ import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 object ApacheJavaGeneratorFactory extends GeneratorFactory {
   val lang = "java"
+  val templateCache = new mutable.HashMap[String, Mustache]
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace)
+  ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace, templateCache)
 }
+
 
 class ApacheJavaGenerator(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
+    templateCache: mutable.HashMap[String, Mustache],
     val genHashcode: Boolean = true // Defaulting to true for pants.
   ) extends ThriftGenerator {
   var counter = 0
@@ -78,15 +81,12 @@ class ApacheJavaGenerator(
     renderMustache("generate_field_value_meta_data.mustache", controller).trim
   }
 
-  val templateCache = new mutable.HashMap[String, Mustache]
-
   def renderMustache(template: String, controller: Any = this) = {
     val sw = new StringWriter()
     val mustache = templateCache.getOrElseUpdate(template, {
       val mf = new DefaultMustacheFactory("apachejavagen/")
       mf.setObjectHandler(new ScalaObjectHandler)
       val m = mf.compile(template)
-      templateCache.put(template, m)
       m
     })
     mustache.execute(sw, controller).flush()

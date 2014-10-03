@@ -16,7 +16,7 @@
 
 package com.twitter.scrooge
 
-import com.twitter.scrooge.backend.{Generator, WithFinagle}
+import com.twitter.scrooge.backend.{GeneratorFactory, WithFinagle}
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
@@ -90,7 +90,7 @@ object Main {
 
       opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)",
         { languageString: String =>
-          if (Generator.languages.toList contains languageString.toLowerCase) {
+          if (GeneratorFactory.languages.toList contains languageString.toLowerCase) {
             compiler.language = languageString
           } else {
             println("language option %s not supported".format(languageString))
