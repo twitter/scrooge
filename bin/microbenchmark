@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./sbt "project scrooge-benchmark" compile dump-classpath
+bin/caliper scrooge-benchmark com.twitter.scrooge.benchmark.CollectionsBenchmark "$@"
