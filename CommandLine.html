@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -7,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command Line &mdash; Scrooge 3.16.3 documentation</title>
+    <title>Command Line &mdash; Scrooge 3.16.6 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '3.16.3',
+        URL_ROOT:    './',
+        VERSION:     '3.16.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 3.16.3 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 3.16.6 documentation" href="index.html" />
     <link rel="next" title="Finagle Integration" href="Finagle.html" />
     <link rel="prev" title="Maven Plugin" href="MVNPlugin.html" />
    
@@ -32,11 +31,11 @@
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
 
   </head>
-  <body>
+  <body role="document">
   
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -55,7 +54,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="command-line">
 <h1>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
@@ -77,101 +76,51 @@ extra include paths, rebuilding only those files that have changed:</p>
 </pre></div>
 </div>
 <p>A complete command line help menu:</p>
-<dl class="docutils">
-<dt>::</dt>
-<dd><p class="first">Usage: scrooge [options] &lt;files...&gt;</p>
-<blockquote class="last">
-<div><table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd><span class="option">--help</span></kbd></td>
-<td>show this help screen</td></tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>-V | &#8211;version</dt>
-<dd>print version and quit</dd>
-<dt>-v | &#8211;verbose</dt>
-<dd>log verbose messages about progress</dd>
-<dt>-d &lt;path&gt; | &#8211;dest &lt;path&gt;</dt>
-<dd>write generated code to a folder (default: .)</dd>
-</dl>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--import-path <var>&lt;path&gt;</var></span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)</td></tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>-i &lt;path&gt; | &#8211;include-path &lt;path&gt;</dt>
-<dd>path(s) to search for included thrift files (may be used multiple times)</dd>
-<dt>-n &lt;oldname&gt;=&lt;newname&gt; | &#8211;namespace-map &lt;oldname&gt;=&lt;newname&gt;</dt>
-<dd>map old namespace to new (may be used multiple times)</dd>
-</dl>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--default-java-namespace <var>&lt;name&gt;</var></span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>Use &lt;name&gt; as default namespace if the thrift file doesn&#8217;t define its own namespace. If this option is not specified either, then use &#8220;thrift&#8221; as default namespace</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--disable-strict</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>issue warnings on non-severe parse errors instead of aborting</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--gen-file-map <var>&lt;path&gt;</var></span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--dry-run</span></kbd></td>
-<td>parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with &#8211;gen-file-mapping to get the file mapping</td></tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>-s | &#8211;skip-unchanged</dt>
-<dd>Don&#8217;t re-generate if the target is newer than the input</dd>
-<dt>-l &lt;value&gt; | &#8211;language &lt;value&gt;</dt>
-<dd>name of language to generate code in (&#8216;experimental-java&#8217; and &#8216;scala&#8217; are currently supported)</dd>
-</dl>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--experiment-flag <var>&lt;flag&gt;</var></span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--scala-warn-on-java-ns-fallback</span></kbd></td>
-</tr>
-<tr><td>&nbsp;</td><td>Print a warning when the scala generator falls back to the java namespace</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--finagle</span></kbd></td>
-<td>generate finagle classes</td></tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>&lt;files...&gt;</dt>
-<dd>thrift files to compile</dd>
-</dl>
-</div></blockquote>
-</dd>
-</dl>
+<div class="highlight-text"><div class="highlight"><pre>Usage: ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main [options] &lt;files...&gt;
+
+  --help
+        show this help screen
+  -V | --version
+        print version and quit
+  -v | --verbose
+        log verbose messages about progress
+  -d &lt;path&gt; | --dest &lt;path&gt;
+        write generated code to a folder (default: .)
+  --import-path &lt;path&gt;
+        [DEPRECATED] path(s) to search for included thrift files (may be used multiple times)
+  -i &lt;path&gt; | --include-path &lt;path&gt;
+        path(s) to search for included thrift files (may be used multiple times)
+  -n &lt;oldname&gt;=&lt;newname&gt; | --namespace-map &lt;oldname&gt;=&lt;newname&gt;
+        map old namespace to new (may be used multiple times)
+  --default-java-namespace &lt;name&gt;
+        Use &lt;name&gt; as default namespace if the thrift file doesn&#39;t define its own namespace. If this option is not specified either, then use &quot;thrift&quot; as default namespace
+  --disable-strict
+        issue warnings on non-severe parse errors instead of aborting
+  --gen-file-map &lt;path&gt;
+        generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files
+  --dry-run
+        parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
+  -s | --skip-unchanged
+        Don&#39;t re-generate if the target is newer than the input
+  -l &lt;value&gt; | --language &lt;value&gt;
+        name of language to generate code in (&#39;experimental-java&#39; and &#39;scala&#39; are currently supported)
+  --experiment-flag &lt;flag&gt;
+        [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
+  --scala-warn-on-java-ns-fallback
+        Print a warning when the scala generator falls back to the java namespace
+  --finagle
+        generate finagle classes
+  &lt;files...&gt;
+        thrift files to compile
+</pre></div>
+</div>
 </div>
 
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><a href="index.html"><h3>Scrooge</h3></a>
 <p>
   Scrooge is a general purpose thrift parser/generator
