@@ -2,7 +2,7 @@ scala_library(
   provides = scala_artifact(
     org = 'com.twitter',
     name = 'scrooge-linter',
-    repo = 'pants-support/ivy:internal',
+    repo = artifactory,
   ),
   name='scala',
   dependencies=[
