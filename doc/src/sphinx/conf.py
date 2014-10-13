@@ -33,6 +33,8 @@ html_show_sphinx = False
 html_style = 'scrooge.css'
 
 project = u'Scrooge'
+description = u'A thrift code generator written in Scala'
+html_logo = u'scrooge.png'
 copyright = u'2013 Twitter, Inc'
 version = ''
 release = ''
