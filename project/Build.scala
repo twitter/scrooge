@@ -10,7 +10,7 @@ import AssemblyKeys._
 
 object Scrooge extends Build {
   val libVersion = "3.16.6"
-  val utilVersion = "6.21.2"
+  val utilVersion = "6.22.0"
   val finagleVersion = "6.21.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
