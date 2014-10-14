@@ -1,9 +1,19 @@
 .. Author notes: this file is formatted with restructured text
-(http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
-as it is included in Scoorge's user's guide.
+  (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
+  as it is included in Scoorge's user's guide.
 
 3.x
 -----
+
+3.17.0
+~~~~~~~
+
+- scrooge: add is required to ThriftStructFieldInfo.
+- scrooge minor docs update: add logo and short description.
+- scrooge-serializer: Remove dependency on scrooge-runtime.
+- scrooge: Cache mustache resources to improve generation performance.
+- scrooge: Disallow identifiers that are thrift keywords.
+- scrooge: Remove SafeVarargs for JDK 6 compatibility.
 
 3.16.6
 ~~~~~~~

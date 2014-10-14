@@ -4,7 +4,7 @@
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-generator_2.10</artifactId>
   <packaging>jar</packaging>
-  <version>3.16.7-SNAPSHOT</version>
+  <version>3.17.1-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
     <artifactId>scala-parent-2104_2.10</artifactId>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-runtime_2.10</artifactId>
-      <version>3.16.7-SNAPSHOT</version>
+      <version>3.17.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <!-- library dependencies -->
