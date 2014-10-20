@@ -4,7 +4,6 @@ import bintray.Plugin._
 import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
-import net.virtualvoid.sbt.cross.CrossPlugin
 import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import sbtassembly.Plugin._
 import AssemblyKeys._
@@ -156,10 +155,6 @@ object Scrooge extends Build {
     )
   )
 
-  lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
-    CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
-  )
-
   lazy val scrooge = Project(
     id = "scrooge",
     base = file("."),
@@ -256,7 +251,6 @@ object Scrooge extends Build {
     base = file("scrooge-sbt-plugin"),
     settings = Project.defaultSettings ++
       sharedSettings ++
-      crossBuildSettings ++
       bintrayPublishSettings
   ).settings(
     sbtPlugin := true,
