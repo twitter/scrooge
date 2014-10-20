@@ -5,6 +5,7 @@ import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.cross.CrossPlugin
+import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
@@ -92,7 +93,7 @@ object Scrooge extends Build {
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.2" % "test",
-      "junit" % "junit" % "4.8.1" % "test"
+      "junit" % "junit" % "4.10" % "test" exclude("org.mockito", "mockito-all")
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
@@ -143,7 +144,7 @@ object Scrooge extends Build {
         IO.write(file, contents)
         Seq(file)
       }
-  )
+  ) ++ graphSettings
 
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
@@ -151,7 +152,7 @@ object Scrooge extends Build {
       "cglib" % "cglib" % "2.1_3" % "test",
       "asm" % "asm" % "1.5.3" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
-      "org.mockito" % "mockito-all" % "1.9.5" % "test"
+      "org.mockito" % "mockito-core" % "1.9.5" % "test"
     )
   )
 
@@ -177,27 +178,24 @@ object Scrooge extends Build {
       inConfig(Test)(thriftSettings) ++
       sharedSettings ++
       assemblySettings ++
-      inConfig(Test)(jmockSettings)
+      jmockSettings
   ).settings(
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
-      util("core"),
-      util("codec"),
+      util("core") exclude("org.mockito", "mockito-all"),
+      util("codec") exclude("org.mockito", "mockito-all"),
       "org.apache.thrift" % "libthrift" % "0.8.0",
       "com.github.scopt" %% "scopt" % "2.1.0",
-      "com.novocode" % "junit-interface" % "0.8" % "test->default",
+      "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
-      finagle("core"),
+      finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
     ),
     test in assembly := {},  // Skip tests when running assembly.
-    mainClass in assembly := Some("com.twitter.scrooge.Main"),
-    mergeStrategy in assembly <<= (mergeStrategy in assembly) { _ =>
-      { _ => MergeStrategy.first }
-    }
+    mainClass in assembly := Some("com.twitter.scrooge.Main")
   ).dependsOn(scroogeRuntime % "test")
 
   lazy val scroogeCore = Project(

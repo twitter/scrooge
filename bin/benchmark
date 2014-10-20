@@ -42,11 +42,12 @@ function generateThrift {
 
     for i in $(seq 10); do
         genBigStruct $gen_includes/a$i.thrift
+        echo namespace java a.b.c.d > $gen_includes/b$i.thrift
+        echo namespace java a.b.c.d > $gen_includes/c$i.thrift
+    done
 
+    for i in $(seq 10); do    
         for j in $(seq 10); do
-            echo namespace java a.b.c.d > $gen_includes/b$j.thrift
-            echo namespace java a.b.c.d > $gen_includes/c$j.thrift
-
             echo "include \"a$i.thrift\"" >> $gen_includes/b$j.thrift
             echo "include \"b$i.thrift\"" >> $gen_includes/c$j.thrift
         done
