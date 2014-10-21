@@ -710,6 +710,16 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "unions" should {
+      "have a working apply method" in { _ =>
+        val s: String = "bird"
+        val cast = Bird.Hummingbird(s)
+        Seq(s).map { Bird.Hummingbird.apply }
+
+        val r: Raptor = Raptor(false, "RaptorSpecies")
+        val raptorInUnion = Bird.Raptor(r)
+        Seq(r).map { Bird.Raptor }
+      }
+
       "zero fields" should {
         "read" in { cycle => import cycle._
           val protocol = mock[TProtocol]
