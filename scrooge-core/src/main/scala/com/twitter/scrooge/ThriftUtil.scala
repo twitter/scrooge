@@ -10,7 +10,15 @@ object ThriftUtil {
   def transfer(outProt: TProtocol, inProt: TProtocol, typ: Byte): Unit =
     transfer(outProt, inProt, typ, Int.MaxValue)
 
-  def transfer(outProt: TProtocol, inProt: TProtocol, typ: Byte, maxDepth: Int) {
+  /**
+   * Transfers a piece of thrift data from one TProtocol to another.
+   *
+   * @outProt the protocol that the data will be written to
+   * @inProt the protocol that the data will be read from
+   * @typ specifies the type of thrift data to be read
+   * @maxDepth specifies how deeply to recurse through the data transferring it
+   */
+  def transfer(outProt: TProtocol, inProt: TProtocol, typ: Byte, maxDepth: Int): Unit = {
     if (maxDepth <= 0)
       throw new TException("Maximum depth exceeded")
 
