@@ -17,25 +17,28 @@ package com.twitter.scrooge.backend
  */
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.scrooge.mustache.Dictionary._
+import com.twitter.scrooge.mustache.HandlebarLoader
 
 object JavaGeneratorFactory extends GeneratorFactory {
   val lang = "experimental-java"
+  val handlebarLoader = new HandlebarLoader("/javagen/", ".java")
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace)
+  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, handlebarLoader)
 }
 
 class JavaGenerator(
   val includeMap: Map[String, ResolvedDocument],
-  val defaultNamespace: String
-) extends Generator with ThriftGenerator {
+  val defaultNamespace: String,
+  val templatesLoader: HandlebarLoader
+) extends TemplateGenerator {
+  def templates: HandlebarLoader = templatesLoader
 
   val fileExtension = ".java"
-  val templateDirName = "/javagen/"
   val experimentFlags = Seq.empty[String]
 
   private[this] object JavaKeywords {

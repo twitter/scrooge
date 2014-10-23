@@ -203,8 +203,11 @@ class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
 
   log.addHandler(new ConsoleHandler(formatter, None))
 
-  def error(msg: String) = log.log(ErrorLogLevel, msg)
-  def warning(msg: String) = log.log(WarningLogLevel, msg)
+  def error(msg: String): Unit = log.log(ErrorLogLevel, msg)
+  def warning(msg: String): Unit = {
+    if (cfg.showWarnings)
+      log.log(WarningLogLevel, msg)
+  }
 
   // Lint a document, returning the number of lint errors found.
   def apply(
@@ -242,9 +245,9 @@ class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
 
         apply(doc0)
       } catch {
-        case e: FileParseException if (cfg.ignoreErrors) =>
+        case e: FileParseException if (cfg.ignoreParseErrors) =>
           e.printStackTrace()
-          1
+          0
       }
     }
     errorCounts.sum

@@ -2,7 +2,7 @@ package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.frontend._
 import java.io._
-import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.twitter.mustache.ScalaObjectHandler
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
@@ -11,6 +11,7 @@ import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import com.twitter.scrooge.testutil.Spec
 import org.mockito.Mockito._
+import scala.collection.concurrent.TrieMap
 
 /**
  * To generate the apache output for birdcage compatible thrift:
@@ -25,8 +26,10 @@ class ApacheJavaGeneratorSpec extends Spec {
     TypeResolver(allowStructRHS = true)(doc).document
   }
 
+  val templateCache = new TrieMap[String, Mustache]
+
   def getGenerator(doc0: Document, genHashcode: Boolean = false) = {
-    new ApacheJavaGenerator(Map(), "thrift", genHashcode = genHashcode)
+    new ApacheJavaGenerator(Map(), "thrift", templateCache, genHashcode = genHashcode)
   }
 
   def getFileContents(resource: String) = {
@@ -138,7 +141,7 @@ class ApacheJavaGeneratorSpec extends Spec {
       when(baseDoc.namespace("java")) thenReturn Some(QualifiedID(Seq("com", "twitter", "thrift")))
       when(parentDoc.document) thenReturn baseDoc
       val doc = generateDoc(getFileContents("test_thrift/service_with_parent_different_namespace.thrift"))
-      val generator = new ApacheJavaGenerator(Map("service" -> parentDoc), "thrift", false)
+      val generator = new ApacheJavaGenerator(Map("service" -> parentDoc), "thrift", templateCache, false)
       val controller = new ServiceController(doc.services(0), generator, doc.namespace("java"))
       val sw = renderMustache("service.mustache", controller)
       verify(sw, getFileContents("apache_output/other_service.txt"))

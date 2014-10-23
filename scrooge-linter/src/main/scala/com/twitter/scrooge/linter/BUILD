@@ -2,12 +2,11 @@ scala_library(
   provides = scala_artifact(
     org = 'com.twitter',
     name = 'scrooge-linter',
-    repo = 'pants-support/ivy:internal',
+    repo = artifactory,
   ),
   name='scala',
   dependencies=[
     '3rdparty:libthrift-0.5.0',
-    '3rdparty/jvm/com/twitter/servo:thrift-scala',
     'scrooge/scrooge-generator',
     'util/util-logging',
   ],

@@ -129,7 +129,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   }
 
 {{#fields}}
-  object {{FieldName}} {
+  object {{FieldName}} extends ({{FieldName}}Alias => {{FieldName}}) {
     def withoutPassthroughFields(obj: {{FieldName}}): {{FieldName}} = withoutPassthroughFields_{{FieldName}}(obj)
 
     val fieldInfo =
