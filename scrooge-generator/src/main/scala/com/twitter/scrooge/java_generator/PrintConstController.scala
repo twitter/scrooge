@@ -106,7 +106,9 @@ class PrintConstController(
         if (namedValue.isEmpty) {
           throw new ScroogeInternalException("Enum value not found")
         } else {
-          new ConstValue(null, enumValue.sid.name + "." + namedValue(0).sid.fullName)
+          val enumFqn = generator.qualifyNamedType(enumValue.sid, scope)
+          val enumValueFqn = namedValue(0).sid.addScope(enumFqn)
+          new ConstValue(null, enumValueFqn.fullName)
         }
       }
       case _ => {

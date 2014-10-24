@@ -21,12 +21,26 @@ javaNamespace="-n thrift.test=thrift.java_test
 -n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_java
 --default-java-namespace java_thrift"
 
+apacheJavaNamespace="-n thrift.test=thrift.apache_java_test
+-n thrift.test1=thrift.apache_java_test1
+-n thrift.test2=thrift.apache_java_test2
+-n thrift.collision=thrift.apache_java_collision
+-n thrift.def.default=thrift.apache_java_def.default_ns
+-n foo=apache_java_foo
+-n bar=apache_java_bar
+-n com.fake=com.apache_java_fake
+-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_apache_java
+--default-java-namespace apache_java_thrift"
+
+
+apacheJavaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l java $apacheJavaNamespace"
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l experimental-java $javaNamespace"
 scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l scala"
 
 echo "Running Scrooge on defaults/"
 defaults_thrifts=`find src/test/thrift/defaults -name *.thrift`
 $scalaRun $defaults_thrifts
+$apacheJavaRun -n thrift.defaults=thrift.apache_defaults -n thrift.colors=thrift.apache_colors $defaults_thrifts
 
 echo "Running Scrooge on relative/"
 dependency_thrifts=`find src/test/thrift/relative -name "*include*.thrift"`
