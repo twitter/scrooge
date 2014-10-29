@@ -1,6 +1,5 @@
 package {{package}}
 
-import com.twitter.finagle.thrift.Protocols
 import com.twitter.scrooge.{
   TFieldBlob, ThriftService, ThriftStruct, ThriftStructCodec, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
 import java.nio.ByteBuffer
@@ -38,6 +37,7 @@ object {{ServiceName}} {
 {{/internalStructs}}
 
 {{#withFinagle}}
+  import com.twitter.finagle.thrift.Protocols
   import com.twitter.util.Future
 
   trait FutureIface extends {{#futureIfaceParent}}{{futureIfaceParent}} with{{/futureIfaceParent}} {{ServiceName}}[Future] {
