@@ -39,6 +39,8 @@ object Main {
     val parser = new OptionParser[Compiler]("scrooge") {
       help("help") text("show this help screen")
 
+      override def showUsageOnError: Boolean = true
+
       opt[Unit]('V', "version") action { (_, c) => {
           println("scrooge " + buildProperties.getProperty("version", "0.0"))
           println("    build " + buildProperties.getProperty("build_name", "unknown"))
