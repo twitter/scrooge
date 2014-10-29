@@ -39,25 +39,25 @@ trait ThriftGenerator {
     dryRun: Boolean = false): Iterable[File]
 }
 
-object Generator {
-  private[this] val Generators: Map[String, GeneratorFactory] = {
+object GeneratorFactory {
+  private[this] val factories: Map[String, GeneratorFactory] = {
     val loadedGenerators = LoadService[GeneratorFactory]()
-    val generators =
+    val factories =
       List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory) ++
       loadedGenerators
 
-    Map(generators map { g => (g.lang -> g) }: _*)
+    (factories map { g => (g.lang -> g) }).toMap
   }
 
-  def languages = Generators.keys
+  def languages = factories.keys
 
   def apply(
     lan: String,
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = Generators.get(lan) match {
-    case Some(gen) => gen(includeMap, defaultNamespace, experimentFlags)
+  ): ThriftGenerator = factories.get(lan) match {
+    case Some(factory) => factory(includeMap, defaultNamespace, experimentFlags)
     case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
 }
@@ -71,12 +71,7 @@ trait GeneratorFactory {
   ): ThriftGenerator
 }
 
-trait Generator
-  extends StructTemplate
-  with ServiceTemplate
-  with ConstsTemplate
-  with EnumTemplate
-{
+trait Generator extends ThriftGenerator {
   import Dictionary._
 
   /**
@@ -87,7 +82,7 @@ trait Generator
   val experimentFlags: Seq[String]
 
   /******************** helper functions ************************/
-  private[this] def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean) = {
+  protected def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean): File = {
     val file = new File(destFolder, namespace.replace('.', File.separatorChar))
     if (!dryRun) file.mkdirs()
     file
@@ -104,9 +99,6 @@ trait Generator
   def getNamespace(doc: Document): Identifier =
     doc.namespace("java") getOrElse (SimpleID(defaultNamespace))
 
-  val fileExtension: String
-  val templateDirName: String
-  lazy val templates = new HandlebarLoader(templateDirName, fileExtension)
   def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String
   def isNullableType(t: FieldType, isOptional: Boolean = false) = {
@@ -151,7 +143,7 @@ trait Generator
     }
   }
 
-  private[this] def writeFile(file: File, fileHeader: String, fileContent: String) {
+  protected def writeFile(file: File, fileHeader: String, fileContent: String): Unit = {
     val stream = new FileOutputStream(file)
     val writer = new OutputStreamWriter(stream, "UTF-8")
     try {
@@ -324,8 +316,17 @@ trait Generator
     Set[ServiceOption]
   ): Option[File] =
     None
+}
 
-  // main entry
+trait TemplateGenerator extends Generator
+  with StructTemplate
+  with ServiceTemplate
+  with ConstsTemplate
+  with EnumTemplate
+{
+  def templates: HandlebarLoader
+  def fileExtension: String
+
   def apply(
     _doc: Document,
     serviceOptions: Set[ServiceOption],

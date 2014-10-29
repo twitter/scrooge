@@ -11,22 +11,26 @@ import com.twitter.scrooge.ast.MapType
 import com.twitter.scrooge.ast.ListType
 import com.twitter.scrooge.ast.ReferenceType
 import com.twitter.conversions.string._
+import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 import com.twitter.scrooge.backend.{ScalaGenerator, GeneratorFactory, ThriftGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 object ApacheJavaGeneratorFactory extends GeneratorFactory {
   val lang = "java"
+  private val templateCache = new TrieMap[String, Mustache]
   def apply(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace)
+  ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace, templateCache)
 }
+
 
 class ApacheJavaGenerator(
     includeMap: Map[String, ResolvedDocument],
     defaultNamespace: String,
+    templateCache: TrieMap[String, Mustache],
     val genHashcode: Boolean = true // Defaulting to true for pants.
   ) extends ThriftGenerator {
   var counter = 0
@@ -78,15 +82,12 @@ class ApacheJavaGenerator(
     renderMustache("generate_field_value_meta_data.mustache", controller).trim
   }
 
-  val templateCache = new mutable.HashMap[String, Mustache]
-
   def renderMustache(template: String, controller: Any = this) = {
     val sw = new StringWriter()
     val mustache = templateCache.getOrElseUpdate(template, {
       val mf = new DefaultMustacheFactory("apachejavagen/")
       mf.setObjectHandler(new ScalaObjectHandler)
       val m = mf.compile(template)
-      templateCache.put(template, m)
       m
     })
     mustache.execute(sw, controller).flush()

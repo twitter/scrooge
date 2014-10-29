@@ -4,8 +4,7 @@ import com.twitter.scrooge.mustache.Dictionary.{codify, v}
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.ast.{Identifier, ConstDefinition}
 
-trait ConstsTemplate {
-  self: Generator =>
+trait ConstsTemplate { self: TemplateGenerator =>
   def constDict(
     namespace: Identifier,
     consts: Seq[ConstDefinition]

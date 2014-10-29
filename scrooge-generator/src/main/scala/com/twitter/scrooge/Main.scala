@@ -16,7 +16,7 @@
 
 package com.twitter.scrooge
 
-import com.twitter.scrooge.backend.{Generator, WithFinagle}
+import com.twitter.scrooge.backend.{GeneratorFactory, WithFinagle}
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
@@ -105,15 +105,33 @@ object Main {
         }} text("Don't re-generate if the target is newer than the input")
 
       opt[String]('l', "language") action { (languageString, c) =>
-          if (Generator.languages.toList contains languageString.toLowerCase) {
-            c.language = languageString
-            c
-          } else {
-            println("language option %s not supported".format(languageString))
-            System.exit(0)
-            c
-          }
-        } text("name of language to generate code in ('experimental-java' and 'scala' are currently supported)")
+        if (GeneratorFactory.languages.toList contains languageString.toLowerCase) {
+          compiler.language = languageString
+          c
+        } else {
+          println("language option %s not supported".format(languageString))
+          System.exit(0)
+          c
+        }
+      } text("name of language to generate code in ('experimental-java' and 'scala' are currently supported)")
+
+////<<<<<<< HEAD
+////      opt[String]('l', "language") action { (languageString, c) =>
+////          if (Generator.languages.toList contains languageString.toLowerCase) {
+////            c.language = languageString
+////            c
+////=======
+//      opt("l", "language", "name of language to generate code in ('experimental-java' and 'scala' are currently supported)",
+//        { languageString: String =>
+//          if (GeneratorFactory.languages.toList contains languageString.toLowerCase) {
+//            compiler.language = languageString
+////>>>>>>> upstream/master
+//          } else {
+//            println("language option %s not supported".format(languageString))
+//            System.exit(0)
+//            c
+//          }
+//        } text("name of language to generate code in ('experimental-java' and 'scala' are currently supported)")
 
       opt[String]("experiment-flag") valueName("<flag>") action { (flag, c) => {
           c.experimentFlags += flag

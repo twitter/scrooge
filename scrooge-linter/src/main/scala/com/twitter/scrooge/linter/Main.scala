@@ -21,17 +21,20 @@ import java.util.Properties
 import scopt.OptionParser
 
 case class Config(
-  val strict: Boolean = false,
-  val files: Seq[String] = Seq(),
-  val ignoreErrors: Boolean = false
+  strict: Boolean = false,
+  showWarnings: Boolean = false,
+  files: Seq[String] = Seq(),
+  ignoreErrors: Boolean = false,
+  ignoreParseErrors: Boolean = false
 )
 
 
 object Main {
   def main(args: Array[String]) {
-    val numErrors = new Linter(parseOptions(args)).lint()
-    if (numErrors > 0)
-      System.exit(1)
+    val cfg = parseOptions(args)
+    val numErrors = new Linter(cfg).lint()
+    if (numErrors > 0 && !cfg.ignoreErrors)
+      sys.exit(1)
   }
 
   def parseOptions(args: Seq[String]): Config = {
@@ -51,14 +54,20 @@ object Main {
           c
         }}
 
-        opt[Boolean]('i', "ignore-errors") text ("continue if parse errors are found (for batch processing)") action { (_, c) => {
+        opt[Boolean]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action { (_, c) => {
           c.copy(ignoreErrors = true)
-          c
+        }}
+
+        opt[Boolean]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action { (_, c) => {
+          c.copy(ignoreParseErrors = true)
+        }}
+
+        opt[Boolean]('w', "warnings") text ("show linter warnings (default = False)") action { (_, c) => {
+          c.copy(showWarnings = true)
         }}
 
         opt[Boolean]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action { (_, c) =>
           c.copy(strict = false)
-          c
         }
 
         opt[String]("<files...>") text ("thrift files to compile") action { (input, c) =>
