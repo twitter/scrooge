@@ -1,9 +1,7 @@
 package {{package}};
 
-import com.twitter.finagle.Service;
 import com.twitter.finagle.SourcedException;
 import com.twitter.finagle.stats.Counter;
-import com.twitter.finagle.stats.NullStatsReceiver;
 import com.twitter.finagle.stats.StatsReceiver;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 import com.twitter.util.Function;
