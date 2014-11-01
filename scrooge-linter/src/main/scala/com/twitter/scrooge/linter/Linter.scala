@@ -17,11 +17,13 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.finagle.NoStacktrace
+import com.twitter.logging.{ConsoleHandler, Formatter}
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser}
 
 import java.io.File
-import java.util.logging.{Logger, Level}
+import java.util.logging.{Logger, LogRecord, LogManager, Level}
+
 import scala.collection.mutable.ArrayBuffer
 
 object LintLevel extends Enumeration {
@@ -190,52 +192,64 @@ object LintRule {
 object ErrorLogLevel extends Level("LINT-ERROR", 999)
 object WarningLogLevel extends Level("LINT-WARN", 998)
 
-case class LintException(msg: String) extends Exception(msg) with NoStacktrace
-
 class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
+  LogManager.getLogManager.reset
+
+  private[this] val log = Logger.getLogger("linter")
+  private[this] val formatter = new Formatter() {
+    override def format(record: LogRecord) =
+      "%s: %s%s".format(record.getLevel.getName, formatText(record), lineTerminator)
+  }
+
+  log.addHandler(new ConsoleHandler(formatter, None))
+
+  def error(msg: String): Unit = log.log(ErrorLogLevel, msg)
+  def warning(msg: String): Unit = {
+    if (cfg.showWarnings)
+      log.log(WarningLogLevel, msg)
+  }
+
+  // Lint a document, returning the number of lint errors found.
   def apply(
     doc: Document
-  ) {
-    val log = Logger.getLogger("linter")
+  ) : Int = {
 
     val messages = LintRule.all(rules)(doc)
 
     messages.foreach {
       case LintMessage(msg, Error) =>
-        log.log(ErrorLogLevel, msg)
+        error(msg)
       case LintMessage(msg, Warning) =>
-        log.log(WarningLogLevel, msg)
+        warning(msg)
     }
 
     val errorCount = messages.count(_.level == Error)
     val warnCount = messages.count(_.level == Warning)
 
     if (errorCount + warnCount > 0) {
-      log.log(WarningLogLevel, "%d warnings and %d errors found".format(messages.size - errorCount, errorCount))
+      warning("%d warnings and %d errors found".format(messages.size - errorCount, errorCount))
     }
-
-    if (errorCount > 0) {
-      throw new LintException("Lint errors found!")
-    }
+    errorCount
   }
 
-  def lint() {
+  // Lint cfg.files and return the total number of lint errors found.
+  def lint(): Int = {
     val importer = Importer(new File("."))
     val parser = new ThriftParser(importer, cfg.strict, defaultOptional = false, skipIncludes = true)
 
-    for (inputFile <- cfg.files) {
-      if (cfg.verbose) println("+ Linting %s".format(inputFile))
+    val errorCounts = cfg.files.map { inputFile =>
+      log.info("\n+ Linting %s".format(inputFile))
 
       try {
         val doc0 = parser.parseFile(inputFile)
 
         apply(doc0)
       } catch {
-        case e: FileParseException if (cfg.ignoreErrors) =>
+        case e: FileParseException if (cfg.ignoreParseErrors) =>
           e.printStackTrace()
-        case e: LintException if (cfg.ignoreErrors) =>
-          e.printStackTrace()
+          0
       }
     }
+    errorCounts.sum
   }
 }

@@ -28,6 +28,11 @@ trait Importer extends (String => Option[FileContents]) {
   private[scrooge] def canonicalPaths: Seq[String] // for tests
   def lastModified(filename: String): Option[Long]
   def +:(head: Importer): Importer = MultiImporter(Seq(head, this))
+  /**
+   * @param filename a filename to resolve.
+   * @return the absolute path used to resolve it. Used to cache importer results.
+   */
+  private[scrooge] def getResolvedPath(filename: String): Option[String] = None
 }
 
 object Importer {
@@ -92,6 +97,10 @@ case class DirImporter(dir: File) extends Importer {
     resolve(filename) map { case (file, importer) =>
       FileContents(importer, Source.fromFile(file, "UTF-8").mkString, Some(file.getName))
     }
+
+  override private[scrooge] def getResolvedPath(filename: String): Option[String] = {
+    resolve(filename).map { case (file, _) => file.getCanonicalPath }
+  }
 }
 
 // jar files are just zip files, so this will work with both .jar and .zip files
@@ -111,6 +120,15 @@ case class ZipImporter(file: File) extends Importer {
     resolve(filename) map { entry =>
       FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString, Some(entry.getName))
     }
+
+  private[this] def canResolve(filename: String): Boolean = resolve(filename).isDefined
+
+  override private[scrooge] def getResolvedPath(filename: String): Option[String] = {
+    if (canResolve(filename))
+      Some(new File(file, filename).getCanonicalPath)
+    else
+      None
+  }
 }
 
 case class MultiImporter(importers: Seq[Importer]) extends Importer {
@@ -131,6 +149,9 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
     }
 
   override def +:(head: Importer): Importer = MultiImporter(head +: importers)
+
+  override private[scrooge] def getResolvedPath(filename: String): Option[String] =
+    first[String] { _.getResolvedPath(filename) }
 }
 
 object NullImporter extends Importer {

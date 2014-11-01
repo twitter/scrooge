@@ -1,6 +1,6 @@
 .. Author notes: this file is formatted with restructured text
-(http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
-as it is included in Scoorge's user's guide.
+  (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
+  as it is included in Scoorge's user's guide.
 
 3.x
 -----
@@ -8,11 +8,30 @@ as it is included in Scoorge's user's guide.
 3.17.0
 ~~~~~~~
 
-- bump finagle to 6.20.0
-- bump util to 6.18.4
-- upgrade sbt to 0.13
+- scrooge: add is required to ThriftStructFieldInfo.
+- scrooge minor docs update: add logo and short description.
+- scrooge-serializer: Remove dependency on scrooge-runtime.
+- scrooge: Cache mustache resources to improve generation performance.
+- scrooge: Disallow identifiers that are thrift keywords.
+- scrooge: Remove SafeVarargs for JDK 6 compatibility.
+
+3.16.6
+~~~~~~~
+
+- scrooge-core: Added scala 2.11 support
+- scrooge-core: scrooge: add .withoutPassthrough method that recursively removes passthrough fields
+- scrooge-doc: Fix formatting in the CLI help page.
+- scrooge-linter: Cleaner logging and options.
+- scrooge-linter: remove invalid CONFIG.ini.
+- scrooge: prefer Protocols.binaryFactory over TBinaryProtocol.Factory
+
+3.16.3
+~~~~~~~
+
 - scrooge-core: Add union metadata for reflection
+- scrooge-doc: Clarify docs on CLI usage
 - scrooge-generator: Fix error message for missing required field
+- scrooge-generator: Modify compiler to accept a Scaladoc comment at the end of Thrift file
 - scrooge-generator: Normalize scalatest versions between poms and 3rdparty
 - scrooge-generator: Stricter checks for invalid Thrift filenames
 - scrooge-ostrich: Default to using `Protocols.binaryFactory`

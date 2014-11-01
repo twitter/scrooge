@@ -59,9 +59,19 @@ private object {{StructName}}Decoder {
   }
 }
 
-object {{StructName}}Aliases {
+object {{StructName}}Helper {
 {{#fields}}
   type {{FieldName}}Alias = {{>qualifiedFieldType}}
+
+  def withoutPassthroughFields_{{FieldName}}(obj: {{StructName}}.{{FieldName}}): {{StructName}}.{{FieldName}} = {
+    val field = obj.{{fieldName}}
+{{#passthroughFields}}
+      {{StructName}}.{{FieldName}}(
+        {{>withoutPassthrough}}
+      )
+{{/passthroughFields}}
+    }
+
   {{#hasDefaultValue}}val {{FieldName}}DefaultValue = {{defaultFieldValue}}{{/hasDefaultValue}}
 {{#fieldKeyType}}
   val {{FieldName}}KeyTypeManifest = Some(implicitly[Manifest[{{fieldKeyType}}]])
@@ -107,13 +117,25 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
 
-  import {{StructName}}Aliases._
+  import {{StructName}}Helper._
+
+  def withoutPassthroughFields(struct: {{StructName}}): {{StructName}} = {
+    struct match {
+{{#fields}}
+      case obj: {{FieldName}} => withoutPassthroughFields_{{FieldName}}(obj)
+{{/fields}}
+      case unknown: UnknownUnionField => unknown // by definition pass-through
+    }
+  }
 
 {{#fields}}
-  object {{FieldName}} {
+  object {{FieldName}} extends ({{FieldName}}Alias => {{FieldName}}) {
+    def withoutPassthroughFields(obj: {{FieldName}}): {{FieldName}} = withoutPassthroughFields_{{FieldName}}(obj)
+
     val fieldInfo =
       new ThriftStructFieldInfo(
         {{fieldConst}},
+        false,
         false,
         manifest[{{FieldName}}Alias],
         {{FieldName}}KeyTypeManifest,

@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.twitter</groupId>
-  <artifactId>scrooge-benchmark</artifactId>
+  <artifactId>scrooge-benchmark_2.10</artifactId>
   <packaging>jar</packaging>
-  <version>3.16.4-SNAPSHOT</version>
+  <version>3.17.1-SNAPSHOT</version>
   <parent>
     <groupId>com.twitter</groupId>
-    <artifactId>scala-parent-292</artifactId>
-    <version>0.0.4</version>
-    <relativePath>../../parents/scala-parent-292/pom.xml</relativePath>
+    <artifactId>scala-parent-2104_2.10</artifactId>
+    <version>0.1.14</version>
+    <relativePath>../../parents/scala-parent-2104/pom.xml</relativePath>
   </parent>
   <properties>
     <git.dir>${project.basedir}/../../.git</git.dir>
@@ -18,8 +18,8 @@
     <!-- project dependencies -->
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-runtime</artifactId>
-      <version>3.16.4-SNAPSHOT</version>
+      <artifactId>scrooge-runtime_2.10</artifactId>
+      <version>3.17.1-SNAPSHOT</version>
     </dependency>
     <!-- library dependencies -->
     <dependency>
@@ -29,13 +29,13 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-generator</artifactId>
-      <version>3.16.3</version>
+      <artifactId>scrooge-generator_2.10</artifactId>
+      <version>3.17.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>util-app</artifactId>
-      <version>6.19.1-SNAPSHOT</version>
+      <artifactId>util-app_2.10</artifactId>
+      <version>6.22.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.google.caliper</groupId>

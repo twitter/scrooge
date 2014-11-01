@@ -1,13 +1,17 @@
 import sbt._
 import Keys._
+import bintray.Plugin._
+import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
-import net.virtualvoid.sbt.cross.CrossPlugin
+import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
+import sbtassembly.Plugin._
+import AssemblyKeys._
 
 object Scrooge extends Build {
-  val libVersion = "3.16.3"
-  val utilVersion = "6.19.0"
-  val finagleVersion = "6.20.0"
+  val libVersion = "3.17.0"
+  val utilVersion = "6.22.0"
+  val finagleVersion = "6.22.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -67,28 +71,34 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.9.2", "2.10.4"),
-    scalaVersion := "2.9.2",
+    crossScalaVersions := Seq("2.10.4"),
+    scalaVersion := "2.10.4",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
     ),
 
     publishM2Configuration <<= (packagedArtifacts, checksums in publish, ivyLoggingLevel) map { (arts, cs, level) =>
-      Classpaths.publishConfig(arts, None, resolverName = m2Repo.name, checksums = cs, logging = level)
+      Classpaths.publishConfig(
+        artifacts = arts,
+        ivyFile = None,
+        resolverName = m2Repo.name,
+        checksums = cs,
+        logging = level,
+        overwrite = true)
     },
     publishM2 <<= Classpaths.publishTask(publishM2Configuration, deliverLocal),
     otherResolvers += m2Repo,
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "1.9.1" % "test",
-      "junit" % "junit" % "4.8.1" % "test"
+      "org.scalatest" %% "scalatest" % "2.2.2" % "test",
+      "junit" % "junit" % "4.10" % "test" exclude("org.mockito", "mockito-all")
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
+    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.6"),
 
     // Sonatype publishing
@@ -133,7 +143,7 @@ object Scrooge extends Build {
         IO.write(file, contents)
         Seq(file)
       }
-  )
+  ) ++ graphSettings
 
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
@@ -141,13 +151,8 @@ object Scrooge extends Build {
       "cglib" % "cglib" % "2.1_3" % "test",
       "asm" % "asm" % "1.5.3" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
-      "org.hamcrest" % "hamcrest-all" % "1.1" % "test",
-      "org.mockito" % "mockito-all" % "1.9.0" % "test"
+      "org.mockito" % "mockito-core" % "1.9.5" % "test"
     )
-  )
-  
-  lazy val crossBuildSettings: Seq[Setting[_]] = CrossPlugin.crossBuildingSettings ++ CrossBuilding.scriptedSettings ++ Seq(
-    CrossBuilding.crossSbtVersions := Seq("0.12", "0.13")
   )
 
   lazy val scrooge = Project(
@@ -167,22 +172,25 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Test)(thriftSettings) ++
       sharedSettings ++
+      assemblySettings ++
       jmockSettings
   ).settings(
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
-      util("core"),
-      util("codec"),
+      util("core") exclude("org.mockito", "mockito-all"),
+      util("codec") exclude("org.mockito", "mockito-all"),
       "org.apache.thrift" % "libthrift" % "0.8.0",
       "com.github.scopt" %% "scopt" % "2.1.0",
-      "com.novocode" % "junit-interface" % "0.8" % "test->default",
+      "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
-      finagle("core"),
+      finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
-    )
+    ),
+    test in assembly := {},  // Skip tests when running assembly.
+    mainClass in assembly := Some("com.twitter.scrooge.Main")
   ).dependsOn(scroogeRuntime % "test")
 
   lazy val scroogeCore = Project(
@@ -194,7 +202,8 @@ object Scrooge extends Build {
     name := "scrooge-core",
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
+    ),
+    crossScalaVersions += "2.11.2"
   )
 
   lazy val scroogeRuntime = Project(
@@ -233,24 +242,30 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
-    )
-  ).dependsOn(scroogeRuntime)
+    ),
+    crossScalaVersions += "2.11.2"
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++ 
+    settings = Project.defaultSettings ++
       sharedSettings ++
-      crossBuildSettings
+      bintrayPublishSettings
   ).settings(
-    sbtPlugin := true
+    sbtPlugin := true,
+    publishMavenStyle := false,
+    repository in bintray := "sbt-plugins",
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
     base = file("scrooge-linter"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+      assemblySettings
   ).settings(
     name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)

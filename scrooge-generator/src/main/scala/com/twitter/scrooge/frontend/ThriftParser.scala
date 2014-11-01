@@ -16,21 +16,23 @@
 
 package com.twitter.scrooge.frontend
 
+import com.twitter.scrooge.ast._
+import java.io.FileNotFoundException
+import scala.collection.concurrent.{Map, TrieMap}
 import scala.collection.mutable
 import scala.util.parsing.combinator._
-import java.io.FileNotFoundException
 
 case class FileParseException(filename: String, cause: Throwable)
   extends Exception("Exception parsing: %s".format(filename), cause)
 
 class ThriftParser(
-    importer: Importer,
-    strict: Boolean,
-    defaultOptional: Boolean = false,
-    skipIncludes: Boolean = false)
-  extends RegexParsers {
+  importer: Importer,
+  strict: Boolean,
+  defaultOptional: Boolean = false,
+  skipIncludes: Boolean = false,
+  documentCache: Map[String, Document] = new TrieMap[String, Document]
+) extends RegexParsers {
 
-  import com.twitter.scrooge.ast._
 
   //                            1    2        3                   4         4a    4b 4c       4d
   override val whiteSpace = """(\s+|(//.*\n)|(#([^@\n][^\n]*)?\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
@@ -100,8 +102,42 @@ class ThriftParser(
     x => Identifier(x)
   }
 
-  lazy val simpleID = "[A-Za-z_][A-Za-z0-9_]*".r ^^ {
-    x => SimpleID(x)
+  private[this] val thriftKeywords = Set[String](
+    "async",
+    "const",
+    "enum",
+    "exception",
+    "extends",
+    "include",
+    "namespace",
+    "optional",
+    "required",
+    "service",
+    "struct",
+    "throws",
+    "typedef",
+    "union",
+    "void",
+    // Built-in types are also keywords.
+    "binary",
+    "bool",
+    "byte",
+    "double",
+    "i16",
+    "i32",
+    "i64",
+    "list",
+    "map",
+    "set",
+    "string"
+  )
+
+  lazy val simpleIDRegex = "[A-Za-z_][A-Za-z0-9_]*".r
+  lazy val simpleID = simpleIDRegex ^^ { x =>
+    if (thriftKeywords.contains(x))
+      failOrWarn(new KeywordException(x))
+
+    SimpleID(x)
   }
 
   // ride hand side (RHS)
@@ -324,9 +360,10 @@ class ThriftParser(
       Service(sid, extend, functions, comment)
   }
 
-  lazy val serviceParentID = opt(simpleID <~ ".") ~ simpleID ^^ {
+  // This is a simpleID without the keyword check. Filenames that are thrift keywords are allowed.
+  lazy val serviceParentID = opt(simpleIDRegex <~ ".") ~ simpleID ^^ {
     case prefix ~ sid => {
-      ServiceParent(sid, prefix)
+      ServiceParent(sid, prefix.map(SimpleID(_)))
     }
   }
 
@@ -393,10 +430,18 @@ class ThriftParser(
   }
 
   def parseFile(filename: String): Document = {
+    importer.getResolvedPath(filename) match {
+      // Cache the result if the importer supports caching.
+      case Some(key) => documentCache.getOrElseUpdate(key, parseFileUncached(filename))
+      // Else, just resolve the document.
+      case None => parseFileUncached(filename)
+    }
+  }
+
+  private[this] def parseFileUncached(filename: String): Document = {
     val contents = importer(filename) getOrElse {
       throw new FileNotFoundException(filename)
     }
-
     // one thrift file can be included in another and referenced like this:
     // list<includedthriftfilenamehere.Request> requests
     //
@@ -409,8 +454,12 @@ class ThriftParser(
       }
     }
 
-    val newParser = new ThriftParser(contents.importer, this.strict, this.defaultOptional, this.skipIncludes)
-    newParser.parse(contents.data, newParser.document, Some(filename))
+    val newParser = new ThriftParser(contents.importer,
+      this.strict,
+      this.defaultOptional,
+      this.skipIncludes,
+      this.documentCache)
+    newParser.parse(contents.data, newParser.document, contents.thriftFilename)
   }
 
   // helper functions

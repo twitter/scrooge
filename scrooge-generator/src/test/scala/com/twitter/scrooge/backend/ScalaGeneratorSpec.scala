@@ -710,6 +710,16 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "unions" should {
+      "have a working apply method" in { _ =>
+        val s: String = "bird"
+        val cast = Bird.Hummingbird(s)
+        Seq(s).map { Bird.Hummingbird.apply }
+
+        val r: Raptor = Raptor(false, "RaptorSpecies")
+        val raptorInUnion = Bird.Raptor(r)
+        Seq(r).map { Bird.Raptor }
+      }
+
       "zero fields" should {
         "read" in { cycle => import cycle._
           val protocol = mock[TProtocol]
@@ -892,8 +902,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       impl.foo().get.message must be("dummy message")
     }
 
-    "pass through fields" should {
-      "pass through" in { _ =>
+    "passthrough fields" should {
+      "passthrough" in { _ =>
         val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1 = {
@@ -949,6 +959,54 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
 
         pt2roundTripped must be(PassThrough2(1, null, PassThroughStruct()))
+      }
+
+      ".withoutPassthroughFields" in { _ =>
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
+
+        val pt1 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough2.encode(pt2, protocol)
+          PassThrough.decode(protocol)
+        }
+
+        pt1._passthroughFields.isEmpty must be(false)
+        PassThrough.withoutPassthroughFields(pt1)._passthroughFields.isEmpty must be(true)
+      }
+
+      ".withoutPassthroughFields recursively" in { _ =>
+        val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
+        val pt3 = PassThrough3(pt2)
+
+        val pt4 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough3.encode(pt3, protocol)
+          PassThrough4.decode(protocol)
+        }
+
+        pt4.f1._passthroughFields.isEmpty must be(false)
+        PassThrough4.withoutPassthroughFields(pt4).f1._passthroughFields.isEmpty must be(true)
+      }
+
+      ".withoutPassthroughFields recursively with unions" in { _ =>
+        val pt5 = PassThrough5(
+          PassThroughUnion1.F1(PassThrough2(1, PassThroughStruct(), PassThroughStruct()))
+        )
+
+        val pt6 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          PassThrough5.encode(pt5, protocol)
+          PassThrough6.decode(protocol)
+        }
+
+        def checkInside(s: PassThrough6) = {
+          s.f1.isInstanceOf[PassThroughUnion2.F1]
+          val ptu2 = s.f1.asInstanceOf[PassThroughUnion2.F1]
+          ptu2.f1._passthroughFields.isEmpty
+        }
+
+        checkInside(pt6) must be(false)
+        checkInside(PassThrough6.withoutPassthroughFields(pt6)) must be(true)
       }
 
       "be able to add more" in {  _ =>

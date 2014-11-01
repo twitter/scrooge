@@ -21,8 +21,7 @@ import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.frontend.ScroogeInternalException
 
-trait StructTemplate {
-  self: Generator =>
+trait StructTemplate { self: TemplateGenerator =>
 
   case class Binding[FT <: FieldType](name: String, fieldType: FT)
 
@@ -149,6 +148,16 @@ trait StructTemplate {
             case _ => false
           }),
           "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
+          "passthroughFields" -> {
+            val insides = buildPassthroughFields(field.fieldType)
+            if (field.requiredness.isOptional) {
+              v(Dictionary(
+                "ptIter" -> insides
+              ))
+            } else {
+              insides
+            }
+          },
           "isEnum" -> v(field.fieldType.isInstanceOf[EnumType]),
           // "qualifiedFieldType" is used to generate qualified type name even if it's not
           // imported, in case other same-named entities are generated in the same file.
@@ -191,6 +200,7 @@ trait StructTemplate {
           "readEnum" -> v(templates("readEnum")),
           "readBase" -> v(templates("readBase")),
           "optionalType" -> v(templates("optionalType")),
+          "withoutPassthrough" -> v(templates("withoutPassthrough")),
           "readWriteInfo" -> v(readWriteInfo(valueVariableID, field.fieldType)),
           "toImmutable" -> genToImmutable(field),
           "toMutable" -> v {
@@ -203,6 +213,38 @@ trait StructTemplate {
           "valueVariableName" -> genID(valueVariableID)
         )
     }
+  }
+
+  val basePassthrough = Dictionary(
+    "ptStruct" -> v(false),
+    "ptIter" -> v(false),
+    "ptMap" -> v(false),
+    "ptPrimitive" -> v(false)
+  )
+  private def buildPassthroughFields(fieldType: FieldType): Value = {
+    val overrides =
+      fieldType match {
+        case _: StructType => Dictionary("ptStruct" ->
+          v(Dictionary(
+            "className" -> genType(fieldType)
+          ))
+        )
+        case t: SetType => Dictionary("ptIter" ->
+          buildPassthroughFields(t.eltType)
+        )
+        case t: ListType => Dictionary("ptIter" ->
+          buildPassthroughFields(t.eltType)
+        )
+        case t: MapType => Dictionary("ptMap" ->
+          v(Dictionary(
+            "ptKey" -> buildPassthroughFields(t.keyType),
+            "ptValue" -> buildPassthroughFields(t.valueType)
+          ))
+        )
+        case _ => Dictionary("ptPrimitive" -> v(true))
+      }
+
+    v(basePassthrough + overrides)
   }
 
   private def exceptionMsgFieldName(struct: StructLike): Option[SimpleID] = {

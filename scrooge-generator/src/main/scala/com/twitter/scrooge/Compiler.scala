@@ -16,10 +16,12 @@
 
 package com.twitter.scrooge
 
-import scala.collection.mutable
-import java.io.{File, FileWriter}
-import com.twitter.scrooge.backend.{Generator, ScalaGenerator, ServiceOption}
+import com.twitter.scrooge.ast.Document
+import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{TypeResolver, ThriftParser, Importer}
+import java.io.{File, FileWriter}
+import scala.collection.concurrent.TrieMap
+import scala.collection.mutable
 
 class Compiler {
   val defaultDestFolder = "."
@@ -55,18 +57,19 @@ class Compiler {
 
     val importer = Importer(new File(".")) +: Importer(includePaths)
 
+    val isJava = language.equals("java")
+    val isScala = language.equals("scala")
+    val rhsStructs = isJava || isScala
+    val documentCache = new TrieMap[String, Document]
+
     // compile
     for (inputFile <- thriftFiles) {
-      val isJava = language.equals("java")
-      val isScala = language.equals("scala")
-      val isLint = language.equals("lint")
-      val rhsStructs = isJava || isScala
-      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = isLint)
+      val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = false, documentCache)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
       val resolvedDoc = TypeResolver(allowStructRHS = rhsStructs)(doc0) // TODO: THRIFT-54
-      val generator = Generator(
+      val generator = GeneratorFactory(
         language,
         resolvedDoc.resolver.includeMap,
         defaultNamespace,

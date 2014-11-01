@@ -21,16 +21,20 @@ import java.util.Properties
 import scopt.immutable.OptionParser
 
 case class Config(
-  val verbose: Boolean = false,
-  val strict: Boolean = false,
-  val files: Seq[String] = Seq(),
-  val ignoreErrors: Boolean = false
+  strict: Boolean = false,
+  showWarnings: Boolean = false,
+  files: Seq[String] = Seq(),
+  ignoreErrors: Boolean = false,
+  ignoreParseErrors: Boolean = false
 )
 
 
 object Main {
   def main(args: Array[String]) {
-    new Linter(parseOptions(args)).lint()
+    val cfg = parseOptions(args)
+    val numErrors = new Linter(cfg).lint()
+    if (numErrors > 0 && !cfg.ignoreErrors)
+      sys.exit(1)
   }
 
   def parseOptions(args: Seq[String]): Config = {
@@ -50,9 +54,14 @@ object Main {
           sys.exit()
         },
 
-        flag("v", "verbose", "log verbose messages about progress") { cfg => cfg.copy(verbose = true) },
+        flag("i", "ignore-errors", "return 0 if linter errors are found. If not set, linter returns 1.") { cfg =>
+          cfg.copy(ignoreErrors = true) },
 
-        flag("i", "ignore-errors", "continue if linter errors are found (for batch processing)") {cfg => cfg.copy(ignoreErrors = true) },
+        flag("p", "ignore-parse-errors", "continue if parsing errors are found.") { cfg =>
+          cfg.copy(ignoreParseErrors = true) },
+
+        flag("w", "warnings", "show linter warnings (default = False)") { cfg =>
+          cfg.copy(showWarnings = true) },
 
         opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting")
           { (_, cfg) => cfg.copy(strict = false) },

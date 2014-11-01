@@ -71,7 +71,7 @@ struct EnumCollections {
 
 enum NamespaceCollisions
 {
-  list,
+  List,
   Any,
   AnyRef,
   Object,
@@ -340,10 +340,10 @@ struct Xtruct3
 
 struct XtructColl
 {
-  1: map<i32, i64> a_map,
-  2: list<string>  a_list,
-  3: set<byte>     a_set,
-  4: i32           non_col
+  1: required  map<i32, i64> a_map,
+  2: required list<string>  a_list,
+  3: required set<byte>     a_set,
+  4: required i32           non_col
 }
 
 struct NestedXtruct

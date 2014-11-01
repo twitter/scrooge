@@ -59,5 +59,22 @@ class ImporterSpec extends Spec {
       c.get.data must be("你好")
       c.get.thriftFilename.get must be("a.thrift")
     }
+
+    "returns resolved path correctly" in {
+      val folder1 = new File(testFolder, "f1")
+      val folder2 = new File(testFolder, "f2")
+      folder1.mkdir()
+      folder2.mkdir()
+
+      val f = new FileOutputStream(new File(folder2, "a.thrift"))
+      f.write("hello".getBytes)
+      f.close()
+
+      val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
+
+      importer.getResolvedPath("a.thrift") must be(Some(new File(testFolder, "f2/a.thrift").getCanonicalPath))
+      importer.getResolvedPath("b.thrift") must be(None)
+      importer.getResolvedPath("f2/a.thrift") must be(None)
+    }
   }
 }
