@@ -334,6 +334,11 @@ trait TemplateGenerator extends Generator
   ): Option[File] =
     None
 
+  def scalazProcessorFile(
+    packageDir: File,
+    service: Service, options: Set[ServiceOption]): Option[File] =
+    None
+
   // main entry
   def apply(
     _doc: Document,
@@ -389,6 +394,7 @@ trait TemplateGenerator extends Generator
       service =>
         val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
         val processorFileOpt = processorFile(packageDir, service, serviceOptions)
+        val scalazProcessorFileOpt = scalazProcessorFile(packageDir, service, serviceOptions)
         val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
         val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
 
@@ -399,6 +405,11 @@ trait TemplateGenerator extends Generator
           processorFileOpt foreach { file =>
             val dict = serviceDict(service, namespace, includes, serviceOptions)
             writeFile(file, templates.header, templates("processor").generate(dict))
+          }
+
+          scalazProcessorFileOpt foreach { file =>
+            val dict = serviceDict(service, namespace, includes, serviceOptions)
+            writeFile(file, templates.header, templates("scalazProcessor").generate(dict))
           }
 
           finagleClientFileOpt foreach { file =>
