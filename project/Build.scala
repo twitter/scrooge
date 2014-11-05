@@ -186,12 +186,13 @@ object Scrooge extends Build {
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
+      "org.scalaz" %% "scalaz-concurrent" % "7.1.0" % "test",
       finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
     ),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
-  ).dependsOn(scroogeRuntime % "test")
+  ).dependsOn(scroogeRuntime % "test", scroogeScalaz % "test")
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
@@ -271,7 +272,7 @@ object Scrooge extends Build {
       "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
     ),
     crossScalaVersions += "2.11.2"
-  ).dependsOn(scroogeGenerator)
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",

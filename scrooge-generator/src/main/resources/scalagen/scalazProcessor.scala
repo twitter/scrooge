@@ -31,7 +31,7 @@ class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends Thri
 {{#hasThrows}}
         .handle {
 {{#throws}}
-          case e: {{typeName}} => {{ServiceName}}.{{funcName}}$result(e = Task(e))
+          case e: {{typeName}} => {{ServiceName}}.{{funcName}}$result({{fieldName}} = Some(e))
 {{/throws}}
         }
 {{/hasThrows}}

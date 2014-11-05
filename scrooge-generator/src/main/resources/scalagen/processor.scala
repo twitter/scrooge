@@ -30,7 +30,7 @@ class {{ServiceName}}$Processor(iface: {{ServiceName}}[Some]) extends ThriftProc
 {{#hasThrows}}
     } catch {
 {{#throws}}
-      case e: {{typeName}} => {{ServiceName}}.{{funcName}}$result(e = Some(e))
+      case e: {{typeName}} => {{ServiceName}}.{{funcName}}$result({{fieldName}} = Some(e))
 {{/throws}}
     }    
 {{/hasThrows}}

@@ -27,7 +27,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       if (hasThrows) {
         function.throws map {
           t =>
-            Dictionary("typeName" -> genType(t.fieldType))
+            Dictionary("typeName" -> genType(t.fieldType),
+                "fieldName" -> genID(t.sid))
         }
       } else {
         Nil
