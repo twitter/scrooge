@@ -2,7 +2,9 @@ package {{package}}
 
 import org.apache.thrift.protocol.TProtocol
 import com.twitter.scrooge.ScalazThriftFunction
+import com.twitter.scrooge.IThriftFunction
 import com.twitter.scrooge.ThriftProcessor
+import com.twitter.scrooge.ThriftStruct
 import scalaz.concurrent.Task
 
 {{docstring}}
@@ -14,7 +16,7 @@ class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends Thri
       "{{funcName}}" -> Fn${{funcName}} ::
 {{/syncFunctions}}
       Nil
-  ).toMap
+  ).toMap[String, IThriftFunction[{{ServiceName}}[Task], _ <: ThriftStruct]]
 
 {{#syncFunctions}}
   object Fn${{funcName}} extends ScalazThriftFunction[{{ServiceName}}[Task], {{ServiceName}}.{{funcName}}$args]("{{funcName}}") {
