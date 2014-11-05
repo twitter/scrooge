@@ -43,7 +43,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "argNames" ->
               codify(function.args map { field =>
                 "args." + genID(field.sid).toData
-              } mkString (", "))
+              } mkString (", ")),
+      "resultNamedArg" ->
+              codify(if (function.funcType != Void && function.funcType != OnewayVoid) "success = Some(value)" else "")
     )
   }
 

@@ -24,7 +24,9 @@ class {{ServiceName}}$Processor(iface: {{ServiceName}}[Some]) extends ThriftProc
 {{#hasThrows}}
     try {
 {{/hasThrows}}
-      {{ServiceName}}.{{funcName}}$result(success = iface.{{funcName}}({{argNames}}))
+      // Note that the typeclass is Some, not Option, so .get is safe
+      val value = iface.{{funcName}}({{argNames}}).get
+      {{ServiceName}}.{{funcName}}$result({{resultNamedArg}})
 {{#hasThrows}}
     } catch {
 {{#throws}}

@@ -24,7 +24,10 @@ class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends Thri
     }
 
     def getResult(iface: {{ServiceName}}[Task], args: {{ServiceName}}.{{funcName}}$args) = {
-      iface.{{funcName}}({{argNames}}).map({{ServiceName}}.{{funcName}}$result(success = _))
+      iface.{{funcName}}({{argNames}}).map {
+        value =>
+          {{ServiceName}}.{{funcName}}$result({{resultNamedArg}})}
+      }
 {{#hasThrows}}
         .handle {
 {{#throws}}
