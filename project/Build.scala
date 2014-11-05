@@ -259,6 +259,19 @@ object Scrooge extends Build {
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
+  
+  lazy val scroogeScalaz = Project(
+    id = "scrooge-scalaz",
+    base = file("scrooge-scalaz"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-scalaz",
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
+    ),
+    crossScalaVersions += "2.11.2"
+  ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
