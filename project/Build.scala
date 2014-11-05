@@ -272,7 +272,7 @@ object Scrooge extends Build {
       "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
     ),
     crossScalaVersions += "2.11.2"
-  ).dependsOn(scroogeCore)
+  ).dependsOn(scroogeRuntime)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
