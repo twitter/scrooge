@@ -269,10 +269,11 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-scalaz",
     libraryDependencies ++= Seq(
+      "org.apache.thrift" % "libthrift" % "0.8.0",
       "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
     ),
     crossScalaVersions += "2.11.2"
-  ).dependsOn(scroogeRuntime)
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
