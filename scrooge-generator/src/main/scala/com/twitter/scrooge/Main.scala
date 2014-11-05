@@ -20,6 +20,7 @@ import com.twitter.scrooge.backend.{GeneratorFactory, WithFinagle}
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
+import com.twitter.scrooge.backend.WithScalaz
 
 object Main {
   def main(args: Array[String]) {
@@ -108,6 +109,9 @@ object Main {
 
       opt("finagle", "generate finagle classes",
         { compiler.flags += WithFinagle; () })
+      
+      opt("scalaz", "generate scalaz classes",
+          { compiler.flags += WithScalaz; () })
 
       arglist("<files...>", "thrift files to compile", { compiler.thriftFiles += _ })
     }

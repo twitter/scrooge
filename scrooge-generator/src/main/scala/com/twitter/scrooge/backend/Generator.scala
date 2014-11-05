@@ -29,6 +29,7 @@ import com.twitter.finagle.util.LoadService
 abstract sealed class ServiceOption
 
 case object WithFinagle extends ServiceOption
+case object WithScalaz extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 trait ThriftGenerator {
