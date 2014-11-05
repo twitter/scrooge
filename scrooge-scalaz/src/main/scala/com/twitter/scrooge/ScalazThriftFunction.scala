@@ -9,11 +9,12 @@ import scala.util.control.NonFatal
 import scalaz.concurrent.Task
 import scalaz._
 import scalaz.Scalaz._
+import com.twitter.scrooge.IThriftFunction
 
 /**
  * TODO: common code between this and ThriftFunction could be factored out
  */
-abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) {
+abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) extends IThriftFunction[I, T] {
 
   protected val oneWay = false
 

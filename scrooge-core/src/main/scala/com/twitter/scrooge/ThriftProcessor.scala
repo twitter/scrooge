@@ -10,7 +10,7 @@ import org.apache.thrift.protocol.TType
 
 abstract class ThriftProcessor[I](iface: I) extends TProcessor {
 
-  protected val processMap: Map[String, ThriftFunction[I, _ <: ThriftStruct]]
+  protected val processMap: Map[String, IThriftFunction[I, _ <: ThriftStruct]]
 
   override def process(in: TProtocol, out: TProtocol): Boolean = {
     val msg = in.readMessageBegin()
