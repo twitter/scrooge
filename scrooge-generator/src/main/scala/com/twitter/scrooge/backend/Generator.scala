@@ -327,6 +327,14 @@ trait TemplateGenerator extends Generator
   def templates: HandlebarLoader
   def fileExtension: String
 
+  def processorFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    None
+
+  // main entry
   def apply(
     _doc: Document,
     serviceOptions: Set[ServiceOption],
@@ -380,12 +388,18 @@ trait TemplateGenerator extends Generator
     doc.services.foreach {
       service =>
         val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
+        val processorFileOpt = processorFile(packageDir, service, serviceOptions)
         val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
         val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
 
         if (!dryRun) {
           val dict = serviceDict(service, namespace, includes, serviceOptions)
           writeFile(interfaceFile, templates.header, templates("service").generate(dict))
+
+          processorFileOpt foreach { file =>
+            val dict = serviceDict(service, namespace, includes, serviceOptions)
+            writeFile(file, templates.header, templates("processor").generate(dict))
+          }
 
           finagleClientFileOpt foreach { file =>
             val dict = finagleClient(service, namespace)
@@ -398,6 +412,7 @@ trait TemplateGenerator extends Generator
           }
         }
         generatedFiles += interfaceFile
+        generatedFiles ++= processorFileOpt
         generatedFiles ++= finagleServiceFileOpt
         generatedFiles ++= finagleClientFileOpt
     }
