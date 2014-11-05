@@ -19,3 +19,5 @@ lib_managed/
 sbt-launch.jar
 .gcprof
 allocation.jar
+.settings
+.cache

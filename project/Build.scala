@@ -268,7 +268,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-scalaz",
     libraryDependencies ++= Seq(
-      "org.scalaz" %% "scalaz" % "7.1.0"
+      "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
     ),
     crossScalaVersions += "2.11.2"
   ).dependsOn(scroogeGenerator)
