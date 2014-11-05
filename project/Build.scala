@@ -264,14 +264,13 @@ object Scrooge extends Build {
     id = "scrooge-scalaz",
     base = file("scrooge-scalaz"),
     settings = Project.defaultSettings ++
-      sharedSettings ++
-      bintrayPublishSettings
+      sharedSettings
   ).settings(
-    sbtPlugin := true,
-    publishMavenStyle := false,
-    repository in bintray := "sbt-plugins",
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayOrganization in bintray := Some("twittercsl")
+    name := "scrooge-scalaz",
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz" % "7.1.0"
+    ),
+    crossScalaVersions += "2.11.2"
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
