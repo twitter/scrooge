@@ -259,6 +259,20 @@ object Scrooge extends Build {
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
+  
+  lazy val scroogeScalaz = Project(
+    id = "scrooge-scalaz",
+    base = file("scrooge-scalaz"),
+    settings = Project.defaultSettings ++
+      sharedSettings ++
+      bintrayPublishSettings
+  ).settings(
+    sbtPlugin := true,
+    publishMavenStyle := false,
+    repository in bintray := "sbt-plugins",
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    bintrayOrganization in bintray := Some("twittercsl")
+  ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
