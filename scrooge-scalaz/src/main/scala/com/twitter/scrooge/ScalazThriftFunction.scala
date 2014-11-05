@@ -10,6 +10,9 @@ import scalaz.concurrent.Task
 import scalaz._
 import scalaz.Scalaz._
 
+/**
+ * TODO: common code between this and ThriftFunction could be factored out
+ */
 abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) {
 
   protected val oneWay = false
