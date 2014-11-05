@@ -20,11 +20,11 @@ class {{ServiceName}}$Processor(iface: {{ServiceName}}[Some]) extends ThriftProc
 
     def decode(in: TProtocol) = {{ServiceName}}.{{funcName}}$args.decode(in)
 
-    def getResult(iface: {{ServiceName}}[Some], args: {{ServiceName}}.{{funcName}}$args) =
+    def getResult(iface: {{ServiceName}}[Some], args: {{ServiceName}}.{{funcName}}$args) = {
 {{#hasThrows}}
     try {
 {{/hasThrows}}
-      {{ServiceName}}.{{funcName}}$result(success = iface.{{funcName}}(args.request))
+      {{ServiceName}}.{{funcName}}$result(success = iface.{{funcName}}({{argNames}}))
 {{#hasThrows}}
     } catch {
 {{#throws}}
@@ -32,6 +32,7 @@ class {{ServiceName}}$Processor(iface: {{ServiceName}}[Some]) extends ThriftProc
 {{/throws}}
     }    
 {{/hasThrows}}
+  }
   }
 
 {{/syncFunctions}}

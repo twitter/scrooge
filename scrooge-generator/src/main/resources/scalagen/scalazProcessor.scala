@@ -19,10 +19,12 @@ class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends Thri
 {{#syncFunctions}}
   object Fn${{funcName}} extends ScalazThriftFunction[{{ServiceName}}[Task], {{ServiceName}}.{{funcName}}$args]("{{funcName}}") {
 
-    def decode(in: TProtocol) = {{ServiceName}}.{{funcName}}$args.decode(in)
+    def decode(in: TProtocol) = {
+      {{ServiceName}}.{{funcName}}$args.decode(in)
+    }
 
-    def getResult(iface: {{ServiceName}}[Task], args: {{ServiceName}}.{{funcName}}$args) =
-      iface.{{funcName}}(args.request).map({{ServiceName}}.{{funcName}}$result(success = _))
+    def getResult(iface: {{ServiceName}}[Task], args: {{ServiceName}}.{{funcName}}$args) = {
+      iface.{{funcName}}({{argNames}}).map({{ServiceName}}.{{funcName}}$result(success = _))
 {{#hasThrows}}
         .handle {
 {{#throws}}
@@ -30,6 +32,7 @@ class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends Thri
 {{/throws}}
         }
 {{/hasThrows}}
+    }
 
 {{/syncFunctions}}
 }
