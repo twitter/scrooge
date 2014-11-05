@@ -39,7 +39,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "throws" -> v(throwsDictionaries),
       "funcName" -> genID(function.funcName.toCamelCase),
       "typeName" -> genType(function.funcType),
-      "fieldParams" -> genFieldParams(function.args)
+      "fieldParams" -> genFieldParams(function.args),
+      "argNames" ->
+              codify(function.args map { field =>
+                "args." + genID(field.sid).toData
+              } mkString (", "))
     )
   }
 
