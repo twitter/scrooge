@@ -163,7 +163,7 @@ object Scrooge extends Build {
   ).aggregate(
     scroogeGenerator, scroogeCore,
     scroogeRuntime, scroogeSerializer, scroogeOstrich,
-    scroogeLinter
+    scroogeLinter, scroogeScalaz
   )
 
   lazy val scroogeGenerator = Project(
