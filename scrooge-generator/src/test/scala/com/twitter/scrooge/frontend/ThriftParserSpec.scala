@@ -448,7 +448,8 @@ enum Foo
       }
 
       intercept[TypeMismatchException] {
-        parser.parse("service theService { i32 getValue(1: bool arg = SomethingElse) }", parser.service)
+        parser.parse("service theService { i32 getValue(1: bool arg = SomethingElse) }",
+          parser.service)
       }
 
       parser.parse("struct asdf { bool x = false }", parser.struct) must be (
