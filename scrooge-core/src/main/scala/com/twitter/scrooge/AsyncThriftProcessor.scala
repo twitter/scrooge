@@ -10,11 +10,14 @@ import org.apache.thrift.protocol.TType
 import org.apache.thrift.TAsyncProcessor
 import org.apache.thrift.server.AbstractNonblockingServer
 
-abstract class AsyncThriftProcessor[I](iface: I) extends TAsyncProcessor {
+/**
+ * Thrift api obliges us to "implement" TProcessor
+ */
+abstract class AsyncThriftProcessor[I](iface: I) extends TAsyncProcessor with TProcessor {
 
   protected val processMap: Map[String, AsyncThriftFunction[I]]
 
-  override def process(fb: AbstractNonblockingServer#AsyncFrameBuffer): Boolean = {
+  def process(fb: AbstractNonblockingServer#AsyncFrameBuffer): Boolean = {
     val in = fb.getInputProtocol()
     val out = fb.getOutputProtocol()
     val msg = in.readMessageBegin()
@@ -33,5 +36,7 @@ abstract class AsyncThriftProcessor[I](iface: I) extends TAsyncProcessor {
     }
     true
   }
+  
+  def process(in: TProtocol, out: TProtocol) = false
 
 }

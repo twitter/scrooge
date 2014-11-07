@@ -36,6 +36,7 @@ abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) ex
         x.write(out)
         out.writeMessageEnd()
         out.getTransport().flush()
+        buffer.responseReady()
         return
       }
     }
