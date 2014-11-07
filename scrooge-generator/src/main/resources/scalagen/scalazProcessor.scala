@@ -2,21 +2,21 @@ package {{package}}
 
 import org.apache.thrift.protocol.TProtocol
 import com.twitter.scrooge.ScalazThriftFunction
-import com.twitter.scrooge.IThriftFunction
-import com.twitter.scrooge.ThriftProcessor
+import com.twitter.scrooge.AsyncThriftFunction
+import com.twitter.scrooge.AsyncThriftProcessor
 import com.twitter.scrooge.ThriftStruct
 import scalaz.concurrent.Task
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"), date = "{{date}}")
-class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends ThriftProcessor[{{ServiceName}}[Task]](iface) {
+class {{ServiceName}}$ScalazProcessor(iface: {{ServiceName}}[Task]) extends AsyncThriftProcessor[{{ServiceName}}[Task]](iface) {
 
   protected val processMap = (
 {{#syncFunctions}}
       "{{funcName}}" -> Fn${{funcName}} ::
 {{/syncFunctions}}
       Nil
-  ).toMap[String, IThriftFunction[{{ServiceName}}[Task], _ <: ThriftStruct]]
+  ).toMap[String, AsyncThriftFunction[{{ServiceName}}[Task]]]
 
 {{#syncFunctions}}
   object Fn${{funcName}} extends ScalazThriftFunction[{{ServiceName}}[Task], {{ServiceName}}.{{funcName}}$args]("{{funcName}}") {

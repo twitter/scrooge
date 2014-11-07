@@ -2,7 +2,6 @@ package {{package}}
 
 import org.apache.thrift.protocol.TProtocol
 import com.twitter.scrooge.ThriftFunction
-import com.twitter.scrooge.IThriftFunction
 import com.twitter.scrooge.ThriftProcessor
 import com.twitter.scrooge.ThriftStruct
 
@@ -15,7 +14,7 @@ class {{ServiceName}}$Processor(iface: {{ServiceName}}[Some]) extends ThriftProc
       "{{funcName}}" -> Fn${{funcName}} ::
 {{/syncFunctions}}
       Nil
-  ).toMap[String, IThriftFunction[{{ServiceName}}[Some], _ <: ThriftStruct]]
+  ).toMap[String, ThriftFunction[{{ServiceName}}[Some], _ <: ThriftStruct]]
 
 {{#syncFunctions}}
   object Fn${{funcName}} extends ThriftFunction[{{ServiceName}}[Some], {{ServiceName}}.{{funcName}}$args]("{{funcName}}") {

@@ -9,12 +9,13 @@ import scala.util.control.NonFatal
 import scalaz.concurrent.Task
 import scalaz._
 import scalaz.Scalaz._
-import com.twitter.scrooge.IThriftFunction
+import org.apache.thrift.server.AbstractNonblockingServer
+import com.twitter.scrooge.AsyncThriftFunction
 
 /**
  * TODO: common code between this and ThriftFunction could be factored out
  */
-abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) extends IThriftFunction[I, T] {
+abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) extends AsyncThriftFunction[I] {
 
   protected val oneWay = false
 
@@ -22,7 +23,9 @@ abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) ex
 
   protected def getResult(iface: I, args: T): Task[ThriftStruct]
 
-  def process(seqid: Int, in: TProtocol, out: TProtocol, iface: I): Unit = {
+  def process(seqid: Int, buffer: AbstractNonblockingServer#AsyncFrameBuffer, iface: I): Unit = {
+    val in = buffer.getInputProtocol()
+    val out = buffer.getOutputProtocol()
     val args = try {
       decode(in)
     } catch {
@@ -45,6 +48,7 @@ abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) ex
           result.write(out)
           out.writeMessageEnd()
           out.getTransport().flush()
+          buffer.responseReady()
         }
       case -\/(e) ⇒
         val x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing " + methodName)
@@ -52,6 +56,7 @@ abstract class ScalazThriftFunction[I, T <: ThriftStruct](methodName: String) ex
         x.write(out)
         out.writeMessageEnd()
         out.getTransport().flush()
+        buffer.responseReady()
     }
 
   }

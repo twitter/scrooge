@@ -8,11 +8,7 @@ import org.apache.thrift.protocol.TProtocol
 import org.apache.thrift.protocol.TProtocolException
 import org.slf4j.LoggerFactory
 
-trait IThriftFunction[I, T <: ThriftStruct] {
-  def process(seqid: Int, in: TProtocol, out: TProtocol, iface: I): Unit
-}
-
-abstract class ThriftFunction[I, T <: ThriftStruct](methodName: String) extends IThriftFunction[I, T] {
+abstract class ThriftFunction[I, T <: ThriftStruct](methodName: String) {
 
   private val Log = LoggerFactory.getLogger(getClass())
 

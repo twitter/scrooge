@@ -7,16 +7,20 @@ import org.apache.thrift.protocol.TMessageType
 import org.apache.thrift.protocol.TProtocol
 import org.apache.thrift.protocol.TProtocolUtil
 import org.apache.thrift.protocol.TType
+import org.apache.thrift.TAsyncProcessor
+import org.apache.thrift.server.AbstractNonblockingServer
 
-abstract class ThriftProcessor[I](iface: I) extends TProcessor {
+abstract class AsyncThriftProcessor[I](iface: I) extends TAsyncProcessor {
 
-  protected val processMap: Map[String, ThriftFunction[I, _ <: ThriftStruct]]
+  protected val processMap: Map[String, AsyncThriftFunction[I]]
 
-  override def process(in: TProtocol, out: TProtocol): Boolean = {
+  override def process(fb: AbstractNonblockingServer#AsyncFrameBuffer): Boolean = {
+    val in = fb.getInputProtocol()
+    val out = fb.getOutputProtocol()
     val msg = in.readMessageBegin()
     val function = processMap.getOrElse(msg.name, null)
     if (function != null) {
-      function.process(msg.seqid, in, out, iface)
+      function.process(msg.seqid, fb, iface)
     } else {
       TProtocolUtil.skip(in, TType.STRUCT)
       in.readMessageEnd()
@@ -25,6 +29,7 @@ abstract class ThriftProcessor[I](iface: I) extends TProcessor {
       x.write(out)
       out.writeMessageEnd()
       out.getTransport().flush()
+      fb.responseReady()
     }
     true
   }
