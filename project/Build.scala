@@ -95,6 +95,7 @@ object Scrooge extends Build {
       "junit" % "junit" % "4.10" % "test" exclude("org.mockito", "mockito-all")
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
+    resolvers += Resolver.mavenLocal,
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
@@ -179,7 +180,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("core") exclude("org.mockito", "mockito-all"),
       util("codec") exclude("org.mockito", "mockito-all"),
-      "org.apache.thrift" % "libthrift" % "0.8.0",
+      "org.apache.thrift" % "libthrift" % "1.0.0",
       "com.github.scopt" %% "scopt" % "2.1.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
@@ -202,7 +203,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-core",
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      "org.apache.thrift" % "libthrift" % "1.0.0" % "provided"
     ),
     crossScalaVersions += "2.11.2"
   )
@@ -242,7 +243,7 @@ object Scrooge extends Build {
     name := "scrooge-serializer",
     libraryDependencies ++= Seq(
       util("codec"),
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      "org.apache.thrift" % "libthrift" % "1.0.0" % "provided"
     ),
     crossScalaVersions += "2.11.2"
   ).dependsOn(scroogeCore)
@@ -269,7 +270,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-scalaz",
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0",
+      "org.apache.thrift" % "libthrift" % "1.0.0",
       "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
     ),
     crossScalaVersions += "2.11.2"
