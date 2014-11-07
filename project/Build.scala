@@ -95,6 +95,7 @@ object Scrooge extends Build {
       "junit" % "junit" % "4.10" % "test" exclude("org.mockito", "mockito-all")
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
+    resolvers += Resolver.mavenLocal,
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
@@ -163,7 +164,7 @@ object Scrooge extends Build {
   ).aggregate(
     scroogeGenerator, scroogeCore,
     scroogeRuntime, scroogeSerializer, scroogeOstrich,
-    scroogeLinter
+    scroogeLinter, scroogeScalaz
   )
 
   lazy val scroogeGenerator = Project(
@@ -179,19 +180,20 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("core") exclude("org.mockito", "mockito-all"),
       util("codec") exclude("org.mockito", "mockito-all"),
-      "org.apache.thrift" % "libthrift" % "0.8.0",
+      "org.apache.thrift" % "libthrift" % "1.0.0",
       "com.github.scopt" %% "scopt" % "2.1.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
+      "org.scalaz" %% "scalaz-concurrent" % "7.1.0" % "test",
       finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
     ),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
-  ).dependsOn(scroogeRuntime % "test")
+  ).dependsOn(scroogeRuntime % "test", scroogeScalaz % "test")
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
@@ -201,7 +203,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-core",
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      "org.apache.thrift" % "libthrift" % "1.0.0" % "provided"
     ),
     crossScalaVersions += "2.11.2"
   )
@@ -241,7 +243,7 @@ object Scrooge extends Build {
     name := "scrooge-serializer",
     libraryDependencies ++= Seq(
       util("codec"),
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      "org.apache.thrift" % "libthrift" % "1.0.0" % "provided"
     ),
     crossScalaVersions += "2.11.2"
   ).dependsOn(scroogeCore)
@@ -259,6 +261,20 @@ object Scrooge extends Build {
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
+  
+  lazy val scroogeScalaz = Project(
+    id = "scrooge-scalaz",
+    base = file("scrooge-scalaz"),
+    settings = Project.defaultSettings ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-scalaz",
+    libraryDependencies ++= Seq(
+      "org.apache.thrift" % "libthrift" % "1.0.0",
+      "org.scalaz" %% "scalaz-concurrent" % "7.1.0"
+    ),
+    crossScalaVersions += "2.11.2"
+  ).dependsOn(scroogeCore)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",

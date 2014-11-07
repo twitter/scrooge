@@ -217,15 +217,19 @@ public class FOOservice {
         super("bar_method");
       }
 
-      protected bar_method_args getEmptyArgsInstance() {
+      public bar_method_args getEmptyArgsInstance() {
         return new bar_method_args();
       }
 
-      protected bar_method_result getResult(I iface, bar_method_args args) throws org.apache.thrift.TException {
+      public bar_method_result getResult(I iface, bar_method_args args) throws org.apache.thrift.TException {
         bar_method_result result = new bar_method_result();
         iface.bar_method(args.bar_arg);
         return result;
       }
+      
+    	protected boolean isOneway() {
+    		return false;
+    	}
     }
 
     private static class baz_function<I extends Iface> extends org.apache.thrift.ProcessFunction<I, baz_function_args> {
@@ -233,16 +237,20 @@ public class FOOservice {
         super("baz_function");
       }
 
-      protected baz_function_args getEmptyArgsInstance() {
+      public baz_function_args getEmptyArgsInstance() {
         return new baz_function_args();
       }
 
-      protected baz_function_result getResult(I iface, baz_function_args args) throws org.apache.thrift.TException {
+      public baz_function_result getResult(I iface, baz_function_args args) throws org.apache.thrift.TException {
         baz_function_result result = new baz_function_result();
         result.success = iface.baz_function(args.baz_arg1, args.bazARG2);
         result.setSuccessIsSet(true);
         return result;
       }
+      
+    	protected boolean isOneway() {
+    		return false;
+    	}
     }
 
   }

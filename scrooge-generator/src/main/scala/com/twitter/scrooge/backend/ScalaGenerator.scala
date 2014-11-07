@@ -287,6 +287,22 @@ class ScalaGenerator(
   def getParentFinagleClient(p: ServiceParent): CodeFragment =
     genID(Identifier(getServiceParentID(p).fullName + "$FinagleClient"))
 
+  override def processorFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    Some(new File(packageDir, service.sid.toTitleCase.name + "$Processor" + fileExtension))
+  
+  override def scalazProcessorFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    options.find(_ == WithScalaz) map { _ =>
+      new File(packageDir, service.sid.toTitleCase.name + "$ScalazProcessor" + fileExtension)
+    }
+
   override def finagleClientFile(
     packageDir: File,
     service: Service, options:

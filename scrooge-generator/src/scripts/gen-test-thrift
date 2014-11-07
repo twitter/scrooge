@@ -22,7 +22,7 @@ javaNamespace="-n thrift.test=thrift.java_test
 --default-java-namespace java_thrift"
 
 javaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l experimental-java $javaNamespace"
-scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle -d $out -l scala"
+scalaRun="java -cp $cp com.twitter.scrooge.Main --verbose --finagle --scalaz -d $out -l scala"
 
 echo "Running Scrooge on defaults/"
 defaults_thrifts=`find src/test/thrift/defaults -name *.thrift`
