@@ -143,7 +143,7 @@ class ThriftParser(
   // ride hand side (RHS)
 
   lazy val rhs: Parser[RHS] = {
-    numberLiteral | stringLiteral | boolLiteral | listOrMapRHS | mapRHS | idRHS |
+    numberLiteral | boolLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS |
       failure("constant expected")
   }
 
