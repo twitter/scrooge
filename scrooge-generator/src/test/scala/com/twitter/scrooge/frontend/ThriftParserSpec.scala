@@ -409,6 +409,65 @@ enum Foo
         }
       }
     }
+
+    "boolean default values" in {
+      var field = parser.parse("bool x = 0", parser.field)
+      field.default must be (Some(BoolLiteral(false)))
+
+      field = parser.parse("bool x = 1", parser.field)
+      field.default must be (Some(BoolLiteral(true)))
+
+      intercept[TypeMismatchException] {
+        parser.parse("bool x = 2", parser.field)
+      }
+
+      field = parser.parse("bool x = false", parser.field)
+      field.default must be (Some(BoolLiteral(false)))
+
+      field = parser.parse("bool x = true", parser.field)
+      field.default must be (Some(BoolLiteral(true)))
+
+      field = parser.parse("bool x = False", parser.field)
+      field.default must be (Some(BoolLiteral(false)))
+
+      field = parser.parse("bool x = True", parser.field)
+      field.default must be (Some(BoolLiteral(true)))
+
+      intercept[TypeMismatchException] {
+        parser.parse("bool x = WhatIsThis", parser.field)
+      }
+
+      parser.parse("const bool z = false", parser.const) must be (
+        ConstDefinition(SimpleID("z", None), TBool, BoolLiteral(false), None))
+
+      parser.parse("const bool z = True", parser.const) must be (
+        ConstDefinition(SimpleID("z", None), TBool, BoolLiteral(true), None))
+
+      intercept[TypeMismatchException] {
+        parser.parse("const bool z = IDontEven", parser.const)
+      }
+
+      intercept[TypeMismatchException] {
+        parser.parse("service theService { i32 getValue(1: bool arg = SomethingElse) }",
+          parser.service)
+      }
+
+      parser.parse("struct asdf { bool x = false }", parser.struct) must be (
+        Struct(SimpleID("asdf", None), "asdf",
+          List(Field(-1, SimpleID("x", None), "x", TBool, Some(BoolLiteral(false)),
+            Requiredness.Default, Map(), Map())),
+          None,Map()))
+
+      parser.parse("struct asdf { bool x = 1 }", parser.struct) must be (
+        Struct(SimpleID("asdf", None), "asdf",
+          List(Field(-1, SimpleID("x", None), "x", TBool, Some(BoolLiteral(true)),
+            Requiredness.Default, Map(), Map())),
+          None,Map()))
+
+      intercept[TypeMismatchException] {
+        parser.parse("struct S { 1: bool B = 15 }", parser.struct)
+      }
+    }
   }
 
 

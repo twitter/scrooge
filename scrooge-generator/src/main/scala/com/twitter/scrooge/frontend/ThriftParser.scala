@@ -140,11 +140,16 @@ class ThriftParser(
     SimpleID(x)
   }
 
-  // ride hand side (RHS)
+  // right hand side (RHS)
 
   lazy val rhs: Parser[RHS] = {
-    numberLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS |
+    numberLiteral | boolLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS |
       failure("constant expected")
+  }
+
+  lazy val boolLiteral: Parser[BoolLiteral] = ("true" | "True" | "false" | "False") ^^ { x =>
+    if (x.toLowerCase == "false") BoolLiteral(false)
+    else BoolLiteral(true)
   }
 
   lazy val intConstant = "[-+]?\\d+(?!\\.)".r ^^ {
@@ -223,19 +228,26 @@ class ThriftParser(
     literal => literal.value
   }
 
+  // Cast IntLiterals into booleans.
+  private[this] def convertRhs(fieldType: FieldType, rhs: RHS): RHS = {
+    fieldType match {
+      case TBool => rhs match {
+        case x: BoolLiteral => x
+        case IntLiteral(0) => BoolLiteral(false)
+        case IntLiteral(1) => BoolLiteral(true)
+        case _ => throw new TypeMismatchException(s"Can't assign $rhs to a bool")
+      }
+      case _ => rhs
+    }
+  }
+
   // fields
 
   lazy val field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~
     (fieldType ~ defaultedAnnotations ~ simpleID) ~
     opt("=" ~> rhs) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
       case (fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations => {
-        val transformedVal = ftype match {
-          case TBool => value map {
-            case IntLiteral(0) => BoolLiteral(false)
-            case _ => BoolLiteral(true)
-          }
-          case _ => value
-        }
+        val transformedVal = value.map(convertRhs(ftype, _))
 
         // if field is marked optional and a default is defined, ignore the optional part.
         val transformedReq = if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default else req
@@ -287,7 +299,9 @@ class ThriftParser(
   lazy val definition = const | typedef | enum | senum | struct | union | exception | service
 
   lazy val const = opt(comments) ~ ("const" ~> fieldType) ~ simpleID ~ ("=" ~> rhs) ~ opt(listSeparator) ^^ {
-    case comment ~ ftype ~ sid ~ const ~ _ => ConstDefinition(sid, ftype, const, comment)
+    case comment ~ ftype ~ sid ~ const ~ _ => {
+      ConstDefinition(sid, ftype, convertRhs(ftype, const), comment)
+    }
   }
 
   lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ^^ {
