@@ -59,7 +59,7 @@ private object {{StructName}}Decoder {
   }
 }
 
-object {{StructName}}Helper {
+object {{StructName}}Aliases {
 {{#fields}}
   type {{FieldName}}Alias = {{>qualifiedFieldType}}
 
@@ -117,7 +117,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
 
-  import {{StructName}}Helper._
+  import {{StructName}}Aliases._
 
   def withoutPassthroughFields(struct: {{StructName}}): {{StructName}} = {
     struct match {
