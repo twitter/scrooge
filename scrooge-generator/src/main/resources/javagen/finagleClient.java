@@ -1,11 +1,46 @@
+package {{package}};
+
+import com.twitter.finagle.SourcedException;
+import com.twitter.finagle.stats.Counter;
+import com.twitter.finagle.stats.StatsReceiver;
+import com.twitter.finagle.thrift.ThriftClientRequest;
+import com.twitter.util.Function;
+import com.twitter.util.Function2;
+import com.twitter.util.Future;
+import com.twitter.util.FutureEventListener;
+import com.twitter.scrooge.Option;
+import com.twitter.scrooge.ThriftStruct;
+import com.twitter.scrooge.ThriftStructCodec;
+import com.twitter.scrooge.ThriftStructCodec3;
+import com.twitter.scrooge.Utilities;
+
+import org.apache.thrift.TApplicationException;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.*;
+import org.apache.thrift.transport.TMemoryBuffer;
+import org.apache.thrift.transport.TMemoryInputTransport;
+import org.apache.thrift.transport.TTransport;
+
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import {{package}}.{{ServiceName}}.*;
+
 {{docstring}}
-public static class FinagledClient{{#hasParent}} extends {{finagleClientParent}}{{/hasParent}} implements FutureIface {
+public class {{ServiceName}}$FinagleClient{{#hasParent}} extends {{finagleClientParent}}{{/hasParent}} implements {{ServiceName}}.FutureIface {
   private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
   private String serviceName;
   private TProtocolFactory protocolFactory /* new TBinaryProtocol.Factory */;
   private StatsReceiver scopedStats;
 
-  public FinagledClient(
+  public {{ServiceName}}$FinagleClient(
     com.twitter.finagle.Service<ThriftClientRequest, byte[]> service,
     TProtocolFactory protocolFactory /* new TBinaryProtocol.Factory */,
     String serviceName,
@@ -50,7 +85,7 @@ public static class FinagledClient{{#hasParent}} extends {{finagleClientParent}}
       if (msg.type == TMessageType.EXCEPTION) {
         TException exception = TApplicationException.read(iprot);
         if (exception instanceof SourcedException) {
-          if (this.serviceName != "") ((SourcedException) exception).serviceName_$eq(this.serviceName);
+          if (this.serviceName != "") ((SourcedException) exception).serviceName_$eq({{ServiceName}}$FinagleClient.this.serviceName);
         }
         throw exception;
       } else {
@@ -73,7 +108,7 @@ public static class FinagledClient{{#hasParent}} extends {{finagleClientParent}}
     public StatsReceiver failuresScope;
 
     public __Stats(String name) {
-      StatsReceiver scope = FinagledClient.this.scopedStats.scope(name);
+      StatsReceiver scope = {{ServiceName}}$FinagleClient.this.scopedStats.scope(name);
       this.requestsCounter = scope.counter0("requests");
       this.successCounter = scope.counter0("success");
       this.failuresCounter = scope.counter0("failures");

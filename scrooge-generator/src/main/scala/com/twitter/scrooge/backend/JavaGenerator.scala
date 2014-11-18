@@ -16,6 +16,8 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 
+import java.io.File
+
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 import com.twitter.scrooge.mustache.Dictionary._
@@ -265,4 +267,22 @@ class JavaGenerator(
 
   def getParentFinagleClient(p: ServiceParent): CodeFragment =
     genID(SimpleID("FinagledClient").addScope(getServiceParentID(p)))
+
+  override def finagleClientFile(
+    packageDir: File,
+    service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    options.find(_ == WithFinagle) map { _ =>
+      new File(packageDir, service.sid.toTitleCase.name + "$FinagleClient" + fileExtension)
+    }
+
+  override def finagleServiceFile(
+     packageDir: File,
+     service: Service, options:
+    Set[ServiceOption]
+  ): Option[File] =
+    options.find(_ == WithFinagle) map { _ =>
+      new File(packageDir, service.sid.toTitleCase.name + "$FinagleService" + fileExtension)
+    }
 }

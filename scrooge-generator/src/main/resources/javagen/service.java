@@ -36,18 +36,39 @@ import org.apache.thrift.transport.TTransport;
 {{docstring}}
 @javax.annotation.Generated(value = "com.twitter.scrooge.Compiler")
 public class {{ServiceName}} {
-  public interface Iface {{#syncParent}}extends {{syncParent}} {{/syncParent}}{
+  public static interface Iface {{#syncParent}}extends {{syncParent}} {{/syncParent}}{
 {{#syncFunctions}}
     {{>function}};
 {{/syncFunctions}}
   }
 
 {{#withFinagle}}
-  public interface FutureIface {{#futureIfaceParent}}extends {{futureIfaceParent}} {{/futureIfaceParent}}{
+  public static interface FutureIface {{#futureIfaceParent}}extends {{futureIfaceParent}} {{/futureIfaceParent}}{
 {{#asyncFunctions}}
     {{>function}};
 {{/asyncFunctions}}
   }
+
+  public static class FinagledClient extends {{ServiceName}}$FinagleClient {
+    public FinagledClient (
+      com.twitter.finagle.Service<com.twitter.finagle.thrift.ThriftClientRequest, byte[]> service,
+      TProtocolFactory protocolFactory,
+      String serviceName,
+      com.twitter.finagle.stats.StatsReceiver stats
+      ) {
+        super(service, protocolFactory, serviceName, stats);
+      }
+  }
+
+  public static class FinagledService extends {{ServiceName}}$FinagleService {
+    public FinagledService (
+      FutureIface iface,
+      TProtocolFactory protocolFactory
+      ) {
+        super(iface, protocolFactory);
+    }
+  }
+
 {{/withFinagle}}
 
 {{#internalStructs}}
