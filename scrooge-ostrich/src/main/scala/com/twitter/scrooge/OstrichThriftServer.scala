@@ -6,7 +6,7 @@ import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.stats.{StatsReceiver, OstrichStatsReceiver}
 import com.twitter.finagle.ThriftMux
 import com.twitter.finagle.thrift.{Protocols, ThriftServerFramedCodec}
-import com.twitter.finagle.tracing.{NullTracer, Tracer}
+import com.twitter.finagle.tracing.{DefaultTracer, Tracer}
 import com.twitter.finagle.Service
 import com.twitter.logging.Logger
 import com.twitter.ostrich
@@ -34,9 +34,9 @@ trait OstrichThriftServer extends ostrich.admin.Service {
 
   def thriftCodec = ThriftServerFramedCodec()
   def statsReceiver: StatsReceiver = new OstrichStatsReceiver
-  def tracer: Tracer = NullTracer
+  def tracer: Tracer = DefaultTracer
   @deprecated("use tracer instead", "3.3.3")
-  def tracerFactory: Tracer.Factory = NullTracer.factory
+  def tracerFactory: Tracer.Factory = () => DefaultTracer
   val thriftProtocolFactory: TProtocolFactory = Protocols.binaryFactory()
   val thriftPort: Int
   val serverName: String
