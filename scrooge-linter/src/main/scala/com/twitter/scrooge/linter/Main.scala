@@ -18,7 +18,7 @@ package com.twitter.scrooge.linter
 
 import java.io.File
 import java.util.Properties
-import scopt.immutable.OptionParser
+import scopt.OptionParser
 
 case class Config(
   strict: Boolean = false,
@@ -44,32 +44,37 @@ object Main {
     }
 
     val parser = new OptionParser[Config]("scrooge-linter") {
-      def options = Seq(
-        help("h", "help", "show this help screen"),
+      help("help") text ("show this help screen")
 
-        flag("V", "version", "print version and quit") { _ =>
-          println("scrooge linter " + buildProperties.getProperty("version", "0.0"))
-          println("    build " + buildProperties.getProperty("build_name", "unknown"))
-          println("    git revision " + buildProperties.getProperty("build_revision", "unknown"))
-          sys.exit()
-        },
+      override def showUsageOnError: Boolean = true
 
-        flag("i", "ignore-errors", "return 0 if linter errors are found. If not set, linter returns 1.") { cfg =>
-          cfg.copy(ignoreErrors = true) },
+      opt[Unit]('V', "version") text ("print version and quit") action { (_, c) =>
+        println("scrooge linter " + buildProperties.getProperty("version", "0.0"))
+        println("    build " + buildProperties.getProperty("build_name", "unknown"))
+        println("    git revision " + buildProperties.getProperty("build_revision", "unknown"))
+        sys.exit()
+        c
+      }
 
-        flag("p", "ignore-parse-errors", "continue if parsing errors are found.") { cfg =>
-          cfg.copy(ignoreParseErrors = true) },
+      opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action { (_, c) =>
+        c.copy(ignoreErrors = true)
+      }
 
-        flag("w", "warnings", "show linter warnings (default = False)") { cfg =>
-          cfg.copy(showWarnings = true) },
+      opt[Unit]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action { (_, c) =>
+        c.copy(ignoreParseErrors = true)
+      }
 
-        opt("disable-strict", "issue warnings on non-severe parse errors instead of aborting")
-          { (_, cfg) => cfg.copy(strict = false) },
+      opt[Unit]('w', "warnings") text ("show linter warnings (default = False)") action { (_, c) =>
+        c.copy(showWarnings = true)
+      }
 
-        arglist("<files...>", "thrift files to compile") { (input, cfg) =>
-          cfg.copy(files = cfg.files :+ input)
-        }
-      )
+      opt[Unit]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action { (_, c) =>
+        c.copy(strict = false)
+      }
+
+      arg[String]("<files...>") unbounded() text ("thrift files to compile") action { (input, c) =>
+        c.copy(files = c.files :+ input)
+      }
     }
 
     parser.parse(args, Config()) match {
