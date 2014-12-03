@@ -34,11 +34,11 @@ class ThriftParser(
 ) extends RegexParsers {
 
 
-  //                            1    2        3                   4         4a    4b 4c       4d
-  override val whiteSpace = """(\s+|(//.*\n)|(#([^@\n][^\n]*)?\n)|(/\*[^\*]([^\*]+|\n|\*(?!/))*\*/))+""".r
+  //                            1    2           3                              4         4a    4b    4c       4d
+  override val whiteSpace = """(\s+|(//.*\r?\n)|(#([^@\r?\n][^(\r?\n)]*)?\r?\n)|(/\*[^\*]([^\*]+|\r?\n|\*(?!/))*\*/))+""".r
   // 1: whitespace, 1 or more
-  // 2: leading // followed by anything 0 or more, until \n
-  // 3: leading #  then NOT a @ followed by anything 0 or more, until \n
+  // 2: leading // followed by anything 0 or more, until newline
+  // 3: leading #  then NOT a @ followed by anything 0 or more, until newline
   // 4: leading /* then NOT a *, then...
   // 4a:  not a *, 1 or more times
   // 4b:  OR a newline

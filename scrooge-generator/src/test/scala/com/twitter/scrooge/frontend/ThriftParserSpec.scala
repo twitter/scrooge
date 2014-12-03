@@ -8,11 +8,22 @@ class ThriftParserSpec extends Spec {
   "ThriftParser" should {
     val parser = new ThriftParser(NullImporter, true)
 
+    val commentTestSources = Seq(
+      "  300  ",
+      "  // go away.\n 300",
+      "  /*\n   * go away.\n   */\n 300",
+      "# hello\n 300"
+    )
+
+    def verifyCommentParsing(source: String) =
+      parser.parse(source, parser.rhs) must be(IntLiteral(300))
+
     "comments" in {
-      parser.parse("  300  ", parser.rhs) must be( IntLiteral(300))
-      parser.parse("  // go away.\n 300", parser.rhs) must be( IntLiteral(300))
-      parser.parse("  /*\n   * go away.\n   */\n 300", parser.rhs) must be(IntLiteral(300))
-      parser.parse("# hello\n 300", parser.rhs) must be(IntLiteral(300))
+      commentTestSources.foreach(verifyCommentParsing)
+    }
+
+    "comments with Windows-style carriage return" in {
+      commentTestSources.map(_.replace("\n","\r\n")).foreach(verifyCommentParsing)
     }
 
     "double-quoted strings" in {
