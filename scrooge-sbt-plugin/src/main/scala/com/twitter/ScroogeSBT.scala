@@ -111,10 +111,7 @@ object ScroogeSBT extends Plugin {
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
-    libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.9.0",
-      "com.twitter" %% "scrooge-core" % "3.17.1-SNAPSHOT"
-    ),
+    libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
 
     // complete list of source files
     scroogeThriftSources <<= scroogeThriftSourceFolder map { (srcDir) => (srcDir ** "*.thrift").get },
