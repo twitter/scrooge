@@ -15,13 +15,21 @@ object ScroogeSBT extends Plugin {
     thriftIncludes: Set[File],
     namespaceMappings: Map[String, String],
     language: String,
-    flags: Set[ServiceOption]
+    flags: Set[ServiceOption],
+    disableStrict: Boolean,
+    scalaWarnOnJavaNSFallback: Boolean,
+    experimentalFlags: Set[String],
+    defaultNamespace: String
   ) {
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath
     thriftIncludes.map { compiler.includePaths += _.getPath }
     namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2)}
     compiler.flags ++= flags
+    compiler.strict = !disableStrict
+    compiler.scalaWarnOnJavaNSFallback = scalaWarnOnJavaNSFallback
+    compiler.experimentFlags ++= experimentalFlags
+    compiler.defaultNamespace = defaultNamespace
     compiler.thriftFiles ++= thriftFiles.map(_.getPath())
     compiler.language = language.toLowerCase
     compiler.run()
@@ -39,6 +47,26 @@ object ScroogeSBT extends Plugin {
   val scroogeBuildOptions = SettingKey[Seq[ServiceOption]](
     "scrooge-build-options",
     "command line args to pass to scrooge"
+  )
+
+  val scroogeDisableStrict = SettingKey[Boolean](
+    "scrooge-disable-strict",
+    "issue warnings on non-severe parse errors instead of aborting"
+  )
+
+  val scroogeScalaWarnOnJavaNSFallback = SettingKey[Boolean](
+    "scrooge-scala-warn-on-java-fallback",
+    "Print a warning when the scala generator falls back to the java namespace"
+  )
+
+  val scroogeExperimentalFlags = SettingKey[Set[String]](
+    "scrooge-experimental-flags",
+    "[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking"
+  )
+
+  val scroogeDefaultJavaNamespace = SettingKey[String](
+    "scrooge-default-java-namespace",
+    "Use <name> as default namespace if the thrift file doesn't define its own namespace. If this option is not specified either, then use \"thrift\" as default namespace"
   )
 
   val scroogeThriftDependencies = SettingKey[Seq[String]](
@@ -107,6 +135,10 @@ object ScroogeSBT extends Plugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq(WithFinagle),
+    scroogeDisableStrict := false,
+    scroogeScalaWarnOnJavaNSFallback := false,
+    scroogeDefaultJavaNamespace := "thrift",
+    scroogeExperimentalFlags := Set(),
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { identity },
@@ -197,12 +229,16 @@ object ScroogeSBT extends Plugin {
       scroogeThriftOutputFolder,
       scroogeBuildOptions,
       scroogeThriftIncludes,
-      scroogeThriftNamespaceMap
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
+      scroogeThriftNamespaceMap,
+      scroogeDisableStrict,
+      scroogeScalaWarnOnJavaNSFallback,
+      scroogeExperimentalFlags,
+      scroogeDefaultJavaNamespace
+    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, disableStrict, warnOnJavaNSFallback, exFlags, defaultNamespace) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && !sources.isEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
+        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet, disableStrict, warnOnJavaNSFallback, exFlags, defaultNamespace)
       }
       (outputDir ** "*.scala").get.toSeq
     },
