@@ -13,7 +13,7 @@ class DemoSpec extends WordSpec with MustMatchers {
   "generated finagle service" should {
     "server and client" in {
       val server = DemoServer.buildServer()
-      val client = DemoClient.buildClient(server.localAddress)
+      val client = DemoClient.buildClient(server.boundAddress)
       client.createUser("Tyrion")().name must be("Tyrion")
       client.createUser("Jon")().name must be("Jon")
     }
