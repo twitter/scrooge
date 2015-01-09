@@ -39,6 +39,11 @@ object ScroogeSBT extends Plugin {
     "command line args to pass to scrooge"
   )
 
+  val scroogePublishThrift = SettingKey[Boolean](
+    "scrooge-publish-thrift",
+    "Whether or not to publish thrift files in the jar"
+  )
+
   val scroogeThriftDependencies = SettingKey[Seq[String]](
     "scrooge-thrift-dependencies",
     "artifacts to extract and compile thrift files from"
@@ -105,6 +110,7 @@ object ScroogeSBT extends Plugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq("--finagle"),
+    scroogePublishThrift := false,
     scroogeThriftSourceFolder <<= (sourceDirectory in Compile) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { identity },
@@ -204,7 +210,7 @@ object ScroogeSBT extends Plugin {
   )
 
   val packageThrift = mappings in (Compile, packageBin) ++= {
-    (scroogeThriftSources in Compile).value.map { file =>
+    (if (scroogePublishThrift.value) (scroogeThriftSources in Compile).value else Nil).map { file =>
       file -> s"${name.value}/${file.name}"
     }
   }
