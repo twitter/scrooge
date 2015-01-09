@@ -245,11 +245,11 @@ class TypeResolverSpec extends Spec {
       resolvedDoc.defs(0) match {
         case Struct(_, _, fields, _, annotations) => {
           fields(0) match {
-            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _) => // pass
+            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _, _) => // pass
             case _ => fail()
           }
           fields(1) match {
-            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _) => // pass
+            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _, _) => // pass
             case _ => fail()
           }
           annotations must be(Map("foo" -> "bar"))

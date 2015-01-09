@@ -243,10 +243,10 @@ class ThriftParser(
 
   // fields
 
-  lazy val field = (opt(comments) ~> opt(fieldId) ~ fieldReq) ~
+  lazy val field = (opt(comments) ~ opt(fieldId) ~ fieldReq) ~
     (fieldType ~ defaultedAnnotations ~ simpleID) ~
     opt("=" ~> rhs) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
-      case (fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations => {
+      case (comm ~ fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations => {
         val transformedVal = value.map(convertRhs(ftype, _))
 
         // if field is marked optional and a default is defined, ignore the optional part.
@@ -260,7 +260,8 @@ class ThriftParser(
           transformedVal,
           transformedReq,
           typeAnnotations,
-          fieldAnnotations
+          fieldAnnotations,
+          comm
         )
     }
   }
@@ -352,7 +353,7 @@ class ThriftParser(
   lazy val union = structLike("union") ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       val fields0 = fields.map {
-        case f @ Field(_, _, _, _, _, r, _, _) if r == Requiredness.Default =>
+        case f if f.requiredness == Requiredness.Default =>
           if (disallowedUnionFieldNames.contains(f.sid.name.toLowerCase)) {
             throw new UnionFieldInvalidNameException(sid.name, f.sid.name)
           } else f
