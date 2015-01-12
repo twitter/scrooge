@@ -106,7 +106,7 @@ object ScroogeSBT extends Plugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq("--finagle"),
-    scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
+    scroogeThriftSourceFolder <<= (sourceDirectory in Compile) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { identity },
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
@@ -134,7 +134,7 @@ object ScroogeSBT extends Plugin {
     // returns Seq[File] - directories that include thrift files
     scroogeUnpackDeps <<= (
       streams,
-      configuration,
+      configuration in Compile,
       classpathTypes,
       update,
       scroogeThriftDependencies,
@@ -205,11 +205,10 @@ object ScroogeSBT extends Plugin {
       }
       (outputDir ** "*.scala").get.toSeq
     },
-    sourceGenerators <+= scroogeGen
+    sourceGenerators in Compile <+= scroogeGen
   )
 
   val newSettings =
     Seq(ivyConfigurations += thriftConfig) ++
-    inConfig(Test)(genThriftSettings) ++
-    inConfig(Compile)(genThriftSettings)
+    genThriftSettings
 }
