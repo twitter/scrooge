@@ -483,7 +483,7 @@ class {{StructName}}(
     _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
       _passthroughFields == other.asInstanceOf[{{StructName}}]._passthroughFields
 
-  override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+  override lazy val hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
