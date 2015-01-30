@@ -29,7 +29,7 @@ apacheJavaNamespace="-n thrift.test=thrift.apache_java_test
 -n foo=apache_java_foo
 -n bar=apache_java_bar
 -n com.fake=com.apache_java_fake
--n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_apache_java
+-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_apache
 --default-java-namespace apache_java_thrift"
 
 
@@ -79,6 +79,7 @@ echo "Running Scrooge on integration/"
 integration_thrifts=`find src/test/thrift/integration -name *.thrift`
 $scalaRun -n thrift.test=com.twitter.scrooge.integration_scala --disable-strict $integration_thrifts
 $javaRun -n thrift.test=com.twitter.scrooge.integration_java --disable-strict $integration_thrifts
+$apacheJavaRun -n thrift.test=com.twitter.scrooge.integration_apache --disable-strict $integration_thrifts
 
 echo "Running Scrooge on standalone/"
 standalone_thrifts=`find src/test/thrift/standalone -name *.thrift`

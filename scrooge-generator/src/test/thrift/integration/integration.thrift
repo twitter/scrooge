@@ -17,3 +17,7 @@ union bonk_or_bool_union {
   1: Bonk_struct bonk
   2: bool bool_thing
 }
+
+service ParameterNameClashService {
+  void foo(string client) 
+}
