@@ -4,7 +4,6 @@ import sbt._
 import Keys._
 
 import java.io.File
-import scala.collection.JavaConverters._
 
 object ScroogeSBT extends Plugin {
 
@@ -29,15 +28,20 @@ object ScroogeSBT extends Plugin {
   def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
     dependencies.filter { dep =>
       val module = dep.get(AttributeKey[ModuleID]("module-id"))
-      module.map { m =>
+      module.exists { m =>
         whitelist.contains(m.name)
-      }.getOrElse(false)
+      }
     }
   }
 
   val scroogeBuildOptions = SettingKey[Seq[String]](
     "scrooge-build-options",
     "command line args to pass to scrooge"
+  )
+
+  val scroogePublishThrift = SettingKey[Boolean](
+    "scrooge-publish-thrift",
+    "Whether or not to publish thrift files in the jar"
   )
 
   val scroogeThriftDependencies = SettingKey[Seq[String]](
@@ -106,20 +110,17 @@ object ScroogeSBT extends Plugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq("--finagle"),
+    scroogePublishThrift := false,
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { identity },
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
+    libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
 
     // complete list of source files
-    scroogeThriftSources <<= (
-      scroogeThriftSourceFolder,
-      scroogeUnpackDeps
-    ) map { (srcDir, extDirs) =>
-      (Seq(srcDir) ++ extDirs).flatMap { dir => (dir ** "*.thrift").get }
-    },
+    scroogeThriftSources <<= scroogeThriftSourceFolder map { (srcDir) => (srcDir ** "*.thrift").get },
 
     // complete list of include directories
     scroogeThriftIncludes <<= (
@@ -199,7 +200,7 @@ object ScroogeSBT extends Plugin {
       scroogeThriftNamespaceMap
     ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
-      if (isDirty && !sources.isEmpty) {
+      if (isDirty && sources.nonEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
         compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
       }
@@ -208,8 +209,14 @@ object ScroogeSBT extends Plugin {
     sourceGenerators <+= scroogeGen
   )
 
+  val packageThrift = mappings in (Compile, packageBin) ++= {
+    (if (scroogePublishThrift.value) (scroogeThriftSources in Compile).value else Nil).map { file =>
+      file -> s"${name.value}/${file.name}"
+    }
+  }
+
   val newSettings =
     Seq(ivyConfigurations += thriftConfig) ++
     inConfig(Test)(genThriftSettings) ++
-    inConfig(Compile)(genThriftSettings)
+    inConfig(Compile)(genThriftSettings) :+ packageThrift
 }

@@ -7,6 +7,7 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import sbtassembly.Plugin._
 import AssemblyKeys._
+import sbtbuildinfo.Plugin._
 
 object Scrooge extends Build {
   val libVersion = "3.17.0"
@@ -251,13 +252,17 @@ object Scrooge extends Build {
     base = file("scrooge-sbt-plugin"),
     settings = Project.defaultSettings ++
       sharedSettings ++
-      bintrayPublishSettings
+      bintrayPublishSettings ++
+      buildInfoSettings
   ).settings(
-    sbtPlugin := true,
-    publishMavenStyle := false,
-    repository in bintray := "sbt-plugins",
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayOrganization in bintray := Some("twittercsl")
+      sourceGenerators in Compile <+= buildInfo,
+      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+      buildInfoPackage := "com.twitter",
+      sbtPlugin := true,
+      publishMavenStyle := false,
+      repository in bintray := "sbt-plugins",
+      licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+      bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
