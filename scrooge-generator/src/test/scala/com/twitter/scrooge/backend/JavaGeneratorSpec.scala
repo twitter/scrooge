@@ -1,13 +1,20 @@
 package com.twitter.scrooge
 package backend
 
-import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
-import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.nio.ByteBuffer
+
+import com.twitter.finagle
+import com.twitter.finagle.SourcedException
+import com.twitter.finagle.stats.NullStatsReceiver
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
+import com.twitter.util.{Await, Future}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
-import org.jmock.Expectations
-import org.jmock.Expectations.{any, returnValue}
+import org.jmock.Expectations.returnValue
+import org.jmock.lib.legacy.ClassImposteriser
+import org.jmock.{Expectations, Mockery}
 import thrift.java_test._
 
 class JavaGeneratorSpec extends JMockSpec with EvalHelper {
@@ -269,7 +276,7 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
         "missing required value throws exception during deserialization" should {
           "with no default value" in { cycle => import cycle._
             val protocol = mock[TProtocol]
-            expecting { e => import e._
+            expecting { e =>
               emptyRead(e, protocol)
             }
 
@@ -282,7 +289,7 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
 
           "with default value" in { cycle => import cycle._
             val protocol = mock[TProtocol]
-            expecting { e => import e._
+            expecting { e =>
               emptyRead(e, protocol)
             }
 
@@ -507,7 +514,7 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
       "zero fields" should {
         "read" in { cycle => import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
             emptyRead(e, protocol)
           }
 
@@ -675,6 +682,75 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
         original = NaughtyUnion.newText("false")
         NaughtyUnion.encode(original, protocol)
         NaughtyUnion.decode(protocol) must be(original)
+      }
+    }
+  }
+
+  "JavaGenerator service" should {
+    "generate a service interface" in { _ =>
+      val service: SimpleService.Iface = new SimpleService.Iface {
+        def deliver(where: String) = 3
+      }
+      service.deliver("Boston") must be(3)
+    }
+
+    "generate a future-based service interface" in { _ =>
+      val service: SimpleService.FutureIface = new SimpleService.FutureIface {
+        def deliver(where: String) = Future(3)
+      }
+      Await.result(service.deliver("Boston")) must be(3)
+    }
+
+    "generate FinagledClient" should {
+      val context = new Mockery
+      context.setImposteriser(ClassImposteriser.INSTANCE)
+      val impl = context.mock(classOf[ExceptionalService.FutureIface])
+      val service = new ExceptionalService$FinagleService(impl, new TBinaryProtocol.Factory)
+      val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
+        def apply(req: ThriftClientRequest) = service(req.message)
+      }
+      val client = new ExceptionalService$FinagleClient(clientService,
+        new TBinaryProtocol.Factory, "ExceptionalService", NullStatsReceiver)
+
+      "success" in { _ =>
+        context.checking(new Expectations {
+          one(impl).deliver("Boston");
+          will(returnValue(Future.value(42)))
+        })
+
+        Await.result(client.deliver("Boston")) must be(42)
+        context.assertIsSatisfied()
+      }
+
+      "exception" in { _ =>
+        val ex = new Xception(1, "boom")
+
+        context.checking(new Expectations {
+          one(impl).deliver("Boston");
+          will(returnValue(Future.exception(ex)))
+        })
+
+        assert(new Xception(1, "boom") == ex)
+        val e = intercept[Xception] {
+          Await.result(client.deliver("Boston"))
+        }
+        e must be(new Xception(1, "boom"))
+        context.assertIsSatisfied()
+      }
+
+      "source exception" in { _ =>
+        val ex = new SourcedException {}
+
+        context.checking(new Expectations {
+          one(impl).deliver("Boston");
+          will(returnValue(Future.exception(ex)))
+        })
+
+        val e = intercept[SourcedException] {
+          Await.result(client.deliver("Boston"))
+        }
+        e.serviceName must be("ExceptionalService")
+        context.assertIsSatisfied()
       }
     }
   }

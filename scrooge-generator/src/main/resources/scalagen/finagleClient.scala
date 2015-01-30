@@ -64,7 +64,7 @@ class {{ServiceName}}$FinagleClient(
     )
   }
 
-  protected def setServiceName(ex: Exception): Exception =
+  protected def setServiceName(ex: Throwable): Throwable =
     if (this.serviceName == "") ex
     else {
       ex match {

@@ -1,14 +1,15 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.finagle
+import com.twitter.finagle.SourcedException
 import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.scrooge.ThriftException
-import com.twitter.scrooge.testutil.{JMockSpec, EvalHelper}
+import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.util.{Await, Future}
 import org.apache.thrift.protocol._
-import org.jmock.{Expectations, Mockery}
 import org.jmock.Expectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
+import org.jmock.{Expectations, Mockery}
 import thrift.test._
 
 
@@ -247,7 +248,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
         def apply(req: ThriftClientRequest) = service(req.message)
       }
-      val client = new ExceptionalService$FinagleClient(clientService)
+      val client = new ExceptionalService$FinagleClient(clientService, serviceName="ExceptionalService")
 
       "success" in { _ =>
         val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
@@ -285,6 +286,20 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           Await.result(client.deliver("Boston"))
         }
         e must be(Xception(1, "boom"))
+        context.assertIsSatisfied()
+      }
+
+      "source exception" in { _ =>
+        val ex = new SourcedException {}
+
+        context.checking(new Expectations {
+          one(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
+        })
+
+        val e = intercept[SourcedException] {
+          Await.result(client.deliver("Boston"))
+        }
+        e.serviceName must be("ExceptionalService")
         context.assertIsSatisfied()
       }
 
