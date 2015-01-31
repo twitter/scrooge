@@ -250,10 +250,11 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
       val client = new ExceptionalService$FinagleClient(clientService, serviceName="ExceptionalService")
 
-      "success" in { _ =>
-        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston"))
-        val response = encodeResponse("deliver", ExceptionalService.deliver$result(success = Some(42)))
+      "set service name" in { _ =>
+        client.serviceName must be("ExceptionalService")
+      }
 
+      "success" in { _ =>
         context.checking(new Expectations {
           one(impl).deliver("Boston"); will(returnValue(Future.value(42)))
         })
@@ -263,9 +264,6 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "success void" in { _ =>
-        val request = encodeRequest("remove", ExceptionalService.remove$args(123))
-        val response = encodeResponse("remove", ExceptionalService.remove$result())
-
         context.checking(new Expectations {
           one(impl).remove(123); will(returnValue(Future.Done))
         })

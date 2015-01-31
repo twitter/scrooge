@@ -49,7 +49,7 @@ object {{ServiceName}} {
   class FinagledClient(
       service: com.twitter.finagle.Service[com.twitter.finagle.thrift.ThriftClientRequest, Array[Byte]],
       protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
-      serviceName: String = "",
+      serviceName: String = "{{ServiceName}}",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver)
     extends {{ServiceName}}$FinagleClient(
       service,

@@ -19,7 +19,7 @@ import scala.language.higherKinds
 class {{ServiceName}}$FinagleClient(
   {{#hasParent}}override {{/hasParent}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
   {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
-  {{#hasParent}}override {{/hasParent}}val serviceName: String = "",
+  {{#hasParent}}override {{/hasParent}}val serviceName: String = "{{ServiceName}}",
   stats: StatsReceiver = NullStatsReceiver
 ) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}{{ServiceName}}[Future] {
   import {{ServiceName}}._
