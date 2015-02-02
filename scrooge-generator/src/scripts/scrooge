@@ -1,3 +1,0 @@
-#!/bin/bash
-HERE=$(dirname $(readlink $0 || echo $0))
-java -jar $HERE/../scrooge-@VERSION@.jar "$@"

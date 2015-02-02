@@ -46,26 +46,9 @@ object Scrooge extends Build {
     }
   )
 
-  val thriftSettings: Seq[Setting[_]] = Seq(
-    compileThrift <<= (
-      streams,
-      baseDirectory,
-      fullClasspath in Runtime,
-      sourceManaged
-    ) map { (out, base, cp, outputDir) =>
-      val cmd = "%s %s %s %s".format(
-        (base / "src" / "scripts" / "gen-test-thrift").getAbsolutePath,
-        cp.files.absString,
-        outputDir.getAbsolutePath,
-        base.getAbsolutePath)
-
-      out.log.info(cmd)
-      cmd ! out.log
-
-      (outputDir ** "*.scala").get.toSeq ++
-      (outputDir ** "*.java").get.toSeq
-    },
-    sourceGenerators <+= compileThrift
+  val testThriftSettings: Seq[Setting[_]] = Seq(
+    sourceGenerators in Test <+= ScroogeRunner.genTestThrift,
+    ScroogeRunner.genTestThriftTask
   )
 
   val sharedSettings = Seq(
@@ -170,7 +153,7 @@ object Scrooge extends Build {
     id = "scrooge-generator",
     base = file("scrooge-generator"),
     settings = Project.defaultSettings ++
-      inConfig(Test)(thriftSettings) ++
+      inConfig(Test)(testThriftSettings) ++
       sharedSettings ++
       assemblySettings ++
       jmockSettings
@@ -271,25 +254,8 @@ object Scrooge extends Build {
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
-    compileThrift <<= (
-      streams,
-      baseDirectory,
-      dependencyClasspath,
-      sourceManaged
-    ) map { (out, base, cp, outputDir) =>
-      val cmd = "%s %s %s %s".format(
-        (base / "src" / "scripts" / "gen-test-thrift").getAbsolutePath,
-        cp.files.absString,
-        outputDir.getAbsolutePath,
-        base.getAbsolutePath)
-
-      out.log.info(cmd)
-      cmd ! out.log
-
-      (outputDir ** "*.scala").get.toSeq ++
-      (outputDir ** "*.java").get.toSeq
-    },
-    sourceGenerators <+= compileThrift
+    sourceGenerators <+= ScroogeRunner.genBenchmarkThrift,
+    ScroogeRunner.genBenchmarkThriftTask
   )
 
   lazy val scroogeBenchmark = Project(
