@@ -22,7 +22,7 @@ case object TBinary extends BaseType
  */
 case class ReferenceType(id: Identifier) extends FieldType
 
-trait NamedType extends FieldType {
+sealed trait NamedType extends FieldType {
   def sid: SimpleID
   def scopePrefix: Option[SimpleID]
 }

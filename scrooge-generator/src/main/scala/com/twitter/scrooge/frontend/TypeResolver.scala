@@ -185,8 +185,8 @@ case class TypeResolver(
     // So we need type information in order to generated correct code.
     case l @ ListRHS(elems) =>
       fieldType match {
-        case ListType(eltType, _) => l.copy(elems = elems map { e => apply(e, eltType) } )
-        case SetType(eltType, _) => SetRHS(elems map { e => apply(e, eltType) } toSet)
+        case ListType(eltType, _) => l.copy(elems = elems.map(e => apply(e, eltType)))
+        case SetType(eltType, _) => SetRHS(elems.map(e => apply(e, eltType)).toSet)
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l)
       }
     case m @ MapRHS(elems) =>
