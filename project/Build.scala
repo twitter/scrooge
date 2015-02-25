@@ -85,8 +85,8 @@ object Scrooge extends Build {
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.6"),
+    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+    javacOptions in doc := Seq("-source", "1.7"),
 
     // Sonatype publishing
     publishArtifact in Test := false,
