@@ -17,6 +17,11 @@ object Scrooge extends Build {
   val utilVersion = "6.23.0" + suffix
   val finagleVersion = "6.24.0" + suffix
 
+  def isScala210x(scalaVersion: String) = scalaVersion match {
+      case version if version startsWith "2.10" => true
+      case _ => false
+  }
+
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
 
@@ -58,8 +63,8 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.10.4"),
     scalaVersion := "2.10.4",
+    crossScalaVersions := Seq("2.10.4", "2.11.5"),
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -85,8 +90,8 @@ object Scrooge extends Build {
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.6"),
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
+    javacOptions in doc := Seq("-source", "1.8"),
 
     // Sonatype publishing
     publishArtifact in Test := false,
@@ -152,6 +157,11 @@ object Scrooge extends Build {
     scroogeRuntime, scroogeSerializer, scroogeOstrich,
     scroogeLinter
   )
+  def mustacheScalaExtensions(scalaVersion: String) = isScala210x(scalaVersion) match {
+
+    case true => "com.github.spullara.mustache.java" % "scala-extensions-2.10" % "0.9.0"
+    case false => "com.github.spullara.mustache.java" % "scala-extensions-2.11" % "0.9.0"
+  }
 
   lazy val scroogeGenerator = Project(
     id = "scrooge-generator",
@@ -169,7 +179,8 @@ object Scrooge extends Build {
       "org.apache.thrift" % "libthrift" % "0.5.0-1",
       "com.github.scopt" %% "scopt" % "3.2.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
-      "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
+      "com.github.spullara.mustache.java" % "compiler" % "0.9.0" exclude("com.github.spullara.mustache.java", "scala-extensions"),
+      mustacheScalaExtensions(scalaVersion.value),
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
@@ -189,8 +200,7 @@ object Scrooge extends Build {
     name := "scrooge-core",
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
-    ),
-    crossScalaVersions += "2.11.4"
+    )
   )
 
   lazy val scroogeRuntime = Project(
@@ -205,18 +215,25 @@ object Scrooge extends Build {
     )
   ).dependsOn(scroogeCore)
 
+  def ostrichBuildDeps(scalaVersion: String): Seq[sbt.ModuleID] = isScala210x(scalaVersion) match {
+      case false => Seq()
+      case true => Seq(finagle("ostrich4"))
+  }
+
   lazy val scroogeOstrich = Project(
     id = "scrooge-ostrich",
     base = file("scrooge-ostrich"),
     settings = Project.defaultSettings ++
       sharedSettings
   ).settings(
+    skip in compile := !isScala210x(scalaVersion.value),
+    skip in test := !isScala210x(scalaVersion.value),
+    publishArtifact := isScala210x(scalaVersion.value),
     name := "scrooge-ostrich",
     libraryDependencies ++= Seq(
-      finagle("ostrich4"),
       finagle("thriftmux"),
       util("app")
-    )
+    ) ++ ostrichBuildDeps(scalaVersion.value)
   ).dependsOn(scroogeRuntime)
 
   lazy val scroogeSerializer = Project(
@@ -229,8 +246,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
-    ),
-    crossScalaVersions += "2.11.4"
+    )
   ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
