@@ -32,7 +32,7 @@ object ScroogeRunner {
       |-n foo=apache_java_foo
       |-n bar=apache_java_bar
       |-n com.fake=com.apache_java_fake
-      |-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_apache_java
+      |-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_apache
       |--default-java-namespace apache_java_thrift
     """.stripMargin
 
@@ -82,10 +82,9 @@ object ScroogeRunner {
 
   val genTestThrift = TaskKey[Seq[File]]("genTestThrift",
     "Uses Scrooge to generate code from thrift sources, for use in tests")
+
   val genTestThriftTask = genTestThrift <<=
     (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
-
-
       val runner = new Runner(out, cp, outputDir)
       import runner._
 
@@ -139,11 +138,14 @@ object ScroogeRunner {
 
       section("integration/") {
         val files = filesInDir(s"$base/src/test/thrift/integration") mkString " "
+        run(language = Scala,
+          namespace = s"${Scala.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_scala",
+          args = s"--disable-strict $files")
         run(language = Java,
           namespace = s"${Java.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_java",
           args = s"--disable-strict $files")
-        run(language = Scala,
-          namespace = s"${Scala.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_scala",
+        run(language = ApacheJava,
+          namespace = s"${ApacheJava.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_apache",
           args = s"--disable-strict $files")
       }
 
@@ -163,7 +165,7 @@ object ScroogeRunner {
     }
 
   val genBenchmarkThrift = TaskKey[Seq[File]]("genBenchmarkThrift",
-    "Uses Scrooge to generate sources to use in benckmarking")
+    "Uses Scrooge to generate sources to use in benchmarking")
   val genBenchmarkThriftTask = genBenchmarkThrift <<=
     (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
       val runner = new Runner(out, cp, outputDir)

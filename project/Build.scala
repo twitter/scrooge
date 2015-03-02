@@ -10,7 +10,7 @@ import AssemblyKeys._
 import sbtbuildinfo.Plugin._
 
 object Scrooge extends Build {
-  val branch = Process("git" :: "symbolic-ref" :: "--short" :: "HEAD" :: Nil).!!.trim
+  val branch = "sadf"
   val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
   val libVersion = "3.17.0" + suffix
