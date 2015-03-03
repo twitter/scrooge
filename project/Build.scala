@@ -12,6 +12,7 @@ import sbtbuildinfo.Plugin._
 object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
   val suffix = ""
+  // val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
   val libVersion = "3.17.0" + suffix
   val utilVersion = "6.23.0" + suffix
