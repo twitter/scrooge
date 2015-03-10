@@ -58,8 +58,6 @@ class Compiler {
     val importer = Importer(new File(".")) +: Importer(includePaths)
 
     val isJava = language.equals("java")
-    val isScala = language.equals("scala")
-    val rhsStructs = isJava || isScala
     val documentCache = new TrieMap[String, Document]
 
     // compile
@@ -68,7 +66,7 @@ class Compiler {
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
       if (verbose) println("+ Compiling %s".format(inputFile))
-      val resolvedDoc = TypeResolver(allowStructRHS = rhsStructs)(doc0) // TODO: THRIFT-54
+      val resolvedDoc = TypeResolver()(doc0) // TODO: THRIFT-54
       val generator = GeneratorFactory(
         language,
         resolvedDoc.resolver.includeMap,

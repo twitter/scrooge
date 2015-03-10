@@ -23,7 +23,7 @@ class ApacheJavaGeneratorSpec extends Spec {
     val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator/src/test/resources/test_thrift"))
     val parser = new ThriftParser(importer, true)
     val doc = parser.parse(str, parser.document)
-    TypeResolver(allowStructRHS = true)(doc).document
+    TypeResolver()(doc).document
   }
 
   val templateCache = new TrieMap[String, Mustache]
