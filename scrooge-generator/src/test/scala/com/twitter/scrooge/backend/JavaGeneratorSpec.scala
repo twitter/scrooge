@@ -3,6 +3,7 @@ package backend
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.nio.ByteBuffer
+import java.util.EnumSet
 
 import com.twitter.finagle
 import com.twitter.finagle.SourcedException
@@ -16,6 +17,7 @@ import org.jmock.Expectations.returnValue
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import thrift.java_test._
+
 
 class JavaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
@@ -57,6 +59,19 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
         obj.isInstanceOf[NumberID] must be(true)
         obj.asInstanceOf[NumberID].getValue must be(NumberID.TWO.getValue)
         obj.asInstanceOf[NumberID].name must be(NumberID.TWO.name)
+      }
+
+      "use an EnumSet for a set of enums" in { _ =>
+        val obj = new StructWithEnumSet.Builder().build()
+        obj.getCodes.isInstanceOf[EnumSet[ReturnCode]] must be(true)
+        obj.getCodes.size must be(0)
+        obj.getCodesWithDefault.isInstanceOf[EnumSet[ReturnCode]] must be(true)
+        obj.getCodesWithDefault.size must be(1)
+
+        val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+        StructWithEnumSet.encode(obj, prot)
+        val decoded = StructWithEnumSet.decode(prot)
+        decoded.getCodes.isInstanceOf[EnumSet[ReturnCode]] must be(true)
       }
     }
 

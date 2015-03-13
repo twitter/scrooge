@@ -151,14 +151,13 @@ object ScroogeRunner {
 
       section("standalone/") {
         val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
-        run(language = Java, namespace = Java.defaultNamespace, args = files)
-        run(language = Scala, namespace = Scala.defaultNamespace, args = files)
+        runScrooge(Seq(Java, Scala), files)
+        runScrooge(Seq(ApacheJava), s"$base/src/test/thrift/standalone/enumSet.thrift")
       }
 
       section("constant_sets.thrift") {
         val file = s"$base/src/test/thrift/constant_sets.thrift"
-        run(language = Java, namespace = Java.defaultNamespace, args = file)
-        run(language = Scala, namespace = Scala.defaultNamespace, args = file)
+        runScrooge(Seq(Java, Scala), file)
       }
 
       filesGenerated

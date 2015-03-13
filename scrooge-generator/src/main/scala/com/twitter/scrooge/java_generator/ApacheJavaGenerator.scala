@@ -143,7 +143,12 @@ class ApacheJavaGenerator(
         prefix + (if (skipGeneric) "" else "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")
       }
       case SetType(x, _) => {
-        val prefix = if (inInit) "HashSet" else "Set"
+        val prefix = if (inInit)
+          x match {
+            case e:EnumType => "EnumSet"
+            case _ => "HashSet"
+          }
+        else "Set"
         prefix + (if (skipGeneric) "" else "<" + typeName(x, inContainer = true) + ">")
       }
       case ListType(x, _) => {
@@ -153,6 +158,19 @@ class ApacheJavaGenerator(
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
       case _ => throw new ScroogeInternalException("unknown type")
+    }
+  }
+
+  def initField(
+    fieldType: FunctionType,
+    inContainer: Boolean = false
+  ): String = {
+    fieldType match {
+      case SetType(eltType: EnumType, _) =>
+        s"com.twitter.scrooge.Utilities.makeEnumSet(${typeName(eltType)}.class)"
+      case _ =>
+        val tName = typeName(fieldType, inInit = true)
+        s"new ${tName}()"
     }
   }
 

@@ -2,6 +2,7 @@ package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.frontend._
 import java.io._
+import java.util.EnumSet
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.twitter.mustache.ScalaObjectHandler
 import com.google.common.base.Charsets
@@ -10,8 +11,11 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import com.twitter.scrooge.testutil.Spec
+import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.transport.TMemoryBuffer
 import org.mockito.Mockito._
 import scala.collection.concurrent.TrieMap
+import thrift.apache_java_test._
 
 /**
  * To generate the apache output for birdcage compatible thrift:
@@ -39,7 +43,7 @@ class ApacheJavaGeneratorSpec extends Spec {
     CharStreams.toString(br)
   }
 
-  "Generator"should {
+  "Generator" should {
     System.setProperty("mustache.debug", "true")
 
     "populate enum controller" in {
@@ -60,6 +64,29 @@ class ApacheJavaGeneratorSpec extends Spec {
       when(controller.has_namespace) thenReturn true
       val sw = renderMustache("enum.mustache", controller)
       verify(sw, getFileContents("apache_output/enum.txt"))
+    }
+
+    "use an EnumSet for a set of enums" in {
+      val obj = new StructWithEnumSet()
+      obj.getCodes must be(null);
+
+      obj.setCodes(java.util.EnumSet.of(ReturnCode.Good));
+      obj.getCodes.isInstanceOf[EnumSet[ReturnCode]] must be(true)
+      obj.getCodes.size must be(1)
+      obj.getCodesWithDefault.isInstanceOf[EnumSet[ReturnCode]] must be(true)
+      obj.getCodesWithDefault.size must be(1)
+
+      val copy = new StructWithEnumSet(obj);
+      copy.getCodes.isInstanceOf[EnumSet[ReturnCode]] must be(true)
+      copy.getCodes.size must be(1)
+      copy.getCodesWithDefault.isInstanceOf[EnumSet[ReturnCode]] must be(true)
+      copy.getCodesWithDefault.size must be(1)
+
+      val prot = new TBinaryProtocol(new TMemoryBuffer(64))
+      obj.write(prot)
+      val decoded = new StructWithEnumSet()
+      decoded.read(prot)
+      decoded.getCodes.isInstanceOf[EnumSet[ReturnCode]] must be(true)
     }
 
     "populate consts" in {

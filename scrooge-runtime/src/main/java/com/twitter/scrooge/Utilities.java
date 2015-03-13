@@ -41,6 +41,14 @@ public class Utilities {
     return set;
   }
 
+  public static <T extends Enum<T>> Set<T> makeEnumSet(Class<T> klass) {
+    return EnumSet.noneOf(klass);
+  }
+
+  public static <T extends Enum<T>> Set<T> makeEnumSet(T first, T... elements) {
+    return EnumSet.of(first, elements);
+  }
+
   public static <A, B> Tuple<A, B> makeTuple(A a, B b) {
     return new Tuple<A, B>(a, b);
   }

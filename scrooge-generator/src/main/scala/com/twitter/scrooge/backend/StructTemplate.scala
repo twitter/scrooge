@@ -61,6 +61,7 @@ trait StructTemplate { self: TemplateGenerator =>
             "eltConstType" -> genConstType(t.eltType),
             "eltWireConstType" -> genWireConstType(t.eltType),
             "eltType" -> genType(t.eltType),
+            "isEnumSet" -> v(t.eltType.isInstanceOf[EnumType]),
             "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
           )))
       case t: MapType =>

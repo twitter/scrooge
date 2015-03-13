@@ -124,7 +124,7 @@ class ScalaGenerator(
     codify(code)
   }
 
-  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment = {
+  def genSet(set: SetRHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
     val code = (if (mutable) "mutable.Set(" else "Set(") +
       set.elems.map(genConstant(_).toData).mkString(", ") + ")"
     codify(code)

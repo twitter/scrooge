@@ -7,7 +7,17 @@
 {{#field_type.is_container}}
 {
 T{{field_type.get_type}} {{obj}} = iprot.read{{field_type.get_type}}Begin();
-{{name}} = new {{{field_type.init_type_name}}}({{^field_type.is_list}}2*{{/field_type.is_list}}{{obj}}.size);
+{{#newlines_to_spaces}}
+{{name}} =
+{{#field_type.is_enum_set}}
+{{{field_type.init_field}}};
+{{/field_type.is_enum_set}}
+{{^field_type.is_enum_set}}
+new {{{field_type.init_type_name}}}({{^field_type.is_list}}2*{{/field_type.is_list}}{{obj}}.size);
+{{/field_type.is_enum_set}}
+{{/newlines_to_spaces}}
+
+
 for (int {{tmp_i}} = 0; {{tmp_i}} < {{obj}}.size; ++{{tmp_i}})
 {
 
