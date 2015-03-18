@@ -4,6 +4,7 @@ import sbt._
 import Keys._
 
 import java.io.File
+import java.util.Date
 import scala.collection.JavaConverters._
 
 object ScroogeSBT extends Plugin {
@@ -95,6 +96,8 @@ object ScroogeSBT extends Plugin {
     "generate scala code from thrift files using scrooge"
   )
 
+  private val compilerRunFile = "scrooge-sbt-run.txt"
+
   // Dependencies included in the `thrift` configuration will be used
   // in both compile and test.
   val thriftConfig = config("thrift")
@@ -179,13 +182,13 @@ object ScroogeSBT extends Plugin {
       } else {
         Long.MaxValue
       }
-      val outputsLastModified = (outputDir ** "*.scala").get.map(_.lastModified)
-      val oldestOutput = if (outputsLastModified.size > 0) {
-        outputsLastModified.min
+      val compilerFileGen = outputDir / compilerRunFile
+      val outputTime = if (compilerFileGen.exists) {
+        compilerFileGen.lastModified
       } else {
         Long.MinValue
       }
-      oldestOutput < newestSource
+      outputTime < newestSource
     },
 
     // actually run scrooge
@@ -202,6 +205,7 @@ object ScroogeSBT extends Plugin {
       if (isDirty && !sources.isEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
         compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
+        IO.write(outputDir / compilerRunFile, s"Scrooge SBT run on ${new Date()}\n")
       }
       (outputDir ** "*.scala").get.toSeq
     },
