@@ -5,7 +5,7 @@ scala_library(name='scala',
     repo = artifactory,
   ),
   dependencies=[
-    '3rdparty:libthrift-0.5.0',
+    '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     'util/util-codec',
     'util/util-core',
     'scrooge/scrooge-core'

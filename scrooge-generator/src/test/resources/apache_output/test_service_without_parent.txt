@@ -35,29 +35,19 @@ import com.twitter.util.Throw;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class TestService {
-
   public interface Iface {
-
     public void test_void_endpoint(TestRequest request) throws TestException, TException;
-
     public TestResult test_endpoint_without_exception(TestRequest request) throws TException;
-
   }
 
   public interface AsyncIface {
-
     public void test_void_endpoint(TestRequest request, AsyncMethodCallback<AsyncClient.test_void_endpoint_call> resultHandler) throws TException;
-
     public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<AsyncClient.test_endpoint_without_exception_call> resultHandler) throws TException;
-
   }
 
   public interface ServiceIface {
-
     public Future<Void> test_void_endpoint(TestRequest request);
-
     public Future<TestResult> test_endpoint_without_exception(TestRequest request);
-
   }
 
   public static class Client implements TServiceClient, Iface {
@@ -132,7 +122,6 @@ public class TestService {
       }
       return;
     }
-
     public TestResult test_endpoint_without_exception(TestRequest request) throws TException
     {
       send_test_endpoint_without_exception(request);
@@ -168,12 +157,12 @@ public class TestService {
       }
       throw new TApplicationException(TApplicationException.MISSING_RESULT, "test_endpoint_without_exception failed: unknown result");
     }
-
   }
+
   public static class AsyncClient extends TAsyncClient implements AsyncIface {
     public static class Factory implements TAsyncClientFactory<AsyncClient> {
-      private TAsyncClientManager clientManager;
-      private TProtocolFactory protocolFactory;
+      private final TAsyncClientManager clientManager;
+      private final TProtocolFactory protocolFactory;
       public Factory(TAsyncClientManager clientManager, TProtocolFactory protocolFactory) {
         this.clientManager = clientManager;
         this.protocolFactory = protocolFactory;
@@ -187,74 +176,76 @@ public class TestService {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void test_void_endpoint(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> resultHandler) throws TException {
+    public void test_void_endpoint(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> __resultHandler__) throws TException {
       checkReady();
-      test_void_endpoint_call method_call = new test_void_endpoint_call(request, resultHandler, this, protocolFactory, transport);
-      manager.call(method_call);
+      test_void_endpoint_call __method_call__ = new test_void_endpoint_call(request, __resultHandler__, this, super.protocolFactory, super.transport);
+      manager.call(__method_call__);
     }
 
     public static class test_void_endpoint_call extends TAsyncMethodCall {
       private TestRequest request;
-      public test_void_endpoint_call(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> resultHandler, TAsyncClient client, TProtocolFactory protocolFactory, TNonblockingTransport transport) throws TException {
-        super(client, protocolFactory, transport, resultHandler, false);
+
+      public test_void_endpoint_call(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+        super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
       }
 
-      public void write_args(TProtocol prot) throws TException {
-        prot.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.CALL, 0));
-        test_void_endpoint_args args = new test_void_endpoint_args();
-        args.setRequest(request);
-        args.write(prot);
-        prot.writeMessageEnd();
+      public void write_args(TProtocol __prot__) throws TException {
+        __prot__.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.CALL, 0));
+        test_void_endpoint_args __args__ = new test_void_endpoint_args();
+        __args__.setRequest(request);
+        __args__.write(__prot__);
+        __prot__.writeMessageEnd();
       }
 
       public void getResult() throws TestException, TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
-        TMemoryInputTransport memoryTransport = new TMemoryInputTransport(getFrameBuffer().array());
-        TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        (new Client(prot)).recv_test_void_endpoint();
+        TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
+        TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
+        (new Client(__prot__)).recv_test_void_endpoint();
       }
-    }
-
-    public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> resultHandler) throws TException {
+     }
+    public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> __resultHandler__) throws TException {
       checkReady();
-      test_endpoint_without_exception_call method_call = new test_endpoint_without_exception_call(request, resultHandler, this, protocolFactory, transport);
-      manager.call(method_call);
+      test_endpoint_without_exception_call __method_call__ = new test_endpoint_without_exception_call(request, __resultHandler__, this, super.protocolFactory, super.transport);
+      manager.call(__method_call__);
     }
 
     public static class test_endpoint_without_exception_call extends TAsyncMethodCall {
       private TestRequest request;
-      public test_endpoint_without_exception_call(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> resultHandler, TAsyncClient client, TProtocolFactory protocolFactory, TNonblockingTransport transport) throws TException {
-        super(client, protocolFactory, transport, resultHandler, false);
+
+      public test_endpoint_without_exception_call(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+        super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
       }
 
-      public void write_args(TProtocol prot) throws TException {
-        prot.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.CALL, 0));
-        test_endpoint_without_exception_args args = new test_endpoint_without_exception_args();
-        args.setRequest(request);
-        args.write(prot);
-        prot.writeMessageEnd();
+      public void write_args(TProtocol __prot__) throws TException {
+        __prot__.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.CALL, 0));
+        test_endpoint_without_exception_args __args__ = new test_endpoint_without_exception_args();
+        __args__.setRequest(request);
+        __args__.write(__prot__);
+        __prot__.writeMessageEnd();
       }
 
       public TestResult getResult() throws TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
-        TMemoryInputTransport memoryTransport = new TMemoryInputTransport(getFrameBuffer().array());
-        TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_test_endpoint_without_exception();
+        TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
+        TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
+        return (new Client(__prot__)).recv_test_endpoint_without_exception();
       }
-    }
+     }
+   }
 
-  }
 
   public static class ServiceToClient implements ServiceIface {
-    private com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
-    private TProtocolFactory protocolFactory;
+    private final com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
+    private final TProtocolFactory protocolFactory;
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
+      
       this.service = service;
       this.protocolFactory = protocolFactory;
     }
@@ -269,7 +260,7 @@ public class TestService {
         __args__.setRequest(request);
         __args__.write(__prot__);
         __prot__.writeMessageEnd();
-      
+
 
         byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
         ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
@@ -300,7 +291,7 @@ public class TestService {
         __args__.setRequest(request);
         __args__.write(__prot__);
         __prot__.writeMessageEnd();
-      
+
 
         byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
         ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
@@ -375,6 +366,7 @@ public class TestService {
         test_void_endpoint_result result = new test_void_endpoint_result();
         try {
           iface_.test_void_endpoint(args.request);
+          
         } catch (TestException ex) {
           result.ex = ex;
         } catch (Throwable th) {
@@ -391,9 +383,7 @@ public class TestService {
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
       }
-
     }
-
     private class test_endpoint_without_exception implements ProcessFunction {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
@@ -412,14 +402,13 @@ public class TestService {
         iprot.readMessageEnd();
         test_endpoint_without_exception_result result = new test_endpoint_without_exception_result();
         result.success = iface_.test_endpoint_without_exception(args.request);
+        
         oprot.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
       }
-
     }
-
   }
 
   public static class Service extends com.twitter.finagle.Service<byte[], byte[]> {
@@ -440,7 +429,7 @@ public class TestService {
               TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
               TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
               TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-          
+
               oprot.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.EXCEPTION, seqid));
               x.write(oprot);
               oprot.writeMessageEnd();
@@ -453,7 +442,7 @@ public class TestService {
           } catch (Exception e) {
             return Future.exception(e);
           }
-          
+
           try {
             iprot.readMessageEnd();
           } catch (Exception e) {
@@ -465,19 +454,20 @@ public class TestService {
           } catch (Exception e) {
             future = Future.exception(e);
           }
+
           try {
             return future.flatMap(new Function<Void, Future<byte[]>>() {
               public Future<byte[]> apply(Void value) {
                 test_void_endpoint_result result = new test_void_endpoint_result();
-          
+
                 try {
                   TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-                   
+
                   oprot.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.REPLY, seqid));
                   result.write(oprot);
                   oprot.writeMessageEnd();
-                   
+
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
@@ -510,7 +500,6 @@ public class TestService {
           }
         }
       });
-      
       functionMap.put("test_endpoint_without_exception", new Function2<TProtocol, Integer, Future<byte[]>>() {
         public Future<byte[]> apply(final TProtocol iprot, final Integer seqid) {
           test_endpoint_without_exception_args args = new test_endpoint_without_exception_args();
@@ -522,7 +511,7 @@ public class TestService {
               TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
               TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
               TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-          
+
               oprot.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.EXCEPTION, seqid));
               x.write(oprot);
               oprot.writeMessageEnd();
@@ -535,7 +524,7 @@ public class TestService {
           } catch (Exception e) {
             return Future.exception(e);
           }
-          
+
           try {
             iprot.readMessageEnd();
           } catch (Exception e) {
@@ -547,21 +536,22 @@ public class TestService {
           } catch (Exception e) {
             future = Future.exception(e);
           }
+
           try {
             return future.flatMap(new Function<TestResult, Future<byte[]>>() {
               public Future<byte[]> apply(TestResult value) {
                 test_endpoint_without_exception_result result = new test_endpoint_without_exception_result();
                 result.success = value;
                 result.setSuccessIsSet(true);
-          
+
                 try {
                   TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-                   
+
                   oprot.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.REPLY, seqid));
                   result.write(oprot);
                   oprot.writeMessageEnd();
-                   
+
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
@@ -577,20 +567,19 @@ public class TestService {
           }
         }
       });
-      
     }
-    
+
     public Future<byte[]> apply(byte[] request) {
       TTransport inputTransport = new TMemoryInputTransport(request);
       TProtocol iprot = protocolFactory.getProtocol(inputTransport);
-    
+
       TMessage msg;
       try {
         msg = iprot.readMessageBegin();
       } catch (Exception e) {
         return Future.exception(e);
       }
-    
+
       Function2<TProtocol, Integer, Future<byte[]>> fn = functionMap.get(msg.name);
       if (fn == null) {
         try {
@@ -608,1136 +597,1135 @@ public class TestService {
           return Future.exception(e);
         }
       }
-    
+
       return fn.apply(iprot, msg.seqid);
     }
-
   }
 
   public static class test_void_endpoint_args implements TBase<test_void_endpoint_args, test_void_endpoint_args._Fields>, java.io.Serializable, Cloneable {
-    private static final TStruct STRUCT_DESC = new TStruct("test_void_endpoint_args");
+  private static final TStruct STRUCT_DESC = new TStruct("test_void_endpoint_args");
 
-    private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
+  private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
 
-    public TestRequest request;
 
-    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
-      REQUEST((short)1, "request");
+  public TestRequest request;
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-      static {
-        for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byName.put(field.getFieldName(), field);
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, or null if its not found.
-       */
-      public static _Fields findByThriftId(int fieldId) {
-        switch(fieldId) {
-          case 1: // REQUEST
-            return REQUEST;
-          default:
-            return null;
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, throwing an exception
-       * if it is not found.
-       */
-      public static _Fields findByThriftIdOrThrow(int fieldId) {
-        _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-        return fields;
-      }
-
-      /**
-       * Find the _Fields constant that matches name, or null if its not found.
-       */
-      public static _Fields findByName(String name) {
-        return byName.get(name);
-      }
-
-      private final short _thriftId;
-      private final String _fieldName;
-
-      _Fields(short thriftId, String fieldName) {
-        _thriftId = thriftId;
-        _fieldName = fieldName;
-      }
-
-      public short getThriftFieldId() {
-        return _thriftId;
-      }
-
-      public String getFieldName() {
-        return _fieldName;
-      }
-    }
-
-    // isset id assignments
-
-    public static final Map<_Fields, FieldMetaData> metaDataMap;
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    REQUEST((short)1, "request");
+  
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+  
     static {
-      Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT, 
-          new StructMetaData(TType.STRUCT, TestRequest.class)));
-      metaDataMap = Collections.unmodifiableMap(tmpMap);
-      FieldMetaData.addStructMetaDataMap(test_void_endpoint_args.class, metaDataMap);
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
     }
-
-    public test_void_endpoint_args() {
-    }
-
-    public test_void_endpoint_args(
-      TestRequest request)
-    {
-      this();
-      this.request = request;
-    }
-
+  
     /**
-     * Performs a deep copy on <i>other</i>.
+     * Find the _Fields constant that matches fieldId, or null if its not found.
      */
-    public test_void_endpoint_args(test_void_endpoint_args other) {
-      if (other.isSetRequest()) {
-        this.request = new TestRequest(other.request);
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 1: // REQUEST
+  	return REQUEST;
+        default:
+  	return null;
       }
     }
-
-    public test_void_endpoint_args deepCopy() {
-      return new test_void_endpoint_args(this);
+  
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
     }
+  
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+  
+    private final short _thriftId;
+    private final String _fieldName;
+  
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+  
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+  
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
 
-    @Override
-    public void clear() {
+
+  // isset id assignments
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap;
+  static {
+    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, TestRequest.class)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    FieldMetaData.addStructMetaDataMap(test_void_endpoint_args.class, metaDataMap);
+  }
+
+
+  public test_void_endpoint_args() {
+  }
+
+  public test_void_endpoint_args(
+    TestRequest request)
+  {
+    this();
+    this.request = request;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public test_void_endpoint_args(test_void_endpoint_args other) {
+    if (other.isSetRequest()) {
+      this.request = new TestRequest(other.request);
+    }
+  }
+
+  public test_void_endpoint_args deepCopy() {
+    return new test_void_endpoint_args(this);
+  }
+
+  @Override
+  public void clear() {
+    this.request = null;
+  }
+
+  public TestRequest getRequest() {
+    return this.request;
+  }
+
+  public test_void_endpoint_args setRequest(TestRequest request) {
+    this.request = request;
+    
+    return this;
+  }
+
+  public void unsetRequest() {
+    this.request = null;
+  }
+
+  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  public boolean isSetRequest() {
+    return this.request != null;
+  }
+
+  public void setRequestIsSet(boolean value) {
+    if (!value) {
       this.request = null;
     }
+  }
 
-    public TestRequest getRequest() {
-      return this.request;
-    }
-
-    public test_void_endpoint_args setRequest(TestRequest request) {
-      this.request = request;
-      return this;
-    }
-
-    public void unsetRequest() {
-      this.request = null;
-    }
-
-    /** Returns true if field request is set (has been asigned a value) and false otherwise */
-    public boolean isSetRequest() {
-      return this.request != null;
-    }
-
-    public void setRequestIsSet(boolean value) {
-      if (!value) {
-        this.request = null;
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case REQUEST:
+      if (value == null) {
+        unsetRequest();
+      } else {
+        setRequest((TestRequest)value);
       }
+      break;
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case REQUEST:
+      return getRequest();
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
     }
 
-    public void setFieldValue(_Fields field, Object value) {
-      switch (field) {
-      case REQUEST:
-        if (value == null) {
-          unsetRequest();
-        } else {
-          setRequest((TestRequest)value);
-        }
-        break;
-
-      }
+    switch (field) {
+    case REQUEST:
+      return isSetRequest();
     }
+    throw new IllegalStateException();
+  }
 
-    public Object getFieldValue(_Fields field) {
-      switch (field) {
-      case REQUEST:
-        return getRequest();
-
-      }
-      throw new IllegalStateException();
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
-      if (field == null) {
-        throw new IllegalArgumentException();
-      }
-
-      switch (field) {
-      case REQUEST:
-        return isSetRequest();
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof test_void_endpoint_args)
-        return this.equals((test_void_endpoint_args)that);
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
       return false;
-    }
+    if (that instanceof test_void_endpoint_args)
+      return this.equals((test_void_endpoint_args)that);
+    return false;
+  }
 
-    public boolean equals(test_void_endpoint_args that) {
-      if (that == null)
+  public boolean equals(test_void_endpoint_args that) {
+    if (that == null)
+      return false;
+    boolean this_present_request = true && this.isSetRequest();
+    boolean that_present_request = true && that.isSetRequest();
+    if (this_present_request || that_present_request) {
+      if (!(this_present_request && that_present_request))
         return false;
-
-      boolean this_present_request = true && this.isSetRequest();
-      boolean that_present_request = true && that.isSetRequest();
-      if (this_present_request || that_present_request) {
-        if (!(this_present_request && that_present_request))
-          return false;
-        if (!this.request.equals(that.request))
-          return false;
-      }
-
-      return true;
+      if (!this.request.equals(that.request))
+        return false;
     }
 
-    @Override
-    public int hashCode() {
-      return 0;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  public int compareTo(test_void_endpoint_args other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
     }
 
-    public int compareTo(test_void_endpoint_args other) {
-      if (!getClass().equals(other.getClass())) {
-        return getClass().getName().compareTo(other.getClass().getName());
-      }
+    int lastComparison = 0;
+    test_void_endpoint_args typedOther = (test_void_endpoint_args)other;
 
-      int lastComparison = 0;
-      test_void_endpoint_args typedOther = (test_void_endpoint_args)other;
-
-      lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+    lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRequest()) {
+      lastComparison = TBaseHelper.compareTo(this.request, typedOther.request);
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetRequest()) {
-        lastComparison = TBaseHelper.compareTo(this.request, typedOther.request);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      return 0;
     }
-
-    public _Fields fieldForId(int fieldId) {
-      return _Fields.findByThriftId(fieldId);
-    }
-
-    public void read(TProtocol iprot) throws TException {
-      TField field;
-      iprot.readStructBegin();
-      while (true)
-      {
-        field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
-          break;
-        }
-        switch (field.id) {
-          case 1: // REQUEST
-            if (field.type == TType.STRUCT) {
-              this.request = new TestRequest();
-              this.request.read(iprot);
-            } else { 
-              TProtocolUtil.skip(iprot, field.type);
-            }
-            break;
-          default:
-            TProtocolUtil.skip(iprot, field.type);
-        }
-        iprot.readFieldEnd();
-      }
-      iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
-      validate();
-    }
-
-    public void write(TProtocol oprot) throws TException {
-      validate();
-
-      oprot.writeStructBegin(STRUCT_DESC);
-      if (this.request != null) {
-        oprot.writeFieldBegin(REQUEST_FIELD_DESC);
-        this.request.write(oprot);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldStop();
-      oprot.writeStructEnd();
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder("test_void_endpoint_args(");
-      boolean first = true;
-
-      sb.append("request:");
-      if (this.request == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.request);
-      }
-      first = false;
-      sb.append(")");
-      return sb.toString();
-    }
-
-    public void validate() throws TException {
-      // check for required fields
-    }
-
+    return 0;
   }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        case 1: // REQUEST
+          if (field.type == TType.STRUCT) {
+            this.request = new TestRequest();
+            this.request.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    validate();
+  }
+
+  public void write(TProtocol oprot) throws TException {
+    validate();
+    
+    oprot.writeStructBegin(STRUCT_DESC);
+    if (this.request != null) {
+      oprot.writeFieldBegin(REQUEST_FIELD_DESC);
+      this.request.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("test_void_endpoint_args(");
+    boolean first = true;
+    sb.append("request:");
+    if (this.request == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.request);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws TException {
+    // check for required fields
+  }
+}
 
   public static class test_void_endpoint_result implements TBase<test_void_endpoint_result, test_void_endpoint_result._Fields>, java.io.Serializable, Cloneable {
-    private static final TStruct STRUCT_DESC = new TStruct("test_void_endpoint_result");
+  private static final TStruct STRUCT_DESC = new TStruct("test_void_endpoint_result");
 
-    private static final TField EX_FIELD_DESC = new TField("ex", TType.STRUCT, (short)1);
+  private static final TField EX_FIELD_DESC = new TField("ex", TType.STRUCT, (short)1);
 
-    public TestException ex;
 
-    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
-      EX((short)1, "ex");
+  public TestException ex;
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-      static {
-        for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byName.put(field.getFieldName(), field);
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, or null if its not found.
-       */
-      public static _Fields findByThriftId(int fieldId) {
-        switch(fieldId) {
-          case 1: // EX
-            return EX;
-          default:
-            return null;
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, throwing an exception
-       * if it is not found.
-       */
-      public static _Fields findByThriftIdOrThrow(int fieldId) {
-        _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-        return fields;
-      }
-
-      /**
-       * Find the _Fields constant that matches name, or null if its not found.
-       */
-      public static _Fields findByName(String name) {
-        return byName.get(name);
-      }
-
-      private final short _thriftId;
-      private final String _fieldName;
-
-      _Fields(short thriftId, String fieldName) {
-        _thriftId = thriftId;
-        _fieldName = fieldName;
-      }
-
-      public short getThriftFieldId() {
-        return _thriftId;
-      }
-
-      public String getFieldName() {
-        return _fieldName;
-      }
-    }
-
-    // isset id assignments
-
-    public static final Map<_Fields, FieldMetaData> metaDataMap;
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    EX((short)1, "ex");
+  
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+  
     static {
-      Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.EX, new FieldMetaData("ex", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-      metaDataMap = Collections.unmodifiableMap(tmpMap);
-      FieldMetaData.addStructMetaDataMap(test_void_endpoint_result.class, metaDataMap);
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
     }
-
-    public test_void_endpoint_result() {
-    }
-
-    public test_void_endpoint_result(
-      TestException ex)
-    {
-      this();
-      this.ex = ex;
-    }
-
+  
     /**
-     * Performs a deep copy on <i>other</i>.
+     * Find the _Fields constant that matches fieldId, or null if its not found.
      */
-    public test_void_endpoint_result(test_void_endpoint_result other) {
-      if (other.isSetEx()) {
-        this.ex = new TestException(other.ex);
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 1: // EX
+  	return EX;
+        default:
+  	return null;
       }
     }
-
-    public test_void_endpoint_result deepCopy() {
-      return new test_void_endpoint_result(this);
+  
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
     }
+  
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+  
+    private final short _thriftId;
+    private final String _fieldName;
+  
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+  
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+  
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
 
-    @Override
-    public void clear() {
+
+  // isset id assignments
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap;
+  static {
+    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.EX, new FieldMetaData("ex", TFieldRequirementType.DEFAULT,
+      new FieldValueMetaData(TType.STRUCT)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    FieldMetaData.addStructMetaDataMap(test_void_endpoint_result.class, metaDataMap);
+  }
+
+
+  public test_void_endpoint_result() {
+  }
+
+  public test_void_endpoint_result(
+    TestException ex)
+  {
+    this();
+    this.ex = ex;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public test_void_endpoint_result(test_void_endpoint_result other) {
+    if (other.isSetEx()) {
+      this.ex = new TestException(other.ex);
+    }
+  }
+
+  public test_void_endpoint_result deepCopy() {
+    return new test_void_endpoint_result(this);
+  }
+
+  @Override
+  public void clear() {
+    this.ex = null;
+  }
+
+  public TestException getEx() {
+    return this.ex;
+  }
+
+  public test_void_endpoint_result setEx(TestException ex) {
+    this.ex = ex;
+    
+    return this;
+  }
+
+  public void unsetEx() {
+    this.ex = null;
+  }
+
+  /** Returns true if field ex is set (has been asigned a value) and false otherwise */
+  public boolean isSetEx() {
+    return this.ex != null;
+  }
+
+  public void setExIsSet(boolean value) {
+    if (!value) {
       this.ex = null;
     }
+  }
 
-    public TestException getEx() {
-      return this.ex;
-    }
-
-    public test_void_endpoint_result setEx(TestException ex) {
-      this.ex = ex;
-      return this;
-    }
-
-    public void unsetEx() {
-      this.ex = null;
-    }
-
-    /** Returns true if field ex is set (has been asigned a value) and false otherwise */
-    public boolean isSetEx() {
-      return this.ex != null;
-    }
-
-    public void setExIsSet(boolean value) {
-      if (!value) {
-        this.ex = null;
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case EX:
+      if (value == null) {
+        unsetEx();
+      } else {
+        setEx((TestException)value);
       }
+      break;
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case EX:
+      return getEx();
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
     }
 
-    public void setFieldValue(_Fields field, Object value) {
-      switch (field) {
-      case EX:
-        if (value == null) {
-          unsetEx();
-        } else {
-          setEx((TestException)value);
-        }
-        break;
-
-      }
+    switch (field) {
+    case EX:
+      return isSetEx();
     }
+    throw new IllegalStateException();
+  }
 
-    public Object getFieldValue(_Fields field) {
-      switch (field) {
-      case EX:
-        return getEx();
-
-      }
-      throw new IllegalStateException();
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
-      if (field == null) {
-        throw new IllegalArgumentException();
-      }
-
-      switch (field) {
-      case EX:
-        return isSetEx();
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof test_void_endpoint_result)
-        return this.equals((test_void_endpoint_result)that);
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
       return false;
-    }
+    if (that instanceof test_void_endpoint_result)
+      return this.equals((test_void_endpoint_result)that);
+    return false;
+  }
 
-    public boolean equals(test_void_endpoint_result that) {
-      if (that == null)
+  public boolean equals(test_void_endpoint_result that) {
+    if (that == null)
+      return false;
+    boolean this_present_ex = true && this.isSetEx();
+    boolean that_present_ex = true && that.isSetEx();
+    if (this_present_ex || that_present_ex) {
+      if (!(this_present_ex && that_present_ex))
         return false;
-
-      boolean this_present_ex = true && this.isSetEx();
-      boolean that_present_ex = true && that.isSetEx();
-      if (this_present_ex || that_present_ex) {
-        if (!(this_present_ex && that_present_ex))
-          return false;
-        if (!this.ex.equals(that.ex))
-          return false;
-      }
-
-      return true;
+      if (!this.ex.equals(that.ex))
+        return false;
     }
 
-    @Override
-    public int hashCode() {
-      return 0;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  public int compareTo(test_void_endpoint_result other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
     }
 
-    public int compareTo(test_void_endpoint_result other) {
-      if (!getClass().equals(other.getClass())) {
-        return getClass().getName().compareTo(other.getClass().getName());
-      }
+    int lastComparison = 0;
+    test_void_endpoint_result typedOther = (test_void_endpoint_result)other;
 
-      int lastComparison = 0;
-      test_void_endpoint_result typedOther = (test_void_endpoint_result)other;
-
-      lastComparison = Boolean.valueOf(isSetEx()).compareTo(typedOther.isSetEx());
+    lastComparison = Boolean.valueOf(isSetEx()).compareTo(typedOther.isSetEx());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetEx()) {
+      lastComparison = TBaseHelper.compareTo(this.ex, typedOther.ex);
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetEx()) {
-        lastComparison = TBaseHelper.compareTo(this.ex, typedOther.ex);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      return 0;
     }
-
-    public _Fields fieldForId(int fieldId) {
-      return _Fields.findByThriftId(fieldId);
-    }
-
-    public void read(TProtocol iprot) throws TException {
-      TField field;
-      iprot.readStructBegin();
-      while (true)
-      {
-        field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
-          break;
-        }
-        switch (field.id) {
-          case 1: // EX
-            if (field.type == TType.STRUCT) {
-              this.ex = new TestException();
-              this.ex.read(iprot);
-            } else { 
-              TProtocolUtil.skip(iprot, field.type);
-            }
-            break;
-          default:
-            TProtocolUtil.skip(iprot, field.type);
-        }
-        iprot.readFieldEnd();
-      }
-      iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
-      validate();
-    }
-
-    public void write(TProtocol oprot) throws TException {
-      oprot.writeStructBegin(STRUCT_DESC);
-
-      if (this.isSetEx()) {
-        oprot.writeFieldBegin(EX_FIELD_DESC);
-        this.ex.write(oprot);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldStop();
-      oprot.writeStructEnd();
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder("test_void_endpoint_result(");
-      boolean first = true;
-
-      sb.append("ex:");
-      if (this.ex == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.ex);
-      }
-      first = false;
-      sb.append(")");
-      return sb.toString();
-    }
-
-    public void validate() throws TException {
-      // check for required fields
-    }
-
+    return 0;
   }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        case 1: // EX
+          if (field.type == TType.STRUCT) {
+            this.ex = new TestException();
+            this.ex.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    validate();
+  }
+
+  public void write(TProtocol oprot) throws TException {
+    oprot.writeStructBegin(STRUCT_DESC);
+    if (this.isSetEx()) {
+      oprot.writeFieldBegin(EX_FIELD_DESC);
+      this.ex.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("test_void_endpoint_result(");
+    boolean first = true;
+    sb.append("ex:");
+    if (this.ex == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.ex);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws TException {
+    // check for required fields
+  }
+}
+
 
   public static class test_endpoint_without_exception_args implements TBase<test_endpoint_without_exception_args, test_endpoint_without_exception_args._Fields>, java.io.Serializable, Cloneable {
-    private static final TStruct STRUCT_DESC = new TStruct("test_endpoint_without_exception_args");
+  private static final TStruct STRUCT_DESC = new TStruct("test_endpoint_without_exception_args");
 
-    private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
+  private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
 
-    public TestRequest request;
 
-    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
-      REQUEST((short)1, "request");
+  public TestRequest request;
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-      static {
-        for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byName.put(field.getFieldName(), field);
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, or null if its not found.
-       */
-      public static _Fields findByThriftId(int fieldId) {
-        switch(fieldId) {
-          case 1: // REQUEST
-            return REQUEST;
-          default:
-            return null;
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, throwing an exception
-       * if it is not found.
-       */
-      public static _Fields findByThriftIdOrThrow(int fieldId) {
-        _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-        return fields;
-      }
-
-      /**
-       * Find the _Fields constant that matches name, or null if its not found.
-       */
-      public static _Fields findByName(String name) {
-        return byName.get(name);
-      }
-
-      private final short _thriftId;
-      private final String _fieldName;
-
-      _Fields(short thriftId, String fieldName) {
-        _thriftId = thriftId;
-        _fieldName = fieldName;
-      }
-
-      public short getThriftFieldId() {
-        return _thriftId;
-      }
-
-      public String getFieldName() {
-        return _fieldName;
-      }
-    }
-
-    // isset id assignments
-
-    public static final Map<_Fields, FieldMetaData> metaDataMap;
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    REQUEST((short)1, "request");
+  
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+  
     static {
-      Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT, 
-          new StructMetaData(TType.STRUCT, TestRequest.class)));
-      metaDataMap = Collections.unmodifiableMap(tmpMap);
-      FieldMetaData.addStructMetaDataMap(test_endpoint_without_exception_args.class, metaDataMap);
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
     }
-
-    public test_endpoint_without_exception_args() {
-    }
-
-    public test_endpoint_without_exception_args(
-      TestRequest request)
-    {
-      this();
-      this.request = request;
-    }
-
+  
     /**
-     * Performs a deep copy on <i>other</i>.
+     * Find the _Fields constant that matches fieldId, or null if its not found.
      */
-    public test_endpoint_without_exception_args(test_endpoint_without_exception_args other) {
-      if (other.isSetRequest()) {
-        this.request = new TestRequest(other.request);
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 1: // REQUEST
+  	return REQUEST;
+        default:
+  	return null;
       }
     }
-
-    public test_endpoint_without_exception_args deepCopy() {
-      return new test_endpoint_without_exception_args(this);
+  
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
     }
+  
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+  
+    private final short _thriftId;
+    private final String _fieldName;
+  
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+  
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+  
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
 
-    @Override
-    public void clear() {
+
+  // isset id assignments
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap;
+  static {
+    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, TestRequest.class)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    FieldMetaData.addStructMetaDataMap(test_endpoint_without_exception_args.class, metaDataMap);
+  }
+
+
+  public test_endpoint_without_exception_args() {
+  }
+
+  public test_endpoint_without_exception_args(
+    TestRequest request)
+  {
+    this();
+    this.request = request;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public test_endpoint_without_exception_args(test_endpoint_without_exception_args other) {
+    if (other.isSetRequest()) {
+      this.request = new TestRequest(other.request);
+    }
+  }
+
+  public test_endpoint_without_exception_args deepCopy() {
+    return new test_endpoint_without_exception_args(this);
+  }
+
+  @Override
+  public void clear() {
+    this.request = null;
+  }
+
+  public TestRequest getRequest() {
+    return this.request;
+  }
+
+  public test_endpoint_without_exception_args setRequest(TestRequest request) {
+    this.request = request;
+    
+    return this;
+  }
+
+  public void unsetRequest() {
+    this.request = null;
+  }
+
+  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  public boolean isSetRequest() {
+    return this.request != null;
+  }
+
+  public void setRequestIsSet(boolean value) {
+    if (!value) {
       this.request = null;
     }
+  }
 
-    public TestRequest getRequest() {
-      return this.request;
-    }
-
-    public test_endpoint_without_exception_args setRequest(TestRequest request) {
-      this.request = request;
-      return this;
-    }
-
-    public void unsetRequest() {
-      this.request = null;
-    }
-
-    /** Returns true if field request is set (has been asigned a value) and false otherwise */
-    public boolean isSetRequest() {
-      return this.request != null;
-    }
-
-    public void setRequestIsSet(boolean value) {
-      if (!value) {
-        this.request = null;
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case REQUEST:
+      if (value == null) {
+        unsetRequest();
+      } else {
+        setRequest((TestRequest)value);
       }
+      break;
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case REQUEST:
+      return getRequest();
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
     }
 
-    public void setFieldValue(_Fields field, Object value) {
-      switch (field) {
-      case REQUEST:
-        if (value == null) {
-          unsetRequest();
-        } else {
-          setRequest((TestRequest)value);
-        }
-        break;
-
-      }
+    switch (field) {
+    case REQUEST:
+      return isSetRequest();
     }
+    throw new IllegalStateException();
+  }
 
-    public Object getFieldValue(_Fields field) {
-      switch (field) {
-      case REQUEST:
-        return getRequest();
-
-      }
-      throw new IllegalStateException();
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
-      if (field == null) {
-        throw new IllegalArgumentException();
-      }
-
-      switch (field) {
-      case REQUEST:
-        return isSetRequest();
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof test_endpoint_without_exception_args)
-        return this.equals((test_endpoint_without_exception_args)that);
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
       return false;
-    }
+    if (that instanceof test_endpoint_without_exception_args)
+      return this.equals((test_endpoint_without_exception_args)that);
+    return false;
+  }
 
-    public boolean equals(test_endpoint_without_exception_args that) {
-      if (that == null)
+  public boolean equals(test_endpoint_without_exception_args that) {
+    if (that == null)
+      return false;
+    boolean this_present_request = true && this.isSetRequest();
+    boolean that_present_request = true && that.isSetRequest();
+    if (this_present_request || that_present_request) {
+      if (!(this_present_request && that_present_request))
         return false;
-
-      boolean this_present_request = true && this.isSetRequest();
-      boolean that_present_request = true && that.isSetRequest();
-      if (this_present_request || that_present_request) {
-        if (!(this_present_request && that_present_request))
-          return false;
-        if (!this.request.equals(that.request))
-          return false;
-      }
-
-      return true;
+      if (!this.request.equals(that.request))
+        return false;
     }
 
-    @Override
-    public int hashCode() {
-      return 0;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  public int compareTo(test_endpoint_without_exception_args other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
     }
 
-    public int compareTo(test_endpoint_without_exception_args other) {
-      if (!getClass().equals(other.getClass())) {
-        return getClass().getName().compareTo(other.getClass().getName());
-      }
+    int lastComparison = 0;
+    test_endpoint_without_exception_args typedOther = (test_endpoint_without_exception_args)other;
 
-      int lastComparison = 0;
-      test_endpoint_without_exception_args typedOther = (test_endpoint_without_exception_args)other;
-
-      lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+    lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRequest()) {
+      lastComparison = TBaseHelper.compareTo(this.request, typedOther.request);
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetRequest()) {
-        lastComparison = TBaseHelper.compareTo(this.request, typedOther.request);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      return 0;
     }
-
-    public _Fields fieldForId(int fieldId) {
-      return _Fields.findByThriftId(fieldId);
-    }
-
-    public void read(TProtocol iprot) throws TException {
-      TField field;
-      iprot.readStructBegin();
-      while (true)
-      {
-        field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
-          break;
-        }
-        switch (field.id) {
-          case 1: // REQUEST
-            if (field.type == TType.STRUCT) {
-              this.request = new TestRequest();
-              this.request.read(iprot);
-            } else { 
-              TProtocolUtil.skip(iprot, field.type);
-            }
-            break;
-          default:
-            TProtocolUtil.skip(iprot, field.type);
-        }
-        iprot.readFieldEnd();
-      }
-      iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
-      validate();
-    }
-
-    public void write(TProtocol oprot) throws TException {
-      validate();
-
-      oprot.writeStructBegin(STRUCT_DESC);
-      if (this.request != null) {
-        oprot.writeFieldBegin(REQUEST_FIELD_DESC);
-        this.request.write(oprot);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldStop();
-      oprot.writeStructEnd();
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder("test_endpoint_without_exception_args(");
-      boolean first = true;
-
-      sb.append("request:");
-      if (this.request == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.request);
-      }
-      first = false;
-      sb.append(")");
-      return sb.toString();
-    }
-
-    public void validate() throws TException {
-      // check for required fields
-    }
-
+    return 0;
   }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        case 1: // REQUEST
+          if (field.type == TType.STRUCT) {
+            this.request = new TestRequest();
+            this.request.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    validate();
+  }
+
+  public void write(TProtocol oprot) throws TException {
+    validate();
+    
+    oprot.writeStructBegin(STRUCT_DESC);
+    if (this.request != null) {
+      oprot.writeFieldBegin(REQUEST_FIELD_DESC);
+      this.request.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("test_endpoint_without_exception_args(");
+    boolean first = true;
+    sb.append("request:");
+    if (this.request == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.request);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws TException {
+    // check for required fields
+  }
+}
 
   public static class test_endpoint_without_exception_result implements TBase<test_endpoint_without_exception_result, test_endpoint_without_exception_result._Fields>, java.io.Serializable, Cloneable {
-    private static final TStruct STRUCT_DESC = new TStruct("test_endpoint_without_exception_result");
+  private static final TStruct STRUCT_DESC = new TStruct("test_endpoint_without_exception_result");
 
-    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
+  private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
 
-    public TestResult success;
 
-    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
-      SUCCESS((short)0, "success");
+  public TestResult success;
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-      static {
-        for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byName.put(field.getFieldName(), field);
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, or null if its not found.
-       */
-      public static _Fields findByThriftId(int fieldId) {
-        switch(fieldId) {
-          case 0: // SUCCESS
-            return SUCCESS;
-          default:
-            return null;
-        }
-      }
-
-      /**
-       * Find the _Fields constant that matches fieldId, throwing an exception
-       * if it is not found.
-       */
-      public static _Fields findByThriftIdOrThrow(int fieldId) {
-        _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-        return fields;
-      }
-
-      /**
-       * Find the _Fields constant that matches name, or null if its not found.
-       */
-      public static _Fields findByName(String name) {
-        return byName.get(name);
-      }
-
-      private final short _thriftId;
-      private final String _fieldName;
-
-      _Fields(short thriftId, String fieldName) {
-        _thriftId = thriftId;
-        _fieldName = fieldName;
-      }
-
-      public short getThriftFieldId() {
-        return _thriftId;
-      }
-
-      public String getFieldName() {
-        return _fieldName;
-      }
-    }
-
-    // isset id assignments
-
-    public static final Map<_Fields, FieldMetaData> metaDataMap;
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    SUCCESS((short)0, "success");
+  
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+  
     static {
-      Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
-          new StructMetaData(TType.STRUCT, TestResult.class)));
-      metaDataMap = Collections.unmodifiableMap(tmpMap);
-      FieldMetaData.addStructMetaDataMap(test_endpoint_without_exception_result.class, metaDataMap);
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
     }
-
-    public test_endpoint_without_exception_result() {
-    }
-
-    public test_endpoint_without_exception_result(
-      TestResult success)
-    {
-      this();
-      this.success = success;
-    }
-
+  
     /**
-     * Performs a deep copy on <i>other</i>.
+     * Find the _Fields constant that matches fieldId, or null if its not found.
      */
-    public test_endpoint_without_exception_result(test_endpoint_without_exception_result other) {
-      if (other.isSetSuccess()) {
-        this.success = new TestResult(other.success);
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 0: // SUCCESS
+  	return SUCCESS;
+        default:
+  	return null;
       }
     }
-
-    public test_endpoint_without_exception_result deepCopy() {
-      return new test_endpoint_without_exception_result(this);
+  
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
     }
+  
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+  
+    private final short _thriftId;
+    private final String _fieldName;
+  
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+  
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+  
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
 
-    @Override
-    public void clear() {
+
+  // isset id assignments
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap;
+  static {
+    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, TestResult.class)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    FieldMetaData.addStructMetaDataMap(test_endpoint_without_exception_result.class, metaDataMap);
+  }
+
+
+  public test_endpoint_without_exception_result() {
+  }
+
+  public test_endpoint_without_exception_result(
+    TestResult success)
+  {
+    this();
+    this.success = success;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public test_endpoint_without_exception_result(test_endpoint_without_exception_result other) {
+    if (other.isSetSuccess()) {
+      this.success = new TestResult(other.success);
+    }
+  }
+
+  public test_endpoint_without_exception_result deepCopy() {
+    return new test_endpoint_without_exception_result(this);
+  }
+
+  @Override
+  public void clear() {
+    this.success = null;
+  }
+
+  public TestResult getSuccess() {
+    return this.success;
+  }
+
+  public test_endpoint_without_exception_result setSuccess(TestResult success) {
+    this.success = success;
+    
+    return this;
+  }
+
+  public void unsetSuccess() {
+    this.success = null;
+  }
+
+  /** Returns true if field success is set (has been asigned a value) and false otherwise */
+  public boolean isSetSuccess() {
+    return this.success != null;
+  }
+
+  public void setSuccessIsSet(boolean value) {
+    if (!value) {
       this.success = null;
     }
+  }
 
-    public TestResult getSuccess() {
-      return this.success;
-    }
-
-    public test_endpoint_without_exception_result setSuccess(TestResult success) {
-      this.success = success;
-      return this;
-    }
-
-    public void unsetSuccess() {
-      this.success = null;
-    }
-
-    /** Returns true if field success is set (has been asigned a value) and false otherwise */
-    public boolean isSetSuccess() {
-      return this.success != null;
-    }
-
-    public void setSuccessIsSet(boolean value) {
-      if (!value) {
-        this.success = null;
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case SUCCESS:
+      if (value == null) {
+        unsetSuccess();
+      } else {
+        setSuccess((TestResult)value);
       }
+      break;
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case SUCCESS:
+      return getSuccess();
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
     }
 
-    public void setFieldValue(_Fields field, Object value) {
-      switch (field) {
-      case SUCCESS:
-        if (value == null) {
-          unsetSuccess();
-        } else {
-          setSuccess((TestResult)value);
-        }
-        break;
-
-      }
+    switch (field) {
+    case SUCCESS:
+      return isSetSuccess();
     }
+    throw new IllegalStateException();
+  }
 
-    public Object getFieldValue(_Fields field) {
-      switch (field) {
-      case SUCCESS:
-        return getSuccess();
-
-      }
-      throw new IllegalStateException();
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
-      if (field == null) {
-        throw new IllegalArgumentException();
-      }
-
-      switch (field) {
-      case SUCCESS:
-        return isSetSuccess();
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof test_endpoint_without_exception_result)
-        return this.equals((test_endpoint_without_exception_result)that);
+  @Override
+  public boolean equals(Object that) {
+    if (that == null)
       return false;
-    }
+    if (that instanceof test_endpoint_without_exception_result)
+      return this.equals((test_endpoint_without_exception_result)that);
+    return false;
+  }
 
-    public boolean equals(test_endpoint_without_exception_result that) {
-      if (that == null)
+  public boolean equals(test_endpoint_without_exception_result that) {
+    if (that == null)
+      return false;
+    boolean this_present_success = true && this.isSetSuccess();
+    boolean that_present_success = true && that.isSetSuccess();
+    if (this_present_success || that_present_success) {
+      if (!(this_present_success && that_present_success))
         return false;
-
-      boolean this_present_success = true && this.isSetSuccess();
-      boolean that_present_success = true && that.isSetSuccess();
-      if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (!this.success.equals(that.success))
-          return false;
-      }
-
-      return true;
+      if (!this.success.equals(that.success))
+        return false;
     }
 
-    @Override
-    public int hashCode() {
-      return 0;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  public int compareTo(test_endpoint_without_exception_result other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
     }
 
-    public int compareTo(test_endpoint_without_exception_result other) {
-      if (!getClass().equals(other.getClass())) {
-        return getClass().getName().compareTo(other.getClass().getName());
-      }
+    int lastComparison = 0;
+    test_endpoint_without_exception_result typedOther = (test_endpoint_without_exception_result)other;
 
-      int lastComparison = 0;
-      test_endpoint_without_exception_result typedOther = (test_endpoint_without_exception_result)other;
-
-      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+    lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSuccess()) {
+      lastComparison = TBaseHelper.compareTo(this.success, typedOther.success);
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetSuccess()) {
-        lastComparison = TBaseHelper.compareTo(this.success, typedOther.success);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      return 0;
     }
-
-    public _Fields fieldForId(int fieldId) {
-      return _Fields.findByThriftId(fieldId);
-    }
-
-    public void read(TProtocol iprot) throws TException {
-      TField field;
-      iprot.readStructBegin();
-      while (true)
-      {
-        field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
-          break;
-        }
-        switch (field.id) {
-          case 0: // SUCCESS
-            if (field.type == TType.STRUCT) {
-              this.success = new TestResult();
-              this.success.read(iprot);
-            } else { 
-              TProtocolUtil.skip(iprot, field.type);
-            }
-            break;
-          default:
-            TProtocolUtil.skip(iprot, field.type);
-        }
-        iprot.readFieldEnd();
-      }
-      iprot.readStructEnd();
-
-      // check for required fields of primitive type, which can't be checked in the validate method
-      validate();
-    }
-
-    public void write(TProtocol oprot) throws TException {
-      oprot.writeStructBegin(STRUCT_DESC);
-
-      if (this.isSetSuccess()) {
-        oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
-        this.success.write(oprot);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldStop();
-      oprot.writeStructEnd();
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder("test_endpoint_without_exception_result(");
-      boolean first = true;
-
-      sb.append("success:");
-      if (this.success == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.success);
-      }
-      first = false;
-      sb.append(")");
-      return sb.toString();
-    }
-
-    public void validate() throws TException {
-      // check for required fields
-    }
-
+    return 0;
   }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        case 0: // SUCCESS
+          if (field.type == TType.STRUCT) {
+            this.success = new TestResult();
+            this.success.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    validate();
+  }
+
+  public void write(TProtocol oprot) throws TException {
+    oprot.writeStructBegin(STRUCT_DESC);
+    if (this.isSetSuccess()) {
+      oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+      this.success.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("test_endpoint_without_exception_result(");
+    boolean first = true;
+    sb.append("success:");
+    if (this.success == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.success);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws TException {
+    // check for required fields
+  }
+}
+
 
 }

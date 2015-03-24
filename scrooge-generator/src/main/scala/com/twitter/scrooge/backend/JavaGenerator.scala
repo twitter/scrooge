@@ -105,8 +105,13 @@ class JavaGenerator(
     codify(code)
   }
 
-  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment = {
-    val code = (if (mutable) "Utilities.makeSet(" else "Utilities.makeSet(") +
+  def genSet(set: SetRHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
+    val makeSetMethod = fieldType match {
+      case Some(SetType(EnumType(_, _), _)) => "makeEnumSet"
+      case _ => "makeSet"
+    }
+
+    val code = s"Utilities.$makeSetMethod(" +
       set.elems.map(genConstant(_).toData).mkString(", ") + ")"
     codify(code)
   }
@@ -191,7 +196,10 @@ class JavaGenerator(
   override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
     val code = fieldType match {
       case MapType(_, _, _) => "Utilities.makeMap()"
-      case SetType(_, _) => "Utilities.makeSet()"
+      case SetType(eltType: EnumType, _) =>
+        s"Utilities.makeEnumSet(${genType(eltType)}.class)"
+      case SetType(eltType, _) =>
+        "Utilities.makeSet()"
       case ListType(_, _) => "Utilities.makeList()"
       case TI64 => "0L"
       case _ => super.genDefaultValue(fieldType, mutable).toData

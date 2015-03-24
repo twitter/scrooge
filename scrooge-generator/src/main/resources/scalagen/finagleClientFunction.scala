@@ -38,7 +38,8 @@ private[this] object {{__stats_name}} {
     case Return(_) =>
       {{__stats_name}}.SuccessCounter.incr()
     case Throw(ex) =>
+      setServiceName(ex)
       {{__stats_name}}.FailuresCounter.incr()
-      {{__stats_name}}.FailuresScope.counter(ex.getClass.getName).incr()
+      {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
   }
 }

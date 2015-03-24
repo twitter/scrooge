@@ -169,7 +169,7 @@ trait Generator extends ThriftGenerator {
       case IntLiteral(value) => codify(value.toString)
       case BoolLiteral(value) => codify(value.toString)
       case c@ListRHS(_) => genList(c, mutable)
-      case c@SetRHS(_) => genSet(c, mutable)
+      case c@SetRHS(_) => genSet(c, mutable, fieldType)
       case c@MapRHS(_) => genMap(c, mutable)
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
@@ -179,7 +179,7 @@ trait Generator extends ThriftGenerator {
 
   def genList(list: ListRHS, mutable: Boolean = false): CodeFragment
 
-  def genSet(set: SetRHS, mutable: Boolean = false): CodeFragment
+  def genSet(set: SetRHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment
 
   def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
 

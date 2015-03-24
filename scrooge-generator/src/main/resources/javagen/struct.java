@@ -11,11 +11,12 @@ import org.apache.thrift.protocol.*;
 import java.nio.ByteBuffer;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
-import java.util.HashSet;
 
 {{docstring}}
 @javax.annotation.Generated(value = "com.twitter.scrooge.Compiler")

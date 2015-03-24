@@ -151,15 +151,8 @@ class TypeResolverSpec extends Spec {
       }
     }
 
-    "throw a TypeMismatchException for a StructType with a MapRHS if resolver allowStructRHS disabled" in {
-      val structType = StructType(Struct(SimpleID("Test"), "test", Seq(), None, Map.empty))
-      intercept[TypeMismatchException] {
-        resolver(MapRHS(Seq((StringLiteral("foo"), StringLiteral("bar")))), structType)
-      }
-    }
-
-    "allow a valid MapRHS for a StructType if resolver allowStructRHS enabled" in {
-      val resolver = TypeResolver(allowStructRHS = true)
+    "allow a valid MapRHS for a StructType" in {
+      val resolver = TypeResolver()
       val testStruct1 = createStruct("Test1", TI32)
       val structType1 = StructType(testStruct1)
       val testStruct2 = createStruct("Test2", structType1)
@@ -175,7 +168,7 @@ class TypeResolverSpec extends Spec {
     }
 
     "throw a TypeMismatchException if invalid MapRHS passed in for a StructType" in {
-      val resolver = TypeResolver(allowStructRHS = true)
+      val resolver = TypeResolver()
       val structType = StructType(createStruct("Test1", TString))
       val mapRHS = MapRHS(Seq((StringLiteral("invalid_field"), StringLiteral("Hello"))))
       intercept[TypeMismatchException] {
@@ -245,11 +238,11 @@ class TypeResolverSpec extends Spec {
       resolvedDoc.defs(0) match {
         case Struct(_, _, fields, _, annotations) => {
           fields(0) match {
-            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _) => // pass
+            case Field(1, _, _, ListType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _, _) => // pass
             case _ => fail()
           }
           fields(1) match {
-            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _) => // pass
+            case Field(2, _, _, SetType(StructType(_, Some(SimpleID("typedef1", _))), None), _, _, _, _, _) => // pass
             case _ => fail()
           }
           annotations must be(Map("foo" -> "bar"))

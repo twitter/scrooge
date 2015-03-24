@@ -46,6 +46,33 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         NumberID(8) must be(NumberID.Eight)
       }
 
+      "Throw NoSuchElementException when apply unknown id" in { _ =>
+        intercept[NoSuchElementException] {
+          NumberID(999)
+        }
+      }
+
+      "getOrUnknown" in { _ =>
+        NumberID.getOrUnknown(1) must be(NumberID.One)
+        NumberID.getOrUnknown(2) must be(NumberID.Two)
+        NumberID.getOrUnknown(3) must be(NumberID.Three)
+        NumberID.getOrUnknown(5) must be(NumberID.Five)
+        NumberID.getOrUnknown(6) must be(NumberID.Six)
+        NumberID.getOrUnknown(8) must be(NumberID.Eight)
+        NumberID.getOrUnknown(999).value must be(999)
+        NumberID.getOrUnknown(999).name must be("EnumUnknownNumberID999")
+
+        List(NumberID.getOrUnknown(1), NumberID.getOrUnknown(999)).map {
+          case NumberID.One => "ONE"
+          case nid: NumberID => "UNKNOWN " + nid.value
+        } must be(List("ONE", "UNKNOWN 999"))
+
+        List(NumberID.getOrUnknown(1), NumberID.getOrUnknown(999)).map {
+          case NumberID.One => "ONE"
+          case NumberID.EnumUnknownNumberID(id) => "UNKNOWN " + id
+        } must be(List("ONE", "UNKNOWN 999"))
+      }
+
       "get" in { _ =>
         NumberID.get(1) must be(Some(NumberID.One))
         NumberID.get(2) must be(Some(NumberID.Two))

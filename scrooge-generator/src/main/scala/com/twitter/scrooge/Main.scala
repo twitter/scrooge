@@ -117,7 +117,7 @@ object Main {
         }
       } text("name of language to generate code in ('experimental-java' and 'scala' are currently supported)")
 
-      opt[String]("experiment-flag") valueName("<flag>") action { (flag, c) =>
+      opt[String]("experiment-flag") valueName("<flag>") unbounded() action { (flag, c) =>
         c.experimentFlags += flag
         c
       } text("[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking")

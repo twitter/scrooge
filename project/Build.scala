@@ -7,11 +7,15 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import sbtassembly.Plugin._
 import AssemblyKeys._
+import sbtbuildinfo.Plugin._
 
 object Scrooge extends Build {
-  val libVersion = "3.17.0"
-  val utilVersion = "6.22.2"
-  val finagleVersion = "6.22.0"
+  val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
+  val suffix = if (branch == "master") "" else "-SNAPSHOT"
+
+  val libVersion = "3.17.0" + suffix
+  val utilVersion = "6.23.0" + suffix
+  val finagleVersion = "6.24.0" + suffix
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -46,26 +50,9 @@ object Scrooge extends Build {
     }
   )
 
-  val thriftSettings: Seq[Setting[_]] = Seq(
-    compileThrift <<= (
-      streams,
-      baseDirectory,
-      fullClasspath in Runtime,
-      sourceManaged
-    ) map { (out, base, cp, outputDir) =>
-      val cmd = "%s %s %s %s".format(
-        (base / "src" / "scripts" / "gen-test-thrift").getAbsolutePath,
-        cp.files.absString,
-        outputDir.getAbsolutePath,
-        base.getAbsolutePath)
-
-      out.log.info(cmd)
-      cmd ! out.log
-
-      (outputDir ** "*.scala").get.toSeq ++
-      (outputDir ** "*.java").get.toSeq
-    },
-    sourceGenerators <+= compileThrift
+  val testThriftSettings: Seq[Setting[_]] = Seq(
+    sourceGenerators in Test <+= ScroogeRunner.genTestThrift,
+    ScroogeRunner.genTestThriftTask
   )
 
   val sharedSettings = Seq(
@@ -98,8 +85,8 @@ object Scrooge extends Build {
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.6"),
+    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+    javacOptions in doc := Seq("-source", "1.7"),
 
     // Sonatype publishing
     publishArtifact in Test := false,
@@ -170,7 +157,7 @@ object Scrooge extends Build {
     id = "scrooge-generator",
     base = file("scrooge-generator"),
     settings = Project.defaultSettings ++
-      inConfig(Test)(thriftSettings) ++
+      inConfig(Test)(testThriftSettings) ++
       sharedSettings ++
       assemblySettings ++
       jmockSettings
@@ -179,7 +166,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("core") exclude("org.mockito", "mockito-all"),
       util("codec") exclude("org.mockito", "mockito-all"),
-      "org.apache.thrift" % "libthrift" % "0.8.0",
+      "org.apache.thrift" % "libthrift" % "0.5.0-1",
       "com.github.scopt" %% "scopt" % "3.2.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.12",
@@ -201,9 +188,9 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-core",
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     ),
-    crossScalaVersions += "2.11.2"
+    crossScalaVersions += "2.11.4"
   )
 
   lazy val scroogeRuntime = Project(
@@ -241,9 +228,9 @@ object Scrooge extends Build {
     name := "scrooge-serializer",
     libraryDependencies ++= Seq(
       util("codec"),
-      "org.apache.thrift" % "libthrift" % "0.8.0" % "provided"
+      "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     ),
-    crossScalaVersions += "2.11.2"
+    crossScalaVersions += "2.11.4"
   ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
@@ -251,13 +238,17 @@ object Scrooge extends Build {
     base = file("scrooge-sbt-plugin"),
     settings = Project.defaultSettings ++
       sharedSettings ++
-      bintrayPublishSettings
+      bintrayPublishSettings ++
+      buildInfoSettings
   ).settings(
-    sbtPlugin := true,
-    publishMavenStyle := false,
-    repository in bintray := "sbt-plugins",
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayOrganization in bintray := Some("twittercsl")
+      sourceGenerators in Compile <+= buildInfo,
+      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+      buildInfoPackage := "com.twitter",
+      sbtPlugin := true,
+      publishMavenStyle := false,
+      repository in bintray := "sbt-plugins",
+      licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+      bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
@@ -271,25 +262,8 @@ object Scrooge extends Build {
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
-    compileThrift <<= (
-      streams,
-      baseDirectory,
-      dependencyClasspath,
-      sourceManaged
-    ) map { (out, base, cp, outputDir) =>
-      val cmd = "%s %s %s %s".format(
-        (base / "src" / "scripts" / "gen-test-thrift").getAbsolutePath,
-        cp.files.absString,
-        outputDir.getAbsolutePath,
-        base.getAbsolutePath)
-
-      out.log.info(cmd)
-      cmd ! out.log
-
-      (outputDir ** "*.scala").get.toSeq ++
-      (outputDir ** "*.java").get.toSeq
-    },
-    sourceGenerators <+= compileThrift
+    sourceGenerators <+= ScroogeRunner.genBenchmarkThrift,
+    ScroogeRunner.genBenchmarkThriftTask
   )
 
   lazy val scroogeBenchmark = Project(

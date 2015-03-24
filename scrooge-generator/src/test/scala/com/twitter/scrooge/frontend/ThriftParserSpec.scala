@@ -8,11 +8,37 @@ class ThriftParserSpec extends Spec {
   "ThriftParser" should {
     val parser = new ThriftParser(NullImporter, true)
 
+    val commentTestSources = Seq(
+      "  300  ",
+      "  // go away.\n 300",
+      "  /*\n   * go away.\n   */\n 300",
+      "# hello\n 300",
+      "#\n300",
+      "# \n300",
+      "#    @\n300"
+    )
+
+    def verifyCommentParsing(source: String) =
+      parser.parse(source, parser.rhs) must be(IntLiteral(300))
+
     "comments" in {
-      parser.parse("  300  ", parser.rhs) must be( IntLiteral(300))
-      parser.parse("  // go away.\n 300", parser.rhs) must be( IntLiteral(300))
-      parser.parse("  /*\n   * go away.\n   */\n 300", parser.rhs) must be(IntLiteral(300))
-      parser.parse("# hello\n 300", parser.rhs) must be(IntLiteral(300))
+      commentTestSources.foreach(verifyCommentParsing)
+    }
+
+    "comments with Windows-style carriage return" in {
+      commentTestSources.map(_.replace("\n","\r\n")).foreach(verifyCommentParsing)
+    }
+
+    "comments with parens" in {
+      val source = """
+# (
+struct MyStruct {}
+"""
+      parser.parse(source, parser.document) match {
+        case Document(List(),List(Struct(SimpleID("MyStruct", None), "MyStruct", List(),
+          None, m))) if m.isEmpty =>
+        case x => fail(s"Failed to match $x")
+      }
     }
 
     "double-quoted strings" in {
@@ -78,7 +104,7 @@ class ThriftParserSpec extends Spec {
         parser.function) must be(
         Function(SimpleID("get_tables"), "get_tables", ListType(TString, None), Seq(
           Field(-1, SimpleID("id"), "id", TI32, None, Requiredness.Optional),
-          Field(3, SimpleID("name"), "name", TString, Some(StringLiteral("cat")), Requiredness.Required)
+          Field(3, SimpleID("name"), "name", TString, Some(StringLiteral("cat")), Requiredness.Required, docstring = Some("/**DOC*/"))
         ), Seq(Field(1, SimpleID("ex"), "ex", ReferenceType(Identifier("Exception")), None, Requiredness.Default)), None))
     }
 
@@ -95,6 +121,16 @@ const string tyrion = "lannister"
 """
       parser.parse(code, parser.definition) must be(ConstDefinition(SimpleID("tyrion"),
         TString, StringLiteral("lannister"), Some("/** comment */\n/** and another */")))
+    }
+
+    "comment before docstring" in {
+      val code = """
+#
+/** docstring */
+const string tyrion = "lannister"
+"""
+      parser.parse(code, parser.definition) must be(ConstDefinition(SimpleID("tyrion"),
+        TString, StringLiteral("lannister"), Some("/** docstring */")))
     }
 
     "typedef" in {
@@ -166,7 +202,7 @@ enum Foo
                  """
       parser.parse(code, parser.definition) must be(Struct(SimpleID("Point"), "Point", Seq(
         Field(1, SimpleID("x"), "x", TDouble, None, Requiredness.Default),
-        Field(2, SimpleID("y"), "y", TDouble, None, Requiredness.Default),
+        Field(2, SimpleID("y"), "y", TDouble, None, Requiredness.Default, docstring = Some("/** comments*/")),
         Field(3, SimpleID("color"), "color", ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
       ), Some("/** docs up here */"), Map("annotation" -> "supported", "multiline" -> "also supported")))
     }
@@ -185,7 +221,7 @@ enum Foo
                    """
         parser.parse(code, parser.definition) must be(Union(SimpleID("Aircraft"), "Aircraft", Seq(
           Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
-          Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
+          Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default, docstring = Some("/** comments*/")),
           Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default),
           Field(4, SimpleID("lta"), "lta", ReferenceType(Identifier("LighterThanAir")), None, Requiredness.Default)
         ), Some("/** docs up here */"), Map("maxTypes" -> "4")))

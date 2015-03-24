@@ -61,6 +61,7 @@ trait StructTemplate { self: TemplateGenerator =>
             "eltConstType" -> genConstType(t.eltType),
             "eltWireConstType" -> genWireConstType(t.eltType),
             "eltType" -> genType(t.eltType),
+            "isEnumSet" -> v(t.eltType.isInstanceOf[EnumType]),
             "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
           )))
       case t: MapType =>
@@ -341,9 +342,8 @@ object StructTemplate {
    *   Dictionary("pairs" -> ListValue(Seq(Dictionary("key" -> ..., "value" -> ...)))
    */
   def renderPairs(pairs: Map[String, String]): Dictionary = {
-    val pairDicts: Seq[Dictionary] = (pairs.map { kv =>
-      Dictionary("key" -> codify(kv._1), "value" -> codify(kv._2))
-    } toSeq)
+    val pairDicts: Seq[Dictionary] =
+      pairs.map { case (k, v) => Dictionary("key" -> codify(k), "value" -> codify(v)) }.toSeq
     Dictionary("pairs" -> v(pairDicts))
   }
 }

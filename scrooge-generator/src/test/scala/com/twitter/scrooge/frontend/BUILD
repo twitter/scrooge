@@ -1,9 +1,9 @@
 junit_tests(name='frontend',
   dependencies=[
-    '3rdparty:jmock',
-    '3rdparty:junit',
-    '3rdparty:scalatest',
-    '3rdparty:mockito-all',
+    '3rdparty/jvm/org/jmock',
+    '3rdparty/jvm/junit',
+    '3rdparty/jvm/org/scalatest',
+    '3rdparty/jvm/org/mockito:mockito-all',
     'scrooge/scrooge-generator/src/main/scala',
     'scrooge/scrooge-generator/src/test/scala/com/twitter/scrooge/testutil',
 ],

@@ -3,7 +3,11 @@
 {{^in_static}}public static final {{/in_static}}{{{field_type.type_name}}}
 {{/defval}}
 {{name}} =
-{{#field_type.is_base_type_or_enum}}{{{rendered_value}}}{{/field_type.is_base_type_or_enum}}{{^field_type.is_base_type_or_enum}}new {{{field_type.init_type_name}}}(){{/field_type.is_base_type_or_enum}};
+{{#field_type.is_base_type_or_enum}}
+{{{rendered_value}}}
+{{/field_type.is_base_type_or_enum}}
+{{^field_type.is_base_type_or_enum}}{{{field_type.init_field}}}
+{{/field_type.is_base_type_or_enum}};
 {{/newlines_to_spaces}}
 
 {{#consolidate_newlines}}

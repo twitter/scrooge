@@ -10,6 +10,11 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
   val type_name_in_container = generator.typeName(fieldType, inContainer = true)
   val type_name_in_container_skip_generic = generator.typeName(fieldType, inContainer = true, skipGeneric = true)
   val init_type_name = generator.typeName(fieldType, inInit = true)
+  def is_enum_set: Boolean = fieldType match {
+    case SetType(_: EnumType, _) => true
+    case _ => false
+  }
+  def init_field = generator.initField(fieldType)
   val nullable = generator.isNullableType(fieldType)
   val double = fieldType == TDouble
   val boolean = fieldType == TBool

@@ -50,6 +50,9 @@ private __Stats {{__stats_name}}() {
     }
 
     public void onFailure(Throwable t) {
+      if (t instanceof SourcedException) {
+        ((SourcedException) t).serviceName_$eq({{ServiceName}}$FinagleClient.this.serviceName);
+      }
       {{__stats_name}}().failuresCounter.incr();
       {{__stats_name}}().failuresScope.counter0(t.getClass().getName()).incr();
     }

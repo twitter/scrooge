@@ -125,7 +125,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
 
   public void addTo{{#cap}}{{name}}{{/cap}}({{{elem_type.type_name}}} elem) {
     if (this.{{name}} == null) {
-      this.{{name}} = new {{{field_type.init_type_name}}}();
+      this.{{name}} = {{{field_type.init_field}}};
     }
     this.{{name}}.add(elem);
   }

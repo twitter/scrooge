@@ -4,7 +4,7 @@ import com.twitter.finagle.{SourcedException, Service => FinagleService}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
-import com.twitter.util.{Future, Return, Throw}
+import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
@@ -19,7 +19,7 @@ import scala.language.higherKinds
 class {{ServiceName}}$FinagleClient(
   {{#hasParent}}override {{/hasParent}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
   {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
-  {{#hasParent}}override {{/hasParent}}val serviceName: String = "",
+  {{#hasParent}}override {{/hasParent}}val serviceName: String = "{{ServiceName}}",
   stats: StatsReceiver = NullStatsReceiver
 ) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}{{ServiceName}}[Future] {
   import {{ServiceName}}._
@@ -64,7 +64,7 @@ class {{ServiceName}}$FinagleClient(
     )
   }
 
-  protected def setServiceName(ex: Exception): Exception =
+  protected def setServiceName(ex: Throwable): Throwable =
     if (this.serviceName == "") ex
     else {
       ex match {
