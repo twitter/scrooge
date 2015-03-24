@@ -63,6 +63,8 @@ To build scrooge, use sbt:
 
     $ ./sbt +publish-local
 
+This will currently not build and publish the scrooge-sbt-plugin.
+
 User's guide
 ------------
 
