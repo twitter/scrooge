@@ -5,7 +5,7 @@ import Keys._
 
 import java.io.File
 
-object ScroogeSBT extends Plugin {
+object ScroogeSBT extends AutoPlugin {
 
   def compile(
     log: Logger,
@@ -34,70 +34,81 @@ object ScroogeSBT extends Plugin {
     }
   }
 
-  val scroogeBuildOptions = SettingKey[Seq[String]](
-    "scrooge-build-options",
-    "command line args to pass to scrooge"
-  )
+  object autoImport {
 
-  val scroogePublishThrift = SettingKey[Boolean](
-    "scrooge-publish-thrift",
-    "Whether or not to publish thrift files in the jar"
-  )
+    val scroogeBuildOptions = SettingKey[Seq[String]](
+      "scrooge-build-options",
+      "command line args to pass to scrooge"
+    )
 
-  val scroogeThriftDependencies = SettingKey[Seq[String]](
-    "scrooge-thrift-dependencies",
-    "artifacts to extract and compile thrift files from"
-  )
+    val scroogePublishThrift = SettingKey[Boolean](
+      "scrooge-publish-thrift",
+      "Whether or not to publish thrift files in the jar"
+    )
 
-  val scroogeThriftIncludeFolders = SettingKey[Seq[File]](
-    "scrooge-thrift-include-folders",
-    "folders to search for thrift 'include' directives"
-  )
+    val scroogeThriftDependencies = SettingKey[Seq[String]](
+      "scrooge-thrift-dependencies",
+      "artifacts to extract and compile thrift files from"
+    )
 
-  val scroogeThriftIncludes = TaskKey[Seq[File]](
-    "scrooge-thrift-includes",
-    "complete list of folders to search for thrift 'include' directives"
-  )
+    val scroogeThriftIncludeFolders = SettingKey[Seq[File]](
+      "scrooge-thrift-include-folders",
+      "folders to search for thrift 'include' directives"
+    )
 
-  val scroogeThriftNamespaceMap = SettingKey[Map[String, String]](
-    "scrooge-thrift-namespace-map",
-    "namespace rewriting, to support generation of java/finagle/scrooge into the same jar"
-  )
+    val scroogeThriftIncludes = TaskKey[Seq[File]](
+      "scrooge-thrift-includes",
+      "complete list of folders to search for thrift 'include' directives"
+    )
 
-  val scroogeThriftSourceFolder = SettingKey[File](
-    "scrooge-thrift-source-folder",
-    "directory containing thrift source files"
-  )
+    val scroogeThriftNamespaceMap = SettingKey[Map[String, String]](
+      "scrooge-thrift-namespace-map",
+      "namespace rewriting, to support generation of java/finagle/scrooge into the same jar"
+    )
 
-  val scroogeThriftExternalSourceFolder = SettingKey[File](
-    "scrooge-thrift-external-source-folder",
-    "directory containing external source files to compile"
-  )
+    val scroogeThriftSourceFolder = SettingKey[File](
+      "scrooge-thrift-source-folder",
+      "directory containing thrift source files"
+    )
 
-  val scroogeThriftSources = TaskKey[Seq[File]](
-    "scrooge-thrift-sources",
-    "complete list of thrift source files to compile"
-  )
+    val scroogeThriftExternalSourceFolder = SettingKey[File](
+      "scrooge-thrift-external-source-folder",
+      "directory containing external source files to compile"
+    )
 
-  val scroogeThriftOutputFolder = SettingKey[File](
-    "scrooge-thrift-output-folder",
-    "output folder for generated scala files (defaults to sourceManaged)"
-  )
+    val scroogeThriftSources = TaskKey[Seq[File]](
+      "scrooge-thrift-sources",
+      "complete list of thrift source files to compile"
+    )
 
-  val scroogeIsDirty = TaskKey[Boolean](
-    "scrooge-is-dirty",
-    "true if scrooge has decided it needs to regenerate the scala files from thrift sources"
-  )
+    val scroogeThriftOutputFolder = SettingKey[File](
+      "scrooge-thrift-output-folder",
+      "output folder for generated scala files (defaults to sourceManaged)"
+    )
 
-  val scroogeUnpackDeps = TaskKey[Seq[File]](
-    "scrooge-unpack-deps",
-    "unpack thrift files from dependencies, generating a sequence of source directories"
-  )
+    val scroogeIsDirty = TaskKey[Boolean](
+      "scrooge-is-dirty",
+      "true if scrooge has decided it needs to regenerate the scala files from thrift sources"
+    )
 
-  val scroogeGen = TaskKey[Seq[File]](
-    "scrooge-gen",
-    "generate scala code from thrift files using scrooge"
-  )
+    val scroogeUnpackDeps = TaskKey[Seq[File]](
+      "scrooge-unpack-deps",
+      "unpack thrift files from dependencies, generating a sequence of source directories"
+    )
+
+    val scroogeGen = TaskKey[Seq[File]](
+      "scrooge-gen",
+      "generate scala code from thrift files using scrooge"
+    )
+  }
+
+  import autoImport._
+
+  // only run if we are in the Jvm
+  override def requires = sbt.plugins.JvmPlugin
+
+  // we have no deps
+  override def trigger = allRequirements
 
   // Dependencies included in the `thrift` configuration will be used
   // in both compile and test.
@@ -210,13 +221,16 @@ object ScroogeSBT extends Plugin {
   )
 
   val packageThrift = mappings in (Compile, packageBin) ++= {
-    (if (scroogePublishThrift.value) (scroogeThriftSources in Compile).value else Nil).map { file =>
+    (if ((scroogePublishThrift in Compile).value) (scroogeThriftSources in Compile).value else Nil).map { file =>
       file -> s"${name.value}/${file.name}"
     }
   }
 
-  val newSettings =
+  override lazy val projectSettings =
     Seq(ivyConfigurations += thriftConfig) ++
     inConfig(Test)(genThriftSettings) ++
     inConfig(Compile)(genThriftSettings) :+ packageThrift
+
+  @deprecated("Settings auto-imported via AutoPlugin mechanism", "2015-03-24")
+  lazy val newSettings = projectSettings
 }
