@@ -58,8 +58,8 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.10.4"),
-    scalaVersion := "2.10.4",
+    crossScalaVersions := Seq("2.10.5"),
+    scalaVersion := "2.10.5",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -190,7 +190,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     ),
-    crossScalaVersions += "2.11.4"
+    crossScalaVersions += "2.11.6"
   )
 
   lazy val scroogeRuntime = Project(
@@ -230,7 +230,7 @@ object Scrooge extends Build {
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     ),
-    crossScalaVersions += "2.11.4"
+    crossScalaVersions += "2.11.6"
   ).dependsOn(scroogeCore)
 
   lazy val scroogeSbtPlugin = Project(
