@@ -1,7 +1,7 @@
 package com.twitter.scrooge
 
 import java.lang.reflect.Method
-import org.apache.thrift.protocol.{TField, TProtocol}
+import org.apache.thrift.protocol.TField
 import scala.collection.mutable.StringBuilder
 
 /**
@@ -13,10 +13,10 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
       split('_').
       filterNot(_.isEmpty).
       zipWithIndex.map { case (part, ind) =>
-        val first = if (ind == 0) part(0).toLower else part(0).toUpper
+        val first = if (ind == 0) part.charAt(0).toLower else part.charAt(0).toUpper
         val isAllUpperCase = part.forall(_.isUpper)
         val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
-        new StringBuilder(part.size).append(first).append(rest)
+        new StringBuilder(part.length).append(first).append(rest)
       }.
       mkString
   }
@@ -46,7 +46,7 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
    */
   val fields: Seq[ThriftStructField[T]] =
     codecClass.getMethods.toList filter { m =>
-      m.getParameterTypes.size == 0 && m.getReturnType == classOf[TField]
+      m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
     } map { m =>
       val tfield = m.invoke(codec).asInstanceOf[TField]
       val manifest: scala.Option[Manifest[_]] = try {
@@ -100,8 +100,8 @@ final class ThriftStructFieldInfo(
   val fieldAnnotations: Map[String, String]
 ) {
   /**
-    * Provide backwards compatibility for older scrooge-generator that does not generate the isRequired flag 
-    */
+   * Provide backwards compatibility for older scrooge-generator that does not generate the isRequired flag
+   */
   def this(
     tfield: TField,
     isOptional: Boolean,

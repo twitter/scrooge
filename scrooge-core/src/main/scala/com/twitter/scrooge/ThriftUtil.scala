@@ -13,10 +13,10 @@ object ThriftUtil {
   /**
    * Transfers a piece of thrift data from one TProtocol to another.
    *
-   * @outProt the protocol that the data will be written to
-   * @inProt the protocol that the data will be read from
-   * @typ specifies the type of thrift data to be read
-   * @maxDepth specifies how deeply to recurse through the data transferring it
+   * @param outProt the protocol that the data will be written to
+   * @param inProt the protocol that the data will be read from
+   * @param typ specifies the type of thrift data to be read
+   * @param maxDepth specifies how deeply to recurse through the data transferring it
    */
   def transfer(outProt: TProtocol, inProt: TProtocol, typ: Byte, maxDepth: Int): Unit = {
     if (maxDepth <= 0)
@@ -66,9 +66,11 @@ object ThriftUtil {
       case TType.MAP =>
         val map = inProt.readMapBegin()
         outProt.writeMapBegin(map)
-        (0 until map.size) foreach { _ =>
+        var i = 0
+        while (i < map.size) {
           transfer(outProt, inProt, map.keyType, maxDepth - 1)
           transfer(outProt, inProt, map.valueType, maxDepth - 1)
+          i += 1
         }
         inProt.readMapEnd()
         outProt.writeMapEnd()
@@ -76,8 +78,10 @@ object ThriftUtil {
       case TType.SET =>
         val set = inProt.readSetBegin()
         outProt.writeSetBegin(set)
-        (0 until set.size) foreach { _ =>
+        var i = 0
+        while (i < set.size) {
           transfer(outProt, inProt, set.elemType, maxDepth - 1)
+          i += 1
         }
         inProt.readSetEnd()
         outProt.writeSetEnd()
@@ -85,8 +89,10 @@ object ThriftUtil {
       case TType.LIST =>
         val list = inProt.readListBegin()
         outProt.writeListBegin(list)
-        (0 until list.size) foreach { _ =>
+        var i = 0
+        while (i < list.size) {
           transfer(outProt, inProt, list.elemType, maxDepth - 1)
+          i += 1
         }
         inProt.readListEnd()
         outProt.writeListEnd()
