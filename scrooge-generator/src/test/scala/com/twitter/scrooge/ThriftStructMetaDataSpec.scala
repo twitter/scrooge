@@ -49,7 +49,7 @@ class ThriftStructMetaDataSpec extends Spec {
     f4.getValue[Int](s) must be(123)
   }
 
-  "fieldInfos" in {
+  "Struct.fieldInfos" in {
     (XtructColl.fieldInfos zip fields).foreach { pairs =>
       val (info, field) = pairs
       info.tfield.name must be(field.name)
@@ -94,7 +94,7 @@ class ThriftStructMetaDataSpec extends Spec {
 
   // XtructColl has no annotations:
 
-  "reports no annotations in field infos" in {
+  "reports no annotations in Struct.fieldInfos" in {
     val info = XtructColl.fieldInfos(0)
     info.tfield.name must be("a_map")
     info.typeAnnotations must be(Map.empty[String, String])
@@ -107,7 +107,7 @@ class ThriftStructMetaDataSpec extends Spec {
 
   // AnnoStruct has one annotation in each position:
 
-  "reports single annotations in field infos" in {
+  "reports single annotations in Struct.fieldInfos" in {
     val info = AnnoStruct.fieldInfos(0)
     info.tfield.name must be("structField")
     info.typeAnnotations must be(Map(
@@ -126,7 +126,7 @@ class ThriftStructMetaDataSpec extends Spec {
 
   // MultiAnnoStruct has two annotations in each position:
 
-  "reports multiple annotations in field infos" in {
+  "reports multiple annotations in Struct.fieldInfos" in {
     val info = MultiAnnoStruct.fieldInfos(0)
     info.tfield.name must be("multiStructField")
     info.typeAnnotations must be(Map(
@@ -144,6 +144,31 @@ class ThriftStructMetaDataSpec extends Spec {
       "structKey1" -> "structValue1",
       "structKey2" -> "structValue2"
     ))
+  }
+
+  "populates Union.fieldInfos will all field info" in {
+    val infos = MatchingFieldAndStruct.fieldInfos
+    infos.size must be(4)
+    infos(0).structFieldInfo must be(MatchingFieldAndStruct.MatchingStructField.fieldInfo)
+    infos(1).structFieldInfo must be(MatchingFieldAndStruct.MatchingStructList.fieldInfo)
+    infos(2).structFieldInfo must be(MatchingFieldAndStruct.MatchingStructSet.fieldInfo)
+    infos(3).structFieldInfo must be(MatchingFieldAndStruct.MatchingStructMap.fieldInfo)
+  }
+
+  "populates Struct.fieldInfos correctly in Union.fieldInfos" in {
+    UnionPostEvolution.fieldInfos(0).structFieldInfo must be(UnionPostEvolution.OldField.fieldInfo)
+    AnnoUnion.fieldInfos(0).structFieldInfo must be(AnnoUnion.UnionField.fieldInfo)
+  }
+
+  "provides the ClassTag for a union field in Union.fieldInfos.classTag" in {
+    val unionFieldInfo = UnionPostEvolution.fieldInfos(0)
+    unionFieldInfo.classTag.runtimeClass must be(classOf[UnionPostEvolution.OldField])
+  }
+
+  "provides a way to extract a union value in Union.fieldInfos.fieldValue" in {
+    val unionFieldValue = OldUnionField(1)
+    val unionField = UnionPostEvolution.OldField(unionFieldValue)
+    UnionPostEvolution.fieldInfos(0).fieldValue(unionField) must be(unionFieldValue)
   }
 
   // Announion has one annotation in each position - EXCEPT for type annotations.

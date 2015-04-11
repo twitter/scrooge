@@ -1,7 +1,7 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -111,6 +111,19 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{^structAnnotations}}
     immutable$Map.empty[String, String]
 {{/structAnnotations}}
+
+  /**
+   * Field information in declaration order.
+   */
+  lazy val fieldInfos: scala.List[ThriftUnionFieldInfo[_ <: {{StructName}}, _]] = scala.List(
+{{#fields}}
+    new ThriftUnionFieldInfo[{{FieldName}}, {{StructName}}Aliases.{{FieldName}}Alias](
+      {{FieldName}}.fieldInfo,
+      {{FieldName}}.unapply
+    )
+{{/fields|,}}
+  )
+
 
   override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
   override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}Decoder(_iprot, UnknownUnionField(_))
