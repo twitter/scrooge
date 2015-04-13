@@ -160,9 +160,9 @@ class ThriftStructMetaDataSpec extends Spec {
     AnnoUnion.fieldInfos(0).structFieldInfo must be(AnnoUnion.UnionField.fieldInfo)
   }
 
-  "provides the ClassTag for a union field in Union.fieldInfos.classTag" in {
+  "provides the ClassTag for a union field in Union.fieldInfos.fieldClassTag" in {
     val unionFieldInfo = UnionPostEvolution.fieldInfos(0)
-    unionFieldInfo.classTag.runtimeClass must be(classOf[UnionPostEvolution.OldField])
+    unionFieldInfo.fieldClassTag.runtimeClass must be(classOf[UnionPostEvolution.OldField])
   }
 
   "provides a way to extract a union value in Union.fieldInfos.fieldValue" in {
