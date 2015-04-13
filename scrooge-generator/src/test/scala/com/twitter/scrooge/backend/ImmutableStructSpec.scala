@@ -54,6 +54,16 @@ class ImmutableStructSpec extends Spec {
       copied.x2 must not be(nested.x2)
       copied.x3 must be(nested.x3)
     }
+
+    "have populated metaData" in {
+      val expectedFieldNames = Set(
+        "string_thing",
+        "byte_thing",
+        "i32_thing",
+        "i64_thing"
+      )
+      Xtruct.Immutable.metaData.fields.map(_.name).toSet must be(expectedFieldNames)
+    }
   }
 
   "Java objects" should {
