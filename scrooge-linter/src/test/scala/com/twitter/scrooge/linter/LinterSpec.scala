@@ -101,6 +101,58 @@ class LinterSpec extends WordSpec with MustMatchers {
       assert(errors(0).msg contains("lowerCamelCase"))
     }
 
+
+    def struct(name: String, fields: Map[String, FieldType], persisted: Boolean = false) =
+      Struct(
+        SimpleID(name),
+        name,
+        fields.zipWithIndex.map {
+          case ((fieldName, fieldType), i) => Field(i, SimpleID(fieldName), fieldName, fieldType)
+        }.toSeq,
+        None,
+        if (persisted) Map("persisted" -> "true") else Map.empty
+      )
+
+
+    "fail TransitivePersistence" in {
+      val errors = LintRule.TransitivePersistence(
+        Document(
+          Seq(),
+          Seq(
+            struct(
+              "SomeType",
+              Map(
+                "foo" -> TString,
+                "bar" -> StructType(struct("SomeOtherType", Map.empty))
+              ),
+              true
+            )
+          )
+      )).toSeq
+      errors.length must be(1)
+      val error = errors(0).msg
+      assert(error.contains("persisted"))
+      assert(error.contains("SomeType"))
+      assert(error.contains("SomeOtherType"))
+    }
+
+    "pass TransitivePersistence" in {
+      mustPass(LintRule.TransitivePersistence(
+        Document(
+          Seq(),
+          Seq(
+            struct(
+              "SomeType",
+              Map(
+                "foo" -> TString,
+                "bar" -> StructType(struct("SomeOtherType", Map.empty, true))
+              ),
+              true
+            )
+          )
+      )))
+    }
+
     "pass RequiredFieldDefault" in {
       mustPass(
         LintRule.RequiredFieldDefault(Document(

@@ -19,7 +19,7 @@ package com.twitter.scrooge.linter
 import com.twitter.finagle.NoStacktrace
 import com.twitter.logging.{ConsoleHandler, Formatter}
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser}
+import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser, TypeResolver}
 
 import java.io.File
 import java.util.logging.{Logger, LogRecord, LogManager, Level}
@@ -35,10 +35,13 @@ import LintLevel._
 
 case class LintMessage(msg: String, level: LintLevel = Warning)
 
-trait LintRule extends (Document => Iterable[LintMessage])
+trait LintRule extends (Document => Iterable[LintMessage]) {
+  def requiresIncludes: Boolean = false
+  def name = getClass.getSimpleName.replaceAll("\\p{Punct}", "") // no $
+}
 
 object LintRule {
-  def all(rules: Seq[LintRule] = DefaultRules): LintRule =
+  def all(rules: Seq[LintRule]): LintRule =
     new LintRule {
       def apply(doc: Document): Seq[LintMessage] =
         rules flatMap { r => r(doc) }
@@ -51,6 +54,54 @@ object LintRule {
     RequiredFieldDefault,
     Keywords
   )
+
+  val Rules = DefaultRules ++ Seq(
+    TransitivePersistence
+  )
+
+  /**
+   *  All structs annotated persisted = "true" refer only to structs that are persisted as well
+   */
+  object TransitivePersistence extends LintRule {
+
+    override def requiresIncludes: Boolean = true
+
+    def isPersisted(struct: StructLike) =
+      struct.annotations.getOrElse("persisted", "false") == "true"
+
+    def apply(doc0: Document) = {
+      // resolving ReferenceTypes
+      val resolver = TypeResolver()(doc0)
+      val doc = resolver.document
+
+      def findUnpersistedStructs(s: StructLike, scopePrefix: Option[SimpleID] = None): Seq[String] = {
+        val current =
+          if (!isPersisted(s)) Seq(scopePrefix.map(_.name + ".").getOrElse("") + s.sid.name)
+          else Seq.empty
+        (current ++ findUnpersistedStructsFromFields(s.fields.map(_.fieldType))).distinct
+      }
+
+      def findUnpersistedStructsFromFields(fieldTypes: Seq[FieldType]): Seq[String] = {
+        fieldTypes.flatMap {
+          case StructType(s, scopePrefix) => findUnpersistedStructs(s, scopePrefix) // includes Unions
+          case EnumType(enum: Enum, _) => Seq.empty // enums don't have annotations
+          case MapType(keyType, valueType, _) => findUnpersistedStructsFromFields(Seq(keyType, valueType))
+          case SetType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
+          case ListType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
+          case _:BaseType => Seq.empty // primitive types
+          case _:ReferenceType => // ReferenceTypes have been resolved, this can not happen
+            throw new UnsupportedOperationException("There should be no ReferenceType anymore after type resolution")
+        }
+      }
+
+      for {
+        struct <- doc.structs if isPersisted(struct) // structs contains all StructLikes including Structs and Unions
+        structChild <- findUnpersistedStructs(struct)
+      } yield LintMessage(
+          s"struct ${struct.originalName} with persisted annotation refers to struct ${structChild} that is not annotated persisted.",
+          Error)
+    }
+  }
 
   object Namespaces extends LintRule {
     // All IDLs have a scala and a java namespace
@@ -192,7 +243,7 @@ object LintRule {
 object ErrorLogLevel extends Level("LINT-ERROR", 999)
 object WarningLogLevel extends Level("LINT-WARN", 998)
 
-class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
+class Linter(cfg: Config) {
   LogManager.getLogManager.reset
 
   private[this] val log = Logger.getLogger("linter")
@@ -202,6 +253,8 @@ class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
   }
 
   log.addHandler(new ConsoleHandler(formatter, None))
+
+  private[this] val rules = cfg.enabledRules
 
   def error(msg: String): Unit = log.log(ErrorLogLevel, msg)
   def warning(msg: String): Unit = {
@@ -234,8 +287,9 @@ class Linter(cfg: Config, rules: Seq[LintRule] = LintRule.DefaultRules) {
 
   // Lint cfg.files and return the total number of lint errors found.
   def lint(): Int = {
-    val importer = Importer(new File("."))
-    val parser = new ThriftParser(importer, cfg.strict, defaultOptional = false, skipIncludes = true)
+    val requiresIncludes = rules.exists { _.requiresIncludes }
+    val importer = Importer(new File(".")) +: Importer(cfg.includePaths)
+    val parser = new ThriftParser(importer, cfg.strict, defaultOptional = false, skipIncludes = !requiresIncludes)
 
     val errorCounts = cfg.files.map { inputFile =>
       log.info("\n+ Linting %s".format(inputFile))

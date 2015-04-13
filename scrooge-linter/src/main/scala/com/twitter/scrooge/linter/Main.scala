@@ -25,7 +25,9 @@ case class Config(
   showWarnings: Boolean = false,
   files: Seq[String] = Seq(),
   ignoreErrors: Boolean = false,
-  ignoreParseErrors: Boolean = false
+  ignoreParseErrors: Boolean = false,
+  includePaths: Seq[String] = Seq.empty,
+  enabledRules: Seq[LintRule] = LintRule.DefaultRules
 )
 
 
@@ -59,6 +61,29 @@ object Main {
       opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action { (_, c) =>
         c.copy(ignoreErrors = true)
       }
+
+      opt[String]('n', "include-path") unbounded() valueName("<path>") action { (path, c) =>
+        c.copy(includePaths = c.includePaths ++ path.split(File.pathSeparator))
+      } text("path(s) to search for included thrift files (may be used multiple times)")
+
+      def findRule(ruleName: String) = LintRule.Rules.find((r) => r.name == ruleName).getOrElse({
+            println(s"Unknown rule ${ruleName}. Available: ${LintRule.Rules.map(_.name).mkString(", ")}")
+            sys.exit(1)
+          })
+
+      def ruleList(rules: Seq[LintRule]) = rules.map(_.name).mkString(", ")
+
+      opt[String]('e', "enable-rule") unbounded() valueName("<rule-name>") action { (ruleName, c) => {
+          val rule = findRule(ruleName);
+          if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
+        }
+      } text(s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(LintRule.DefaultRules)}")
+
+      opt[String]('d', "disable-rule") unbounded() valueName("<rule-name>") action { (ruleName, c) => {
+          c.copy(enabledRules = c.enabledRules.filter(_ != findRule(ruleName)))
+        }
+      } text("rules to be disabled.")
+
 
       opt[Unit]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action { (_, c) =>
         c.copy(ignoreParseErrors = true)
