@@ -9,10 +9,14 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
@@ -93,15 +97,11 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private Set<String> thriftOpts = new HashSet<String>();
 
   /**
-   * List of dependencies to extract thrift files from, even if they
-   * do not have idl classifier. Make sure to include the
-   * correct artifact name (eg. finagle-thrift, not just finagle)
-   * {@code
-   * <dependencyIncludes>
-   *     <include>finagle-thrift</include>
-   * </dependencyIncludes>
-   * }
-   *  @parameter
+   * Deprecated. This parameter is ignored.
+   * For each resolved artifact which is a dependency of an idl artifact, the plugin
+   * re-resolves the artifact with idl classifier.
+   * @since 3.17.0
+   * @deprecated This parameter is no longer needed and will be removed in future release.
    */
   private Set<String> dependencyIncludes = new HashSet<String>();
 
@@ -163,6 +163,50 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private long staleMillis = 0;
 
   private static Object lock = new Object();
+
+  /**
+   * Artifact factory, needed to download idl jars for thrift generation
+   * @component
+   */
+  @Component
+  protected ArtifactFactory artifactFactory;
+
+  /**
+   * The local maven repository.
+   *
+   * @parameter expression="localRepository"
+   * @required
+   * @readonly
+   */
+  @Parameter(defaultValue = "${localRepository}", readonly = true)
+  private ArtifactRepository localRepository;
+
+  /**
+   * Artifact resolver, needed to download source jars for inclusion in classpath.
+   * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
+   * @required
+   * @readonly
+   */
+  @Component
+  protected ArtifactResolver artifactResolver;
+
+  /**
+   * Remote repositories which will be searched for source attachments.
+   * @parameter expression="project.remoteArtifactRepositories"
+   * @required
+   * @readonly
+   */
+  protected List remoteArtifactRepositories;
+
+  /**
+   * Classifier for the idl thrift libraries
+   * {@code
+   * <classifier>idl</classifier>
+   * }
+   * @parameter default-value="idl"
+   */
+  @Parameter(property = "maven.scrooge.classifier", defaultValue = "idl" )
+  protected String classifier;
 
   /**
    * Picks out a File from `thriftFiles` corresponding to a given artifact ID
@@ -299,14 +343,14 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   /**
    * build a complete set of local files, files from referenced projects, and dependencies.
    */
-  private Set<File> findThriftFiles() throws IOException {
+  private Set<File> findThriftFiles() throws IOException, MojoExecutionException {
     final File thriftSourceRoot = getThriftSourceRoot();
     Set<File> thriftFiles = new HashSet<File>();
     if (thriftSourceRoot != null && thriftSourceRoot.exists()) {
       thriftFiles.addAll(findThriftFilesInDirectory(thriftSourceRoot));
     }
     getLog().info("finding thrift files in dependencies");
-    extractFilesFromDependencies(findThriftDependencies(dependencyIncludes), getResourcesOutputDirectory());
+    extractFilesFromDependencies(findThriftDependencies(), getResourcesOutputDirectory());
     if (buildExtractedThrift && getResourcesOutputDirectory().exists()) {
       thriftFiles.addAll(findThriftFilesInDirectory(getResourcesOutputDirectory()));
     }
@@ -316,9 +360,9 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   }
 
   /**
-   * Iterate through dependencies, find those specified in the whitelist
+   * Iterate through dependencies
    */
-  private Set<Artifact> findThriftDependencies(Set<String> whitelist) throws IOException {
+  private Set<Artifact> findThriftDependencies() throws IOException, MojoExecutionException {
     Set<Artifact> thriftDependencies = new HashSet<Artifact>();
 
     Set<Artifact> deps = new HashSet<Artifact>();
@@ -331,23 +375,26 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     }
 
     for (Artifact artifact : deps) {
-      // This artifact is on the whitelist directly.
-      if (whitelist.contains(artifact.getArtifactId())) {
+      // This artifact has an idl classifier.
+      if (isIdlCalssifier(artifact, classifier)) {
         thriftDependencies.add(artifact);
-      // This artifact has an IDL classifier, whitelist it
-      } else if ("idl".equalsIgnoreCase(artifact.getClassifier())) {
-        thriftDependencies.add(artifact);
-      // Check if this artifact is being pulled in by an idl jar that's been whitelisted
       } else {
-        List<String> depTrail = artifact.getDependencyTrail();
-        // depTrail can be null sometimes, which seems like a maven bug
-        if (depTrail != null) {
-          for (String name : depTrail) {
-            Artifact dep = depsMap.get(name);
-            if (dep != null && "idl".equals(dep.getClassifier()) && whitelist.contains(dep.getArtifactId())) {
-              thriftDependencies.add(artifact);
-              break;
-            }
+        if (isDepOfIdlArtifact(artifact, depsMap)) {
+          // Fetch idl artifact for dependency of an idl artifact.
+          try {
+            Artifact idlArtifact = MavenScroogeCompilerUtil.getIdlArtifact(
+              artifact,
+              artifactFactory,
+              artifactResolver,
+              localRepository,
+              remoteArtifactRepositories,
+              classifier);
+            thriftDependencies.add(idlArtifact);
+          } catch (MojoExecutionException e) {
+            /* Do nothing as this artifact is not an idl artifact
+             binary jars may have dependency on thrift lib etc.
+             */
+            getLog().debug("Could not fetch idl jar for " + artifact);
           }
         }
       }
@@ -360,11 +407,16 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * @param dependencies A set of jar artifacts ths project depends on.
    * @param output The directory to copy any found files into.
    */
-  private void extractFilesFromDependencies(Collection<Artifact> dependencies, File destFolder) throws IOException {
-    for (Artifact artifact : dependencies) {
-      File dep = artifact.getFile();
-      getLog().info("extracting thrift files from " + dep.getCanonicalPath());
-      if (dep.isFile() && dep.canRead() && dep.getName().endsWith(".jar")) {
+  private void extractFilesFromDependencies(Collection<Artifact> dependencies, File destFolder)
+    throws IOException, MojoExecutionException{
+    for (Artifact idlArtifact : dependencies) {
+      if (!idlArtifact.isResolved()) {
+        throw new MojoExecutionException(format("Could not resolve idl thrift dependency %s",
+          idlArtifact));
+      }
+      File dep = idlArtifact.getFile();
+      if (dep.isFile() && dep.canRead()) {
+        getLog().info("Extracting thrift files from " + dep.getCanonicalPath());
         JarFile jar = new JarFile(dep);
         for (JarEntry entry : list(jar.entries())) {
           if (entry.getName().endsWith(THRIFT_FILE_SUFFIX)) {
@@ -437,22 +489,20 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    */
   List<File> getRecursiveThriftFiles(MavenProject project, String outputDirectory, List<File> files) throws IOException {
     HashFunction hashFun = Hashing.md5();
-    if (dependencyIncludes.contains(project.getArtifactId())) {
-      File dir = new File(new File(project.getFile().getParent(), "target"), outputDirectory);
-      if (dir.exists()) {
-        URI baseDir = getFileURI(dir);
-        for (File f : findThriftFilesInDirectory(dir)) {
-          URI fileURI = getFileURI(f);
-          String relPath = baseDir.relativize(fileURI).getPath();
-          File destFolder = getResourcesOutputDirectory();
-          destFolder.mkdirs();
-          File destFile = new File(destFolder, relPath);
-          if (!destFile.exists() || (destFile.isFile() && !Files.hash(f, hashFun).equals(Files.hash(destFile, hashFun)))) {
-            getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
-            copyFile(f, destFile);
-          }
-          files.add(destFile);
+    File dir = new File(new File(project.getFile().getParent(), "target"), outputDirectory);
+    if (dir.exists()) {
+      URI baseDir = getFileURI(dir);
+      for (File f : findThriftFilesInDirectory(dir)) {
+        URI fileURI = getFileURI(f);
+        String relPath = baseDir.relativize(fileURI).getPath();
+        File destFolder = getResourcesOutputDirectory();
+        destFolder.mkdirs();
+        File destFile = new File(destFolder, relPath);
+        if (!destFile.exists() || (destFile.isFile() && !Files.hash(f, hashFun).equals(Files.hash(destFile, hashFun)))) {
+          getLog().info(format("copying %s to %s", f.getCanonicalPath(), destFile.getCanonicalPath()));
+          copyFile(f, destFile);
         }
+        files.add(destFile);
       }
     }
     Map<String, MavenProject> refs = project.getProjectReferences();
@@ -468,5 +518,37 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     } catch (URISyntaxException urie) {
       throw new IOException("error forming URI for file transfer: " + urie);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected String getClassifier() {
+    return classifier;
+  }
+
+  /**
+   * Checks if the artifact is dependency of an dependent idl artifact
+   *  @returns true if the artifact was a dependency of idl artifact
+   */
+  private boolean isDepOfIdlArtifact(Artifact artifact, Map<String, Artifact> depsMap) {
+    List<String> depTrail = artifact.getDependencyTrail();
+    // depTrail can be null sometimes, which seems like a maven bug
+    if (depTrail != null) {
+      for (String name : depTrail) {
+        Artifact dep = depsMap.get(name);
+        if (dep != null && isIdlCalssifier(dep, classifier)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   Returns true if artifact has idl classifier
+   */
+  private boolean isIdlCalssifier(Artifact artifact, String classifier) {
+    return classifier.equalsIgnoreCase(artifact.getClassifier());
   }
 }

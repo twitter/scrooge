@@ -46,10 +46,6 @@ pom.xml file.
           <!-- add other Scrooge command line options using thriftOpts -->
           <thriftOpt>--finagle</thriftOpt>
         </thriftOpts>
-        <!-- tell scrooge to extract thrifts from these artifacts -->
-        <dependencyIncludes>
-          <include>event-logger-thrift</include>
-        </dependencyIncludes>
         <!-- tell scrooge to not to build the extracted thrift files (defaults to true) -->
         <buildExtractedThrift>false</buildExtractedThrift>
       </configuration>
@@ -70,3 +66,10 @@ pom.xml file.
         </execution>
       </executions>
     </plugin>
+
+Upgrading from maven-scrooge-plugin 3.16.0 to 3.17.0
+====================================================
+
+Maven plugin 3.17.0 is backward compatible with the configuration defined for 3.16.0
+The configuration parameter '<dependencyIncludes>' is deprecated and ignored in this version.
+If your pom.xml contains this attribute, please remove it.

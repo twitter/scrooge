@@ -1,0 +1,9 @@
+namespace java com.twitter.hello.thriftjava;
+#namespace scala com.twitter.hello.thriftscala;
+
+include "com/twitter/person/person.thrift";
+
+struct HelloMessage {
+  1: string salutation = "Hello";
+  2: person.Person person;
+}

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.twitter.unit</groupId>
+  <artifactId>project-idl-deps</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.twitter</groupId>
+        <artifactId>scrooge-maven-plugin</artifactId>
+        <version>3.17.0</version>
+        <configuration>
+          <classifier>idl</classifier>
+          <project implementation="com.twitter.stubs.ProjectIdlDependenciesStub">
+            <dependencyArtifacts>
+              <artifact implementation="com.twitter.stubs.IdlDepArtifactStub">
+                <groupId>com.twitter</groupId>
+                <artifactId>hello-java</artifactId>
+                <version>0.0.1</version>
+                <classifier>idl</classifier>
+                <scope>compile</scope>
+                <resolved>true</resolved>
+                <type>jar</type>
+                <file>${basedir}/src/test/resources/unit/project-idl-deps/local-repository/com/twitter/hello-java/0.0.1/hello-java-0.0.1-idl.jar</file>
+              </artifact>
+              <artifact implementation="com.twitter.stubs.IdlDepArtifactStub">
+                <groupId>com.twitter</groupId>
+                <artifactId>person-java</artifactId>
+                <version>0.0.1</version>
+                <scope>compile</scope>
+                <type>jar</type>
+                <idlDeps>
+                  <String>com.twitter:hello-java</String>
+                </idlDeps>
+              </artifact>
+            </dependencyArtifacts>
+          </project>
+          <localRepository>${localRepository}</localRepository>
+          <outputDirectory>${basedir}/target/test/unit/project-idl-deps/output</outputDirectory>
+          <thriftOpts>
+            <thriftOpt>--finagle</thriftOpt>
+          </thriftOpts>
+          <language>java</language>
+          <resourcesOutputDirectory>${basedir}/target/test/unit/project-idl-deps/target</resourcesOutputDirectory>
+          <thriftSourceRoot>${basedir}/target/test/unit/project-idl-deps/src/main/thrift</thriftSourceRoot>
+        </configuration>
+        <executions>
+          <execution>
+            <id>thrift-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

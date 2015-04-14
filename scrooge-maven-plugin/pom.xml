@@ -7,7 +7,7 @@
   <name>scrooge-maven-plugin</name>
   <version>3.17.0</version>
   <prerequisites>
-    <maven>2.0.6</maven>
+    <maven>3.0.4</maven>
   </prerequisites>
   <url>http://github.com/twitter/scrooge</url>
   <description>A Thrift generator for Scala</description>
@@ -139,7 +139,7 @@
           </execution>
         </executions>
         <configuration>
-          <scalaVersion>2.10</scalaVersion>
+          <scalaVersion>2.10.4</scalaVersion>
         </configuration>
       </plugin>
       <plugin>
@@ -179,30 +179,50 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.5</version>
-      <scope>test</scope>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>3.0.5</version>
+      <!-- Exclude sisu-guice which patches com.google.inject#guice-3.0.0
+       This dependency causes https://github.com/google/guice/issues/846-->
+      <exclusions>
+        <exclusion>
+          <groupId>org.sonatype.sisu</groupId>
+          <artifactId>sisu-guice</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- Include the fix for https://github.com/google/guice/issues/846 -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>4.0-beta5</version>
+    </dependency>
+    <!-- This dependency is required to patch the new api dependency vs old api style plugins-->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-compat</artifactId>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>2.0.9</version>
+      <artifactId>maven-project</artifactId>
+      <version>2.2.1</version>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>16.0.1</version>
+      <groupId>org.apache.maven.reporting</groupId>
+      <artifactId>maven-reporting-api</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>3.4</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>1.5.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>2.0.9</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -215,9 +235,39 @@
       <version>1.6.1</version>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>16.0.1</version>
+    </dependency>
+    <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.10</artifactId>
-      <version>3.17.0</version>
+      <version>20150406130043-4945435</version>
+    </dependency>
+    <!-- Test Dependencies-->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-testing</groupId>
+      <artifactId>maven-plugin-testing-harness</artifactId>
+      <version>2.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact-ant</artifactId>
+      <version>2.0.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <reporting>

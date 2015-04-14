@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.twitter.unit</groupId>
+  <artifactId>unresolved-idl</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.twitter</groupId>
+        <artifactId>scrooge-maven-plugin</artifactId>
+        <version>3.17.0</version>
+        <configuration>
+          <classifier>idl</classifier>
+          <project implementation="com.twitter.stubs.ProjectIdlDependenciesStub">
+            <dependencyArtifacts>
+              <artifact implementation="com.twitter.stubs.IdlDepArtifactStub">
+                <groupId>com.twitter</groupId>
+                <artifactId>person-java</artifactId>
+                <version>0.0.1</version>
+                <scope>compile</scope>
+                <type>jar</type>
+                <resolved>false</resolved>
+                <type>jar</type>
+                <classifier>idl</classifier>
+              </artifact>
+            </dependencyArtifacts>
+          </project>
+          <localRepository>${localRepository}</localRepository>
+          <outputDirectory>${basedir}/target/test/unit/unresolved-idl/output</outputDirectory>
+          <thriftOpts>
+            <thriftOpt>--finagle</thriftOpt>
+          </thriftOpts>
+          <language>java</language>
+          <resourcesOutputDirectory>${basedir}/target/test/unit/unresolved-idl/target</resourcesOutputDirectory>
+          <thriftSourceRoot>${basedir}/target/test/unit/unresolved-idl/src/main/thrift</thriftSourceRoot>
+        </configuration>
+        <executions>
+          <execution>
+            <id>thrift-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
