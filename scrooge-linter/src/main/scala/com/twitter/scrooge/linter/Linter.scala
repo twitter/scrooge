@@ -56,7 +56,8 @@ object LintRule {
   )
 
   val Rules = DefaultRules ++ Seq(
-    TransitivePersistence
+    TransitivePersistence,
+    DocumentedPersisted
   )
 
   /**
@@ -100,6 +101,23 @@ object LintRule {
       } yield LintMessage(
           s"struct ${struct.originalName} with persisted annotation refers to struct ${structChild} that is not annotated persisted.",
           Error)
+    }
+  }
+
+  /**
+   * all structs annotated (persisted = "true") must have their fields documented
+   */
+  object DocumentedPersisted extends LintRule {
+    def apply(doc: Document) = {
+      val persistedStructs = doc.structs.filter(TransitivePersistence.isPersisted(_))
+      val fieldsErrors = for {
+        s <- persistedStructs
+        field <- s.fields if field.docstring.isEmpty
+      } yield LintMessage(s"Missing documentation on field ${field.originalName} in struct ${s.originalName} annotated (persisted = 'true').", Error)
+      val structErrors = for {
+        s <- persistedStructs if s.docstring.isEmpty
+      } yield LintMessage(s"Missing documentation on struct ${s.originalName} annotated (persisted = 'true').", Error)
+      structErrors ++ fieldsErrors
     }
   }
 

@@ -153,6 +153,47 @@ class LinterSpec extends WordSpec with MustMatchers {
       )))
     }
 
+    "fail DocumentedPersisted" in {
+      val errors = LintRule.DocumentedPersisted(
+        Document(
+          Seq(),
+          Seq(
+            struct(
+              "SomeType",
+              Map(
+                "foo" -> TString
+              ),
+              true
+            )
+          )
+      )).toSeq
+      errors.length must be(2)
+      val structError = errors(0).msg
+      assert(structError.contains("SomeType"))
+      val fieldError = errors(1).msg
+      assert(fieldError.contains("foo"))
+      assert(fieldError.contains("SomeType"))
+    }
+
+    "pass DocumentedPersisted" in {
+      mustPass(LintRule.DocumentedPersisted(
+        Document(
+          Seq(),
+          Seq(
+            Struct(
+              SimpleID("SomeType"),
+              "SomeType",
+              Seq(Field(1,
+                SimpleID("foo"),
+                "foo",
+                TString,
+                docstring = Some("blah blah"))),
+              docstring = Some("documented struct is documented"),
+              Map("persisted" -> "true"))
+          )
+      )))
+    }
+
     "pass RequiredFieldDefault" in {
       mustPass(
         LintRule.RequiredFieldDefault(Document(
