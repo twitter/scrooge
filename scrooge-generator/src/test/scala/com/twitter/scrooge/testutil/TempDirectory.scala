@@ -1,7 +1,7 @@
 package com.twitter.scrooge.testutil
 
-import java.io.File
 import com.twitter.io.Files
+import java.io.File
 
 object TempDirectory {
   /**

@@ -1,8 +1,8 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.frontend.ResolvedDocument
-import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.mustache.HandlebarLoader
+import com.twitter.scrooge.testutil.Spec
 
 class TestGeneratorFactory extends GeneratorFactory {
   val lang = "test"

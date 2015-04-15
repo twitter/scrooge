@@ -34,6 +34,11 @@ SBT users need this:
 
     val scroogeCore = "com.twitter" %% "scrooge-core" % "3.3.2"
 
+## Building the develop branch locally
+
+You will need the develop branches of util, ostrich, and finagle.
+Then `./sbt publish-local` for each of them.
+
 ## Full Documentation
 
 <https://twitter.github.io/scrooge/>

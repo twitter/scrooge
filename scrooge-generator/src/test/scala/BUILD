@@ -1,4 +1,4 @@
-scala_library(name='testutil',
+scala_library(name='scala',
   dependencies=[
     '3rdparty/jvm/org/jmock',
     '3rdparty/jvm/junit',
@@ -7,7 +7,12 @@ scala_library(name='testutil',
     '3rdparty/jvm/org/scalatest',
     'finagle/finagle-thrift',
     'scrooge/scrooge-core',
+    'scrooge/scrooge-generator',
+    'scrooge/scrooge-runtime',
     'util/util-core',
-],
+  ],
   sources=rglobs('*.scala'),
+  resources=[
+    'scrooge/scrooge-generator/src/test/resources:resources'
+  ],
 )

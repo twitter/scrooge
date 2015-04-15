@@ -1,5 +1,6 @@
-package com.twitter.scrooge.ast
+package com.twitter.scrooge
 
+import com.twitter.scrooge.ast.{Document, Identifier, Include, Namespace, SimpleID}
 import com.twitter.scrooge.testutil.Spec
 
 class ASTSpec extends Spec {

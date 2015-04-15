@@ -1,7 +1,5 @@
 package com.twitter.scrooge;
 
-import java.util.*;
-
 public abstract class Option<A> {
   public abstract A get();
   public abstract boolean isDefined();

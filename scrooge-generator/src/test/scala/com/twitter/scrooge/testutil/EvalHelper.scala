@@ -1,13 +1,13 @@
 package com.twitter.scrooge.testutil
 
+import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.scrooge.ThriftStruct
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.hamcrest.{BaseMatcher, Description}
 import org.jmock.Expectations
-import org.jmock.Expectations.{any, anything, equal, returnValue}
-import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.scrooge.ThriftStruct
+import org.jmock.Expectations.{any, returnValue}
 
 trait EvalHelper {
   class TFieldMatcher(obj: TField) extends BaseMatcher[TField] {

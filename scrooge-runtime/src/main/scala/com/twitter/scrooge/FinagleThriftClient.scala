@@ -1,9 +1,9 @@
 package com.twitter.scrooge
 
-import java.util.Arrays
 import com.twitter.finagle.{Service, SourcedException}
 import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.util.Future
+import java.util.Arrays
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryInputTransport, TMemoryBuffer}

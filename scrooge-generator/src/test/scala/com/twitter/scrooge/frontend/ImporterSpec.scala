@@ -1,8 +1,7 @@
 package com.twitter.scrooge.frontend
 
+import com.twitter.scrooge.testutil.{Spec, TempDirectory}
 import java.io.{File, FileOutputStream}
-import com.twitter.scrooge.testutil.Spec
-import com.twitter.scrooge.testutil.TempDirectory
 
 class ImporterSpec extends Spec {
   "fileImporter" should {
@@ -42,7 +41,7 @@ class ImporterSpec extends Spec {
       (c.get.importer.canonicalPaths contains folder2.getCanonicalPath) must be(true)
       c.get.thriftFilename.get must be("a.thrift")
     }
-    
+
     "reads utf-8 data correctly" in {
       val folder1 = new File(testFolder, "f1")
       val folder2 = new File(testFolder, "f2")

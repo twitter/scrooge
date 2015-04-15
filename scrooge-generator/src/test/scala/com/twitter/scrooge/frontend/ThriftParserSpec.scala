@@ -1,6 +1,5 @@
 package com.twitter.scrooge.frontend
 
-import com.twitter.scrooge._
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.testutil.Spec
 

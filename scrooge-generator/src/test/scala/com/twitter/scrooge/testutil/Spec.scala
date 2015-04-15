@@ -1,10 +1,9 @@
 package com.twitter.scrooge.testutil
 
 import org.junit.runner.RunWith
-import org.scalatest.WordSpec
+import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.MustMatchers
-import org.scalatest.mock.{JMockCycle, JMockCycleFixture, MockitoSugar}
+import org.scalatest.mock.{JMockCycleFixture, MockitoSugar}
 import org.scalatest.fixture.{WordSpec => FixtureWordSpec}
 
 @RunWith(classOf[JUnitRunner])

@@ -26,7 +26,7 @@ public class Utilities {
   }
 
   public static <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
-    Map<A, B> map = new HashMap<A, B>();
+    Map<A, B> map = new HashMap<A, B>(elements.length * 2 / 3);
     for (Tuple<A, B> element : elements) {
       map.put(element.getFirst(), element.getSecond());
     }
@@ -34,7 +34,7 @@ public class Utilities {
   }
 
   public static <T> Set<T> makeSet(T... elements) {
-    Set<T> set = new HashSet<T>();
+    Set<T> set = new HashSet<T>(elements.length * 2 / 3);
     for (T element : elements) {
       set.add(element);
     }

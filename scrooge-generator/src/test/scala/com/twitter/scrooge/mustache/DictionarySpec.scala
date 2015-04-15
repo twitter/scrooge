@@ -16,7 +16,7 @@
 
 package com.twitter.scrooge.mustache
 
-import Dictionary._
+import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.testutil.Spec
 
 class DictionarySpec extends Spec {

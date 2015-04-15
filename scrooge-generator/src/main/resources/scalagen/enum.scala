@@ -14,7 +14,7 @@ case object {{EnumName}} {
   }
 {{/values}}
 
-  case class EnumUnknown{{EnumName}}(val value: Int) extends {{package}}.{{EnumName}} {
+  case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
     val name = "EnumUnknown{{EnumName}}" + value
   }
 

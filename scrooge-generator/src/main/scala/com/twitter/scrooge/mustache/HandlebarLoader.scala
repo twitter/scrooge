@@ -29,19 +29,16 @@ class HandlebarLoader(prefix: String, suffix: String = ".scala") {
     val fullName = prefix + name + suffix
     cache.getOrElseUpdate(name,
       getClass.getResourceAsStream(fullName) match {
-        case null => {
+        case null =>
           throw new NoSuchElementException("template not found: " + fullName)
-        }
-        case inputStream => {
+        case inputStream =>
           try {
             new Handlebar(Source.fromInputStream(inputStream).getLines().mkString("\n"))
           } catch {
-            case e: Exception => {
+            case e: Exception =>
               println("Exception parsing template at " + fullName)
               throw e
-            }
           }
-        }
       }
     )
   }

@@ -1,16 +1,15 @@
-package com.twitter.scrooge
-package backend
-
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
-import java.nio.ByteBuffer
-import java.util.EnumSet
+package com.twitter.scrooge.backend
 
 import com.twitter.finagle
 import com.twitter.finagle.SourcedException
 import com.twitter.finagle.stats.NullStatsReceiver
 import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.scrooge.{Option, Utilities}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.util.{Await, Future}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.nio.ByteBuffer
+import java.util.EnumSet
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.jmock.Expectations.returnValue

@@ -1,10 +1,10 @@
 package com.twitter.scrooge.integration
 
-import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TMemoryBuffer
-import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.{integration_apache => apacheGen}
 import com.twitter.scrooge.{integration_java => scroogeGen}
+import com.twitter.scrooge.testutil.Spec
+import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.transport.TMemoryBuffer
 
 // TODO: CSL-405(union fields are not accessible from Java). Add union tests
 class JavaIntegrationSpec extends Spec {

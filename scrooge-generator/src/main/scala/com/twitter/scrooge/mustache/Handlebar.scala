@@ -43,7 +43,7 @@ object Handlebar {
       // if each item is at least one entire line to itself, apply the joiner to the end of the
       // line, instead of onto its own line.
       val rv = x map { item =>
-        if (item endsWith "\n") item.substring(0, item.size - 1) else item
+        if (item endsWith "\n") item.substring(0, item.length - 1) else item
       } mkString(joiner + "\n")
       rv + "\n"
     } else {
@@ -54,7 +54,7 @@ object Handlebar {
   private[this] def process(indentLevel: Int, segment: Segment, dictionary: Dictionary): (Int, String) = {
     var nextIndentLevel = 0
     val processed = segment match {
-      case Data(data) => {
+      case Data(data) =>
         nextIndentLevel = {
           val lastLine = data.split("\n").lastOption.getOrElse("")
           if (OnlySpaces.findFirstIn(lastLine).isDefined) {
@@ -64,31 +64,27 @@ object Handlebar {
           }
         }
         data
-      }
       case Interpolation(name) => dictionary(name).toData
-      case Section(name, document, reversed, joiner) => {
+      case Section(name, document, reversed, joiner) =>
         dictionary(name) match {
-          case ListValue(items) => {
+          case ListValue(items) =>
             if (reversed) {
               ""
             } else {
               val contents = items.map { d => generate(indentLevel, document, d) }
-              joiner map { join(contents, _) } getOrElse(contents.mkString)
+              joiner map {join(contents, _)} getOrElse (contents.mkString)
             }
-          }
-          case other => {
+          case other =>
             val expose = if (reversed) !other.toBoolean else other.toBoolean
             if (expose) {
               generate(indentLevel, document, dictionary)
             } else {
               ""
             }
-          }
         }
-      }
-      case Partial(name) => {
+      case Partial(name) =>
         dictionary(name) match {
-          case PartialValue(handlebar) => {
+          case PartialValue(handlebar) =>
             val generated = handlebar.generate(dictionary)
             if (indentLevel > 0) {
               val indentation = Space * indentLevel
@@ -103,10 +99,10 @@ object Handlebar {
               indented
             } else
               generated
-          }
+
           case other => ""
         }
-      }
+
     }
     (nextIndentLevel, processed)
   }

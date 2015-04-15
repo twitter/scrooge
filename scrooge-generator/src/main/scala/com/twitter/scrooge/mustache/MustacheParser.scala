@@ -16,8 +16,8 @@
 
 package com.twitter.scrooge.mustache
 
-import scala.util.parsing.combinator._
 import com.twitter.scrooge.frontend.ParseException
+import scala.util.parsing.combinator._
 
 object MustacheAST {
   case class Template(segments: Seq[Segment])
@@ -99,25 +99,21 @@ object CleanupWhitespace extends (MustacheAST.Template => MustacheAST.Template) 
     var afterSectionHeader = true
     var sectionHeaderStartedLine = true
     val segments = document.segments.map {
-      case Data(data) if afterSectionHeader && sectionHeaderStartedLine && (data startsWith "\n") => {
+      case Data(data) if afterSectionHeader && sectionHeaderStartedLine && (data startsWith "\n") =>
         afterSectionHeader = false
         sectionHeaderStartedLine = (data endsWith "\n")
         Data(data.substring(1))
-      }
-      case x @ Section(_, _, _, _) => {
+      case x @ Section(_, _, _, _) =>
         afterSectionHeader = true
         apply(x)
-      }
-      case x @ Data(data) if (data endsWith "\n") => {
+      case x @ Data(data) if (data endsWith "\n") =>
         afterSectionHeader = false
         sectionHeaderStartedLine = true
         x
-      }
-      case x => {
+      case x =>
         afterSectionHeader = false
         sectionHeaderStartedLine = false
         apply(x)
-      }
     }
     Template(segments)
   }

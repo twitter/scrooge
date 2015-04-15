@@ -16,8 +16,8 @@
 
 package com.twitter.scrooge.mustache
 
-import MustacheAST._
 import com.twitter.scrooge.frontend.ParseException
+import com.twitter.scrooge.mustache.MustacheAST._
 import com.twitter.scrooge.testutil.Spec
 
 class ParserSpec extends Spec {

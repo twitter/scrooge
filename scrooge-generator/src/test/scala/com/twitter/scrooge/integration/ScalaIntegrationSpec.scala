@@ -1,10 +1,10 @@
 package com.twitter.scrooge.integration
 
-import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TMemoryBuffer
 import com.twitter.scrooge.{integration_apache => apacheGen}
 import com.twitter.scrooge.{integration_scala => scroogeGen}
 import com.twitter.scrooge.testutil.Spec
+import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.transport.TMemoryBuffer
 
 // TODO CSL-401: test apache service/Scrooge client and Scrooge service/Apache client
 class ScalaIntegrationSpec extends Spec {

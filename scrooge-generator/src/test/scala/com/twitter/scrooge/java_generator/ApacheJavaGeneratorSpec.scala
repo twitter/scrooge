@@ -1,16 +1,15 @@
 package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.frontend._
-import java.io._
-import java.util.EnumSet
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
-import com.twitter.mustache.ScalaObjectHandler
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
+import com.twitter.mustache.ScalaObjectHandler
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
 import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
-import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import com.twitter.scrooge.testutil.Spec
+import java.io._
+import java.util.EnumSet
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TMemoryBuffer
 import org.mockito.Mockito._
