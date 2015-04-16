@@ -38,7 +38,7 @@ case class TFieldBlob(field: TField, data: Array[Byte]) {
   }
 
   /**
-   * Niether TField nor Array[Byte] implement Object.equals(Object) in a way that is
+   * Neither TField nor Array[Byte] implement Object.equals(Object) in a way that is
    * appropriate, so we need a custom equals method to handle that.
    */
   override def equals(other: Any): Boolean =

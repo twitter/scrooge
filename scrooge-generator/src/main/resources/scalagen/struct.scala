@@ -320,44 +320,47 @@ class {{StructName}}(
 {{#withFieldGettersAndSetters}}
   /**
    * Gets a field value encoded as a binary blob using TCompactProtocol.  If the specified field
-   * is present in the passthrough map, that value is returend.  Otherwise, if the specified field
+   * is present in the passthrough map, that value is returned.  Otherwise, if the specified field
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): Option[TFieldBlob] = {
     lazy val _buff = new TMemoryBuffer(32)
     lazy val _oprot = new TCompactProtocol(_buff)
-    _passthroughFields.get(_fieldId) orElse {
-      val _fieldOpt: Option[TField] =
-        _fieldId match {
+    _passthroughFields.get(_fieldId) match {
+      case blob: Some[TFieldBlob] => blob
+      case None => {
+        val _fieldOpt: Option[TField] =
+          _fieldId match {
 {{#fields}}
-          case {{id}} =>
+            case {{id}} =>
 {{#readWriteInfo}}
 {{#optional}}
-            if ({{fieldName}}.isDefined) {
+              if ({{fieldName}}.isDefined) {
 {{/optional}}
 {{^optional}}
 {{#nullable}}
-            if ({{fieldName}} ne null) {
+              if ({{fieldName}} ne null) {
 {{/nullable}}
 {{^nullable}}
-            if (true) {
+              if (true) {
 {{/nullable}}
 {{/optional}}
-              {{writeFieldValueName}}({{fieldName}}{{#optional}}.get{{/optional}}, _oprot)
-              Some({{StructName}}.{{fieldConst}})
-            } else {
-              None
-            }
+                {{writeFieldValueName}}({{fieldName}}{{#optional}}.get{{/optional}}, _oprot)
+                Some({{StructName}}.{{fieldConst}})
+              } else {
+                None
+              }
 {{/readWriteInfo}}
 {{/fields}}
-          case _ => None
+            case _ => None
+          }
+        _fieldOpt match {
+          case Some(_field) =>
+            val _data = Arrays.copyOfRange(_buff.getArray, 0, _buff.length)
+            Some(TFieldBlob(_field, _data))
+          case None =>
+            None
         }
-      _fieldOpt match {
-        case Some(_field) =>
-          val _data = Arrays.copyOfRange(_buff.getArray, 0, _buff.length)
-          Some(TFieldBlob(_field, _data))
-        case None =>
-          None
       }
     }
   }
@@ -403,7 +406,7 @@ class {{StructName}}(
 
   /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
-   * known, it is reverted to its default value; if the field is unknown, it is subtracked
+   * known, it is reverted to its default value; if the field is unknown, it is removed
    * from the passthroughFields map, if present.
    */
   def unsetField(_fieldId: Short): {{StructName}} = {
@@ -433,7 +436,7 @@ class {{StructName}}(
 
   /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
-   * known, it is reverted to its default value; if the field is unknown, it is subtracked
+   * known, it is reverted to its default value; if the field is unknown, it is removed
    * from the passthroughFields map, if present.
    */
 {{#fields}}
@@ -460,7 +463,7 @@ class {{StructName}}(
 {{/optional}}
 {{/readWriteInfo}}
 {{/fields}}
-    _passthroughFields.values foreach { _.write(_oprot) }
+    _passthroughFields.values.foreach { _.write(_oprot) }
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }

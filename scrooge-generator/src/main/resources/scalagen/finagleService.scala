@@ -1,6 +1,7 @@
 package {{package}}
 
-import com.twitter.finagle.{Service => FinagleService}
+import com.twitter.finagle.{Service => FinagleService, Thrift}
+import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.scrooge.{ThriftStruct, TReusableMemoryTransport}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
@@ -18,9 +19,17 @@ import scala.language.higherKinds
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleService(
   iface: {{ServiceName}}[Future],
-  protocolFactory: TProtocolFactory
+  protocolFactory: TProtocolFactory,
+  stats: StatsReceiver,
+  maxThriftBufferSize: Int
 ) extends {{finagleServiceParent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}} {
   import {{ServiceName}}._
+
+  def this(
+    iface: {{ServiceName}}[Future],
+    protocolFactory: TProtocolFactory
+  ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.maxThriftBufferSize)
+
 {{^hasParent}}
 
   private[this] val tlReusableBuffer = new ThreadLocal[TReusableMemoryTransport] {
@@ -33,8 +42,11 @@ class {{ServiceName}}$FinagleService(
     buf
   }
 
-  private[this] def resetBuffer(trans: TReusableMemoryTransport, maxCapacity: Int = 4096) {
-    if (trans.currentCapacity > maxCapacity) {
+  private[this] val resetCounter = stats.scope("buffer").counter("resetCount")
+
+  private[this] def resetBuffer(trans: TReusableMemoryTransport): Unit = {
+    if (trans.currentCapacity > maxThriftBufferSize) {
+      resetCounter.incr()
       tlReusableBuffer.remove()
     }
   }
