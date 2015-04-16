@@ -175,7 +175,7 @@ class ApacheJavaGenerator(
   ): String = {
     fieldType match {
       case SetType(eltType: EnumType, _) =>
-        s"com.twitter.scrooge.Utilities.makeEnumSet(${typeName(eltType)}.class)"
+        s"EnumSet.noneOf(${typeName(eltType)}.class)"
       case _ =>
         val tName = typeName(fieldType, inInit = true)
         s"new ${tName}()"
