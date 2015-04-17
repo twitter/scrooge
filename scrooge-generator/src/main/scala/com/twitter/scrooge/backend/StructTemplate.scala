@@ -110,6 +110,12 @@ trait StructTemplate { self: TemplateGenerator =>
     fields.zipWithIndex map {
       case (field, index) =>
         val valueVariableID = field.sid.append("_item")
+        val fieldName = genID(field.sid)
+        val camelCaseFieldName = if (fieldName.toString.indexOf('_') >= 0)
+          genID(field.sid.toCamelCase)
+        else
+          NoValue
+
         Dictionary(
           "index" -> codify(index.toString),
           "indexP1" -> codify((index + 1).toString),
@@ -120,8 +126,9 @@ trait StructTemplate { self: TemplateGenerator =>
           "readBlobName" -> genID(field.sid.toTitleCase.prepend("read").append("Blob")),
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
-          "fieldName" -> genID(field.sid),
+          "fieldName" -> fieldName,
           "fieldNameForWire" -> codify(field.originalName),
+          "fieldNameCamelCase" -> camelCaseFieldName,
           "newFieldName" -> genID(field.sid.toTitleCase.prepend("new")),
           "FieldName" -> genID(field.sid.toTitleCase),
           "FIELD_NAME" -> genID(field.sid.toUpperCase),
@@ -249,20 +256,17 @@ trait StructTemplate { self: TemplateGenerator =>
   }
 
   private def exceptionMsgFieldName(struct: StructLike): Option[SimpleID] = {
-    val msgField: Option[Field] = struct.fields find {
-      field =>
+    val msgField: Option[Field] = struct.fields.find { field =>
       // 1st choice: find a field called message
-        field.sid.name == "message"
-    } orElse {
+      field.sid.name == "message"
+    }.orElse {
       // 2nd choice: the first string field
-      struct.fields find {
+      struct.fields.find {
         field => field.fieldType == TString
       }
     }
 
-    msgField map {
-      _.sid
-    }
+    msgField.map { _.sid }
   }
 
   def structDict(
@@ -270,7 +274,7 @@ trait StructTemplate { self: TemplateGenerator =>
     namespace: Option[Identifier],
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption]
-  ) = {
+  ): Dictionary = {
     val isStruct = struct.isInstanceOf[Struct]
     val isException = struct.isInstanceOf[Exception_]
     val isUnion = struct.isInstanceOf[Union]
@@ -288,32 +292,34 @@ trait StructTemplate { self: TemplateGenerator =>
       }
     val arity = struct.fields.size
     val product = if (arity >= 1 && arity <= 22) {
-      val fieldTypes = struct.fields.map {
-        f => genFieldType(f).toData
+      val fieldTypes = struct.fields.map { f =>
+        genFieldType(f).toData
       }.mkString(", ")
-      "scala.Product" + arity + "[" + fieldTypes + "]"
+      s"scala.Product$arity[$fieldTypes]"
     } else {
       "scala.Product"
     }
 
-    val exceptionMsgField: Option[SimpleID] = if (isException) exceptionMsgFieldName(struct) else None
+    val exceptionMsgField: Option[SimpleID] =
+      if (isException) exceptionMsgFieldName(struct) else None
 
     val fieldDictionaries = fieldsToDict(
       struct.fields,
-      if (isException) Seq("message") else Seq())
+      if (isException) Seq("message") else Nil)
 
     val isPublic = namespace.isDefined
     val structName = if (isPublic) genID(struct.sid.toTitleCase) else genID(struct.sid)
 
     Dictionary(
       "public" -> v(isPublic),
-      "package" -> namespace.map{ genID(_) }.getOrElse(codify("")),
+      "package" -> namespace.map(genID).getOrElse(codify("")),
       "docstring" -> codify(struct.docstring.getOrElse("")),
       "parentType" -> codify(parentType),
       "fields" -> v(fieldDictionaries),
-      "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Seq())),
+      "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Nil)),
       "alternativeConstructor" -> v(
-        struct.fields.exists(_.requiredness.isOptional) && struct.fields.exists(_.requiredness.isDefault)),
+        struct.fields.exists(_.requiredness.isOptional)
+        && struct.fields.exists(_.requiredness.isDefault)),
       "StructNameForWire" -> codify(struct.originalName),
       "StructName" ->
         // if isPublic, the struct comes from a Thrift definition. Otherwise
@@ -324,7 +330,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "arity" -> codify(arity.toString),
       "isException" -> v(isException),
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
-      "exceptionMessageField" -> exceptionMsgField.map { genID(_) }.getOrElse { codify("")},
+      "exceptionMessageField" -> exceptionMsgField.map(genID).getOrElse { codify("")},
       "product" -> codify(product),
       "arity0" -> v(arity == 0),
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
@@ -347,4 +353,3 @@ object StructTemplate {
     Dictionary("pairs" -> v(pairDicts))
   }
 }
-

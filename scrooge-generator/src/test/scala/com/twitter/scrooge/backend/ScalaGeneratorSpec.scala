@@ -185,6 +185,15 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         decodedNew must be(UnionPostEvolution.NewField(unionField))
       }
 
+      "produce aliases for union fields with underscores" in { _ =>
+        val unionField = NewUnionField(
+          14653230,
+          SomeInnerUnionStruct(26, "a_a")
+        )
+        val union = UnionWithUnderscores.NewField(unionField)
+        assert(union.newField == union.new_field)
+      }
+
       "be identified as an ENUM" in { _ =>
         EnumStruct.NumberField.`type` must be(TType.ENUM)
       }

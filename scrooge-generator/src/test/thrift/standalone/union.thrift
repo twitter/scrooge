@@ -23,6 +23,11 @@ union UnionPostEvolution {
   2: NewUnionField newField
 }
 
+union UnionWithUnderscores {
+  1: OldUnionField old_field
+  2: NewUnionField new_field
+}
+
 struct MatchingStructField { 1: i64 id }
 struct MatchingStructList { 1: i64 id }
 struct MatchingStructSet { 1: i64 id }

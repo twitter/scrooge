@@ -62,6 +62,7 @@ object Dictionary {
    * Wrap generated code fragments in the form of Strings in a dictionary value.
    */
   def codify(code: String): CodeFragment = CodeFragment(code)
+
   /**
    * Wrap a boolean flag in a dictionary value.
    */
@@ -87,7 +88,7 @@ object Dictionary {
    */
   def v(data: Handlebar): Value = PartialValue(data)
 
-  def apply(values: (String, Value)*) = new Dictionary ++= (values: _*)
+  def apply(values: (String, Value)*): Dictionary = new Dictionary ++= (values: _*)
 }
 
 case class Dictionary private(
@@ -109,28 +110,28 @@ case class Dictionary private(
     }.getOrElse(NoValue)
   }
 
-  def update(key: String, data: String) {
+  def update(key: String, data: String): Unit = {
     map(key) = CodeFragment(data)
   }
 
-  def update(key: String, data: Boolean) {
+  def update(key: String, data: Boolean): Unit = {
     map(key) = BooleanValue(data)
   }
 
-  def update(key: String, data: Seq[Dictionary]) {
+  def update(key: String, data: Seq[Dictionary]): Unit = {
     map(key) = ListValue(data)
   }
 
-  def update(key: String, data: Handlebar) {
+  def update(key: String, data: Handlebar): Unit = {
     map(key) = PartialValue(data)
   }
 
-  def ++=(values: (String, Value)*) = {
+  def ++=(values: (String, Value)*): Dictionary = {
     map ++= values.toMap
     this
   }
 
-  def +(dict: Dictionary) = {
+  def +(dict: Dictionary): Dictionary = {
     new Dictionary() ++= (this.map.toSeq: _*) ++= (dict.map.toSeq: _*)
   }
 }

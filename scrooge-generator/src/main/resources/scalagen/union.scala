@@ -124,7 +124,6 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields|,}}
   )
 
-
   override def encode(_item: {{StructName}}, _oprot: TProtocol): Unit = { _item.write(_oprot) }
   override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}Decoder(_iprot, UnknownUnionField(_))
 
@@ -177,6 +176,11 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   }
 
   case class {{FieldName}}({{fieldName}}: {{FieldName}}Alias{{#hasDefaultValue}} = {{FieldName}}DefaultValue{{/hasDefaultValue}}) extends {{StructName}} {
+{{#fieldNameCamelCase}}
+    /** An alias for `{{fieldName}}` */
+    def {{fieldNameCamelCase}}: {{FieldName}}Alias = {{fieldName}}
+{{/fieldNameCamelCase}}
+
     override def write(_oprot: TProtocol): Unit = {
 {{^isPrimitive}}
       if ({{fieldName}} == null)

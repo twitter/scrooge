@@ -16,15 +16,13 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 
-import java.io.{OutputStreamWriter, FileOutputStream, File}
-import scala.collection.mutable
-import com.twitter.scrooge.mustache.HandlebarLoader
-import com.twitter.scrooge.ast._
-import com.twitter.scrooge.mustache.Dictionary
-import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
-import scala.collection.JavaConverters._
-import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 import com.twitter.finagle.util.LoadService
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
+import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
+import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
+import java.io.{File, FileOutputStream, OutputStreamWriter}
+import scala.collection.mutable
 
 abstract sealed class ServiceOption
 
@@ -158,7 +156,7 @@ trait Generator extends ThriftGenerator {
   // methods that convert AST nodes to CodeFragment
   def genID(data: Identifier): CodeFragment = data match {
     case SimpleID(name, _) => codify(quoteKeyword(name))
-    case QualifiedID(names) => codify(names.map { quoteKeyword(_) }.mkString("."))
+    case QualifiedID(names) => codify(names.map(quoteKeyword).mkString("."))
   }
 
   def genConstant(constant: RHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -338,7 +336,7 @@ trait TemplateGenerator extends Generator
     val namespace = getNamespace(_doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
     val includes = doc.headers.collect {
-      case x@ Include(_, doc) => x
+      case x@Include(_, _) => x
     }
 
     if (doc.consts.nonEmpty) {
