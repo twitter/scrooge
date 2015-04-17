@@ -7,14 +7,14 @@ if (_map.size == 0) {
   var _i = 0
   while (_i < _map.size) {
     val _key = {
-  {{#keyReadWriteInfo}}
+{{#keyReadWriteInfo}}
       {{>readValue}}
-  {{/keyReadWriteInfo}}
+{{/keyReadWriteInfo}}
     }
     val _value = {
-  {{#valueReadWriteInfo}}
+{{#valueReadWriteInfo}}
       {{>readValue}}
-  {{/valueReadWriteInfo}}
+{{/valueReadWriteInfo}}
     }
     _rv(_key) = _value
     _i += 1

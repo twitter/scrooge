@@ -7,9 +7,9 @@ if (_set.size == 0) {
   var _i = 0
   while (_i < _set.size) {
     _rv += {
-  {{#eltReadWriteInfo}}
+{{#eltReadWriteInfo}}
       {{>readValue}}
-  {{/eltReadWriteInfo}}
+{{/eltReadWriteInfo}}
     }
     _i += 1
   }

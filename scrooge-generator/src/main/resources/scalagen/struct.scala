@@ -2,7 +2,8 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUtil}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo,
+  ThriftStructMetaData, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -88,7 +89,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   /**
    * Checks that all required fields are non-null.
    */
-  def validate(_item: {{StructName}}) {
+  def validate(_item: {{StructName}}): Unit = {
 {{#fields}}
 {{#required}}
 {{#nullable}}
@@ -109,7 +110,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields|,}}
     )
 
-  override def encode(_item: {{StructName}}, _oproto: TProtocol) {
+  override def encode(_item: {{StructName}}, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
   }
 
@@ -194,7 +195,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/readWriteInfo}}
   }
 
-  private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol) {
+  private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
     {{writeFieldValueName}}({{valueVariableName}}, _oprot)
@@ -202,7 +203,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/readWriteInfo}}
   }
 
-  private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol) {
+  private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     {{>writeValue}}
 {{/readWriteInfo}}
@@ -210,33 +211,11 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 {{/fields}}
 
-
-  private def ttypeToHuman(byte: Byte) = {
-    // from https://github.com/apache/thrift/blob/master/lib/java/src/org/apache/thrift/protocol/TType.java
-    byte match {
-      case TType.STOP   => "STOP"
-      case TType.VOID   => "VOID"
-      case TType.BOOL   => "BOOL"
-      case TType.BYTE   => "BYTE"
-      case TType.DOUBLE => "DOUBLE"
-      case TType.I16    => "I16"
-      case TType.I32    => "I32"
-      case TType.I64    => "I64"
-      case TType.STRING => "STRING"
-      case TType.STRUCT => "STRUCT"
-      case TType.MAP    => "MAP"
-      case TType.SET    => "SET"
-      case TType.LIST   => "LIST"
-      case TType.ENUM   => "ENUM"
-      case _            => "UNKNOWN"
-    }
-  }
-
 {{#withTrait}}
   object Immutable extends ThriftStructCodec3[{{StructName}}] {
-    override def encode(_item: {{StructName}}, _oproto: TProtocol) { _item.write(_oproto) }
+    override def encode(_item: {{StructName}}, _oproto: TProtocol): Unit = { _item.write(_oproto) }
     override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}.decode(_iprot)
-    override lazy val metaData = {{StructName}}.metaData
+    override lazy val metaData: ThriftStructMetaData[{{StructName}}] = {{StructName}}.metaData
   }
 
   /**
@@ -445,7 +424,7 @@ class {{StructName}}(
 {{/fields}}
 {{/withFieldGettersAndSetters}}
 
-  override def write(_oprot: TProtocol) {
+  override def write(_oprot: TProtocol): Unit = {
     {{StructName}}.validate(this)
     _oprot.writeStructBegin(Struct)
 {{#fields}}

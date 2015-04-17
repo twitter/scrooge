@@ -12,6 +12,8 @@ case object {{EnumName}} {
     val name = "{{name}}"
     val originalName = "{{originalName}}"
   }
+
+  private[this] val _Some{{name}} = scala.Some({{package}}.{{EnumName}}.{{name}})
 {{/values}}
 
   case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
@@ -49,7 +51,7 @@ case object {{EnumName}} {
   def get(value: Int): Option[{{package}}.{{EnumName}}] =
     value match {
 {{#values}}
-      case {{value}} => scala.Some({{package}}.{{EnumName}}.{{name}})
+      case {{value}} => _Some{{name}}
 {{/values}}
       case _ => scala.None
     }
@@ -57,7 +59,7 @@ case object {{EnumName}} {
   def valueOf(name: String): Option[{{package}}.{{EnumName}}] =
     name.toLowerCase match {
 {{#values}}
-      case "{{unquotedNameLowerCase}}" => scala.Some({{package}}.{{EnumName}}.{{name}})
+      case "{{unquotedNameLowerCase}}" => _Some{{name}}
 {{/values}}
       case _ => scala.None
     }

@@ -125,7 +125,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   )
 
 
-  override def encode(_item: {{StructName}}, _oprot: TProtocol) { _item.write(_oprot) }
+  override def encode(_item: {{StructName}}, _oprot: TProtocol): Unit = { _item.write(_oprot) }
   override def decode(_iprot: TProtocol): {{StructName}} = {{StructName}}Decoder(_iprot, UnknownUnionField(_))
 
   def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
@@ -177,7 +177,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   }
 
   case class {{FieldName}}({{fieldName}}: {{FieldName}}Alias{{#hasDefaultValue}} = {{FieldName}}DefaultValue{{/hasDefaultValue}}) extends {{StructName}} {
-    override def write(_oprot: TProtocol) {
+    override def write(_oprot: TProtocol): Unit = {
 {{^isPrimitive}}
       if ({{fieldName}} == null)
         throw new TProtocolException("Cannot write a TUnion with no set value!")
@@ -193,7 +193,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 {{/fields}}
   case class UnknownUnionField private[{{StructName}}](private val field: TFieldBlob) extends {{StructName}} {
-    override def write(_oprot: TProtocol) {
+    override def write(_oprot: TProtocol): Unit = {
       _oprot.writeStructBegin(Union)
       field.write(_oprot)
       _oprot.writeFieldStop()
