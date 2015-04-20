@@ -22,7 +22,7 @@ class {{ServiceName}}$FinagleService(
   protocolFactory: TProtocolFactory,
   stats: StatsReceiver,
   maxThriftBufferSize: Int
-) extends {{finagleServiceParent}}{{#hasParent}}(iface, protocolFactory){{/hasParent}} {
+) extends {{finagleServiceParent}}{{#hasParent}}(iface, protocolFactory, stats, maxThriftBufferSize){{/hasParent}} {
   import {{ServiceName}}._
 
   def this(
