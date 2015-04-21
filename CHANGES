@@ -1,9 +1,18 @@
 .. Author notes: this file is formatted with restructured text
-  (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
-  as it is included in Scoorge's user's guide.
+(http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
+as it is included in Scrooge's user's guide.
 
 3.x
 -----
+
+3.18.0
+~~~~~~~
+- scrooge: Support ignoring unknown enum ids.
+- scrooge: Output full exception chain in client stats.
+- scrooge: Add union metadata to generated scala code.
+- scrooge-maven-plugin: Resolve IDLs transitively; deprecate the dependencyIncludes option.
+- scrooge-sbt-plugin: Add thrift files to published artifact in sbt-plugin.
+- scrooge-sbt-plugin: Upgrade to autoPlugin.
 
 3.17.0
 ~~~~~~~
