@@ -137,8 +137,8 @@ trait StructTemplate { self: TemplateGenerator =>
           "fieldConst" -> genID(field.sid.toTitleCase.append("Field")),
           "constType" -> genConstType(field.fieldType),
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
-          "primitiveFieldType" -> genPrimitiveType(field.fieldType, mutable = false),
-          "fieldType" -> genType(field.fieldType, mutable = false),
+          "primitiveFieldType" -> genPrimitiveType(field.fieldType),
+          "fieldType" -> genType(field.fieldType),
           "fieldKeyType" -> v(field.fieldType match {
             case MapType(keyType, _, _) => Some(genType(keyType))
             case _ => None
@@ -210,14 +210,6 @@ trait StructTemplate { self: TemplateGenerator =>
           "optionalType" -> v(templates("optionalType")),
           "withoutPassthrough" -> v(templates("withoutPassthrough")),
           "readWriteInfo" -> v(readWriteInfo(valueVariableID, field.fieldType)),
-          "toImmutable" -> genToImmutable(field),
-          "toMutable" -> v {
-            toMutable(field) match {
-              case (prefix, suffix) => Seq(Dictionary(
-                "prefix" -> codify(prefix),
-                "suffix" -> codify(suffix)))
-            }
-          },
           "valueVariableName" -> genID(valueVariableID)
         )
     }

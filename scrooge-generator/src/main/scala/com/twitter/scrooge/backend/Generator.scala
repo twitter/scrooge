@@ -105,20 +105,8 @@ trait Generator extends ThriftGenerator {
         case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
         case _ => true
       }
-      )
+    )
   }
-
-  /**
-   * Generates a prefix and suffix to wrap around a field expression that will
-   * convert the value to a mutable equivalent.
-   */
-  def toMutable(t: FieldType): (String, String)
-
-  /**
-   * Generates a prefix and suffix to wrap around a field expression that will
-   * convert the value to a mutable equivalent.
-   */
-  def toMutable(f: Field): (String, String)
 
   /**
    * get the ID of a service parent.  Java and Scala implementations are different.
@@ -159,27 +147,27 @@ trait Generator extends ThriftGenerator {
     case QualifiedID(names) => codify(names.map(quoteKeyword).mkString("."))
   }
 
-  def genConstant(constant: RHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
+  def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     constant match {
       case NullLiteral => codify("null")
       case StringLiteral(value) => codify(quote(value))
       case DoubleLiteral(value) => codify(value.toString)
       case IntLiteral(value) => codify(value.toString)
       case BoolLiteral(value) => codify(value.toString)
-      case c@ListRHS(_) => genList(c, mutable)
-      case c@SetRHS(_) => genSet(c, mutable, fieldType)
-      case c@MapRHS(_) => genMap(c, mutable)
+      case c@ListRHS(_) => genList(c)
+      case c@SetRHS(_) => genSet(c, fieldType)
+      case c@MapRHS(_) => genMap(c)
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
       case s: StructRHS => genStruct(s)
     }
   }
 
-  def genList(list: ListRHS, mutable: Boolean = false): CodeFragment
+  def genList(list: ListRHS): CodeFragment
 
-  def genSet(set: SetRHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment
+  def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment
 
-  def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment
+  def genMap(map: MapRHS): CodeFragment
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment
 
@@ -188,7 +176,7 @@ trait Generator extends ThriftGenerator {
   /**
    * The default value for the specified type and mutability.
    */
-  def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
+  def genDefaultValue(fieldType: FieldType): CodeFragment = {
     val code = fieldType match {
       case TBool => "false"
       case TByte | TI16 | TI32 => "0"
@@ -202,7 +190,7 @@ trait Generator extends ThriftGenerator {
     if (f.requiredness.isOptional) {
       None
     } else {
-      f.default.map(genConstant(_, false, Some(f.fieldType))) orElse {
+      f.default.map(genConstant(_, Some(f.fieldType))).orElse {
         if (f.fieldType.isInstanceOf[ContainerType]) {
           Some(genDefaultValue(f.fieldType))
         } else {
@@ -212,11 +200,8 @@ trait Generator extends ThriftGenerator {
     }
   }
 
-  def genDefaultReadValue(f: Field): CodeFragment = {
-    genDefaultFieldValue(f).getOrElse {
-      genDefaultValue(f.fieldType, false)
-    }
-  }
+  def genDefaultReadValue(f: Field): CodeFragment =
+    genDefaultFieldValue(f).getOrElse(genDefaultValue(f.fieldType))
 
   def genConstType(t: FunctionType): CodeFragment = {
     val code = t match {
@@ -279,23 +264,11 @@ trait Generator extends ThriftGenerator {
     codify(code)
   }
 
-  /**
-   * Generates a suffix to append to a field expression that will
-   * convert the value to an immutable equivalent.
-   */
-  def genToImmutable(t: FieldType): CodeFragment
+  def genType(t: FunctionType): CodeFragment
 
-  /**
-   * Generates a suffix to append to a field expression that will
-   * convert the value to an immutable equivalent.
-   */
-  def genToImmutable(f: Field): CodeFragment
+  def genPrimitiveType(t: FunctionType): CodeFragment
 
-  def genType(t: FunctionType, mutable: Boolean = false): CodeFragment
-
-  def genPrimitiveType(t: FunctionType, mutable: Boolean = false): CodeFragment
-
-  def genFieldType(f: Field, mutable: Boolean = false): CodeFragment
+  def genFieldType(f: Field): CodeFragment
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment
 

@@ -99,13 +99,12 @@ class JavaGenerator(
     }).asInstanceOf[N]
   }
 
-  def genList(list: ListRHS, mutable: Boolean = false): CodeFragment = {
-    val code = (if (mutable) "Utilities.makeList(" else "Utilities.makeList(") +
-      list.elems.map(genConstant(_).toData).mkString(", ") + ")"
+  def genList(list: ListRHS): CodeFragment = {
+    val code = "Utilities.makeList(" + list.elems.map(genConstant(_).toData).mkString(", ") + ")"
     codify(code)
   }
 
-  def genSet(set: SetRHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
+  def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val makeSetMethod = fieldType match {
       case Some(SetType(EnumType(_, _), _)) => "makeEnumSet"
       case _ => "makeSet"
@@ -116,11 +115,12 @@ class JavaGenerator(
     codify(code)
   }
 
-  def genMap(map: MapRHS, mutable: Boolean = false): CodeFragment = {
-    val code = (if (mutable) "Utilities.makeMap(" else "Utilities.makeMap(") + (map.elems.map {
-      case (k, v) =>
-        "Utilities.makeTuple(" + genConstant(k).toData + ", " + genConstant(v).toData + ")"
-    } mkString (", ")) + ")"
+  def genMap(map: MapRHS): CodeFragment = {
+    val code =
+      "Utilities.makeMap(" +
+        map.elems.map { case (k, v) =>
+          "Utilities.makeTuple(" + genConstant(k).toData + ", " + genConstant(v).toData + ")"
+        }.mkString(", ") + ")"
     codify(code)
   }
 
@@ -136,64 +136,7 @@ class JavaGenerator(
   def genStruct(struct: StructRHS): CodeFragment =
     throw new Exception("not implemented")
 
-  /**
-   * Generates a suffix to append to a field expression that will
-   * convert the value to an immutable equivalent.
-   */
-  def genToImmutable(t: FieldType): CodeFragment = {
-    val code = t match {
-      case MapType(_, _, _) => ".toMap"
-      case SetType(_, _) => ".toSet"
-      case ListType(_, _) => ".toList"
-      case _ => ""
-    }
-    codify(code)
-  }
-
-  /**
-   * Generates a suffix to append to a field expression that will
-   * convert the value to an immutable equivalent.
-   */
-  def genToImmutable(f: Field): CodeFragment = {
-    if (f.requiredness.isOptional) {
-      val code = genToImmutable(f.fieldType).toData match {
-        case "" => ""
-        case underlyingToImmutable => ".map(_" + underlyingToImmutable + ")"
-      }
-      codify(code)
-    } else {
-      genToImmutable(f.fieldType)
-    }
-  }
-
-  /**
-   * Generates a prefix and suffix to wrap around a field expression that will
-   * convert the value to a mutable equivalent.
-   */
-  def toMutable(t: FieldType): (String, String) = {
-    t match {
-      case MapType(_, _, _) | SetType(_, _) => (genType(t, true).toData + "() ++= ", "")
-      case ListType(_, _) => ("", ".toBuffer")
-      case _ => ("", "")
-    }
-  }
-
-  /**
-   * Generates a prefix and suffix to wrap around a field expression that will
-   * convert the value to a mutable equivalent.
-   */
-  def toMutable(f: Field): (String, String) = {
-    if (f.requiredness.isOptional) {
-      toMutable(f.fieldType) match {
-        case ("", "") => ("", "")
-        case (prefix, suffix) => ("", ".map(" + prefix + "_" + suffix + ")")
-      }
-    } else {
-      toMutable(f.fieldType)
-    }
-  }
-
-  override def genDefaultValue(fieldType: FieldType, mutable: Boolean = false): CodeFragment = {
+  override def genDefaultValue(fieldType: FieldType): CodeFragment = {
     val code = fieldType match {
       case MapType(_, _, _) => "Utilities.makeMap()"
       case SetType(eltType: EnumType, _) =>
@@ -202,19 +145,19 @@ class JavaGenerator(
         "Utilities.makeSet()"
       case ListType(_, _) => "Utilities.makeList()"
       case TI64 => "0L"
-      case _ => super.genDefaultValue(fieldType, mutable).toData
+      case _ => super.genDefaultValue(fieldType).toData
     }
     codify(code)
   }
 
-  override def genConstant(constant: RHS, mutable: Boolean = false, fieldType: Option[FieldType] = None): CodeFragment = {
+  override def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     (constant, fieldType) match {
       case (IntLiteral(value), Some(TI64)) => codify(value.toString + "L")
-      case _ => super.genConstant(constant, mutable, fieldType)
+      case _ => super.genConstant(constant, fieldType)
     }
   }
 
-  def genType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
+  def genType(t: FunctionType): CodeFragment = {
     val code = t match {
       case Void => "Void"
       case OnewayVoid => "Void"
@@ -236,7 +179,7 @@ class JavaGenerator(
     codify(code)
   }
 
-  def genPrimitiveType(t: FunctionType, mutable: Boolean = false): CodeFragment = {
+  def genPrimitiveType(t: FunctionType): CodeFragment = {
     val code = t match {
       case Void => "void"
       case TBool => "boolean"
@@ -245,14 +188,14 @@ class JavaGenerator(
       case TI32 => "int"
       case TI64 => "long"
       case TDouble => "double"
-      case _ => genType(t, mutable).toData
+      case _ => genType(t).toData
     }
     codify(code)
   }
 
-  def genFieldType(f: Field, mutable: Boolean = false): CodeFragment = {
+  def genFieldType(f: Field): CodeFragment = {
     val code = if (f.requiredness.isOptional) {
-      val baseType = genType(f.fieldType, mutable).toData
+      val baseType = genType(f.fieldType).toData
       "com.twitter.scrooge.Option<" + baseType + ">"
     } else {
       genPrimitiveType(f.fieldType).toData
