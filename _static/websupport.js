@@ -4,7 +4,7 @@
  *
  * sphinx.websupport utilties for all documentation.
  *
- * :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -700,8 +700,8 @@
         (<a href="#" class="comment-markup" id="ab<%id%>">markup</a>):</p>\
       <div class="comment-markup-box" id="mb<%id%>">\
         reStructured text markup: <i>*emph*</i>, <b>**strong**</b>, \
-        <code>``code``</code>, \
-        code blocks: <code>::</code> and an indented block after blank line</div>\
+        <tt>``code``</tt>, \
+        code blocks: <tt>::</tt> and an indented block after blank line</div>\
       <form method="post" id="cf<%id%>" class="comment-form" action="">\
         <textarea name="comment" cols="80"></textarea>\
         <p class="propose-button">\

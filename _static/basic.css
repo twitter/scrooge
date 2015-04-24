@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- basic theme.
  *
- * :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -89,7 +89,6 @@ div.sphinxsidebar #searchbox input[type="submit"] {
 
 img {
     border: 0;
-    max-width: 100%;
 }
 
 /* -- search page ----------------------------------------------------------- */
@@ -402,12 +401,12 @@ dl.glossary dt {
     margin: 0;
 }
 
-.optional {
-    font-size: 1.3em;
+.refcount {
+    color: #060;
 }
 
-.sig-paren {
-    font-size: larger;
+.optional {
+    font-size: 1.3em;
 }
 
 .versionmodified {
@@ -475,36 +474,22 @@ table.highlighttable td {
     padding: 0 0.5em 0 0.5em;
 }
 
-div.code-block-caption {
-    padding: 2px 5px;
-    font-size: small;
-}
-
-div.code-block-filename code {
-    background-color: transparent;
-}
-
-div.code-block-caption + pre,
-div.code-block-caption + div.highlight > pre {
-    margin-top: 0;
-}
-
-code.descname {
+tt.descname {
     background-color: transparent;
     font-weight: bold;
     font-size: 1.2em;
 }
 
-code.descclassname {
+tt.descclassname {
     background-color: transparent;
 }
 
-code.xref, a code {
+tt.xref, a tt {
     background-color: transparent;
     font-weight: bold;
 }
 
-h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
     background-color: transparent;
 }
 
