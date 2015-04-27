@@ -7,6 +7,6 @@ jar_library(name='bin',
 jvm_app(
   name='app',
   basename='scrooge-linter-package',
-  binary=':bin',
+  binary='scrooge/scrooge-linter/src/main/scala/com/twitter/scrooge/linter:bin',
   bundles=[],
 )
