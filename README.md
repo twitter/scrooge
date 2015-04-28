@@ -26,18 +26,18 @@ Maven users need to add the following to the pom.xml file:
 
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>scrooge-core_2.9.2</artifactId>
-      <version>3.3.2</version>
+      <artifactId>scrooge-core_2.10</artifactId>
+      <version>3.18.0</version>
     </dependency>
 
 SBT users need this:
 
-    val scroogeCore = "com.twitter" %% "scrooge-core" % "3.3.2"
+    val scroogeCore = "com.twitter" %% "scrooge-core" % "3.18.0"
 
 ## Building the develop branch locally
 
 You will need the develop branches of util, ostrich, and finagle.
-Then `./sbt publish-local` for each of them.
+Then `./sbt publishLocal` for each of them.
 
 ## Full Documentation
 
