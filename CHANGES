@@ -5,6 +5,10 @@ as it is included in Scrooge's user's guide.
 3.x
 -----
 
+3.18.1
+~~~~~~~
+- scrooge-maven-plugin: Fix bug with plugin parameters.
+
 3.18.0
 ~~~~~~~
 - scrooge: Support ignoring unknown enum ids.

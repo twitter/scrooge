@@ -173,10 +173,6 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
   /**
    * The local maven repository.
-   *
-   * @parameter expression="localRepository"
-   * @required
-   * @readonly
    */
   @Parameter(defaultValue = "${localRepository}", readonly = true)
   private ArtifactRepository localRepository;
@@ -192,10 +188,8 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
   /**
    * Remote repositories which will be searched for source attachments.
-   * @parameter expression="project.remoteArtifactRepositories"
-   * @required
-   * @readonly
    */
+  @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true)
   protected List remoteArtifactRepositories;
 
   /**

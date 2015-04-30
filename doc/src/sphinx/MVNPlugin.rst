@@ -67,7 +67,7 @@ pom.xml file.
       </executions>
     </plugin>
 
-Upgrading from maven-scrooge-plugin 3.16.0 to 3.17.0
+Upgrading from scrooge-maven-plugin 3.16.0 to 3.17.0
 ====================================================
 
 Maven plugin 3.17.0 is backward compatible with the configuration defined for 3.16.0

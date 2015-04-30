@@ -5,7 +5,7 @@
   <artifactId>scrooge-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>scrooge-maven-plugin</name>
-  <version>3.18.0</version>
+  <version>3.18.1</version>
   <prerequisites>
     <maven>3.0.4</maven>
   </prerequisites>
@@ -242,7 +242,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-generator_2.10</artifactId>
-      <version>3.18.0</version>
+      <version>3.18.1</version>
     </dependency>
     <!-- Test Dependencies-->
     <dependency>
@@ -270,6 +270,18 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <id>maven.central</id>
+      <name>Maven Central</name>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>maven.twttr.com</id>
+      <name>maven.twttr.com</name>
+      <url>http://maven.twttr.com</url>
+    </repository>
+  </repositories>
   <reporting>
     <plugins>
       <plugin>
