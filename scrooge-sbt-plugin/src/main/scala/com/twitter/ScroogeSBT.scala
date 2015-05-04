@@ -36,9 +36,36 @@ object ScroogeSBT extends AutoPlugin {
 
   object autoImport {
 
+    sealed trait ScroogeGeneratedSource
+
+    object ScroogeScala extends ScroogeGeneratedSource {
+      override def toString(): String = "scala"
+    }
+
+    object ScroogeJava extends ScroogeGeneratedSource {
+      override def toString(): String = "java"
+    }
+
+    object ScroogeExperimentalJava extends ScroogeGeneratedSource {
+      override def toString(): String = "experimental-java"
+    }
+
+    private[scrooge] def globOf(language: ScroogeGeneratedSource): String = {
+      language match {
+        case ScroogeScala => "*.scala"
+        case ScroogeJava => "*.java"
+        case ScroogeExperimentalJava => "*.java"
+      }
+    }
+
     val scroogeBuildOptions = SettingKey[Seq[String]](
       "scrooge-build-options",
       "command line args to pass to scrooge"
+    )
+
+    val scroogeGeneratedSource = SettingKey[ScroogeGeneratedSource](
+      "scrooge-generated-source",
+      "language of the generated source"
     )
 
     val scroogePublishThrift = SettingKey[Boolean](
@@ -121,6 +148,7 @@ object ScroogeSBT extends AutoPlugin {
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
     scroogeBuildOptions := Seq("--finagle"),
+    scroogeGeneratedSource := ScroogeScala,
     scroogePublishThrift := false,
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
@@ -177,10 +205,11 @@ object ScroogeSBT extends AutoPlugin {
     // look at includes and our sources to see if anything is newer than any of our output files
     scroogeIsDirty <<= (
       streams,
+      scroogeGeneratedSource,
       scroogeThriftSources,
       scroogeThriftOutputFolder,
       scroogeThriftIncludes
-    ) map { (out, sources, outputDir, inc) =>
+    ) map { (out, language, sources, outputDir, inc) =>
       // figure out if we need to actually rebuild, based on mtimes.
       val allSourceDeps = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
         files ++ (dir ** "*.thrift").get
@@ -191,7 +220,7 @@ object ScroogeSBT extends AutoPlugin {
       } else {
         Long.MaxValue
       }
-      val outputsLastModified = (outputDir ** "*.scala").get.map(_.lastModified)
+      val outputsLastModified = (outputDir ** globOf(language)).get.map(_.lastModified)
       val oldestOutput = if (outputsLastModified.size > 0) {
         outputsLastModified.min
       } else {
@@ -204,18 +233,19 @@ object ScroogeSBT extends AutoPlugin {
     scroogeGen <<= (
       streams,
       scroogeIsDirty,
+      scroogeGeneratedSource,
       scroogeThriftSources,
       scroogeThriftOutputFolder,
       scroogeBuildOptions,
       scroogeThriftIncludes,
       scroogeThriftNamespaceMap
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
+    ) map { (out, isDirty, language, sources, outputDir, opts, inc, ns) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && sources.nonEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
+        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language.toString, opts.toSet)
       }
-      (outputDir ** "*.scala").get.toSeq
+      (outputDir ** globOf(language)).get.toSeq
     },
     sourceGenerators <+= scroogeGen
   )
