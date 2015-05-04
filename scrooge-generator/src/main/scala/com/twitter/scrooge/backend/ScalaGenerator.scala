@@ -116,23 +116,43 @@ class ScalaGenerator(
   }
 
   override def getNamespace(doc: Document): Identifier =
-    getNamespaceWithWarning(doc) getOrElse (SimpleID(defaultNamespace))
+    getNamespaceWithWarning(doc).getOrElse(SimpleID(defaultNamespace))
 
-  def genList(list: ListRHS): CodeFragment = {
-    codify("Seq(" + list.elems.map(genConstant(_).toData).mkString(", ") + ")")
-  }
-
-  def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment = {
-    codify("Set(" + set.elems.map(genConstant(_).toData).mkString(", ") + ")")
-  }
-
-  def genMap(map: MapRHS): CodeFragment = {
+  def genList(
+    list: ListRHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
+    val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
     val code =
-      "Map(" +
-        map.elems.map { case (k, v) =>
-          genConstant(k).toData + " -> " + genConstant(v).toData
-        }.mkString(", ") + ")"
-    codify(code)
+      list.elems.map { e =>
+        genConstant(e, listElemType).toData
+      }.mkString(", ")
+    codify(s"Seq($code)")
+  }
+
+  def genSet(
+    set: SetRHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
+    val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
+    val code = set.elems.map { e =>
+      genConstant(e, setElemType).toData
+    }.mkString(", ")
+    codify(s"Set($code)")
+  }
+
+  def genMap(
+    map: MapRHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
+    val mapType = fieldType.map(_.asInstanceOf[MapType])
+    val code = map.elems.map { case (k, v) =>
+      val key = genConstant(k, mapType.map(_.keyType)).toData
+      val value = genConstant(v, mapType.map(_.keyType)).toData
+      s"$key -> $value"
+    }.mkString(", ")
+
+    codify(s"Map($code)")
   }
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -162,7 +182,10 @@ class ScalaGenerator(
     codify(code)
   }
 
-  override def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
+  override def genConstant(
+    constant: RHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
     (constant, fieldType) match {
       case (IntLiteral(value), Some(TI64)) => codify(value.toString + "L")
       case _ => super.genConstant(constant, fieldType)

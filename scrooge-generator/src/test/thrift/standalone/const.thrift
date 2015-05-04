@@ -25,6 +25,16 @@ const list<string> nonEmptyPlainList = [name];
 
 const list<list<string>> nonEmptyNestedList = [nonEmptyPlainList];
 
+const map<i64, i64> long_key_long_value_map = {
+  1 : 1,
+  2147483648 : 2147483648,
+  -2147483649 : -2147483649
+};
+
+const set<i64> long_set = [ 1, 2147483648, -2147483649 ];
+
+const list<i64> long_list = [ 1, 2147483648, -2147483649 ];
+
 // mixed cases for ids
 enum weekDay {
   // not a doc, just a comment.
