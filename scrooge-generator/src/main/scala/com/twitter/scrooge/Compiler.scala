@@ -41,7 +41,7 @@ class Compiler {
   var defaultNamespace: String = "thrift"
   var scalaWarnOnJavaNSFallback: Boolean = false
 
-  def run() {
+  def run(): List[String] = {
     // if --gen-file-map is specified, prepare the map file.
     fileMapWriter = fileMapPath.map { path =>
       val file = new File(path)
@@ -61,7 +61,7 @@ class Compiler {
     val documentCache = new TrieMap[String, Document]
 
     // compile
-    for (inputFile <- thriftFiles) {
+    val dstFiles = thriftFiles.flatMap { inputFile =>
       val parser = new ThriftParser(importer, strict, defaultOptional = isJava, skipIncludes = false, documentCache)
       val doc0 = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
 
@@ -93,9 +93,13 @@ class Compiler {
           w.write(inputFile + " -> " + path + "\n")
         }
       }
+
+      generatedFiles
     }
 
     // flush and close the map file
     fileMapWriter.foreach { _.close() }
+
+    dstFiles.toList
   }
 }
