@@ -148,7 +148,7 @@ class ScalaGenerator(
     val mapType = fieldType.map(_.asInstanceOf[MapType])
     val code = map.elems.map { case (k, v) =>
       val key = genConstant(k, mapType.map(_.keyType)).toData
-      val value = genConstant(v, mapType.map(_.keyType)).toData
+      val value = genConstant(v, mapType.map(_.valueType)).toData
       s"$key -> $value"
     }.mkString(", ")
 

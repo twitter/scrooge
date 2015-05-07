@@ -35,6 +35,20 @@ const set<i64> long_set = [ 1, 2147483648, -2147483649 ];
 
 const list<i64> long_list = [ 1, 2147483648, -2147483649 ];
 
+enum Color {
+  RED = 1,
+  BLUE = 2
+}
+
+const map<Color, string> colorNames = {
+  Color.RED : "red",
+  Color.BLUE : "blue"
+}
+
+const map<i32, map<Color, string>> mapOfMaps = {
+  123 : colorNames
+}
+
 // mixed cases for ids
 enum weekDay {
   // not a doc, just a comment.
