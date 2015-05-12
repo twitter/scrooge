@@ -2,7 +2,6 @@ package com.twitter.scrooge
 
 import java.lang.reflect.Method
 import org.apache.thrift.protocol.TField
-import scala.collection.mutable.StringBuilder
 import scala.reflect.ClassTag
 
 /**
@@ -18,66 +17,98 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
         val isAllUpperCase = part.forall(_.isUpper)
         val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
         new StringBuilder(part.length).append(first).append(rest)
-      }.
-      mkString
+      }.mkString
   }
 
   /**
    * The Class object for the ThriftStructCodec subclass.
    */
-  val codecClass = codec.getClass
+  def codecClass: Class[_] = codec.getClass
 
   /**
-   * The fully qualified name of the ThriftStruct sublcass.
+   * The fully qualified name of the ThriftStruct subclass.
    */
-  val structClassName = codecClass.getName.dropRight(1) // drop '$' from object name
+  val structClassName: String = codecClass.getName.dropRight(1) // drop '$' from object name
 
   /**
    * Gets the unqualified name of the struct.
    */
-  val structName = structClassName.split("\\.").last
+  val structName: String = structClassName.split("\\.").last
 
   /**
    * The Class object for ThriftStruct subclass.
+   *
+   * For a union, this is the parent trait of all branches for the union.
    */
-  val structClass = codecClass.getClassLoader.loadClass(structClassName).asInstanceOf[Class[T]]
+  val structClass: Class[T] =
+    codecClass.getClassLoader.loadClass(structClassName).asInstanceOf[Class[T]]
+
+  private[this] val isUnion: Boolean =
+    classOf[ThriftUnion].isAssignableFrom(structClass)
 
   /**
    * A Seq of ThriftStructFields representing the fields defined in the ThriftStruct.
+   *
+   * For unions, this will return an empty Seq.
    */
-  val fields: Seq[ThriftStructField[T]] =
-    codecClass.getMethods.toList filter { m =>
-      m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
-    } map { m =>
-      val tfield = m.invoke(codec).asInstanceOf[TField]
-      val manifest: scala.Option[Manifest[_]] = try {
-        Some {
-          codecClass
-            .getMethod(m.getName + "Manifest")
-            .invoke(codec)
-            .asInstanceOf[Manifest[_]]
-        }
-      } catch { case _: Throwable => None }
-      val method = structClass.getMethod(toCamelCase(tfield.name))
-      new ThriftStructField[T](tfield, method, manifest)
+  val fields: Seq[ThriftStructField[T]] = {
+    if (isUnion) {
+      Nil
+    } else {
+      codecClass.getMethods.toList.filter { m =>
+        m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
+      }.map { m =>
+        val tfield = m.invoke(codec).asInstanceOf[TField]
+        val manifest: scala.Option[Manifest[_]] = try {
+          Some {
+            codecClass
+              .getMethod(m.getName + "Manifest")
+              .invoke(codec)
+              .asInstanceOf[Manifest[_]]
+          }
+        } catch { case _: Throwable => None }
+        val method = structClass.getMethod(toCamelCase(tfield.name))
+        new ThriftStructField[T](tfield, method, manifest)
+      }
     }
+  }
+
+  /**
+   * For unions, will return its [[ThriftUnionFieldInfo ThriftUnionFieldInfos]].
+   *
+   * For non-unions, will return an empty `Seq`.
+   */
+  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]] = {
+    if (!isUnion) {
+      Nil
+    } else {
+      codecClass.getMethod("fieldInfos")
+        .invoke(codec)
+        .asInstanceOf[Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]]
+    }
+  }
+
 }
 
-final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method: Method, val manifest: scala.Option[Manifest[_]]) {
+final class ThriftStructField[T <: ThriftStruct](
+    val tfield: TField,
+    val method: Method,
+    val manifest: scala.Option[Manifest[_]]) {
+
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
    */
-  def name = tfield.name
+  def name: String = tfield.name
 
   /**
    * The TField field id, as defined in the source thrift file.
    */
-  def id = tfield.id
+  def id: Short = tfield.id
 
   /**
    * The TField field type.  See TType for possible values.
    */
-  def `type` = tfield.`type`
+  def `type`: Byte = tfield.`type`
 
   /**
    * Gets the value of the field from the struct. You can specify the expected return
@@ -96,10 +127,12 @@ final class ThriftStructField[T <: ThriftStruct](val tfield: TField, val method:
  * @tparam ContainedType The type of the value contained in the union field represented by this
  *                       class
  */
-final class ThriftUnionFieldInfo[UnionFieldType <: ThriftUnion with ThriftStruct : ClassTag, ContainedType: ClassTag](
-  val structFieldInfo: ThriftStructFieldInfo,
-  fieldUnapply: (UnionFieldType) => scala.Option[ContainedType]
-) {
+final class ThriftUnionFieldInfo[
+    UnionFieldType <: ThriftUnion with ThriftStruct : ClassTag,
+    ContainedType: ClassTag](
+    val structFieldInfo: ThriftStructFieldInfo,
+    fieldUnapply: UnionFieldType => scala.Option[ContainedType]) {
+
   /**
    * Class tag for the class representing this union field; useful for reflection-related tasks
    */

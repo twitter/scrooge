@@ -1,4 +1,4 @@
-case {{id}} => { /* {{fieldName}} */
+case {{id}} => // {{fieldName}}
   _field.`type` match {
 {{#isEnum}}
     case TType.I32 | TType.ENUM =>
@@ -11,4 +11,4 @@ case {{id}} => { /* {{fieldName}} */
       })
     case _ => TProtocolUtil.skip(_iprot, _field.`type`)
   }
-}
+
