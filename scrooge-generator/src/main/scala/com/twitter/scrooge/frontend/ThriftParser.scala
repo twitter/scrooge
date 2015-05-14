@@ -246,11 +246,12 @@ class ThriftParser(
   lazy val field = (opt(comments) ~ opt(fieldId) ~ fieldReq) ~
     (fieldType ~ defaultedAnnotations ~ simpleID) ~
     opt("=" ~> rhs) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
-      case (comm ~ fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations => {
+      case (comm ~ fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations =>
         val transformedVal = value.map(convertRhs(ftype, _))
 
-        // if field is marked optional and a default is defined, ignore the optional part.
-        val transformedReq = if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default else req
+        val transformedReq =
+          if (!defaultOptional && transformedVal.isDefined && req.isOptional) Requiredness.Default
+          else req
 
         Field(
           fid.getOrElse(0),
@@ -264,7 +265,6 @@ class ThriftParser(
           comm
         )
     }
-  }
 
   lazy val fieldId = intConstant <~ ":" ^^ {
     x => x.value.toInt
@@ -286,9 +286,8 @@ class ThriftParser(
         id.name,
         if (oneway.isDefined) OnewayVoid else ftype,
         fixFieldIds(args),
-        throws.map {
-          fixFieldIds(_)
-        }.getOrElse(Nil), comment)
+        throws.map(fixFieldIds).getOrElse(Nil),
+        comment)
   }
 
   lazy val functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
@@ -300,9 +299,8 @@ class ThriftParser(
   lazy val definition = const | typedef | enum | senum | struct | union | exception | service
 
   lazy val const = opt(comments) ~ ("const" ~> fieldType) ~ simpleID ~ ("=" ~> rhs) ~ opt(listSeparator) ^^ {
-    case comment ~ ftype ~ sid ~ const ~ _ => {
+    case comment ~ ftype ~ sid ~ const ~ _ =>
       ConstDefinition(sid, ftype, convertRhs(ftype, const), comment)
-    }
   }
 
   lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ^^ {
@@ -357,7 +355,7 @@ class ThriftParser(
           if (disallowedUnionFieldNames.contains(f.sid.name.toLowerCase)) {
             throw new UnionFieldInvalidNameException(sid.name, f.sid.name)
           } else f
-        case f @ _ =>
+        case f =>
           failOrWarn(UnionFieldRequirednessException(sid.name, f.sid.name, f.requiredness.toString))
           f.copy(requiredness = Requiredness.Default)
       }
@@ -377,9 +375,8 @@ class ThriftParser(
 
   // This is a simpleID without the keyword check. Filenames that are thrift keywords are allowed.
   lazy val serviceParentID = opt(simpleIDRegex <~ ".") ~ simpleID ^^ {
-    case prefix ~ sid => {
+    case prefix ~ sid =>
       ServiceParent(sid, prefix.map(SimpleID(_)))
-    }
   }
 
   // document
@@ -437,8 +434,8 @@ class ThriftParser(
   def parse[T](in: String, parser: Parser[T], file: Option[String] = None): T = try {
     parseAll(parser, in) match {
       case Success(result, _) => result
-      case x@Failure(msg, z) => throw new ParseException(x.toString)
-      case x@Error(msg, _) => throw new ParseException(x.toString)
+      case x@Failure(msg, z) => throw new ParseException(x.toString())
+      case x@Error(msg, _) => throw new ParseException(x.toString())
     }
   } catch {
     case e: Throwable => throw file.map(FileParseException(_, e)).getOrElse(e)

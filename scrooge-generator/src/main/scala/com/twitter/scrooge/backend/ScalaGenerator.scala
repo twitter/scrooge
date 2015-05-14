@@ -231,14 +231,18 @@ class ScalaGenerator(
   }
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = {
-    val code = fields.map {
-      f =>
-        val valPrefix = if (asVal) "val " else ""
-        val nameAndType = genID(f.sid).toData + ": " + genFieldType(f).toData
-        val defaultValue = genDefaultFieldValue(f) map {
-          " = " + _.toData
+    val code = fields.map { f =>
+      val valPrefix = if (asVal) "val " else ""
+      val nameAndType = genID(f.sid).toData + ": " + genFieldType(f).toData
+      val defaultValue =
+        genDefaultFieldValue(f).map { d =>
+          " = " + d.toData
+        }.getOrElse {
+          if (f.requiredness.isOptional) " = None"
+          else ""
         }
-        valPrefix + nameAndType + defaultValue.getOrElse("")
+
+      valPrefix + nameAndType + defaultValue
     }.mkString(", ")
     codify(code)
   }
