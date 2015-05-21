@@ -5,7 +5,7 @@ _field.`type` match {
 {{^isEnum}}
   case TType.{{constType}} =>
 {{/isEnum}}
-    {{fieldName}} = {{#optional}}Some({{/optional}}{{readFieldValueName}}(_iprot){{#optional}}){{/optional}}
+    {{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueName}}(_iprot){{#optional}}){{/optional}}
 {{#required}}
     {{gotName}} = true
 {{/required}}

@@ -1,1 +1,1 @@
-{{#optional}}Option[{{/optional}}{{fieldType}}{{#optional}}]{{/optional}}
+{{#optional}}_root_.scala.Option[{{/optional}}{{fieldType}}{{#optional}}]{{/optional}}

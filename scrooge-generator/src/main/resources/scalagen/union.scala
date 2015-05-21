@@ -77,19 +77,19 @@ object {{StructName}}Aliases {
   val {{FieldName}}DefaultValue = {{defaultFieldValue}}
 {{/hasDefaultValue}}
 {{#fieldKeyType}}
-  val {{FieldName}}KeyTypeManifest: Option[Manifest[{{fieldKeyType}}]] =
-    Some(implicitly[Manifest[{{fieldKeyType}}]])
+  val {{FieldName}}KeyTypeManifest: _root_.scala.Option[Manifest[{{fieldKeyType}}]] =
+    _root_.scala.Some(implicitly[Manifest[{{fieldKeyType}}]])
 {{/fieldKeyType}}
 {{^fieldKeyType}}
-  val {{FieldName}}KeyTypeManifest: Option[Manifest[_]] = None
+  val {{FieldName}}KeyTypeManifest: _root_.scala.Option[Manifest[_]] = _root_.scala.None
 {{/fieldKeyType}}
 
 {{#fieldValueType}}
-  val {{FieldName}}ValueTypeManifest: Option[Manifest[{{fieldValueType}}]] =
-    Some(implicitly[Manifest[{{fieldValueType}}]])
+  val {{FieldName}}ValueTypeManifest: _root_.scala.Option[Manifest[{{fieldValueType}}]] =
+    _root_.scala.Some(implicitly[Manifest[{{fieldValueType}}]])
 {{/fieldValueType}}
 {{^fieldValueType}}
-  val {{FieldName}}ValueTypeManifest: Option[Manifest[_]] = None
+  val {{FieldName}}ValueTypeManifest: _root_.scala.Option[Manifest[_]] = _root_.scala.None
 {{/fieldValueType}}
 {{/fields}}
 }
@@ -197,8 +197,8 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
     def containedValue: {{FieldName}}Alias = {{fieldName}}
 
-    def unionStructFieldInfo: Option[ThriftStructFieldInfo] =
-      Some({{FieldName}}.fieldInfo)
+    def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
+      _root_.scala.Some({{FieldName}}.fieldInfo)
 
     override def write(_oprot: TProtocol): Unit = {
 {{^isPrimitive}}
@@ -221,7 +221,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
     def containedValue: Unit = ()
 
-    def unionStructFieldInfo: Option[ThriftStructFieldInfo] = None
+    def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] = _root_.scala.None
 
     override def write(_oprot: TProtocol): Unit = {
       _oprot.writeStructBegin(Union)

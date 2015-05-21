@@ -13,7 +13,7 @@ case object {{EnumName}} {
     val originalName = "{{originalName}}"
   }
 
-  private[this] val _Some{{name}} = scala.Some({{package}}.{{EnumName}}.{{name}})
+  private[this] val _Some{{name}} = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})
 {{/values}}
 
   case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
@@ -40,28 +40,28 @@ case object {{EnumName}} {
    */
   def getOrUnknown(value: Int): {{package}}.{{EnumName}} =
     get(value) match {
-      case scala.Some(e) => e
-      case scala.None => EnumUnknown{{EnumName}}(value)
+      case _root_.scala.Some(e) => e
+      case _root_.scala.None => EnumUnknown{{EnumName}}(value)
     }
 
   /**
    * Find the enum by its integer value, as defined in the Thrift IDL.
    * Returns None if the value is not found
    */
-  def get(value: Int): Option[{{package}}.{{EnumName}}] =
+  def get(value: Int): _root_.scala.Option[{{package}}.{{EnumName}}] =
     value match {
 {{#values}}
       case {{value}} => _Some{{name}}
 {{/values}}
-      case _ => scala.None
+      case _ => _root_.scala.None
     }
 
-  def valueOf(name: String): Option[{{package}}.{{EnumName}}] =
+  def valueOf(name: String): _root_.scala.Option[{{package}}.{{EnumName}}] =
     name.toLowerCase match {
 {{#values}}
       case "{{unquotedNameLowerCase}}" => _Some{{name}}
 {{/values}}
-      case _ => scala.None
+      case _ => _root_.scala.None
     }
 
   lazy val list: List[{{package}}.{{EnumName}}] = scala.List[{{package}}.{{EnumName}}](
