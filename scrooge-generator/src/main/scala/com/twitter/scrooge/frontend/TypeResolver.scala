@@ -29,10 +29,10 @@ case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
 case class TypeResolver(
-  typeMap: Map[String, FieldType] = Map(),
-  constMap: Map[String, ConstDefinition] = Map(),
-  serviceMap: Map[String, Service] = Map(),
-  includeMap: Map[String, ResolvedDocument] = Map()) {
+    typeMap: Map[String, FieldType] = Map.empty,
+    constMap: Map[String, ConstDefinition] = Map.empty,
+    serviceMap: Map[String, Service] = Map.empty,
+    includeMap: Map[String, ResolvedDocument] = Map.empty) {
 
   def getResolver(qid: QualifiedID) = {
     includeMap.get(qid.names.head).getOrElse(throw new QualifierNotFoundException(qid.fullName)).resolver
@@ -95,7 +95,12 @@ case class TypeResolver(
     val defBuf = new ArrayBuffer[Definition](doc.defs.size)
 
     for (i <- includes) {
-      resolver = resolver.withMapping(i)
+      try {
+        resolver = resolver.withMapping(i)
+      } catch {
+        case ex: Throwable =>
+          throw new FileParseException(filename = i.filePath, cause = ex)
+      }
     }
 
     for (d <- doc.defs) {
@@ -227,7 +232,10 @@ case class TypeResolver(
             case t => resolveConst(qid)
           }
       }
-      if (constFieldType != fieldType) throw new TypeMismatchException(id.fullName)
+      if (constFieldType != fieldType)
+        throw new TypeMismatchException(
+          s"Type mismatch: Expecting $fieldType, found ${id.fullName}: $constFieldType"
+        )
       constRHS
     }
     case _ => c
