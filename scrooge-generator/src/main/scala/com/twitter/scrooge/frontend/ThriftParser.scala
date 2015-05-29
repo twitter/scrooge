@@ -95,9 +95,9 @@ class ThriftParser(
    */
 
   val identifierRegex = "[A-Za-z_][A-Za-z0-9\\._]*".r
-  lazy val identifier = identifierRegex ^^ {
+  lazy val identifier = positioned(identifierRegex ^^ {
     x => Identifier(x)
-  }
+  })
 
   private[this] val thriftKeywords = Set[String](
     "async",
@@ -130,19 +130,19 @@ class ThriftParser(
   )
 
   lazy val simpleIDRegex = "[A-Za-z_][A-Za-z0-9_]*".r
-  lazy val simpleID = simpleIDRegex ^^ { x =>
+  lazy val simpleID = positioned(simpleIDRegex ^^ { x =>
     if (thriftKeywords.contains(x))
       failOrWarn(new KeywordException(x))
 
     SimpleID(x)
-  }
+  })
 
   // right hand side (RHS)
 
-  lazy val rhs: Parser[RHS] = {
+  lazy val rhs: Parser[RHS] = positioned({
     numberLiteral | boolLiteral | stringLiteral | listOrMapRHS | mapRHS | idRHS |
       failure("constant expected")
-  }
+  })
 
   lazy val boolLiteral: Parser[BoolLiteral] = ("true" | "True" | "false" | "False") ^^ { x =>
     if (x.toLowerCase == "false") BoolLiteral(false)
@@ -232,7 +232,7 @@ class ThriftParser(
         case x: BoolLiteral => x
         case IntLiteral(0) => BoolLiteral(false)
         case IntLiteral(1) => BoolLiteral(true)
-        case _ => throw new TypeMismatchException(s"Can't assign $rhs to a bool")
+        case _ => throw new TypeMismatchException(s"Can't assign $rhs to a bool", rhs)
       }
       case _ => rhs
     }
@@ -240,7 +240,7 @@ class ThriftParser(
 
   // fields
 
-  lazy val field = (opt(comments) ~ opt(fieldId) ~ fieldReq) ~
+  lazy val field = positioned((opt(comments) ~ opt(fieldId) ~ fieldReq) ~
     (fieldType ~ defaultedAnnotations ~ simpleID) ~
     opt("=" ~> rhs) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
       case (comm ~ fid ~ req) ~ (ftype ~ typeAnnotations ~ sid) ~ value ~ fieldAnnotations =>
@@ -261,7 +261,7 @@ class ThriftParser(
           fieldAnnotations,
           comm
         )
-    }
+    })
 
   lazy val fieldId = intConstant <~ ":" ^^ {
     x => x.value.toInt

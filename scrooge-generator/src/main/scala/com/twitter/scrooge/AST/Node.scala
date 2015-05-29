@@ -15,7 +15,9 @@
  */
 package com.twitter.scrooge.ast
 
-sealed abstract class Node
+import scala.util.parsing.input.Positional
+
+sealed abstract class Node extends Positional
 abstract class ValueNode extends Node
 abstract class TypeNode extends Node
 abstract class DocumentNode extends Node
