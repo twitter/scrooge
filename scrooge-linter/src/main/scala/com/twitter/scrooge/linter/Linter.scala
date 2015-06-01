@@ -16,7 +16,6 @@
 
 package com.twitter.scrooge.linter
 
-import com.twitter.finagle.NoStacktrace
 import com.twitter.logging.{ConsoleHandler, Formatter}
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser, TypeResolver}
@@ -135,8 +134,8 @@ object LintRule {
     // No relative includes
     def apply(doc: Document) = {
       doc.headers.collect {
-        case Include(f, d) if f.contains("..") =>
-          LintMessage("Relative include path found: %s.".format(f), Error)
+        case include @ Include(f, d) if f.contains("..") =>
+          LintMessage(s"Relative include path found:\n${include.pos.longString}", Error)
       }
     }
   }
@@ -149,14 +148,15 @@ object LintRule {
       doc.defs.foreach {
         case struct: StructLike =>
           if (!isTitleCase(struct.originalName)) {
-            messages += LintMessage("Struct name %s is not UpperCamelCase. Should be: %s.".format(
-              struct.originalName, Identifier.toTitleCase(struct.originalName)))
+            val correctName = Identifier.toTitleCase(struct.originalName)
+            messages += LintMessage(s"Struct name ${struct.originalName} is not UpperCamelCase. " +
+              s"Should be: ${correctName}. \n${struct.pos.longString}")
           }
 
           struct.fields.foreach { f =>
             if (!isCamelCase(f.originalName)) {
-              messages += LintMessage("Field name %s.%s is not lowerCamelCase. Should be: %s.".format(
-                struct.originalName, f.originalName, Identifier.toCamelCase(f.originalName)))
+              messages += LintMessage(s"Field name ${f.originalName} is not lowerCamelCase. " +
+                s"Should be: ${Identifier.toCamelCase(f.originalName)}. \n${f.pos.longString}")
             }
           }
         case _ =>
@@ -179,8 +179,9 @@ object LintRule {
         case struct: StructLike =>
           struct.fields.collect {
             case f if f.requiredness == Requiredness.Required && f.default.nonEmpty =>
-              LintMessage("Required field %s.%s has a default value. Make it optional or remove the default.".format(
-                struct.originalName, f.originalName), Error)
+              LintMessage(s"Required field ${f.originalName} has a default value. " +
+                s"Make it optional or remove the default.\n${f.pos.longString}",
+                Error)
           }
       }.flatten
     }
@@ -195,16 +196,17 @@ object LintRule {
           languageKeywords.foreach { case (lang, keywords) =>
             if (keywords.contains(struct.originalName)) {
               messages += LintMessage(
-                "Struct name %s is a %s keyword. Avoid using keywords as identifiers.".format(
-                  struct.originalName, lang))
+                s"Struct name ${struct.originalName}} is a $lang keyword. Avoid using keywords as identifiers.\n" +
+                s"${struct.pos.longString}")
               }
           }
           val fieldNames = struct.fields.map(_.originalName).toSet
           for {
             (lang, keywords) <- languageKeywords
-            intersection = keywords.intersect(fieldNames) if intersection.nonEmpty
-          } messages += LintMessage("Fields in struct %s: %s are %s keywords. Avoid using keywords as identifiers.".format(
-              struct.originalName, intersection.mkString(", "), lang))
+            fields = struct.fields.filter { f => keywords.contains(f.originalName) } if fields.nonEmpty
+            fieldNames = fields.map(_.originalName)
+          } messages += LintMessage(s"Found field names that are $lang keywords: ${fieldNames.mkString(", ")}. " +
+            s"Avoid using keywords as identifiers.\n${fields.head.pos.longString}")
       }
       messages
     }
@@ -281,23 +283,21 @@ class Linter(cfg: Config) {
   }
 
   // Lint a document, returning the number of lint errors found.
-  def apply(
-    doc: Document
-  ) : Int = {
+  def apply(doc: Document, inputFile: String): Int = {
 
     val messages = LintRule.all(rules)(doc)
 
     messages.foreach {
       case LintMessage(msg, Error) =>
-        error(msg)
+        error(s"$inputFile\n$msg")
       case LintMessage(msg, Warning) =>
-        warning(msg)
+        warning(s"$inputFile\n$msg")
     }
 
     val errorCount = messages.count(_.level == Error)
     val warnCount = messages.count(_.level == Warning)
 
-    if (errorCount + warnCount > 0) {
+    if (errorCount + warnCount > 0 ) {
       warning("%d warnings and %d errors found".format(messages.size - errorCount, errorCount))
     }
     errorCount
@@ -310,12 +310,12 @@ class Linter(cfg: Config) {
     val parser = new ThriftParser(importer, cfg.strict, defaultOptional = false, skipIncludes = !requiresIncludes)
 
     val errorCounts = cfg.files.map { inputFile =>
-      log.info("\n+ Linting %s".format(inputFile))
+      if (cfg.verbose)
+        log.info("\n+ Linting %s".format(inputFile))
 
       try {
         val doc0 = parser.parseFile(inputFile)
-
-        apply(doc0)
+        apply(doc0, inputFile)
       } catch {
         case e: FileParseException if (cfg.ignoreParseErrors) =>
           e.printStackTrace()

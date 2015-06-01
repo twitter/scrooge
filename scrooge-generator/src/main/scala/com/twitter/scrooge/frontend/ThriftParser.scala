@@ -338,14 +338,14 @@ class ThriftParser(
   def structLike(keyword: String) =
     (opt(comments) ~ ((keyword ~> simpleID) <~ "{")) ~ rep(field) ~ ("}" ~> defaultedAnnotations)
 
-  lazy val struct = structLike("struct") ^^ {
+  lazy val struct = positioned(structLike("struct") ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       Struct(sid, sid.name, fixFieldIds(fields), comment, annotations)
-  }
+  })
 
   private[this] val disallowedUnionFieldNames = Set("unknown_union_field", "unknownunionfield") map { _.toLowerCase }
 
-  lazy val union = structLike("union") ^^ {
+  lazy val union = positioned(structLike("union") ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       val fields0 = fields.map {
         case f if f.requiredness == Requiredness.Default =>
@@ -358,7 +358,7 @@ class ThriftParser(
       }
 
       Union(sid, sid.name, fixFieldIds(fields0), comment, annotations)
-  }
+  })
 
   lazy val exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
     case comment ~ sid ~ fields => Exception_(sid, sid.name, fixFieldIds(fields.getOrElse(Nil)), comment)
@@ -384,7 +384,7 @@ class ThriftParser(
 
   lazy val header: Parser[Header] = include | cppInclude | namespace
 
-  lazy val include = opt(comments) ~> "include" ~> stringLiteral ^^ { s =>
+  lazy val include = opt(comments) ~> "include" ~> positioned(stringLiteral ^^ { s =>
     val doc =
       if (skipIncludes) {
         Document(Seq(), Seq())
@@ -392,7 +392,7 @@ class ThriftParser(
         parseFile(s.value)
       }
     Include(s.value, doc)
-  }
+  })
 
   // bogus dude.
   lazy val cppInclude = "cpp_include" ~> stringLiteral ^^ {
