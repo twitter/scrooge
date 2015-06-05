@@ -442,7 +442,9 @@ class {{StructName}}(
 {{/optional}}
 {{/readWriteInfo}}
 {{/fields}}
-    _passthroughFields.values.foreach { _.write(_oprot) }
+    if (_passthroughFields.nonEmpty) {
+      _passthroughFields.values.foreach { _.write(_oprot) }
+    }
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }

@@ -6,6 +6,7 @@ scala_library(name='scala',
   ),
   dependencies=[
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
+    'util/util-app',
     'util/util-codec',
     'util/util-core',
     'scrooge/scrooge-core'

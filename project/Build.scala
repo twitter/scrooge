@@ -239,6 +239,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-serializer",
     libraryDependencies ++= Seq(
+      util("app"),
       util("codec"),
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     )
