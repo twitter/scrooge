@@ -58,8 +58,7 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    // 2.11-ification needs more work with mustache
-    crossScalaVersions := Seq("2.10.5" /*, "2.11.6"*/),
+    crossScalaVersions := Seq("2.10.5" , "2.11.6"),
     scalaVersion := "2.10.5",
 
     resolvers ++= Seq(
@@ -183,9 +182,11 @@ object Scrooge extends Build {
           "com.github.spullara.mustache.java" % "compiler" % "0.8.17"
         )
       case version if version.startsWith("2.11.") =>
+        // Mustache support for Scala 2.11 is only available for Java 8+ so in the meantime
+        // use scala-extensions-2.10 (Scrooge is Java 7 based)
         Seq(
-          "com.github.spullara.mustache.java" % "scala-extensions-2.11" % "0.9.0",
-          "com.github.spullara.mustache.java" % "compiler" % "0.9.0"
+          "com.github.spullara.mustache.java" % "scala-extensions-2.10" % "0.8.17",
+          "com.github.spullara.mustache.java" % "compiler" % "0.8.17"
         )
 
     }),
