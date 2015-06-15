@@ -14,7 +14,7 @@ object Scrooge extends Build {
   val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
   val libVersion = "3.18.1" + suffix
-  val utilVersion = "6.24.0" + suffix
+  val utilVersion = "6.24.0"
   val finagleVersion = "6.25.0"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
