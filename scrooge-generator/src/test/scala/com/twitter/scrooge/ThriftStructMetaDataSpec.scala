@@ -21,6 +21,7 @@ class ThriftStructMetaDataSpec extends Spec {
     metaData.structClassName must be("thrift.test.XtructColl")
     metaData.structName must be("XtructColl")
     metaData.structClass must be(classOf[XtructColl])
+    metaData.unionFields must be(Nil)
 
     val Seq(f1, f2, f3, f4) = fields
 
@@ -144,6 +145,27 @@ class ThriftStructMetaDataSpec extends Spec {
       "structKey1" -> "structValue1",
       "structKey2" -> "structValue2"
     ))
+  }
+
+  "populates metaData for unions" in {
+    val md = MorePerfectUnion.metaData
+    assert(md.codecClass == MorePerfectUnion.getClass)
+    assert(md.structClassName == "thrift.test.MorePerfectUnion")
+    assert(md.structName == "MorePerfectUnion")
+    assert(md.fields == Nil)
+    assert(md.unionFields == MorePerfectUnion.fieldInfos)
+
+    val bonkFieldInfo: ThriftStructFieldInfo = md.unionFields.head.structFieldInfo
+    assert(bonkFieldInfo.tfield.id == 1)
+    assert(bonkFieldInfo.tfield.name == "bonk")
+
+    val bonk = MorePerfectUnion.Bonk(Bonk("message", 55))
+    assert(Some(bonkFieldInfo) == bonk.unionStructFieldInfo)
+
+    bonk.containedValue match {
+      case _: Bonk =>
+      case u => fail(u.toString)
+    }
   }
 
   "populates Union.fieldInfos will all field info" in {

@@ -8,7 +8,7 @@ trait ThriftStruct {
 }
 
 /**
- * Unions are tagged with this trait as well as with ThriftStruct.
+ * Unions are tagged with this trait as well as with [[ThriftStruct]].
  */
 trait ThriftUnion
 
@@ -39,8 +39,8 @@ trait ThriftStructCodec[T <: ThriftStruct] {
  * generated.
  */
 abstract class ThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec[T] {
-  override val encoder: (T, TProtocol) => Unit = encode _
-  override val decoder: TProtocol => T = decode _
+  override val encoder: (T, TProtocol) => Unit = encode
+  override val decoder: TProtocol => T = decode
 
   protected def ttypeToString(byte: Byte): String = {
     // from https://github.com/apache/thrift/blob/master/lib/java/src/org/apache/thrift/protocol/TType.java

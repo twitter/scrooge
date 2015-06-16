@@ -39,16 +39,16 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       {{required}},
       {{fieldConst}}Manifest,
 {{#fieldKeyType}}
-      Some(implicitly[Manifest[{{fieldKeyType}}]]),
+      _root_.scala.Some(implicitly[Manifest[{{fieldKeyType}}]]),
 {{/fieldKeyType}}
 {{^fieldKeyType}}
-      None,
+      _root_.scala.None,
 {{/fieldKeyType}}
 {{#fieldValueType}}
-      Some(implicitly[Manifest[{{fieldValueType}}]]),
+      _root_.scala.Some(implicitly[Manifest[{{fieldValueType}}]]),
 {{/fieldValueType}}
 {{^fieldValueType}}
-      None,
+      _root_.scala.None,
 {{/fieldValueType}}
 {{#fieldTypeAnnotations}}
       immutable$Map(
@@ -117,7 +117,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   override def decode(_iprot: TProtocol): {{StructName}} = {
 {{#fields}}
 {{#optional}}
-    var {{fieldName}}: Option[{{fieldType}}] = None
+    var {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
 {{/optional}}
 {{^optional}}
     var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
@@ -168,7 +168,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
 {{/fields|,}}
   ): {{StructName}} =
     new {{InstanceClassName}}(
@@ -181,10 +181,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   def unapply(_item: {{StructName}}): Boolean = true
 {{/arity0}}
 {{#arity1}}
-  def unapply(_item: {{StructName}}): Option[{{>optionalType}}] = Some(_item.{{fieldName}})
+  def unapply(_item: {{StructName}}): _root_.scala.Option[{{>optionalType}}] = _root_.scala.Some(_item.{{fieldName}})
 {{/arity1}}
 {{#arityN}}
-  def unapply(_item: {{StructName}}): Option[{{product}}] = Some(_item)
+  def unapply(_item: {{StructName}}): _root_.scala.Option[{{product}}] = _root_.scala.Some(_item)
 {{/arityN}}
 
 
@@ -231,7 +231,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   ) extends {{StructName}} {
     def this(
 {{#fields}}
-      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
 {{/fields|,}}
     ) = this(
 {{#fields}}
@@ -274,7 +274,7 @@ class {{StructName}}(
 {{^withTrait}}
     def this(
 {{#fields}}
-      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = None{{/optional}}
+      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
 {{/fields|,}}
     ) = this(
 {{#fields}}
@@ -302,13 +302,13 @@ class {{StructName}}(
    * is present in the passthrough map, that value is returned.  Otherwise, if the specified field
    * is known and not optional and set to None, then the field is serialized and returned.
    */
-  def getFieldBlob(_fieldId: Short): Option[TFieldBlob] = {
+  def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
     lazy val _buff = new TMemoryBuffer(32)
     lazy val _oprot = new TCompactProtocol(_buff)
     _passthroughFields.get(_fieldId) match {
-      case blob: Some[TFieldBlob] => blob
-      case None => {
-        val _fieldOpt: Option[TField] =
+      case blob: _root_.scala.Some[TFieldBlob] => blob
+      case _root_.scala.None => {
+        val _fieldOpt: _root_.scala.Option[TField] =
           _fieldId match {
 {{#fields}}
             case {{id}} =>
@@ -325,20 +325,20 @@ class {{StructName}}(
 {{/nullable}}
 {{/optional}}
                 {{writeFieldValueName}}({{fieldName}}{{#optional}}.get{{/optional}}, _oprot)
-                Some({{StructName}}.{{fieldConst}})
+                _root_.scala.Some({{StructName}}.{{fieldConst}})
               } else {
-                None
+                _root_.scala.None
               }
 {{/readWriteInfo}}
 {{/fields}}
-            case _ => None
+            case _ => _root_.scala.None
           }
         _fieldOpt match {
-          case Some(_field) =>
+          case _root_.scala.Some(_field) =>
             val _data = Arrays.copyOfRange(_buff.getArray, 0, _buff.length)
-            Some(TFieldBlob(_field, _data))
-          case None =>
-            None
+            _root_.scala.Some(TFieldBlob(_field, _data))
+          case _root_.scala.None =>
+            _root_.scala.None
         }
       }
     }
@@ -366,7 +366,7 @@ class {{StructName}}(
 {{#readWriteInfo}}
       case {{id}} =>
 {{#optional}}
-        {{fieldName}} = Some({{readFieldValueName}}(_blob.read))
+        {{fieldName}} = _root_.scala.Some({{readFieldValueName}}(_blob.read))
 {{/optional}}
 {{^optional}}
         {{fieldName}} = {{readFieldValueName}}(_blob.read)
@@ -397,7 +397,7 @@ class {{StructName}}(
 {{#fields}}
       case {{id}} =>
 {{#optional}}
-        {{fieldName}} = None
+        {{fieldName}} = _root_.scala.None
 {{/optional}}
 {{^optional}}
         {{fieldName}} = {{defaultReadValue}}
@@ -442,7 +442,9 @@ class {{StructName}}(
 {{/optional}}
 {{/readWriteInfo}}
 {{/fields}}
-    _passthroughFields.values.foreach { _.write(_oprot) }
+    if (_passthroughFields.nonEmpty) {
+      _passthroughFields.values.foreach { _.write(_oprot) }
+    }
     _oprot.writeFieldStop()
     _oprot.writeStructEnd()
   }

@@ -31,6 +31,23 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       Await.result(service.deliver("Boston")) must be(3)
     }
 
+    "generate correct defaults" in { _ =>
+      val service = new Defaults.FutureIface {
+        def defaultParams(
+          arg1: Int,
+          arg2: Option[Int],
+          arg3: Int,
+          arg4: Seq[Int],
+          arg5: Option[Seq[Int]],
+          arg6: Boolean
+        ): Future[Int] = Future.value(arg2.getOrElse(-1))
+      }
+
+      // the other parameters should have defaults.
+      val result = service.defaultParams(arg1 = 999)
+      Await.result(result) must be(-1)
+    }
+
     "generate structs for args and return value" in { cycle => import cycle._
       val protocol = mock[TProtocol]
 

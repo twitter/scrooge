@@ -7,6 +7,9 @@ import java.io.File
 
 object ScroogeSBT extends AutoPlugin {
 
+  private[this] def generatedExtensionPattern(language: String): String =
+    if (language.endsWith("java")) "*.java" else "*.scala"
+
   def compile(
     log: Logger,
     outputDir: File,
@@ -16,13 +19,27 @@ object ScroogeSBT extends AutoPlugin {
     language: String,
     flags: Set[String]
   ) {
-    val compiler = new Compiler()
-    compiler.destFolder = outputDir.getPath
-    thriftIncludes.map { compiler.includePaths += _.getPath }
-    namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2)}
-    Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
-    compiler.language = language.toLowerCase
-    compiler.run()
+
+    val originalLoader: Option[ClassLoader] =
+      // We have to change the class loader so Mustache resolver can see resources.
+      // TODO: Please, remove it once Mustache is updated to >=0.9.
+      if (language.toLowerCase == "java") {
+        val original = Thread.currentThread.getContextClassLoader
+        Thread.currentThread.setContextClassLoader(getClass.getClassLoader)
+        Some(original)
+      } else None
+
+    try {
+      val compiler = new Compiler()
+      compiler.destFolder = outputDir.getPath
+      thriftIncludes.map { compiler.includePaths += _.getPath }
+      namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2) }
+      Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
+      compiler.language = language.toLowerCase
+      compiler.run()
+    } finally {
+      originalLoader.foreach(Thread.currentThread.setContextClassLoader)
+    }
   }
 
   def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
@@ -83,12 +100,12 @@ object ScroogeSBT extends AutoPlugin {
 
     val scroogeThriftOutputFolder = SettingKey[File](
       "scrooge-thrift-output-folder",
-      "output folder for generated scala files (defaults to sourceManaged)"
+      "output folder for generated files (defaults to sourceManaged)"
     )
 
     val scroogeIsDirty = TaskKey[Boolean](
       "scrooge-is-dirty",
-      "true if scrooge has decided it needs to regenerate the scala files from thrift sources"
+      "true if scrooge has decided it needs to regenerate the scala/java files from thrift sources"
     )
 
     val scroogeUnpackDeps = TaskKey[Seq[File]](
@@ -98,7 +115,12 @@ object ScroogeSBT extends AutoPlugin {
 
     val scroogeGen = TaskKey[Seq[File]](
       "scrooge-gen",
-      "generate scala code from thrift files using scrooge"
+      "generate code from thrift files using scrooge"
+    )
+
+    val scroogeLanguage = SettingKey[String](
+      "scrooge-language",
+      "language to generate code in: scala, java, experimental-java"
     )
   }
 
@@ -128,6 +150,7 @@ object ScroogeSBT extends AutoPlugin {
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
+    scroogeLanguage := "scala",
     libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
 
     // complete list of source files
@@ -179,8 +202,9 @@ object ScroogeSBT extends AutoPlugin {
       streams,
       scroogeThriftSources,
       scroogeThriftOutputFolder,
-      scroogeThriftIncludes
-    ) map { (out, sources, outputDir, inc) =>
+      scroogeThriftIncludes,
+      scroogeLanguage
+    ) map { (out, sources, outputDir, inc, language) =>
       // figure out if we need to actually rebuild, based on mtimes.
       val allSourceDeps = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
         files ++ (dir ** "*.thrift").get
@@ -191,7 +215,7 @@ object ScroogeSBT extends AutoPlugin {
       } else {
         Long.MaxValue
       }
-      val outputsLastModified = (outputDir ** "*.scala").get.map(_.lastModified)
+      val outputsLastModified = (outputDir ** generatedExtensionPattern(language)).get.map(_.lastModified)
       val oldestOutput = if (outputsLastModified.size > 0) {
         outputsLastModified.min
       } else {
@@ -208,14 +232,15 @@ object ScroogeSBT extends AutoPlugin {
       scroogeThriftOutputFolder,
       scroogeBuildOptions,
       scroogeThriftIncludes,
-      scroogeThriftNamespaceMap
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns) =>
+      scroogeThriftNamespaceMap,
+      scroogeLanguage
+    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, language) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && sources.nonEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, "scala", opts.toSet)
+        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet)
       }
-      (outputDir ** "*.scala").get.toSeq
+      (outputDir ** generatedExtensionPattern(language)).get.toSeq
     },
     sourceGenerators <+= scroogeGen
   )

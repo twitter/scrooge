@@ -177,4 +177,19 @@ object ScroogeRunner {
 
       filesGenerated
     }
+
+  val genSerializerTestThrift = TaskKey[Seq[File]]("genSerializerTestThrift",
+    "Uses Scrooge to generate sources to use in serializer tests")
+  val genSerializerTestThriftTask = genSerializerTestThrift <<=
+    (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
+      val runner = new Runner(out, cp, outputDir)
+      import runner._
+
+      section("serializer/") {
+        val files = filesInDir(s"$base/src/test/thrift") mkString " "
+        runScrooge(Seq(Scala), files)
+      }
+
+      filesGenerated
+    }
 }

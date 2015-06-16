@@ -27,7 +27,8 @@ case class Config(
   ignoreErrors: Boolean = false,
   ignoreParseErrors: Boolean = false,
   includePaths: Seq[String] = Seq.empty,
-  enabledRules: Seq[LintRule] = LintRule.DefaultRules
+  enabledRules: Seq[LintRule] = LintRule.DefaultRules,
+  verbose: Boolean = false
 )
 
 
@@ -57,6 +58,10 @@ object Main {
         sys.exit()
         c
       }
+
+      opt[Unit]('v', "verbose") action { (_, c) =>
+        c.copy(verbose = true)
+      } text("log verbose messages about progress")
 
       opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action { (_, c) =>
         c.copy(ignoreErrors = true)

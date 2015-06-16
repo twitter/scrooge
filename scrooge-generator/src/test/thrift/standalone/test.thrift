@@ -534,3 +534,14 @@ service ReadWriteService extends ReadOnlyService {
 service Capsly {
   string Bad_Name()
 }
+
+service Defaults {
+  i32 defaultParams(
+    1: i32 arg1,
+    2: optional i32 arg2,
+    3: optional i32 arg3 = 3,
+    4: list<i32> arg4,
+    5: optional list<i32> arg5,
+    6: optional bool arg6 = true
+  )
+}

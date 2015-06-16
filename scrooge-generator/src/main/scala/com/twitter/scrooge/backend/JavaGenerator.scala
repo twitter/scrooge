@@ -63,65 +63,83 @@ class JavaGenerator(
     else
       str
 
-  def normalizeCase[N <: Node](node: N) = {
+  def normalizeCase[N <: Node](node: N): N = {
     (node match {
       case d: Document =>
-        d.copy(defs = d.defs.map(normalizeCase(_)))
+        d.copy(defs = d.defs.map(normalizeCase))
       case id: Identifier => id.toTitleCase
       case e: EnumRHS =>
         e.copy(normalizeCase(e.enum), normalizeCase(e.value))
       case f: Field =>
         f.copy(
           sid = f.sid.toCamelCase,
-          default = f.default.map(normalizeCase(_)))
+          default = f.default.map(normalizeCase))
       case f: Function =>
         f.copy(
           funcName = f.funcName.toCamelCase,
-          args = f.args.map(normalizeCase(_)),
-          throws = f.throws.map(normalizeCase(_)))
+          args = f.args.map(normalizeCase),
+          throws = f.throws.map(normalizeCase))
       case c: ConstDefinition =>
         c.copy(value = normalizeCase(c.value))
       case e: Enum =>
-        e.copy(values = e.values.map(normalizeCase(_)))
+        e.copy(values = e.values.map(normalizeCase))
       case e: EnumField =>
         e.copy(sid = e.sid.toUpperCase)
       case s: Struct =>
-        s.copy(fields = s.fields.map(normalizeCase(_)))
+        s.copy(fields = s.fields.map(normalizeCase))
       case f: FunctionArgs =>
-        f.copy(fields = f.fields.map(normalizeCase(_)))
+        f.copy(fields = f.fields.map(normalizeCase))
       case f: FunctionResult =>
-        f.copy(fields = f.fields.map(normalizeCase(_)))
+        f.copy(fields = f.fields.map(normalizeCase))
       case e: Exception_ =>
-        e.copy(fields = e.fields.map(normalizeCase(_)))
+        e.copy(fields = e.fields.map(normalizeCase))
       case s: Service =>
-        s.copy(functions = s.functions.map(normalizeCase(_)))
+        s.copy(functions = s.functions.map(normalizeCase))
       case n => n
     }).asInstanceOf[N]
   }
 
-  def genList(list: ListRHS): CodeFragment = {
-    val code = "Utilities.makeList(" + list.elems.map(genConstant(_).toData).mkString(", ") + ")"
-    codify(code)
+  def genList(
+    list: ListRHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
+    val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
+    val code =
+      list.elems.map { e =>
+        genConstant(e, listElemType).toData
+      }.mkString(", ")
+    codify(s"Utilities.makeList($code)")
   }
 
-  def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+  def genSet(
+    set: SetRHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
     val makeSetMethod = fieldType match {
       case Some(SetType(EnumType(_, _), _)) => "makeEnumSet"
       case _ => "makeSet"
     }
 
-    val code = s"Utilities.$makeSetMethod(" +
-      set.elems.map(genConstant(_).toData).mkString(", ") + ")"
-    codify(code)
+    val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
+    val code = set.elems.map { e =>
+      genConstant(e, setElemType).toData
+    }.mkString(", ")
+
+    codify(s"Utilities.$makeSetMethod($code)")
   }
 
-  def genMap(map: MapRHS): CodeFragment = {
-    val code =
-      "Utilities.makeMap(" +
-        map.elems.map { case (k, v) =>
-          "Utilities.makeTuple(" + genConstant(k).toData + ", " + genConstant(v).toData + ")"
-        }.mkString(", ") + ")"
-    codify(code)
+  def genMap(
+    map: MapRHS,
+    fieldType: Option[FieldType] = None
+  ): CodeFragment = {
+    val mapType = fieldType.map(_.asInstanceOf[MapType])
+    val code = map.elems.map { case (k, v) =>
+      val key = genConstant(k, mapType.map(_.keyType)).toData
+      val value = genConstant(v, mapType.map(_.valueType)).toData
+      s"Utilities.makeTuple($key, $value)"
+    }.mkString(", ")
+
+    codify(s"Utilities.makeMap($code)")
   }
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
