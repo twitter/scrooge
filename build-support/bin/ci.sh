@@ -43,6 +43,7 @@ function bootstrap_scrooge {
     publish_local util util-core/publishLocal
     publish_local util util-codec/publishLocal
     publish_local util util-app/publishLocal
+    publish_local util util-function/publishLocal
     # ostrich
     clone_repo ostrich https://github.com/twitter/ostrich.git develop
     publish_local ostrich publishLocal
