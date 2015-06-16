@@ -6,7 +6,7 @@ function clone_repo {
   local branch=$3
   git clone $repo || {
     echo "Unable to clone $name from $repo"
-    #exit 1
+    exit 1
   }
   cd $name || {
     echo "Unable to get $name from $repo"
