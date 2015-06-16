@@ -6,7 +6,7 @@ function clone_repo {
   local branch=$3
   git clone $repo || {
     echo "Unable to clone $name from $repo"
-    exit 1
+    #exit 1
   }
   cd $name || {
     echo "Unable to get $name from $repo"
@@ -48,6 +48,7 @@ function bootstrap_scrooge {
     clone_repo finagle https://github.com/twitter/finagle.git develop
     publish_local finagle finagle-core/publishLocal
     publish_local finagle finagle-mux/publishLocal
+    publish_local finagle finagle-httpx/publishLocal
     publish_local finagle finagle-thrift/publishLocal
     publish_local finagle finagle-thriftmux/publishLocal
     publish_local finagle finagle-ostrich4/publishLocal
