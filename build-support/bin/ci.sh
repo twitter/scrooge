@@ -47,6 +47,7 @@ function bootstrap_scrooge {
     # finagle
     clone_repo finagle https://github.com/twitter/finagle.git develop
     publish_local finagle finagle-core/publishLocal
+    publish_local finagle finagle-mux/publishLocal
     publish_local finagle finagle-thrift/publishLocal
     publish_local finagle finagle-thriftmux/publishLocal
     publish_local finagle finagle-ostrich4/publishLocal
