@@ -251,5 +251,69 @@ class TypeResolverSpec extends Spec {
           fail()
       }
     }
+
+    def resolve(input: String): ResolvedDocument = {
+      val parser = new ThriftParser(Importer("."), strict = true)
+
+      val doc = parser.parse(input, parser.document)
+      TypeResolver()(doc)
+    }
+
+    "include positions in type errors" should {
+      "TypeNotFoundException" in {
+        val input = "const UnknownType name = 15"
+
+        val ex = intercept[TypeNotFoundException] {
+          resolve(input)
+        }
+        ex.node.pos.line mustBe 1
+        ex.node.pos.column mustBe 7
+      }
+
+      "UndefinedConstantException" in {
+        val input = "const i32 i = UnknownConst"
+
+        val ex = intercept[UndefinedConstantException] {
+          resolve(input)
+        }
+        ex.node.pos.line mustBe 1
+        ex.node.pos.column mustBe 15
+      }
+
+      "UndefinedSymbolException" in {
+        val input =
+          "const i32 NotAService = 4\n" +
+          "service S extends NotAService {}"
+
+        val ex = intercept[UndefinedSymbolException] {
+          resolve(input)
+        }
+        ex.node.pos.line mustBe 2
+        ex.node.pos.column mustBe 19
+      }
+
+      "TypeMismatchException" in {
+        val input =
+          """const string name = "name"
+            |const i32 i = name
+          """.stripMargin
+
+        val ex = intercept[TypeMismatchException] {
+          resolve(input)
+        }
+        ex.node.pos.line mustBe 2
+        ex.node.pos.column mustBe 15
+      }
+
+      "QualifierNotFoundException" in {
+        val input = "const i32 i = UnknownImport.SomeConst"
+
+        val ex = intercept[QualifierNotFoundException] {
+          resolve(input)
+        }
+        ex.node.pos.line mustBe 1
+        ex.node.pos.column mustBe 15
+      }
+    }
   }
 }

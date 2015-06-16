@@ -14,6 +14,10 @@ object Scrooge extends Build {
   val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
   val libVersion = "3.18.1" + suffix
+
+  // For develop users: if you are using new features in util and finagle dependencies
+  // that are not yet published to Maven Central, you'll need to publish util and
+  // finagle locally
   val utilVersion = "6.24.0" + suffix
   val finagleVersion = "6.25.0" + suffix
 
@@ -231,18 +235,26 @@ object Scrooge extends Build {
     )
   ).dependsOn(scroogeRuntime)
 
+  val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
+    sourceGenerators <+= ScroogeRunner.genSerializerTestThrift,
+    ScroogeRunner.genSerializerTestThriftTask
+  )
+
   lazy val scroogeSerializer = Project(
     id = "scrooge-serializer",
     base = file("scrooge-serializer"),
     settings = Project.defaultSettings ++
+      inConfig(Test)(serializerTestThriftSettings) ++
       sharedSettings
   ).settings(
     name := "scrooge-serializer",
     libraryDependencies ++= Seq(
+      util("app"),
       util("codec"),
+      "org.slf4j" % "slf4j-log4j12" % "1.6.6" % "test",
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     )
-  ).dependsOn(scroogeCore)
+  ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",

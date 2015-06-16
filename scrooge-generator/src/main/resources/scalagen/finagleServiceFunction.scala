@@ -11,7 +11,7 @@ addFunction("{{serviceFuncNameForWire}}", { (iprot: TProtocol, seqid: Int) =>
     } rescue {
 {{#exceptions}}
       case e: {{exceptionType}} => {
-        reply("{{serviceFuncNameForWire}}", seqid, {{ResultStruct}}({{fieldName}} = Some(e)))
+        reply("{{serviceFuncNameForWire}}", seqid, {{ResultStruct}}({{fieldName}} = _root_.scala.Some(e)))
       }
 {{/exceptions}}
       case e => Future.exception(e)

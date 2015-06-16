@@ -209,7 +209,7 @@ download_url () {
 
   mkdir -p $(dirname "$jar") && {
     if which curl >/dev/null; then
-      curl --fail --silent "$url" --output "$jar"
+      curl --location --fail --silent "$url" --output "$jar"
     elif which wget >/dev/null; then
       wget --quiet -O "$jar" "$url"
     fi

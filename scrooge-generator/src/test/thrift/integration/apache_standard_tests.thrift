@@ -54,6 +54,16 @@ const Numberz myNumberz = Numberz.ONE;
 // the following is expected to fail:
 // const Numberz urNumberz = ONE;
 
+const map<i64, i64> i64_i64_map = {
+  1 : 1,
+  2147483648 : 2147483648,
+  -2147483649 : -2147483649
+};
+
+const set<i64> i64_set = [ 1, 2147483648, -2147483649 ];
+
+const list<i64> i64_list = [ 1, 2147483648, -2147483649 ];
+
 typedef i64 UserId
 
 struct Bonk

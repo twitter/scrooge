@@ -26,36 +26,36 @@ object Dictionary {
   }
 
   case class CodeFragment(data: String) extends Value {
-    def toBoolean = data != ""
-    def toData = data
-    def children = Nil
-    override def toString = toData
+    def toBoolean: Boolean = data != ""
+    def toData: String = data
+    def children: Seq[Dictionary] = Nil
+    override def toString: String = toData
     def append(suffix: String): CodeFragment = CodeFragment(data + suffix)
   }
 
   case class BooleanValue(data: Boolean) extends Value {
-    def toBoolean = data
-    def toData = if (data) "true" else "false"
-    def children = Nil
+    def toBoolean: Boolean = data
+    def toData: String = if (data) "true" else "false"
+    def children: Seq[Dictionary] = Nil
   }
 
   case class ListValue(data: Seq[Dictionary]) extends Value {
-    def toBoolean = true
-    def toData = "?"
-    def children = data
+    def toBoolean: Boolean = true
+    def toData: String = "?"
+    def children: Seq[Dictionary] = data
   }
 
   case class PartialValue(partial: Handlebar) extends Value {
-    def toBoolean = true
-    def toData = "?"
-    def children = Nil
-    override def toString = "<partial>"
+    def toBoolean: Boolean = true
+    def toData: String = "?"
+    def children: Seq[Dictionary] = Nil
+    override def toString: String = "<partial>"
   }
 
   case object NoValue extends Value {
-    def toBoolean = false
-    def toData = ""
-    def children = Nil
+    def toBoolean: Boolean = false
+    def toData: String = ""
+    def children: Seq[Dictionary] = Nil
   }
 
   /**
@@ -97,7 +97,7 @@ case class Dictionary private(
 ) {
   import Dictionary._
 
-  override def toString = "Dictionary(parent=%s, map=%s)".format(parent.isDefined, map)
+  override def toString: String = "Dictionary(parent=%s, map=%s)".format(parent.isDefined, map)
 
   def this() = this(None, new mutable.HashMap())
 

@@ -149,8 +149,8 @@ trait StructTemplate { self: TemplateGenerator =>
             case SetType(valueType, _) => Some(genType(valueType))
             case _ => None
           }),
-          "fieldTypeAnnotations" -> v(StructTemplate.renderPairs(field.typeAnnotations)),
-          "fieldFieldAnnotations" -> v(StructTemplate.renderPairs(field.fieldAnnotations)),
+          "fieldTypeAnnotations" -> StructTemplate.renderPairs(field.typeAnnotations),
+          "fieldFieldAnnotations" -> StructTemplate.renderPairs(field.fieldAnnotations),
           "isImported" -> v(field.fieldType match {
             case n: NamedType => n.scopePrefix.isDefined
             case _ => false
@@ -329,19 +329,24 @@ trait StructTemplate { self: TemplateGenerator =>
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
       "withTrait" -> v(isStruct),
-      "structAnnotations" -> v(StructTemplate.renderPairs(struct.annotations))
+      "structAnnotations" -> StructTemplate.renderPairs(struct.annotations)
     )
   }
 }
 
 object StructTemplate {
+
   /**
    * Renders a map as:
    *   Dictionary("pairs" -> ListValue(Seq(Dictionary("key" -> ..., "value" -> ...)))
    */
-  def renderPairs(pairs: Map[String, String]): Dictionary = {
-    val pairDicts: Seq[Dictionary] =
-      pairs.map { case (k, v) => Dictionary("key" -> codify(k), "value" -> codify(v)) }.toSeq
-    Dictionary("pairs" -> v(pairDicts))
+  private def renderPairs(pairs: Map[String, String]): Dictionary.Value = {
+    if (pairs.isEmpty) {
+      NoValue
+    } else {
+      val pairDicts: Seq[Dictionary] =
+        pairs.map { case (k, v) => Dictionary("key" -> codify(k), "value" -> codify(v)) }.toSeq
+      v(Dictionary("pairs" -> v(pairDicts)))
+    }
   }
 }

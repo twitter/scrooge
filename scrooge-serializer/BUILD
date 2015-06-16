@@ -1,7 +1,13 @@
 maven_layout()
 
-jar_library(name='scrooge-serializer',
+target(name='scrooge-serializer',
   dependencies=[
     'scrooge/scrooge-serializer/src/main/scala'
+  ]
+)
+
+target(name='tests',
+  dependencies=[
+    'scrooge/scrooge-serializer/src/test/scala'
   ]
 )

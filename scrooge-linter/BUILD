@@ -1,6 +1,6 @@
 maven_layout()
 
-jar_library(name='bin',
+target(name='bin',
   dependencies=['scrooge/scrooge-linter/src/main/scala/com/twitter/scrooge/linter:bin'],
 )
 

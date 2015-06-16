@@ -18,39 +18,43 @@ package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast._
 import scala.collection.mutable.ArrayBuffer
+import scala.util.parsing.input.Positional
 
-class TypeNotFoundException(name: String) extends Exception(name)
-class UndefinedConstantException(name: String) extends Exception(name)
-class UndefinedSymbolException(name: String) extends Exception(name)
-class TypeMismatchException(name: String) extends Exception(name)
-class QualifierNotFoundException(name: String) extends Exception(name)
+class PositionalException(message: String, node: Positional)
+  extends Exception(s"$message\n${node.pos.longString}")
+
+case class TypeNotFoundException(name: String, node: Positional) extends PositionalException(name, node)
+case class UndefinedConstantException(name: String, node: Positional) extends PositionalException(name, node)
+case class UndefinedSymbolException(name: String, node: Positional) extends PositionalException(name, node)
+case class TypeMismatchException(name: String, node: Positional) extends PositionalException(name, node)
+case class QualifierNotFoundException(name: String, node: Positional) extends PositionalException(name, node)
 
 case class ResolvedDocument(document: Document, resolver: TypeResolver)
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
 case class TypeResolver(
-  typeMap: Map[String, FieldType] = Map(),
-  constMap: Map[String, ConstDefinition] = Map(),
-  serviceMap: Map[String, Service] = Map(),
-  includeMap: Map[String, ResolvedDocument] = Map()) {
+    typeMap: Map[String, FieldType] = Map.empty,
+    constMap: Map[String, ConstDefinition] = Map.empty,
+    serviceMap: Map[String, Service] = Map.empty,
+    includeMap: Map[String, ResolvedDocument] = Map.empty) {
 
   def getResolver(qid: QualifiedID) = {
-    includeMap.get(qid.names.head).getOrElse(throw new QualifierNotFoundException(qid.fullName)).resolver
+    includeMap.get(qid.names.head).getOrElse(throw new QualifierNotFoundException(qid.fullName, qid)).resolver
   }
 
   def resolveFieldType(id: Identifier): FieldType = id match {
-    case SimpleID(name, _) => typeMap.get(name).getOrElse(throw new TypeNotFoundException(name))
+    case SimpleID(name, _) => typeMap.get(name).getOrElse(throw new TypeNotFoundException(name, id))
     case qid: QualifiedID => getResolver(qid).resolveFieldType(qid.tail)
   }
 
   def resolveService(id: Identifier): Service = id match {
-    case SimpleID(name, _) => serviceMap.get(name).getOrElse(throw new UndefinedSymbolException(name))
+    case SimpleID(name, _) => serviceMap.get(name).getOrElse(throw new UndefinedSymbolException(name, id))
     case qid: QualifiedID => getResolver(qid).resolveService(qid.tail)
   }
 
   def resolveConst(id: Identifier): (FieldType, RHS) = id match {
     case SimpleID(name, _) =>
-      val const = constMap.get(name).getOrElse(throw new UndefinedConstantException(name))
+      val const = constMap.get(name).getOrElse(throw new UndefinedConstantException(name, id))
       (const.fieldType, const.value)
     case qid: QualifiedID => getResolver(qid).resolveConst(qid.tail)
   }
@@ -95,7 +99,12 @@ case class TypeResolver(
     val defBuf = new ArrayBuffer[Definition](doc.defs.size)
 
     for (i <- includes) {
-      resolver = resolver.withMapping(i)
+      try {
+        resolver = resolver.withMapping(i)
+      } catch {
+        case ex: Throwable =>
+          throw new FileParseException(filename = i.filePath, cause = ex)
+      }
     }
 
     for (d <- doc.defs) {
@@ -186,7 +195,7 @@ case class TypeResolver(
       fieldType match {
         case ListType(eltType, _) => l.copy(elems = elems.map(e => apply(e, eltType)))
         case SetType(eltType, _) => SetRHS(elems.map(e => apply(e, eltType)).toSet)
-        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l)
+        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l, c)
       }
     case m @ MapRHS(elems) =>
       fieldType match {
@@ -203,13 +212,13 @@ case class TypeResolver(
               val (k, v) = filtered.head
               structMap += f -> apply(v, f.fieldType)
             } else if (filtered.size > 1) {
-              throw new TypeMismatchException("Duplicate default values for " + f.sid.name + " found for " + fieldType)
+              throw new TypeMismatchException(s"Duplicate default values for ${f.sid.name} found for $fieldType", m)
             } else if (!f.requiredness.isOptional && f.default.isEmpty) {
-              throw new TypeMismatchException("Value required for " + f.sid.name + " in " + fieldType)
+              throw new TypeMismatchException(s"Value required for ${f.sid.name} in $fieldType", m)
             }
           }
           StructRHS(sid = st.sid, elems = structMap.result())
-        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m)
+        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m, m)
       }
     case i @ IdRHS(id) => {
       val (constFieldType, constRHS) = id match {
@@ -222,12 +231,16 @@ case class TypeResolver(
             case EnumType(enum, _) =>
               val resolvedFieldType = resolveFieldType(qid.qualifier)
               val value = enum.values.find(_.sid.name == names.last).getOrElse(
-                throw new UndefinedSymbolException(qid.fullName))
+                throw new UndefinedSymbolException(qid.fullName, qid))
               (resolvedFieldType, EnumRHS(enum, value))
             case t => resolveConst(qid)
           }
       }
-      if (constFieldType != fieldType) throw new TypeMismatchException(id.fullName)
+      if (constFieldType != fieldType)
+        throw new TypeMismatchException(
+          s"Type mismatch: Expecting $fieldType, found ${id.fullName}: $constFieldType",
+          id
+        )
       constRHS
     }
     case _ => c

@@ -1,24 +1,60 @@
 package com.twitter.scrooge
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
-import org.apache.thrift.protocol.{TBinaryProtocol, TCompactProtocol, TProtocol,
-  TProtocolFactory, TSimpleJSONProtocol}
-import org.apache.thrift.transport.TIOStreamTransport
+import com.twitter.app.GlobalFlag
 import com.twitter.util.{Base64StringEncoder, StringEncoder}
+import java.io.{ByteArrayInputStream, InputStream}
+import java.util.concurrent.atomic.AtomicLong
+import org.apache.thrift.protocol.{
+  TBinaryProtocol, TCompactProtocol, TProtocolFactory, TSimpleJSONProtocol}
+import org.apache.thrift.transport.TIOStreamTransport
+
+
+object maxReusableBufferSize extends GlobalFlag[Int](
+  16 * 1024,
+  "Max bytes for ThriftStructSerializers reusable transport buffer")
+{
+  override val name = "com.twitter.scrooge.ThriftStructSerializer.maxReusableBufferSize"
+}
+
+private object ThriftStructSerializer {
+
+  val transportTooBig = new AtomicLong(0)
+
+  val reusableTransport = new ThreadLocal[TReusableMemoryTransport] {
+    override def initialValue(): TReusableMemoryTransport =
+      TReusableMemoryTransport(maxReusableBufferSize())
+  }
+
+}
 
 trait ThriftStructSerializer[T <: ThriftStruct] {
+  import ThriftStructSerializer._
+
   def codec: ThriftStructCodec[T]
   def protocolFactory: TProtocolFactory
   def encoder: StringEncoder = Base64StringEncoder
 
   def toBytes(obj: T): Array[Byte] = {
-    val buf = new ByteArrayOutputStream
-    val proto = protocolFactory.getProtocol(new TIOStreamTransport(buf))
-    codec.encode(obj, proto)
-    buf.toByteArray
+    val trans = reusableTransport.get()
+    try {
+      val proto = protocolFactory.getProtocol(trans)
+      codec.encode(obj, proto)
+      val bytes = new Array[Byte](trans.length())
+      trans.read(bytes, 0, trans.length())
+      bytes
+    } finally {
+      if (trans.currentCapacity > maxReusableBufferSize()) {
+        transportTooBig.incrementAndGet()
+        reusableTransport.remove()
+      } else {
+        trans.reset()
+      }
+    }
   }
 
-  def fromBytes(bytes: Array[Byte]): T = fromInputStream(new ByteArrayInputStream(bytes))
+  def fromBytes(bytes: Array[Byte]): T = {
+    fromInputStream(new ByteArrayInputStream(bytes))
+  }
 
   def fromInputStream(stream: InputStream): T = {
     val proto = protocolFactory.getProtocol(new TIOStreamTransport(stream))
