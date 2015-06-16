@@ -11,12 +11,12 @@ script:
   # publish util locally
   - git clone --depth=50 https://github.com/twitter/util.git
   - cd util
-  - ./sbt ++$TRAVIS_SCALA_VERSION publishLocal
+  - ../sbt ++$TRAVIS_SCALA_VERSION publishLocal
   - cd ..
   # publish finagle locally
   - git clone --depth=50 https://github.com/twitter/finagle.git
   - cd finagle
-  - ./sbt ++$TRAVIS_SCALA_VERSION publishLocal
+  - ../sbt ++$TRAVIS_SCALA_VERSION publishLocal
   - cd ..
   # scrooge
   - ./sbt ++$TRAVIS_SCALA_VERSION test
