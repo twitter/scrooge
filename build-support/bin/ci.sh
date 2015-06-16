@@ -40,10 +40,7 @@ function bootstrap_scrooge {
     cd build-support/tmp
     # util
     clone_repo util https://github.com/twitter/util.git develop
-    publish_local util util-core/publishLocal
-    publish_local util util-codec/publishLocal
-    publish_local util util-app/publishLocal
-    publish_local util util-function/publishLocal
+    publish_local util publishLocal
     # ostrich
     clone_repo ostrich https://github.com/twitter/ostrich.git develop
     publish_local ostrich publishLocal
