@@ -14,6 +14,10 @@ object Scrooge extends Build {
   val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
   val libVersion = "3.18.1" + suffix
+
+  // For develop users: if you are using new features in util and finagle dependencies
+  // that are not yet published to Maven Central, you'll need to publish util and
+  // finagle locally
   val utilVersion = "6.24.0" + suffix
   val finagleVersion = "6.25.0" + suffix
 
