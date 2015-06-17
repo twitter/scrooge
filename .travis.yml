@@ -7,4 +7,6 @@ jdk:
   - oraclejdk7
   - openjdk7
 
-script: ./build-support/bin/ci.sh
+before_script: "unset SBT_OPTS"
+
+script: "./bin/travisci"

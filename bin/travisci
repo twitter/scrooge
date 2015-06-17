@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -xe
+
+# Publish local dependencies when not in a master branch
+SCROOGE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$SCROOGE_BRANCH" != "master" ]; then
+  SCROOGE_DIR=$(pwd)
+   # TODO try to use ./sbt of each project instead of scrooge's sbt
+  SCROOGE_SBT=$SCROOGE_DIR/sbt
+  SCROOGE_TMP_DIR=$(mktemp -d -t scrooge.XXXXXXXXXX.tmp)
+  # util
+  cd $SCROOGE_TMP_DIR
+  git clone https://github.com/twitter/util.git --branch develop
+  cd util
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION publishLocal
+  # ostrich
+  cd $SCROOGE_TMP_DIR
+  git clone https://github.com/twitter/ostrich.git --branch develop
+  cd ostrich
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION publishLocal
+  # finagle
+  cd $SCROOGE_TMP_DIR
+  git clone https://github.com/twitter/finagle.git --branch develop
+  cd finagle
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-core/publishLocal
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-mux/publishLocal
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-httpx/publishLocal
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-thrift/publishLocal
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-thriftmux/publishLocal
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-ostrich4/publishLocal
+  # clean up
+  cd $SCROOGE_DIR
+  rm -rf $SCROOGE_TMP_DIR
+fi
+
+./sbt ++$TRAVIS_SCALA_VERSION test
