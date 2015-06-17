@@ -15,7 +15,7 @@ object Scrooge extends Build {
 
   val libVersion = "3.18.1" + suffix
 
-  // For develop users: if you are using new features in util and finagle dependencies
+  // For users of develop branch: if you are using new features in util and finagle dependencies
   // that are not yet published to Maven Central, you'll need to publish util and
   // finagle locally
   val utilVersion = "6.24.0" + suffix
