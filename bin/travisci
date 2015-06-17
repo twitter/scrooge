@@ -4,6 +4,7 @@ set -xe
 
 # Publish local dependencies when not in a master branch
 SCROOGE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 if [ "$SCROOGE_BRANCH" != "master" ]; then
   SCROOGE_DIR=$(pwd)
    # TODO try to use ./sbt of each project instead of scrooge's sbt
