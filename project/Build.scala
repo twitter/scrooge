@@ -5,6 +5,7 @@ import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
+import pl.project13.scala.sbt.JmhPlugin
 import sbtassembly.Plugin._
 import AssemblyKeys._
 import sbtbuildinfo.Plugin._
@@ -294,13 +295,16 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Compile)(benchThriftSettings) ++
       sharedSettings ++
-      dumpClasspathSettings
-  ).settings(
+      dumpClasspathSettings ++
+      JmhPlugin.projectSettings
+  )
+  .enablePlugins(JmhPlugin)
+  .settings(
     libraryDependencies ++= Seq(
-      util("app"),
-      "com.google.caliper" % "caliper" % "0.5-rc1"
+      "org.slf4j" % "slf4j-log4j12" % "1.6.6", // Needed for the thrift transports
+      "org.apache.thrift" % "libthrift" % "0.5.0-1"
     )
-  ).dependsOn(scroogeGenerator, scroogeRuntime)
+  ).dependsOn(scroogeGenerator, scroogeRuntime, scroogeSerializer)
 
   lazy val scroogeDoc = Project(
     id = "scrooge-doc",

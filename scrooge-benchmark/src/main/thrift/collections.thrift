@@ -1,4 +1,5 @@
 namespace java thrift.benchmark
+#@namespace scala thrift.benchmark
 
 struct MapCollections {
   1: map<i64, string> intString

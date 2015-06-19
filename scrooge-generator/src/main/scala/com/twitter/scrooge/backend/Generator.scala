@@ -129,6 +129,14 @@ trait Generator extends ThriftGenerator {
     }
   }
 
+  def isLazyReadEnabled(t: FunctionType, optional: Boolean): Boolean = {
+    t match {
+      case TString => true
+      case Void | TBool | TByte | TI16 | TI32 | TI64 | TDouble => optional
+      case _ => false
+    }
+  }
+
   protected def writeFile(file: File, fileHeader: String, fileContent: String): Unit = {
     val stream = new FileOutputStream(file)
     val writer = new OutputStreamWriter(stream, "UTF-8")
@@ -245,6 +253,36 @@ trait Generator extends ThriftGenerator {
       case TString => "readString"
       case TBinary => "readBinary"
       case x => throw new ScroogeInternalException("protocolReadMethod#" + t)
+    }
+    codify(code)
+  }
+
+  def genOffsetSkipProtocolMethod(t: FunctionType): CodeFragment = {
+    val code = t match {
+      case TBool => "offsetSkipBool"
+      case TByte => "offsetSkipByte"
+      case TI16 => "offsetSkipI16"
+      case TI32 => "offsetSkipI32"
+      case TI64 => "offsetSkipI64"
+      case TDouble => "offsetSkipDouble"
+      case TString => "offsetSkipString"
+      case TBinary => "offsetSkipBinary"
+      case x => s"""Invalid type passed($x) for genOffsetSkipProtocolMethod method. Compile will fail here."""
+    }
+    codify(code)
+  }
+
+  def genDecodeProtocolMethod(t: FunctionType): CodeFragment = {
+    val code = t match {
+      case TBool => "decodeBool"
+      case TByte => "decodeByte"
+      case TI16 => "decodeI16"
+      case TI32 => "decodeI32"
+      case TI64 => "decodeI64"
+      case TDouble => "decodeDouble"
+      case TString => "decodeString"
+      case TBinary => "decodeBinary"
+      case x => s"""Invalid type passed ($x) for genDecodeProtocolMethod method. Compile will fail here."""
     }
     codify(code)
   }

@@ -1,20 +1,22 @@
 package com.twitter.scrooge.benchmark
 
-import com.google.caliper.{SimpleBenchmark, Param}
-import com.twitter.app.App
 import com.twitter.scrooge.ThriftStructCodec
-import java.util.concurrent.atomic.AtomicInteger
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.TimeUnit
 import java.util.Random
-import org.apache.thrift.protocol.{TProtocol, TBinaryProtocol}
+import org.apache.thrift.protocol.{ TProtocol, TBinaryProtocol }
 import org.apache.thrift.transport.TTransport
+import org.openjdk.jmh.annotations._
 import thrift.benchmark._
+
+private class ExposedBAOS extends ByteArrayOutputStream {
+  def get = buf
+  def len = count
+}
 
 class TRewindable extends TTransport {
   private[this] var pos = 0
-  private[this] val arr = new java.io.ByteArrayOutputStream() {
-    def get = buf
-    def len = count
-  }
+  private[this] val arr = new ExposedBAOS()
 
   override def isOpen = true
   override def open() {}
@@ -77,71 +79,42 @@ class Collections(size: Int) {
   SetCollections.encode(SetCollections(setVals.result), setProt)
   ListCollections.encode(ListCollections(listVals.result), listProt)
 
-  def run(nreps: Int, codec: ThriftStructCodec[_], prot: TProtocol, buff: TRewindable) {
-    var i = 0
-    while (i < nreps) {
-      codec.decode(prot)
-      buff.rewind()
-      i += 1
-    }
+  def run(codec: ThriftStructCodec[_], prot: TProtocol, buff: TRewindable) {
+    codec.decode(prot)
+    buff.rewind()
   }
 }
 
-object CollectionsTest extends App {
-  val reps = flag("reps", 10000, "Number of reps to run")
-  val size = flag("size", 500, "Size of the collection to run")
-  val coll = flag("coll", "map", "Collection type to use")
+object CollectionsBenchmark {
+  @State(Scope.Thread)
+  class CollectionsState {
+    @Param(Array("1", "5", "10", "100", "500", "1000"))
+    var size: Int = 1
 
-  var i = 0
+    var col: Collections = _
 
-  def main() {
-    var nreps = reps()
-    val col = new Collections(size())
-
-    val (codec, prot, buff) = coll() match {
-      case "map" => (MapCollections, col.mapProt, col.map)
-      case "set" => (SetCollections, col.setProt, col.set)
-      case "list" => (ListCollections, col.listProt, col.list)
+    @Setup(Level.Trial)
+    def setup(): Unit = {
+      col = new Collections(size)
     }
 
-    println("Reps: %d, Size: %d, Coll: %s".format(nreps, size(), coll()))
-
-    println(" ==== Warming Up ====")
-    col.run(nreps, codec, prot, buff)
-
-    println(" ==== Running ====")
-    while (i < nreps) {
-      codec.decode(prot)
-      buff.rewind()
-      i += 1
-    }
   }
 }
 
-class CollectionsBenchmark extends SimpleBenchmark {
-  @Param(Array("1024"))
-  private[this] var reps: Int = 1024
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@BenchmarkMode(Array(Mode.Throughput))
+class CollectionsBenchmark {
+  import CollectionsBenchmark._
 
-  @Param(Array("1", "5", "10", "100", "500", "1000"))
-  private[this] var size: Int = 1
+  @Benchmark
+  def timeMap(state: CollectionsState) =
+    state.col.run(MapCollections, state.col.mapProt, state.col.map)
 
-  private[this] var col: Collections = _
+  @Benchmark
+  def timeSet(state: CollectionsState) =
+    state.col.run(SetCollections, state.col.setProt, state.col.set)
 
-  override protected def setUp() {
-    col = new Collections(size)
-
-    // Warmup objects and such
-    col.run(10, MapCollections, col.mapProt, col.map)
-    col.run(10, SetCollections, col.setProt, col.set)
-    col.run(10, ListCollections, col.listProt, col.list)
-  }
-
-  def timeMap(nreps: Int) =
-    col.run(nreps, MapCollections, col.mapProt, col.map)
-
-  def timeSet(nreps: Int) =
-    col.run(nreps, SetCollections, col.setProt, col.set)
-
-  def timeList(nreps: Int) =
-    col.run(nreps, ListCollections, col.listProt, col.list)
+  @Benchmark
+  def timeList(state: CollectionsState) =
+    state.col.run(ListCollections, state.col.listProt, state.col.list)
 }

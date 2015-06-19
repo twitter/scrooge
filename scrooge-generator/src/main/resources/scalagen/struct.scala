@@ -2,6 +2,7 @@
 package {{package}}
 
 import com.twitter.scrooge.{
+  LazyTProtocol,
   TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo,
   ThriftStructMetaData, ThriftUtil}
 import org.apache.thrift.protocol._
@@ -114,7 +115,82 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
     _item.write(_oproto)
   }
 
-  override def decode(_iprot: TProtocol): {{StructName}} = {
+{{#withTrait}}
+  private[this] def lazyDecode(_iprot: LazyTProtocol): {{StructName}} = {
+
+{{#fields}}
+{{#isLazyReadEnabled}}
+    var {{fieldNameForWire}}Offset: Int = -1
+{{/isLazyReadEnabled}}
+{{^isLazyReadEnabled}}
+{{#optional}}
+    var {{fieldName}}: Option[{{fieldType}}] = None
+{{/optional}}
+{{^optional}}
+    var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+{{/optional}}
+{{/isLazyReadEnabled}}
+{{#required}}
+    var {{gotName}} = false
+{{/required}}
+{{/fields}}
+
+    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+    var _done = false
+    val _start_offset = _iprot.offset
+
+    _iprot.readStructBegin()
+    while (!_done) {
+      val _field = _iprot.readFieldBegin()
+      if (_field.`type` == TType.STOP) {
+        _done = true
+      } else {
+        _field.id match {
+{{#fields}}
+          case {{id}} =>
+            {{>readLazyField}}
+{{/fields}}
+          case _ =>
+            if (_passthroughFields == null)
+              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+        }
+        _iprot.readFieldEnd()
+      }
+    }
+    _iprot.readStructEnd()
+
+{{#fields}}
+{{#required}}
+    if (!{{gotName}}) throw new TProtocolException("Required field '{{fieldName}}' was not found in serialized data for struct {{StructName}}")
+{{/required}}
+{{/fields}}
+    new Lazy{{InstanceClassName}}(
+      _iprot,
+      _iprot.buffer,
+      _start_offset,
+      _iprot.offset,
+{{#fields}}
+      {{#isLazyReadEnabled}}{{fieldNameForWire}}Offset{{/isLazyReadEnabled}}{{^isLazyReadEnabled}}{{fieldName}}{{/isLazyReadEnabled}},
+{{/fields}}
+      if (_passthroughFields == null)
+        NoPassthroughFields
+      else
+        _passthroughFields.result()
+    )
+  }
+
+  override def decode(_iprot: TProtocol): {{StructName}} =
+    _iprot match {
+      case i: LazyTProtocol => lazyDecode(i)
+      case i => eagerDecode(i)
+    }
+
+  private[this] def eagerDecode(_iprot: TProtocol): {{StructName}} = {
+{{/withTrait}}
+{{^withTrait}}
+override def decode(_iprot: TProtocol): {{StructName}} = {
+{{/withTrait}}
 {{#fields}}
 {{#optional}}
     var {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
@@ -189,13 +265,13 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 
 {{#fields}}
-  private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
+  @inline private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
 {{#readWriteInfo}}
     {{>readValue}}
 {{/readWriteInfo}}
   }
 
-  private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
+  @inline private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
     {{writeFieldValueName}}({{valueVariableName}}, _oprot)
@@ -203,7 +279,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/readWriteInfo}}
   }
 
-  private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
+  @inline private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     {{>writeValue}}
 {{/readWriteInfo}}
@@ -225,10 +301,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
    */
   class Immutable(
 {{#fields}}
-    val {{fieldName}}: {{>optionalType}},
+      val {{fieldName}}: {{>optionalType}},
 {{/fields}}
-    override val _passthroughFields: immutable$Map[Short, TFieldBlob]
-  ) extends {{StructName}} {
+      override val _passthroughFields: immutable$Map[Short, TFieldBlob])
+    extends {{StructName}} {
     def this(
 {{#fields}}
       {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
@@ -239,6 +315,62 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/fields}}
       Map.empty
     )
+  }
+
+  /**
+   * This is another Immutable, this however keeps strings as lazy values that are lazily decoded from the backing
+   * array byte on read.
+   */
+  private[this] class Lazy{{InstanceClassName}}(
+      _proto: LazyTProtocol,
+      _buf: Array[Byte],
+      _start_offset: Int,
+      _end_offset: Int,
+{{#fields}}
+      {{#isLazyReadEnabled}}{{fieldNameForWire}}Offset: Int,{{/isLazyReadEnabled}}{{^isLazyReadEnabled}}val {{fieldName}}: {{>optionalType}},{{/isLazyReadEnabled}}
+{{/fields}}
+      override val _passthroughFields: immutable$Map[Short, TFieldBlob])
+    extends {{StructName}} {
+
+    override def write(_oprot: TProtocol): Unit = {
+      _oprot match {
+        case i: LazyTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+        case _ => super.write(_oprot)
+      }
+    }
+
+{{#fields}}
+{{#isLazyReadEnabled}}
+    lazy val {{fieldName}}: {{>optionalType}} =
+{{#optional}}
+      if ({{fieldNameForWire}}Offset == -1)
+        None
+      else {
+        Some(_proto.{{decodeProtocol}}(_buf, {{fieldNameForWire}}Offset))
+      }
+{{/optional}}
+{{^optional}}
+      if ({{fieldNameForWire}}Offset == -1)
+        {{defaultReadValue}}
+      else {
+        _proto.{{decodeProtocol}}(_buf, {{fieldNameForWire}}Offset)
+      }
+{{/optional}}
+{{/isLazyReadEnabled}}
+{{/fields}}
+
+    /**
+     * Override the super hash code to make it a lazy val rather than def.
+     *
+     * Calculating the hash code can be expensive, caching it where possible
+     * can provide signifigant performance wins. (Key in a hash map for instance)
+     * Usually not safe since the normal constructor will accept a mutable map or
+     * set as an arg
+     * Here however we control how the class is generated from serialized data.
+     * With the class private and the contract that we throw away our mutable references
+     * having the hash code lazy here is safe.
+     */
+    override lazy val hashCode = super.hashCode
   }
 
   /**

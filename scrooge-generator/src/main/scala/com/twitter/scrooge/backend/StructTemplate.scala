@@ -137,6 +137,7 @@ trait StructTemplate { self: TemplateGenerator =>
           "fieldConst" -> genID(field.sid.toTitleCase.append("Field")),
           "constType" -> genConstType(field.fieldType),
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
+          "isLazyReadEnabled" -> v(isLazyReadEnabled(field.fieldType, field.requiredness.isOptional)),
           "primitiveFieldType" -> genPrimitiveType(field.fieldType),
           "fieldType" -> genType(field.fieldType),
           "fieldKeyType" -> v(field.fieldType match {
@@ -191,7 +192,10 @@ trait StructTemplate { self: TemplateGenerator =>
           "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
           "writeFieldValueName" -> genID(field.sid.toTitleCase.prepend("write").append("Value")),
           "readField" -> v(templates("readField")),
+          "decodeProtocol" -> genDecodeProtocolMethod(field.fieldType),
+          "offsetSkipProtocol" -> genOffsetSkipProtocolMethod(field.fieldType),
           "readUnionField" -> v(templates("readUnionField")),
+          "readLazyField" -> v(templates("readLazyField")),
           "readValue" -> v(templates("readValue")),
           "writeField" -> v(templates("writeField")),
           "writeValue" -> v(templates("writeValue")),
