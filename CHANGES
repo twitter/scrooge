@@ -4,7 +4,11 @@ as it is included in Scrooge's user's guide.
 
 3.x
 ~~~~~~~
-- scrooge-generator: Various improvements to generated Scala code for unions.
+
+3.19.0
+~~~~~~~
+- scrooge: Performance improvements and bug fixes.
+- scrooge-sbt-plugin: Add output language support in scrooge-sbt-plugin.
 
 3.18.1
 ~~~~~~~
