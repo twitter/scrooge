@@ -1,7 +1,7 @@
 {{#consolidate_newlines}}
-{{#field_type.is_struct_not_exception}}
+{{#field_type.is_struct}}
 new StructMetaData({{field_type.to_enum}}, {{{field_type.type_name}}}.class)
-{{/field_type.is_struct_not_exception}}
+{{/field_type.is_struct}}
 
 {{#field_type.is_enum}}
 new EnumMetaData(TType.ENUM, {{{field_type.type_name}}}.class)

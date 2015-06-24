@@ -47,12 +47,7 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
   val is_base_type_or_binary = is_base_type || fieldType == TBinary
   val is_base_type_not_string = is_base_type && fieldType != TString
   val is_struct = fieldType.isInstanceOf[StructType] // this can be a struct or an exception
-  val is_struct_not_exception = fieldType match {
-    case StructType(s, _) => !s.isInstanceOf[Exception_]
-    case _ => false
-  }
-
-  val is_struct_or_enum = is_struct_not_exception || fieldType.isInstanceOf[EnumType]
+  val is_struct_or_enum = is_struct || fieldType.isInstanceOf[EnumType]
   val is_void = fieldType == Void
 
   def get_type = {

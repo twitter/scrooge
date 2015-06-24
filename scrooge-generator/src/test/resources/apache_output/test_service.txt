@@ -900,7 +900,7 @@ public class TestService {
     tmpMap.put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.BOOL)));
     tmpMap.put(_Fields.EX, new FieldMetaData("ex", TFieldRequirementType.DEFAULT,
-      new FieldValueMetaData(TType.STRUCT)));
+      new StructMetaData(TType.STRUCT, TestException.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(test_endpoint_result.class, metaDataMap);
   }

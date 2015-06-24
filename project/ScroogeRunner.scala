@@ -153,6 +153,7 @@ object ScroogeRunner {
         val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
         runScrooge(Seq(Java, Scala), files)
         runScrooge(Seq(ApacheJava), s"$base/src/test/thrift/standalone/enumSet.thrift")
+        runScrooge(Seq(ApacheJava), s"$base/src/test/thrift/standalone/exception_fields.thrift")
       }
 
       section("constant_sets.thrift") {

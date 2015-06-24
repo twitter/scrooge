@@ -957,7 +957,7 @@ public class TestService {
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.EX, new FieldMetaData("ex", TFieldRequirementType.DEFAULT,
-      new FieldValueMetaData(TType.STRUCT)));
+      new StructMetaData(TType.STRUCT, TestException.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(test_void_endpoint_result.class, metaDataMap);
   }
