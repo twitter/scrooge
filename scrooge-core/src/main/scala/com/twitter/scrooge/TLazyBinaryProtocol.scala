@@ -1,11 +1,9 @@
-package com.twitter.scrooge.benchmark
+package com.twitter.scrooge
 
-import com.twitter.scrooge.LazyTProtocol
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.TException
-import org.apache.thrift.transport.TTransport
 
 /**
  * This is an implementation of the LazyTProtocol trait in scrooge-core
@@ -15,7 +13,7 @@ import org.apache.thrift.transport.TTransport
  * when it comes to a version for scrooge-serializer or elsewhere.
  * Though it is a fully functional protocol that will deserialize/serialize any thrift.
  */
-private object TLazyBinaryProtocol {
+object TLazyBinaryProtocol {
   private val AnonymousStruct: TStruct = new TStruct()
 }
 

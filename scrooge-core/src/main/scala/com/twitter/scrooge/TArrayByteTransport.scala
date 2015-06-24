@@ -1,4 +1,4 @@
-package com.twitter.scrooge.benchmark
+package com.twitter.scrooge
 
 import org.apache.thrift.protocol._
 import org.apache.thrift.TException
@@ -6,25 +6,27 @@ import org.apache.thrift.transport.{TTransport, TTransportException}
 
 /**
  * TArrayByteTransport decodes Array[Byte] to primitive types
- * This is a proof of concept replacement transport optimized for Array Byte
+ * This is a replacement transport optimized for Array[Byte]
  * and the TLazyBinaryProtocol
- * It mixes reading and writing, in a real usage they possibly should be different
- * transports entirely to keep the code clean.
- * NB. This class/transport is not thread safe, or shareable.
+ *
+ * NB. This class/transport is not thread safe, and contains mutable state.
  */
 object TArrayByteTransport {
   def apply(buf: Array[Byte]): TArrayByteTransport = {
-    val t = new TArrayByteTransport
+    val t = new TArrayByteTransport(0) // No write buffer used in read path
     t.setBytes(buf)
     t
   }
 }
 
 final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTransport {
+  // Read state variables
   private[this] var bufferPos = 0
   private[this] var readbufferSiz_ = 0
   private[this] var srcBuf_ : Array[Byte] = null
 
+
+  // Write state variables
   private[this] var writeBuffers: List[(Array[Byte], Int)] = Nil
   private[this] var totalSize = 0
   private[this] var nextBufferSize = initialWriteBufferSize
@@ -86,6 +88,39 @@ final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTran
     }
   }
 
+
+  override def write(buf: Array[Byte], off: Int, len: Int): Unit = {
+    val dest = getBuffer(len)
+    val destOffset = writerOffset
+    System.arraycopy(buf, off, dest, destOffset, len)
+  }
+
+  /*
+   * Take our internal state and present it as a byte array
+   */
+  def toByteArray: Array[Byte] = {
+    (currentBuffer, writeBuffers) match {
+      case (null, Nil) => new Array[Byte](0)
+      case (buf, Nil) =>
+        val finalBuf = new Array[Byte](totalSize)
+        System.arraycopy(currentBuffer, 0, finalBuf, 0, totalSize)
+        finalBuf
+      case (buf, x) =>
+        var reverseOffset = totalSize - currentOffset
+        val finalBuf = new Array[Byte](totalSize)
+        System.arraycopy(currentBuffer, 0, finalBuf, reverseOffset, currentOffset)
+
+        writeBuffers.foreach {
+          case (buf, siz) =>
+            reverseOffset -= siz
+            System.arraycopy(buf, 0, finalBuf, reverseOffset, siz)
+        }
+        finalBuf
+    }
+  }
+
+  // Read methods from here:
+
   // Only used in reading to give a pointer to the Array[Byte]
   // backing this.
   // Should only be used very carefully, since its mutable
@@ -120,36 +155,6 @@ final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTran
   override def getBufferPosition: Int = bufferPos
   override def getBytesRemainingInBuffer: Int = readbufferSiz_ - bufferPos
   override def getBuffer: Array[Byte] = srcBuf_
-
-  override def write(buf: Array[Byte], off: Int, len: Int): Unit = {
-    val dest = getBuffer(len)
-    val destOffset = writerOffset
-    System.arraycopy(buf, off, dest, destOffset, len)
-  }
-
-  /*
-   * Take our internal state and present it as a byte array
-   */
-  def toByteArray: Array[Byte] = {
-    (currentBuffer, writeBuffers) match {
-      case (null, Nil) => new Array[Byte](0)
-      case (buf, Nil) =>
-        val finalBuf = new Array[Byte](totalSize)
-        System.arraycopy(currentBuffer, 0, finalBuf, 0, totalSize)
-        finalBuf
-      case (buf, x) =>
-        var reverseOffset = totalSize - currentOffset
-        val finalBuf = new Array[Byte](totalSize)
-        System.arraycopy(currentBuffer, 0, finalBuf, reverseOffset, currentOffset)
-
-        writeBuffers.foreach {
-          case (buf, siz) =>
-            reverseOffset -= siz
-            System.arraycopy(buf, 0, finalBuf, reverseOffset, siz)
-        }
-        finalBuf
-    }
-  }
 
   override def consumeBuffer(len: Int): Unit = {
     bufferPos = bufferPos + len

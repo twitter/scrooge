@@ -2,9 +2,12 @@ package com.twitter.scrooge.integration
 
 import com.twitter.scrooge.{integration_apache => apacheGen}
 import com.twitter.scrooge.{integration_scala => scroogeGen}
+import com.twitter.scrooge.{TArrayByteTransport, TLazyBinaryProtocol}
 import com.twitter.scrooge.testutil.Spec
 import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TMemoryBuffer
+import org.apache.thrift.transport.{TIOStreamTransport, TMemoryBuffer}
+
+import java.io.ByteArrayOutputStream
 
 // TODO CSL-401: test apache service/Scrooge client and Scrooge service/Apache client
 class ScalaIntegrationSpec extends Spec {
@@ -82,6 +85,33 @@ class ScalaIntegrationSpec extends Spec {
         scroogeGen.BonkOrBoolUnion.BonkField.name) // == "bonk"
       apacheUnion.fieldForId(2).getFieldName must be(
         scroogeGen.BonkOrBoolUnion.BoolThingField.name) // == "bonk"
+    }
+
+    "can encode with lazy TBinaryProtocol and decode with TBinaryProtocol" in {
+      val lazyWriterTransport = new TArrayByteTransport()
+      val lazyWriterProtocol = new TLazyBinaryProtocol(lazyWriterTransport)
+      val scroogeStruct = scroogeGen.BonkStruct("howdy world", 123)
+      scroogeGen.BonkStruct.encode(scroogeStruct, lazyWriterProtocol)
+      val byteArray = lazyWriterTransport.toByteArray
+
+      val tbinary = new TBinaryProtocol(TArrayByteTransport(byteArray))
+
+      scroogeGen.BonkStruct.decode(tbinary) must be (scroogeStruct)
+    }
+
+    "can decode with lazy TBinaryProtocol and compare with original" in {
+      val scroogeStruct = scroogeGen.BonkStruct("howdy world", 123)
+
+      val byteArray = {
+        val buf = new ByteArrayOutputStream
+        val proto = new TBinaryProtocol(new TIOStreamTransport(buf))
+        scroogeGen.BonkStruct.encode(scroogeStruct, proto)
+        buf.toByteArray
+      }
+
+      val lazyReaderTransport = TArrayByteTransport(byteArray)
+      val lazyReaderProtocol = new TLazyBinaryProtocol(lazyReaderTransport)
+      scroogeGen.BonkStruct.decode(lazyReaderProtocol) must be (scroogeStruct)
     }
   }
 }

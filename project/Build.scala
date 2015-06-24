@@ -175,6 +175,7 @@ object Scrooge extends Build {
       "com.github.scopt" %% "scopt" % "3.2.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
+      "org.slf4j" % "slf4j-log4j12" % "1.6.6" % "test", // used in thrift transports
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
       "commons-cli" % "commons-cli" % "1.2",
       finagle("core") exclude("org.mockito", "mockito-all"),

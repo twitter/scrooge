@@ -81,6 +81,43 @@ object BinaryThriftStructSerializer {
     }
 }
 
+object LazyBinaryThriftStructSerializer {
+  private val reusuableProtocolAndTransport = new ThreadLocal[(TArrayByteTransport, TLazyBinaryProtocol)] {
+    override def initialValue(): (TArrayByteTransport, TLazyBinaryProtocol) = {
+      val transport = new TArrayByteTransport
+      val proto = new TLazyBinaryProtocol(transport)
+      (transport, proto)
+    }
+  }
+
+  def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): LazyBinaryThriftStructSerializer[T] =
+    new LazyBinaryThriftStructSerializer[T] {
+      def codec = _codec
+    }
+}
+
+trait LazyBinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
+  import LazyBinaryThriftStructSerializer._
+
+  // Since we only support the fast path reading from the TArrayByteTransport
+  // we provide the default if someone hits it to be the TBinaryProtocol which we are wire compatible with.
+  override val protocolFactory = new TBinaryProtocol.Factory
+
+  override def toBytes(obj: T): Array[Byte] = {
+    val (transport, proto) = reusuableProtocolAndTransport.get()
+    transport.reset
+    codec.encode(obj, proto)
+    transport.toByteArray
+  }
+
+  override def fromBytes(bytes: Array[Byte]): T = {
+    val (transport, proto) = reusuableProtocolAndTransport.get()
+    transport.setBytes(bytes)
+    codec.decode(proto)
+  }
+
+}
+
 trait CompactThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
   val protocolFactory = new TCompactProtocol.Factory
 }

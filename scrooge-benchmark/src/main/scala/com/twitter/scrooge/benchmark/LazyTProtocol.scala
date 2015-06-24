@@ -27,9 +27,7 @@ case class StatelessLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStructCod
 
 }
 
-// This is not thread safe but we store it in the thread context for the benchmarks
-// A realworld usage would probably want a thread local instance of the transport and protocol.
-case class StatefulLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStructCodec[T]) {
+case class ThreadUnsafeLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStructCodec[T]) {
   val transport = new TArrayByteTransport
   val proto = new TLazyBinaryProtocol(transport)
 
@@ -44,6 +42,7 @@ case class StatefulLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStructCode
     codec.decode(proto)
   }
 }
+
 
 object LazyTProtocolBenchmark {
   // Pass in a seed and fixed number of airports.
@@ -76,7 +75,7 @@ object LazyTProtocolBenchmark {
 
   @State(Scope.Thread)
   class AirportThreadState {
-    val statefulLazySerializer = StatefulLazyBinaryProtocol(Airport)
+    val threadUnsafeLazySerializer = ThreadUnsafeLazyBinaryProtocol(Airport)
   }
 
   @State(Scope.Benchmark)
@@ -86,14 +85,15 @@ object LazyTProtocolBenchmark {
 
     val statelessLazySerializer = StatelessLazyBinaryProtocol(Airport)
 
+    val statefulLazySerializer = LazyBinaryThriftStructSerializer(Airport)
+
     @Setup(Level.Trial)
     def setup(): Unit = {
-      require(airportBytes.forall{b => binaryThriftStructSerializer.fromBytes(b) == statelessLazySerializer.fromBytes(b)}, "Deserializers do not agree, benchmarks pointless")
-      require(airports.forall{b => ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(statelessLazySerializer.toBytes(b))}, "Stateful vs normal Serializers do not agree, benchmarks pointless")
+      require(airportBytes.forall { b => binaryThriftStructSerializer.fromBytes(b) == statelessLazySerializer.fromBytes(b) } , "Deserializers do not agree, benchmarks pointless")
+      require(airports.forall { b => ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(statelessLazySerializer.toBytes(b)) } , "Stateful vs normal Serializers do not agree, benchmarks pointless")
 
-      val statefulTmp = new AirportThreadState
-      require(airportBytes.forall{b => binaryThriftStructSerializer.fromBytes(b) == statefulTmp.statefulLazySerializer.fromBytes(b)}, "Stateful Deserializers do not agree, benchmarks pointless")
-      require(airports.forall{b => ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(statefulTmp.statefulLazySerializer.toBytes(b))}, "Stateful Serializers do not agree, benchmarks pointless")
+      require(airportBytes.forall { b => binaryThriftStructSerializer.fromBytes(b) == statefulLazySerializer.fromBytes(b) } , "Stateful Deserializers do not agree, benchmarks pointless")
+      require(airports.forall { b => ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(statefulLazySerializer.toBytes(b)) } , "Stateful Serializers do not agree, benchmarks pointless")
     }
 
   }
@@ -166,31 +166,61 @@ class LazyTProtocolBenchmark {
   // ========= Stateful benchmarks =========
 
   @Benchmark
-  def timeStatefulToBytes(state: AirportState, threadState: AirportThreadState): Seq[Array[Byte]] = {
-    airports.map(threadState.statefulLazySerializer.toBytes)
+  def timeStatefulToBytes(state: AirportState): Seq[Array[Byte]] = {
+    airports.map(state.statefulLazySerializer.toBytes)
   }
 
 
   @Benchmark
-  def timeStatefulFromBytes(state: AirportState, threadState: AirportThreadState): Seq[Airport] = {
-    airportBytes.map(threadState.statefulLazySerializer.fromBytes)
+  def timeStatefulFromBytes(state: AirportState): Seq[Airport] = {
+    airportBytes.map(state.statefulLazySerializer.fromBytes)
   }
 
   @Benchmark
-  def timeStatefulFromBytesRead3Fields(state: AirportState, threadState: AirportThreadState, bh: Blackhole): Blackhole = {
-    airportBytes.map(threadState.statefulLazySerializer.fromBytes).foreach(a => read3Fields(bh, a))
+  def timeStatefulFromBytesRead3Fields(state: AirportState, bh: Blackhole): Blackhole = {
+    airportBytes.map(state.statefulLazySerializer.fromBytes).foreach(a => read3Fields(bh, a))
     bh
   }
 
     @Benchmark
-  def timeStatefulFromBytesReadlAllFields(state: AirportState, threadState: AirportThreadState, bh: Blackhole): Blackhole = {
-    airportBytes.map(threadState.statefulLazySerializer.fromBytes).foreach(a => readAllFields(bh, a))
+  def timeStatefulFromBytesReadlAllFields(state: AirportState, bh: Blackhole): Blackhole = {
+    airportBytes.map(state.statefulLazySerializer.fromBytes).foreach(a => readAllFields(bh, a))
     bh
   }
 
   @Benchmark
-  def timeStatefulRTBytes(state: AirportState, threadState: AirportThreadState): Seq[Array[Byte]] = {
-    airportBytes.map(b => threadState.statefulLazySerializer.toBytes(threadState.statefulLazySerializer.fromBytes(b)))
+  def timeStatefulRTBytes(state: AirportState): Seq[Array[Byte]] = {
+    airportBytes.map(b => state.statefulLazySerializer.toBytes(state.statefulLazySerializer.fromBytes(b)))
+  }
+
+ // ========= Using the thread state, no built in thread safety =========
+
+  @Benchmark
+  def timeThreadUnsafeToBytes(state: AirportState, threadState: AirportThreadState): Seq[Array[Byte]] = {
+    airports.map(threadState.threadUnsafeLazySerializer.toBytes)
+  }
+
+
+  @Benchmark
+  def timeThreadUnsafeFromBytes(state: AirportState, threadState: AirportThreadState): Seq[Airport] = {
+    airportBytes.map(threadState.threadUnsafeLazySerializer.fromBytes)
+  }
+
+  @Benchmark
+  def timeThreadUnsafeFromBytesRead3Fields(state: AirportState, threadState: AirportThreadState, bh: Blackhole): Blackhole = {
+    airportBytes.map(threadState.threadUnsafeLazySerializer.fromBytes).foreach(a => read3Fields(bh, a))
+    bh
+  }
+
+    @Benchmark
+  def timeThreadUnsafeFromBytesReadlAllFields(state: AirportState, threadState: AirportThreadState, bh: Blackhole): Blackhole = {
+    airportBytes.map(threadState.threadUnsafeLazySerializer.fromBytes).foreach(a => readAllFields(bh, a))
+    bh
+  }
+
+  @Benchmark
+  def timeThreadUnsafeRTBytes(state: AirportState, threadState: AirportThreadState): Seq[Array[Byte]] = {
+    airportBytes.map(b => threadState.threadUnsafeLazySerializer.toBytes(threadState.threadUnsafeLazySerializer.fromBytes(b)))
   }
 
 }
