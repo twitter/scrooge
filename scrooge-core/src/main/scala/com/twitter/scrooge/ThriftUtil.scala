@@ -96,6 +96,9 @@ object ThriftUtil {
         }
         inProt.readListEnd()
         outProt.writeListEnd()
+
+      case unknown =>
+        throw new TProtocolException(s"unrecognized type code $unknown")
     }
   }
 }

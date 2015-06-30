@@ -5,3 +5,9 @@ target(name='scrooge-core',
     'scrooge/scrooge-core/src/main/scala'
   ]
 )
+
+target(name='tests',
+  dependencies=[
+    'scrooge/scrooge-core/src/test/scala'
+  ]
+)
