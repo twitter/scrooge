@@ -1,5 +1,8 @@
 # Scrooge
-[![Build Status](https://secure.travis-ci.org/twitter/scrooge.png?branch=master)](https://travis-ci.org/twitter/scrooge)
+
+[![Build status](https://travis-ci.org/twitter/scrooge.svg?branch=develop)](https://travis-ci.org/twitter/scrooge)
+[![Coverage status](https://img.shields.io/coveralls/twitter/scrooge/develop.svg)](https://coveralls.io/r/twitter/scrooge?branch=develop)
+[![Project status](https://img.shields.io/badge/status-active-brightgreen.svg)](#status)
 
 Scrooge is a [thrift](https://thrift.apache.org/) code generator written in
 Scala, which currently generates code for Scala and Java.
@@ -17,6 +20,11 @@ syntax so the generated code is much more compact.
 
 There is a fairly comprehensive set of unit tests, which actually generate
 code, compile it, and execute it to verify expectations.
+
+## Status
+
+This project is used in production at Twitter (and many other organizations),
+and is being actively developed and maintained.
 
 ## Quick-start
 
