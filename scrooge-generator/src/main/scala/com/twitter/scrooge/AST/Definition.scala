@@ -17,7 +17,8 @@ case class Typedef(sid: SimpleID, fieldType: FieldType, annotations: Map[String,
 case class Enum(
   sid: SimpleID,
   values: Seq[EnumField],
-  docstring: Option[String]
+  docstring: Option[String],
+  annotations: Map[String, String]
 ) extends Definition
 
 case class EnumField(sid: SimpleID, value: Int, docstring: Option[String]) extends Definition
