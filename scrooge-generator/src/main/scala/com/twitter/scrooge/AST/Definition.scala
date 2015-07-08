@@ -18,7 +18,7 @@ case class Enum(
   sid: SimpleID,
   values: Seq[EnumField],
   docstring: Option[String],
-  annotations: Map[String, String]
+  annotations: Map[String, String] = Map.empty
 ) extends Definition
 
 case class EnumField(sid: SimpleID, value: Int, docstring: Option[String]) extends Definition
