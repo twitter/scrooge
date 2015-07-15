@@ -107,14 +107,13 @@ object Main {
       } text("Don't re-generate if the target is newer than the input")
 
       opt[String]('l', "language") action { (languageString, c) =>
-        if (GeneratorFactory.languages.toList contains languageString.toLowerCase) {
-          compiler.language = languageString
-          c
-        } else {
-          println("language option %s not supported".format(languageString))
-          System.exit(0)
-          c
-        }
+        compiler.language = languageString
+        c
+      } validate { language =>
+        if (GeneratorFactory.languages.toList contains language.toLowerCase)
+          success
+        else
+          failure("language option %s not supported".format(language))
       } text("name of language to generate code in ('experimental-java' and 'scala' are currently supported)")
 
       opt[String]("experiment-flag") valueName("<flag>") unbounded() action { (flag, c) =>
