@@ -3,7 +3,7 @@ package com.twitter.scrooge.java_generator
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
-import com.twitter.mustache.ScalaObjectHandler
+import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
 import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers

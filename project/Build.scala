@@ -64,7 +64,7 @@ object Scrooge extends Build {
     version := libVersion,
     organization := "com.twitter",
     // 2.11-ification needs more work with mustache
-    crossScalaVersions := Seq("2.10.5" /*, "2.11.6"*/),
+    crossScalaVersions := Seq("2.10.5" , "2.11.7"),
     scalaVersion := "2.10.5",
 
     resolvers ++= Seq(
@@ -93,7 +93,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.4" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
-      "junit" % "junit" % "4.10" % "test" exclude("org.mockito", "mockito-all")
+      "junit" % "junit" % "4.12" % "test"
     ),
     resolvers += "twitter-repo" at "http://maven.twttr.com",
 
@@ -183,6 +183,7 @@ object Scrooge extends Build {
       "org.apache.thrift" % "libthrift" % "0.5.0-1",
       "com.github.scopt" %% "scopt" % "3.2.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
+      "com.github.spullara.mustache.java" % "compiler" % "0.8.17",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "org.slf4j" % "slf4j-log4j12" % "1.6.6" % "test", // used in thrift transports
       "com.google.code.findbugs" % "jsr305" % "1.3.9",
@@ -190,19 +191,6 @@ object Scrooge extends Build {
       finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
     ),
-    libraryDependencies <++= scalaVersion({
-      case version if version.startsWith("2.10.") =>
-        Seq(
-          "com.github.spullara.mustache.java" % "scala-extensions-2.10" % "0.8.17",
-          "com.github.spullara.mustache.java" % "compiler" % "0.8.17"
-        )
-      case version if version.startsWith("2.11.") =>
-        Seq(
-          "com.github.spullara.mustache.java" % "scala-extensions-2.11" % "0.9.0",
-          "com.github.spullara.mustache.java" % "compiler" % "0.9.0"
-        )
-
-    }),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
   ).dependsOn(scroogeRuntime % "test")
