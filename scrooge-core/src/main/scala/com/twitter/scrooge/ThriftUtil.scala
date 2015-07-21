@@ -23,6 +23,8 @@ object ThriftUtil {
       throw new TException("Maximum depth exceeded")
 
     typ match {
+      case TType.VOID => /* no-op */
+
       case TType.BOOL =>
         outProt.writeBool(inProt.readBool())
 

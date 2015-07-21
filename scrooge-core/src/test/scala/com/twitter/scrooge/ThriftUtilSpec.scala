@@ -13,6 +13,7 @@ import org.scalatest.prop.Checkers
 class ThriftUtilSpec extends FunSuite with Checkers {
   val recognizedTypeCodes =
     Set(
+      TType.VOID,
       TType.BOOL,
       TType.BYTE,
       TType.I16,
