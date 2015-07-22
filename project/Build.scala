@@ -63,7 +63,6 @@ object Scrooge extends Build {
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    // 2.11-ification needs more work with mustache
     crossScalaVersions := Seq("2.10.5" , "2.11.7"),
     scalaVersion := "2.10.5",
 
