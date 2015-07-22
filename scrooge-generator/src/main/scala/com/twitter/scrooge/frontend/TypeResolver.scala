@@ -201,23 +201,47 @@ case class TypeResolver(
       fieldType match {
         case MapType(keyType, valType, _) =>
           m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
-        case st @ StructType(s, _) =>
-          val structMap = Map.newBuilder[Field, RHS]
-          s.fields.foreach { f =>
-            val filtered = elems.filter {
-              case (StringLiteral(fieldName), _) => fieldName == f.sid.name
-              case _ => false
-            }
-            if (filtered.size == 1) {
-              val (k, v) = filtered.head
-              structMap += f -> apply(v, f.fieldType)
-            } else if (filtered.size > 1) {
-              throw new TypeMismatchException(s"Duplicate default values for ${f.sid.name} found for $fieldType", m)
-            } else if (!f.requiredness.isOptional && f.default.isEmpty) {
-              throw new TypeMismatchException(s"Value required for ${f.sid.name} in $fieldType", m)
-            }
+        case st @ StructType(structLike: StructLike, _) =>
+          val fieldMultiMap: Map[String, Seq[(String, RHS)]] = elems.collect {
+            case (StringLiteral(fieldName), value) => (fieldName, value)
+          }.groupBy { case (fieldName, _) => fieldName }
+
+          val fieldMap: Map[String, RHS] = fieldMultiMap.collect {
+            case (fieldName: String, values: Seq[(String, RHS)]) if values.length == 1 =>
+              values.head
+            case (fieldName: String, _: Seq[(String, RHS)]) =>
+              throw new TypeMismatchException(s"Duplicate default values for ${fieldName} found for $fieldType", m)
+            // Can't have 0 elements here because fieldMultiMap is built by groupBy.
           }
-          StructRHS(sid = st.sid, elems = structMap.result())
+
+          structLike match {
+            case u: Union =>
+              val definedFields = u.fields.collect {
+                case field if fieldMap.contains(field.sid.name) =>
+                  (field, fieldMap(field.sid.name))
+              }
+              if (definedFields.length == 0)
+                throw new UndefinedConstantException(s"Constant value missing for union ${u.originalName}", m)
+              if (definedFields.length > 1)
+                throw new UndefinedConstantException(s"Multiple constant values for union ${u.originalName}", m)
+
+              val (field, rhs) = definedFields.head
+              val resolvedRhs = apply(rhs, field.fieldType)
+              UnionRHS(sid = st.sid, field = field, initializer = resolvedRhs)
+
+            case struct: StructLike =>
+              val structMap = Map.newBuilder[Field, RHS]
+              struct.fields.foreach { field =>
+                val fieldName = field.sid.name
+                if (fieldMap.contains(fieldName)) {
+                  val resolvedRhs = apply(fieldMap(fieldName), field.fieldType)
+                  structMap += field -> resolvedRhs
+                } else if (!field.requiredness.isOptional && field.default.isEmpty) {
+                  throw new TypeMismatchException(s"Value required for ${fieldName} in $fieldType", m)
+                }
+              }
+              StructRHS(sid = st.sid, elems = structMap.result())
+          }
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m, m)
       }
     case i @ IdRHS(id) => {

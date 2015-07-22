@@ -49,15 +49,27 @@ class PrintConstController(
     }
   }
 
-  def struct_values = {
-    val values = value.asInstanceOf[StructRHS].elems
-    val structType = fieldType.asInstanceOf[StructType]
-    for {
-      f <- structType.struct.fields
-      v <- values.get(f)
-    } yield {
-      val renderedValue = renderConstValue(v, f.fieldType)
-      Map("key" -> f.sid.name, "value" -> renderedValue.value, "rendered_value" -> renderedValue.rendered)
+  def struct_values: Seq[Map[String, String]] = {
+    value match {
+      case struct: StructRHS =>
+        val values = value.asInstanceOf[StructRHS].elems
+        val structType = fieldType.asInstanceOf[StructType]
+        for {
+          f <- structType.struct.fields
+          v <- values.get(f)
+        } yield {
+          val renderedValue = renderConstValue(v, f.fieldType)
+          Map(
+            "key" -> f.sid.name,
+            "value" -> renderedValue.value,
+            "rendered_value" -> renderedValue.rendered)
+        }
+      case union: UnionRHS =>
+        val renderedValue = renderConstValue(union.initializer, union.field.fieldType)
+        Seq(Map(
+          "key" -> union.field.sid.name,
+          "value" -> renderedValue.value,
+          "rendered_value" -> renderedValue.rendered))
     }
   }
 

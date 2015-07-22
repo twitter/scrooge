@@ -151,8 +151,9 @@ class JavaGenerator(
   }
 
   // TODO
-  def genStruct(struct: StructRHS): CodeFragment =
-    throw new Exception("not implemented")
+  def genStruct(struct: StructRHS): CodeFragment = ???
+
+  def genUnion(union: UnionRHS): CodeFragment = ???
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
     val code = fieldType match {

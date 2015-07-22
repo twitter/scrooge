@@ -4,7 +4,7 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.testutil.Spec
 
 class TypeResolverSpec extends Spec {
-  "TypeResolve" should {
+  "TypeResolver" should {
     val foo = EnumField(SimpleID("FOO"), 1, None)
     val bar = EnumField(SimpleID("BAR"), 2, Some("/** I am a doc. */"))
     val enum = Enum(SimpleID("SomeEnum"), Seq(foo, bar), None)
@@ -249,6 +249,47 @@ class TypeResolverSpec extends Spec {
         }
         case _ =>
           fail()
+      }
+    }
+
+    "initialize union constants" in {
+      val input =
+        """union U {
+          |  1: i32 a,
+          |  2: string b
+          |}
+          |
+          |const U c = { "a": 3 }
+        """.stripMargin
+
+      resolve(input)
+    }
+
+    "require union initializers" in {
+      val input =
+        """union U {
+          |  1: i32 a,
+          |  2: string b
+          |}
+          |
+          |const U c = { }
+        """.stripMargin
+      val ex = intercept[UndefinedConstantException] {
+        resolve(input)
+      }
+    }
+
+    "fail for union initializers with multiple fields." in {
+      val input =
+        """union U {
+          |  1: i32 a,
+          |  2: string b
+          |}
+          |
+          |const U c = { "a": 3, "b": "b" }
+        """.stripMargin
+      val ex = intercept[UndefinedConstantException] {
+        resolve(input)
       }
     }
 

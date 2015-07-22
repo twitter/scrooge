@@ -47,3 +47,24 @@ const list<StructB> ListOfComplexStructs = [
   {"snake_case_field": 1, "camelCaseField": 2, "required_field": 3, "struct_field": {"id": 1}, "default_field": 1},
   {"snake_case_field": 1, "camelCaseField": 2, "required_field": 3, "struct_field": {"id": 1}}
 ]
+
+union SimpleUnion {
+  1: i32 a,
+  2: string b
+}
+
+const SimpleUnion sss = { "a": 3 }
+
+union ComplexUnion {
+  1: StructA a,
+  2: StructB b
+}
+
+const ComplexUnion ccc = {
+  "b": {
+    "snake_case_field": 1,
+    "camelCaseField": 2,
+    "required_field": 3,
+    "struct_field": {"id": 1}
+  }
+}

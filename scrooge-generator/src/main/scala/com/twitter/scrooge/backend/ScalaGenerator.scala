@@ -172,6 +172,12 @@ class ScalaGenerator(
     codify(genID(struct.sid) + "(" + fields.mkString(", ") + ")")
   }
 
+  def genUnion(union: UnionRHS): CodeFragment = {
+    val fieldId = genID(union.field.sid.toTitleCase)
+    val rhs = genConstant(union.initializer)
+    codify(s"${genID(union.sid)}.$fieldId($rhs)")
+  }
+
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
     val code = fieldType match {
       case TI64 => "0L"

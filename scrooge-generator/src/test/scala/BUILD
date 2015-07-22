@@ -1,4 +1,4 @@
-scala_library(name='scala',
+junit_tests(name='scala',
   dependencies=[
     '3rdparty/jvm/org/jmock',
     '3rdparty/jvm/junit',
@@ -11,7 +11,11 @@ scala_library(name='scala',
     'scrooge/scrooge-runtime',
     'util/util-core',
   ],
-  sources=rglobs('*.scala'),
+  sources=globs('com/twitter/scrooge/ASTSpec.scala',
+                'com/twitter/scrooge/TReusableMemoryTransportSpec.scala',
+                'com/twitter/scrooge/frontend/*.scala',
+                'com/twitter/scrooge/mustache/*.scala',
+                'com/twitter/scrooge/testutil/*.scala'),
   resources=[
     'scrooge/scrooge-generator/src/test/resources:resources'
   ],

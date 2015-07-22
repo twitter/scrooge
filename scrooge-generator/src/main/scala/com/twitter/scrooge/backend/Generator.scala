@@ -170,6 +170,7 @@ trait Generator extends ThriftGenerator {
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
       case s: StructRHS => genStruct(s)
+      case u: UnionRHS => genUnion(u)
     }
   }
 
@@ -182,6 +183,8 @@ trait Generator extends ThriftGenerator {
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment
 
   def genStruct(struct: StructRHS): CodeFragment
+
+  def genUnion(union: UnionRHS): CodeFragment
 
   /**
    * The default value for the specified type and mutability.
