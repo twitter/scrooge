@@ -2,6 +2,7 @@
  * Go to the directory of scrooge-generator project and run the following command:
  *    scrooge src/test/thrift/relative/candy.thrift -i src/test/thrift/relative/dir2:src/test/thrift/relative/include3.jar
  */
+#@namespace android thrift.android.test2
 namespace java thrift.test2
 
 

@@ -1,3 +1,4 @@
+#@namespace android thrift.android.test
 typedef i32 MyInteger
 
 enum Day {

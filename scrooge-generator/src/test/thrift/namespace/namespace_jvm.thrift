@@ -1,3 +1,4 @@
+#@namespace android com.fake.android_ns
 namespace scala com.fake.scala_ns
 namespace java com.fake.java_ns
 

@@ -7,6 +7,7 @@
 namespace java com.twitter.adserver
 namespace rb Ads
 namespace py gen.twitter.adserver.adserver_common_constants
+#@namespace android com.twitter.adserver
 
 const string REGION_EUROPE = "EUROPE"
 const string REGION_ASIA = "ASIA"

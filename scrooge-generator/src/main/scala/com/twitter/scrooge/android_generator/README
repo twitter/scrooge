@@ -1,0 +1,41 @@
+# Android Java Generator
+
+A new Android code generator based on ApacheJavaGenerator.  The main reason of providing
+separate generator is due to the limiation of number of methods on Android dex.
+Apache generator produces 6 extra methods per each field, but Android generator only
+creates fixed number of methods per struct by providing struct level builders, getters and
+setters.
+
+List of differences between ApacheJavaGen and AndroidGen
+1. Removed all field level getters / setters
+2. Added class level Builder.
+3. Provided Setter for all fields of the struct within Builder.
+  e.g.
+    public Builder putTo(_Fields field, Object key, Object value) { ... }
+
+    public Builder set (_Fields field, Object value) {
+      switch(field) {
+        case LOGS: {
+          if (value != null) {
+            this.logs = (Map<String,List<ByteBuffer>>) value;
+          }
+          break;
+        }
+        ...
+      }
+      return this;
+    }
+4. Provided single generic getter for entire struct.
+    public <Any> Any get(_Fields field) {
+      switch(field) {
+        case LOGS:
+            Any rval_logs = (Any)((Map<String,List<ByteBuffer>>) getFieldValue(field));
+            return rval_logs;
+        ...
+      }
+    }
+5. ApacheGenerator uses EnumSet for Set type in order to improve space efficiency, but it
+   relies on scrooge runtime library, which is not available on Android.  We will keep
+   HashSet for SetType for now, but it should be revisited to use EnumSet without relying
+   on scrooge runtime lib.
+

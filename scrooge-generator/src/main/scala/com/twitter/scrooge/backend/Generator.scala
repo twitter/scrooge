@@ -20,6 +20,7 @@ import com.twitter.finagle.util.LoadService
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
+import com.twitter.scrooge.android_generator.AndroidGeneratorFactory
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 import java.io.{File, FileOutputStream, OutputStreamWriter}
 import scala.collection.mutable
@@ -41,7 +42,8 @@ object GeneratorFactory {
   private[this] val factories: Map[String, GeneratorFactory] = {
     val loadedGenerators = LoadService[GeneratorFactory]()
     val factories =
-      List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory) ++
+      List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory, 
+        AndroidGeneratorFactory, CocoaGeneratorFactory) ++
       loadedGenerators
 
     (factories map { g => (g.lang -> g) }).toMap

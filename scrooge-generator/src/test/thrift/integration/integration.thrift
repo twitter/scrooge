@@ -1,3 +1,4 @@
+#@namespace android com.twitter.scrooge.integration_android
 namespace java com.twitter.scrooge.integration_scala
 
 // intentionally crooked letter cases

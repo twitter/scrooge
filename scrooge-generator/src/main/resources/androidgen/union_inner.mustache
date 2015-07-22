@@ -1,0 +1,156 @@
+public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{name}} extends TUnion<{{name}}, {{name}}._Fields> {
+  {{#i_2}}{{>generate_struct_desc}}{{/i_2}}
+  {{#i_2}}{{>generate_field_descs}}{{/i_2}}
+  {{#i_2}}{{>generate_field_name_constants}}{{/i_2}}
+  {{#i_2}}{{>generate_java_meta_data_map}}{{/i_2}}
+  {{#fields}}
+  public static final _Fields {{#constant_name}}{{name}}{{/constant_name}} = _Fields.{{#constant_name}}{{name}}{{/constant_name}};
+  {{/fields}}
+
+
+  public {{name}}() {
+    super();
+  }
+
+  public {{name}}(_Fields setField, Object value) {
+    super(setField, value);
+  }
+
+  public {{name}}({{{struct_type_name}}} other) {
+    super(other);
+  }
+
+  public {{name}} deepCopy() {
+    return new {{name}}(this);
+  }
+
+  @Override
+  protected void checkType(_Fields setField, Object value) throws ClassCastException {
+    switch (setField) {
+      {{#fields}}
+      case {{#constant_name}}{{name}}{{/constant_name}}:
+        if (value instanceof {{{field_type.type_name_in_container_skip_generic}}}) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type {{{field_type.type_name_in_container}}} for field '{{name}}', but got " + value.getClass().getSimpleName());
+      {{/fields}}
+      default:
+        throw new IllegalArgumentException("Unknown field id " + setField);
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected Object readValue(TProtocol iprot, TField field) throws TException {
+    _Fields setField = _Fields.findByThriftId(field.id);
+    if (setField != null) {
+      switch (setField) {
+        {{#fields}}
+        case {{#constant_name}}{{name}}{{/constant_name}}:
+          if (field.type == {{#constant_name}}{{name}}{{/constant_name}}_FIELD_DESC.type) {
+            {{{field_type.type_name_in_container}}} {{name}};
+            {{{deserialize_field}}}
+            return {{name}};
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        {{/fields}}
+        default:
+          throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
+      }
+    } else {
+      TProtocolUtil.skip(iprot, field.type);
+      return null;
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected void writeValue(TProtocol oprot) throws TException {
+    switch (setField_) {
+      {{#fields}}
+      case {{#constant_name}}{{name}}{{/constant_name}}:
+        {{{field_type.type_name_in_container}}} {{name}} = ({{{field_type.type_name_in_container}}})value_;
+        {{{serialize_field}}}
+        return;
+      {{/fields}}
+      default:
+        throw new IllegalStateException("Cannot write union with unknown field " + setField_);
+    }
+  }
+
+  @Override
+  protected TField getFieldDesc(_Fields setField) {
+    switch (setField) {
+      {{#fields}}
+      case {{#constant_name}}{{name}}{{/constant_name}}:
+        return {{#constant_name}}{{name}}{{/constant_name}}_FIELD_DESC;
+      {{/fields}}
+      default:
+        throw new IllegalArgumentException("Unknown field id " + setField);
+    }
+  }
+
+  @Override
+  protected TStruct getStructDesc() {
+    return STRUCT_DESC;
+  }
+
+  @Override
+  protected _Fields enumForId(short id) {
+    return _Fields.findByThriftIdOrThrow(id);
+  }
+
+  {{#i_2}}{{>generate_java_struct_field_by_id}}{{/i_2}}
+
+  public boolean equals(Object other) {
+    if (other instanceof {{name}}) {
+      return equals(({{name}})other);
+    } else {
+      return false;
+    }
+  }
+
+  public boolean equals({{name}} other) {
+    return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
+  }
+
+  @Override
+  public int compareTo({{{struct_type_name}}} other) {
+    int lastComparison = TBaseHelper.compareTo(getSetField(), other.getSetField());
+    if (lastComparison == 0) {
+      return TBaseHelper.compareTo(getFieldValue(), other.getFieldValue());
+    }
+    return lastComparison;
+  }
+
+  {{^gen_hash_code}}
+  /**
+   * If you'd like this to perform more respectably, use the hashcode generator option.
+   */
+  {{/gen_hash_code}}
+  @Override
+  @SuppressWarnings("unchecked")
+  public int hashCode() {
+    {{#gen_hash_code}}
+    int hashCode = this.getClass().getName().hashCode();
+    TFieldIdEnum setField = getSetField();
+
+    if (setField != null) {
+      final short thriftFieldId = setField.getThriftFieldId();
+      hashCode = hashCode * 31 + thriftFieldId;
+
+      {{#fields}}
+      if ({{key}} == thriftFieldId  && true{{#optional_or_nullable}} && ({{>generate_isset_check}}){{/optional_or_nullable}}) {
+        hashCode = 31 * hashCode + (({{{field_type.type_name_in_container}}})getFieldValue()).hashCode();
+      }
+      {{/fields}}
+    }
+    return hashCode;
+    {{/gen_hash_code}}
+    {{^gen_hash_code}}
+    return 0;
+    {{/gen_hash_code}}
+  }
+}

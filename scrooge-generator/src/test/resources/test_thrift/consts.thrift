@@ -1,4 +1,5 @@
 namespace java com.twitter.thrift
+#@namespace android com.twitter.thrift
 
 enum TestEnum {
   foo = 1,

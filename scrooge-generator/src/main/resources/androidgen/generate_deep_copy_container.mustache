@@ -1,0 +1,40 @@
+{{#consolidate_newlines}}
+{{{field_type.type_name_in_container}}} {{result_name}} = new {{{field_type.init_type_name}}}();
+{{#map_value}}
+for (Map.Entry<{{{key_type.type_name_in_container}}}, {{{val_type.type_name_in_container}}}> {{iterator_element_name}} : {{source_name}}.entrySet()) {
+  {{{key_type.type_name_in_container}}} {{iterator_element_name}}_key = {{iterator_element_name}}.getKey();
+  {{{val_type.type_name_in_container}}} {{iterator_element_name}}_value = {{iterator_element_name}}.getValue();
+  {{#key_type.is_container}}
+  {{{generate_deep_copy_key_in_container}}}
+  {{/key_type.is_container}}
+  {{^key_type.is_container}}
+  {{{key_type.type_name_in_container}}} {{result_element_name}}_key = {{{generate_deep_copy_key_non_container}}};
+  {{/key_type.is_container}}
+  {{#val_type.is_container}}
+  {{{generate_deep_copy_val_in_container}}}
+  {{/val_type.is_container}}
+  {{^val_type.is_container}}
+  {{{val_type.type_name_in_container}}} {{result_element_name}}_value = {{{generate_deep_copy_val_non_container}}};
+  {{/val_type.is_container}}
+  {{result_name}}.put({{result_element_name}}_key, {{result_element_name}}_value);
+}
+{{/map_value}}
+{{#list_or_set_value}}
+for ({{{elem_type.type_name_in_container}}} {{iterator_element_name}} : {{source_name}}) {
+  {{#elem_type.is_container}}
+  {{{generate_deep_copy_in_container}}}
+  {{result_name}}.add({{result_element_name}});
+  {{/elem_type.is_container}}
+  {{^elem_type.is_container}}
+  {{#elem_type.is_binary}}
+  ByteBuffer temp_binary_element = {{{generate_deep_copy_non_container}}};
+  ;
+  {{result_name}}.add(temp_binary_element);
+  {{/elem_type.is_binary}}
+  {{^elem_type.is_binary}}
+  {{result_name}}.add({{#newlines_to_spaces}}{{{generate_deep_copy_non_container}}}{{/newlines_to_spaces}});
+  {{/elem_type.is_binary}}
+  {{/elem_type.is_container}}
+}
+{{/list_or_set_value}}
+{{/consolidate_newlines}}

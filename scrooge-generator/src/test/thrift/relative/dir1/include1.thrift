@@ -1,6 +1,7 @@
 // include1.thrift
 // to be imported to candy.thrift by specifying relative path in the file, i.e.:
 //     include "dir1/../dir1/include1.thrift
+#@namespace android thrift.android.test1
 namespace java thrift.test1
 
 // When compiling include1.thrift, the updated importer should contain

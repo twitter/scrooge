@@ -1,0 +1,1 @@
+{{name}} = [inProtocol readI32];

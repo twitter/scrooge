@@ -1,4 +1,5 @@
 namespace java scrooge.test.annotations.thriftjava
+#@namespace android scrooge.test.annotations.thriftandroid
 #@namespace scala scrooge.test.annotations.thriftscala
 
 # The data types in this file exercise Thrift annotations in all legal positions.
