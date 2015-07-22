@@ -1,7 +1,7 @@
 package com.twitter.scrooge.java_generator
 
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
-import com.twitter.mustache.ScalaObjectHandler
+import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.ast.{EnumType, ListType, MapType, ReferenceType, SetType, StructType, _}
 import com.twitter.scrooge.backend.{GeneratorFactory, ServiceOption, ThriftGenerator}
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
