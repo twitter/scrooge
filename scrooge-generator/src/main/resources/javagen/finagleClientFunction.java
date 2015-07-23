@@ -8,13 +8,15 @@ private __Stats {{__stats_name}}() {
   return _{{__stats_name}};
 }
 
-{{#headerInfo}}{{>header}}{{/headerInfo}} {
+{{#functionInfo}}{{>header}} {
   {{__stats_name}}().requestsCounter.incr();
 
-  Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncNameForWire}}", new {{ArgsStruct}}({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
+  Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncNameForWire}}", new {{funcObjectName}}.Args({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {
+
     public Future<{{type}}> apply(byte[] in) {
       try {
-        {{ResultStruct}} result = decodeResponse(in, {{ResultStruct}}.CODEC);
+        {{funcObjectName}}.Result result = decodeResponse(in, {{funcObjectName}}.Result.CODEC);
+
 
 {{#hasThrows}}
         Exception exception = null;
@@ -60,3 +62,4 @@ private __Stats {{__stats_name}}() {
 
   return rv;
 }
+{{/functionInfo}}

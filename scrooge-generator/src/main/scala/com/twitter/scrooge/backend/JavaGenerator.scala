@@ -63,39 +63,11 @@ class JavaGenerator(
     else
       str
 
-  def normalizeCase[N <: Node](node: N): N = {
+  override def normalizeCase[N <: Node](node: N): N = {
     (node match {
-      case d: Document =>
-        d.copy(defs = d.defs.map(normalizeCase))
-      case id: Identifier => id.toTitleCase
-      case e: EnumRHS =>
-        e.copy(normalizeCase(e.enum), normalizeCase(e.value))
-      case f: Field =>
-        f.copy(
-          sid = f.sid.toCamelCase,
-          default = f.default.map(normalizeCase))
-      case f: Function =>
-        f.copy(
-          funcName = f.funcName.toCamelCase,
-          args = f.args.map(normalizeCase),
-          throws = f.throws.map(normalizeCase))
-      case c: ConstDefinition =>
-        c.copy(value = normalizeCase(c.value))
-      case e: Enum =>
-        e.copy(values = e.values.map(normalizeCase))
       case e: EnumField =>
         e.copy(sid = e.sid.toUpperCase)
-      case s: Struct =>
-        s.copy(fields = s.fields.map(normalizeCase))
-      case f: FunctionArgs =>
-        f.copy(fields = f.fields.map(normalizeCase))
-      case f: FunctionResult =>
-        f.copy(fields = f.fields.map(normalizeCase))
-      case e: Exception_ =>
-        e.copy(fields = e.fields.map(normalizeCase))
-      case s: Service =>
-        s.copy(functions = s.functions.map(normalizeCase))
-      case n => n
+      case _ => super.normalizeCase(node)
     }).asInstanceOf[N]
   }
 
@@ -108,7 +80,7 @@ class JavaGenerator(
       list.elems.map { e =>
         genConstant(e, listElemType).toData
       }.mkString(", ")
-    codify(s"Utilities.makeList($code)")
+    v(s"Utilities.makeList($code)")
   }
 
   def genSet(
@@ -125,7 +97,7 @@ class JavaGenerator(
       genConstant(e, setElemType).toData
     }.mkString(", ")
 
-    codify(s"Utilities.$makeSetMethod($code)")
+    v(s"Utilities.$makeSetMethod($code)")
   }
 
   def genMap(
@@ -139,7 +111,7 @@ class JavaGenerator(
       s"Utilities.makeTuple($key, $value)"
     }.mkString(", ")
 
-    codify(s"Utilities.makeMap($code)")
+    v(s"Utilities.makeMap($code)")
   }
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -166,12 +138,12 @@ class JavaGenerator(
       case TI64 => "0L"
       case _ => super.genDefaultValue(fieldType).toData
     }
-    codify(code)
+    v(code)
   }
 
   override def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     (constant, fieldType) match {
-      case (IntLiteral(value), Some(TI64)) => codify(value.toString + "L")
+      case (IntLiteral(value), Some(TI64)) => v(value.toString + "L")
       case _ => super.genConstant(constant, fieldType)
     }
   }
@@ -195,7 +167,7 @@ class JavaGenerator(
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
-    codify(code)
+    v(code)
   }
 
   def genPrimitiveType(t: FunctionType): CodeFragment = {
@@ -209,7 +181,7 @@ class JavaGenerator(
       case TDouble => "double"
       case _ => genType(t).toData
     }
-    codify(code)
+    v(code)
   }
 
   def genFieldType(f: Field): CodeFragment = {
@@ -219,7 +191,7 @@ class JavaGenerator(
     } else {
       genPrimitiveType(f.fieldType).toData
     }
-    codify(code)
+    v(code)
   }
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = {
@@ -227,10 +199,10 @@ class JavaGenerator(
       f =>
         genFieldType(f).toData + " " + genID(f.sid).toData
     }.mkString(", ")
-    codify(code)
+    v(code)
   }
 
-  def genBaseFinagleService = codify("Service<byte[], byte[]>")
+  def genBaseFinagleService = v("Service<byte[], byte[]>")
 
   def getParentFinagleService(p: ServiceParent): CodeFragment =
     genID(SimpleID("FinagledService").addScope(getServiceParentID(p)))

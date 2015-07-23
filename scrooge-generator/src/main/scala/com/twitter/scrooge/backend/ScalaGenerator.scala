@@ -65,41 +65,6 @@ class ScalaGenerator(
     else
       str
 
-  def normalizeCase[N <: Node](node: N): N = {
-    (node match {
-      case d: Document =>
-        d.copy(defs = d.defs.map(normalizeCase))
-      case id: Identifier => id.toTitleCase
-      case e: EnumRHS =>
-        e.copy(normalizeCase(e.enum), normalizeCase(e.value))
-      case f: Field =>
-        f.copy(
-          sid = f.sid.toCamelCase,
-          default = f.default.map(normalizeCase))
-      case f: Function =>
-        f.copy(
-          args = f.args.map(normalizeCase),
-          throws = f.throws.map(normalizeCase))
-      case c: ConstDefinition =>
-        c.copy(value = normalizeCase(c.value))
-      case e: Enum =>
-        e.copy(values = e.values.map(normalizeCase))
-      case e: EnumField =>
-        e.copy(sid = e.sid.toTitleCase)
-      case s: Struct =>
-        s.copy(fields = s.fields.map(normalizeCase))
-      case f: FunctionArgs =>
-        f.copy(fields = f.fields.map(normalizeCase))
-      case f: FunctionResult =>
-        f.copy(fields = f.fields.map(normalizeCase))
-      case e: Exception_ =>
-        e.copy(fields = e.fields.map(normalizeCase))
-      case s: Service =>
-        s.copy(functions = s.functions.map(normalizeCase))
-      case n => n
-    }).asInstanceOf[N]
-  }
-
   private[this] def getNamespaceWithWarning(doc: Document): Option[Identifier] =
     doc.namespace("scala") orElse {
       val ns = doc.namespace("java")
@@ -127,7 +92,7 @@ class ScalaGenerator(
       list.elems.map { e =>
         genConstant(e, listElemType).toData
       }.mkString(", ")
-    codify(s"Seq($code)")
+    v(s"Seq($code)")
   }
 
   def genSet(
@@ -138,7 +103,7 @@ class ScalaGenerator(
     val code = set.elems.map { e =>
       genConstant(e, setElemType).toData
     }.mkString(", ")
-    codify(s"Set($code)")
+    v(s"Set($code)")
   }
 
   def genMap(
@@ -152,7 +117,7 @@ class ScalaGenerator(
       s"$key -> $value"
     }.mkString(", ")
 
-    codify(s"Map($code)")
+    v(s"Map($code)")
   }
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -169,13 +134,13 @@ class ScalaGenerator(
       val v = genConstant(value)
       genID(f.sid.toCamelCase) + "=" + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
     }
-    codify(genID(struct.sid) + "(" + fields.mkString(", ") + ")")
+    v(genID(struct.sid) + "(" + fields.mkString(", ") + ")")
   }
 
   def genUnion(union: UnionRHS): CodeFragment = {
     val fieldId = genID(union.field.sid.toTitleCase)
     val rhs = genConstant(union.initializer)
-    codify(s"${genID(union.sid)}.$fieldId($rhs)")
+    v(s"${genID(union.sid)}.$fieldId($rhs)")
   }
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
@@ -185,7 +150,7 @@ class ScalaGenerator(
         genType(fieldType).toData + "()"
       case _ => super.genDefaultValue(fieldType).toData
     }
-    codify(code)
+    v(code)
   }
 
   override def genConstant(
@@ -193,7 +158,7 @@ class ScalaGenerator(
     fieldType: Option[FieldType] = None
   ): CodeFragment = {
     (constant, fieldType) match {
-      case (IntLiteral(value), Some(TI64)) => codify(value.toString + "L")
+      case (IntLiteral(value), Some(TI64)) => v(value.toString + "L")
       case _ => super.genConstant(constant, fieldType)
     }
   }
@@ -220,7 +185,7 @@ class ScalaGenerator(
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
-    codify(code)
+    v(code)
   }
 
   def genPrimitiveType(t: FunctionType): CodeFragment = genType(t)
@@ -233,7 +198,7 @@ class ScalaGenerator(
       } else {
         baseType
       }
-    codify(code)
+    v(code)
   }
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = {
@@ -250,10 +215,10 @@ class ScalaGenerator(
 
       valPrefix + nameAndType + defaultValue
     }.mkString(", ")
-    codify(code)
+    v(code)
   }
 
-  def genBaseFinagleService: CodeFragment = codify("FinagleService[Array[Byte], Array[Byte]]")
+  def genBaseFinagleService: CodeFragment = v("Service[Array[Byte], Array[Byte]]")
 
   def getParentFinagleService(p: ServiceParent): CodeFragment =
     genID(Identifier(getServiceParentID(p).fullName + "$FinagleService"))

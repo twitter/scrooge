@@ -61,7 +61,7 @@ object Dictionary {
   /**
    * Wrap generated code fragments in the form of Strings in a dictionary value.
    */
-  def codify(code: String): CodeFragment = CodeFragment(code)
+  def v(code: String): CodeFragment = CodeFragment(code)
 
   /**
    * Wrap a boolean flag in a dictionary value.

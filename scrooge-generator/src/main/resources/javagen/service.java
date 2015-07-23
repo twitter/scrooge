@@ -71,14 +71,19 @@ public class {{ServiceName}} {
 
 {{/withFinagle}}
 
-{{#internalStructs}}
-{{#internalArgsStruct}}
+{{#thriftFunctions}}
+  public static class {{funcObjectName}} {
+{{#functionArgsStruct}}
   {{>struct}}
-{{/internalArgsStruct}}
+{{/functionArgsStruct}}
 {{#internalResultStruct}}
   {{>struct}}
 {{/internalResultStruct}}
-{{/internalStructs}}
+{{#functionResultStruct}}
+  {{>struct}}
+{{/functionResultStruct}}
+  }
+{{/thriftFunctions}}
 {{#finagleClients}}
   {{>finagleClient}}
 {{/finagleClients}}

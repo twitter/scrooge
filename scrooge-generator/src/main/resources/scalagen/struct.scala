@@ -404,16 +404,16 @@ class {{StructName}}(
 {
   import {{StructName}}._
 {{^withTrait}}
-    def this(
+  def this(
 {{#fields}}
-      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
+    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
 {{/fields|,}}
-    ) = this(
+  ) = this(
 {{#fields}}
-      {{fieldName}},
+    {{fieldName}},
 {{/fields}}
-      Map.empty
-    )
+    Map.empty
+  )
 {{/withTrait}}
 {{#withTrait}}
 
@@ -427,6 +427,11 @@ class {{StructName}}(
 {{#fields}}
   def _{{indexP1}} = {{fieldName}}
 {{/fields}}
+
+{{#isResponse}}
+  def successField: Option[{{successFieldType}}] = {{successFieldValue}}
+  def exceptionFields: Iterable[Option[com.twitter.scrooge.ThriftException]] = {{exceptionValues}}
+{{/isResponse}}
 
 {{#withFieldGettersAndSetters}}
   /**

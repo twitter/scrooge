@@ -4,10 +4,11 @@ private[this] object {{__stats_name}} {
   val FailuresCounter = scopedStats.scope("{{clientFuncNameForWire}}").counter("failures")
   val FailuresScope = scopedStats.scope("{{clientFuncNameForWire}}").scope("failures")
 }
-{{#headerInfo}}{{>header}}{{/headerInfo}} = {
+{{#functionInfo}}
+{{>header}} = {
   {{__stats_name}}.RequestsCounter.incr()
-  this.service(encodeRequest("{{clientFuncNameForWire}}", {{ArgsStruct}}({{argNames}}))) flatMap { response =>
-    val result = decodeResponse(response, {{ResultStruct}})
+  this.service(encodeRequest("{{clientFuncNameForWire}}", {{funcObjectName}}.Args({{argNames}}))) flatMap { response =>
+    val result = decodeResponse(response, {{funcObjectName}}.Result)
     val exception: Future[Nothing] =
 {{#hasThrows}}
       if (false)
@@ -43,3 +44,4 @@ private[this] object {{__stats_name}} {
       {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
   }
 }
+{{/functionInfo}}

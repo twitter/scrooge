@@ -1,17 +1,17 @@
 addFunction("{{serviceFuncNameForWire}}", { (iprot: TProtocol, seqid: Int) =>
   try {
-    val args = {{ArgsStruct}}.decode(iprot)
+    val args = {{funcObjectName}}.Args.decode(iprot)
     iprot.readMessageEnd()
     (try {
       iface.{{serviceFuncNameForCompile}}({{argNames}})
     } catch {
       case e: Exception => Future.exception(e)
     }) flatMap { value: {{typeName}} =>
-      reply("{{serviceFuncNameForWire}}", seqid, {{ResultStruct}}({{resultNamedArg}}))
+      reply("{{serviceFuncNameForWire}}", seqid, {{funcObjectName}}.Result({{resultNamedArg}}))
     } rescue {
 {{#exceptions}}
       case e: {{exceptionType}} => {
-        reply("{{serviceFuncNameForWire}}", seqid, {{ResultStruct}}({{fieldName}} = _root_.scala.Some(e)))
+        reply("{{serviceFuncNameForWire}}", seqid, {{funcObjectName}}.Result({{fieldName}} = Some(e)))
       }
 {{/exceptions}}
       case e => Future.exception(e)

@@ -1,10 +1,15 @@
 package {{package}}
 
+import com.twitter.scrooge
 import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob, ThriftService, ThriftStruct,
   ThriftStructCodec, ThriftStructCodec3,
   ThriftStructFieldInfo, ThriftUtil}
+{{#withFinagle}}
+import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
+import com.twitter.util.Future
+{{/withFinagle}}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
@@ -17,7 +22,6 @@ import scala.collection.mutable.{
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
   HashMap => mutable$HashMap, HashSet => mutable$HashSet}
 import scala.collection.{Map, Set}
-
 import scala.language.higherKinds
 
 {{docstring}}
@@ -28,29 +32,84 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 {{/genericFunctions}}
 }
 
+
 {{docstring}}
 object {{ServiceName}} {
-{{#internalStructs}}
-{{#internalArgsStruct}}
-  {{>struct}}
-{{/internalArgsStruct}}
+{{#withFinagle}}
+  case class ServiceIface(
+{{#inheritedFunctions}}
+      {{funcName}}: com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
+{{/inheritedFunctions|,}}
+  ) extends {{#parent}}{{parent}}.__ServiceIface
+    with {{/parent}}__ServiceIface
+
+  // This is needed to support service inheritance.
+  trait __ServiceIface {{#parent}} extends {{parent}}.__ServiceIface {{/parent}} {
+{{#asyncFunctions}}
+    def {{funcName}}: com.twitter.finagle.Service[{{funcObjectName}}.Args, {{funcObjectName}}.Result]
+{{/asyncFunctions}}
+  }
+
+  implicit object ServiceIfaceBuilder
+    extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
+      def newServiceIface(
+        binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+        pf: TProtocolFactory = Protocols.binaryFactory(),
+        stats: com.twitter.finagle.stats.StatsReceiver
+      ): ServiceIface =
+        new ServiceIface(
+{{#inheritedFunctions}}
+          {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, pf, stats)
+{{/inheritedFunctions|,}}
+      )
+  }
+
+  class MethodIface(serviceIface: __ServiceIface)
+    extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}{{ServiceName}}[Future] {
+{{#thriftFunctions}}
+    private[this] val __{{funcName}}_service =
+      ThriftServiceIface.resultFilter({{ServiceName}}.{{funcObjectName}}) andThen serviceIface.{{funcName}}
+    def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
+      __{{funcName}}_service({{ServiceName}}.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+{{/thriftFunctions}}
+  }
+
+  implicit object MethodIfaceBuilder
+    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
+    def newMethodIface(serviceIface: ServiceIface): {{ServiceName}}[Future] =
+      new MethodIface(serviceIface)
+  }
+
+{{/withFinagle}}
+{{#thriftFunctions}}
+  object {{funcObjectName}} extends scrooge.ThriftMethod {
+{{#functionArgsStruct}}
+    {{>struct}}
+{{/functionArgsStruct}}
+
+    type SuccessType = {{typeName}}
 {{#internalResultStruct}}
-  {{>struct}}
+    {{>struct}}
 {{/internalResultStruct}}
-{{/internalStructs}}
+
+    val name = "{{funcName}}"
+    val serviceName = "{{ServiceName}}"
+    val argsCodec = Args
+    val responseCodec = Result
+    val oneway = {{is_oneway}}
+  }
+
+{{/thriftFunctions}}
 
 {{#withFinagle}}
-  import com.twitter.finagle.thrift.Protocols
-  import com.twitter.util.Future
-
-  trait FutureIface extends {{#futureIfaceParent}}{{futureIfaceParent}} with{{/futureIfaceParent}} {{ServiceName}}[Future] {
+  trait FutureIface extends {{#futureIfaceParent}}{{futureIfaceParent}} with {{/futureIfaceParent}}{{ServiceName}}[Future] {
 {{#asyncFunctions}}
     {{>function}}
 {{/asyncFunctions}}
   }
 
   class FinagledClient(
-      service: com.twitter.finagle.Service[com.twitter.finagle.thrift.ThriftClientRequest, Array[Byte]],
+      service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "{{ServiceName}}",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver)

@@ -7,6 +7,22 @@ trait ThriftStruct {
   def write(oprot: TProtocol)
 }
 
+trait ThriftResponse[Result] {
+  def successField: Option[Result]
+  def exceptionFields: Iterable[Option[ThriftException]]
+  /**
+   * Return the first nonempty exception field.
+   */
+  def firstException(): Option[ThriftException] =
+    exceptionFields.collectFirst(ThriftResponse.exceptionIsDefined)
+}
+
+object ThriftResponse {
+  private val exceptionIsDefined: PartialFunction[Option[ThriftException], ThriftException] = {
+    case Some(exception) => exception
+  }
+}
+
 /**
  * Unions are tagged with this trait as well as with [[ThriftStruct]].
  */
@@ -64,3 +80,27 @@ abstract class ThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec[T
   }
 
 }
+
+/**
+ * Metadata for a thrift method.
+ */
+trait ThriftMethod {
+  /** A struct wrapping method arguments */
+  type Args <: ThriftStruct
+  /** The successful return type */
+  type SuccessType
+  /** Contains success or thrift application exceptions */
+  type Result <: ThriftResponse[SuccessType] with ThriftStruct
+
+  /** Thrift method name */
+  def name: String
+  /** Thrift service name. A thrift service is a list of methods. */
+  def serviceName: String
+  /** Codec for the request args */
+  def argsCodec: ThriftStructCodec3[Args]
+  /** Codec for the response */
+  def responseCodec: ThriftStructCodec3[Result]
+  /** True for oneway thrift methods */
+  def oneway: Boolean
+}
+

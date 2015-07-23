@@ -1,6 +1,6 @@
 package {{package}}
 
-import com.twitter.finagle.{Service => FinagleService, Thrift}
+import com.twitter.finagle.{Service, Thrift}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.scrooge.{ThriftStruct, TReusableMemoryTransport}
 import com.twitter.util.Future

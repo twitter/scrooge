@@ -61,39 +61,11 @@ class CocoaGenerator(
     else
       str
 
-  def normalizeCase[N <: Node](node: N): N = {
+  override def normalizeCase[N <: Node](node: N): N = {
     (node match {
-      case d: Document =>
-        d.copy(defs = d.defs.map(normalizeCase _))
-      case id: Identifier => id.toTitleCase
-      case e: EnumRHS =>
-        e.copy(normalizeCase(e.enum), normalizeCase(e.value))
-      case f: Field =>
-        f.copy(
-          sid = f.sid.toCamelCase,
-          default = f.default.map(normalizeCase _))
-      case f: Function =>
-        f.copy(
-          funcName = f.funcName.toCamelCase,
-          args = f.args.map(normalizeCase _),
-          throws = f.throws.map(normalizeCase _))
-      case c: ConstDefinition =>
-        c.copy(value = normalizeCase(c.value))
-      case e: Enum =>
-        e.copy(values = e.values.map(normalizeCase _))
       case e: EnumField =>
         e.copy(sid = e.sid.toUpperCase)
-      case s: Struct =>
-        s.copy(fields = s.fields.map(normalizeCase _))
-      case f: FunctionArgs =>
-        f.copy(fields = f.fields.map(normalizeCase _))
-      case f: FunctionResult =>
-        f.copy(fields = f.fields.map(normalizeCase _))
-      case e: Exception_ =>
-        e.copy(fields = e.fields.map(normalizeCase _))
-      case s: Service =>
-        s.copy(functions = s.functions.map(normalizeCase _))
-      case n => n
+      case _ => super.normalizeCase(node)
     }).asInstanceOf[N]
   }
 
@@ -130,8 +102,8 @@ class CocoaGenerator(
     throw new Exception("not implemented")
 
   // For mutability/immutability support, not implemented
-  def genToImmutable(t: FieldType): CodeFragment = codify("")
-  def genToImmutable(f: Field): CodeFragment = codify("")
+  def genToImmutable(t: FieldType): CodeFragment = v("")
+  def genToImmutable(f: Field): CodeFragment = v("")
   def toMutable(t: FieldType): (String, String) = ("", "")
   def toMutable(f: Field): (String, String) = ("", "")
 
@@ -154,18 +126,18 @@ class CocoaGenerator(
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
-    codify(code)
+    v(code)
   }
 
   def genFieldType(f: Field): CodeFragment = {
-    codify(genType(f.fieldType).toData)
+    v(genType(f.fieldType).toData)
   }
 
   // Not used by Cocoa code generator
-  def genPrimitiveType(t: FunctionType): CodeFragment = codify("")
+  def genPrimitiveType(t: FunctionType): CodeFragment = v("")
 
   // Not used by Cocoa code generator
-  def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = codify("")
+  def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = v("")
 
   // Finagle support, not implemented
   def genBaseFinagleService = throw new Exception("not implemented")

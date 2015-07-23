@@ -5,7 +5,7 @@ import java.util
 import com.twitter.scrooge.frontend._
 import java.io._
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
-import com.twitter.mustache.ScalaObjectHandler
+import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.twitter.scrooge.ast._

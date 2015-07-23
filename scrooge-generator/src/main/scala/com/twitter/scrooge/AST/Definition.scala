@@ -55,11 +55,14 @@ case class FunctionArgs(
   override val docstring: Option[String] = None
   override val annotations: Map[String, String] = Map.empty
 }
+
 case class FunctionResult(
   sid: SimpleID,
   originalName: String,
-  fields: Seq[Field]
+  success: Option[Field], // None for void methods
+  exceptions: Seq[Field]
 ) extends StructLike {
+  override val fields = success.toList ++ exceptions
   override val docstring: Option[String] = None
   override val annotations: Map[String, String] = Map.empty
 }

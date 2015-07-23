@@ -2,7 +2,7 @@ package com.twitter.scrooge.android_generator
 
 import com.twitter.scrooge.ast._
 import com.github.mustachejava.{Mustache, DefaultMustacheFactory}
-import com.twitter.mustache.ScalaObjectHandler
+import com.twitter.scrooge.mustache.ScalaObjectHandler
 import java.io.{FileWriter, File, StringWriter}
 import com.twitter.scrooge.ast.SetType
 import com.twitter.scrooge.ast.MapType

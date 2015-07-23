@@ -12,14 +12,14 @@ trait EnumTemplate { self: TemplateGenerator =>
     Dictionary(
       "package" -> genID(namespace),
       "EnumName" -> genID(enum.sid.toTitleCase),
-      "docstring" -> codify(enum.docstring.getOrElse("")),
+      "docstring" -> v(enum.docstring.getOrElse("")),
       "values" -> v(enum.values.map { value =>
         Dictionary(
-          "valuedocstring" -> codify(value.docstring.getOrElse("")),
+          "valuedocstring" -> v(value.docstring.getOrElse("")),
           "name" -> genID(value.sid),
-          "originalName" -> codify(value.sid.originalName),
-          "unquotedNameLowerCase" -> codify(value.sid.fullName.toLowerCase),
-          "value" -> codify(value.value.toString)
+          "originalName" -> v(value.sid.originalName),
+          "unquotedNameLowerCase" -> v(value.sid.fullName.toLowerCase),
+          "value" -> v(value.value.toString)
         )
       })
     )

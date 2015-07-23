@@ -1,16 +1,20 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.finagle
-import com.twitter.finagle.SourcedException
-import com.twitter.finagle.thrift.ThriftClientRequest
-import com.twitter.scrooge.ThriftException
+import com.twitter.finagle.param.{Stats, Label}
+import com.twitter.finagle.{ListeningServer, Name, Thrift, Service, SimpleFilter, SourcedException}
+import com.twitter.finagle.stats.InMemoryStatsReceiver
+import com.twitter.finagle.thrift.{ThriftClientRequest, ThriftServiceIface}
+import com.twitter.scrooge.{ThriftStruct, ThriftException}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
-import com.twitter.util.{Await, Future}
+import com.twitter.util.{Await, Future, Return}
+import java.net.{InetAddress, InetSocketAddress}
 import org.apache.thrift.protocol._
 import org.jmock.Expectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import thrift.test._
+import thrift.test.ExceptionalService._
 
 
 class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
@@ -58,7 +62,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        SimpleService.deliver$args.decode(protocol).where must be("boston")
+        SimpleService.Deliver.Args.decode(protocol).where must be("boston")
       }
 
       expecting { e => import e._
@@ -68,7 +72,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        SimpleService.deliver$args("atlanta").write(protocol) must be(())
+        SimpleService.Deliver.Args("atlanta").write(protocol) must be(())
       }
 
       expecting { e => import e._
@@ -78,7 +82,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        SimpleService.deliver$result.decode(protocol).success must be(Some(13))
+        SimpleService.Deliver.Result.decode(protocol).success must be(Some(13))
       }
 
       expecting { e => import e._
@@ -88,7 +92,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        SimpleService.deliver$result(Some(24)).write(protocol) must be(())
+        SimpleService.Deliver.Result(Some(24)).write(protocol) must be(())
       }
     }
 
@@ -108,7 +112,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ThriftTest.testUnions$args.decode(protocol).arg0 must be(
+        ThriftTest.TestUnions.Args.decode(protocol).arg0 must be(
           MorePerfectUnion.Bools(Bools(true, false)))
       }
 
@@ -125,7 +129,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ThriftTest.testUnions$args(
+        ThriftTest.TestUnions.Args(
           MorePerfectUnion.Bonk(Bonk("hello world", 42))
         ).write(protocol) must be(())
       }
@@ -143,7 +147,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ThriftTest.testUnions$result.decode(protocol).success must be(
+        ThriftTest.TestUnions.Result.decode(protocol).success must be(
           Some(MorePerfectUnion.Bools(Bools(true, false))))
       }
 
@@ -160,7 +164,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ThriftTest.testUnions$result(
+        ThriftTest.TestUnions.Result(
           Some(MorePerfectUnion.Bonk(Bonk("hello world", 42)))
         ).write(protocol) must be(())
       }
@@ -180,7 +184,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        val res = ExceptionalService.deliver$result.decode(protocol)
+        val res = ExceptionalService.Deliver.Result.decode(protocol)
         res.success must be(None)
         res.ex must be(Some(Xception(1, "silly")))
         res.ex2 must be(None)
@@ -193,7 +197,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ExceptionalService.deliver$result(Some(24)).write(protocol) must be(())
+        ExceptionalService.Deliver.Result(Some(24)).write(protocol) must be(())
       }
 
       expecting { e => import e._
@@ -207,7 +211,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ExceptionalService.deliver$result(None, Some(Xception(1, "silly"))).write(protocol) must be(())
+        ExceptionalService.Deliver.Result(None, Some(Xception(1, "silly"))).write(protocol) must be(())
       }
 
       expecting { e => import e._
@@ -219,7 +223,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       whenExecuting {
-        ExceptionalService.deliver$result(None, None, None, Some(EmptyXception())).write(protocol) must be(())
+        ExceptionalService.Deliver.Result(None, None, None, Some(EmptyXception())).write(protocol) must be(())
       }
     }
 
@@ -232,8 +236,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       val service = new ExceptionalService$FinagleService(impl, new TBinaryProtocol.Factory)
 
       "success" in { _ =>
-        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston")).message
-        val response = encodeResponse("deliver", ExceptionalService.deliver$result(success = Some(42)))
+        val request = encodeRequest("deliver", ExceptionalService.Deliver.Args("Boston")).message
+        val response = encodeResponse("deliver", ExceptionalService.Deliver.Result(success = Some(42)))
 
         context.checking(new Expectations {
           one(impl).deliver("Boston"); will(returnValue(Future.value(42)))
@@ -244,9 +248,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "exception" in { _ =>
-        val request = encodeRequest("deliver", ExceptionalService.deliver$args("Boston")).message
+        val request = encodeRequest("deliver", ExceptionalService.Deliver.Args("Boston")).message
         val ex = Xception(1, "boom")
-        val response = encodeResponse("deliver", ExceptionalService.deliver$result(ex = Some(ex)))
+        val response = encodeResponse("deliver", ExceptionalService.Deliver.Result(ex = Some(ex)))
 
         context.checking(new Expectations {
           one(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
@@ -370,6 +374,177 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         def getFunction2(name: String) = functionMap(name)
       }
       service.getFunction2("Bad_Name") must not be(None)
+    }
+
+    "generate a finagle Service per method" should {
+      "work for basic services" in { _ =>
+        import SimpleService._
+
+        val server = Thrift.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new SimpleService[Future] {
+            def deliver(where: String) = Future.value(3)
+          })
+
+        val simpleService: SimpleService.ServiceIface =
+          Thrift.newServiceIface[SimpleService.ServiceIface](Name.bound(server.boundAddress))
+        val simpleServiceIface = Thrift.newMethodIface(simpleService)
+        Await.result(simpleService.deliver(Deliver.Args("Boston")).map { result =>
+          result.success
+        }) must be(Some(3))
+      }
+
+      "work for inherited services" in { _ =>
+        import ReadOnlyService._
+        import ReadWriteService._
+        val server = Thrift.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new ReadWriteService[Future] {
+            private[this] var name = "Initial name"
+            def getName(): Future[String] = Future.value(name)
+
+            def setName(newName: String): Future[Unit] = {
+              name = newName
+              Future.Done
+            }
+          }
+        )
+
+        val readOnlyClientService = Thrift.newServiceIface[ReadOnlyService.ServiceIface](Name.bound(server.boundAddress))
+        Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be (Some("Initial name"))
+
+        val readWriteClientService = Thrift.newServiceIface[ReadWriteService.ServiceIface](Name.bound(server.boundAddress))
+        Await.result(readWriteClientService.getName(GetName.Args()).map(_.success)) must be (Some("Initial name"))
+
+        Await.result(readWriteClientService.setName(SetName.Args("New name"))) must be(SetName.Result())
+
+        Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be(Some("New name"))
+      }
+
+      def serveExceptionalService(): ListeningServer = Thrift.serveIface(
+        new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+        new ExceptionalService[Future] {
+          private[this] var counter = 0
+
+          def deliver(where: String): Future[Int] = {
+            counter = counter + 1
+            if (where.isEmpty)
+              Future.exception(new EmptyXception)
+            else if (counter % 3 != 0)
+              Future.exception(new Xception(0, "Try again"))
+            else
+              Future.value(123)
+          }
+
+          def remove(id: Int): Future[Unit] = Future.Done
+        }
+      )
+
+      "work with exceptions" in { _ =>
+        val server = serveExceptionalService()
+
+        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(server.boundAddress))
+
+        Await.result(clientService.deliver(Deliver.Args("")).map(_.ex3)) must be (Some(new EmptyXception()))
+      }
+
+      "work with filters on args" in { _ =>
+        import SimpleService._
+        val server = Thrift.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new SimpleService[Future] {
+            def deliver(input: String) = Future.value(input.length)
+          })
+
+        val simpleServiceIface: SimpleService.ServiceIface =
+          Thrift.newServiceIface[SimpleService.ServiceIface](Name.bound(server.boundAddress))
+
+        val doubleFilter = new SimpleFilter[Deliver.Args, Deliver.Result] {
+          def apply(args: Deliver.Args, service: Service[Deliver.Args, Deliver.Result]) =
+            service(args.copy(where = args.where + args.where))
+        }
+
+        val filteredServiceIface = simpleServiceIface.copy(deliver = doubleFilter andThen simpleServiceIface.deliver)
+        val methodIface = Thrift.newMethodIface(filteredServiceIface)
+        Await.result(methodIface.deliver("123")) must be(6)
+      }
+
+      "work with retrying filters" in { _ =>
+        import com.twitter.finagle.service.{RetryingFilter, RetryPolicy}
+        import com.twitter.util.{JavaTimer, Try, Throw}
+
+        val service = serveExceptionalService()
+        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+
+        val retryPolicy =
+          RetryPolicy.tries[Try[Int]](3, {
+            case Throw(ex) if ex.getMessage == "Try again" =>
+              true
+          })
+
+        val retriedDeliveryService =
+          new RetryingFilter(retryPolicy, new JavaTimer(true)) andThen
+            ThriftServiceIface.resultFilter(Deliver) andThen
+            clientService.deliver
+        Await.result(retriedDeliveryService(Deliver.Args("there"))) must be (123)
+      }
+
+      "work with a newMethodIface" in { _ =>
+        val service = serveExceptionalService()
+        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+
+        val futureIface = Thrift.newMethodIface(clientService)
+
+        intercept[EmptyXception] {
+          Await.result(futureIface.deliver(""))
+        }
+      }
+
+      "have correct stats" in { _ =>
+        val service = serveExceptionalService()
+        val statsReceiver = new InMemoryStatsReceiver
+        val clientService = Thrift.client.
+          configured(Label("customServiceName")).
+          configured(Stats(statsReceiver)).
+          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+
+        val futureIface = Thrift.newMethodIface(clientService)
+
+        intercept[Xception] {
+          Await.result(futureIface.deliver(where = "abc"))
+        }
+
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "requests")) must be (1)
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (1)
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (1)
+
+        intercept[Xception] {
+          Await.result(futureIface.deliver(where = "abc"))
+        }
+
+        // The 3rd request succeeds
+        Await.result(futureIface.deliver(where = "abc"))
+
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "requests")) must be (3)
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "success")) must be (1)
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (2)
+        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (2)
+      }
+
+      "have stats with serviceName not set" in { _ =>
+        val service = serveExceptionalService()
+        val statsReceiver = new InMemoryStatsReceiver
+        val clientService = Thrift.client.configured(Stats(statsReceiver)).
+          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+
+        val futureIface = Thrift.newMethodIface(clientService)
+
+        intercept[Xception] {
+          Await.result(futureIface.deliver(where = "abc"))
+        }
+
+        statsReceiver.counters(Seq("ExceptionalService", "deliver", "requests")) must be (1)
+      }
     }
   }
 }

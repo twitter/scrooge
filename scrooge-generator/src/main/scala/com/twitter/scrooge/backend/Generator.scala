@@ -20,6 +20,7 @@ import com.twitter.finagle.util.LoadService
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
+import com.twitter.scrooge.mustache.Dictionary.CodeFragment
 import com.twitter.scrooge.android_generator.AndroidGeneratorFactory
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 import java.io.{File, FileOutputStream, OutputStreamWriter}
@@ -71,7 +72,12 @@ trait GeneratorFactory {
   ): ThriftGenerator
 }
 
-trait Generator extends ThriftGenerator {
+trait TemplateGenerator
+  extends ThriftGenerator
+  with StructTemplate
+  with ServiceTemplate
+  with ConstsTemplate
+  with EnumTemplate {
   import Dictionary._
 
   /**
@@ -95,7 +101,42 @@ trait Generator extends ThriftGenerator {
     javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
 
-  def normalizeCase[N <: Node](node: N): N
+  def normalizeCase[N <: Node](node: N): N = {
+    (node match {
+      case d: Document =>
+        d.copy(defs = d.defs.map(normalizeCase))
+      case id: Identifier => id.toTitleCase
+      case e: EnumRHS =>
+        e.copy(normalizeCase(e.enum), normalizeCase(e.value))
+      case f: Field =>
+        f.copy(
+          sid = f.sid.toCamelCase,
+          default = f.default.map(normalizeCase))
+      case f: Function =>
+        f.copy(
+          funcName = f.funcName.toCamelCase,
+          args = f.args.map(normalizeCase),
+          throws = f.throws.map(normalizeCase))
+      case c: ConstDefinition =>
+        c.copy(value = normalizeCase(c.value))
+      case e: Enum =>
+        e.copy(values = e.values.map(normalizeCase))
+      case e: EnumField =>
+        e.copy(sid = e.sid.toTitleCase)
+      case s: Struct =>
+        s.copy(fields = s.fields.map(normalizeCase))
+      case f: FunctionArgs =>
+        f.copy(fields = f.fields.map(normalizeCase))
+      case f: FunctionResult =>
+        f.copy(success = f.success.map(normalizeCase), exceptions = f.exceptions.map(normalizeCase))
+      case e: Exception_ =>
+        e.copy(fields = e.fields.map(normalizeCase))
+      case s: Service =>
+        s.copy(functions = s.functions.map(normalizeCase))
+      case n => n
+    }).asInstanceOf[N]
+  }
+
   def getNamespace(doc: Document): Identifier =
     doc.namespace("java") getOrElse (SimpleID(defaultNamespace))
 
@@ -114,7 +155,7 @@ trait Generator extends ThriftGenerator {
    * get the ID of a service parent.  Java and Scala implementations are different.
    */
   def getServiceParentID(parent: ServiceParent): Identifier = {
-    val identifier: Identifier with Product = parent.prefix match {
+    val identifier: Identifier = parent.prefix match {
       case Some(scope) => parent.sid.addScope(getIncludeNamespace(scope.name))
       case None => parent.sid
     }
@@ -153,17 +194,17 @@ trait Generator extends ThriftGenerator {
 
   // methods that convert AST nodes to CodeFragment
   def genID(data: Identifier): CodeFragment = data match {
-    case SimpleID(name, _) => codify(quoteKeyword(name))
-    case QualifiedID(names) => codify(names.map(quoteKeyword).mkString("."))
+    case SimpleID(name, _) => v(quoteKeyword(name))
+    case QualifiedID(names) => v(names.map(quoteKeyword).mkString("."))
   }
 
   def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     constant match {
-      case NullLiteral => codify("null")
-      case StringLiteral(value) => codify(quote(value))
-      case DoubleLiteral(value) => codify(value.toString)
-      case IntLiteral(value) => codify(value.toString)
-      case BoolLiteral(value) => codify(value.toString)
+      case NullLiteral => v("null")
+      case StringLiteral(value) => v(quote(value))
+      case DoubleLiteral(value) => v(value.toString)
+      case IntLiteral(value) => v(value.toString)
+      case BoolLiteral(value) => v(value.toString)
       case c@ListRHS(_) => genList(c, fieldType)
       case c@SetRHS(_) => genSet(c, fieldType)
       case c@MapRHS(_) => genMap(c, fieldType)
@@ -196,7 +237,7 @@ trait Generator extends ThriftGenerator {
       case TDouble => "0.0"
       case _ => "null"
     }
-    codify(code)
+    v(code)
   }
 
   def genDefaultFieldValue(f: Field): Option[CodeFragment] = {
@@ -234,7 +275,7 @@ trait Generator extends ThriftGenerator {
       case ListType(_, _) => "LIST"
       case x => throw new InternalError("constType#" + t)
     }
-    codify(code)
+    v(code)
   }
 
   /**
@@ -259,7 +300,7 @@ trait Generator extends ThriftGenerator {
       case TBinary => "readBinary"
       case x => throw new ScroogeInternalException("protocolReadMethod#" + t)
     }
-    codify(code)
+    v(code)
   }
 
   def genOffsetSkipProtocolMethod(t: FunctionType): CodeFragment = {
@@ -274,7 +315,7 @@ trait Generator extends ThriftGenerator {
       case TBinary => "offsetSkipBinary"
       case x => s"""Invalid type passed($x) for genOffsetSkipProtocolMethod method. Compile will fail here."""
     }
-    codify(code)
+    v(code)
   }
 
   def genDecodeProtocolMethod(t: FunctionType): CodeFragment = {
@@ -289,7 +330,7 @@ trait Generator extends ThriftGenerator {
       case TBinary => "decodeBinary"
       case x => s"""Invalid type passed ($x) for genDecodeProtocolMethod method. Compile will fail here."""
     }
-    codify(code)
+    v(code)
   }
 
   def genProtocolWriteMethod(t: FunctionType): CodeFragment = {
@@ -304,7 +345,7 @@ trait Generator extends ThriftGenerator {
       case TBinary => "writeBinary"
       case x => throw new ScroogeInternalException("protocolWriteMethod#" + t)
     }
-    codify(code)
+    v(code)
   }
 
   def genType(t: FunctionType): CodeFragment
@@ -330,14 +371,8 @@ trait Generator extends ThriftGenerator {
     Set[ServiceOption]
   ): Option[File] =
     None
-}
 
-trait TemplateGenerator extends Generator
-  with StructTemplate
-  with ServiceTemplate
-  with ConstsTemplate
-  with EnumTemplate
-{
+
   def templates: HandlebarLoader
   def fileExtension: String
 
@@ -417,5 +452,28 @@ trait TemplateGenerator extends Generator
     }
 
     generatedFiles
+  }
+
+  /**
+   * Returns a String "scala.Product${N}[Type1, Type2, ...]" or "scala.Product".
+   */
+  def productN(fields: Seq[Field]): String = {
+    val arity = fields.length
+    if (arity >= 1 && arity <= 22) {
+      val fieldTypes = fields.map { f =>
+        genFieldType(f).toData
+      }.mkString(", ")
+      s"scala.Product$arity[$fieldTypes]"
+    } else {
+      "scala.Product"
+    }
+  }
+
+  /**
+   * Like productN, but returns "Unit" for empty lists.
+   */
+  def productNOrUnit(fields: Seq[Field]): String = {
+    if (fields.isEmpty) "Unit"
+    else productN(fields)
   }
 }

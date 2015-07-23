@@ -5,6 +5,8 @@ as it is included in Scrooge's user's guide.
 3.x
 ~~~~~~~
 
+- scrooge: Generate a finagle Service per thrift method (Service interface)
+
 3.19.0
 ~~~~~~~
 - scrooge: Performance improvements and bug fixes.

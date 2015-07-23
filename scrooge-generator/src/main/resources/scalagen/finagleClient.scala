@@ -1,6 +1,6 @@
 package {{package}}
 
-import com.twitter.finagle.{SourcedException, Service => FinagleService}
+import com.twitter.finagle.{SourcedException, Service}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
@@ -17,10 +17,10 @@ import scala.language.higherKinds
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleClient(
-  {{#hasParent}}override {{/hasParent}}val service: FinagleService[ThriftClientRequest, Array[Byte]],
-  {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
-  {{#hasParent}}override {{/hasParent}}val serviceName: String = "{{ServiceName}}",
-  stats: StatsReceiver = NullStatsReceiver
+    {{#hasParent}}override {{/hasParent}}val service: Service[ThriftClientRequest, Array[Byte]],
+    {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
+    {{#hasParent}}override {{/hasParent}}val serviceName: String = "{{ServiceName}}",
+    stats: StatsReceiver = NullStatsReceiver
 ) extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats) with {{/hasParent}}{{ServiceName}}[Future] {
   import {{ServiceName}}._
 {{^hasParent}}
@@ -80,6 +80,7 @@ class {{ServiceName}}$FinagleClient(
 {{/hasParent}}
   private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
 {{#functions}}
-  {{>function}}
+  {{>finagleClientFunction}}
 {{/function}}
 }
+

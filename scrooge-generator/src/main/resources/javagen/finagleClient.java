@@ -120,6 +120,8 @@ public class {{ServiceName}}$FinagleClient{{#hasParent}} extends {{finagleClient
 
 {{/hasParent}}
 {{#functions}}
-  {{>function}}
-{{/function}}
+{{#functionInfo}}
+  {{>finagleClientFunction}}
+{{/functionInfo}}
+{{/functions}}
 }
