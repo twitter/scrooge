@@ -58,7 +58,7 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-core_2.10</artifactId>
-      <version>3.19.0</version>
+      <version>3.20.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -137,7 +137,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>3.19.0</version>
+        <version>3.20.0</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
