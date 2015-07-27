@@ -6,8 +6,8 @@ import com.google.common.io.CharStreams
 import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
-import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 import com.twitter.scrooge.testutil.Spec
+import com.twitter.scrooge.testutil.Utils.verify
 import java.io._
 import java.util.EnumSet
 import org.apache.thrift.protocol.TBinaryProtocol
@@ -171,22 +171,6 @@ class ApacheJavaGeneratorSpec extends Spec {
       val controller = new ServiceController(doc.services(0), generator, doc.namespace("java"))
       val sw = renderMustache("service.mustache", controller)
       verify(sw, getFileContents("apache_output/other_service.txt"))
-    }
-  }
-
-  def verify(actual: String, expected: String, cleanEmptySemicolons: Boolean = true) {
-    val actualItems = ApacheCompatibilityHelpers.cleanWhitespace(actual, cleanEmptySemicolons)
-    val expectedItems = ApacheCompatibilityHelpers.cleanWhitespace(expected, cleanEmptySemicolons)
-    for (i <- 0 until actualItems.size) {
-      if (!actualItems(i).equals(expectedItems(i))) {
-        println("Actual: " + actualItems(i))
-        println("Expected: " + expectedItems(i))
-        // No idea why the one below doesn't make the test red
-        assert(actualItems(i) == expectedItems(i))
-      } else {
-        // println(expectedItems(i))
-      }
-      actualItems(i) must be(expectedItems(i))
     }
   }
 
