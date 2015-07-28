@@ -2,6 +2,7 @@ package com.twitter.scrooge
 
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
+import java.nio.charset.Charset
 import org.apache.thrift.protocol._
 import org.apache.thrift.TException
 
@@ -15,6 +16,7 @@ import org.apache.thrift.TException
  */
 object TLazyBinaryProtocol {
   private val AnonymousStruct: TStruct = new TStruct()
+  private val utf8Charset = Charset.forName("UTF-8")
 }
 
 class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtocol(transport) with LazyTProtocol {
@@ -126,7 +128,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
 
   override def writeString(str: String): Unit = {
     try {
-      val data: Array[Byte] = str.getBytes("UTF-8")
+      val data: Array[Byte] = str.getBytes(utf8Charset)
       val buf = transport.getBuffer(data.length + 4)
       val offset = transport.writerOffset
       innerWriteI32(buf, offset, data.length)
@@ -211,7 +213,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
   override def readString(): String =
     try {
       val size = readI32()
-      val s = new String(transport.srcBuf, transport.getBufferPosition, size)
+      val s = new String(transport.srcBuf, transport.getBufferPosition, size, utf8Charset)
       transport.advance(size)
       s
     } catch {
@@ -254,7 +256,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
   override def decodeString(buf: Array[Byte], off: Int): String =
     try {
       val size = decodeI32(buf, off)
-      new String(buf, off + 4, size)
+      new String(buf, off + 4, size, utf8Charset)
     } catch {
       case e: UnsupportedEncodingException =>
         throw new TException("JVM DOES NOT SUPPORT UTF-8")
