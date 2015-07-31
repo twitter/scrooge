@@ -1,11 +1,10 @@
 package {{package}}
 
-import com.twitter.scrooge
 import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob, ThriftService, ThriftStruct,
   ThriftStructCodec, ThriftStructCodec3,
-  ThriftStructFieldInfo, ThriftUtil}
+  ThriftStructFieldInfo, ThriftResponse, ThriftUtil}
 {{#withFinagle}}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
@@ -34,7 +33,7 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 
 
 {{docstring}}
-object {{ServiceName}} {
+object {{ServiceName}} { self =>
 {{#withFinagle}}
   case class ServiceIface(
 {{#inheritedFunctions}}
@@ -46,7 +45,7 @@ object {{ServiceName}} {
   // This is needed to support service inheritance.
   trait __ServiceIface {{#parent}} extends {{parent}}.__ServiceIface {{/parent}} {
 {{#asyncFunctions}}
-    def {{funcName}}: com.twitter.finagle.Service[{{funcObjectName}}.Args, {{funcObjectName}}.Result]
+    def {{funcName}}: com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.Result]
 {{/asyncFunctions}}
   }
 
@@ -68,9 +67,9 @@ object {{ServiceName}} {
     extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}{{ServiceName}}[Future] {
 {{#thriftFunctions}}
     private[this] val __{{funcName}}_service =
-      ThriftServiceIface.resultFilter({{ServiceName}}.{{funcObjectName}}) andThen serviceIface.{{funcName}}
+      ThriftServiceIface.resultFilter(self.{{funcObjectName}}) andThen serviceIface.{{funcName}}
     def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
-      __{{funcName}}_service({{ServiceName}}.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+      __{{funcName}}_service(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
 {{/thriftFunctions}}
   }
 
@@ -82,7 +81,7 @@ object {{ServiceName}} {
 
 {{/withFinagle}}
 {{#thriftFunctions}}
-  object {{funcObjectName}} extends scrooge.ThriftMethod {
+  object {{funcObjectName}} extends com.twitter.scrooge.ThriftMethod {
 {{#functionArgsStruct}}
     {{>struct}}
 {{/functionArgsStruct}}
@@ -98,6 +97,13 @@ object {{ServiceName}} {
     val responseCodec = Result
     val oneway = {{is_oneway}}
   }
+
+  // Compatibility aliases.
+  val {{funcName}}$args = {{funcObjectName}}.Args
+  type {{funcName}}$args = {{funcObjectName}}.Args
+
+  val {{funcName}}$result = {{funcObjectName}}.Result
+  type {{funcName}}$result = {{funcObjectName}}.Result
 
 {{/thriftFunctions}}
 

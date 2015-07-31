@@ -198,6 +198,13 @@ trait TemplateGenerator
     case QualifiedID(names) => v(names.map(quoteKeyword).mkString("."))
   }
 
+  // Add namespace if id is unqualified.
+  def genQualifiedID(id: Identifier, namespace: Identifier): CodeFragment =
+    id match {
+      case sid: SimpleID => genID(sid.addScope(namespace))
+      case qid: QualifiedID => genID(qid)
+    }
+
   def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     constant match {
       case NullLiteral => v("null")
@@ -282,9 +289,10 @@ trait TemplateGenerator
    * When a named type is imported via include statement, we need to
    * qualify it using its full namespace
    */
-  def qualifyNamedType(t: NamedType): Identifier =
+  def qualifyNamedType(t: NamedType, namespace: Option[Identifier] = None): Identifier =
     t.scopePrefix match {
       case Some(scope) => t.sid.addScope(getIncludeNamespace(scope.name))
+      case None if namespace.isDefined => t.sid.addScope(namespace.get)
       case None => t.sid
     }
 
@@ -348,7 +356,7 @@ trait TemplateGenerator
     v(code)
   }
 
-  def genType(t: FunctionType): CodeFragment
+  def genType(t: FunctionType, namespace: Option[Identifier] = None): CodeFragment
 
   def genPrimitiveType(t: FunctionType): CodeFragment
 
@@ -420,7 +428,7 @@ trait TemplateGenerator
               case _ => "struct"
             }
 
-          val dict = structDict(struct, Some(namespace), includes, serviceOptions)
+          val dict = structDict(struct, Some(namespace), includes, serviceOptions, true)
           writeFile(file, templates.header, templates(templateName).generate(dict))
         }
         generatedFiles += file

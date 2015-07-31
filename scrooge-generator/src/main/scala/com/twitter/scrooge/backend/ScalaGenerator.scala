@@ -163,7 +163,7 @@ class ScalaGenerator(
     }
   }
 
-  def genType(t: FunctionType): CodeFragment = {
+  def genType(t: FunctionType, namespace: Option[Identifier] = None): CodeFragment = {
     val code = t match {
       case Void => "Unit"
       case OnewayVoid => "Unit"
@@ -176,12 +176,12 @@ class ScalaGenerator(
       case TString => "String"
       case TBinary => "ByteBuffer"
       case MapType(k, v, _) =>
-        "Map[" + genType(k).toData + ", " + genType(v).toData + "]"
+        "Map[" + genType(k, namespace).toData + ", " + genType(v, namespace).toData + "]"
       case SetType(x, _) =>
-        "Set[" + genType(x).toData + "]"
+        "Set[" + genType(x, namespace).toData + "]"
       case ListType(x, _) =>
-        "Seq[" + genType(x).toData + "]"
-      case n: NamedType => genID(qualifyNamedType(n).toTitleCase).toData
+        "Seq[" + genType(x, namespace).toData + "]"
+      case t: NamedType => genID(qualifyNamedType(t, namespace).toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }

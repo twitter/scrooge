@@ -1,8 +1,13 @@
 TMap _map_{{name}} = _iprot.readMapBegin();
 {{name}} = new HashMap<{{keyType}}, {{valueType}}>();
 int _i_{{name}} = 0;
-{{keyType}} {{keyName}};
-{{valueType}} {{valueName}};
+{{#keyReadWriteInfo}}
+  {{>qualifiedFieldType}} {{keyName}};
+{{/keyReadWriteInfo}}
+{{#valueReadWriteInfo}}
+  {{>qualifiedFieldType}} {{valueName}};
+{{/valueReadWriteInfo}}
+
 while (_i_{{name}} < _map_{{name}}.size) {
 {{#keyReadWriteInfo}}
   {{>readValue}}
