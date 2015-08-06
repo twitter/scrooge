@@ -42,7 +42,13 @@ public abstract class Option<A> {
       return true;
     }
 
+    @Override
+    public int hashCode() {
+      return this.a.hashCode();
+    }
+
     @SuppressWarnings("unchecked")
+    @Override
     public boolean equals(Object other) {
       if (!(other instanceof Some)) return false;
       Some<A> that = (Some<A>) other;
