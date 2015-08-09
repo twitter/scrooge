@@ -148,7 +148,7 @@ class JavaGenerator(
     }
   }
 
-  def genType(t: FunctionType): CodeFragment = {
+  def genType(t: FunctionType, namespace: Option[Identifier]): CodeFragment = {
     val code = t match {
       case Void => "Void"
       case OnewayVoid => "Void"

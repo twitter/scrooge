@@ -24,6 +24,9 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
   private static final TStruct STRUCT = new TStruct("{{StructNameForWire}}");
 {{#fields}}
   private static final TField {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, (short) {{id}});
+  {{#isEnum}}
+    private static final TField {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, (short) {{id}});
+  {{/isEnum}}
   final {{#optional}}Option<{{fieldType}}>{{/optional}}{{^optional}}{{primitiveFieldType}}{{/optional}} {{fieldName}};
 {{/fields}}
 

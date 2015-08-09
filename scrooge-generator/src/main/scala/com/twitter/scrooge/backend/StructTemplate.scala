@@ -44,6 +44,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case t: ListType =>
         val elt = sid.append("_element")
         TypeTemplate + Dictionary(
+          "fieldType" -> genType(t),
           "isList" -> v(Dictionary(
             "name" -> genID(sid),
             "eltName" -> genID(elt),
@@ -55,6 +56,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case t: SetType =>
         val elt =  sid.append("_element")
         TypeTemplate + Dictionary(
+          "fieldType" -> genType(t),
           "isSet" -> v(Dictionary(
             "name" -> genID(sid),
             "eltName" -> genID(elt),
@@ -68,6 +70,7 @@ trait StructTemplate { self: TemplateGenerator =>
         val key =  sid.append("_key")
         val value =  sid.append("_value")
         TypeTemplate + Dictionary(
+          "fieldType" -> genType(t),
           "isMap" -> v(Dictionary(
             "name" -> genID(sid),
             "keyConstType" -> genConstType(t.keyType),
@@ -83,18 +86,23 @@ trait StructTemplate { self: TemplateGenerator =>
           )))
       case t: StructType =>
         TypeTemplate + Dictionary(
+          "isNamedType" -> v(true),
+          "isImported" -> v(t.scopePrefix.isDefined),
+          "fieldType" -> genType(t),
           "isStruct" -> v(Dictionary(
-            "name" -> genID(sid),
-            "fieldType" -> genType(t)
+            "name" -> genID(sid)
           )))
       case t: EnumType =>
         TypeTemplate + Dictionary(
+          "isNamedType" -> v(true),
+          "isImported" -> v(t.scopePrefix.isDefined),
+          "fieldType" -> genType(t),
           "isEnum" -> v(Dictionary(
-            "name" -> genID(sid),
-            "fieldType" -> genType(t)
+            "name" -> genID(sid)
           )))
       case t: BaseType =>
         TypeTemplate + Dictionary(
+          "fieldType" -> genType(t),
           "isBase" -> v(Dictionary(
             "type" -> genType(t),
             "name" -> genID(sid),
@@ -106,7 +114,11 @@ trait StructTemplate { self: TemplateGenerator =>
     }
   }
 
-  def fieldsToDict(fields: Seq[Field], blacklist: Seq[String]) = {
+  def fieldsToDict(
+    fields: Seq[Field],
+    blacklist: Seq[String],
+    namespace: Option[Identifier] = None
+  ): Seq[Dictionary] = {
     fields.zipWithIndex map {
       case (field, index) =>
         val valueVariableID = field.sid.append("_item")
@@ -158,7 +170,7 @@ trait StructTemplate { self: TemplateGenerator =>
           }),
           "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
           "passthroughFields" -> {
-            val insides = buildPassthroughFields(field.fieldType)
+            val insides = buildPassthroughFields(field.fieldType, namespace)
             if (field.requiredness.isOptional) {
               v(Dictionary(
                 "ptIter" -> insides
@@ -225,24 +237,24 @@ trait StructTemplate { self: TemplateGenerator =>
     "ptMap" -> v(false),
     "ptPrimitive" -> v(false)
   )
-  private def buildPassthroughFields(fieldType: FieldType): Value = {
+  private def buildPassthroughFields(fieldType: FieldType, namespace: Option[Identifier]): Value = {
     val overrides =
       fieldType match {
         case _: StructType => Dictionary("ptStruct" ->
           v(Dictionary(
-            "className" -> genType(fieldType)
+            "className" -> genType(fieldType, namespace)
           ))
         )
         case t: SetType => Dictionary("ptIter" ->
-          buildPassthroughFields(t.eltType)
+          buildPassthroughFields(t.eltType, namespace)
         )
         case t: ListType => Dictionary("ptIter" ->
-          buildPassthroughFields(t.eltType)
+          buildPassthroughFields(t.eltType, namespace)
         )
         case t: MapType => Dictionary("ptMap" ->
           v(Dictionary(
-            "ptKey" -> buildPassthroughFields(t.keyType),
-            "ptValue" -> buildPassthroughFields(t.valueType)
+            "ptKey" -> buildPassthroughFields(t.keyType, namespace),
+            "ptValue" -> buildPassthroughFields(t.valueType, namespace)
           ))
         )
         case _ => Dictionary("ptPrimitive" -> v(true))
@@ -286,7 +298,8 @@ trait StructTemplate { self: TemplateGenerator =>
     struct: StructLike,
     namespace: Option[Identifier],
     includes: Seq[Include],
-    serviceOptions: Set[ServiceOption]
+    serviceOptions: Set[ServiceOption],
+    toplevel: Boolean = false // True if this struct is defined in its own file. False for internal structs.
   ): Dictionary = {
     val parentType = struct match {
       case e: Exception_ if (serviceOptions contains WithFinagle) =>
@@ -295,7 +308,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case u: Union => "ThriftUnion with ThriftStruct"
       case result: FunctionResult =>
         val resultType = getSuccessType(result)
-        s"scrooge.ThriftResponse[$resultType] with ThriftStruct"
+        s"ThriftResponse[$resultType] with ThriftStruct"
       case _ => "ThriftStruct"
     }
     val arity = struct.fields.size
@@ -310,13 +323,14 @@ trait StructTemplate { self: TemplateGenerator =>
 
     val fieldDictionaries = fieldsToDict(
       struct.fields,
-      if (isException) Seq("message") else Nil)
+      if (isException) Seq("message") else Nil,
+      namespace
+    )
 
-    val isPublic = namespace.isDefined
-    val structName = if (isPublic) genID(struct.sid.toTitleCase) else genID(struct.sid)
+    val structName = if (toplevel) genID(struct.sid.toTitleCase) else genID(struct.sid)
 
     Dictionary(
-      "public" -> v(isPublic),
+      "public" -> v(toplevel),
       "package" -> namespace.map(genID).getOrElse(v("")),
       "docstring" -> v(struct.docstring.getOrElse("")),
       "parentType" -> v(parentType),
@@ -327,8 +341,6 @@ trait StructTemplate { self: TemplateGenerator =>
         && struct.fields.exists(_.requiredness.isDefault)),
       "StructNameForWire" -> v(struct.originalName),
       "StructName" ->
-        // if isPublic, the struct comes from a Thrift definition. Otherwise
-        // it's an internal struct: fooMethod$args or fooMethod$result
         structName,
       "InstanceClassName" -> (if (isStruct) v("Immutable") else structName),
       "underlyingStructName" -> genID(struct.sid.prepend("_underlying_")),

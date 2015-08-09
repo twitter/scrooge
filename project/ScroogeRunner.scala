@@ -184,6 +184,11 @@ object ScroogeRunner {
         runScrooge(Seq(ApacheJava, Android), s"$base/src/test/thrift/standalone/exception_fields.thrift")
       }
 
+      section("scala/") {
+        val files = filesInDir(s"$base/src/test/thrift/scala") mkString " "
+        runScrooge(Seq(ApacheJava, Scala), files)
+      }
+
       section("constant_sets.thrift") {
         val file = s"$base/src/test/thrift/constant_sets.thrift"
         runScrooge(Seq(Java, Scala, Android), file)

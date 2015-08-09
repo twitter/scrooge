@@ -1,1 +1,1 @@
-{{name}} = {{fieldType}}.decode(_iprot);
+{{name}} = {{>qualifiedFieldType}}.decode(_iprot);

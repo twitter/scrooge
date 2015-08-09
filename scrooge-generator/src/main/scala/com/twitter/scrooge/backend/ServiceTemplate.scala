@@ -190,9 +190,10 @@ trait ServiceTemplate { self: TemplateGenerator =>
       parentService <- sp.service
     } yield (sp, parentService.functions)
 
+  // Collect functions from inherited services. Returns a map of ParentId to function.
+  // Does not include the service's functions.
   def collectParentFunctions(service: Service): Map[Identifier, Seq[Function]] = {
     val builder = Map.newBuilder[Identifier, Seq[Function]]
-    builder += (service.sid.toTitleCase -> service.functions)
     var next = getParentFunctions(service)
     while (next.isDefined) {
       val (parent, functions) = next.get
@@ -220,10 +221,10 @@ trait ServiceTemplate { self: TemplateGenerator =>
         genID(getServiceParentID(p)).append(".Iface")
       }),
       "parent" -> v(service.parent.map { p =>
-        genID(getServiceParentID(p))
+        genQualifiedID(getServiceParentID(p), namespace)
       }),
       "futureIfaceParent" -> v(service.parent.map { p =>
-        genID(getServiceParentID(p)).append(".FutureIface")
+        genQualifiedID(getServiceParentID(p), namespace).append(".FutureIface")
       }),
       "genericParent" -> service.parent.map { p =>
         genID(getServiceParentID(p)).append("[MM]")
@@ -243,14 +244,14 @@ trait ServiceTemplate { self: TemplateGenerator =>
           "functionArgsStruct" ->
             v(structDict(
               functionArgsStruct(f),
-              None,
+              Some(namespace),
               includes,
               options)),
           "internalResultStruct" -> {
             val functionResult = resultStruct(f)
             v(structDict(
               functionResult,
-              None,
+              Some(namespace),
               includes,
               options) +
               Dictionary(
@@ -259,8 +260,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
                 "exceptionValues" -> getExceptionFields(functionResult)
               )
             )
-            },
-          "funcObjectName" -> genID(f.funcName.toTitleCase),
+          },
+          "funcObjectName" -> genID(functionObjectName(f)),
           "argsProduct" -> v(productNOrUnit(f.args)),
           "unwrapArgs" -> v(unwrapArgs(f.args.length))
         ) + functionDictionary(f, Some("Future"))
@@ -272,13 +273,21 @@ trait ServiceTemplate { self: TemplateGenerator =>
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
       "withFinagle" -> v(withFinagle),
-      "inheritedFunctions" -> v(collectParentFunctions(service).flatMap {
-        case (parentId: Identifier, functions: Seq[Function]) =>
-          functions.map { f =>
-            functionDictionary(f, Some("Future")) ++=
-              (("ParentServiceName", genID(parentId)))
-          }
-      }.toSeq)
+      "inheritedFunctions" -> {
+        val ownFunctions: Seq[Dictionary] = service.functions.map {
+          f => functionDictionary(f, Some("Future")) ++=
+          (("ParentServiceName", v("self")))
+        }
+        val inheritedFunctions: Seq[Dictionary] =
+          collectParentFunctions(service).flatMap {
+            case (parentId: Identifier, functions: Seq[Function]) =>
+              functions.map { f =>
+                functionDictionary(f, Some("Future")) ++=
+                (("ParentServiceName", genQualifiedID(parentId, namespace)))
+              }
+          }.toSeq
+        v(ownFunctions ++ inheritedFunctions)
+      }
     )
   }
 }

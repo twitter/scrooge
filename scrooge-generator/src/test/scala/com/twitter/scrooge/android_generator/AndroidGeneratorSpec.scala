@@ -10,9 +10,9 @@ import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.{integration_android => androidGen}
-import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import com.twitter.scrooge.testutil.Spec
+import com.twitter.scrooge.testutil.Utils.verify
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TMemoryBuffer
 import org.mockito.Mockito._
@@ -433,19 +433,6 @@ class AndroidGeneratorSpec extends Spec {
       val controller = new StructController(doc.structs(0), false, generator, doc.namespace("android"))
       val sw = renderMustache("struct.mustache", controller)
       verify(sw, getFileContents("android_output/union_with_hashcode.txt"))
-    }
-  }
-
-  def verify(actual: String, expected: String, cleanEmptySemicolons: Boolean = true) {
-    val actualItems = ApacheCompatibilityHelpers.cleanWhitespace(actual, cleanEmptySemicolons)
-    val expectedItems = ApacheCompatibilityHelpers.cleanWhitespace(expected, cleanEmptySemicolons)
-    for (i <- 0 until actualItems.size) {
-      if (!actualItems(i).equals(expectedItems(i))) {
-        // No idea why the one below doesn't make the test red
-        assert(actualItems(i) == expectedItems(i))
-      } else {
-      }
-      actualItems(i) must be(expectedItems(i))
     }
   }
 
