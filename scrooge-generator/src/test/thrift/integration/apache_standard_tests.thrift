@@ -130,6 +130,16 @@ struct OneField {
   1: EmptyStruct field
 }
 
+struct StructWithMap {
+  1: map<string, i32> data,
+  2: list<i32> emptylist
+}
+
+const StructWithMap constWithRHS = {
+  "data": { "a": 1, "b": 2 },
+  "emptylist": []
+}
+
 service ThriftTest
 {
   /**
