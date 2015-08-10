@@ -122,9 +122,15 @@ class JavaGenerator(
     genID(enum.value.sid.toUpperCase.addScope(getTypeId.toTitleCase))
   }
 
-  // TODO
-  def genStruct(struct: StructRHS): CodeFragment = ???
+  def genStruct(struct: StructRHS): CodeFragment = {
+    val code = "new " + struct.sid.name + ".Builder()" + 
+        struct.elems.map { case (field, rhs) => 
+          "." + field.sid.name + "(" + genConstant(rhs) + ")"
+         }.mkString("") +".build()"
+     v(code)
+  }
 
+  // TODO
   def genUnion(union: UnionRHS): CodeFragment = ???
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
