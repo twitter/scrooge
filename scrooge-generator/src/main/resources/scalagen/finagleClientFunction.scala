@@ -5,7 +5,7 @@ private[this] object {{__stats_name}} {
   val FailuresScope = scopedStats.scope("{{clientFuncNameForWire}}").scope("failures")
 }
 {{#functionInfo}}
-{{>header}} = {
+{{>function}} = {
   {{__stats_name}}.RequestsCounter.incr()
   this.service(encodeRequest("{{clientFuncNameForWire}}", {{funcObjectName}}.Args({{argNames}}))) flatMap { response =>
     val result = decodeResponse(response, {{funcObjectName}}.Result)

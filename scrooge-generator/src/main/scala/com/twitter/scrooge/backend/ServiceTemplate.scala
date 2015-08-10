@@ -21,7 +21,7 @@ import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
 
 trait ServiceTemplate { self: TemplateGenerator =>
-  def functionDictionary(function: Function, generic: Option[String]): Dictionary = {
+  def functionDictionary(function: Function, generic: Option[String], namespace: Option[Identifier] = None): Dictionary = {
     val hasThrows = function.throws.size > 0
     val throwsDictionaries =
       if (hasThrows) {
@@ -41,7 +41,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "throws" -> v(throwsDictionaries),
       "funcName" -> genID(function.funcName.toCamelCase),
       "funcObjectName" -> genID(functionObjectName(function)),
-      "typeName" -> genType(function.funcType),
+      "typeName" -> genType(function.funcType, namespace),
       "fieldParams" -> genFieldParams(function.args), // A list of parameters with types: (a: A, b: B...)
       "argNames" -> {
         val code = function.args.map { field => genID(field.sid).toData }.mkString(", ")
@@ -51,10 +51,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
         function.args match {
           case Nil => v("Unit")
           case singleArg :: Nil => genType(singleArg.fieldType)
-          case args => {
+          case args =>
             val typesString = args.map { arg => genType(arg.fieldType) }.mkString(", ")
             v(s"($typesString)")
-          }
         }
       },
       "args" -> v(function.args.map { arg =>
@@ -122,8 +121,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "functions" -> v(service.functions.map {
         f =>
           Dictionary(
-            "header" -> v(templates("function")),
-            "functionInfo" -> v(functionDictionary(f, Some("Future"))),
+            "function" -> v(templates("function")),
+            "functionInfo" -> v(functionDictionary(f, Some("Future"), Some(namespace))),
             "clientFuncNameForWire" -> v(f.originalName),
             "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "type" -> genType(f.funcType),
@@ -255,16 +254,15 @@ trait ServiceTemplate { self: TemplateGenerator =>
               includes,
               options) +
               Dictionary(
-                "successFieldType" -> getSuccessType(functionResult),
+                "successFieldType" -> getSuccessType(functionResult, Some(namespace)),
                 "successFieldValue" -> getSuccessValue(functionResult),
                 "exceptionValues" -> getExceptionFields(functionResult)
               )
             )
           },
           "funcObjectName" -> genID(functionObjectName(f)),
-          "argsProduct" -> v(productNOrUnit(f.args)),
           "unwrapArgs" -> v(unwrapArgs(f.args.length))
-        ) + functionDictionary(f, Some("Future"))
+        ) + functionDictionary(f, Some("Future"), Some(namespace))
       }),
       "finagleClients" -> v(
         if (withFinagle) Seq(finagleClient(service, namespace)) else Seq()

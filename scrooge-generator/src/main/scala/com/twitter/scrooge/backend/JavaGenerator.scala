@@ -184,7 +184,7 @@ class JavaGenerator(
     v(code)
   }
 
-  def genFieldType(f: Field): CodeFragment = {
+  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment = {
     val code = if (f.requiredness.isOptional) {
       val baseType = genType(f.fieldType).toData
       "com.twitter.scrooge.Option<" + baseType + ">"

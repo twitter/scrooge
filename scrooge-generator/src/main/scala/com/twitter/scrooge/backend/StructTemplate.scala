@@ -277,9 +277,9 @@ trait StructTemplate { self: TemplateGenerator =>
     msgField.map { _.sid }
   }
 
-  def getSuccessType(result: FunctionResult): CodeFragment =
+  def getSuccessType(result: FunctionResult, namespace: Option[Identifier]): CodeFragment =
     result.success match {
-      case Some(field) => genType(field.fieldType)
+      case Some(field) => genType(field.fieldType, namespace)
       case None => v("Unit")
     }
 
@@ -307,7 +307,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case e: Exception_ => "ThriftException with ThriftStruct"
       case u: Union => "ThriftUnion with ThriftStruct"
       case result: FunctionResult =>
-        val resultType = getSuccessType(result)
+        val resultType = getSuccessType(result, namespace)
         s"ThriftResponse[$resultType] with ThriftStruct"
       case _ => "ThriftStruct"
     }
@@ -349,7 +349,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "isResponse" -> v(isResponse),
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
       "exceptionMessageField" -> exceptionMsgField.map(genID).getOrElse { v("")},
-      "product" -> v(productN(struct.fields)),
+      "product" -> v(productN(struct.fields, namespace)),
       "arity0" -> v(arity == 0),
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),

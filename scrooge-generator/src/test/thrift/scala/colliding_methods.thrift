@@ -5,6 +5,7 @@ namespace java thrift.test
 // Test struct names colliding with capitalized method names.
 struct Result1 {
 }
+
 struct Result2 {
 }
 

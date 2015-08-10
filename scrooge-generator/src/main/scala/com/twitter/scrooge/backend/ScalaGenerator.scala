@@ -190,8 +190,8 @@ class ScalaGenerator(
 
   def genPrimitiveType(t: FunctionType): CodeFragment = genType(t)
 
-  def genFieldType(f: Field): CodeFragment = {
-    val baseType = genType(f.fieldType).toData
+  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment = {
+    val baseType = genType(f.fieldType, namespace).toData
     val code =
       if (f.requiredness.isOptional) {
         "Option[" + baseType + "]"

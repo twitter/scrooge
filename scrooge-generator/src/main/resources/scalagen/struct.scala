@@ -189,14 +189,14 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   private[this] def eagerDecode(_iprot: TProtocol): {{StructName}} = {
 {{/withTrait}}
 {{^withTrait}}
-override def decode(_iprot: TProtocol): {{StructName}} = {
+  override def decode(_iprot: TProtocol): {{StructName}} = {
 {{/withTrait}}
 {{#fields}}
 {{#optional}}
-    var {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
+    var {{fieldName}}: _root_.scala.Option[{{>qualifiedFieldType}}] = _root_.scala.None
 {{/optional}}
 {{^optional}}
-    var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+    var {{fieldName}}: {{>qualifiedFieldType}} = {{defaultReadValue}}
 {{#required}}
     var {{gotName}} = false
 {{/required}}
@@ -265,13 +265,13 @@ override def decode(_iprot: TProtocol): {{StructName}} = {
 
 
 {{#fields}}
-  @inline private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
+  @inline private def {{readFieldValueName}}(_iprot: TProtocol): {{>qualifiedFieldType}} = {
 {{#readWriteInfo}}
     {{>readValue}}
 {{/readWriteInfo}}
   }
 
-  @inline private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
+  @inline private def {{writeFieldName}}({{valueVariableName}}: {{>qualifiedFieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
     {{writeFieldValueName}}({{valueVariableName}}, _oprot)
@@ -279,7 +279,7 @@ override def decode(_iprot: TProtocol): {{StructName}} = {
 {{/readWriteInfo}}
   }
 
-  @inline private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
+  @inline private def {{writeFieldValueName}}({{valueVariableName}}: {{>qualifiedFieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     {{>writeValue}}
 {{/readWriteInfo}}

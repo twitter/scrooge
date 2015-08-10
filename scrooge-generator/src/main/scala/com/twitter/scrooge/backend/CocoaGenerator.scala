@@ -237,7 +237,7 @@ class CocoaGenerator(
     v(code)
   }
 
-  def genFieldType(f: Field): CodeFragment = {
+  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment = {
     v(genType(f.fieldType).toData)
   }
 

@@ -8,7 +8,7 @@ private __Stats {{__stats_name}}() {
   return _{{__stats_name}};
 }
 
-{{#functionInfo}}{{>header}} {
+{{#functionInfo}}{{>function}} {
   {{__stats_name}}().requestsCounter.incr();
 
   Future<{{type}}> rv = this.service.apply(encodeRequest("{{clientFuncNameForWire}}", new {{funcObjectName}}.Args({{argNames}}))).flatMap(new Function<byte[], Future<{{type}}>>() {

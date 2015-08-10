@@ -360,7 +360,7 @@ trait TemplateGenerator
 
   def genPrimitiveType(t: FunctionType): CodeFragment
 
-  def genFieldType(f: Field): CodeFragment
+  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment
 
@@ -465,23 +465,15 @@ trait TemplateGenerator
   /**
    * Returns a String "scala.Product${N}[Type1, Type2, ...]" or "scala.Product".
    */
-  def productN(fields: Seq[Field]): String = {
+  def productN(fields: Seq[Field], namespace: Option[Identifier]): String = {
     val arity = fields.length
     if (arity >= 1 && arity <= 22) {
       val fieldTypes = fields.map { f =>
-        genFieldType(f).toData
+        genFieldType(f, namespace).toData
       }.mkString(", ")
       s"scala.Product$arity[$fieldTypes]"
     } else {
       "scala.Product"
     }
-  }
-
-  /**
-   * Like productN, but returns "Unit" for empty lists.
-   */
-  def productNOrUnit(fields: Seq[Field]): String = {
-    if (fields.isEmpty) "Unit"
-    else productN(fields)
   }
 }
