@@ -1,8 +1,10 @@
 package com.twitter.scrooge.backend
 
-import com.twitter.finagle.SourcedException
+import com.twitter.finagle.{Service, SourcedException}
+import com.twitter.finagle.thrift.ThriftServiceIface
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.scrooge.{ThriftStruct, ThriftException}
+import com.twitter.util.{Await, Future}
 import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
@@ -13,6 +15,11 @@ import thrift.test._
 import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
+import inheritance.aaa.{Aaa, Box}
+import inheritance.bbb.Bbb
+import inheritance.ccc.Ccc
+import inheritance.ccc.CccExtended
+import inheritance.ddd.Ddd
 
 class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
@@ -1131,6 +1138,27 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       struct.n must be("n")
       struct._2 must be("n")
       struct.productElement(1) must be("n")
+    }
+
+    "generate inherited services correctly" in { _ =>
+      val dddService = new Ddd.ServiceIface(
+        delete = new Service[Ddd.Delete.Args, Ddd.Delete.Result] {
+          def apply(args: Ddd.Delete.Args) = Future.value(Ddd.Delete.Result(Some(args.input)))
+        },
+        iiii = new Service[CccExtended.Iiii.Args, CccExtended.Iiii.Result] {
+          def apply(args: CccExtended.Iiii.Args) = Future.value(CccExtended.Iiii.Result(Some(345)))
+        },
+        setInt = new Service[Ccc.SetInt.Args, Ccc.SetInt.Result] {
+          def apply(args: Ccc.SetInt.Args) = Future.value(Ccc.SetInt.Result(Some(args.input)))
+        },
+        getInt = new Service[Bbb.GetInt.Args, Bbb.GetInt.Result] {
+          def apply(args: Bbb.GetInt.Args) = Future.value(Bbb.GetInt.Result(Some(5)))
+        },
+        getBox = new Service[Aaa.GetBox.Args, Aaa.GetBox.Result] {
+          def apply(args: Aaa.GetBox.Args) = Future.value(Aaa.GetBox.Result(Some(Box(4,6))))
+        })
+
+      Await.result(dddService.getInt(Bbb.GetInt.Args()).map(_.success)) must be(Some(5))
     }
   }
 }

@@ -155,7 +155,7 @@ trait TemplateGenerator
    * get the ID of a service parent.  Java and Scala implementations are different.
    */
   def getServiceParentID(parent: ServiceParent): Identifier = {
-    val identifier: Identifier = parent.prefix match {
+    val identifier: Identifier = parent.filename match {
       case Some(scope) => parent.sid.addScope(getIncludeNamespace(scope.name))
       case None => parent.sid
     }

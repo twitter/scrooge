@@ -271,10 +271,13 @@ case class TypeResolver(
   }
 
   def apply(parent: ServiceParent): ServiceParent = {
-    val parentID = parent.prefix match {
-      case Some(p) => parent.sid.addScope(p)
-      case None => parent.sid
+    parent.filename match {
+      case Some(filename) =>
+        val parentID = parent.sid.addScope(filename)
+        parent.copy(service = Some(resolveService(parentID)),
+          doc = includeMap.get(filename.name))
+      case None =>
+        parent.copy(service = Some(resolveService(parent.sid)))
     }
-    parent.copy(service = Some(resolveService(parentID)))
   }
 }

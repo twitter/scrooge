@@ -1,5 +1,7 @@
 package com.twitter.scrooge.ast
 
+import com.twitter.scrooge.frontend.ResolvedDocument
+
 
 sealed abstract class Definition extends DefinitionNode {
   val sid: SimpleID
@@ -86,5 +88,14 @@ case class Service(
 
 case class ServiceParent(
   sid: SimpleID,
-  prefix: Option[SimpleID],
-  service: Option[Service] = None)
+  /* Set if the parent service is imported from another file */
+  filename: Option[SimpleID],
+  // These are set by the TypeResolver after parsing.
+  /* Parent service */
+  service: Option[Service] = None,
+  /**
+   * Document where the parent service is defined.
+   * Set if the parent service is imported from another file.
+   */
+  doc: Option[ResolvedDocument] = None
+)

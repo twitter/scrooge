@@ -207,20 +207,21 @@ class TypeResolverSpec extends Spec {
     }
 
     "resolve a service parent from an included scope" in {
-      val service1 = Service(SimpleID("Super"), None, Nil, None)
-      val otherDoc = Document(Nil, Seq(service1))
+      val superSvc = Service(SimpleID("Super"), None, Nil, None)
+      val otherDoc = Document(Nil, Seq(superSvc))
       val include = Include("other.thrift", otherDoc)
-      val service2 = Service(
+      val resolver = TypeResolver().withMapping(include)
+      val subSvc = Service(
         SimpleID("Sub"),
         Some(ServiceParent(SimpleID("Super"), Some(SimpleID("other")))),
         Nil,
         None)
-      val resolver = TypeResolver().withMapping(include)
-      resolver(service2, None).definition must be(
-        service2.copy(parent = Some(ServiceParent(
+      resolver(subSvc, None).definition must be(
+        subSvc.copy(parent = Some(ServiceParent(
           SimpleID("Super"),
           Some(SimpleID("other")),
-          Some(service1)))))
+          Some(superSvc),
+          Some(ResolvedDocument(otherDoc, TypeResolver().withMapping(superSvc)))))))
     }
 
     "resolve a typedef from an included scope" in {
