@@ -140,7 +140,7 @@ class JavaGenerator(
   def genStruct(struct: StructRHS): CodeFragment = {
     val code = "new " + struct.sid.name + ".Builder()" + 
         struct.elems.map { case (field, rhs) => 
-          "." + field.sid.name + "(" + genConstant(rhs) + ")"
+          "." + field.sid.name + "(" + genConstant(rhs, Some(field.fieldType)) + ")"
          }.mkString("") +".build()"
      v(code)
   }
