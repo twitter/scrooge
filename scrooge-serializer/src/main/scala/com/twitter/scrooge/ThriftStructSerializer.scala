@@ -72,6 +72,18 @@ trait ThriftStructSerializer[T <: ThriftStruct] {
 
 trait BinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
   val protocolFactory = new TBinaryProtocol.Factory
+
+
+  override def fromBytes(bytes: Array[Byte]): T = {
+    val stream = new ByteArrayInputStream(bytes)
+    val proto = protocolFactory.getProtocol(new TIOStreamTransport(stream))
+    proto match {
+      case tbp: TBinaryProtocol => tbp.setReadLength(bytes.size)
+      case _ => ()
+    }
+    codec.decode(proto)
+  }
+
 }
 
 object BinaryThriftStructSerializer {

@@ -210,9 +210,19 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
   override def readDouble(): Double =
     java.lang.Double.longBitsToDouble(readI64())
 
+  private[this] def checkReadLength(length: Int): Unit = {
+    if (length < 0) {
+      throw new TException(s"Negative length: $length")
+    }
+    if (transport.getBytesRemainingInBuffer < length) {
+      throw new TException(s"Message length exceeded: $length")
+    }
+  }
+
   override def readString(): String =
     try {
       val size = readI32()
+      checkReadLength(size)
       val s = new String(transport.srcBuf, transport.getBufferPosition, size, utf8Charset)
       transport.advance(size)
       s
@@ -256,6 +266,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
   override def decodeString(buf: Array[Byte], off: Int): String =
     try {
       val size = decodeI32(buf, off)
+      checkReadLength(size)
       new String(buf, off + 4, size, utf8Charset)
     } catch {
       case e: UnsupportedEncodingException =>
@@ -293,6 +304,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
   override def offsetSkipString(): Int = {
     val pos = transport.getBufferPosition
     val size = readI32()
+    checkReadLength(size)
     transport.advance(size)
     pos
   }
@@ -301,6 +313,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
 
   override def readBinary(): ByteBuffer = {
     val size = readI32()
+    checkReadLength(size)
     val bb = ByteBuffer.wrap(transport.srcBuf, transport.getBufferPosition, size)
     transport.advance(size)
     bb
