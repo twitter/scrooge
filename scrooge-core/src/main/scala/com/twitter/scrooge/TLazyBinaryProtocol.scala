@@ -1,6 +1,7 @@
 package com.twitter.scrooge
 
 import java.io.UnsupportedEncodingException
+import java.lang.StringIndexOutOfBoundsException
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import org.apache.thrift.protocol._
@@ -266,9 +267,12 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
   override def decodeString(buf: Array[Byte], off: Int): String =
     try {
       val size = decodeI32(buf, off)
-      checkReadLength(size)
       new String(buf, off + 4, size, utf8Charset)
     } catch {
+      case e: StringIndexOutOfBoundsException =>
+        throw new TException(
+          s"Data is corrupt, string size reported as ${decodeI32(buf, off)}, array size is : ${buf.size} , with offset as $off"
+          )
       case e: UnsupportedEncodingException =>
         throw new TException("JVM DOES NOT SUPPORT UTF-8")
     }

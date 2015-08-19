@@ -25,7 +25,6 @@ class ThriftBadDataTest extends FunSuite {
   private[this] def decodeI16(buf: Array[Byte], offset: Int): Short =
     (((buf(offset) & 0xff) << 8) | ((buf(offset + 1) & 0xff))).toShort
 
-
   private[this] def setupBadByteArray(inputString: String): Array[Byte] = {
     val instance = SerializerStringTest(inputString)
     val tss = BinaryThriftStructSerializer(SerializerStringTest)
@@ -66,6 +65,30 @@ class ThriftBadDataTest extends FunSuite {
     val badBytes = setupBadByteArray(baseInputString)
     intercept[TException] {
       tss.fromBytes(badBytes)
+    }
+  }
+
+  test("LazyBinaryThriftStructSerializer does not throw when we lazy later decode a string") {
+    val inputString = "asdfbd 123rfsd"
+    val instance = SerializerStringTest(inputString)
+    val tss = BinaryThriftStructSerializer(SerializerStringTest)
+
+    val goodBytes = tss.toBytes(instance)
+
+    val lazyTss = LazyBinaryThriftStructSerializer(SerializerStringTest)
+    val decoded = lazyTss.fromBytes(goodBytes)
+    assert(decoded.strField == inputString)
+  }
+
+  test("LazyBinaryThriftStructSerializer does not OOM in bad decode case") {
+    // This ends up being pretty contrived, but someone will manage to hit it.
+    val inputString = "asdfbd 123rfsd"
+    val badBytes = setupBadByteArray(inputString)
+
+    val transport = new TArrayByteTransport
+    val proto = new TLazyBinaryProtocol(transport)
+    intercept[TException] {
+      proto.decodeString(badBytes, 3)
     }
   }
 
