@@ -76,11 +76,15 @@ class JavaGenerator(
     fieldType: Option[FieldType] = None
   ): CodeFragment = {
     val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
+    val typeArgument = listElemType match {
+      case Some(elemType) => "<" + genType(elemType).toData + ">"
+      case _ => ""
+    }
     val code =
       list.elems.map { e =>
         genConstant(e, listElemType).toData
       }.mkString(", ")
-    v(s"Utilities.makeList($code)")
+    v(s"Utilities.${typeArgument}makeList($code)")
   }
 
   def genSet(
@@ -93,11 +97,16 @@ class JavaGenerator(
     }
 
     val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
+    val typeArgument = setElemType match {
+      case Some(elemType) => "<" + genType(elemType).toData + ">"
+      case _ => ""
+    }
+
     val code = set.elems.map { e =>
       genConstant(e, setElemType).toData
     }.mkString(", ")
 
-    v(s"Utilities.$makeSetMethod($code)")
+    v(s"Utilities.$typeArgument$makeSetMethod($code)")
   }
 
   def genMap(
@@ -105,13 +114,19 @@ class JavaGenerator(
     fieldType: Option[FieldType] = None
   ): CodeFragment = {
     val mapType = fieldType.map(_.asInstanceOf[MapType])
+    val typeArguments = mapType match {
+      case Some(MapType(keyType, valueType, _)) =>
+        s"<${genType(keyType).toData},${genType(valueType).toData}>"
+      case _ => ""
+    }
+
     val code = map.elems.map { case (k, v) =>
       val key = genConstant(k, mapType.map(_.keyType)).toData
       val value = genConstant(v, mapType.map(_.valueType)).toData
-      s"Utilities.makeTuple($key, $value)"
+      s"Utilities.${typeArguments}makeTuple($key, $value)"
     }.mkString(", ")
 
-    v(s"Utilities.makeMap($code)")
+    v(s"Utilities.${typeArguments}makeMap($code)")
   }
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -122,9 +137,15 @@ class JavaGenerator(
     genID(enum.value.sid.toUpperCase.addScope(getTypeId.toTitleCase))
   }
 
-  // TODO
-  def genStruct(struct: StructRHS): CodeFragment = ???
+  def genStruct(struct: StructRHS): CodeFragment = {
+    val code = "new " + struct.sid.name + ".Builder()" + 
+        struct.elems.map { case (field, rhs) => 
+          "." + field.sid.name + "(" + genConstant(rhs, Some(field.fieldType)) + ")"
+         }.mkString("") +".build()"
+     v(code)
+  }
 
+  // TODO
   def genUnion(union: UnionRHS): CodeFragment = ???
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
