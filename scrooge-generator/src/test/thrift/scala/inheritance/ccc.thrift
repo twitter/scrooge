@@ -1,5 +1,5 @@
 #@namespace scala inheritance.ccc
-namespace java inheritance.java.ccc
+namespace java inheritance.thriftjava.ccc
 
 include "bbb.thrift"
 

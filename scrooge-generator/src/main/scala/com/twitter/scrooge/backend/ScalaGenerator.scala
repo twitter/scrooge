@@ -23,26 +23,27 @@ import com.twitter.scrooge.mustache.HandlebarLoader
 import java.io.File
 
 object ScalaGeneratorFactory extends GeneratorFactory {
-  val lang = "scala"
+  val language = "scala"
   val handlebarLoader = new HandlebarLoader("/scalagen/", ".scala")
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ScalaGenerator(
-    includeMap,
+  ): Generator = new ScalaGenerator(
+    doc,
     defaultNamespace,
     experimentFlags,
     handlebarLoader)
 }
 
 class ScalaGenerator(
-  val includeMap: Map[String, ResolvedDocument],
+  override val resolvedDoc: ResolvedDocument,
   val defaultNamespace: String,
   val experimentFlags: Seq[String],
   val templatesLoader: HandlebarLoader
-) extends TemplateGenerator {
+) extends TemplateGenerator(resolvedDoc) {
   def templates: HandlebarLoader = templatesLoader
+  val namespaceLanguage = "scala"
 
   val fileExtension = ".scala"
 
@@ -163,7 +164,7 @@ class ScalaGenerator(
     }
   }
 
-  def genType(t: FunctionType, namespace: Option[Identifier] = None): CodeFragment = {
+  def genType(t: FunctionType): CodeFragment = {
     val code = t match {
       case Void => "Unit"
       case OnewayVoid => "Unit"
@@ -176,12 +177,15 @@ class ScalaGenerator(
       case TString => "String"
       case TBinary => "ByteBuffer"
       case MapType(k, v, _) =>
-        "Map[" + genType(k, namespace).toData + ", " + genType(v, namespace).toData + "]"
+        "Map[" + genType(k).toData + ", " + genType(v).toData + "]"
       case SetType(x, _) =>
-        "Set[" + genType(x, namespace).toData + "]"
+        "Set[" + genType(x).toData + "]"
       case ListType(x, _) =>
-        "Seq[" + genType(x, namespace).toData + "]"
-      case t: NamedType => genID(qualifyNamedType(t, namespace).toTitleCase).toData
+        "Seq[" + genType(x).toData + "]"
+      case t: NamedType =>
+        val id = resolvedDoc.qualifyName(t, namespaceLanguage, defaultNamespace)
+        // Named types are capitalized.
+        genID(id.toTitleCase).toData
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
@@ -190,8 +194,8 @@ class ScalaGenerator(
 
   def genPrimitiveType(t: FunctionType): CodeFragment = genType(t)
 
-  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment = {
-    val baseType = genType(f.fieldType, namespace).toData
+  def genFieldType(f: Field): CodeFragment = {
+    val baseType = genType(f.fieldType).toData
     val code =
       if (f.requiredness.isOptional) {
         "Option[" + baseType + "]"

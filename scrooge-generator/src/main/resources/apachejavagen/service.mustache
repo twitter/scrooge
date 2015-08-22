@@ -86,11 +86,11 @@ public class {{name}} {
     public void send_{{name}}({{{argument_list_with_types}}}) throws TException
     {
       oprot_.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, ++seqid_));
-      {{name}}_args args = new {{name}}_args();
+      {{name}}_args __args__ = new {{name}}_args();
       {{#fields}}
-      args.set{{#cap}}{{name}}{{/cap}}({{name}});
+      __args__.set{{#cap}}{{name}}{{/cap}}({{name}});
       {{/fields}}
-      args.write(oprot_);
+      __args__.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }

@@ -9,28 +9,29 @@ import java.io.{OutputStreamWriter, FileOutputStream, File}
 import scala.collection.mutable
 
 object CocoaGeneratorFactory extends GeneratorFactory {
-  val lang = "cocoa"
+  val language = "cocoa"
   val headerTemplateLoader = new HandlebarLoader("/cocoagen/", ".h")
   val implementationTemplateLoader = new HandlebarLoader("/cocoagen/", ".m")
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new CocoaGenerator(
-    includeMap,
+  ): Generator = new CocoaGenerator(
+    doc,
     defaultNamespace,
     headerTemplateLoader,
-    implementationTemplateLoader,
-    lang)
+    implementationTemplateLoader
+  )
 }
 
 class CocoaGenerator(
-  val includeMap: Map[String, ResolvedDocument],
+  val doc: ResolvedDocument,
   val defaultNamespace: String,
   val headerTemplateLoader: HandlebarLoader,
-  val implementationTemplateLoader: HandlebarLoader,
-  val lang: String
-) extends TemplateGenerator {
+  val implementationTemplateLoader: HandlebarLoader
+) extends TemplateGenerator(doc) {
+
+  val namespaceLanguage = "cocoa"
 
   val fileExtension = ".m"
   val headerExtension = ".h"
@@ -178,11 +179,11 @@ class CocoaGenerator(
   }
 
   override def getNamespace(doc: Document): Identifier =
-    doc.namespace(lang) getOrElse SimpleID(defaultNamespace)
+    doc.namespace(namespaceLanguage) getOrElse SimpleID(defaultNamespace)
 
   override def getIncludeNamespace(includeFileName: String): Identifier = {
     val cocoaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => doc.document.namespace(lang)
+      doc: ResolvedDocument => doc.document.namespace(namespaceLanguage)
     }
     cocoaNamespace getOrElse SimpleID(defaultNamespace)
   }
@@ -215,7 +216,7 @@ class CocoaGenerator(
   def toMutable(t: FieldType): (String, String) = ("", "")
   def toMutable(f: Field): (String, String) = ("", "")
 
-  def genType(t: FunctionType, namespace: Option[Identifier] = None): CodeFragment = {
+  def genType(t: FunctionType): CodeFragment = {
     val code = t match {
       case Void => "void"
       case OnewayVoid => "void"
@@ -237,7 +238,7 @@ class CocoaGenerator(
     v(code)
   }
 
-  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment = {
+  def genFieldType(f: Field): CodeFragment = {
     v(genType(f.fieldType).toData)
   }
 
@@ -265,14 +266,13 @@ class CocoaGenerator(
   }
 
   override def apply(
-    _doc: Document,
     serviceOptions: Set[ServiceOption],
     outputPath: File,
     dryRun: Boolean = false
   ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
-    val doc = normalizeCase(_doc)
-    val namespace = getNamespace(_doc)
+    val doc = normalizeCase(resolvedDoc.document)
+    val namespace = getNamespace(resolvedDoc.document)
     currentNamespace = namespace.fullName
     val packageDir = outputPath
     val includes = doc.headers.collect {

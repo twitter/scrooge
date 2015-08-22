@@ -1,4 +1,3 @@
-
 #@namespace scala collisions
 namespace java collisions_java
 
@@ -16,3 +15,11 @@ service MyService {
   i32 setMethod(1: Result result)
   Args anotherMethod(1: Args a)
 }
+
+
+service ServiceWithCollections {
+  list<Result> query(Args args)
+  map<Args, list<Result>> nested()
+  set<Result> moreNested(set<list<Args>> args)
+}
+

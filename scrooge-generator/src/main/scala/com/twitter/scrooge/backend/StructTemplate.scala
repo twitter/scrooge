@@ -96,7 +96,9 @@ trait StructTemplate { self: TemplateGenerator =>
         TypeTemplate + Dictionary(
           "isNamedType" -> v(true),
           "isImported" -> v(t.scopePrefix.isDefined),
-          "fieldType" -> genType(t),
+          "fieldType" -> {
+            genType(t.copy(enum = t.enum.copy(t.enum.sid.toTitleCase)))
+          },
           "isEnum" -> v(Dictionary(
             "name" -> genID(sid)
           )))
@@ -170,7 +172,7 @@ trait StructTemplate { self: TemplateGenerator =>
           }),
           "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
           "passthroughFields" -> {
-            val insides = buildPassthroughFields(field.fieldType, namespace)
+            val insides = buildPassthroughFields(field.fieldType)
             if (field.requiredness.isOptional) {
               v(Dictionary(
                 "ptIter" -> insides
@@ -237,24 +239,24 @@ trait StructTemplate { self: TemplateGenerator =>
     "ptMap" -> v(false),
     "ptPrimitive" -> v(false)
   )
-  private def buildPassthroughFields(fieldType: FieldType, namespace: Option[Identifier]): Value = {
+  private def buildPassthroughFields(fieldType: FieldType): Value = {
     val overrides =
       fieldType match {
         case _: StructType => Dictionary("ptStruct" ->
           v(Dictionary(
-            "className" -> genType(fieldType, namespace)
+            "className" -> genType(fieldType)
           ))
         )
         case t: SetType => Dictionary("ptIter" ->
-          buildPassthroughFields(t.eltType, namespace)
+          buildPassthroughFields(t.eltType)
         )
         case t: ListType => Dictionary("ptIter" ->
-          buildPassthroughFields(t.eltType, namespace)
+          buildPassthroughFields(t.eltType)
         )
         case t: MapType => Dictionary("ptMap" ->
           v(Dictionary(
-            "ptKey" -> buildPassthroughFields(t.keyType, namespace),
-            "ptValue" -> buildPassthroughFields(t.valueType, namespace)
+            "ptKey" -> buildPassthroughFields(t.keyType),
+            "ptValue" -> buildPassthroughFields(t.valueType)
           ))
         )
         case _ => Dictionary("ptPrimitive" -> v(true))
@@ -277,9 +279,9 @@ trait StructTemplate { self: TemplateGenerator =>
     msgField.map { _.sid }
   }
 
-  def getSuccessType(result: FunctionResult, namespace: Option[Identifier]): CodeFragment =
+  def getSuccessType(result: FunctionResult): CodeFragment =
     result.success match {
-      case Some(field) => genType(field.fieldType, namespace)
+      case Some(field) => genType(field.fieldType)
       case None => v("Unit")
     }
 
@@ -307,7 +309,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case e: Exception_ => "ThriftException with ThriftStruct"
       case u: Union => "ThriftUnion with ThriftStruct"
       case result: FunctionResult =>
-        val resultType = getSuccessType(result, namespace)
+        val resultType = getSuccessType(result)
         s"ThriftResponse[$resultType] with ThriftStruct"
       case _ => "ThriftStruct"
     }

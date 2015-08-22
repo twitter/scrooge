@@ -1,5 +1,5 @@
-
-namespace java thrift.test
+#@namespace scala collisions
+namespace java collisions_java
 
 
 // Test struct names colliding with capitalized method names.

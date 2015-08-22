@@ -18,7 +18,7 @@ package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast._
 import scala.collection.mutable.ArrayBuffer
-import scala.util.parsing.input.Positional
+import scala.util.parsing.input.{NoPosition, Positional}
 
 class PositionalException(message: String, node: Positional)
   extends Exception(s"$message\n${node.pos.longString}")
@@ -29,7 +29,76 @@ case class UndefinedSymbolException(name: String, node: Positional) extends Posi
 case class TypeMismatchException(name: String, node: Positional) extends PositionalException(name, node)
 case class QualifierNotFoundException(name: String, node: Positional) extends PositionalException(name, node)
 
-case class ResolvedDocument(document: Document, resolver: TypeResolver)
+case class ResolvedDocument(document: Document, resolver: TypeResolver) {
+  /**
+   * Given an ID, produce its FQN (e.g. a Java FQN) by appending the namespace.
+   */
+  def qualifySimpleID(
+    sid: SimpleID,
+    language: String,
+    defaultNamespace: String,
+    fallbackToJavaNamespace: Boolean = true
+  ): Identifier = {
+    val fallback = if (fallbackToJavaNamespace) document.namespace("java") else None
+    val namespace = document.namespace(language).orElse(fallback).getOrElse(SimpleID(defaultNamespace))
+    sid.addScope(namespace)
+  }
+
+  /**
+   * Given a type, produce its FQN (e.g. a Java FQN) by appending the namespace.
+   */
+  def qualifyName(
+    name: NamedType,
+    language: String,
+    defaultNamespace: String
+  ): Identifier = {
+    name.scopePrefix match {
+      case Some(filename) =>
+        resolver.includeMap(filename.name).qualifySimpleID(name.sid, language, defaultNamespace)
+      case None =>
+        qualifySimpleID(name.sid, language, defaultNamespace)
+    }
+  }
+
+  /**
+   * Collect the chain of services extended by the given service.
+   * Returns pairs (resolvedDoc, service) -- resolvedDoc contains service
+   * and should be used to qualify types used by the service.
+   */
+  def collectParentServices(service: Service): Seq[(ResolvedDocument, Service)] = {
+    service.parent match {
+      case None => Nil
+      case Some(ServiceParent(sid, None)) =>
+        val parentService = resolver.resolveService(sid)
+        (this, parentService) +: collectParentServices(parentService)
+      case Some(ServiceParent(sid, Some(filename))) =>
+        val doc: ResolvedDocument = resolver.includeMap(filename.name)
+        val parentService = doc.resolver.resolveService(sid)
+        (doc, parentService) +: doc.collectParentServices(parentService)
+    }
+  }
+
+  /**
+   * Collect and resolve services extended by the given service.
+   * @return a list of [[ResolvedService ResolvedServices]] that contain FQNs for the parent services.
+   */
+  def resolveParentServices(
+    service: Service,
+    namespaceLanguage: String,
+    defaultNamespace: String
+  ): Seq[ResolvedService] = {
+    val resolvedServices: Seq[(ResolvedDocument, Service)] = collectParentServices(service)
+    resolvedServices.map { case (rdoc, svc) =>
+      ResolvedService(
+        rdoc.qualifySimpleID(svc.sid.toTitleCase, namespaceLanguage, defaultNamespace),
+        svc
+      )
+    }
+  }
+}
+
+case class ResolvedService(serviceID: Identifier, service: Service)
+
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
 
 case class TypeResolver(
@@ -38,31 +107,35 @@ case class TypeResolver(
     serviceMap: Map[String, Service] = Map.empty,
     includeMap: Map[String, ResolvedDocument] = Map.empty) {
 
-  def getResolver(qid: QualifiedID) = {
-    includeMap.get(qid.names.head).getOrElse(throw new QualifierNotFoundException(qid.fullName, qid)).resolver
+  protected def getResolver(includePath: String, pos: Positional = new Positional { pos = NoPosition }): TypeResolver = {
+    includeMap.get(includePath).getOrElse(throw new QualifierNotFoundException(includePath, pos)).resolver
   }
 
   def resolveFieldType(id: Identifier): FieldType = id match {
     case SimpleID(name, _) => typeMap.get(name).getOrElse(throw new TypeNotFoundException(name, id))
-    case qid: QualifiedID => getResolver(qid).resolveFieldType(qid.tail)
+    case qid: QualifiedID => getResolver(qid.names.head, qid).resolveFieldType(qid.tail)
   }
 
-  def resolveService(id: Identifier): Service = id match {
-    case SimpleID(name, _) => serviceMap.get(name).getOrElse(throw new UndefinedSymbolException(name, id))
-    case qid: QualifiedID => getResolver(qid).resolveService(qid.tail)
-  }
+  def resolveServiceParent(parent: ServiceParent): Service =
+    parent.filename match {
+      case None => resolveService(parent.sid)
+      case Some(filename) => getResolver(filename.name).resolveService(parent.sid)
+    }
+
+  def resolveService(sid: SimpleID): Service = serviceMap.get(sid.name).getOrElse(
+    throw new UndefinedSymbolException(sid.name, sid))
 
   def resolveConst(id: Identifier): (FieldType, RHS) = id match {
     case SimpleID(name, _) =>
       val const = constMap.get(name).getOrElse(throw new UndefinedConstantException(name, id))
       (const.fieldType, const.value)
-    case qid: QualifiedID => getResolver(qid).resolveConst(qid.tail)
+    case qid: QualifiedID => getResolver(qid.names.head).resolveConst(qid.tail)
   }
 
   /**
    * Returns a new TypeResolver with the given include mapping added.
    */
-  def withMapping(inc: Include): TypeResolver = {
+  def withInclude(inc: Include): TypeResolver = {
     val resolver = TypeResolver()
     val resolvedDocument = resolver(inc.document, Some(inc.prefix))
     copy(includeMap = includeMap + (inc.prefix.name -> resolvedDocument))
@@ -71,21 +144,21 @@ case class TypeResolver(
   /**
    * Returns a new TypeResolver with the given type mapping added.
    */
-  def withMapping(name: String, fieldType: FieldType): TypeResolver = {
+  def withType(name: String, fieldType: FieldType): TypeResolver = {
     copy(typeMap = typeMap + (name -> fieldType))
   }
 
   /**
    * Returns a new TypeResolver with the given constant added.
    */
-  def withMapping(const: ConstDefinition): TypeResolver = {
+  def withConst(const: ConstDefinition): TypeResolver = {
     copy(constMap = constMap + (const.sid.name -> const))
   }
 
   /**
    * Returns a new TypeResolver with the given service added.
    */
-  def withMapping(service: Service): TypeResolver = {
+  def withService(service: Service): TypeResolver = {
     copy(serviceMap = serviceMap + (service.sid.name -> service))
   }
 
@@ -100,7 +173,7 @@ case class TypeResolver(
 
     for (i <- includes) {
       try {
-        resolver = resolver.withMapping(i)
+        resolver = resolver.withInclude(i)
       } catch {
         case ex: Throwable =>
           throw new FileParseException(filename = i.filePath, cause = ex)
@@ -127,33 +200,35 @@ case class TypeResolver(
         val resolved = apply(t)
         ResolvedDefinition(
           d.copy(fieldType = resolved),
-          withMapping(sid.name, resolved))
+          withType(sid.name, resolved))
       case s @ Struct(sid, _, fs, _, _) =>
         val resolved = s.copy(fields = fs.map(apply))
         ResolvedDefinition(
           resolved,
-          withMapping(sid.name, StructType(resolved, scopePrefix)))
+          withType(sid.name, StructType(resolved, scopePrefix)))
       case u @ Union(sid, _, fs, _, _) =>
         val resolved = u.copy(fields = fs.map(apply))
         ResolvedDefinition(
           resolved,
-          withMapping(sid.name, StructType(resolved, scopePrefix)))
+          withType(sid.name, StructType(resolved, scopePrefix)))
       case e @ Exception_(sid, _, fs, _) =>
         val resolved = e.copy(fields = fs.map(apply))
         ResolvedDefinition(
           resolved,
-          withMapping(sid.name, StructType(resolved, scopePrefix)))
+          withType(sid.name, StructType(resolved, scopePrefix)))
       case c @ ConstDefinition(_, t, v, _) =>
         val fieldType = apply(t)
         val resolved = c.copy(fieldType = fieldType, value = apply(v, fieldType))
-        ResolvedDefinition(resolved, withMapping(resolved))
-      case s @ Service(sid, p, fs, _) =>
-        val resolved = s.copy(parent = p.map(apply), functions = fs.map(apply))
-        ResolvedDefinition(resolved, withMapping(resolved))
+        ResolvedDefinition(resolved, withConst(resolved))
+      case s @ Service(sid, parent, fs, _) =>
+        // No need to modify Service, but check that we can resolve parent.
+        parent.foreach { serviceParent => resolveServiceParent(serviceParent) }
+        val resolved = s.copy(functions = fs.map(apply))
+        ResolvedDefinition(resolved, withService(resolved))
       case e @ Enum(sid, _, _, _) =>
-        ResolvedDefinition(e, withMapping(sid.name, EnumType(e, scopePrefix)))
+        ResolvedDefinition(e, withType(sid.name, EnumType(e, scopePrefix)))
       case s @ Senum(sid, _) =>
-        ResolvedDefinition(s, withMapping(sid.name, TString))
+        ResolvedDefinition(s, withType(sid.name, TString))
       case d: EnumField => ResolvedDefinition(d, this)
       case d: FunctionArgs => ResolvedDefinition(d, this)
       case d: FunctionResult => ResolvedDefinition(d, this)
@@ -268,16 +343,5 @@ case class TypeResolver(
       constRHS
     }
     case _ => c
-  }
-
-  def apply(parent: ServiceParent): ServiceParent = {
-    parent.filename match {
-      case Some(filename) =>
-        val parentID = parent.sid.addScope(filename)
-        parent.copy(service = Some(resolveService(parentID)),
-          doc = includeMap.get(filename.name))
-      case None =>
-        parent.copy(service = Some(resolveService(parent.sid)))
-    }
   }
 }

@@ -23,6 +23,7 @@ case class ReferenceType(id: Identifier) extends FieldType
 
 sealed trait NamedType extends FieldType {
   def sid: SimpleID
+  /** Filename of the containing file if the type is included from another file */
   def scopePrefix: Option[SimpleID]
 }
 

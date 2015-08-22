@@ -32,7 +32,12 @@ class ApacheJavaGeneratorSpec extends Spec {
   val templateCache = new TrieMap[String, Mustache]
 
   def getGenerator(doc0: Document, genHashcode: Boolean = false) = {
-    new ApacheJavaGenerator(Map(), "thrift", templateCache, genHashcode = genHashcode)
+    new ApacheJavaGenerator(
+      ResolvedDocument(new Document(Seq(), Seq()), TypeResolver()),
+      "thrift",
+      templateCache,
+      genHashcode = genHashcode
+    )
   }
 
   def getFileContents(resource: String) = {
@@ -167,7 +172,14 @@ class ApacheJavaGeneratorSpec extends Spec {
       when(baseDoc.namespace("java")) thenReturn Some(QualifiedID(Seq("com", "twitter", "thrift")))
       when(parentDoc.document) thenReturn baseDoc
       val doc = generateDoc(getFileContents("test_thrift/service_with_parent_different_namespace.thrift"))
-      val generator = new ApacheJavaGenerator(Map("service" -> parentDoc), "thrift", templateCache, false)
+      val generator = new ApacheJavaGenerator(
+        ResolvedDocument(new Document(Seq(), Seq()), TypeResolver(
+          includeMap = Map("service" -> parentDoc)
+        )),
+        "thrift",
+        templateCache,
+        false
+      )
       val controller = new ServiceController(doc.services(0), generator, doc.namespace("java"))
       val sw = renderMustache("service.mustache", controller)
       verify(sw, getFileContents("apache_output/other_service.txt"))

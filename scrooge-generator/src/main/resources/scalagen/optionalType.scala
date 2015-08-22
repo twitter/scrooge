@@ -1,1 +1,1 @@
-{{#optional}}_root_.scala.Option[{{/optional}}{{>qualifiedFieldType}}{{#optional}}]{{/optional}}
+{{#optional}}_root_.scala.Option[{{/optional}}{{fieldType}}{{#optional}}]{{/optional}}

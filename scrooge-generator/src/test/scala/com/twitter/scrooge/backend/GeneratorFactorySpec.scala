@@ -1,23 +1,33 @@
 package com.twitter.scrooge.backend
 
-import com.twitter.scrooge.frontend.ResolvedDocument
+import com.twitter.scrooge.ast.Document
+import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.testutil.Spec
 
 class TestGeneratorFactory extends GeneratorFactory {
-  val lang = "test"
+  val language = "test"
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ScalaGenerator(includeMap, defaultNamespace, experimentFlags,
-    new HandlebarLoader("/scalagen/", ".scala"))
+  ): Generator = new ScalaGenerator(
+    doc,
+    defaultNamespace,
+    experimentFlags,
+    new HandlebarLoader("/scalagen/", ".scala")
+  )
 }
 
 class GeneratorFactorySpec extends Spec {
   "GeneratorFactory" should {
     "be loadable" in {
-      val generator = GeneratorFactory("test", Map.empty[String, ResolvedDocument], "", Seq.empty[String])
+      val generator = GeneratorFactory(
+        "test",
+        ResolvedDocument(new Document(Seq(), Seq()), TypeResolver()),
+        "",
+        Seq.empty[String])
+
       generator.isInstanceOf[ScalaGenerator] must be(true)
     }
   }

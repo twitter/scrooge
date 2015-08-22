@@ -1,36 +1,37 @@
 package com.twitter.scrooge.android_generator
 
-import com.twitter.scrooge.ast._
 import com.github.mustachejava.{Mustache, DefaultMustacheFactory}
+import com.twitter.scrooge.ast.ListType
+import com.twitter.scrooge.ast.MapType
+import com.twitter.scrooge.ast.ReferenceType
+import com.twitter.scrooge.ast.SetType
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.backend.{GeneratorFactory, Generator, ServiceOption}
+import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.scrooge.java_generator.{ApacheJavaGenerator, TypeController}
 import com.twitter.scrooge.mustache.ScalaObjectHandler
 import java.io.{FileWriter, File, StringWriter}
-import com.twitter.scrooge.ast.SetType
-import com.twitter.scrooge.ast.MapType
-import com.twitter.scrooge.ast.ListType
-import com.twitter.scrooge.ast.ReferenceType
-import com.twitter.scrooge.java_generator.{ApacheJavaGenerator, TypeController}
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
-import com.twitter.scrooge.backend.{GeneratorFactory, ThriftGenerator, ServiceOption}
-import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 
 object AndroidGeneratorFactory extends GeneratorFactory {
-  val lang = "android"
+  val language = "android"
   private val templateCache = new TrieMap[String, Mustache]
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new AndroidGenerator(includeMap, defaultNamespace, templateCache)
+  ): Generator = new AndroidGenerator(doc, defaultNamespace, templateCache)
 }
 
 
 class AndroidGenerator(
-    includeMap: Map[String, ResolvedDocument],
+    resolvedDoc: ResolvedDocument,
     defaultNamespace: String,
     templateCache: TrieMap[String, Mustache],
     genHashcode: Boolean = true
-  ) extends ApacheJavaGenerator(includeMap, defaultNamespace, templateCache, genHashcode) {
+  ) extends ApacheJavaGenerator(resolvedDoc, defaultNamespace, templateCache, genHashcode) {
+  override val namespaceLanguage = "android"
 
   override def renderMustache(template: String, controller: Any = this) = {
     val sw = new StringWriter()
@@ -112,7 +113,12 @@ class AndroidGenerator(
     }
   }
 
-  override def apply(doc: Document, serviceOptions: Set[ServiceOption], outputPath: File, dryRun: Boolean = false) = {
+  override def apply(
+    serviceOptions: Set[ServiceOption],
+    outputPath: File,
+    dryRun: Boolean = false
+  ): Iterable[File] = {
+    val doc = resolvedDoc.document
     val generatedFiles = new mutable.ListBuffer[File]
     val namespace = getNamespace(doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)

@@ -193,10 +193,10 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/withTrait}}
 {{#fields}}
 {{#optional}}
-    var {{fieldName}}: _root_.scala.Option[{{>qualifiedFieldType}}] = _root_.scala.None
+    var {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
 {{/optional}}
 {{^optional}}
-    var {{fieldName}}: {{>qualifiedFieldType}} = {{defaultReadValue}}
+    var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
 {{#required}}
     var {{gotName}} = false
 {{/required}}
@@ -265,13 +265,13 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 
 {{#fields}}
-  @inline private def {{readFieldValueName}}(_iprot: TProtocol): {{>qualifiedFieldType}} = {
+  @inline private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
 {{#readWriteInfo}}
     {{>readValue}}
 {{/readWriteInfo}}
   }
 
-  @inline private def {{writeFieldName}}({{valueVariableName}}: {{>qualifiedFieldType}}, _oprot: TProtocol): Unit = {
+  @inline private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
     {{writeFieldValueName}}({{valueVariableName}}, _oprot)
@@ -279,7 +279,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/readWriteInfo}}
   }
 
-  @inline private def {{writeFieldValueName}}({{valueVariableName}}: {{>qualifiedFieldType}}, _oprot: TProtocol): Unit = {
+  @inline private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
 {{#readWriteInfo}}
     {{>writeValue}}
 {{/readWriteInfo}}

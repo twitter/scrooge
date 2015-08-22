@@ -76,7 +76,7 @@ class Compiler {
         val resolvedDoc = TypeResolver()(doc)
         val generator = GeneratorFactory(
           language,
-          resolvedDoc.resolver.includeMap,
+          resolvedDoc,
           defaultNamespace,
           experimentFlags)
 
@@ -86,7 +86,6 @@ class Compiler {
         }
 
         val generatedFiles = generator(
-          resolvedDoc.document,
           flags.toSet,
           new File(destFolder),
           dryRun

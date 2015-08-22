@@ -21,9 +21,9 @@ class TypeResolverSpec extends Spec {
     val ex = Exception_(SimpleID("Boom"), "Boom", Seq(Field(1, SimpleID("msg"), "msg", enumRef)), None)
     val exType = new StructType(ex)
     val resolver = TypeResolver()
-      .withMapping(enum.sid.name, enumType)
-      .withMapping(struct.sid.name, structType)
-      .withMapping(ex.sid.name, exType)
+      .withType(enum.sid.name, enumType)
+      .withType(struct.sid.name, structType)
+      .withType(ex.sid.name, exType)
 
     def createStruct(structName: String, fieldType: FieldType) = {
       val fieldName: String = structName + "_field"
@@ -190,18 +190,16 @@ class TypeResolverSpec extends Spec {
         Some(ServiceParent(SimpleID("Super"), None)),
         Nil,
         None)
-      val resolver = TypeResolver().withMapping(service1)
-      resolver(service2, None).definition must be(service2.copy(parent =
-        Some(ServiceParent(
-          service1.sid,
-          None,
-          Some(service1)))))
+      val resolver = TypeResolver().withService(service1)
+      resolver(service2, None).definition must be(
+        service2.copy(
+          parent = Some(ServiceParent(service1.sid, None))))
     }
 
     "resolve a parameter from an included scope" in {
       val oneInt = Struct(SimpleID("TestRequest"), "TestRequest", Seq(), None, Map.empty)
       val doc = Document(Nil, Seq(oneInt))
-      val resolver = TypeResolver().withMapping(Include("other.thrift", doc))
+      val resolver = TypeResolver().withInclude(Include("other.thrift", doc))
       val resolveFieldType: FieldType = resolver.resolveFieldType(QualifiedID(Seq("other", "TestRequest")))
       resolveFieldType.asInstanceOf[StructType].scopePrefix must be(Some(SimpleID("other")))
     }
@@ -210,7 +208,7 @@ class TypeResolverSpec extends Spec {
       val superSvc = Service(SimpleID("Super"), None, Nil, None)
       val otherDoc = Document(Nil, Seq(superSvc))
       val include = Include("other.thrift", otherDoc)
-      val resolver = TypeResolver().withMapping(include)
+      val resolver = TypeResolver().withInclude(include)
       val subSvc = Service(
         SimpleID("Sub"),
         Some(ServiceParent(SimpleID("Super"), Some(SimpleID("other")))),
@@ -219,9 +217,7 @@ class TypeResolverSpec extends Spec {
       resolver(subSvc, None).definition must be(
         subSvc.copy(parent = Some(ServiceParent(
           SimpleID("Super"),
-          Some(SimpleID("other")),
-          Some(superSvc),
-          Some(ResolvedDocument(otherDoc, TypeResolver().withMapping(superSvc)))))))
+          Some(SimpleID("other"))))))
     }
 
     "resolve a typedef from an included scope" in {
@@ -327,6 +323,9 @@ class TypeResolverSpec extends Spec {
           "const i32 NotAService = 4\n" +
           "service S extends NotAService {}"
 
+        val parser = new ThriftParser(Importer("."), strict = true)
+
+        val doc = parser.parse(input, parser.document)
         val ex = intercept[UndefinedSymbolException] {
           resolve(input)
         }
@@ -353,8 +352,6 @@ class TypeResolverSpec extends Spec {
         val ex = intercept[QualifierNotFoundException] {
           resolve(input)
         }
-        ex.node.pos.line mustBe 1
-        ex.node.pos.column mustBe 15
       }
     }
   }

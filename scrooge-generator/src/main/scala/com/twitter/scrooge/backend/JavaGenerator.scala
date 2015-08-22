@@ -24,20 +24,21 @@ import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.mustache.HandlebarLoader
 
 object JavaGeneratorFactory extends GeneratorFactory {
-  val lang = "experimental-java"
+  val language = "experimental-java"
   val handlebarLoader = new HandlebarLoader("/javagen/", ".java")
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new JavaGenerator(includeMap, defaultNamespace, handlebarLoader)
+  ): Generator = new JavaGenerator(doc, defaultNamespace, handlebarLoader)
 }
 
 class JavaGenerator(
-  val includeMap: Map[String, ResolvedDocument],
+  doc: ResolvedDocument,
   val defaultNamespace: String,
   val templatesLoader: HandlebarLoader
-) extends TemplateGenerator {
+) extends TemplateGenerator(doc) {
+  val namespaceLanguage = "java"
   def templates: HandlebarLoader = templatesLoader
 
   val fileExtension = ".java"
@@ -169,7 +170,7 @@ class JavaGenerator(
     }
   }
 
-  def genType(t: FunctionType, namespace: Option[Identifier]): CodeFragment = {
+  def genType(t: FunctionType): CodeFragment = {
     val code = t match {
       case Void => "Void"
       case OnewayVoid => "Void"
@@ -205,7 +206,7 @@ class JavaGenerator(
     v(code)
   }
 
-  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment = {
+  def genFieldType(f: Field): CodeFragment = {
     val code = if (f.requiredness.isOptional) {
       val baseType = genType(f.fieldType).toData
       "com.twitter.scrooge.Option<" + baseType + ">"

@@ -69,7 +69,7 @@ object Identifier {
 }
 
 case class SimpleID(name: String, origName: Option[String] = None) extends Identifier {
-  assert(!name.contains(".") && !name.isEmpty) // name is a simple string
+  assert(!name.contains(".") && !name.isEmpty, s"'$name' is not a valid SimpleID") // name is a simple string
   val fullName: String = name
 
   val originalName = origName.getOrElse(fullName)

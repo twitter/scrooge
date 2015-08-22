@@ -1,1 +1,1 @@
-{{>qualifiedFieldType}}.decode(_iprot)
+{{fieldType}}.decode(_iprot)

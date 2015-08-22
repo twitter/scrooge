@@ -3,29 +3,30 @@ package com.twitter.scrooge.java_generator
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.ast.{EnumType, ListType, MapType, ReferenceType, SetType, StructType, _}
-import com.twitter.scrooge.backend.{GeneratorFactory, ServiceOption, ThriftGenerator}
+import com.twitter.scrooge.backend.{GeneratorFactory, ServiceOption, Generator}
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
 import java.io.{File, FileWriter, StringWriter}
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 
 object ApacheJavaGeneratorFactory extends GeneratorFactory {
-  val lang = "java"
+  val language = "java"
   private val templateCache = new TrieMap[String, Mustache]
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = new ApacheJavaGenerator(includeMap, defaultNamespace, templateCache)
+  ): Generator = new ApacheJavaGenerator(doc, defaultNamespace, templateCache)
 }
 
 
 class ApacheJavaGenerator(
-    includeMap: Map[String, ResolvedDocument],
+    resolvedDoc: ResolvedDocument,
     defaultNamespace: String,
     templateCache: TrieMap[String, Mustache],
     val genHashcode: Boolean = true) // Defaulting to true for pants.
-  extends ThriftGenerator {
+  extends Generator(resolvedDoc) {
+  val namespaceLanguage = "java"
   var counter = 0
 
   def printConstValue(
@@ -211,13 +212,13 @@ class ApacheJavaGenerator(
 
   // main entry
   def apply(
-    doc: Document,
     serviceOptions: Set[ServiceOption],
     outputPath: File,
     dryRun: Boolean = false
   ): Iterable[File] = {
     // TODO: Implement serviceOptions (WithFinagle, etc)
     val generatedFiles = new mutable.ListBuffer[File]
+    val doc = resolvedDoc.document
     val namespace = getNamespace(doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
 

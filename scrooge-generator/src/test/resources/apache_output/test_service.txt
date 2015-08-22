@@ -79,9 +79,9 @@ public class TestService {
     public void send_test_endpoint(TestRequest request) throws TException
     {
       oprot_.writeMessageBegin(new TMessage("test_endpoint", TMessageType.CALL, ++seqid_));
-      test_endpoint_args args = new test_endpoint_args();
-      args.setRequest(request);
-      args.write(oprot_);
+      test_endpoint_args __args__ = new test_endpoint_args();
+      __args__.setRequest(request);
+      __args__.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }
@@ -116,9 +116,9 @@ public class TestService {
     public void send_test_oneway(TestRequest request) throws TException
     {
       oprot_.writeMessageBegin(new TMessage("test_oneway", TMessageType.CALL, ++seqid_));
-      test_oneway_args args = new test_oneway_args();
-      args.setRequest(request);
-      args.write(oprot_);
+      test_oneway_args __args__ = new test_oneway_args();
+      __args__.setRequest(request);
+      __args__.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }

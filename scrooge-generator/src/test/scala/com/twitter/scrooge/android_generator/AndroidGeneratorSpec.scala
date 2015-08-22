@@ -35,8 +35,8 @@ class AndroidGeneratorSpec extends Spec {
 
   val templateCache = new TrieMap[String, Mustache]
 
-  def getGenerator(doc0: Document, genHashcode: Boolean = true) = {
-    new AndroidGenerator(Map(), "thrift", templateCache, genHashcode = genHashcode)
+  def getGenerator(doc: Document, genHashcode: Boolean = true) = {
+    new AndroidGenerator(ResolvedDocument(doc, new TypeResolver), "thrift", templateCache, genHashcode = genHashcode)
   }
 
   def getFileContents(resource: String) = {

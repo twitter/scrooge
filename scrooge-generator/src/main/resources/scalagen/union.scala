@@ -62,7 +62,7 @@ private object {{StructName}}Decoder {
 object {{StructName}}Aliases {
 {{#fields}}
 
-  type {{FieldName}}Alias = {{>qualifiedFieldType}}
+  type {{FieldName}}Alias = {{fieldType}}
 
   def withoutPassthroughFields_{{FieldName}}(obj: {{StructName}}.{{FieldName}}): {{StructName}}.{{FieldName}} = {
     val field = obj.{{fieldName}}

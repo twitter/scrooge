@@ -1,1 +1,1 @@
-{{>qualifiedFieldType}}.getOrUnknown(_iprot.readI32())
+{{fieldType}}.getOrUnknown(_iprot.readI32())

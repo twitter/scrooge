@@ -31,49 +31,66 @@ abstract sealed class ServiceOption
 case object WithFinagle extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
-trait ThriftGenerator {
+abstract class Generator(doc: ResolvedDocument) {
   def apply(
-    _doc: Document,
     serviceOptions: Set[ServiceOption],
     outputPath: File,
-    dryRun: Boolean = false): Iterable[File]
+    dryRun: Boolean = false
+  ): Iterable[File]
+
+  /**
+   * Used to find the namespace in included files.
+   * This does not always match the corresponding GeneratorFactory.language:
+   * JavaGenerator uses 'experimental-java' and the 'java' namespace.
+   */
+  def namespaceLanguage: String
+
+  def includeMap: Map[String, ResolvedDocument] = doc.resolver.includeMap
 }
 
 object GeneratorFactory {
   private[this] val factories: Map[String, GeneratorFactory] = {
     val loadedGenerators = LoadService[GeneratorFactory]()
     val factories =
-      List(JavaGeneratorFactory, ScalaGeneratorFactory, ApacheJavaGeneratorFactory, 
-        AndroidGeneratorFactory, CocoaGeneratorFactory) ++
+      List(
+        JavaGeneratorFactory,
+        ScalaGeneratorFactory,
+        ApacheJavaGeneratorFactory,
+        AndroidGeneratorFactory,
+        CocoaGeneratorFactory
+      ) ++
       loadedGenerators
 
-    (factories map { g => (g.lang -> g) }).toMap
+    factories.map { g => (g.language -> g) }.toMap
   }
 
   def languages = factories.keys
 
   def apply(
     lan: String,
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator = factories.get(lan) match {
-    case Some(factory) => factory(includeMap, defaultNamespace, experimentFlags)
+  ): Generator = factories.get(lan) match {
+    case Some(factory) => factory(doc, defaultNamespace, experimentFlags)
     case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
 }
 
 trait GeneratorFactory {
-  def lang: String
+  /**
+   * Command line language matches on this.
+   */
+  def language: String
   def apply(
-    includeMap: Map[String, ResolvedDocument],
+    doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): ThriftGenerator
+  ): Generator
 }
 
-trait TemplateGenerator
-  extends ThriftGenerator
+abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
+  extends Generator(resolvedDoc)
   with StructTemplate
   with ServiceTemplate
   with ConstsTemplate
@@ -83,7 +100,6 @@ trait TemplateGenerator
   /**
    * Map from included file names to the namespaces defined in those files.
    */
-  val includeMap: Map[String, ResolvedDocument]
   val defaultNamespace: String
   val experimentFlags: Seq[String]
 
@@ -151,9 +167,6 @@ trait TemplateGenerator
     )
   }
 
-  /**
-   * get the ID of a service parent.  Java and Scala implementations are different.
-   */
   def getServiceParentID(parent: ServiceParent): Identifier = {
     val identifier: Identifier = parent.filename match {
       case Some(scope) => parent.sid.addScope(getIncludeNamespace(scope.name))
@@ -356,11 +369,11 @@ trait TemplateGenerator
     v(code)
   }
 
-  def genType(t: FunctionType, namespace: Option[Identifier] = None): CodeFragment
+  def genType(t: FunctionType): CodeFragment
 
   def genPrimitiveType(t: FunctionType): CodeFragment
 
-  def genFieldType(f: Field, namespace: Option[Identifier] = None): CodeFragment
+  def genFieldType(f: Field): CodeFragment
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment
 
@@ -385,14 +398,13 @@ trait TemplateGenerator
   def fileExtension: String
 
   def apply(
-    _doc: Document,
     serviceOptions: Set[ServiceOption],
     outputPath: File,
     dryRun: Boolean = false
   ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
-    val doc = normalizeCase(_doc)
-    val namespace = getNamespace(_doc)
+    val doc = normalizeCase(resolvedDoc.document)
+    val namespace = getNamespace(resolvedDoc.document)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
     val includes = doc.headers.collect {
       case x@Include(_, _) => x
@@ -469,7 +481,7 @@ trait TemplateGenerator
     val arity = fields.length
     if (arity >= 1 && arity <= 22) {
       val fieldTypes = fields.map { f =>
-        genFieldType(f, namespace).toData
+        genFieldType(f).toData
       }.mkString(", ")
       s"scala.Product$arity[$fieldTypes]"
     } else {

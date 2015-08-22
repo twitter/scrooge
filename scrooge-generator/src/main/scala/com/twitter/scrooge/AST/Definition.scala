@@ -86,16 +86,11 @@ case class Service(
   docstring: Option[String]
 ) extends Definition
 
+/**
+ * Identifier for the parent service.
+ * @param filename Set if the parent service is imported from another file
+ */
 case class ServiceParent(
   sid: SimpleID,
-  /* Set if the parent service is imported from another file */
-  filename: Option[SimpleID],
-  // These are set by the TypeResolver after parsing.
-  /* Parent service */
-  service: Option[Service] = None,
-  /**
-   * Document where the parent service is defined.
-   * Set if the parent service is imported from another file.
-   */
-  doc: Option[ResolvedDocument] = None
+  filename: Option[SimpleID]
 )
