@@ -37,16 +37,16 @@ object {{ServiceName}} { self =>
 {{#withFinagle}}
   {{^over22functions}}case {{/over22functions}}class ServiceIface(
 {{#inheritedFunctions}}
-      {{#over22functions}}val {{/over22functions}}{{funcName}}: com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
+      {{#over22functions}}val {{/over22functions}}{{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.__ServiceIface
     with {{/parent}}__ServiceIface
 
   // This is needed to support service inheritance.
   trait __ServiceIface {{#parent}} extends {{parent}}.__ServiceIface {{/parent}} {
-{{#asyncFunctions}}
-    def {{funcName}}: com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.Result]
-{{/asyncFunctions}}
+{{#dedupedOwnFunctions}}
+    def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.Result]
+{{/dedupedOwnFunctions}}
   }
 
   implicit object ServiceIfaceBuilder
@@ -65,12 +65,12 @@ object {{ServiceName}} { self =>
 
   class MethodIface(serviceIface: __ServiceIface)
     extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}{{ServiceName}}[Future] {
-{{#thriftFunctions}}
+{{#dedupedOwnFunctions}}
     private[this] val __{{funcName}}_service =
-      ThriftServiceIface.resultFilter(self.{{funcObjectName}}) andThen serviceIface.{{funcName}}
+      ThriftServiceIface.resultFilter(self.{{funcObjectName}}) andThen serviceIface.{{dedupedFuncName}}
     def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
       __{{funcName}}_service(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
-{{/thriftFunctions}}
+{{/dedupedOwnFunctions}}
   }
 
   implicit object MethodIfaceBuilder

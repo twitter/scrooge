@@ -20,6 +20,7 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedService, TypeResolver, ResolvedDocument}
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
+import scala.collection.mutable
 
 trait ServiceTemplate { self: TemplateGenerator =>
   def functionDictionary(function: Function, generic: Option[String]): Dictionary = {
@@ -260,24 +261,66 @@ trait ServiceTemplate { self: TemplateGenerator =>
         v(totalFunctions > 22)
       },
       "withFinagle" -> v(withFinagle),
+
       "inheritedFunctions" -> {
-        val ownFunctions: Seq[Dictionary] = service.functions.map {
-          f => functionDictionary(f, Some("Future")) ++=
-            (("ParentServiceName", v("self")))
-        }
+        // For service-per-endpoint, we generate a class with a value for each method, so
+        // method names must be unique.
+        val deduper = new NameDeduplicator()
         val inheritedFunctions: Seq[Dictionary] =
-          resolvedDoc.resolveParentServices(service, namespaceLanguage, defaultNamespace).flatMap {
+          // Note: inherited functions must be deduped first, so we walk the parent chain
+          // from the topmost parent down (hence the reverse).
+          resolvedDoc.resolveParentServices(service, namespaceLanguage, defaultNamespace).reverse.flatMap {
             result: ResolvedService =>
               result.service.functions.map { function =>
                 Dictionary(
                   "ParentServiceName" -> genID(result.serviceID),
-                  "funcName" -> genID(function.funcName.toCamelCase),
+                  "funcName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
                   "funcObjectName" -> genID(functionObjectName(function))
                 )
               }
           }
+        val ownFunctions: Seq[Dictionary] = service.functions.map {
+          function => Dictionary(
+            "ParentServiceName" -> v("self"),
+            "funcName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
+            "funcObjectName" -> genID(functionObjectName(function))
+          )
+        }
         v(ownFunctions ++ inheritedFunctions)
+      },
+
+      "dedupedOwnFunctions" -> {
+        val deduper = new NameDeduplicator()
+        // We only generate own functions, but need to dedupe them from the inherited functions,
+        // so fill those in first.
+        resolvedDoc.collectParentServices(service).foreach { case (_, service) =>
+          service.functions.foreach { function =>
+            deduper.dedupe(function.funcName.toCamelCase)
+          }
+        }
+        val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
+          functionDictionary(function, Some("Future")) ++=
+            (("dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase))))
+        }
+        v(ownFunctions)
       }
     )
+  }
+
+  private[this] class NameDeduplicator() {
+    private[this] val seenIDs = new mutable.HashSet[String]
+
+    /**
+     * Append a '_' to deduplicate function names for the case class members.
+     * This also stores the new ID in the set of seen IDs.
+     */
+    def dedupe(id: SimpleID): SimpleID = {
+      var currentID = id
+      while (seenIDs.contains(currentID.toString)) {
+        currentID = currentID.append("_")
+      }
+      seenIDs.add(currentID.toString)
+      currentID
+    }
   }
 }
