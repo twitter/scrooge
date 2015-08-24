@@ -156,9 +156,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
             "serviceFuncNameForWire" -> v(f.originalName),
             "funcObjectName" -> genID(functionObjectName(f)),
             "argNames" ->
-              v(f.args map { field =>
+              v(f.args.map { field =>
                 "args." + genID(field.sid).toData
-              } mkString (", ")),
+              }.mkString(", ")),
             "typeName" -> genType(f.funcType),
             "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
             "resultNamedArg" ->
@@ -250,6 +250,15 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "finagleServices" -> v(
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
+      // This is needed for Scala 2.10 only.
+      // TODO remove this when 2.10 is no longer supported.
+      "over22functions" -> {
+        val numParentFunctions = resolvedDoc.collectParentServices(service).map {
+          case (_, service) => service.functions.length
+        }.sum
+        val totalFunctions = service.functions.length + numParentFunctions
+        v(totalFunctions > 22)
+      },
       "withFinagle" -> v(withFinagle),
       "inheritedFunctions" -> {
         val ownFunctions: Seq[Dictionary] = service.functions.map {

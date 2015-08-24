@@ -35,9 +35,9 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 {{docstring}}
 object {{ServiceName}} { self =>
 {{#withFinagle}}
-  case class ServiceIface(
+  {{^over22functions}}case {{/over22functions}}class ServiceIface(
 {{#inheritedFunctions}}
-      {{funcName}}: com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
+      {{#over22functions}}val {{/over22functions}}{{funcName}}: com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.__ServiceIface
     with {{/parent}}__ServiceIface
