@@ -2,8 +2,16 @@
 (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
 as it is included in Scrooge's user's guide.
 
+4.x
+-----
+
+4.0.0
+~~~~~~~
+
+- scrooge: Scrooge 4.0.0 includes backward compatibility patches for Finagle service per endpoint generation. This allows using Thrift endpoints as Finagle Services and combining them with Filters.
+
 3.x
-~~~
+-----
 
 3.20.0
 ~~~~~~~
