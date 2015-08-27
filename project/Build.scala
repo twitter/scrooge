@@ -1,14 +1,13 @@
 import sbt._
 import Keys._
-import bintray.Plugin._
-import bintray.Keys._
+import bintray.BintrayKeys.{bintray, bintrayOrganization, bintrayRepository}
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import pl.project13.scala.sbt.JmhPlugin
-import sbtassembly.Plugin._
-import AssemblyKeys._
-import sbtbuildinfo.Plugin._
+import sbtassembly.AssemblyKeys.assembly
+import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
+import sbtbuildinfo.BuildInfoKeys.{buildInfoKeys, buildInfoPackage}
 import scoverage.ScoverageSbtPlugin
 
 object Scrooge extends Build {
@@ -94,7 +93,7 @@ object Scrooge extends Build {
       "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
-    resolvers += "twitter-repo" at "http://maven.twttr.com",
+    resolvers += "twitter-repo" at "https://maven.twttr.com",
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions += "-deprecation",
@@ -148,8 +147,8 @@ object Scrooge extends Build {
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
       "org.jmock" % "jmock" % "2.4.0" % "test",
-      "cglib" % "cglib" % "2.1_3" % "test",
-      "asm" % "asm" % "1.5.3" % "test",
+      "cglib" % "cglib" % "2.2.2" % "test",
+      "asm" % "asm" % "3.3.1" % "test",
       "org.objenesis" % "objenesis" % "1.1" % "test",
       "org.mockito" % "mockito-core" % "1.9.5" % "test"
     )
@@ -172,7 +171,6 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Test)(testThriftSettings) ++
       sharedSettings ++
-      assemblySettings ++
       jmockSettings
   ).settings(
     name := "scrooge-generator",
@@ -180,12 +178,12 @@ object Scrooge extends Build {
       util("core") exclude("org.mockito", "mockito-all"),
       util("codec") exclude("org.mockito", "mockito-all"),
       "org.apache.thrift" % "libthrift" % "0.5.0-1",
-      "com.github.scopt" %% "scopt" % "3.2.0",
+      "com.github.scopt" %% "scopt" % "3.3.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
-      "com.github.spullara.mustache.java" % "compiler" % "0.8.17",
+      "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
-      "org.slf4j" % "slf4j-log4j12" % "1.6.6" % "test", // used in thrift transports
-      "com.google.code.findbugs" % "jsr305" % "1.3.9",
+      "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test", // used in thrift transports
+      "com.google.code.findbugs" % "jsr305" % "2.0.1",
       "commons-cli" % "commons-cli" % "1.2",
       finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
@@ -248,7 +246,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("app"),
       util("codec"),
-      "org.slf4j" % "slf4j-log4j12" % "1.6.6" % "test",
+      "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test",
       "org.apache.thrift" % "libthrift" % "0.5.0-1" % "provided"
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test")
@@ -257,16 +255,13 @@ object Scrooge extends Build {
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
     settings = Project.defaultSettings ++
-      sharedSettings ++
-      bintrayPublishSettings ++
-      buildInfoSettings
-  ).settings(
-      sourceGenerators in Compile <+= buildInfo,
+      sharedSettings
+  ).enablePlugins(BuildInfoPlugin).settings(
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "com.twitter",
       sbtPlugin := true,
       publishMavenStyle := false,
-      repository in bintray := "sbt-plugins",
+      bintrayRepository in bintray := "sbt-plugins",
       licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
       bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
@@ -275,8 +270,7 @@ object Scrooge extends Build {
     id = "scrooge-linter",
     base = file("scrooge-linter"),
     settings = Project.defaultSettings ++
-      sharedSettings ++
-      assemblySettings
+      sharedSettings
   ).settings(
     name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)
@@ -298,7 +292,7 @@ object Scrooge extends Build {
   .enablePlugins(JmhPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.slf4j" % "slf4j-log4j12" % "1.6.6", // Needed for the thrift transports
+      "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
       "org.apache.thrift" % "libthrift" % "0.5.0-1"
     )
   ).dependsOn(scroogeGenerator, scroogeRuntime, scroogeSerializer)

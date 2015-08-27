@@ -279,7 +279,7 @@
     <repository>
       <id>maven.twttr.com</id>
       <name>maven.twttr.com</name>
-      <url>http://maven.twttr.com</url>
+      <url>https://maven.twttr.com</url>
     </repository>
   </repositories>
   <reporting>
