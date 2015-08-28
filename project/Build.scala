@@ -1,13 +1,14 @@
 import sbt._
 import Keys._
-import bintray.BintrayKeys.{bintray, bintrayOrganization, bintrayRepository}
+import bintray.Plugin._
+import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import pl.project13.scala.sbt.JmhPlugin
-import sbtassembly.AssemblyKeys.assembly
-import sbtbuildinfo.{BuildInfoKey, BuildInfoPlugin}
-import sbtbuildinfo.BuildInfoKeys.{buildInfoKeys, buildInfoPackage}
+import sbtassembly.Plugin._
+import AssemblyKeys._
+import sbtbuildinfo.Plugin._
 import scoverage.ScoverageSbtPlugin
 
 object Scrooge extends Build {
@@ -171,6 +172,7 @@ object Scrooge extends Build {
     settings = Project.defaultSettings ++
       inConfig(Test)(testThriftSettings) ++
       sharedSettings ++
+      assemblySettings ++
       jmockSettings
   ).settings(
     name := "scrooge-generator",
@@ -255,13 +257,16 @@ object Scrooge extends Build {
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
     settings = Project.defaultSettings ++
-      sharedSettings
-  ).enablePlugins(BuildInfoPlugin).settings(
+      sharedSettings ++
+      bintrayPublishSettings ++
+      buildInfoSettings
+  ).settings(
+      sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "com.twitter",
       sbtPlugin := true,
       publishMavenStyle := false,
-      bintrayRepository in bintray := "sbt-plugins",
+      repository in bintray := "sbt-plugins",
       licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
       bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
@@ -270,7 +275,8 @@ object Scrooge extends Build {
     id = "scrooge-linter",
     base = file("scrooge-linter"),
     settings = Project.defaultSettings ++
-      sharedSettings
+      sharedSettings ++
+      assemblySettings
   ).settings(
     name := "scrooge-linter"
   ).dependsOn(scroogeGenerator)
