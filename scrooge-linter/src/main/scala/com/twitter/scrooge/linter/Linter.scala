@@ -112,10 +112,10 @@ object LintRule {
       val fieldsErrors = for {
         s <- persistedStructs
         field <- s.fields if field.docstring.isEmpty
-      } yield LintMessage(s"Missing documentation on field ${field.originalName} in struct ${s.originalName} annotated (persisted = 'true').", Error)
+      } yield LintMessage(s"Missing documentation on field ${field.originalName} in struct ${s.originalName} annotated (persisted = 'true').")
       val structErrors = for {
         s <- persistedStructs if s.docstring.isEmpty
-      } yield LintMessage(s"Missing documentation on struct ${s.originalName} annotated (persisted = 'true').", Error)
+      } yield LintMessage(s"Missing documentation on struct ${s.originalName} annotated (persisted = 'true').")
       structErrors ++ fieldsErrors
     }
   }

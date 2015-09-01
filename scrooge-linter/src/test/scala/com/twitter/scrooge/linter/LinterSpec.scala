@@ -17,12 +17,10 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast._
-import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.MustMatchers
@@ -168,7 +166,8 @@ class LinterSpec extends WordSpec with MustMatchers {
           )
       )).toSeq
       errors.length must be(2)
-      val structError = errors(0).msg
+      assert(errors.forall(_.level == LintLevel.Warning))
+      val structError = errors.head.msg
       assert(structError.contains("SomeType"))
       val fieldError = errors(1).msg
       assert(fieldError.contains("foo"))
