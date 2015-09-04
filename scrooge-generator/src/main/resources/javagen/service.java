@@ -16,7 +16,6 @@ import java.util.HashSet;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.TApplicationException;
 {{#withFinagle}}
-import com.twitter.finagle.Service;
 import com.twitter.finagle.SourcedException;
 import com.twitter.finagle.stats.Counter;
 import com.twitter.finagle.stats.NullStatsReceiver;
