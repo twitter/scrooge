@@ -51,14 +51,14 @@ object LintRule {
     RelativeIncludes,
     CamelCase,
     RequiredFieldDefault,
-    Keywords,
-    TransitivePersistence,
-    DocumentedPersisted
+    Keywords
   )
 
   val Rules = DefaultRules ++ Seq(
     // Add any optional rules here.
     // These can be enabled with enable-rule flag.
+    TransitivePersistence,
+    DocumentedPersisted
   )
 
   /**
