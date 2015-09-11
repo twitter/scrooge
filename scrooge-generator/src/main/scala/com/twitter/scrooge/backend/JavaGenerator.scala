@@ -224,7 +224,7 @@ class JavaGenerator(
     v(code)
   }
 
-  def genBaseFinagleService = v("Service<byte[], byte[]>")
+  def genBaseFinagleService = v("com.twitter.finagle.Service<byte[], byte[]>")
 
   def getParentFinagleService(p: ServiceParent): CodeFragment =
     genID(SimpleID("FinagledService").addScope(getServiceParentID(p)))

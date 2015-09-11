@@ -545,3 +545,8 @@ service Defaults {
     6: optional bool arg6 = true
   )
 }
+
+/* Eponymous Service caused import clash as of 4.0.0 */
+service Service {
+  void test()
+}
