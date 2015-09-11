@@ -1,6 +1,6 @@
 package {{package}}
 
-import com.twitter.finagle.{SourcedException, Service}
+import com.twitter.finagle.SourcedException
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
@@ -17,7 +17,7 @@ import scala.language.higherKinds
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleClient(
-    {{#hasParent}}override {{/hasParent}}val service: Service[ThriftClientRequest, Array[Byte]],
+    {{#hasParent}}override {{/hasParent}}val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
     {{#hasParent}}override {{/hasParent}}val serviceName: String = "{{ServiceName}}",
     stats: StatsReceiver = NullStatsReceiver

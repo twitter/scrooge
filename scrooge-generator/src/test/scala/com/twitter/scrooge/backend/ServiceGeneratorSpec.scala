@@ -546,5 +546,43 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         statsReceiver.counters(Seq("ExceptionalService", "deliver", "requests")) must be (1)
       }
     }
+
+    "generate eponymous Service" should {
+
+      val context = new Mockery
+      context.setImposteriser(ClassImposteriser.INSTANCE)
+      val impl = context.mock(classOf[thrift.test.Service[Future]])
+      val service = new thrift.test.Service$FinagleService(impl, new TBinaryProtocol.Factory)
+
+      "allow generation and calls to eponymous FinagledService" in { _ =>
+
+        context.checking(new Expectations {
+          one(impl).test(); will(returnValue(Future.value(())))
+        })
+
+        val request = encodeRequest("test", thrift.test.Service.Test.Args()).message
+        val response = encodeResponse("test", thrift.test.Service.Test.Result())
+
+        Await.result(service(request)) mustBe response
+
+        context.assertIsSatisfied()
+      }
+
+      "allow generation and calls to eponymous FinagledClient" in { _ =>
+
+        val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
+          def apply(req: ThriftClientRequest) = service(req.message)
+        }
+
+        val client = new thrift.test.Service$FinagleClient(clientService, serviceName = "Service")
+
+        context.checking(new Expectations {
+          one(impl).test(); will(returnValue(Future.Done))
+        })
+
+        Await.result(client.test()) mustBe ()
+        context.assertIsSatisfied()
+      }
+    }
   }
 }

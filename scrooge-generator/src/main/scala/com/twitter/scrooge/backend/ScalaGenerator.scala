@@ -222,7 +222,7 @@ class ScalaGenerator(
     v(code)
   }
 
-  def genBaseFinagleService: CodeFragment = v("Service[Array[Byte], Array[Byte]]")
+  def genBaseFinagleService: CodeFragment = v("com.twitter.finagle.Service[Array[Byte], Array[Byte]]")
 
   def getParentFinagleService(p: ServiceParent): CodeFragment =
     genID(Identifier(getServiceParentID(p).fullName + "$FinagleService"))
