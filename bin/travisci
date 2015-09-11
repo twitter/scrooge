@@ -27,6 +27,9 @@ if [ "$SCROOGE_BRANCH" != "master" ]; then
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-core/publishLocal
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-httpx/publishLocal
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-mux/publishLocal
+  cd $SCROOGE_DIR
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION scrooge-core/publishLocal
+  cd ${SCROOGE_TMP_DIR}/finagle
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-thrift/publishLocal
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-thriftmux/publishLocal
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-ostrich4/publishLocal
