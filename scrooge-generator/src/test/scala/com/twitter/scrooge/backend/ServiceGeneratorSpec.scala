@@ -470,7 +470,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "work with retrying filters" in { _ =>
-        import com.twitter.finagle.service.{RetryingFilter, RetryPolicy}
+        import com.twitter.finagle.service.{RetryExceptionsFilter, RetryPolicy}
         import com.twitter.util.{JavaTimer, Try, Throw}
 
         val service = serveExceptionalService()
@@ -483,7 +483,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           })
 
         val retriedDeliveryService =
-          new RetryingFilter(retryPolicy, new JavaTimer(true)) andThen
+          new RetryExceptionsFilter(retryPolicy, new JavaTimer(true)) andThen
             ThriftServiceIface.resultFilter(Deliver) andThen
             clientService.deliver
         Await.result(retriedDeliveryService(Deliver.Args("there"))) must be (123)
