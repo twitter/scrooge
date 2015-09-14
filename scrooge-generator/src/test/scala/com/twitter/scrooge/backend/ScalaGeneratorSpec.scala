@@ -25,6 +25,15 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
 
   "ScalaGenerator" should {
+
+    "empty struct" should {
+      // Specifically test empty struct due to previous bug in equals
+      //   not checking the type
+      "not equals" in { _ =>
+        assert(EmptyStruct() != None)
+      }
+    }
+
     "generate an enum" should {
       "correct constants" in { _ =>
         NumberID.One.getValue must be(1)

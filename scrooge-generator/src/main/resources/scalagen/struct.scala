@@ -602,7 +602,8 @@ class {{StructName}}(
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
   override def equals(other: Any): Boolean =
-    _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+    canEqual(other) &&
+      _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
       _passthroughFields == other.asInstanceOf[{{StructName}}]._passthroughFields
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
