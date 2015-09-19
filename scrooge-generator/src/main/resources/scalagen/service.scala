@@ -34,7 +34,9 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 
 {{docstring}}
 object {{ServiceName}} { self =>
+
 {{#withFinagle}}
+{{#generateServiceIface}}
   {{^over22functions}}case {{/over22functions}}class ServiceIface(
 {{#inheritedFunctions}}
       {{#over22functions}}val {{/over22functions}}{{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
@@ -78,6 +80,13 @@ object {{ServiceName}} { self =>
     def newMethodIface(serviceIface: ServiceIface): {{ServiceName}}[Future] =
       new MethodIface(serviceIface)
   }
+{{/generateServiceIface}}
+{{^generateServiceIface}}
+  // Skipped ServiceIface generation because this thrift service contains more than 254 methods.
+  //
+  // scalac 2.11 fails to compile classes with more than 254 method arguments
+  // due to https://issues.scala-lang.org/browse/SI-7324.
+{{/generateServiceIface}}
 
 {{/withFinagle}}
 {{#thriftFunctions}}

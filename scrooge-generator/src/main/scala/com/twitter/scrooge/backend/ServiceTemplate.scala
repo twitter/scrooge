@@ -260,6 +260,17 @@ trait ServiceTemplate { self: TemplateGenerator =>
         val totalFunctions = service.functions.length + numParentFunctions
         v(totalFunctions > 22)
       },
+
+      // scalac 2.11 fails to compile classes with more than 254 method arguments
+      // due to https://issues.scala-lang.org/browse/SI-7324
+      // We skip generation of ServiceIfaces for thrift services with 255+ methods.
+      "generateServiceIface" -> {
+        val numParentFunctions = resolvedDoc.collectParentServices(service).map {
+          case (_, service) => service.functions.length
+        }.sum
+        val totalFunctions = service.functions.length + numParentFunctions
+        v(totalFunctions <= 254)
+      },
       "withFinagle" -> v(withFinagle),
 
       "inheritedFunctions" -> {
