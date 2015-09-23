@@ -1,7 +1,5 @@
 package com.twitter.scrooge.ast
 
-import com.twitter.scrooge.frontend.ResolvedDocument
-
 
 sealed abstract class Definition extends DefinitionNode {
   val sid: SimpleID
@@ -73,11 +71,9 @@ case class Exception_(
   sid: SimpleID,
   originalName: String,
   fields: Seq[Field],
-  docstring: Option[String]
-) extends StructLike {
-  override val annotations: Map[String, String] = Map.empty
-}
-
+  docstring: Option[String],
+  annotations: Map[String, String] = Map.empty
+) extends StructLike
 
 case class Service(
   sid: SimpleID,

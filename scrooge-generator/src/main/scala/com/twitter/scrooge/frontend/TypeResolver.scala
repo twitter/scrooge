@@ -211,7 +211,7 @@ case class TypeResolver(
         ResolvedDefinition(
           resolved,
           withType(sid.name, StructType(resolved, scopePrefix)))
-      case e @ Exception_(sid, _, fs, _) =>
+      case e @ Exception_(sid, _, fs, _, _) =>
         val resolved = e.copy(fields = fs.map(apply))
         ResolvedDefinition(
           resolved,

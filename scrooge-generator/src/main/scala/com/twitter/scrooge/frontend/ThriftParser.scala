@@ -361,8 +361,10 @@ class ThriftParser(
       Union(sid, sid.name, fixFieldIds(fields0), comment, annotations)
   })
 
-  lazy val exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) <~ "}" ^^ {
-    case comment ~ sid ~ fields => Exception_(sid, sid.name, fixFieldIds(fields.getOrElse(Nil)), comment)
+  lazy val exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) ~
+    ("}" ~> defaultedAnnotations) ^^ {
+    case comment ~ sid ~ fields ~ annotations =>
+      Exception_(sid, sid.name, fixFieldIds(fields.getOrElse(Nil)), comment, annotations)
   }
 
   lazy val service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> serviceParentID) ~ ("{" ~> rep(function) <~

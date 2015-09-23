@@ -276,6 +276,11 @@ enum Foo
         Exception_(SimpleID("NoParams"), "NoParams", Seq(), None))
       parser.parse("/** doc rivers */ exception wellDocumentedException { }", parser.definition) must be(
         Exception_(SimpleID("wellDocumentedException"), "wellDocumentedException", Seq(), Some("/** doc rivers */")))
+
+      val annotations = Map("persisted" -> "true")
+      parser.parse("exception BadError { 1: string message } (persisted = \"true\")", parser.definition) must be(
+        Exception_(SimpleID("BadError"), "BadError",
+          Seq(Field(1, SimpleID("message"), "message", TString, None, Requiredness.Default)), None, annotations))
     }
 
     "service" in {
