@@ -127,7 +127,7 @@ object LintRule {
     def apply(doc: Document) = {
       Seq("scala", "java").collect {
         case lang if doc.namespace(lang).isEmpty =>
-          LintMessage("Missing namespace: %s.".format(lang), Error)
+          LintMessage("Missing namespace: %s.".format(lang))
       }
     }
   }
@@ -137,7 +137,7 @@ object LintRule {
     def apply(doc: Document) = {
       doc.headers.collect {
         case include @ Include(f, d) if f.contains("..") =>
-          LintMessage(s"Relative include path found:\n${include.pos.longString}", Error)
+          LintMessage(s"Relative include path found:\n${include.pos.longString}")
       }
     }
   }
@@ -182,8 +182,7 @@ object LintRule {
           struct.fields.collect {
             case f if f.requiredness == Requiredness.Required && f.default.nonEmpty =>
               LintMessage(s"Required field ${f.originalName} has a default value. " +
-                s"Make it optional or remove the default.\n${f.pos.longString}",
-                Error)
+                s"Make it optional or remove the default.\n${f.pos.longString}")
           }
       }.flatten
     }
