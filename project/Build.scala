@@ -15,12 +15,12 @@ object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
   val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
-  val libVersion = "4.0.0" + suffix
+  val libVersion = "4.1.0" + suffix
 
   // To build the develop branch you need to publish util, ostrich and finagle locally:
   // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
-  val utilVersion = "6.27.0" + suffix
-  val finagleVersion = "6.28.0" + suffix
+  val utilVersion = "6.28.0" + suffix
+  val finagleVersion = "6.29.0" + suffix
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
