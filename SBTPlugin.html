@@ -60,6 +60,9 @@
 <h1>SBT Plugin<a class="headerlink" href="#sbt-plugin" title="Permalink to this headline">¶</a></h1>
 <p>Add a line like this to your <cite>project/plugins.sbt</cite> file:</p>
 <div class="highlight-text"><div class="highlight"><pre>addSbtPlugin(&quot;com.twitter&quot; %% &quot;scrooge-sbt-plugin&quot; % &quot;3.18.1&quot;)
+
+resolvers += &quot;twitter-repo&quot; at &quot;https://maven.twttr.com&quot;
+
 </pre></div>
 </div>
 <p>In your <cite>build.sbt</cite> file:</p>
