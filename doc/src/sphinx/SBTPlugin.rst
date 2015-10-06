@@ -1,6 +1,8 @@
 SBT Plugin
 ==========
 
+The scrooge-sbt-plugin is not published to Maven Central but published to `Bintray <https://bintray.com/twittercsl/sbt-plugins/scrooge-sbt-plugin/view>`_
+
 Add a line like this to your `project/plugins.sbt` file:
 
 ::
