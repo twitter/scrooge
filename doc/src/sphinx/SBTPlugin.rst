@@ -1,9 +1,11 @@
 SBT Plugin
 ==========
 
-Add a line like this to your `project/plugins.sbt` file:
+Add the following lines to your `project/plugins.sbt` file:
 
 ::
+
+    resolvers += "twitter-repo" at "https://maven.twttr.com"
 
     addSbtPlugin("com.twitter" %% "scrooge-sbt-plugin" % "3.18.1")
 
