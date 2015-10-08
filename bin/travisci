@@ -36,7 +36,7 @@ if [ "$SCROOGE_BRANCH" != "master" ]; then
   git clone https://github.com/twitter/finagle.git --branch develop
   cd finagle
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-core/publishLocal
-  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-httpx/publishLocal
+  $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-http/publishLocal
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION finagle-mux/publishLocal
   cd $SCROOGE_DIR
   $SCROOGE_SBT ++$TRAVIS_SCALA_VERSION scrooge-core/publishLocal
