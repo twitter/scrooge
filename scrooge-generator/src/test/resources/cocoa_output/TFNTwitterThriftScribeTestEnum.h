@@ -7,6 +7,6 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, TFNTwitterThriftScribeTestEnum) {
-  TFNTwitterThriftScribeTestEnum_FIELD_ONE,
-  TFNTwitterThriftScribeTestEnum_FIELD_TWO
+  TFNTwitterThriftScribeTestEnum_FIELD_ONE = 1,
+  TFNTwitterThriftScribeTestEnum_FIELD_TWO = 2
 };
