@@ -10,7 +10,7 @@ object ScroogeSBT extends AutoPlugin {
   private[this] def generatedExtensionPattern(language: String): String =
     if (language.endsWith("java")) "*.java" else "*.scala"
 
-  def compileThrift(
+  private[this] def compile(
     log: Logger,
     outputDir: File,
     thriftFiles: Set[File],
@@ -238,7 +238,7 @@ object ScroogeSBT extends AutoPlugin {
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && sources.nonEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compileThrift(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet)
+        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet)
       }
       (outputDir ** generatedExtensionPattern(language)).get.toSeq
     },
