@@ -17,9 +17,10 @@ package com.twitter.scrooge.backend
  */
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.frontend.{ResolvedService, TypeResolver, ResolvedDocument}
+import com.twitter.scrooge.frontend.ResolvedService
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
+
 import scala.collection.mutable
 
 trait ServiceTemplate { self: TemplateGenerator =>
@@ -155,6 +156,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
           Dictionary(
             "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
             "serviceFuncNameForWire" -> v(f.originalName),
+            "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
             "funcObjectName" -> genID(functionObjectName(f)),
             "argNames" ->
               v(f.args.map { field =>

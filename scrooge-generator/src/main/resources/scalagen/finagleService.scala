@@ -3,7 +3,7 @@ package {{package}}
 import com.twitter.finagle.Thrift
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.scrooge.{ThriftStruct, TReusableMemoryTransport}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
@@ -21,15 +21,22 @@ class {{ServiceName}}$FinagleService(
   iface: {{ServiceName}}[Future],
   protocolFactory: TProtocolFactory,
   stats: StatsReceiver,
-  maxThriftBufferSize: Int
+  maxThriftBufferSize: Int,
+  serviceName: String
 ) extends {{finagleServiceParent}}{{#hasParent}}(iface, protocolFactory, stats, maxThriftBufferSize){{/hasParent}} {
   import {{ServiceName}}._
 
   def this(
     iface: {{ServiceName}}[Future],
+    protocolFactory: TProtocolFactory,
+    stats: StatsReceiver,
+    maxThriftBufferSize: Int
+  ) = this(iface, protocolFactory, stats, maxThriftBufferSize, "{{ServiceName}}")
+
+  def this(
+    iface: {{ServiceName}}[Future],
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.maxThriftBufferSize)
-
 {{^hasParent}}
 
   private[this] val tlReusableBuffer = new ThreadLocal[TReusableMemoryTransport] {
@@ -119,6 +126,7 @@ class {{ServiceName}}$FinagleService(
   // ---- end boilerplate.
 
 {{/hasParent}}
+  private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
 {{#functions}}
   {{>function}}
 {{/function}}
