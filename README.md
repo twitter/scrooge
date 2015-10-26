@@ -3,6 +3,7 @@
 [![Build status](https://travis-ci.org/twitter/scrooge.svg?branch=develop)](https://travis-ci.org/twitter/scrooge)
 [![Coverage status](https://img.shields.io/coveralls/twitter/scrooge/develop.svg)](https://coveralls.io/r/twitter/scrooge?branch=develop)
 [![Project status](https://img.shields.io/badge/status-active-brightgreen.svg)](#status)
+[![Maven Central](https://img.shields.io/maven-central/v/com.twitter/scrooge_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.twitter/scrooge_2.11)
 
 Scrooge is a [thrift](https://thrift.apache.org/) code generator written in
 Scala, which currently generates code for Scala and Java.
