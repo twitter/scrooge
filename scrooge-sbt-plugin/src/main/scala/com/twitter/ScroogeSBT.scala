@@ -10,7 +10,7 @@ object ScroogeSBT extends AutoPlugin {
   private[this] def generatedExtensionPattern(language: String): String =
     if (language.endsWith("java")) "*.java" else "*.scala"
 
-  def compile(
+  private[this] def compile(
     log: Logger,
     outputDir: File,
     thriftFiles: Set[File],
