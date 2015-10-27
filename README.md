@@ -45,8 +45,18 @@ SBT users need this:
 
 ## Building the develop branch locally
 
-You will need the develop branches of util, ostrich, and finagle.
-Then `./sbt publish-local` for each of them.
+You will need the develop branches of [util](https://github.com/twitter/util),
+[ostrich](https://github.com/twitter/ostrich),
+and [finagle](https://github.com/twitter/finagle).
+Finagle depends on `scrooge-core`, so the order in which you build dependencies
+should be:
+
+* in util: `./sbt publish-local`
+* in ostrich: `./sbt publish-local`
+* in scrooge: `./sbt 'project scrooge-core' publish-local`
+* in finagle: `/.sbt publish-local`
+
+Then you can build the entire scrooge package.
 
 ## Full Documentation
 
