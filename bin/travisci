@@ -35,7 +35,7 @@ if [ "$SCROOGE_BRANCH" != "master" ]; then
   ./sbt ++$TRAVIS_SCALA_VERSION finagle-mux/publishLocal
   # scrooge-core
   cd $SCROOGE_DIR
-  .sbt ++$TRAVIS_SCALA_VERSION scrooge-core/publishLocal
+  ./sbt ++$TRAVIS_SCALA_VERSION scrooge-core/publishLocal
   # finagle-thrift, finagle-thriftmux, finagle-ostrich4
   cd ${SCROOGE_TMP_DIR}/finagle
   ./sbt ++$TRAVIS_SCALA_VERSION finagle-thrift/publishLocal
