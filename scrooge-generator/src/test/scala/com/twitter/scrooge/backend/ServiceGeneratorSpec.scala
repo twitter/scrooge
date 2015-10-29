@@ -500,6 +500,25 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         }
       }
 
+      "work with both camelCase and snake_case function names" in { _ =>
+        CamelCaseSnakeCaseService.FooBar.name mustBe "foo_bar"
+        CamelCaseSnakeCaseService.BazQux.name mustBe "bazQux"
+
+        val server = Thrift.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new CamelCaseSnakeCaseService[Future] {
+            def fooBar(fooBar: String): Future[String] = Future.value(fooBar)
+            def bazQux(bazQux: String): Future[String] = Future.value(bazQux)
+          }
+        )
+
+        val client = Thrift.newServiceIface[CamelCaseSnakeCaseService.ServiceIface](Name.bound(server.boundAddress))
+        val richClient = Thrift.newMethodIface(client)
+
+        Await.result(richClient.fooBar("foo")) mustBe "foo"
+        Await.result(richClient.bazQux("baz")) mustBe "baz"
+      }
+
       "have correct stats" in { _ =>
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver

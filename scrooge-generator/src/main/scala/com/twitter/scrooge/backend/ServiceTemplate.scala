@@ -42,6 +42,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "hasThrows" -> v(hasThrows),
       "throws" -> v(throwsDictionaries),
       "funcName" -> genID(function.funcName.toCamelCase),
+      "originalFuncName" -> v(function.originalName),
       "funcObjectName" -> genID(functionObjectName(function)),
       "typeName" -> genType(function.funcType),
       "fieldParams" -> genFieldParams(function.args), // A list of parameters with types: (a: A, b: B...)

@@ -552,3 +552,9 @@ service Defaults {
 service Service {
   void test()
 }
+
+/* Make sure that we match server-client method names */
+service CamelCaseSnakeCaseService {
+  string foo_bar(1: string fooBar)
+  string bazQux(1: string baz_Qux)
+}

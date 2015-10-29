@@ -100,7 +100,7 @@ object {{ServiceName}} { self =>
     {{>struct}}
 {{/internalResultStruct}}
 
-    val name = "{{funcName}}"
+    val name = "{{originalFuncName}}"
     val serviceName = "{{ServiceName}}"
     val argsCodec = Args
     val responseCodec = Result
