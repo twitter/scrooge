@@ -24,8 +24,6 @@ notifications:
   hipchat:
     rooms:
       secure: olqJQz/4oPk0IYPAWLyOGwzDxNwGCjY0ZGXUnfd1MHzReWsb3opPwF9QUSGbpHHBhyLi8DLxrPXuBPhg/9TC1leIvTBAOKDPilV4XVZCNjH/VQ7JdiAREJC2o3M2pr6iwovEHO/k6a1TORXUf9Q2vX09FvFpiIcq+hpjR9BciVM=
-  template:
-    - '%{repository}: %{message} /cc @csl'
 
 before_script:
   - unset SBT_OPTS

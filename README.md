@@ -3,6 +3,7 @@
 [![Build status](https://travis-ci.org/twitter/scrooge.svg?branch=develop)](https://travis-ci.org/twitter/scrooge)
 [![Coverage status](https://img.shields.io/coveralls/twitter/scrooge/develop.svg)](https://coveralls.io/r/twitter/scrooge?branch=develop)
 [![Project status](https://img.shields.io/badge/status-active-brightgreen.svg)](#status)
+[![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/twitter/finagle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://img.shields.io/maven-central/v/com.twitter/scrooge_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.twitter/scrooge_2.11)
 
 Scrooge is a [thrift](https://thrift.apache.org/) code generator written in
