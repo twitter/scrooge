@@ -7,7 +7,9 @@ import com.twitter.scrooge.ast.ReferenceType
 import com.twitter.scrooge.ast.SetType
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.{GeneratorFactory, Generator, ServiceOption}
+import com.twitter.scrooge.CompilerDefaults
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.scrooge.frontend.ParseException
 import com.twitter.scrooge.java_generator.{ApacheJavaGenerator, TypeController}
 import com.twitter.scrooge.mustache.ScalaObjectHandler
 import java.io.{FileWriter, File, StringWriter}
@@ -45,7 +47,13 @@ class AndroidGenerator(
     sw.toString
   }
 
-  override def getNamespace(doc: Document): Identifier = doc.namespace("android") getOrElse SimpleID(defaultNamespace)
+  override def getNamespace(doc: Document): Identifier = doc.namespace("android") getOrElse {
+    if (defaultNamespace == CompilerDefaults.defaultNamespace) 
+      throw new ParseException("You must specify an android namespace in your thrift " +
+                    "(eg: #@namespace android name.space.here) " +
+                    "or use the --default-java-namespace to specify a default namespace")
+    SimpleID(defaultNamespace)
+  }
 
   override def getIncludeNamespace(includeFileName: String): Identifier = {
     val javaNamespace = includeMap.get(includeFileName).flatMap {

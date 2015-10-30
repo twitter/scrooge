@@ -1,5 +1,6 @@
 /* tests unions */
 namespace java thrift.test
+#@namespace android androidthrift.test
 
 include "airport.thrift"
 

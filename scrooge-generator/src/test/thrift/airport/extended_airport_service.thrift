@@ -2,6 +2,7 @@
 // give it a namespace different from the included files, otherwise the generated code
 // will still compile even without namespace aliasing.
 namespace java thrift.test
+#@namespace android androidthrift.test
 include "airport_service.thrift"
 include "airport.thrift"
 

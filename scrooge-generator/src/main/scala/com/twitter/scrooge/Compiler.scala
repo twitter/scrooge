@@ -23,6 +23,12 @@ import java.io.{File, FileWriter}
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 
+
+object CompilerDefaults {
+  var language: String = "scala"
+  var defaultNamespace: String = "thrift"
+}
+
 class Compiler {
   val defaultDestFolder = "."
   var destFolder: String = defaultDestFolder
@@ -37,8 +43,8 @@ class Compiler {
   var fileMapPath: scala.Option[String] = None
   var fileMapWriter: scala.Option[FileWriter] = None
   var dryRun: Boolean = false
-  var language: String = "scala"
-  var defaultNamespace: String = "thrift"
+  var language: String = CompilerDefaults.language
+  var defaultNamespace: String = CompilerDefaults.defaultNamespace
   var scalaWarnOnJavaNSFallback: Boolean = false
 
   def run() {

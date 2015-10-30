@@ -1,6 +1,7 @@
 // Ensures that types in different namespaces are imported and aliased properly in service code. If
 // not, this won't compile.
 namespace java thrift.test2
+#@namespace android androidthrift.test2
 
 include "airport.thrift"
 include "location.thrift"

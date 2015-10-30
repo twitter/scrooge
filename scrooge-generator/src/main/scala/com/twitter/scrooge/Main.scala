@@ -114,7 +114,8 @@ object Main {
           success
         else
           failure("language option %s not supported".format(language))
-      } text("name of language to generate code in ('experimental-java' and 'scala' are currently supported)")
+      } text("name of language to generate code in (currently supported languages: " +
+                 GeneratorFactory.languages.toList.mkString(", ")  + ")")
 
       opt[String]("experiment-flag") valueName("<flag>") unbounded() action { (flag, c) =>
         c.experimentFlags += flag

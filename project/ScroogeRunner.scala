@@ -141,9 +141,15 @@ object ScroogeRunner {
             |-n thrift.test2=vanilla.test2
           """.stripMargin
 
+        val androidVanillaNamespace =
+          """-n androidthrift.test=vanilla_android.test
+            |-n androidthrift.test1=vanilla_android.test1
+            |-n androidthrift.test2=vanilla_android.test2
+          """.stripMargin
+
         run(language = Java, namespace = javaVanillaNamespace, finagle = false, args = airportThriftFiles)
         run(language = Scala, namespace = scalaVanillaNamespace, finagle = false, args = airportThriftFiles)
-        run(language = Android, namespace = javaVanillaNamespace, finagle = false, args = airportThriftFiles)
+        run(language = Android, namespace = androidVanillaNamespace, finagle = false, args = airportThriftFiles)
       }
 
       section("namespace/ with bar and java_bar as default namespace") {
