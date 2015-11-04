@@ -52,7 +52,8 @@ object LintRule {
     CamelCase,
     RequiredFieldDefault,
     Keywords,
-    TransitivePersistence
+    TransitivePersistence,
+    FieldIndexGreaterThanZeroRule
  )
 
   val Rules = DefaultRules ++ Seq(
@@ -257,6 +258,22 @@ object LintRule {
       languageKeywords.collect { case (lang, keywords) if keywords.contains(id) =>
         lang
       }
+    }
+  }
+
+  /**
+   * all fields must have their field index greater than 0
+   */
+  object FieldIndexGreaterThanZeroRule extends LintRule {
+    def apply(doc: Document) = {
+     doc.defs.collect {
+        case struct: StructLike =>
+          struct.fields.collect {
+            case f if f.index <= 0 =>
+              LintMessage(s"Non positive field id of ${f.originalName}. Field id should be supplied and must be " +
+                s" greater than zero in struct \n${struct.originalName}", Error)
+          }
+      }.flatten
     }
   }
 }

@@ -17,9 +17,6 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast._
-import java.nio.ByteBuffer
-import org.apache.thrift.protocol._
-import org.apache.thrift.transport.TMemoryBuffer
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -45,7 +42,7 @@ class LinterSpec extends WordSpec with MustMatchers {
     "fail Namespaces" in {
       val errors = LintRule.Namespaces(Document(Seq(Namespace("java", SimpleID("asdf"))), Nil)).toSeq
       errors.length must be(1)
-      assert(errors(0).msg contains("Missing namespace"))
+      assert(errors(0).msg contains ("Missing namespace"))
     }
 
     "pass RelativeIncludes" in {
@@ -66,7 +63,7 @@ class LinterSpec extends WordSpec with MustMatchers {
           Include("./dir1/../dir1/include1.thrift", Document(Seq(), Seq()))),
         Nil)).toSeq
       errors.size must be(1)
-      assert(errors(0).msg contains("Relative include path found"))
+      assert(errors(0).msg contains ("Relative include path found"))
     }
 
     "pass CamelCase" in {
@@ -96,7 +93,7 @@ class LinterSpec extends WordSpec with MustMatchers {
             TString)),
           None)))).toSeq
       errors.length must be(1)
-      assert(errors(0).msg contains("lowerCamelCase"))
+      assert(errors(0).msg contains ("lowerCamelCase"))
     }
 
 
@@ -126,7 +123,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               true
             )
           )
-      )).toSeq
+        )).toSeq
       errors.length must be(1)
       val error = errors(0).msg
       assert(error.contains("persisted"))
@@ -148,7 +145,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               true
             )
           )
-      )))
+        )))
     }
 
     "fail DocumentedPersisted" in {
@@ -164,7 +161,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               true
             )
           )
-      )).toSeq
+        )).toSeq
       errors.length must be(2)
       assert(errors.forall(_.level == LintLevel.Warning))
       val structError = errors.head.msg
@@ -190,7 +187,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               docstring = Some("documented struct is documented"),
               Map("persisted" -> "true"))
           )
-      )))
+        )))
     }
 
     "pass RequiredFieldDefault" in {
@@ -235,7 +232,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               requiredness = Requiredness.Required)),
           None)))).toSeq
       errors.length must be(1)
-      assert(errors(0).msg contains("Required field"))
+      assert(errors(0).msg contains ("Required field"))
     }
 
     "pass Keywords" in {
@@ -277,11 +274,50 @@ class LinterSpec extends WordSpec with MustMatchers {
               "val",
               TString,
               default = Some(StringLiteral("v1")),
+              requiredness = Requiredness.Optional)),
+          None)))).toSeq
+      errors.length must be(1)
+      assert(errors(0).msg contains ("Avoid using keywords"))
+    }
+
+    "pass non negative index" in {
+      mustPass(
+        LintRule.FieldIndexGreaterThanZeroRule(Document(
+          Seq(),
+          Seq(Struct(
+            SimpleID("SomeType"),
+            "SomeType",
+            Seq(
+              Field(
+                1,
+                SimpleID("val"),
+                "val",
+                TString,
+                default = Some(StringLiteral("v1")),
+                requiredness = Requiredness.Optional)
+            ),
+            None))))
+      )
+    }
+
+    "fail non negative index" in {
+      val errors = LintRule.FieldIndexGreaterThanZeroRule(Document(
+        Seq(),
+        Seq(Struct(
+          SimpleID("SomeType"),
+          "SomeType",
+          Seq(
+            Field(
+              -1,
+              SimpleID("val"),
+              "val",
+              TString,
+              default = Some(StringLiteral("v1")),
               requiredness = Requiredness.Optional)
           ),
           None)))).toSeq
-        errors.length must be(1)
-        assert(errors(0).msg contains("Avoid using keywords"))
+      errors.length must be(1)
+      assert(errors(0).msg contains ("Field id should be supplied"))
     }
   }
 }

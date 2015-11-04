@@ -12,9 +12,6 @@ scala_library(
     'util/util-logging',
   ],
   sources=globs('*.scala'),
-  resources=[
-    'scrooge/scrooge-linter/src/main/resources'
-  ],
 )
 
 jvm_binary(
