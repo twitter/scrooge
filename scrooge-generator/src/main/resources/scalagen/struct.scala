@@ -363,7 +363,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
      * Override the super hash code to make it a lazy val rather than def.
      *
      * Calculating the hash code can be expensive, caching it where possible
-     * can provide signifigant performance wins. (Key in a hash map for instance)
+     * can provide significant performance wins. (Key in a hash map for instance)
      * Usually not safe since the normal constructor will accept a mutable map or
      * set as an arg
      * Here however we control how the class is generated from serialized data.
