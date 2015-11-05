@@ -22,6 +22,10 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
 
   "JavaGenerator" should {
+    "support included namespaces for constants" in { _ =>
+      includes.b.thriftscala.Constants.name1 must be(includes.a.thriftscala.TestName("f1", "l1"))
+    }
+
     "generate an enum" should {
       "correct constants" in { _ =>
         NumberID.ONE.getValue() must be(1)

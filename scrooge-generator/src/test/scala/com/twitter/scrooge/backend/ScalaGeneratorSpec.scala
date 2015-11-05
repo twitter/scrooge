@@ -15,6 +15,8 @@ import thrift.test._
 import thrift.test1._
 import thrift.test2._
 import thrift.`def`.default._
+import includes.a.thriftscala._
+import includes.b.thriftscala._
 import inheritance.aaa.{Aaa, Box}
 import inheritance.bbb.Bbb
 import inheritance.ccc.Ccc
@@ -32,6 +34,10 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       "not equals" in { _ =>
         assert(EmptyStruct() != None)
       }
+    }
+
+    "support included namespaces for constants" in { _ =>
+      includes.b.thriftscala.Constants.name1 must be(includes.a.thriftscala.TestName("f1", "l1"))
     }
 
     "generate an enum" should {

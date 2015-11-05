@@ -230,7 +230,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case c@MapRHS(_) => genMap(c, fieldType)
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
-      case s: StructRHS => genStruct(s)
+      case s: StructRHS => genStruct(s, fieldType)
       case u: UnionRHS => genUnion(u)
     }
   }
@@ -243,7 +243,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment
 
-  def genStruct(struct: StructRHS): CodeFragment
+  def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment
 
   def genUnion(union: UnionRHS): CodeFragment
 

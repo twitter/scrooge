@@ -129,13 +129,19 @@ class ScalaGenerator(
     genID(enum.value.sid.toTitleCase.addScope(getTypeId.toTitleCase))
   }
 
-  def genStruct(struct: StructRHS): CodeFragment = {
+  def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val values = struct.elems
     val fields = values.map { case (f, value) =>
       val v = genConstant(value)
       genID(f.sid.toCamelCase) + "=" + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
     }
-    v(genID(struct.sid) + "(" + fields.mkString(", ") + ")")
+
+    val gid = fieldType match {
+      case Some(t) => genType(t)
+      case None => genID(struct.sid)
+    }
+
+    v(gid + "(" + fields.mkString(", ") + ")")
   }
 
   def genUnion(union: UnionRHS): CodeFragment = {

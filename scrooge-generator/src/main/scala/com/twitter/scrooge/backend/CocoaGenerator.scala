@@ -205,7 +205,7 @@ class CocoaGenerator(
     throw new Exception("not implemented")
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment =
     throw new Exception("not implemented")
-  def genStruct(struct: StructRHS): CodeFragment =
+  def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment =
     throw new Exception("not implemented")
   def genUnion(struct: UnionRHS): CodeFragment =
     throw new Exception("not implemented")

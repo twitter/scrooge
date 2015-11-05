@@ -138,7 +138,7 @@ class JavaGenerator(
     genID(enum.value.sid.toUpperCase.addScope(getTypeId.toTitleCase))
   }
 
-  def genStruct(struct: StructRHS): CodeFragment = {
+  def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val code = "new " + struct.sid.name + ".Builder()" + 
         struct.elems.map { case (field, rhs) => 
           "." + field.sid.name + "(" + genConstant(rhs, Some(field.fieldType)) + ")"
