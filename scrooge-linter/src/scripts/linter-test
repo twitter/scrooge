@@ -2,7 +2,7 @@
 
 # Run from source root
 # e.g. ./pants bundle scrooge/scrooge-linter:app \
-#      ./scrooge/scrooge-linter/src/scripts/linter-test dist/scrooge-linter-bundle/scrooge-linter.jar 
+#      ./scrooge/scrooge-linter/src/scripts/linter-test dist/scrooge-linter-package-bundle/scrooge-linter.jar 
 
 set -e
 

@@ -281,7 +281,7 @@ object LintRule {
           struct.fields.collect {
             case f if f.index <= 0 =>
               LintMessage(s"Non positive field id of ${f.originalName}. Field id should be supplied and must be " +
-                s" greater than zero in struct \n${struct.originalName}", Error)
+                s" greater than zero in struct \n${struct.originalName}", Warning)
           }
       }.flatten
     }

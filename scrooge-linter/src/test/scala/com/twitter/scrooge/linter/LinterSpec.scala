@@ -326,7 +326,7 @@ class LinterSpec extends WordSpec with MustMatchers {
       )
     }
 
-    "fail non negative index" in {
+    "warn non negative index" in {
       val errors = LintRule.FieldIndexGreaterThanZeroRule(Document(
         Seq(),
         Seq(Struct(
