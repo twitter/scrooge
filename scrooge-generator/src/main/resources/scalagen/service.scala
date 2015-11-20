@@ -66,7 +66,7 @@ object {{ServiceName}} { self =>
   }
 
   class MethodIface(serviceIface: __ServiceIface)
-    extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}FutureIface {
+    extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}{{ServiceName}}[Future] {
 {{#dedupedOwnFunctions}}
     private[this] val __{{funcName}}_service =
       ThriftServiceIface.resultFilter(self.{{funcObjectName}}) andThen serviceIface.{{dedupedFuncName}}
@@ -76,8 +76,8 @@ object {{ServiceName}} { self =>
   }
 
   implicit object MethodIfaceBuilder
-    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, FutureIface] {
-    def newMethodIface(serviceIface: ServiceIface): FutureIface =
+    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
+    def newMethodIface(serviceIface: ServiceIface): {{ServiceName}}[Future] =
       new MethodIface(serviceIface)
   }
 {{/generateServiceIface}}

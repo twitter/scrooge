@@ -4,7 +4,6 @@ as it is included in Scrooge's user's guide.
 
 4.x
 -----
-- scrooge: MethodIface, generated as part of Finagle service per endpoint, now extends FutureIface
 
 4.2.0
 ~~~~~~~
