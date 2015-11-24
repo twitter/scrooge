@@ -20,7 +20,7 @@ import com.twitter.scrooge.ast._
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.MustMatchers
+import org.scalatest.matchers.MustMatchers
 
 
 @RunWith(classOf[JUnitRunner])
@@ -42,7 +42,7 @@ class LinterSpec extends WordSpec with MustMatchers {
     "fail Namespaces" in {
       val errors = LintRule.Namespaces(Document(Seq(Namespace("java", SimpleID("asdf"))), Nil)).toSeq
       errors.length must be(1)
-      assert(errors.head.msg contains "Missing namespace")
+      assert(errors(0).msg contains ("Missing namespace"))
     }
 
     "pass RelativeIncludes" in {
@@ -61,9 +61,9 @@ class LinterSpec extends WordSpec with MustMatchers {
         Seq(
           Namespace("java", SimpleID("asdf")),
           Include("./dir1/../dir1/include1.thrift", Document(Seq(), Seq()))),
-        Nil))
+        Nil)).toSeq
       errors.size must be(1)
-      assert(errors.head.msg contains "Relative include path found")
+      assert(errors(0).msg contains ("Relative include path found"))
     }
 
     "pass CamelCase" in {
@@ -93,8 +93,21 @@ class LinterSpec extends WordSpec with MustMatchers {
             TString)),
           None)))).toSeq
       errors.length must be(1)
-      assert(errors.head.msg contains "lowerCamelCase")
+      assert(errors(0).msg contains ("lowerCamelCase"))
     }
+
+
+    def struct(name: String, fields: Map[String, FieldType], persisted: Boolean = false) =
+      Struct(
+        SimpleID(name),
+        name,
+        fields.zipWithIndex.map {
+          case ((fieldName, fieldType), i) => Field(i, SimpleID(fieldName), fieldName, fieldType)
+        }.toSeq,
+        None,
+        if (persisted) Map("persisted" -> "true") else Map.empty
+      )
+
 
     "fail TransitivePersistence" in {
       val errors = LintRule.TransitivePersistence(
@@ -105,39 +118,17 @@ class LinterSpec extends WordSpec with MustMatchers {
               "SomeType",
               Map(
                 "foo" -> TString,
-                "bar" -> StructType(struct("SomeOtherType", Map.empty, persisted = false))
+                "bar" -> StructType(struct("SomeOtherType", Map.empty))
               ),
-              persisted = true
+              true
             )
           )
         )).toSeq
       errors.length must be(1)
-      val error = errors.head.msg
+      val error = errors(0).msg
       assert(error.contains("persisted"))
       assert(error.contains("SomeType"))
       assert(error.contains("SomeOtherType"))
-    }
-
-    "fail TransitivePersistence for enums" in {
-      val errors = LintRule.TransitivePersistence(
-        Document(
-          Seq(),
-          Seq(
-            struct(
-              "SomeType",
-              Map(
-                "foo" -> TString,
-                "bar" -> EnumType(enum("SomeEnumType", Seq.empty, persisted = false))
-              ),
-              persisted = true
-            )
-          )
-        )).toSeq
-      errors.length must be(1)
-      val error = errors.head.msg
-      assert(error.contains("persisted"))
-      assert(error.contains("SomeType"))
-      assert(error.contains("SomeEnumType"))
     }
 
     "pass TransitivePersistence" in {
@@ -149,26 +140,9 @@ class LinterSpec extends WordSpec with MustMatchers {
               "SomeType",
               Map(
                 "foo" -> TString,
-                "bar" -> StructType(struct("SomeOtherType", Map.empty, persisted = true))
+                "bar" -> StructType(struct("SomeOtherType", Map.empty, true))
               ),
-              persisted = true
-            )
-          )
-        )))
-    }
-
-    "pass TransitivePersistence for enums" in {
-      mustPass(LintRule.TransitivePersistence(
-        Document(
-          Seq(),
-          Seq(
-            struct(
-              "SomeType",
-              Map(
-                "foo" -> TString,
-                "bar" -> EnumType(enum("SomeOtherType", Seq.empty, persisted = true))
-              ),
-              persisted = true
+              true
             )
           )
         )))
@@ -184,7 +158,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               Map(
                 "foo" -> TString
               ),
-              persisted = true
+              true
             )
           )
         )).toSeq
@@ -256,9 +230,9 @@ class LinterSpec extends WordSpec with MustMatchers {
               TString,
               default = Some(StringLiteral("v1")),
               requiredness = Requiredness.Required)),
-          None))))
+          None)))).toSeq
       errors.length must be(1)
-      assert(errors.head.msg contains "Required field")
+      assert(errors(0).msg contains ("Required field"))
     }
 
     "pass Keywords" in {
@@ -303,7 +277,7 @@ class LinterSpec extends WordSpec with MustMatchers {
               requiredness = Requiredness.Optional)),
           None)))).toSeq
       errors.length must be(1)
-      assert(errors.head.msg contains "Avoid using keywords")
+      assert(errors(0).msg contains ("Avoid using keywords"))
     }
 
     "pass non negative index" in {
@@ -343,26 +317,7 @@ class LinterSpec extends WordSpec with MustMatchers {
           ),
           None)))).toSeq
       errors.length must be(1)
-      assert(errors.head.msg contains "Field id should be supplied")
+      assert(errors(0).msg contains ("Field id should be supplied"))
     }
   }
-
-  private[this] def struct(name: String, fields: Map[String, FieldType], persisted: Boolean = false) =
-    Struct(
-      SimpleID(name),
-      name,
-      fields.zipWithIndex.map {
-        case ((fieldName, fieldType), i) => Field(i, SimpleID(fieldName), fieldName, fieldType)
-      }.toSeq,
-      None,
-      if (persisted) Map("persisted" -> "true") else Map.empty
-    )
-
-  private[this] def enum(name: String, values: Seq[EnumField], persisted: Boolean = false) =
-    Enum(
-      SimpleID(name),
-      values,
-      None,
-      if (persisted) Map("persisted" -> "true") else Map.empty
-    )
 }

@@ -69,20 +69,17 @@ object LintRule {
 
     override def requiresIncludes: Boolean = true
 
-    def isPersisted(annotations: Map[String, String]) =
-      annotations.getOrElse("persisted", "false") == "true"
+    def isPersisted(struct: StructLike) =
+      struct.annotations.getOrElse("persisted", "false") == "true"
 
     def apply(doc0: Document) = {
       // resolving ReferenceTypes
       val resolver = TypeResolver()(doc0)
       val doc = resolver.document
 
-      def getFullName(scopePrefix: Option[SimpleID], sid: SimpleID): String =
-        scopePrefix.map(_.name + ".").getOrElse("") + sid.name
-
       def findUnpersistedStructs(s: StructLike, scopePrefix: Option[SimpleID] = None): Seq[String] = {
         val current =
-          if (!isPersisted(s.annotations)) Seq(getFullName(scopePrefix, s.sid))
+          if (!isPersisted(s)) Seq(scopePrefix.map(_.name + ".").getOrElse("") + s.sid.name)
           else Seq.empty
         (current ++ findUnpersistedStructsFromFields(s.fields.map(_.fieldType))).distinct
       }
@@ -90,12 +87,7 @@ object LintRule {
       def findUnpersistedStructsFromFields(fieldTypes: Seq[FieldType]): Seq[String] = {
         fieldTypes.flatMap {
           case StructType(s, scopePrefix) => findUnpersistedStructs(s, scopePrefix) // includes Unions
-          case EnumType(enum, scopePrefix) =>
-            if (isPersisted(enum.annotations)) {
-              Seq.empty
-            } else {
-              Seq(getFullName(scopePrefix, enum.sid))
-            }
+          case EnumType(enum: Enum, _) => Seq.empty // enums don't have annotations
           case MapType(keyType, valueType, _) => findUnpersistedStructsFromFields(Seq(keyType, valueType))
           case SetType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
           case ListType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
@@ -106,7 +98,7 @@ object LintRule {
       }
 
       for {
-        struct <- doc.structs if isPersisted(struct.annotations) // structs contains all StructLikes including Structs and Unions
+        struct <- doc.structs if isPersisted(struct) // structs contains all StructLikes including Structs and Unions
         structChild <- findUnpersistedStructs(struct)
       } yield LintMessage(
           s"struct ${struct.originalName} with persisted annotation refers to struct ${structChild} that is not annotated persisted.",
@@ -119,9 +111,7 @@ object LintRule {
    */
   object DocumentedPersisted extends LintRule {
     def apply(doc: Document) = {
-      val persistedStructs = doc.structs.filter { struct =>
-        TransitivePersistence.isPersisted(struct.annotations)
-      }
+      val persistedStructs = doc.structs.filter(TransitivePersistence.isPersisted(_))
       val fieldsErrors = for {
         s <- persistedStructs
         field <- s.fields if field.docstring.isEmpty
