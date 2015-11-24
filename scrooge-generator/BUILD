@@ -1,5 +1,3 @@
-maven_layout()
-
 target(name='scrooge-generator',
   dependencies=[
     'scrooge/scrooge-generator/src/main/scala'
