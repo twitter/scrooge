@@ -132,7 +132,7 @@ class ScalaGenerator(
   def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val values = struct.elems
     val fields = values.map { case (f, value) =>
-      val v = genConstant(value)
+      val v = genConstant(value, Some(f.fieldType))
       genID(f.sid.toCamelCase) + "=" + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
     }
 

@@ -37,7 +37,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "support included namespaces for constants" in { _ =>
-      includes.b.thriftscala.Constants.name1 must be(includes.a.thriftscala.TestName("f1", "l1"))
+      includes.b.thriftscala.Constants.name1.first must be("f1")
+      includes.b.thriftscala.Constants.name1.last must be("l1")
+      includes.b.thriftscala.Constants.name1.address.street must be("some street")
+      includes.b.thriftscala.Constants.name1.address.city must be("San Francisco")
+      includes.b.thriftscala.Constants.name1.address.state must be("CA")
     }
 
     "generate an enum" should {
