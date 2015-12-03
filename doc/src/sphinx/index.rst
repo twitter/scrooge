@@ -52,7 +52,7 @@ SBT users need this:
 
 ::
 
-    val scroogeCore = "com.twitter" %% "scrooge-core" % "4.2.0"
+    val scroogeCore = "com.twitter" %% "scrooge-core" % "4.3.0"
 
 Building Scrooge
 ----------------
