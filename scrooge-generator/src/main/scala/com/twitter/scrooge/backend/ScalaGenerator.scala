@@ -144,10 +144,14 @@ class ScalaGenerator(
     v(gid + "(" + fields.mkString(", ") + ")")
   }
 
-  def genUnion(union: UnionRHS): CodeFragment = {
+  def genUnion(union: UnionRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val fieldId = genID(union.field.sid.toTitleCase)
-    val rhs = genConstant(union.initializer)
-    v(s"${genID(union.sid)}.$fieldId($rhs)")
+    val unionId = fieldType match {
+      case Some(t) => genType(t)
+      case None => genID(union.sid)
+    }
+    val rhs = genConstant(union.initializer, Some(union.field.fieldType))
+    v(s"${unionId}.$fieldId($rhs)")
   }
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {

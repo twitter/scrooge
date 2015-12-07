@@ -8,7 +8,11 @@ const const.TestName name1 = {
   "last" : "l1"
   "address": {
     "street": "some street"
-    "city": "San Francisco"
-    "state": "CA"
+    "city": {
+      "city_state": {
+        "city": "San Francisco"
+        "state": "CA"
+      }
+    }
   }
 }

@@ -40,8 +40,14 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       includes.b.thriftscala.Constants.name1.first must be("f1")
       includes.b.thriftscala.Constants.name1.last must be("l1")
       includes.b.thriftscala.Constants.name1.address.street must be("some street")
-      includes.b.thriftscala.Constants.name1.address.city must be("San Francisco")
-      includes.b.thriftscala.Constants.name1.address.state must be("CA")
+      includes.b.thriftscala.Constants.name1.address.city match {
+        case includes.a.thriftscala.City.CityState(includes.a.thriftscala.CityState(city, state)) => {
+          city must be("San Francisco")
+          state must be("CA")
+        }
+        case _ => fail("City not specified as city_state " +
+          includes.b.thriftscala.Constants.name1.address.city)
+      }
     }
 
     "generate an enum" should {

@@ -147,7 +147,7 @@ class JavaGenerator(
   }
 
   // TODO
-  def genUnion(union: UnionRHS): CodeFragment = ???
+  def genUnion(union: UnionRHS, fieldType: Option[FieldType] = None): CodeFragment = ???
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
     val code = fieldType match {

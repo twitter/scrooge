@@ -207,7 +207,7 @@ class CocoaGenerator(
     throw new Exception("not implemented")
   def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment =
     throw new Exception("not implemented")
-  def genUnion(struct: UnionRHS): CodeFragment =
+  def genUnion(struct: UnionRHS, fieldType: Option[FieldType] = None): CodeFragment =
     throw new Exception("not implemented")
 
   // For mutability/immutability support, not implemented

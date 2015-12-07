@@ -231,7 +231,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case c: EnumRHS => genEnum(c, fieldType)
       case iv@IdRHS(id) => genID(id)
       case s: StructRHS => genStruct(s, fieldType)
-      case u: UnionRHS => genUnion(u)
+      case u: UnionRHS => genUnion(u, fieldType)
     }
   }
 
@@ -245,7 +245,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
   def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment
 
-  def genUnion(union: UnionRHS): CodeFragment
+  def genUnion(union: UnionRHS, fieldType: Option[FieldType] = None): CodeFragment
 
   /**
    * The default value for the specified type and mutability.

@@ -26,8 +26,6 @@ class JavaGeneratorSpec extends JMockSpec with EvalHelper {
       includes.b.thriftjava.Constants.name1.first must be("f1")
       includes.b.thriftjava.Constants.name1.last must be("l1")
       includes.b.thriftjava.Constants.name1.address.street must be("some street")
-      includes.b.thriftjava.Constants.name1.address.city must be("San Francisco")
-      includes.b.thriftjava.Constants.name1.address.state must be("CA")
     }
 
     "generate an enum" should {
