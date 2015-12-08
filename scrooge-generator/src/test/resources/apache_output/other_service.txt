@@ -466,7 +466,7 @@ public class OtherService {
     return new test_endpoint_args(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     setReqIsSet(false);
     this.req = 0;
@@ -529,7 +529,7 @@ public class OtherService {
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -553,7 +553,7 @@ public class OtherService {
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -624,7 +624,7 @@ public class OtherService {
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("test_endpoint_args(");
     boolean first = true;
@@ -745,7 +745,7 @@ public class OtherService {
     return new test_endpoint_result(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     setSuccessIsSet(false);
     this.success = false;
@@ -808,7 +808,7 @@ public class OtherService {
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -832,7 +832,7 @@ public class OtherService {
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -903,7 +903,7 @@ public class OtherService {
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("test_endpoint_result(");
     boolean first = true;

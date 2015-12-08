@@ -77,7 +77,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
   }
 
   public static ThriftStructCodec<{{StructName}}> CODEC = new ThriftStructCodec3<{{StructName}}>() {
-    @Override
+    @java.lang.Override
     public {{StructName}} decode(TProtocol _iprot) throws org.apache.thrift.TException {
       Builder builder = new Builder();
 {{#fields}}
@@ -112,7 +112,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
       }
     }
 
-    @Override
+    @java.lang.Override
     public void encode({{StructName}} struct, TProtocol oprot) throws org.apache.thrift.TException {
       struct.write(oprot);
     }
@@ -195,13 +195,13 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
   }
 
 {{#hasExceptionMessage}}
-  @Override
+  @java.lang.Override
   public String getMessage() {
     return String.valueOf({{exceptionMessageField}});
   }
 {{/hasExceptionMessage}}
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object other) {
 {{#arity0}}
     return this == other;
@@ -225,7 +225,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
 {{/arity0}}
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
 {{#arity0}}
     return "{{StructName}}()";
@@ -235,7 +235,7 @@ public {{/public}}{{^public}}static {{/public}}class {{StructName}}{{#isExceptio
 {{/arity0}}
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
 {{#arity0}}
     return super.hashCode();

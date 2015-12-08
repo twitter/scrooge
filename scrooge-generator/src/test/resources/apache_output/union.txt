@@ -144,7 +144,7 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
   }
 
 
-  @Override
+  @java.lang.Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
     switch (setField) {
       case AN_INT:
@@ -167,7 +167,7 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
     }
   }
 
-  @Override
+  @java.lang.Override
   protected Object readValue(TProtocol iprot, TField field) throws TException {
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
@@ -218,7 +218,7 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
     }
   }
 
-  @Override
+  @java.lang.Override
   protected void writeValue(TProtocol oprot) throws TException {
     switch (setField_) {
       case AN_INT:
@@ -245,7 +245,7 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
     }
   }
 
-  @Override
+  @java.lang.Override
   protected TField getFieldDesc(_Fields setField) {
     switch (setField) {
       case AN_INT:
@@ -259,12 +259,12 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
     }
   }
 
-  @Override
+  @java.lang.Override
   protected TStruct getStructDesc() {
     return STRUCT_DESC;
   }
 
-  @Override
+  @java.lang.Override
   protected _Fields enumForId(short id) {
     return _Fields.findByThriftIdOrThrow(id);
   }
@@ -327,7 +327,7 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
     return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
-  @Override
+  @java.lang.Override
   public int compareTo(TestUnion other) {
     int lastComparison = TBaseHelper.compareTo(getSetField(), other.getSetField());
     if (lastComparison == 0) {
@@ -340,7 +340,7 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
   /**
    * If you'd like this to perform more respectably, use the hashcode generator option.
    */
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
