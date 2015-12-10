@@ -4,8 +4,7 @@ import com.twitter.app.GlobalFlag
 import com.twitter.util.{Base64StringEncoder, StringEncoder}
 import java.io.{ByteArrayInputStream, InputStream}
 import java.util.concurrent.atomic.AtomicLong
-import org.apache.thrift.protocol.{
-  TBinaryProtocol, TCompactProtocol, TProtocolFactory, TSimpleJSONProtocol}
+import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TIOStreamTransport
 
 
@@ -141,6 +140,12 @@ object CompactThriftSerializer {
     }
 }
 
+/**
+ * Thrift serializer using the TSimpleJSONProtocol. This serializes thrift using field
+ * names, and currently does NOT support deserialization of the resulting json.
+ * @note see [[com.twitter.scrooge.TJSONProtocolThriftSerializer]] if you want to be able
+ *       to deserialize from json.
+ */
 trait JsonThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
   override def encoder = StringEncoder
   val protocolFactory = new TSimpleJSONProtocol.Factory
@@ -149,6 +154,22 @@ trait JsonThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] 
 object JsonThriftSerializer {
   def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): JsonThriftSerializer[T] =
     new JsonThriftSerializer[T] {
+      def codec = _codec
+    }
+}
+
+/**
+ * Thrift serializer / deserializer using the TJSONProtocol. This serializes thrift using
+ * field ids (numbers), and does support deserialization of the resulting json.
+ */
+trait TJSONProtocolThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
+  override def encoder = StringEncoder
+  val protocolFactory = new TJSONProtocol.Factory
+}
+
+object TJSONProtocolThriftSerializer {
+  def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): TJSONProtocolThriftSerializer[T] =
+    new TJSONProtocolThriftSerializer[T] {
       def codec = _codec
     }
 }
