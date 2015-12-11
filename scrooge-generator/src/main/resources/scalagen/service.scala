@@ -4,7 +4,7 @@ import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob, ThriftService, ThriftStruct,
   ThriftStructCodec, ThriftStructCodec3,
-  ThriftStructFieldInfo, ThriftResponse, ThriftUtil}
+  ThriftStructFieldInfo, ThriftResponse, ThriftUtil, ToThriftService}
 {{#withFinagle}}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
@@ -41,14 +41,16 @@ object {{ServiceName}} { self =>
 {{#inheritedFunctions}}
       {{#disableCaseClass}}val {{/disableCaseClass}}{{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
 {{/inheritedFunctions|,}}
-  ) extends {{#parent}}{{parent}}.__ServiceIface
-    with {{/parent}}__ServiceIface
+  ) extends {{#parent}}{{parent}}.BaseServiceIface
+    with {{/parent}}BaseServiceIface
 
   // This is needed to support service inheritance.
-  trait __ServiceIface {{#parent}} extends {{parent}}.__ServiceIface {{/parent}} {
+  trait BaseServiceIface extends {{#parent}}{{parent}}.BaseServiceIface{{/parent}}{{^parent}}ToThriftService{{/parent}} {
 {{#dedupedOwnFunctions}}
     def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.Result]
 {{/dedupedOwnFunctions}}
+
+    def toThriftService: ThriftService = new MethodIface(this)
   }
 
   implicit object ServiceIfaceBuilder
@@ -65,7 +67,7 @@ object {{ServiceName}} { self =>
       )
   }
 
-  class MethodIface(serviceIface: __ServiceIface)
+  class MethodIface(serviceIface: BaseServiceIface)
     extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}{{ServiceName}}[Future] {
 {{#dedupedOwnFunctions}}
     private[this] val __{{funcName}}_service =
@@ -99,6 +101,21 @@ object {{ServiceName}} { self =>
 {{#internalResultStruct}}
     {{>struct}}
 {{/internalResultStruct}}
+
+    type FunctionType = {{functionType}}
+    type ServiceType = com.twitter.finagle.Service[Args, Result]
+
+    private[this] val toResult = (res: SuccessType) => Result(Some(res))
+
+    def functionToService(f: FunctionType): ServiceType = {{#moreThan22Args}}???{{/moreThan22Args}}{{^moreThan22Args}}{
+      com.twitter.finagle.Service.mk { args: Args =>
+        f({{argsFieldNames}}).map(toResult)
+      }
+    }{{/moreThan22Args}}
+
+    def serviceToFunction(svc: ServiceType): FunctionType = {{#moreThan22Args}}???{{/moreThan22Args}}{{^moreThan22Args}}{ ({{argNames}}) =>
+      ThriftServiceIface.resultFilter(this).andThen(svc).apply(Args({{argNames}}))
+    }{{/moreThan22Args}}
 
     val name = "{{originalFuncName}}"
     val serviceName = "{{ServiceName}}"

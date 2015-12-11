@@ -37,6 +37,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
         Nil
       }
 
+    val argNames = function.args.map { field => genID(field.sid).toData }
+
     Dictionary(
       "generic" -> v(generic.map(v)),
       "docstring" -> v(function.docstring.getOrElse("")),
@@ -47,8 +49,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "funcObjectName" -> genID(functionObjectName(function)),
       "typeName" -> genType(function.funcType),
       "fieldParams" -> genFieldParams(function.args), // A list of parameters with types: (a: A, b: B...)
-      "argNames" -> {
-        val code = function.args.map { field => genID(field.sid).toData }.mkString(", ")
+      "argNames" -> v(argNames.mkString(", ")),
+      "argsFieldNames" -> {
+        val code = argNames.map { field => s"args.$field" }.mkString(", ")
         v(code)
       },
       "argTypes" -> {
@@ -64,7 +67,20 @@ trait ServiceTemplate { self: TemplateGenerator =>
         Dictionary("arg" -> genID(arg.sid))
       }),
       "isVoid" -> v(function.funcType == Void || function.funcType == OnewayVoid),
-      "is_oneway" -> v(function.funcType == OnewayVoid)
+      "is_oneway" -> v(function.funcType == OnewayVoid),
+      "functionType" -> {
+        val n = function.args.size
+        if (n <= 22) {
+          val returnType = s"Future[${genType(function.funcType)}]"
+          val types = function.args.map { arg => genType(arg.fieldType) } :+ returnType
+          val typeParams = types.mkString("[", ",", "]")
+          v(s"Function$n$typeParams")
+        } else {
+          // scala doesn't support function types with over 22 args
+          v("Unit")
+        }
+      },
+      "moreThan22Args" -> v(function.args.size > 22)
     )
   }
 
