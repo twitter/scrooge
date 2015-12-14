@@ -6,8 +6,7 @@
 import sys, os
 
 sys.path.append(os.path.abspath('exts'))
-# highlight_language = 'scala'
-highlight_language = 'text'  # this way we don't get ugly syntax coloring
+highlight_language = 'scala'
 extensions = ['sphinx.ext.extlinks', 'includecode']
 templates_path = ['_templates']
 source_suffix = '.rst'
