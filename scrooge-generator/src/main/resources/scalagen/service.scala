@@ -50,7 +50,7 @@ object {{ServiceName}} { self =>
     def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.Result]
 {{/dedupedOwnFunctions}}
 
-    def toThriftService: ThriftService = new MethodIface(this)
+    override def toThriftService: ThriftService = new MethodIface(this)
   }
 
   implicit object ServiceIfaceBuilder
@@ -105,7 +105,7 @@ object {{ServiceName}} { self =>
     type FunctionType = {{functionType}}
     type ServiceType = com.twitter.finagle.Service[Args, Result]
 
-    private[this] val toResult = (res: SuccessType) => Result(Some(res))
+    private[this] val toResult = (res: SuccessType) => Result({{^isVoid}}Some(res){{/isVoid}})
 
     def functionToService(f: FunctionType): ServiceType = {{#moreThan22Args}}???{{/moreThan22Args}}{{^moreThan22Args}}{
       com.twitter.finagle.Service.mk { args: Args =>
