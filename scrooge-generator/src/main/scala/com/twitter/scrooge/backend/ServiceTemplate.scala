@@ -72,7 +72,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
         val n = function.args.size
         if (n <= 22) {
           val returnType = s"Future[${genType(function.funcType)}]"
-          val types = function.args.map { arg => genType(arg.fieldType) } :+ returnType
+          val types = function.args.map { arg => genFieldType(arg) } :+ returnType
           val typeParams = types.mkString("[", ",", "]")
           v(s"Function$n$typeParams")
         } else {
