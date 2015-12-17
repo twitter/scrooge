@@ -5,6 +5,9 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+- scrooge: Rename __ServiceIface to BaseServiceIface
+- scrooge: Add methods for converting between function and service implementations of ThriftMethods.
+
 4.3.0
 ~~~~~~~
 

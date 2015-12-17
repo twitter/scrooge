@@ -92,6 +92,23 @@ trait ThriftMethod {
   /** Contains success or thrift application exceptions */
   type Result <: ThriftResponse[SuccessType] with ThriftStruct
 
+  /**
+   * The type of this method, as a function.
+   * e.g. Function2[Int, String, Future[String]]
+   */
+  type FunctionType
+
+  /**
+   * The type of this method, as a Service
+   * e.g. Service[Args, Result]
+   */
+  type ServiceType
+
+  /** Convert a function implementation of this method into a service implementation */
+  def functionToService(f: FunctionType): ServiceType
+  /** Convert a service implementation of this method into a function implementation */
+  def serviceToFunction(svc: ServiceType): FunctionType
+
   /** Thrift method name */
   def name: String
   /** Thrift service name. A thrift service is a list of methods. */
