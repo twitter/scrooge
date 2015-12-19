@@ -102,6 +102,7 @@ object {{ServiceName}} { self =>
     {{>struct}}
 {{/internalResultStruct}}
 
+{{#withFinagle}}
     type FunctionType = {{functionType}}
     type ServiceType = com.twitter.finagle.Service[Args, Result]
 
@@ -116,6 +117,14 @@ object {{ServiceName}} { self =>
     def serviceToFunction(svc: ServiceType): FunctionType = {{#moreThan22Args}}???{{/moreThan22Args}}{{^moreThan22Args}}{ ({{argNames}}) =>
       ThriftServiceIface.resultFilter(this).andThen(svc).apply(Args({{argNames}}))
     }{{/moreThan22Args}}
+{{/withFinagle}}
+{{^withFinagle}}
+    type FunctionType = Nothing
+    type ServiceType = Nothing
+
+    def functionToService(f: FunctionType): ServiceType = ???
+    def serviceToFunction(svc: ServiceType): FunctionType = ???
+{{/withFinagle}}
 
     val name = "{{originalFuncName}}"
     val serviceName = "{{ServiceName}}"

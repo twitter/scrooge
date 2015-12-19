@@ -21,10 +21,13 @@ public class Utilities {
     }
   }
 
+  @SafeVarargs
+  @SuppressWarnings("varargs")
   public static <T> List<T> makeList(T... elements) {
     return Arrays.asList(elements);
   }
 
+  @SafeVarargs
   public static <A, B> Map<A, B> makeMap(Tuple<A, B>... elements) {
     Map<A, B> map = new HashMap<A, B>(elements.length * 2 / 3);
     for (Tuple<A, B> element : elements) {
@@ -33,6 +36,7 @@ public class Utilities {
     return map;
   }
 
+  @SafeVarargs
   public static <T> Set<T> makeSet(T... elements) {
     Set<T> set = new HashSet<T>(elements.length * 2 / 3);
     for (T element : elements) {
@@ -45,6 +49,8 @@ public class Utilities {
     return EnumSet.noneOf(klass);
   }
 
+  @SafeVarargs
+  @SuppressWarnings("varargs")
   public static <T extends Enum<T>> Set<T> makeEnumSet(T first, T... elements) {
     return EnumSet.of(first, elements);
   }

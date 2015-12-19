@@ -52,7 +52,7 @@ final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTran
 
   // Allow resetting the internal state down
   // this cache's the high water mark seen so far and keeps an internal buffer of that size however.
-  def reset: Unit = {
+  def reset(): Unit = {
     if (currentBuffer != null) {
       if (currentBuffer.length < totalSize)
         currentBuffer = new Array(totalSize)

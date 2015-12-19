@@ -6,5 +6,6 @@ junit_tests(
     'scrooge/scrooge-serializer',
     'scrooge/scrooge-serializer/src/test/thrift:thrift-scala',
   ],
+  fatal_warnings=True,
   sources=rglobs('*.scala'),
 )

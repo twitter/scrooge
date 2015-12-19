@@ -11,6 +11,7 @@ scala_library(
     'scrooge/scrooge-generator',
     'util/util-logging',
   ],
+  fatal_warnings=True,
   sources=globs('*.scala'),
 )
 

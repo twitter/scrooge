@@ -45,7 +45,7 @@ class PrintConstController(
           Map("value" -> renderedValue.value, "rendered_value" -> renderedValue.rendered)
         }
       }
-      case _ => throw new ScroogeInternalException("Invalid state PrintConstController")
+      case _ => throw new ScroogeInternalException(s"Invalid state PrintConstController '$value'")
     }
   }
 
@@ -70,6 +70,7 @@ class PrintConstController(
           "key" -> union.field.sid.name,
           "value" -> renderedValue.value,
           "rendered_value" -> renderedValue.rendered))
+      case _ => throw new ScroogeInternalException(s"Invalid state PrintConstController '$value'")
     }
   }
 

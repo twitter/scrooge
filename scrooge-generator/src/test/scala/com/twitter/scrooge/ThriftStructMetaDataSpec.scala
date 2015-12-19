@@ -162,7 +162,7 @@ class ThriftStructMetaDataSpec extends Spec {
     val bonk = MorePerfectUnion.Bonk(Bonk("message", 55))
     assert(Some(bonkFieldInfo) == bonk.unionStructFieldInfo)
 
-    bonk.containedValue match {
+    bonk.containedValue() match {
       case _: Bonk =>
       case u => fail(u.toString)
     }

@@ -271,6 +271,7 @@ class ThriftParser(
   lazy val fieldReq = opt("required" | "optional") ^^ {
     case Some("required") => Requiredness.Required
     case Some("optional") => Requiredness.Optional
+    case Some(r) => throw new ParseException(s"Invalid requiredness value '$r'")
     case None => Requiredness.Default
   }
 

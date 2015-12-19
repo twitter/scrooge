@@ -20,7 +20,7 @@ import com.twitter.scrooge.ast._
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.MustMatchers
+import org.scalatest.MustMatchers
 
 
 @RunWith(classOf[JUnitRunner])

@@ -4,6 +4,7 @@ junit_tests(name='scala',
     '3rdparty/jvm/org/scalatest',
     '3rdparty/jvm/org/mockito:mockito-all',
     'scrooge/scrooge-linter:bin',
-],
+  ],
+  fatal_warnings=True,
   sources=rglobs('*.scala'),
 )

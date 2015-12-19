@@ -32,7 +32,7 @@ case class ThreadUnsafeLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStruct
   val proto = new TLazyBinaryProtocol(transport)
 
   def toBytes(obj: T): Array[Byte] = {
-    transport.reset
+    transport.reset()
     codec.encode(obj, proto)
     transport.toByteArray
   }

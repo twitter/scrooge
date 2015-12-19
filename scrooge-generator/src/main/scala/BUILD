@@ -16,6 +16,7 @@ scala_library(name='scala',
     'util/util-codec',
     'util/util-core',
   ],
+  fatal_warnings=True,
   sources=rglobs('*.scala'),
   resources=[
     'scrooge/scrooge-generator/src/main/resources:resources'

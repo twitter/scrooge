@@ -6,5 +6,6 @@ junit_tests(name='scala',
     '3rdparty/jvm/org/scalatest',
     'scrooge/scrooge-core',
   ],
+  fatal_warnings=True,
   sources=rglobs('*.scala'),
 )

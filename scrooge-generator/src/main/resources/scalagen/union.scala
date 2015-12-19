@@ -195,7 +195,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
     //protected type ContainedType = {{FieldName}}Alias
 
-    def containedValue: {{FieldName}}Alias = {{fieldName}}
+    def containedValue(): {{FieldName}}Alias = {{fieldName}}
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
       _root_.scala.Some({{FieldName}}.fieldInfo)
@@ -219,7 +219,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       private val field: TFieldBlob)
     extends {{StructName}} {
 
-    def containedValue: Unit = ()
+    def containedValue(): Unit = ()
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] = _root_.scala.None
 

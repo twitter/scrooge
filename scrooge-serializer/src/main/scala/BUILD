@@ -11,5 +11,6 @@ scala_library(name='scala',
     'util/util-core',
     'scrooge/scrooge-core'
   ],
+  fatal_warnings=True,
   sources=rglobs('*.scala'),
 )

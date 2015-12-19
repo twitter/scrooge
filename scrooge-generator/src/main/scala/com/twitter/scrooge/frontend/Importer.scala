@@ -86,7 +86,7 @@ case class DirImporter(dir: File) extends Importer {
           this
         else
           Importer(file.getParentFile) +: this
-      Some(file, importer)
+      Some((file, importer))
     } else None
   }
 

@@ -5,6 +5,7 @@ scala_library(name='scala',
     'scrooge/scrooge-benchmark/src/main/thrift:thrift-scala',
     'scrooge/scrooge-serializer',
   ],
+  fatal_warnings=True,
   sources=rglobs('*.scala')
 )
 

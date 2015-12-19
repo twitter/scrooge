@@ -28,18 +28,6 @@ object Scrooge extends Build {
   val compileThrift = TaskKey[Seq[File]](
     "compile-thrift", "generate thrift needed for tests")
 
-  lazy val publishM2Configuration =
-    TaskKey[PublishConfiguration]("publish-m2-configuration",
-      "Configuration for publishing to the .m2 repository.")
-
-  lazy val publishM2 =
-    TaskKey[Unit]("publish-m2",
-      "Publishes artifacts to the .m2 repository.")
-
-  lazy val m2Repo =
-    Resolver.file("publish-m2-local",
-      Path.userHome / ".m2" / "repository")
-
   val dumpClasspath = TaskKey[File](
     "dump-classpath", "generate a file containing the full classpath")
 
@@ -60,10 +48,23 @@ object Scrooge extends Build {
     ScroogeRunner.genTestThriftTask
   )
 
+  def scalacOptionsVersion(sv: String): Seq[String] = {
+    Seq(
+      "-deprecation",
+      "-unchecked",
+      "-feature",
+      "-Xlint",
+      "-encoding", "utf8"
+    ) ++ (CrossVersion.partialVersion(sv) match {
+      case Some((2, x)) if x >= 11 => Seq("-Ypatmat-exhaust-depth", "40")
+      case _ => Nil
+    })
+  }
+
   val sharedSettings = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.10.6" , "2.11.7"),
+    crossScalaVersions := Seq("2.10.6", "2.11.7"),
     scalaVersion := "2.11.7",
 
     resolvers ++= Seq(
@@ -77,18 +78,6 @@ object Scrooge extends Build {
       }
     ),
 
-    publishM2Configuration <<= (packagedArtifacts, checksums in publish, ivyLoggingLevel) map { (arts, cs, level) =>
-      Classpaths.publishConfig(
-        artifacts = arts,
-        ivyFile = None,
-        resolverName = m2Repo.name,
-        checksums = cs,
-        logging = level,
-        overwrite = true)
-    },
-    publishM2 <<= Classpaths.publishTask(publishM2Configuration, deliverLocal),
-    otherResolvers += m2Repo,
-
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.4" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
@@ -96,8 +85,7 @@ object Scrooge extends Build {
     ),
     resolvers += "twitter-repo" at "https://maven.twttr.com",
 
-    scalacOptions ++= Seq("-encoding", "utf8"),
-    scalacOptions += "-deprecation",
+    scalacOptions := scalacOptionsVersion(scalaVersion.value),
     javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.7"),
 
@@ -105,7 +93,7 @@ object Scrooge extends Build {
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     publishMavenStyle := true,
-    pomExtra := (
+    pomExtra :=
       <url>https://github.com/twitter/scrooge</url>
       <licenses>
         <license>
@@ -123,7 +111,7 @@ object Scrooge extends Build {
           <name>Twitter Inc.</name>
           <url>https://www.twitter.com/</url>
         </developer>
-      </developers>),
+      </developers>,
     publishTo <<= version { (v: String) =>
       val nexus = "https://oss.sonatype.org/"
       if (v.trim.endsWith("SNAPSHOT"))
@@ -137,9 +125,7 @@ object Scrooge extends Build {
         val file = dir / "com" / "twitter" / name / "build.properties"
         val buildRev = Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
         val buildName = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date)
-        val contents = (
-          "name=%s\nversion=%s\nbuild_revision=%s\nbuild_name=%s"
-        ).format(name, ver, buildRev, buildName)
+        val contents = s"name=$name\nversion=$ver\nbuild_revision=$buildRev\nbuild_name=$buildName"
         IO.write(file, contents)
         Seq(file)
       }
@@ -158,7 +144,7 @@ object Scrooge extends Build {
   lazy val scrooge = Project(
     id = "scrooge",
     base = file("."),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       sharedSettings
   ).aggregate(
     scroogeGenerator, scroogeCore,
@@ -169,7 +155,7 @@ object Scrooge extends Build {
   lazy val scroogeGenerator = Project(
     id = "scrooge-generator",
     base = file("scrooge-generator"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       inConfig(Test)(testThriftSettings) ++
       sharedSettings ++
       assemblySettings ++
@@ -197,7 +183,7 @@ object Scrooge extends Build {
   lazy val scroogeCore = Project(
     id = "scrooge-core",
     base = file("scrooge-core"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       sharedSettings
   ).settings(
     name := "scrooge-core",
@@ -209,7 +195,7 @@ object Scrooge extends Build {
   lazy val scroogeRuntime = Project(
     id = "scrooge-runtime",
     base = file("scrooge-runtime"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       sharedSettings
   ).settings(
     name := "scrooge-runtime",
@@ -221,7 +207,7 @@ object Scrooge extends Build {
   lazy val scroogeOstrich = Project(
     id = "scrooge-ostrich",
     base = file("scrooge-ostrich"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       sharedSettings
   ).settings(
     name := "scrooge-ostrich",
@@ -240,7 +226,7 @@ object Scrooge extends Build {
   lazy val scroogeSerializer = Project(
     id = "scrooge-serializer",
     base = file("scrooge-serializer"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       inConfig(Test)(serializerTestThriftSettings) ++
       sharedSettings
   ).settings(
@@ -256,7 +242,7 @@ object Scrooge extends Build {
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       sharedSettings ++
       bintrayPublishSettings ++
       buildInfoSettings
@@ -267,14 +253,14 @@ object Scrooge extends Build {
       sbtPlugin := true,
       publishMavenStyle := false,
       repository in bintray := "sbt-plugins",
-      licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+      licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
       bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
     base = file("scrooge-linter"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       sharedSettings ++
       assemblySettings
   ).settings(
@@ -289,7 +275,7 @@ object Scrooge extends Build {
   lazy val scroogeBenchmark = Project(
     id = "scrooge-benchmark",
     base = file("scrooge-benchmark"),
-    settings = Project.defaultSettings ++
+    settings = Defaults.coreDefaultSettings ++
       inConfig(Compile)(benchThriftSettings) ++
       sharedSettings ++
       dumpClasspathSettings ++
@@ -307,12 +293,12 @@ object Scrooge extends Build {
     id = "scrooge-doc",
     base = file("doc"),
     settings =
-      Project.defaultSettings ++
+      Defaults.coreDefaultSettings ++
       sharedSettings ++
       site.settings ++
       site.sphinxSupport() ++
       Seq(
-        scalacOptions in doc <++= (version).map(v => Seq("-doc-title", "Scrooge", "-doc-version", v)),
+        scalacOptions in doc <++= version.map(v => Seq("-doc-title", "Scrooge", "-doc-version", v)),
         includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
       )
     ).configs(DocTest).settings(
@@ -325,5 +311,5 @@ object Scrooge extends Build {
     )
 
   /* Test Configuration for running tests on doc sources */
-  lazy val DocTest = config("testdoc") extend(Test)
+  lazy val DocTest = config("testdoc") extend Test
 }

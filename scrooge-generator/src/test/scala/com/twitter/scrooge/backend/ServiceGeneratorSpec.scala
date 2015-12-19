@@ -13,6 +13,7 @@ import org.apache.thrift.protocol._
 import org.jmock.Expectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
+import scala.language.reflectiveCalls
 import thrift.test._
 import thrift.test.ExceptionalService._
 
@@ -387,7 +388,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           })
 
         val simpleService: SimpleService.ServiceIface =
-          Thrift.newServiceIface[SimpleService.ServiceIface](Name.bound(server.boundAddress))
+          Thrift.newServiceIface[SimpleService.ServiceIface](Name.bound(server.boundAddress), "simple")
         val simpleServiceIface = Thrift.newMethodIface(simpleService)
         Await.result(simpleService.deliver(Deliver.Args("Boston")).map { result =>
           result.success
@@ -410,10 +411,10 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           }
         )
 
-        val readOnlyClientService = Thrift.newServiceIface[ReadOnlyService.ServiceIface](Name.bound(server.boundAddress))
+        val readOnlyClientService = Thrift.newServiceIface[ReadOnlyService.ServiceIface](Name.bound(server.boundAddress), "read-only")
         Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be (Some("Initial name"))
 
-        val readWriteClientService = Thrift.newServiceIface[ReadWriteService.ServiceIface](Name.bound(server.boundAddress))
+        val readWriteClientService = Thrift.newServiceIface[ReadWriteService.ServiceIface](Name.bound(server.boundAddress), "read-write")
         Await.result(readWriteClientService.getName(GetName.Args()).map(_.success)) must be (Some("Initial name"))
 
         Await.result(readWriteClientService.setName(SetName.Args("New name"))) must be(SetName.Result())
@@ -443,7 +444,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       "work with exceptions" in { _ =>
         val server = serveExceptionalService()
 
-        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(server.boundAddress))
+        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(server.boundAddress), "client")
 
         Await.result(clientService.deliver(Deliver.Args("")).map(_.ex3)) must be (Some(new EmptyXception()))
       }
@@ -457,7 +458,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           })
 
         val simpleServiceIface: SimpleService.ServiceIface =
-          Thrift.newServiceIface[SimpleService.ServiceIface](Name.bound(server.boundAddress))
+          Thrift.newServiceIface[SimpleService.ServiceIface](Name.bound(server.boundAddress), "simple")
 
         val doubleFilter = new SimpleFilter[Deliver.Args, Deliver.Result] {
           def apply(args: Deliver.Args, service: Service[Deliver.Args, Deliver.Result]) =
@@ -474,7 +475,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         import com.twitter.util.{JavaTimer, Try, Throw}
 
         val service = serveExceptionalService()
-        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "client")
 
         val retryPolicy =
           RetryPolicy.tries[Try[Int]](3, {
@@ -491,7 +492,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
 
       "work with a newMethodIface" in { _ =>
         val service = serveExceptionalService()
-        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+        val clientService = Thrift.newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "client")
 
         val futureIface = Thrift.newMethodIface(clientService)
 
@@ -512,7 +513,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           }
         )
 
-        val client = Thrift.newServiceIface[CamelCaseSnakeCaseService.ServiceIface](Name.bound(server.boundAddress))
+        val client = Thrift.newServiceIface[CamelCaseSnakeCaseService.ServiceIface](Name.bound(server.boundAddress), "client")
         val richClient = Thrift.newMethodIface(client)
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
@@ -525,7 +526,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         val clientService = Thrift.client.
           configured(Label("customServiceName")).
           configured(Stats(statsReceiver)).
-          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "client")
 
         val futureIface = Thrift.newMethodIface(clientService)
 
@@ -554,7 +555,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = Thrift.client.configured(Stats(statsReceiver)).
-          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
+          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "client")
 
         val futureIface = Thrift.newMethodIface(clientService)
 
@@ -599,7 +600,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           one(impl).test(); will(returnValue(Future.Done))
         })
 
-        Await.result(client.test()) mustBe ()
+        Await.result(client.test()) mustBe ((): Unit)
         context.assertIsSatisfied()
       }
     }
