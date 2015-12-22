@@ -17,7 +17,6 @@ import scala.language.reflectiveCalls
 import thrift.test._
 import thrift.test.ExceptionalService._
 
-
 class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
   "ScalaGenerator service" should {
     "generate a service interface" in { _ =>
@@ -524,9 +523,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = Thrift.client.
-          configured(Label("customServiceName")).
           configured(Stats(statsReceiver)).
-          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "client")
+          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "customServiceName")
 
         val futureIface = Thrift.newMethodIface(clientService)
 
@@ -554,8 +552,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       "have stats with serviceName not set" in { _ =>
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
-        val clientService = Thrift.client.configured(Stats(statsReceiver)).
-          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress), "client")
+        val clientService = Thrift.client.
+          configured(Stats(statsReceiver)).
+          newServiceIface[ExceptionalService.ServiceIface](Name.bound(service.boundAddress))
 
         val futureIface = Thrift.newMethodIface(clientService)
 

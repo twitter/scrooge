@@ -55,7 +55,7 @@ should be:
 * in util: `./sbt publish-local`
 * in ostrich: `./sbt publish-local`
 * in scrooge: `./sbt 'project scrooge-core' publish-local`
-* in finagle: `/.sbt publish-local`
+* in finagle: `./sbt publish-local`
 
 Then you can build the entire scrooge package.
 
