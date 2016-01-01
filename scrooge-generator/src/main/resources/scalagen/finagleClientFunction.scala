@@ -7,17 +7,15 @@ private[this] object {{__stats_name}} {
 {{#functionInfo}}
 {{>function}} = {
   {{__stats_name}}.RequestsCounter.incr()
-  val inputArgs = {{funcObjectName}}.Args({{argNames}})
-  val replyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[{{typeName}}] =
-    response => {
-      val result = decodeResponse(response, {{funcObjectName}}.Result)
-      val exception: Throwable =
+  this.service(encodeRequest("{{clientFuncNameForWire}}", {{funcObjectName}}.Args({{argNames}}))) flatMap { response =>
+    val result = decodeResponse(response, {{funcObjectName}}.Result)
+    val exception: Future[Nothing] =
 {{#hasThrows}}
       if (false)
         null // can never happen, but needed to open a block
 {{#throws}}
       else if (result.{{throwName}}.isDefined)
-        setServiceName(result.{{throwName}}.get)
+        Future.exception(setServiceName(result.{{throwName}}.get))
 {{/throws}}
       else
         null
@@ -27,34 +25,23 @@ private[this] object {{__stats_name}} {
 {{/hasThrows}}
 
 {{#isVoid}}
-      if (exception != null) _root_.com.twitter.util.Throw(exception) else Return.Unit
+    if (exception != null) exception else Future.Done
 {{/isVoid}}
 {{^isVoid}}
-      if (result.success.isDefined)
-        _root_.com.twitter.util.Return(result.success.get)
-      else if (exception != null)
-        _root_.com.twitter.util.Throw(exception)
-      else
-        _root_.com.twitter.util.Throw(missingResult("{{clientFuncNameForWire}}"))
+    if (result.success.isDefined)
+      Future.value(result.success.get)
+    else if (exception != null)
+      exception
+    else
+      Future.exception(missingResult("{{clientFuncNameForWire}}"))
 {{/isVoid}}
-    }
-
-  val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[{{typeName}}](inputArgs, replyDeserializer)
-  _root_.com.twitter.finagle.context.Contexts.local.let(
-    _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
-    serdeCtx
-  ) {
-    val serialized = encodeRequest("{{clientFuncNameForWire}}", inputArgs)
-    this.service(serialized).flatMap { response =>
-      Future.const(serdeCtx.deserialize(response))
-    }.respond {
-      case Return(_) =>
-        {{__stats_name}}.SuccessCounter.incr()
-      case Throw(ex) =>
-        setServiceName(ex)
-        {{__stats_name}}.FailuresCounter.incr()
-        {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
-    }
+  } respond {
+    case Return(_) =>
+      {{__stats_name}}.SuccessCounter.incr()
+    case Throw(ex) =>
+      setServiceName(ex)
+      {{__stats_name}}.FailuresCounter.incr()
+      {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
   }
 }
 {{/functionInfo}}
