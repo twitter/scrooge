@@ -332,7 +332,7 @@ public class Work implements TBase<Work, Work._Fields>, java.io.Serializable, Cl
     return new Work(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.num1 = 0;
     __isset_bit_vector.set(__NUM2_ISSET_ID, false);
@@ -634,7 +634,7 @@ public class Work implements TBase<Work, Work._Fields>, java.io.Serializable, Cl
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -754,7 +754,7 @@ public class Work implements TBase<Work, Work._Fields>, java.io.Serializable, Cl
     return true;
   }
 
-  @Override
+  @java.lang.Override
   @SuppressWarnings("unchecked")
   public int hashCode() {
     int hashCode = 1;
@@ -1222,7 +1222,7 @@ public class Work implements TBase<Work, Work._Fields>, java.io.Serializable, Cl
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("Work(");
     boolean first = true;

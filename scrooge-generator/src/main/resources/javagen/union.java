@@ -138,13 +138,13 @@ UNKNOWN_UNION_VALUE;
   }
 
 {{#hasExceptionMessage}}
-  @Override
+  @java.lang.Override
   public String getMessage() {
     return String.valueOf({{exceptionMessageField}});
   }
 {{/hasExceptionMessage}}
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object other) {
 {{#arity0}}
     return this == other;
@@ -168,7 +168,7 @@ UNKNOWN_UNION_VALUE;
 {{/arity0}}
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
 {{#arity0}}
     return "{{StructName}}()";
@@ -184,7 +184,7 @@ UNKNOWN_UNION_VALUE;
 {{/arity0}}
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
 {{#arity0}}
     return super.hashCode();
