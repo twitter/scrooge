@@ -28,7 +28,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
   {{/fields}}
 
-  @Override
+  @java.lang.Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
     switch (setField) {
       {{#fields}}
@@ -43,7 +43,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     }
   }
 
-  @Override
+  @java.lang.Override
   protected Object readValue(TProtocol iprot, TField field) throws TException {
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
@@ -68,7 +68,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     }
   }
 
-  @Override
+  @java.lang.Override
   protected void writeValue(TProtocol oprot) throws TException {
     switch (setField_) {
       {{#fields}}
@@ -82,7 +82,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     }
   }
 
-  @Override
+  @java.lang.Override
   protected TField getFieldDesc(_Fields setField) {
     switch (setField) {
       {{#fields}}
@@ -94,12 +94,12 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     }
   }
 
-  @Override
+  @java.lang.Override
   protected TStruct getStructDesc() {
     return STRUCT_DESC;
   }
 
-  @Override
+  @java.lang.Override
   protected _Fields enumForId(short id) {
     return _Fields.findByThriftIdOrThrow(id);
   }
@@ -136,7 +136,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
-  @Override
+  @java.lang.Override
   public int compareTo({{{struct_type_name}}} other) {
     int lastComparison = TBaseHelper.compareTo(getSetField(), other.getSetField());
     if (lastComparison == 0) {
@@ -150,7 +150,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
    * If you'd like this to perform more respectably, use the hashcode generator option.
    */
   {{/gen_hash_code}}
-  @Override
+  @java.lang.Override
   public int hashCode() {
     {{#gen_hash_code}}
     HashCodeBuilder hcb = new HashCodeBuilder();

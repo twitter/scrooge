@@ -704,7 +704,7 @@ public class TestService {
     return new test_void_endpoint_args(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.request = null;
   }
@@ -767,7 +767,7 @@ public class TestService {
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -791,7 +791,7 @@ public class TestService {
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -864,7 +864,7 @@ public class TestService {
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("test_void_endpoint_args(");
     boolean first = true;
@@ -986,7 +986,7 @@ public class TestService {
     return new test_void_endpoint_result(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.ex = null;
   }
@@ -1049,7 +1049,7 @@ public class TestService {
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -1073,7 +1073,7 @@ public class TestService {
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -1144,7 +1144,7 @@ public class TestService {
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("test_void_endpoint_result(");
     boolean first = true;
@@ -1267,7 +1267,7 @@ public class TestService {
     return new test_endpoint_without_exception_args(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.request = null;
   }
@@ -1330,7 +1330,7 @@ public class TestService {
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -1354,7 +1354,7 @@ public class TestService {
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -1427,7 +1427,7 @@ public class TestService {
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("test_endpoint_without_exception_args(");
     boolean first = true;
@@ -1549,7 +1549,7 @@ public class TestService {
     return new test_endpoint_without_exception_result(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.success = null;
   }
@@ -1612,7 +1612,7 @@ public class TestService {
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -1636,7 +1636,7 @@ public class TestService {
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -1707,7 +1707,7 @@ public class TestService {
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("test_endpoint_without_exception_result(");
     boolean first = true;

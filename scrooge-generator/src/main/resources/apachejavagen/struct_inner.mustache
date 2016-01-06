@@ -82,7 +82,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     return new {{name}}(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     {{#fields}}
     {{#consolidate_newlines}}
@@ -251,7 +251,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -289,7 +289,7 @@ this.{{name}} != that.{{name}}
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     {{#gen_hash_code}}
     HashCodeBuilder builder = new HashCodeBuilder();
@@ -428,7 +428,7 @@ this.{{name}} != that.{{name}}
   {{/is_result}}
   {{/consolidate_newlines}}
 
-  @Override
+  @java.lang.Override
   public String toString() {
     {{#consolidate_newlines}}
     StringBuilder sb = new StringBuilder("{{name}}(");

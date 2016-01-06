@@ -106,7 +106,7 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
     return new FollowerTargetingDetails(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
   }
 
@@ -132,7 +132,7 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -148,7 +148,7 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -197,7 +197,7 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("FollowerTargetingDetails(");
     boolean first = true;

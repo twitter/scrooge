@@ -130,7 +130,7 @@ public class TestRequest implements TBase<TestRequest, TestRequest._Fields>, jav
     return new TestRequest(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     setIdIsSet(false);
     this.id = 0;
@@ -194,7 +194,7 @@ public class TestRequest implements TBase<TestRequest, TestRequest._Fields>, jav
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -219,7 +219,7 @@ public class TestRequest implements TBase<TestRequest, TestRequest._Fields>, jav
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -289,7 +289,7 @@ public class TestRequest implements TBase<TestRequest, TestRequest._Fields>, jav
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("TestRequest(");
     boolean first = true;

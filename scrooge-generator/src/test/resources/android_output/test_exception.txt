@@ -127,7 +127,7 @@ public class TestException extends Exception implements TBase<TestException, Tes
     return new TestException(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.message = null;
   }
@@ -191,7 +191,7 @@ public class TestException extends Exception implements TBase<TestException, Tes
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -216,7 +216,7 @@ public class TestException extends Exception implements TBase<TestException, Tes
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     return 0;
   }
@@ -287,7 +287,7 @@ public class TestException extends Exception implements TBase<TestException, Tes
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("TestException(");
     boolean first = true;
