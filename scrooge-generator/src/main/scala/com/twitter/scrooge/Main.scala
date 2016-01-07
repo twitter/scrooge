@@ -37,111 +37,107 @@ object Main {
     }
 
     val parser = new OptionParser[Compiler]("scrooge") {
-      help("help") text("show this help screen")
+      help("help").text("show this help screen")
 
       override def showUsageOnError: Boolean = true
 
-      opt[Unit]('V', "version") action { (_, c) => 
+      opt[Unit]('V', "version").action { (_, c) =>
         println("scrooge " + buildProperties.getProperty("version", "0.0"))
         println("    build " + buildProperties.getProperty("build_name", "unknown"))
         println("    git revision " + buildProperties.getProperty("build_revision", "unknown"))
         System.exit(0)
         c
-      } text("print version and quit")
+      }.text("print version and quit")
 
-      opt[Unit]('v', "verbose") action { (_, c) =>
+      opt[Unit]('v', "verbose").action { (_, c) =>
         c.verbose = true
         c
-      } text("log verbose messages about progress")
+      }.text("log verbose messages about progress")
 
-      opt[String]('d', "dest") valueName("<path>") action { (d, c) =>
+      opt[String]('d', "dest").valueName("<path>").action { (d, c) =>
         c.destFolder = d
         c
-      } text("write generated code to a folder (default: %s)".format(compiler.defaultDestFolder))
+      }.text("write generated code to a folder (default: %s)".format(compiler.defaultDestFolder))
 
-      opt[String]("import-path") unbounded() valueName("<path>") action { (path, c) =>
+      opt[String]("import-path").unbounded().valueName("<path>").action { (path, c) =>
         c.includePaths ++= path.split(File.pathSeparator)
         c
-      } text("[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)")
+      }.text("[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)")
 
-      opt[String]('i', "include-path") unbounded() valueName("<path>") action { (path, c) =>
+      opt[String]('i', "include-path").unbounded().valueName("<path>").action { (path, c) =>
         c.includePaths ++= path.split(File.pathSeparator)
         c
-      } text("path(s) to search for included thrift files (may be used multiple times)")
+      }.text("path(s) to search for included thrift files (may be used multiple times)")
 
-      opt[String]('n', "namespace-map") unbounded() valueName("<oldname>=<newname>") action { (mapping, c) =>
+      opt[String]('n', "namespace-map").unbounded().valueName("<oldname>=<newname>").action { (mapping, c) =>
         mapping.split("=") match {
-          case Array(from, to) => {
+          case Array(from, to) =>
             c.namespaceMappings(from) = to
             c
-          }
         }
-      } text("map old namespace to new (may be used multiple times)")
+      }.text("map old namespace to new (may be used multiple times)")
 
-      opt[String]("default-java-namespace") unbounded() valueName("<name>") action { (name, c) =>
+      opt[String]("default-java-namespace").unbounded().valueName("<name>").action { (name, c) =>
         c.defaultNamespace = name
         c
-      } text("Use <name> as default namespace if the thrift file doesn't define its own namespace. " +
+      }.text("Use <name> as default namespace if the thrift file doesn't define its own namespace. " +
         "If this option is not specified either, then use \"thrift\" as default namespace")
 
-      opt[Unit]("disable-strict") action { (_, c) =>
+      opt[Unit]("disable-strict").action { (_, c) =>
         c.strict = false
         c
-      } text("issue warnings on non-severe parse errors instead of aborting")
+      }.text("issue warnings on non-severe parse errors instead of aborting")
 
-      opt[String]("gen-file-map") valueName("<path>") action { (path, c) =>
+      opt[String]("gen-file-map").valueName("<path>").action { (path, c) =>
         c.fileMapPath = Some(path)
         c
-      } text("generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files")
+      }.text("generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files")
 
-      opt[Unit]("dry-run") action { (_, c) =>
+      opt[Unit]("dry-run").action { (_, c) =>
         c.dryRun = true
         c
-      } text("parses and validates source thrift files, reporting any errors, but" +
+      }.text("parses and validates source thrift files, reporting any errors, but" +
         " does not emit any generated source code.  can be used with " +
         "--gen-file-mapping to get the file mapping")
 
-      opt[Unit]('s', "skip-unchanged") action { (_, c) =>
+      opt[Unit]('s', "skip-unchanged").action { (_, c) =>
         c.skipUnchanged = true
         c
-      } text("Don't re-generate if the target is newer than the input")
+      }.text("Don't re-generate if the target is newer than the input")
 
-      opt[String]('l', "language") action { (languageString, c) =>
+      opt[String]('l', "language").action { (languageString, c) =>
         compiler.language = languageString
         c
-      } validate { language =>
+      }.validate { language =>
         if (GeneratorFactory.languages.toList contains language.toLowerCase)
           success
         else
           failure("language option %s not supported".format(language))
-      } text("name of language to generate code in (currently supported languages: " +
+      }.text("name of language to generate code in (currently supported languages: " +
                  GeneratorFactory.languages.toList.mkString(", ")  + ")")
 
-      opt[String]("experiment-flag") valueName("<flag>") unbounded() action { (flag, c) =>
+      opt[String]("experiment-flag").valueName("<flag>").unbounded().action { (flag, c) =>
         c.experimentFlags += flag
         c
-      } text("[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking")
+      }.text("[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking")
 
-      opt[Unit]("scala-warn-on-java-ns-fallback") action { (_, c) =>
+      opt[Unit]("scala-warn-on-java-ns-fallback").action { (_, c) =>
         c.scalaWarnOnJavaNSFallback = true
         c
-      } text("Print a warning when the scala generator falls back to the java namespace")
+      }.text("Print a warning when the scala generator falls back to the java namespace")
 
-      opt[Unit]("finagle") action { (_, c) =>
+      opt[Unit]("finagle").action { (_, c) =>
         c.flags += WithFinagle
         c
-      } text("generate finagle classes")
+      }.text("generate finagle classes")
 
-      arg[String]("<files...>") unbounded() action { (files, c) =>
+      arg[String]("<files...>").unbounded().action { (files, c) =>
         c.thriftFiles += files
         c
-      } text("thrift files to compile")
+      }.text("thrift files to compile")
     }
-    parser.parse(args, compiler) map { c =>
-      true
-    } getOrElse {
-      false
-    }
+    val parsed = parser.parse(args, compiler)
+    parsed.isDefined
   }
 
   def isUnchanged(file: File, sourceLastModified: Long): Boolean = {
