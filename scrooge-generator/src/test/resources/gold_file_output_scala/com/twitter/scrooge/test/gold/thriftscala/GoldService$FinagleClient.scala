@@ -7,6 +7,7 @@
 package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.SourcedException
+import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
@@ -17,17 +18,31 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
 import scala.collection.{Map, Set}
-
 import scala.language.higherKinds
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class GoldService$FinagleClient(
     val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-    val protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
-    val serviceName: String = "GoldService",
+    val protocolFactory: TProtocolFactory,
+    val serviceName: String,
+    stats: StatsReceiver,
+    responseClassifier: ctfs.ResponseClassifier)
+  extends GoldService[Future] {
+
+  def this(
+    service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+    protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
+    serviceName: String = "GoldService",
     stats: StatsReceiver = NullStatsReceiver
-) extends GoldService[Future] {
+  ) = this(
+    service,
+    protocolFactory,
+    serviceName,
+    stats,
+    ctfs.ResponseClassifier.Default
+  )
+
   import GoldService._
 
   protected def encodeRequest(name: String, args: ThriftStruct) = {
@@ -120,13 +135,22 @@ class GoldService$FinagleClient(
       val serialized = encodeRequest("doGreatThings", inputArgs)
       this.service(serialized).flatMap { response =>
         Future.const(serdeCtx.deserialize(response))
-      }.respond {
-        case Return(_) =>
-          __stats_doGreatThings.SuccessCounter.incr()
-        case Throw(ex) =>
-          setServiceName(ex)
-          __stats_doGreatThings.FailuresCounter.incr()
-          __stats_doGreatThings.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
+      }.respond { response =>
+        val responseClass = responseClassifier.applyOrElse(
+          ctfs.ReqRep(inputArgs, response),
+          ctfs.ResponseClassifier.Default)
+        responseClass match {
+          case ctfs.ResponseClass.Successful(_) =>
+            __stats_doGreatThings.SuccessCounter.incr()
+          case ctfs.ResponseClass.Failed(_) =>
+            __stats_doGreatThings.FailuresCounter.incr()
+            response match {
+              case Throw(ex) =>
+                setServiceName(ex)
+                __stats_doGreatThings.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
+              case _ =>
+            }
+        }
       }
     }
   }

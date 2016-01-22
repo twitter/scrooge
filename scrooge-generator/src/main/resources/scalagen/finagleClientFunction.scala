@@ -47,13 +47,22 @@ private[this] object {{__stats_name}} {
     val serialized = encodeRequest("{{clientFuncNameForWire}}", inputArgs)
     this.service(serialized).flatMap { response =>
       Future.const(serdeCtx.deserialize(response))
-    }.respond {
-      case Return(_) =>
-        {{__stats_name}}.SuccessCounter.incr()
-      case Throw(ex) =>
-        setServiceName(ex)
-        {{__stats_name}}.FailuresCounter.incr()
-        {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
+    }.respond { response =>
+      val responseClass = responseClassifier.applyOrElse(
+        ctfs.ReqRep(inputArgs, response),
+        ctfs.ResponseClassifier.Default)
+      responseClass match {
+        case ctfs.ResponseClass.Successful(_) =>
+          {{__stats_name}}.SuccessCounter.incr()
+        case ctfs.ResponseClass.Failed(_) =>
+          {{__stats_name}}.FailuresCounter.incr()
+          response match {
+            case Throw(ex) =>
+              setServiceName(ex)
+              {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
+            case _ =>
+          }
+      }
     }
   }
 }

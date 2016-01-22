@@ -1,7 +1,9 @@
 package com.twitter.scrooge.backend
 
+import com.twitter.conversions.time._
 import com.twitter.finagle
 import com.twitter.finagle.param.{Stats, Label}
+import com.twitter.finagle.service.{ResponseClass, ResponseClassifier, ReqRep}
 import com.twitter.finagle.{ListeningServer, Name, Thrift, Service, SimpleFilter, SourcedException}
 import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.finagle.thrift.{ThriftClientRequest, ThriftServiceIface}
@@ -547,6 +549,47 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "success")) must be (1)
         statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (2)
         statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (2)
+      }
+
+      "have correct stats with ResponseClassifier" in { _ =>
+        val server: ListeningServer = Thrift.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new SimpleService[Future] {
+            def deliver(where: String): Future[Int] = Future.value(where.length)
+          }
+        )
+
+        val bigNumsAreFailures: ResponseClassifier = {
+          case ReqRep(_, Return(i: Int)) if i >= 3 => ResponseClass.NonRetryableFailure
+          case ReqRep(_, Return(i: Int)) => ResponseClass.Success
+        }
+        val stats = new InMemoryStatsReceiver
+        val clientService = Thrift.client
+          .withStatsReceiver(stats)
+          .withResponseClassifier(bigNumsAreFailures)
+          .newService(Name.bound(server.boundAddress), "client")
+
+        val svc = new SimpleService.FinagledClient(
+          clientService,
+          stats = stats,
+          responseClassifier = bigNumsAreFailures
+        )
+
+        val requests = stats.counter("SimpleService", "deliver", "requests")
+        val success = stats.counter("SimpleService", "deliver", "success")
+        val failures = stats.counter("SimpleService", "deliver", "failures")
+
+        Await.result(svc.deliver("abcd"), 5.seconds) // length 4 is a failure
+        assert(1 == requests())
+        assert(0 == success())
+        assert(1 == failures())
+
+        Await.result(svc.deliver("ab"), 5.seconds) // length 2 is ok
+        assert(2 == requests())
+        assert(1 == success())
+        assert(1 == failures())
+
+        server.close()
       }
 
       "have stats with serviceName not set" in { _ =>

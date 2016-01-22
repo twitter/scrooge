@@ -11,6 +11,7 @@ import com.twitter.scrooge.{
   TFieldBlob, ThriftService, ThriftStruct,
   ThriftStructCodec, ThriftStructCodec3,
   ThriftStructFieldInfo, ThriftResponse, ThriftUtil, ToThriftService}
+import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
@@ -532,13 +533,23 @@ object GoldService { self =>
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "GoldService",
-      stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver)
+      stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver,
+      responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default)
     extends GoldService$FinagleClient(
       service,
       protocolFactory,
       serviceName,
-      stats)
-    with FutureIface
+      stats,
+      responseClassifier)
+    with FutureIface {
+
+    def this(
+      service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+      protocolFactory: TProtocolFactory,
+      serviceName: String,
+      stats: com.twitter.finagle.stats.StatsReceiver
+    ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
+  }
 
   class FinagledService(
       iface: FutureIface,

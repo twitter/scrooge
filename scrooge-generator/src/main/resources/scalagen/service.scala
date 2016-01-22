@@ -6,6 +6,7 @@ import com.twitter.scrooge.{
   ThriftStructCodec, ThriftStructCodec3,
   ThriftStructFieldInfo, ThriftResponse, ThriftUtil, ToThriftService}
 {{#withFinagle}}
+import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
 {{/withFinagle}}
@@ -153,13 +154,23 @@ object {{ServiceName}} { self =>
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "{{ServiceName}}",
-      stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver)
+      stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver,
+      responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default)
     extends {{ServiceName}}$FinagleClient(
       service,
       protocolFactory,
       serviceName,
-      stats)
-    with FutureIface
+      stats,
+      responseClassifier)
+    with FutureIface {
+
+    def this(
+      service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+      protocolFactory: TProtocolFactory,
+      serviceName: String,
+      stats: com.twitter.finagle.stats.StatsReceiver
+    ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
+  }
 
   class FinagledService(
       iface: FutureIface,
