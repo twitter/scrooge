@@ -109,15 +109,15 @@ object {{ServiceName}} { self =>
 
     private[this] val toResult = (res: SuccessType) => Result({{^isVoid}}Some(res){{/isVoid}})
 
-    def functionToService(f: FunctionType): ServiceType = {{#moreThan22Args}}???{{/moreThan22Args}}{{^moreThan22Args}}{
+    def functionToService(f: FunctionType): ServiceType = {
       com.twitter.finagle.Service.mk { args: Args =>
-        f({{argsFieldNames}}).map(toResult)
+        f(args).map(toResult)
       }
-    }{{/moreThan22Args}}
+    }
 
-    def serviceToFunction(svc: ServiceType): FunctionType = {{#moreThan22Args}}???{{/moreThan22Args}}{{^moreThan22Args}}{ ({{argNames}}) =>
-      ThriftServiceIface.resultFilter(this).andThen(svc).apply(Args({{argNames}}))
-    }{{/moreThan22Args}}
+    def serviceToFunction(svc: ServiceType): FunctionType = { args: Args =>
+      ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
+    }
 {{/withFinagle}}
 {{^withFinagle}}
     type FunctionType = Nothing

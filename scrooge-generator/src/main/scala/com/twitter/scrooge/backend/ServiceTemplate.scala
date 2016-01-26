@@ -69,16 +69,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "isVoid" -> v(function.funcType == Void || function.funcType == OnewayVoid),
       "is_oneway" -> v(function.funcType == OnewayVoid),
       "functionType" -> {
-        val n = function.args.size
-        if (n <= 22) {
-          val returnType = s"Future[${genType(function.funcType)}]"
-          val types = function.args.map { arg => genFieldType(arg) } :+ returnType
-          val typeParams = types.mkString("[", ",", "]")
-          v(s"Function$n$typeParams")
-        } else {
-          // scala doesn't support function types with over 22 args
-          v("Unit")
-        }
+        val returnType = s"Future[${genType(function.funcType)}]"
+        val types = s"[Args,${returnType}]"
+        v(s"Function1$types")
       },
       "moreThan22Args" -> v(function.args.size > 22)
     )

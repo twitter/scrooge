@@ -494,19 +494,19 @@ object GoldService { self =>
       override def productPrefix: String = "Result"
     }
 
-    type FunctionType = Function1[com.twitter.scrooge.test.gold.thriftscala.Request,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
+    type FunctionType = Function1[Args,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
     type ServiceType = com.twitter.finagle.Service[Args, Result]
 
     private[this] val toResult = (res: SuccessType) => Result(Some(res))
 
     def functionToService(f: FunctionType): ServiceType = {
       com.twitter.finagle.Service.mk { args: Args =>
-        f(args.request).map(toResult)
+        f(args).map(toResult)
       }
     }
 
-    def serviceToFunction(svc: ServiceType): FunctionType = { (request) =>
-      ThriftServiceIface.resultFilter(this).andThen(svc).apply(Args(request))
+    def serviceToFunction(svc: ServiceType): FunctionType = { args: Args =>
+      ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
     }
 
     val name = "doGreatThings"
