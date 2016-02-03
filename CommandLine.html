@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command Line &mdash; Scrooge 4.3.0 documentation</title>
+    <title>Command Line &mdash; Scrooge 4.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3.0',
+        VERSION:     '4.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.3.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.4.0 documentation" href="index.html" />
     <link rel="next" title="Finagle Integration" href="Finagle.html" />
     <link rel="prev" title="Maven Plugin" href="MVNPlugin.html" />
    
@@ -59,24 +59,21 @@
   <div class="section" id="command-line">
 <h1>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
 <p>To get command line help:</p>
-<div class="highlight-text"><div class="highlight"><pre>$ ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main --help&#39;
-</pre></div>
+<div class="highlight-scala"><pre>$ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main --help'</pre>
 </div>
 <p>To generate source with content written to the current directory:</p>
-<div class="highlight-text"><div class="highlight"><pre>$ ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;
-</pre></div>
+<div class="highlight-scala"><pre>$ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]'</pre>
 </div>
 <p>To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:</p>
-<div class="highlight-text"><div class="highlight"><pre>$ ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main \
+<div class="highlight-scala"><pre>$ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main \
   -d &lt;target-dir&gt;   \
   -i &lt;include-path&gt; \
   -s                \
-  &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;
-</pre></div>
+  &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]'</pre>
 </div>
 <p>A complete command line help menu:</p>
-<div class="highlight-text"><div class="highlight"><pre>Usage: ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main [options] &lt;files...&gt;&#39;
+<div class="highlight-scala"><pre>Usage: ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main [options] &lt;files...&gt;'
 
   --help
         show this help screen
@@ -93,7 +90,7 @@ extra include paths, rebuilding only those files that have changed:</p>
   -n &lt;oldname&gt;=&lt;newname&gt; | --namespace-map &lt;oldname&gt;=&lt;newname&gt;
         map old namespace to new (may be used multiple times)
   --default-java-namespace &lt;name&gt;
-        Use &lt;name&gt; as default namespace if the thrift file doesn&#39;t define its own namespace. If this option is not specified either, then use &quot;thrift&quot; as default namespace
+        Use &lt;name&gt; as default namespace if the thrift file doesn't define its own namespace. If this option is not specified either, then use "thrift" as default namespace
   --disable-strict
         issue warnings on non-severe parse errors instead of aborting
   --gen-file-map &lt;path&gt;
@@ -101,9 +98,9 @@ extra include paths, rebuilding only those files that have changed:</p>
   --dry-run
         parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
   -s | --skip-unchanged
-        Don&#39;t re-generate if the target is newer than the input
+        Don't re-generate if the target is newer than the input
   -l &lt;value&gt; | --language &lt;value&gt;
-        name of language to generate code in (&#39;experimental-java&#39; and &#39;scala&#39; are currently supported)
+        name of language to generate code in ('experimental-java' and 'scala' are currently supported)
   --experiment-flag &lt;flag&gt;
         [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
   --scala-warn-on-java-ns-fallback
@@ -111,8 +108,7 @@ extra include paths, rebuilding only those files that have changed:</p>
   --finagle
         generate finagle classes
   &lt;files...&gt;
-        thrift files to compile
-</pre></div>
+        thrift files to compile</pre>
 </div>
 </div>
 

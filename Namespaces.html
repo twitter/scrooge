@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Namespaces &mdash; Scrooge 4.3.0 documentation</title>
+    <title>Namespaces &mdash; Scrooge 4.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3.0',
+        VERSION:     '4.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.3.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.4.0 documentation" href="index.html" />
     <link rel="next" title="SBT Plugin" href="SBTPlugin.html" />
     <link rel="prev" title="Scrooge" href="index.html" />
    
@@ -74,8 +74,8 @@ generator will ignore. To use this syntax, use the line comment character &#8216
 immediately followed by &#8216;&#64;&#8217;.  Apache&#8217;s  thrift generator will treat the
 remaining text as a line comment, but scrooge will interprent any following
 namespace declaration as if not commented-out.  For example:</p>
-<div class="highlight-text"><div class="highlight"><pre>namespace java com.twitter.tweetservice.thriftjava
-#@namespace scala com.twitter.tweetservice.thriftscala
+<div class="highlight-scala"><div class="highlight"><pre><span class="n">namespace</span> <span class="n">java</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">tweetservice</span><span class="o">.</span><span class="n">thriftjava</span>
+<span class="o">#</span><span class="nd">@namespace</span> <span class="n">scala</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">tweetservice</span><span class="o">.</span><span class="n">thriftscala</span>
 </pre></div>
 </div>
 </div>

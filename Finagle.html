@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Finagle Integration &mdash; Scrooge 4.3.0 documentation</title>
+    <title>Finagle Integration &mdash; Scrooge 4.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3.0',
+        VERSION:     '4.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.3.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.4.0 documentation" href="index.html" />
     <link rel="next" title="Ostrich Integration" href="Ostrich.html" />
     <link rel="prev" title="Command Line" href="CommandLine.html" />
    
@@ -63,62 +63,127 @@ by passing the <cite>&#8211;finagle</cite> option to scrooge. For each thrift se
 will generate a wrapper class that builds Finagle services both on the server
 and client sides.</p>
 <p>Here&#8217;s an example, assuming your thrift service is</p>
-<div class="highlight-text"><div class="highlight"><pre>service BinaryService {
-  binary fetchBlob(1: i64 id)
-}
+<div class="highlight-scala"><div class="highlight"><pre><span class="n">service</span> <span class="nc">BinaryService</span> <span class="o">{</span>
+  <span class="n">binary</span> <span class="n">fetchBlob</span><span class="o">(</span><span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span><span class="o">)</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>Scrooge generates the following wrapper classes:</p>
-<div class="highlight-text"><div class="highlight"><pre>import com.twitter.finagle.Service
-import com.twitter.finagle.thrift.{ThriftClientRequest,
-  ThriftServerFramedCodec, ThriftClientFramedCodec}
-import com.twitter.util.Future
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.thrift.</span><span class="o">{</span><span class="nc">ThriftClientRequest</span><span class="o">,</span>
+  <span class="nc">ThriftServerFramedCodec</span><span class="o">,</span> <span class="nc">ThriftClientFramedCodec</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-/*
- The server side service wrapper takes a thrift protocol factory (to
- specify which wire protocol to use) and an implementation of
- BinaryService[Future]
-*/
-class BinaryService$FinagleService(
-  iface: BinaryService[Future],
-  val protocolFactory: TProtocolFactory
-) extends Service[Array[Byte], Array[Byte]]
+<span class="cm">/*</span>
+<span class="cm"> The server side service wrapper takes a thrift protocol factory (to</span>
+<span class="cm"> specify which wire protocol to use) and an implementation of</span>
+<span class="cm"> BinaryService[Future]</span>
+<span class="cm">*/</span>
+<span class="k">class</span> <span class="nc">BinaryService$FinagleService</span><span class="o">(</span>
+  <span class="n">iface</span><span class="k">:</span> <span class="kt">BinaryService</span><span class="o">[</span><span class="kt">Future</span><span class="o">],</span>
+  <span class="k">val</span> <span class="n">protocolFactory</span><span class="k">:</span> <span class="kt">TProtocolFactory</span>
+<span class="o">)</span> <span class="k">extends</span> <span class="nc">Service</span><span class="o">[</span><span class="kt">Array</span><span class="o">[</span><span class="kt">Byte</span><span class="o">]</span>, <span class="kt">Array</span><span class="o">[</span><span class="kt">Byte</span><span class="o">]]</span>
 
-/*
- The client wrapper implements BinaryService[Future].
-*/
-class BinaryService$FinagleClient(
-  val service: Service[ThriftClientRequest, Array[Byte]],
-  val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
-  override val serviceName: String = &quot;&quot;,
-  stats: StatsReceiver = NullStatsReceiver
-) extends BinaryService[Future] {
-  /*
-    The method call encodes method name along with arguments in
-    ThriftClientRequest and sends to the server, then decodes server
-    response to reconstruct the return value.
-  */
-  def fetchBlob(id: Long): Future[ByteBuffer]
-}
+<span class="cm">/*</span>
+<span class="cm"> The client wrapper implements BinaryService[Future].</span>
+<span class="cm">*/</span>
+<span class="k">class</span> <span class="nc">BinaryService$FinagleClient</span><span class="o">(</span>
+  <span class="k">val</span> <span class="n">service</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">ThriftClientRequest</span>, <span class="kt">Array</span><span class="o">[</span><span class="kt">Byte</span><span class="o">]],</span>
+  <span class="k">val</span> <span class="n">protocolFactory</span><span class="k">:</span> <span class="kt">TProtocolFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TBinaryProtocol</span><span class="o">.</span><span class="nc">Factory</span><span class="o">,</span>
+  <span class="k">override</span> <span class="k">val</span> <span class="n">serviceName</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">,</span>
+  <span class="n">stats</span><span class="k">:</span> <span class="kt">StatsReceiver</span> <span class="o">=</span> <span class="nc">NullStatsReceiver</span>
+<span class="o">)</span> <span class="k">extends</span> <span class="nc">BinaryService</span><span class="o">[</span><span class="kt">Future</span><span class="o">]</span> <span class="o">{</span>
+  <span class="cm">/*</span>
+<span class="cm">    The method call encodes method name along with arguments in</span>
+<span class="cm">    ThriftClientRequest and sends to the server, then decodes server</span>
+<span class="cm">    response to reconstruct the return value.</span>
+<span class="cm">  */</span>
+  <span class="k">def</span> <span class="n">fetchBlob</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Long</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">ByteBuffer</span><span class="o">]</span>
+<span class="o">}</span>
 </pre></div>
 </div>
+<div class="section" id="creating-a-server">
+<h2>Creating a Server<a class="headerlink" href="#creating-a-server" title="Permalink to this headline">¶</a></h2>
 <p>To create a server, you need to provide an implementation of the service
-interface and use it with Finagle&#8217;s Thrift object.</p>
-<div class="highlight-text"><div class="highlight"><pre>// provide an implementation of the future-base service interface
-class MyImpl extends BinaryService[Future] {
-  ...
-}
-val service = Thrift.serve(&quot;host:port&quot;, new MyImpl)
+interface and use it with Finagle&#8217;s <tt class="docutils literal"><span class="pre">Thrift</span></tt> object.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="c1">// provide an implementation of the future-base service interface</span>
+<span class="k">class</span> <span class="nc">MyImpl</span> <span class="k">extends</span> <span class="nc">BinaryService</span><span class="o">[</span><span class="kt">Future</span><span class="o">]</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="nc">Thrift</span><span class="o">.</span><span class="n">serveIface</span><span class="o">(</span><span class="s">&quot;host:port&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="nc">MyImpl</span><span class="o">)</span>
 </pre></div>
 </div>
-<p>Creating a client is easy, you just provide Finagle&#8217;s Thrift object the
+<p>Additionally, Scrooge generates a <tt class="docutils literal"><span class="pre">ServiceIface</span></tt> which is a case class
+containing a <tt class="docutils literal"><span class="pre">Service</span></tt> for each thrift method.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">case</span> <span class="k">class</span> <span class="nc">ServiceIface</span><span class="o">(</span>
+  <span class="n">fetchBlob</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">FetchBlob.Args</span>, <span class="kt">FetchBlob.Result</span><span class="o">]</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+<p>Note that every method in the IDL becomes a <tt class="docutils literal"><span class="pre">Service</span></tt> for the corresponding
+<tt class="docutils literal"><span class="pre">Args</span></tt> and <tt class="docutils literal"><span class="pre">Result</span></tt> structures. The wrappers are needed to wrap multiple
+method arguments into one type.  Instead of implementing the service interface
+directly, you can provide an instance of the <tt class="docutils literal"><span class="pre">ServiceIface</span></tt> and convert it to
+the service interface.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">fetchBlobService</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">FetchBlob.Args</span>, <span class="kt">FetchBlob.Result</span><span class="o">]</span> <span class="k">=</span> <span class="c1">// ...</span>
+<span class="k">val</span> <span class="n">serviceImpl</span> <span class="k">=</span> <span class="nc">BinaryService</span><span class="o">.</span><span class="nc">ServiceIface</span><span class="o">(</span>
+  <span class="n">fetchBlob</span> <span class="k">=</span> <span class="n">fetchBlobService</span>
+<span class="o">)</span>
+<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="nc">Thrift</span><span class="o">.</span><span class="n">serve</span><span class="o">(</span><span class="s">&quot;host:port&quot;</span><span class="o">,</span> <span class="nc">Thrift</span><span class="o">.</span><span class="n">newMethodIface</span><span class="o">(</span><span class="n">serviceImpl</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>The advantage of this approach is that the <tt class="docutils literal"><span class="pre">Services</span></tt> can be decorated with
+<tt class="docutils literal"><span class="pre">Filters</span></tt>.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">serviceImpl</span> <span class="k">=</span> <span class="nc">BinaryService</span><span class="o">.</span><span class="nc">ServiceIface</span><span class="o">(</span>
+  <span class="n">fetchBlob</span> <span class="k">=</span> <span class="n">loggingFilter</span> <span class="n">andThen</span> <span class="n">fetchBlobService</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-a-client">
+<h2>Creating a Client<a class="headerlink" href="#creating-a-client" title="Permalink to this headline">¶</a></h2>
+<p>Creating a client is easy, you just provide Finagle&#8217;s <tt class="docutils literal"><span class="pre">Thrift</span></tt> object the
 iface.</p>
-<div class="highlight-text"><div class="highlight"><pre>val client = Thrift.newIface[BinaryService[Future]](&quot;host:port&quot;)
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">client</span> <span class="k">=</span> <span class="nc">Thrift</span><span class="o">.</span><span class="n">newIface</span><span class="o">[</span><span class="kt">BinaryService</span><span class="o">[</span><span class="kt">Future</span><span class="o">]](</span><span class="s">&quot;host:port&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Alternatively, you can request a <tt class="docutils literal"><span class="pre">ServiceIface</span></tt> instead.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">clientServiceIface</span> <span class="k">=</span>
+  <span class="nc">Thrift</span><span class="o">.</span><span class="n">newIface</span><span class="o">[</span><span class="kt">BinaryService.ServiceIface</span><span class="o">](</span><span class="s">&quot;host:port&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>As in the server case, this allows you to decorate your client with <tt class="docutils literal"><span class="pre">Filters</span></tt>.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">filteredClient</span> <span class="k">=</span> <span class="n">clientServiceIface</span><span class="o">.</span><span class="n">copy</span><span class="o">(</span>
+  <span class="n">fetchBlob</span> <span class="k">=</span> <span class="n">timeoutFilter</span> <span class="n">andThen</span> <span class="n">clientServiceIface</span><span class="o">.</span><span class="n">fetchBlob</span>
+<span class="o">)</span>
 </pre></div>
 </div>
 <p>In both the server and client cases, you probably want to pass more
 configuration parameters to finagle, so check the finagle documentation for
 tweaks once you get things to compile.</p>
+</div>
+<div class="section" id="converting-between-function-and-service">
+<h2>Converting Between Function and Service<a class="headerlink" href="#converting-between-function-and-service" title="Permalink to this headline">¶</a></h2>
+<p>As we saw above, a <tt class="docutils literal"><span class="pre">ServiceIface</span></tt> can be converted into the service interface.
+This allows you to use the more ergonomic service interface while still being
+able to apply <tt class="docutils literal"><span class="pre">Filters</span></tt> to your client.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">clientMethodIface</span> <span class="k">=</span> <span class="nc">Thrift</span><span class="o">.</span><span class="n">newMethodIface</span><span class="o">(</span><span class="n">filteredClient</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">result</span> <span class="k">=</span> <span class="n">clientMethodIface</span><span class="o">.</span><span class="n">fetchBlob</span><span class="o">(</span><span class="mi">1L</span><span class="o">)</span> <span class="c1">// respects the timeoutFilter</span>
+</pre></div>
+</div>
+<p>You can also use the <tt class="docutils literal"><span class="pre">functionToService</span></tt> and <tt class="docutils literal"><span class="pre">serviceToFunction</span></tt> methods on
+<tt class="docutils literal"><span class="pre">ThriftMethod</span></tt> to convert between function and Service implementations of a
+thrift method.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">serviceImpl</span> <span class="k">=</span> <span class="nc">BinaryService</span><span class="o">.</span><span class="nc">ServiceIface</span><span class="o">(</span>
+  <span class="n">fetchBlob</span> <span class="k">=</span> <span class="nc">FetchBlob</span><span class="o">.</span><span class="n">functionToService</span> <span class="o">{</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=&gt;</span>
+    <span class="c1">// ...</span>
+  <span class="o">}</span>
+<span class="o">)</span>
+
+<span class="k">val</span> <span class="n">result</span> <span class="k">=</span> <span class="nc">FetchBlob</span><span class="o">.</span><span class="n">serviceToFunction</span><span class="o">(</span><span class="n">serviceImpl</span><span class="o">.</span><span class="n">fetchBlob</span><span class="o">)(</span><span class="mi">1L</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -138,7 +203,17 @@ tweaks once you get things to compile.</p>
 <ul>
   <li><a href="http://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
   <li><a href="http://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
-</ul><h3>Related Topics</h3>
+</ul>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Finagle Integration</a><ul>
+<li><a class="reference internal" href="#creating-a-server">Creating a Server</a></li>
+<li><a class="reference internal" href="#creating-a-client">Creating a Client</a></li>
+<li><a class="reference internal" href="#converting-between-function-and-service">Converting Between Function and Service</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="CommandLine.html" title="previous chapter">Command Line</a></li>

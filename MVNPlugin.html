@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Maven Plugin &mdash; Scrooge 4.3.0 documentation</title>
+    <title>Maven Plugin &mdash; Scrooge 4.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3.0',
+        VERSION:     '4.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.3.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.4.0 documentation" href="index.html" />
     <link rel="next" title="Command Line" href="CommandLine.html" />
     <link rel="prev" title="SBT Plugin" href="SBTPlugin.html" />
    
@@ -60,63 +60,63 @@
 <h1>Maven Plugin<a class="headerlink" href="#maven-plugin" title="Permalink to this headline">¶</a></h1>
 <p>Depending on the options used to generate the code, a few dependencies
 need to be declared.</p>
-<div class="highlight-text"><div class="highlight"><pre>&lt;dependency&gt;
-  &lt;groupId&gt;org.apache.thrift&lt;/groupId&gt;
-  &lt;artifactId&gt;libthrift&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
-  &lt;artifactId&gt;scrooge-core_2.9.2&lt;/artifactId&gt;
-  &lt;version&gt;3.3.2&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;!-- needed if the &quot;--finagle&quot; flag is provided --&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
-  &lt;artifactId&gt;finagle-thrift_2.9.2&lt;/artifactId&gt;
-  &lt;version&gt;6.5.1&lt;/version&gt;
-&lt;/dependency&gt;
+<div class="highlight-scala"><div class="highlight"><pre><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">thrift</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">libthrift</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">0.8</span><span class="o">.</span><span class="mi">0</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">scrooge</span><span class="o">-</span><span class="n">core_2</span><span class="o">.</span><span class="mf">9.2</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">3.3</span><span class="o">.</span><span class="mi">2</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;!--</span> <span class="n">needed</span> <span class="k">if</span> <span class="n">the</span> <span class="s">&quot;--finagle&quot;</span> <span class="n">flag</span> <span class="n">is</span> <span class="n">provided</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">finagle</span><span class="o">-</span><span class="n">thrift_2</span><span class="o">.</span><span class="mf">9.2</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">6.5</span><span class="o">.</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>In order to generate code with the maven plugin the following plugin
 configuration will need to be added to the build/plugins section of your
 pom.xml file.</p>
-<div class="highlight-text"><div class="highlight"><pre>&lt;plugin&gt;
-  &lt;groupId&gt;com.twitter&lt;/groupId&gt;
-  &lt;artifactId&gt;scrooge-maven-plugin&lt;/artifactId&gt;
-  &lt;version&gt;3.14.1&lt;/version&gt;
-  &lt;configuration&gt;
-    &lt;thriftNamespaceMappings&gt;
-      &lt;thriftNamespaceMapping&gt;
-        &lt;from&gt;com.twitter.demo&lt;/from&gt;
-        &lt;to&gt;com.twitter.mydemo.renamed&lt;/to&gt;
-      &lt;/thriftNamespaceMapping&gt;
-    &lt;/thriftNamespaceMappings&gt;
-    &lt;language&gt;scala&lt;/language&gt; &lt;!-- default is scala --&gt;
-    &lt;thriftOpts&gt;
-      &lt;!-- add other Scrooge command line options using thriftOpts --&gt;
-      &lt;thriftOpt&gt;--finagle&lt;/thriftOpt&gt;
-    &lt;/thriftOpts&gt;
-    &lt;!-- tell scrooge to not to build the extracted thrift files (defaults to true) --&gt;
-    &lt;buildExtractedThrift&gt;false&lt;/buildExtractedThrift&gt;
-  &lt;/configuration&gt;
-  &lt;executions&gt;
-    &lt;execution&gt;
-      &lt;id&gt;thrift-sources&lt;/id&gt;
-      &lt;phase&gt;generate-sources&lt;/phase&gt;
-      &lt;goals&gt;
-        &lt;goal&gt;compile&lt;/goal&gt;
-      &lt;/goals&gt;
-    &lt;/execution&gt;
-    &lt;execution&gt;
-      &lt;id&gt;thrift-test-sources&lt;/id&gt;
-      &lt;phase&gt;generate-test-sources&lt;/phase&gt;
-      &lt;goals&gt;
-        &lt;goal&gt;testCompile&lt;/goal&gt;
-      &lt;/goals&gt;
-    &lt;/execution&gt;
-  &lt;/executions&gt;
-&lt;/plugin&gt;
+<div class="highlight-scala"><div class="highlight"><pre><span class="o">&lt;</span><span class="n">plugin</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">scrooge</span><span class="o">-</span><span class="n">maven</span><span class="o">-</span><span class="n">plugin</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">3.14</span><span class="o">.</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">configuration</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">thriftNamespaceMappings</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">thriftNamespaceMapping</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">from</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">demo</span><span class="o">&lt;/</span><span class="n">from</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">to</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">mydemo</span><span class="o">.</span><span class="n">renamed</span><span class="o">&lt;/</span><span class="n">to</span><span class="o">&gt;</span>
+      <span class="o">&lt;/</span><span class="n">thriftNamespaceMapping</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">thriftNamespaceMappings</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">language</span><span class="o">&gt;</span><span class="n">scala</span><span class="o">&lt;/</span><span class="n">language</span><span class="o">&gt;</span> <span class="o">&lt;!--</span> <span class="n">default</span> <span class="n">is</span> <span class="n">scala</span> <span class="o">--&gt;</span>
+    <span class="o">&lt;</span><span class="n">thriftOpts</span><span class="o">&gt;</span>
+      <span class="o">&lt;!--</span> <span class="n">add</span> <span class="n">other</span> <span class="nc">Scrooge</span> <span class="n">command</span> <span class="n">line</span> <span class="n">options</span> <span class="n">using</span> <span class="n">thriftOpts</span> <span class="o">--&gt;</span>
+      <span class="o">&lt;</span><span class="n">thriftOpt</span><span class="o">&gt;--</span><span class="n">finagle</span><span class="o">&lt;/</span><span class="n">thriftOpt</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">thriftOpts</span><span class="o">&gt;</span>
+    <span class="o">&lt;!--</span> <span class="n">tell</span> <span class="n">scrooge</span> <span class="n">to</span> <span class="n">not</span> <span class="n">to</span> <span class="n">build</span> <span class="n">the</span> <span class="n">extracted</span> <span class="n">thrift</span> <span class="n">files</span> <span class="o">(</span><span class="n">defaults</span> <span class="n">to</span> <span class="kc">true</span><span class="o">)</span> <span class="o">--&gt;</span>
+    <span class="o">&lt;</span><span class="n">buildExtractedThrift</span><span class="o">&gt;</span><span class="kc">false</span><span class="o">&lt;/</span><span class="n">buildExtractedThrift</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">configuration</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">executions</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">execution</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">id</span><span class="o">&gt;</span><span class="n">thrift</span><span class="o">-</span><span class="n">sources</span><span class="o">&lt;/</span><span class="n">id</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">phase</span><span class="o">&gt;</span><span class="n">generate</span><span class="o">-</span><span class="n">sources</span><span class="o">&lt;/</span><span class="n">phase</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">goals</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">goal</span><span class="o">&gt;</span><span class="n">compile</span><span class="o">&lt;/</span><span class="n">goal</span><span class="o">&gt;</span>
+      <span class="o">&lt;/</span><span class="n">goals</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">execution</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">execution</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">id</span><span class="o">&gt;</span><span class="n">thrift</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="n">sources</span><span class="o">&lt;/</span><span class="n">id</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">phase</span><span class="o">&gt;</span><span class="n">generate</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="n">sources</span><span class="o">&lt;/</span><span class="n">phase</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">goals</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">goal</span><span class="o">&gt;</span><span class="n">testCompile</span><span class="o">&lt;/</span><span class="n">goal</span><span class="o">&gt;</span>
+      <span class="o">&lt;/</span><span class="n">goals</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">execution</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">executions</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">plugin</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </div>

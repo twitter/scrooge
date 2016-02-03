@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SBT Plugin &mdash; Scrooge 4.3.0 documentation</title>
+    <title>SBT Plugin &mdash; Scrooge 4.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3.0',
+        VERSION:     '4.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.3.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.4.0 documentation" href="index.html" />
     <link rel="next" title="Maven Plugin" href="MVNPlugin.html" />
     <link rel="prev" title="Namespaces" href="Namespaces.html" />
    
@@ -59,31 +59,31 @@
   <div class="section" id="sbt-plugin">
 <h1>SBT Plugin<a class="headerlink" href="#sbt-plugin" title="Permalink to this headline">¶</a></h1>
 <p>Add the following lines to your <cite>project/plugins.sbt</cite> file:</p>
-<div class="highlight-text"><div class="highlight"><pre>resolvers += &quot;twitter-repo&quot; at &quot;https://maven.twttr.com&quot;
+<div class="highlight-scala"><div class="highlight"><pre><span class="n">resolvers</span> <span class="o">+=</span> <span class="s">&quot;twitter-repo&quot;</span> <span class="n">at</span> <span class="s">&quot;https://maven.twttr.com&quot;</span>
 
-addSbtPlugin(&quot;com.twitter&quot; %% &quot;scrooge-sbt-plugin&quot; % &quot;4.1.0&quot;)
+<span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-sbt-plugin&quot;</span> <span class="o">%</span> <span class="s">&quot;4.1.0&quot;</span><span class="o">)</span>
 </pre></div>
 </div>
 <p>In your <cite>build.sbt</cite> file:</p>
-<div class="highlight-text"><div class="highlight"><pre>libraryDependencies ++= Seq(
-  &quot;org.apache.thrift&quot; % &quot;libthrift&quot; % &quot;0.8.0&quot;,
-  &quot;com.twitter&quot; %% &quot;scrooge-core&quot; % &quot;4.2.0&quot;,
-  &quot;com.twitter&quot; %% &quot;finagle-thrift&quot; % &quot;6.30.0&quot;
-)
+<div class="highlight-scala"><div class="highlight"><pre><span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+  <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.8.0&quot;</span><span class="o">,</span>
+  <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;4.2.0&quot;</span><span class="o">,</span>
+  <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;6.30.0&quot;</span>
+<span class="o">)</span>
 </pre></div>
 </div>
 <p>or, in your <cite>project/Build.scala</cite> file:</p>
-<div class="highlight-text"><div class="highlight"><pre>lazy val myProject = Project(
-  id = &quot;my-project&quot;,
-  base = file(&quot;my-project&quot;),
-  settings = Project.defaultSettings
-).settings(
-  libraryDependencies ++= Seq(
-    &quot;org.apache.thrift&quot; % &quot;libthrift&quot; % &quot;0.8.0&quot;,
-    &quot;com.twitter&quot; %% &quot;scrooge-core&quot; % &quot;4.2.0&quot;,
-    &quot;com.twitter&quot; %% &quot;finagle-thrift&quot; % &quot;6.30.0&quot;
-  )
-)
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">lazy</span> <span class="k">val</span> <span class="n">myProject</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">(</span>
+  <span class="n">id</span> <span class="k">=</span> <span class="s">&quot;my-project&quot;</span><span class="o">,</span>
+  <span class="n">base</span> <span class="k">=</span> <span class="n">file</span><span class="o">(</span><span class="s">&quot;my-project&quot;</span><span class="o">),</span>
+  <span class="n">settings</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">.</span><span class="n">defaultSettings</span>
+<span class="o">).</span><span class="n">settings</span><span class="o">(</span>
+  <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+    <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.8.0&quot;</span><span class="o">,</span>
+    <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;4.2.0&quot;</span><span class="o">,</span>
+    <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;6.30.0&quot;</span>
+  <span class="o">)</span>
+<span class="o">)</span>
 </pre></div>
 </div>
 <p><strong>Configuration Options</strong></p>
@@ -121,44 +121,44 @@ for SBT 0.13.5 and later.</p>
 <h3>Projects using  <cite>build.sbt</cite><a class="headerlink" href="#projects-using-build-sbt" title="Permalink to this headline">¶</a></h3>
 <p>For 3.17.0 and earlier releases of the plugin, it was necessary to add the
 settings to your build configuration explicitly:</p>
-<div class="highlight-text"><div class="highlight"><pre>import com.twitter.scrooge.ScroogeSBT
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT</span>
 
-lazy val app = project.in(file(&quot;app&quot;))
-  .settings(ScroogeSBT.newSettings: _*)
-  .settings(
-    // more settings here
-  )
+<span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span><span class="nc">ScroogeSBT</span><span class="o">.</span><span class="n">newSettings</span><span class="k">:</span> <span class="k">_</span><span class="kt">*</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
+    <span class="c1">// more settings here</span>
+  <span class="o">)</span>
 </pre></div>
 </div>
 <p>This is no longer necessary, so the build above should look like this:</p>
-<div class="highlight-text"><div class="highlight"><pre>lazy val app = project.in(file(&quot;app&quot;))
-  .settings(
-    // more settings here
-  )
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
+    <span class="c1">// more settings here</span>
+  <span class="o">)</span>
 </pre></div>
 </div>
 <p>The default settings are included automatically, by virtue of the auto plugin
 mechanism.</p>
 <p>The plugin&#8217;s setting and task keys are also now brought into scope
 automatically, so the following:</p>
-<div class="highlight-text"><div class="highlight"><pre>import com.twitter.scrooge.ScroogeSBT
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT</span>
 
-lazy val app = project.in(file(&quot;app&quot;))
-  .settings(ScroogeSBT.newSettings: _*)
-  .settings(
-    ScroogeSBT.scroogeThriftSourceFolder in Compile &lt;&lt;= baseDirectory {
-      base =&gt; base / &quot;src/main/resources&quot;
-    }
-  )
+<span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span><span class="nc">ScroogeSBT</span><span class="o">.</span><span class="n">newSettings</span><span class="k">:</span> <span class="k">_</span><span class="kt">*</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
+    <span class="nc">ScroogeSBT</span><span class="o">.</span><span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
+      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
+    <span class="o">}</span>
+  <span class="o">)</span>
 </pre></div>
 </div>
 <p>becomes simply:</p>
-<div class="highlight-text"><div class="highlight"><pre>lazy val app = project.in(file(&quot;app&quot;))
-  .settings(
-    scroogeThriftSourceFolder in Compile &lt;&lt;= baseDirectory {
-      base =&gt; base / &quot;src/main/resources&quot;
-    }
-  )
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
+    <span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
+      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
+    <span class="o">}</span>
+  <span class="o">)</span>
 </pre></div>
 </div>
 </div>
@@ -167,41 +167,41 @@ lazy val app = project.in(file(&quot;app&quot;))
 <p>The big change here, in addition to the automatically injected settings, is
 that the location of the keys has changed. They are now under an object called
 <cite>autoImport</cite>. So this:</p>
-<div class="highlight-text"><div class="highlight"><pre>import sbt._
-import Keys._
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">import</span> <span class="nn">sbt._</span>
+<span class="k">import</span> <span class="nn">Keys._</span>
 
-import com.twitter.scrooge.ScroogeSBT._
+<span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT._</span>
 
-object build extends Build {
-  lazy val app = Project(
-    id = &quot;app&quot;,
-    settings = Project.defaultSettings ++ newSettings
-  ).settings(
-    scroogeThriftSourceFolder in Compile &lt;&lt;= baseDirectory {
-      base =&gt; base / &quot;src/main/resources&quot;
-    }
-  )
-}
+<span class="k">object</span> <span class="nc">build</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
+  <span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">(</span>
+    <span class="n">id</span> <span class="k">=</span> <span class="s">&quot;app&quot;</span><span class="o">,</span>
+    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">.</span><span class="n">defaultSettings</span> <span class="o">++</span> <span class="n">newSettings</span>
+  <span class="o">).</span><span class="n">settings</span><span class="o">(</span>
+    <span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
+      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
+    <span class="o">}</span>
+  <span class="o">)</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>becomes:</p>
-<div class="highlight-text"><div class="highlight"><pre>import sbt._
-import Keys._
+<div class="highlight-scala"><div class="highlight"><pre><span class="k">import</span> <span class="nn">sbt._</span>
+<span class="k">import</span> <span class="nn">Keys._</span>
 
-import com.twitter.scrooge.ScroogeSBT.autoImport._
+<span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT.autoImport._</span>
 
-object build extends Build {
+<span class="k">object</span> <span class="nc">build</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
 
-  lazy val app = Project(
-    id = &quot;app&quot;,
-    base = file(&quot;app&quot;),
-    settings = Project.defaultSettings
-  ).settings(
-    scroogeThriftSourceFolder in Compile &lt;&lt;= baseDirectory {
-      base =&gt; base / &quot;src/main/resources&quot;
-    }
-  )
-}
+  <span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">(</span>
+    <span class="n">id</span> <span class="k">=</span> <span class="s">&quot;app&quot;</span><span class="o">,</span>
+    <span class="n">base</span> <span class="k">=</span> <span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">),</span>
+    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">.</span><span class="n">defaultSettings</span>
+  <span class="o">).</span><span class="n">settings</span><span class="o">(</span>
+    <span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
+      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
+    <span class="o">}</span>
+  <span class="o">)</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>That is to say: adjust the imports, and drop the settings injection.</p>
