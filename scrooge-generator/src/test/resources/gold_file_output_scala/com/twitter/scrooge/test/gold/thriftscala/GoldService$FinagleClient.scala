@@ -45,7 +45,7 @@ class GoldService$FinagleClient(
 
   import GoldService._
 
-  protected def encodeRequest(name: String, args: ThriftStruct) = {
+  protected def encodeRequest(name: String, args: ThriftStruct): ThriftClientRequest = {
     val buf = new TMemoryBuffer(512)
     val oprot = protocolFactory.getProtocol(buf)
 
@@ -57,7 +57,10 @@ class GoldService$FinagleClient(
     new ThriftClientRequest(bytes, false)
   }
 
-  protected def decodeResponse[T <: ThriftStruct](resBytes: Array[Byte], codec: ThriftStructCodec[T]) = {
+  protected def decodeResponse[T <: ThriftStruct](
+    resBytes: Array[Byte],
+    codec: ThriftStructCodec[T]
+  ): T = {
     val iprot = protocolFactory.getProtocol(new TMemoryInputTransport(resBytes))
     val msg = iprot.readMessageBegin()
     try {
@@ -110,21 +113,30 @@ class GoldService$FinagleClient(
     val inputArgs = DoGreatThings.Args(request)
     val replyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] =
       response => {
-        val result = decodeResponse(response, DoGreatThings.Result)
-        val exception: Throwable =
-        if (false)
-          null // can never happen, but needed to open a block
-        else if (result.ex.isDefined)
-          setServiceName(result.ex.get)
-        else
-          null
+        val decodeResult: _root_.com.twitter.util.Try[DoGreatThings.Result] =
+          _root_.com.twitter.util.Try {
+            decodeResponse(response, DoGreatThings.Result)
+          }
 
-        if (result.success.isDefined)
-          _root_.com.twitter.util.Return(result.success.get)
-        else if (exception != null)
-          _root_.com.twitter.util.Throw(exception)
-        else
-          _root_.com.twitter.util.Throw(missingResult("doGreatThings"))
+        decodeResult match {
+          case t@_root_.com.twitter.util.Throw(_) =>
+            t.cast[com.twitter.scrooge.test.gold.thriftscala.Response]
+          case  _root_.com.twitter.util.Return(result) =>
+            val serviceException: Throwable =
+              if (false)
+                null // can never happen, but needed to open a block
+              else if (result.ex.isDefined)
+                setServiceName(result.ex.get)
+              else
+                null
+
+            if (result.success.isDefined)
+              _root_.com.twitter.util.Return(result.success.get)
+            else if (serviceException != null)
+              _root_.com.twitter.util.Throw(serviceException)
+            else
+              _root_.com.twitter.util.Throw(missingResult("doGreatThings"))
+        }
       }
 
     val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, replyDeserializer)
