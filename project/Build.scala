@@ -175,7 +175,6 @@ object Scrooge extends Build {
       "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test", // used in thrift transports
       "com.google.code.findbugs" % "jsr305" % "2.0.1",
       "commons-cli" % "commons-cli" % "1.2",
-      finagle("core") exclude("org.mockito", "mockito-all"),
       finagle("thrift") % "test"
     ),
     test in assembly := {},  // Skip tests when running assembly.

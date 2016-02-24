@@ -16,7 +16,6 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 
-import com.twitter.finagle.util.LoadService
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
@@ -24,6 +23,7 @@ import com.twitter.scrooge.mustache.Dictionary.CodeFragment
 import com.twitter.scrooge.android_generator.AndroidGeneratorFactory
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 import java.io.{File, FileOutputStream, OutputStreamWriter}
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract sealed class ServiceOption
@@ -50,7 +50,8 @@ abstract class Generator(doc: ResolvedDocument) {
 
 object GeneratorFactory {
   private[this] val factories: Map[String, GeneratorFactory] = {
-    val loadedGenerators = LoadService[GeneratorFactory]()
+    val klass = classOf[GeneratorFactory]
+    val loadedGenerators = java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator.asScala
     val factories =
       List(
         JavaGeneratorFactory,
