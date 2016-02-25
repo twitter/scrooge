@@ -167,6 +167,7 @@ object Scrooge extends Build {
     libraryDependencies ++= Seq(
       util("core") exclude("org.mockito", "mockito-all"),
       util("codec") exclude("org.mockito", "mockito-all"),
+      util("logging") exclude("org.mockito", "mockito-all"),
       "org.apache.thrift" % "libthrift" % libthriftVersion,
       "com.github.scopt" %% "scopt" % "3.3.0",
       "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
