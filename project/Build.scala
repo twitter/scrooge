@@ -150,7 +150,7 @@ object Scrooge extends Build {
       sharedSettings
   ).aggregate(
     scroogeGenerator, scroogeCore,
-    scroogeRuntime, scroogeSerializer, scroogeOstrich,
+    scroogeSerializer, scroogeOstrich,
     scroogeLinter
   )
 
@@ -180,7 +180,7 @@ object Scrooge extends Build {
     ),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
-  ).dependsOn(scroogeRuntime % "test")
+  )
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
@@ -194,18 +194,6 @@ object Scrooge extends Build {
     )
   )
 
-  lazy val scroogeRuntime = Project(
-    id = "scrooge-runtime",
-    base = file("scrooge-runtime"),
-    settings = Defaults.coreDefaultSettings ++
-      sharedSettings
-  ).settings(
-    name := "scrooge-runtime",
-    libraryDependencies ++= Seq(
-      finagle("thrift")
-    )
-  ).dependsOn(scroogeCore)
-
   lazy val scroogeOstrich = Project(
     id = "scrooge-ostrich",
     base = file("scrooge-ostrich"),
@@ -218,7 +206,7 @@ object Scrooge extends Build {
       finagle("thriftmux"),
       util("app")
     )
-  ).dependsOn(scroogeRuntime)
+  )
 
   val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
     sourceGenerators <+= ScroogeRunner.genSerializerTestThrift,
@@ -289,7 +277,7 @@ object Scrooge extends Build {
       "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
       "org.apache.thrift" % "libthrift" % libthriftVersion
     )
-  ).dependsOn(scroogeGenerator, scroogeRuntime, scroogeSerializer)
+  ).dependsOn(scroogeGenerator, scroogeSerializer)
 
   lazy val scroogeDoc = Project(
     id = "scrooge-doc",

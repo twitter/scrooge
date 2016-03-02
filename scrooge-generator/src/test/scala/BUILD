@@ -8,7 +8,6 @@ junit_tests(name='scala',
     'finagle/finagle-thrift',
     'scrooge/scrooge-core',
     'scrooge/scrooge-generator',
-    'scrooge/scrooge-runtime',
     'util/util-core',
   ],
   sources=globs(
