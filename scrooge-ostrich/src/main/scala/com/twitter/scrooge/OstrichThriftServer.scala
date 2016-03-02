@@ -27,8 +27,9 @@ object enableThriftMuxServer
  * a class declaration that looks like "X extends Y.ThriftServer" to
  * "X extends Y.FutureIface with OstrichThriftServer".
  *
- * Ostrich in general is now deprecated, and long-term, you should switch to twitter-server.
+ * Ostrich in general is now deprecated, and long-term, you should switch to TwitterServer.
  */
+@deprecated("Use TwitterServer instead", "2016-03-01")
 trait OstrichThriftServer extends ostrich.admin.Service {
   val log = Logger.get(getClass)
 

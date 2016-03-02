@@ -74,7 +74,6 @@ User's guide
    MVNPlugin
    CommandLine
    Finagle
-   Ostrich
    CodeGenDep
    Semantics
    Linter
