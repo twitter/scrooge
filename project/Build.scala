@@ -17,7 +17,7 @@ object Scrooge extends Build {
 
   val libVersion = "4.5.0" + suffix
 
-  // To build the develop branch you need to publish util, ostrich and finagle locally:
+  // To build the develop branch you need to publish util, and finagle locally:
   // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
   val utilVersion = "6.32.0" + suffix
   val finagleVersion = "6.33.0" + suffix
@@ -150,7 +150,7 @@ object Scrooge extends Build {
       sharedSettings
   ).aggregate(
     scroogeGenerator, scroogeGeneratorTests, scroogeCore,
-    scroogeSerializer, scroogeOstrich, scroogeLinter
+    scroogeSerializer, scroogeLinter
   )
 
   lazy val scroogeGenerator = Project(
@@ -175,7 +175,6 @@ object Scrooge extends Build {
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
   )
-<<<<<<< HEAD
 
   lazy val scroogeGeneratorTests = Project(
     id = "scrooge-generator-tests",
@@ -195,8 +194,6 @@ object Scrooge extends Build {
     test in assembly := {},  // Skip tests when running assembly.
     publishArtifact := false
   ).dependsOn(scroogeGenerator, scroogeRuntime % "test")
-=======
->>>>>>> origin/master
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
@@ -207,20 +204,6 @@ object Scrooge extends Build {
     name := "scrooge-core",
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % libthriftVersion % "provided"
-    )
-  )
-
-  lazy val scroogeOstrich = Project(
-    id = "scrooge-ostrich",
-    base = file("scrooge-ostrich"),
-    settings = Defaults.coreDefaultSettings ++
-      sharedSettings
-  ).settings(
-    name := "scrooge-ostrich",
-    libraryDependencies ++= Seq(
-      finagle("ostrich4"),
-      finagle("thriftmux"),
-      util("app")
     )
   )
 

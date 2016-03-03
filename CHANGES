@@ -5,7 +5,7 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
-- scrooge-ostrich: Deprecated scrooge-ostrich module
+- scrooge-ostrich: Removed scrooge-ostrich module
 - scrooge-runtime: Deleted unnecessary scrooge-runtime module
 
 4.5.0
