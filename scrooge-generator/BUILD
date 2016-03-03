@@ -4,12 +4,6 @@ target(name='scrooge-generator',
   ]
 )
 
-target(name='tests',
-  dependencies=[
-    'scrooge/scrooge-generator/src/test/scala'
-  ]
-)
-
 jvm_binary(
   name='bin',
   main='com.twitter.scrooge.Main',

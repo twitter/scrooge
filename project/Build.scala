@@ -149,19 +149,16 @@ object Scrooge extends Build {
     settings = Defaults.coreDefaultSettings ++
       sharedSettings
   ).aggregate(
-    scroogeGenerator, scroogeCore,
-    scroogeSerializer, scroogeOstrich,
-    scroogeLinter
+    scroogeGenerator, scroogeGeneratorTests, scroogeCore,
+    scroogeSerializer, scroogeOstrich, scroogeLinter
   )
 
   lazy val scroogeGenerator = Project(
     id = "scrooge-generator",
     base = file("scrooge-generator"),
     settings = Defaults.coreDefaultSettings ++
-      inConfig(Test)(testThriftSettings) ++
       sharedSettings ++
-      assemblySettings ++
-      jmockSettings
+      assemblySettings
   ).settings(
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
@@ -170,17 +167,36 @@ object Scrooge extends Build {
       util("logging") exclude("org.mockito", "mockito-all"),
       "org.apache.thrift" % "libthrift" % libthriftVersion,
       "com.github.scopt" %% "scopt" % "3.3.0",
-      "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
-      "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test", // used in thrift transports
       "com.google.code.findbugs" % "jsr305" % "2.0.1",
-      "commons-cli" % "commons-cli" % "1.2",
-      finagle("thrift") % "test"
+      "commons-cli" % "commons-cli" % "1.2"
     ),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
   )
+<<<<<<< HEAD
+
+  lazy val scroogeGeneratorTests = Project(
+    id = "scrooge-generator-tests",
+    base = file("scrooge-generator-tests"),
+    settings = Defaults.coreDefaultSettings ++
+      inConfig(Test)(testThriftSettings) ++
+      sharedSettings ++
+      assemblySettings ++
+      jmockSettings
+  ).settings(
+    name := "scrooge-generator-tests",
+    libraryDependencies ++= Seq(
+      "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
+      "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test", // used in thrift transports
+      finagle("thrift") % "test"
+    ),
+    test in assembly := {},  // Skip tests when running assembly.
+    publishArtifact := false
+  ).dependsOn(scroogeGenerator, scroogeRuntime % "test")
+=======
+>>>>>>> origin/master
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",

@@ -19,6 +19,6 @@ junit_tests(name='scala',
     'com/twitter/scrooge/mustache/*.scala',
     'com/twitter/scrooge/testutil/*.scala'),
   resources=[
-    'scrooge/scrooge-generator/src/test/resources:resources'
+    'scrooge/scrooge-generator-tests/src/test/resources:resources'
   ],
 )

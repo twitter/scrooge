@@ -23,7 +23,7 @@ import thrift.apache_java_test._
  */
 class ApacheJavaGeneratorSpec extends Spec {
   def generateDoc(str: String) = {
-    val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator/src/test/resources/test_thrift"))
+    val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator-tests/src/test/resources/test_thrift"))
     val parser = new ThriftParser(importer, true)
     val doc = parser.parse(str, parser.document)
     TypeResolver()(doc).document
