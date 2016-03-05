@@ -193,7 +193,7 @@ object Scrooge extends Build {
     ),
     test in assembly := {},  // Skip tests when running assembly.
     publishArtifact := false
-  ).dependsOn(scroogeGenerator, scroogeRuntime % "test")
+  ).dependsOn(scroogeGenerator)
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
