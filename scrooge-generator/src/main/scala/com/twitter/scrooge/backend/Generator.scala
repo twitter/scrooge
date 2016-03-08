@@ -40,8 +40,7 @@ abstract class Generator(doc: ResolvedDocument) {
 
   /**
    * Used to find the namespace in included files.
-   * This does not always match the corresponding GeneratorFactory.language:
-   * JavaGenerator uses 'experimental-java' and the 'java' namespace.
+   * This does not need to match the corresponding GeneratorFactory.language.
    */
   def namespaceLanguage: String
 
@@ -54,7 +53,6 @@ object GeneratorFactory {
     val loadedGenerators = java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator.asScala
     val factories =
       List(
-        JavaGeneratorFactory,
         ScalaGeneratorFactory,
         ApacheJavaGeneratorFactory,
         AndroidGeneratorFactory,

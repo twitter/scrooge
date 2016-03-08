@@ -120,7 +120,7 @@ object ScroogeSBT extends AutoPlugin {
 
     val scroogeLanguage = SettingKey[String](
       "scrooge-language",
-      "language to generate code in: scala, java, experimental-java"
+      "language to generate code in: scala, java"
     )
   }
 

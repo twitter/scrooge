@@ -19,19 +19,4 @@ class NamingConventionSpec extends Spec {
       Super.valueOf("trait") must be(Some(Super.Trait))
     }
   }
-
-  "Java Generator" should {
-    "follow naming convention" in {
-      import thrift.java_def._default_._ // package name "default" got rewritten in Java
-      Constants.`val` must be(10)
-      Constants._try_ must be(123)
-
-      val naughty = new Naughty("car", 100)
-      naughty.getType() must be("car")
-      naughty.getAbstract() must be(100)
-
-      Super.TRAIT.getValue() must be(20)
-      Super.findByValue(99) must be(Super.NATIVE)
-    }
-  }
 }

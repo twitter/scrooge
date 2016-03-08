@@ -7,6 +7,7 @@ as it is included in Scrooge's user's guide.
 
 - scrooge-ostrich: Removed scrooge-ostrich module
 - scrooge-runtime: Deleted unnecessary scrooge-runtime module
+- scrooge-generator: Remove broken experimental-java generator.
 
 4.5.0
 ~~~~~~~

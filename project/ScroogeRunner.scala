@@ -5,22 +5,6 @@ import java.io.File
 // Runs the freshly-built Scrooge binary (used for integration tests and benchmarking)
 // How to run: `sbt genTestThrift` or `sbt genBenchmarkThrift`
 object ScroogeRunner {
-  val javaNamespace =
-    """-n thrift.defaults=thrift.java_defaults
-      |-n thrift.colors=thrift.java_colors
-      |-n thrift.test=thrift.java_test
-      |-n thrift.test1=thrift.java_test1
-      |-n thrift.test2=thrift.java_test2
-      |-n thrift.collision=thrift.java_collision
-      |-n thrift.constants=thrift.java_constants
-      |-n thrift.def.default=thrift.java_def.default
-      |-n foo=java_foo
-      |-n bar=java_bar
-      |-n com.fake=com.java_fake
-      |-n com.twitter.scrooge.integration_scala=com.twitter.scrooge.integration_java
-      |--default-java-namespace java_thrift
-    """.stripMargin
-
   val apacheJavaNamespace =
     """-n thrift.defaults=thrift.apache_java_defaults
       |-n thrift.colors=thrift.apache_java_colors
@@ -57,7 +41,6 @@ object ScroogeRunner {
   sealed abstract class Language(val scroogeName: String, val defaultNamespace: String)
   case object Scala extends Language("scala", "")
   case object ApacheJava extends Language("java", apacheJavaNamespace)
-  case object Java extends Language("experimental-java", javaNamespace)
   case object Android extends Language("android", androidNamespace)
 
   class Runner(out: Keys.TaskStreams, cp: Classpath, outputDir: File) {
@@ -114,27 +97,21 @@ object ScroogeRunner {
 
       section("relative/") {
         val files = filesInDir(s"$base/src/test/thrift/relative").filter(_.contains("include")) mkString " "
-        runScrooge(Seq(Java, Scala, Android), files)
+        runScrooge(Seq(Scala, Android), files)
 
         val file = s"$base/src/test/thrift/relative/candy.thrift"
         val importArg =
           s"-i $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/include3.jar"
-        runScrooge(Seq(Java, Scala, Android), s"$file $importArg")
+        runScrooge(Seq(Scala, Android), s"$file $importArg")
       }
 
       val airportThriftFiles = filesInDir(s"$base/src/test/thrift/airport") mkString " "
 
       section("airport/ for Finagle usage") {
-        runScrooge(Seq(Java, Scala, Android), airportThriftFiles)
+        runScrooge(Seq(Scala, Android), airportThriftFiles)
       }
 
       section("airport/ for vanilla usage") {
-        val javaVanillaNamespace =
-          """-n thrift.test=vanilla_java.test
-            |-n thrift.test1=vanilla_java.test1
-            |-n thrift.test2=vanilla_java.test2
-          """.stripMargin
-
         val scalaVanillaNamespace =
           """-n thrift.test=vanilla.test
             |-n thrift.test1=vanilla.test1
@@ -147,16 +124,12 @@ object ScroogeRunner {
             |-n androidthrift.test2=vanilla_android.test2
           """.stripMargin
 
-        run(language = Java, namespace = javaVanillaNamespace, finagle = false, args = airportThriftFiles)
         run(language = Scala, namespace = scalaVanillaNamespace, finagle = false, args = airportThriftFiles)
         run(language = Android, namespace = androidVanillaNamespace, finagle = false, args = airportThriftFiles)
       }
 
       section("namespace/ with bar and java_bar as default namespace") {
         val files = filesInDir(s"$base/src/test/thrift/namespace") mkString " "
-        run(language = Java,
-          namespace = s"${Java.defaultNamespace} --default-java-namespace java_bar",
-          args = files)
         run(language = Scala,
           namespace = s"${Scala.defaultNamespace} --default-java-namespace bar",
           args = files)
@@ -171,9 +144,6 @@ object ScroogeRunner {
         run(language = Scala,
           namespace = s"${Scala.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_scala",
           args = s"--disable-strict $files")
-        run(language = Java,
-          namespace = s"${Java.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_java",
-          args = s"--disable-strict $files")
         run(language = ApacheJava,
           namespace = s"${ApacheJava.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_apache",
           args = s"--disable-strict $files")
@@ -185,7 +155,7 @@ object ScroogeRunner {
 
       section("standalone/") {
         val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
-        runScrooge(Seq(Java, Scala), files)
+        runScrooge(Seq(Scala), files)
         runScrooge(Seq(ApacheJava, Android), s"$base/src/test/thrift/standalone/enumSet.thrift")
         runScrooge(Seq(ApacheJava, Android), s"$base/src/test/thrift/standalone/exception_fields.thrift")
       }
@@ -197,7 +167,7 @@ object ScroogeRunner {
 
       section("constant_sets.thrift") {
         val file = s"$base/src/test/thrift/constant_sets.thrift"
-        runScrooge(Seq(Java, Scala, Android), file)
+        runScrooge(Seq(Scala, Android), file)
       }
 
       filesGenerated

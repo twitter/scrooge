@@ -43,42 +43,5 @@ class NonFinagleSpec extends Spec {
       }
       service.fetchAirportsInBounds(Location(500,0), Location(0, 500))() must be(Seq(chicago))
     }
-
-    "work in Java" in {
-      import vanilla_java.test._
-      import vanilla_java.test1._
-      import vanilla_java.test2._
-      import scala.collection.JavaConversions._
-
-      val chicago = new Airport("ORD", "Chicago", new Location(123, 321))
-      val nyc = new Airport("JFK", "New York", new Location(789, 987))
-      val service: ExtendedAirportService.Iface = new ExtendedAirportService.Iface {
-        def fetchAirportsInBounds(nw: Location, se: Location) =
-          Seq(chicago, nyc)
-            .filter { airport =>
-            inRegion(airport.getLoc(), nw, se)
-          }
-        def hasWifi(a: Airport) =
-          if (a.getCode() == "ORD")
-            true
-          else if (a.getCode() == "JFK")
-            false
-          else
-            throw new AirportException(100)
-
-        private[this] def inRegion(loc: Location, nw: Location, se: Location) =
-          loc.getLatitude() < nw.getLatitude() &&
-            loc.getLatitude() > se.getLatitude() &&
-            loc.getLongitude() > nw.getLongitude() &&
-            loc.getLongitude() < se.getLongitude()
-      }
-      service.hasWifi(chicago).asInstanceOf[Boolean] must be(true)
-      service.hasWifi(nyc).asInstanceOf[Boolean] must be(false)
-      val sfo = new Airport("SFO", "San Francisco", new Location(10, 10))
-      intercept[AirportException] {
-        service.hasWifi(sfo)
-      }
-      service.fetchAirportsInBounds(new Location(500,0), new Location(0, 500)).toSeq must be(Seq(chicago))
-    }
   }
 }

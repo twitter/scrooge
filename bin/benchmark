@@ -59,7 +59,7 @@ function compileThrift {
     echo
     echo Running scrooge on $input
 
-    for lang in scala java experimental-java; do
+    for lang in scala java; do
         lang_opt="--language $lang"
         echo $lang_opt
         dest="$input/$lang"
