@@ -97,7 +97,7 @@ abstract class GoldFileTest extends FunSuite
           val msg =
             s"""
                |The generated file ${gen.getName} did not match gold file
-               |"scrooge/scrooge-generator/src/test/resources/gold_file_output_$language/$suffix".
+               |"scrooge/scrooge-generator-tests/src/test/resources/gold_file_output_$language/$suffix".
                |Compare the output in stdout to the gold file and
                |either fix the generator or update the gold file to match.
              """.stripMargin

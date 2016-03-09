@@ -22,12 +22,12 @@ import scala.collection.concurrent.TrieMap
 
 /**
  * To generate the apache output for birdcage compatible thrift:
- * ~/birdcage/maven-plugins/maven-finagle-thrift-plugin/src/main/resources/thrift/thrift-finagle.osx10.6
+ * ~/source/maven-plugins/maven-finagle-thrift-plugin/src/main/resources/thrift/thrift-finagle.osx10.6
  *     --gen java -o /tmp/thrift test_thrift/empty_struct.thrift
  */
 class AndroidGeneratorSpec extends Spec {
   def generateDoc(str: String) = {
-    val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator/src/test/resources/test_thrift"))
+    val importer = Importer(Seq("src/test/resources/test_thrift", "scrooge-generator-tests/src/test/resources/test_thrift"))
     val parser = new ThriftParser(importer, true)
     val doc = parser.parse(str, parser.document)
     TypeResolver()(doc).document
