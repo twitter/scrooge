@@ -5,38 +5,41 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+4.6.0
+-----
+
 - scrooge-ostrich: Removed scrooge-ostrich module
 - scrooge-runtime: Deleted unnecessary scrooge-runtime module
 - scrooge-generator: Remove broken experimental-java generator.
 
 4.5.0
-~~~~~~~
+-----
 
 - scrooge: Improve implementation of service#FunctionType
 
 4.4.0
-~~~~~~~
+-----
 
 - NOT RELEASED
 
 4.3.0
-~~~~~~~
+-----
 
 - scrooge: Rename __ServiceIface to BaseServiceIface
 - scrooge: Add methods for converting between function and service implementations of ThriftMethods.
 
 4.2.0
-~~~~~~~
+-----
 
 - bump finagle version to 6.30
 
 4.1.0
-~~~~~~~
+-----
 
 - bump finagle version to 6.29
 
 4.0.0
-~~~~~~~
+-----
 
 - scrooge: Scrooge 4.0.0 includes backward compatibility patches for Finagle service per endpoint generation. This allows using Thrift endpoints as Finagle Services and combining them with Filters.
 
@@ -44,21 +47,21 @@ as it is included in Scrooge's user's guide.
 -----
 
 3.20.0
-~~~~~~~
+------
 
 - scrooge: Generate a finagle Service per thrift method (Service interface)
 
 3.19.0
-~~~~~~~
+------
 - scrooge: Performance improvements and bug fixes.
 - scrooge-sbt-plugin: Add output language support in scrooge-sbt-plugin.
 
 3.18.1
-~~~~~~~
+------
 - scrooge-maven-plugin: Fix bug with plugin parameters.
 
 3.18.0
-~~~~~~~
+------
 - scrooge: Support ignoring unknown enum ids.
 - scrooge: Output full exception chain in client stats.
 - scrooge: Add union metadata to generated scala code.
@@ -67,7 +70,7 @@ as it is included in Scrooge's user's guide.
 - scrooge-sbt-plugin: Upgrade to autoPlugin.
 
 3.17.0
-~~~~~~~
+------
 
 - scrooge: add is required to ThriftStructFieldInfo.
 - scrooge minor docs update: add logo and short description.
@@ -77,7 +80,7 @@ as it is included in Scrooge's user's guide.
 - scrooge: Remove SafeVarargs for JDK 6 compatibility.
 
 3.16.6
-~~~~~~~
+------
 
 - scrooge-core: Added scala 2.11 support
 - scrooge-core: scrooge: add .withoutPassthrough method that recursively removes passthrough fields
@@ -87,7 +90,7 @@ as it is included in Scrooge's user's guide.
 - scrooge: prefer Protocols.binaryFactory over TBinaryProtocol.Factory
 
 3.16.3
-~~~~~~~
+------
 
 - scrooge-core: Add union metadata for reflection
 - scrooge-doc: Clarify docs on CLI usage
@@ -98,7 +101,7 @@ as it is included in Scrooge's user's guide.
 - scrooge-ostrich: Default to using `Protocols.binaryFactory`
 
 3.16.1
-~~~~~~~
+------
 
 - release finagle v6.18.0
 - release util v6.18.0
@@ -107,25 +110,25 @@ as it is included in Scrooge's user's guide.
 - scrooge: Skip includes when linting
 
 3.16.0
-~~~~~~~
+------
 
 - Upgrade dependencies to latest versions
 - scrooge: Move scrooge-linter into scrooge
 - scrooge: Add SimpleID.originalName for enum fields.
 
 3.15.0
-~~~~~~~
+------
 
 - scrooge: Bumping finagle to 6.16.0
 - scrooge: Bump util to 6.16.1-SNAPSHOT
 
 3.14.1
-~~~~~~~
+------
 
 - scrooge-generator: Allow union field names to match struct names
 
 3.14.0
-~~~~~~~
+------
 
 - scrooge: Use scala.Option in all com.twitter.scrooge files to avoid conflict with com.twitter.scrooge.Option
 - scrooge: Allow for Longs as const values
@@ -134,17 +137,17 @@ as it is included in Scrooge's user's guide.
 - scrooge-ostrich: Add a flag for enabling ThriftMux
 
 3.13.2
-~~~~~~~
+------
 
 scrooge: bump finagle + util versions
 
 3.13.1
-~~~~~~~
+------
 
 scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly.
 
 3.13.0
-~~~~~~~
+------
 
 - scrooge: add sbt 0.13 variant of scrooge-sbt-plugin
 - scrooge: Add scrooge/scrooge-generator/BUILD
@@ -158,7 +161,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge: upgrade util to 6.13.2
 
 3.12.3
-~~~~~
+------
 
 - scrooge: add the thrift root to the list of includes for scrooge
 - scrooge: Automatically whitelist all idl jar dependencies
@@ -172,7 +175,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge: Update scrooge to remove date from Generated annotation so generated code is reproducible.
 
 3.12.2
-~~~~~
+------
 
 - scrooge: Added missing writeFieldEnd() for passthrough fields
 - scrooge: Bump finagle to 6.11.1
@@ -180,12 +183,12 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge: WriteFieldStop during transfer
 
 3.12.1
-~~~~~
+------
 
 - scrooge: properly handle field annotations
 
 3.12.0
-~~~~~
+------
 
 - scrooge: use a TReusableMemoryTransport in finagle services
 - Bump guava to 15.0
@@ -195,7 +198,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - Rm all imports of `scala.Some`
 
 3.11.2
-~~~~~
+------
 
 - scrooge-*: bump finagle to 6.10.1-SNAPSHOT, util to 6.10.1-SNAPSHOT
 - scrooge-generator: Attach thrift annotations to generated AST
@@ -203,7 +206,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge-maven-plugin: Overwrite and warn if the current file is older
 
 3.11.1
-~~~~~
+------
 
 - scrooge: bump finagle version to 6.8.0
 - scrooge: bump util version to 6.8.0
@@ -211,43 +214,43 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge-generator: fixed comment parsing bug
 
 3.11.0
-~~~~~
+------
 
 - scrooge-generator: simplify synthesized structs For synthesized service method arg and results structs
 - scrooge-generator: special, scrooge-only syntax for scala namespace
 - scrooge-generator: don't backquote scala identifiers in Enum.valueOf string constants
 
 3.10.2
-~~~~~
+------
 
 - scrooge-generator: produce slimmer code, remove _passthroughFields from object apply method
 
 3.10.1
-~~~~~
+------
 
 - scrooge-generator: default passthrough value, valid method names.
 
 3.10.0
-~~~~~
+------
 
 - scrooge-serializer: simpler BinaryThriftStructSerializer builder
 - scrooge-maven-plugin: check for null from Artifact.getDependencyTrail
 
 3.9.2
-~~~~~
+-----
 
 - scrooge: support larger structs
 - scrooge: allow oneway
 - scrooge: always generate passthrough code
 
 3.9.1
-~~~~~
+-----
 
 - scrooge-generator: remove deprecation warnings removed deprecation warnings for FutureIface, FinagledClient, and FinagledServer. Since Jeff is working on finagle-free code generation, there is no good reason to push people off of these classes onto the replacements I added, only to deprecate those classes in the near future.
 - scrooge-generator: fixed imports for union
 
 3.9.0
-~~~~~
+-----
 
 - scrooge use scala option in metadata
 - provide type parameters in metadata
@@ -259,7 +262,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - bump util to 6.5.1-SNAPSHOT
 
 3.8.0
-~~~~~
+-----
 
 - scrooge: passthrough field improvements
 - Scrooge doesn't title case extended services properly
@@ -267,7 +270,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - fix test breakage on sbt
 
 3.7.0
-~~~~~
+-----
 
 - scrooge-serializer: tighten up dependencies scrooge-serializer only needs to depend on scrooge-core, not scrooge-runtime (the pants BUILD file already did this).
 - We think that mustache actually handles the escaping so that this additional escaping is not needed.
@@ -279,7 +282,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - remove use of deprecated generated ostrich ThriftServer
 
 3.6.0
-~~~~~
+-----
 
 - scrooge-generator: fixed whitespace eating in strings ThriftParser extends RegexParsers.
 - scrooge-generator: Fixup java codegen issues surfaced by converting ads:ad-review-tests in science to scrooge.
@@ -292,7 +295,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge-generator: allow trailing comma at the end of a map
 
 3.5.0
-~~~~~
+-----
 
 - scrooge: breaking out finagle, higher-kinded-type interface
 - use apply instead of cons for enum list all
@@ -301,7 +304,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - scrooge-ostrich This review introduces a new, temporary scrooge subproject, which is intended to help in the migration away from generating ostrich code in scrooge.
 
 3.4.0
-~~~~~
+-----
 
 - BREAKING: remove list generation from enums (was causing compile errors. will revisit)
 - move TypeResolver and ParseException into the frontend package
@@ -315,12 +318,12 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - tiny fix for oneway support
 
 3.3.2
-~~~~~
+-----
 
 - bugfix: collections of enums now identify as i32 on the wire
 
 3.3.1
-~~~~~
+-----
 
 - provide a mechanism for dynamicallly pluggable backends
 - make enum list of values lazy
@@ -328,7 +331,7 @@ scrooge-generator: Use OutputSreamWriter to write non ascii characters correctly
 - fix maven plugin references includes
 
 3.3.0
-~~~~~
+-----
 
 - Documenation fixes
 - fix ThriftStructMetaData use camelCase method names to match generated
@@ -342,20 +345,21 @@ compatibility by identifying them as I32 on the wire
 subdirectories
 
 3.2.1
-~~~~~
+-----
 
 - add list method to enums that lists all values
 - bugfix: ThriftUtil was not being imported for services
 - add ability to attach additional passthrough fields
 
 3.2.0
-~~~~~
+-----
+
 - BREAKING CHANGE:
 Make java gen experimental. There are changes coming down the pipe that
 will dramatically refactor java's codegen.
 
 3.1.10
-~~~~~~
+------
 
 - do not use an intermedial `val` for passthroughs. Eliminates the possibility
 of a name collision
@@ -364,7 +368,7 @@ of a name collision
 - eliminate all use of ThriftUtil unless it's needed
 
 3.1.9
-~~~~~
+-----
 
 - bump to util-6.3.6 / finagle-6.5.0
 - [EXPERIMENTAL] add ability to pass through additional fields
@@ -375,7 +379,7 @@ scrooge3 maven layouts
 - identify enums as TType.ENUM
 
 3.1.8
-~~~~~
+-----
 
 - generator: thrift idl containing UTF-8 produces
 java.nio.charset.UnmappableCharacterException
@@ -385,24 +389,24 @@ java.nio.charset.UnmappableCharacterException
 named args)
 
 3.1.7
-~~~~~
+-----
 
 - Use explicit version numbers
 
 3.1.6
-~~~~~
+-----
 
 - Depend on the latest patch version of util/finagle
 
 3.1.5
-~~~~~
+-----
 
 - add back the --import-path flag as a deprecation step
 - add sbt-plugin
 - use maven as the build system for the maven plugin
 
 3.1.2
-~~~~~
+-----
 
 - BREAKING CHANGE:
 In the maven plugin: change the dependentConfigs param to dependentIncludes
@@ -411,7 +415,7 @@ In the maven plugin: change the dependentConfigs param to dependentIncludes
 - upgrade to finagle 6.4.0 and util 6.3.4
 
 3.1.1
-~~~~~
+-----
 
 - BREAKING CHANGE:
 We finally made scrooge-runtime to be backward with Scrooge 2. This requires
@@ -424,7 +428,7 @@ which is not common.
 - some directory reorganization of the demos
 
 3.1.0
-~~~~~
+-----
 
 - Dependency changes: now on util/finagle 6.3.0
 - demo project now shows how to construct finagle server and client using
@@ -432,7 +436,7 @@ generated code
 - --ostrich flag implies --finagle flag
 
 3.0.9
-~~~~~
+-----
 
 - Remove "provided" scope of finagle in scrooge-runtime. So it brings Finagle
 6.1.0 as transit dependency to your project
@@ -441,7 +445,7 @@ to users on Finagle 6 is that you will see a lot of warnings saying that
 tracerFactory is deprecated.
 
 3.0.8
-~~~~~
+-----
 
 - When scrooge-maven-plugin extracts Thrift files from a dependency artifact, it
 now puts them in a sub folder named after the artifact id. This way, the user
@@ -460,7 +464,7 @@ Thanks to @erikvanoosten
 - Reorganizing test folder, and add Apache standard test
 
 3.0.7
-~~~~~
+-----
 
 - All on-wire names in the Thrift messages are now consistent with
 Apache generated code. This allows Scrooge generated services to exchange
@@ -482,7 +486,7 @@ indirect dependencies (everything in the dependency tree).
 - Now supports "*" as a default namespace scope
 
 3.0.6
-~~~~~
+-----
 
 - Released a scrooge-maven-plugin, for maven projects to integrate Scrooge in
 their pom files. Also released a demo of how to use scrooge-maven-plugin
@@ -501,7 +505,7 @@ Scala code, make sure to address ambiguity with scala.Option.
 - Fix the stats reporting for the java scrooge thrift code generation
 
 3.0.5
-~~~~~
+-----
 
 Bug fixes
 
@@ -517,7 +521,7 @@ Central)
 access to Twitter internal repository anymore.
 
 3.0.4
-~~~~~
+-----
 
 Features:
 
@@ -535,7 +539,7 @@ Dependencies
 - Update dependency of util/finagle/ostrich to 6.0.6
 
 3.0.3
-~~~~~
+-----
 
 - Scrooge artifacts now deploys to Maven central via Sonatype
 - Scrooge project builds in Travis CI
@@ -551,7 +555,7 @@ Dependencies
 struct can define a "validate" field without name clashing.
 
 3.0.2
-~~~~~
+-----
 
 - Adding a "--gen-file-map <path>" option to Scrooge command line. It tells
 what output files each input Thrift files generates, in the following format:
@@ -578,7 +582,7 @@ stats: ...
 )
 
 3.0.1
-~~~~~
+-----
 
 Features and bug fixes
 
@@ -649,7 +653,7 @@ Dependencies:
 - Add dependency on maven
 
 3.0.0
-~~~~~
+-----
 
 - Java code generation is now supported!
 - Scala code now generates a set of classes for each struct:
@@ -679,10 +683,10 @@ Dependencies:
 - Upgraded to scala 2.9.2.
 
 2.x
------
+----
 
 2.5.4
-~~~~~
+-----
 
 - Addressed an issue where structs with the same name but from different
 namespaces/packages would conflict. Now using a package alias to
@@ -690,13 +694,13 @@ disambiguate.
 
 
 2.5.3
-~~~~~
+-----
 
 - Minor bug fix for serviceName name class with.
 
 
 2.4.0
-~~~~~
+-----
 
 - added support for structs with more than 22 fields, which previously was the
 limit as that is the max case-class size in scala. For structs larger than
@@ -708,7 +712,7 @@ statement?
 
 
 2.3.1
-~~~~~
+-----
 
 - thriftProtocolFactory in generated ThriftServer now has
 type of TProtocolFactory, so you can override it with other
@@ -716,7 +720,7 @@ protocol factories.
 
 
 2.3.0
-~~~~~
+-----
 
 - You can now override serverBuilder in ThriftServer to provide
 additional server configuration
@@ -726,39 +730,39 @@ to specify it when using the default.
 
 
 2.2.0
-~~~~~
+-----
 
 - tracerFactory support in ThriftServer.
 
 2.1.0
-~~~~~
+-----
 
 - Support for tracing in server.
 
 2.0.2
-~~~~~
+-----
 
 - fixes a bug in which namespace mapping was not applied
 recursively to included documents.
 
 
 2.0.1
-~~~~~
+-----
 
 - fixes a bug in which qualified service names from imported
 thrift files were not resolved properly.
 
 
 2.0.0
-~~~~~
+-----
 
 - fixes a bug with enum in which the first value was wrong.
 
 1.x
------
+----
 
 1.1.1
-~~~~~
+-----
 
 - scrooge-runtime-1.0.1
 - Each thrift struct companion object now extends ThriftStructCodec

@@ -33,32 +33,32 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core_2.11</artifactId>
-      <version>6.32.0</version>
+      <version>6.33.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-codec_2.11</artifactId>
-      <version>6.32.0</version>
+      <version>6.33.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.11</artifactId>
-      <version>6.33.0</version>
+      <version>6.34.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.11</artifactId>
-      <version>6.33.0</version>
+      <version>6.34.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-ostrich4_2.11</artifactId>
-      <version>6.33.0</version>
+      <version>6.34.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-core_2.11</artifactId>
-      <version>4.5.0</version>
+      <version>4.6.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -137,7 +137,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>4.5.0</version>
+        <version>4.6.0</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
