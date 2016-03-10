@@ -29,13 +29,28 @@ sealed trait NamedType extends FieldType {
 
 case class StructType(struct: StructLike, scopePrefix: Option[SimpleID] = None) extends NamedType {
   val sid = struct.sid
+  override def toString: String = "Struct(?)"
 }
 
 case class EnumType(enum: Enum, scopePrefix: Option[SimpleID] = None) extends NamedType {
   val sid = enum.sid
+  override def toString: String = "Enum(?)"
 }
 
 sealed abstract class ContainerType(cppType: Option[String]) extends FieldType
-case class MapType(keyType: FieldType, valueType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
-case class SetType(eltType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
-case class ListType(eltType: FieldType, cppType: Option[String]) extends ContainerType(cppType)
+
+case class MapType(
+    keyType: FieldType,
+    valueType: FieldType,
+    cppType: Option[String]) extends ContainerType(cppType) {
+
+  override def toString: String = s"Map($keyType, $valueType)"
+}
+
+case class SetType(eltType: FieldType, cppType: Option[String]) extends ContainerType(cppType) {
+  override def toString: String = s"Set($eltType)"
+}
+
+case class ListType(eltType: FieldType, cppType: Option[String]) extends ContainerType(cppType) {
+  override def toString: String = s"List($eltType)"
+}
