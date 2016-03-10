@@ -101,7 +101,7 @@ object ScroogeRunner {
 
         val file = s"$base/src/test/thrift/relative/candy.thrift"
         val importArg =
-          s"-i $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/include3.jar"
+          s"-i $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/dir3"
         runScrooge(Seq(Scala, Android), s"$file $importArg")
       }
 

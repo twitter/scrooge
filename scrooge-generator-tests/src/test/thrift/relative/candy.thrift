@@ -1,6 +1,6 @@
 /* Specifically written to test various ways of importing the include files
  * Go to the directory of scrooge-generator project and run the following command:
- *    scrooge src/test/thrift/relative/candy.thrift -i src/test/thrift/relative/dir2:src/test/thrift/relative/include3.jar
+ *    scrooge src/test/thrift/relative/candy.thrift -i src/test/thrift/relative/dir2:src/test/thrift/relative/dir3
  */
 #@namespace android thrift.android.test2
 namespace java thrift.test2
@@ -12,7 +12,7 @@ include "./dir1/../dir1/include1.thrift"
 // from relative path "dir2" passed through command line
 include "include2.thrift"
 
-// from include3.jar passed through command line
+// from relative path "dir3" passed through command line
 include "include3.thrift"
 
 typedef include1.CandyType CandyType
