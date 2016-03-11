@@ -32,13 +32,3 @@ If you specify --finagle option, you need to have the following additional depen
          <groupId>com.twitter</groupId>
          <artifactId>finagle-thrift</artifactId>
        </dependency>
-
-If you need ostrich-service support, the following dependency provides a simple trait
-for adapting a generated finagle-service into an ostrich-service.
-
-::
-
-       <dependency>
-         <groupId>com.twitter</groupId>
-         <artifactId>scrooge-ostrich</artifactId>
-       </dependency>

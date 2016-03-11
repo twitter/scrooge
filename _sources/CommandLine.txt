@@ -55,7 +55,7 @@ A complete command line help menu:
       -s | --skip-unchanged
             Don't re-generate if the target is newer than the input
       -l <value> | --language <value>
-            name of language to generate code in ('experimental-java' and 'scala' are currently supported)
+            name of language to generate code in ('scala' is currently supported)
       --experiment-flag <flag>
             [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
       --scala-warn-on-java-ns-fallback
