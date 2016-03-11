@@ -18,6 +18,7 @@ case object {{EnumName}} {
 
   case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
     val name = "EnumUnknown{{EnumName}}" + value
+    val originalName = "EnumUnknown{{EnumName}}" + value
   }
 
   /**
@@ -74,4 +75,8 @@ case object {{EnumName}} {
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-sealed trait {{EnumName}} extends ThriftEnum with Serializable
+sealed trait {{EnumName}} extends ThriftEnum with Serializable {
+  def value: Int
+  def name: String
+  def originalName: String
+}
