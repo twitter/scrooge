@@ -30,6 +30,7 @@ case object RequestType {
 
   case class EnumUnknownRequestType(value: Int) extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val name = "EnumUnknownRequestType" + value
+    val originalName = "EnumUnknownRequestType" + value
   }
 
   /**
@@ -82,4 +83,8 @@ case object RequestType {
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-sealed trait RequestType extends ThriftEnum with Serializable
+sealed trait RequestType extends ThriftEnum with Serializable {
+  def value: Int
+  def name: String
+  def originalName: String
+}
