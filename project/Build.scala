@@ -4,7 +4,6 @@ import bintray.Plugin._
 import bintray.Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
-import net.virtualvoid.sbt.graph.Plugin.graphSettings // For dependency-graph
 import pl.project13.scala.sbt.JmhPlugin
 import sbtassembly.Plugin._
 import AssemblyKeys._
@@ -131,7 +130,7 @@ object Scrooge extends Build {
         IO.write(file, contents)
         Seq(file)
       }
-  ) ++ graphSettings
+  )
 
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
