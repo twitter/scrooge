@@ -225,7 +225,7 @@ object Scrooge extends Build {
       "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test",
       "org.apache.thrift" % "libthrift" % libthriftVersion % "provided"
     )
-  ).dependsOn(scroogeCore)
+  ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
