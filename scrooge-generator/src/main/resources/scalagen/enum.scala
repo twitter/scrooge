@@ -10,7 +10,7 @@ case object {{EnumName}} {
   case object {{name}} extends {{package}}.{{EnumName}} {
     val value = {{value}}
     val name = "{{name}}"
-    val originalName = "{{originalName}}"
+    override val originalName = "{{originalName}}"
   }
 
   private[this] val _Some{{name}} = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})
@@ -18,6 +18,7 @@ case object {{EnumName}} {
 
   case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
     val name = "EnumUnknown{{EnumName}}" + value
+    override val originalName = "EnumUnknown{{EnumName}}" + value
   }
 
   /**
