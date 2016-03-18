@@ -15,7 +15,7 @@ case object RequestType {
   case object Create extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val value = 1
     val name = "Create"
-    override val originalName = "Create"
+    val originalName = "Create"
   }
 
   private[this] val _SomeCreate = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Create)
@@ -23,14 +23,14 @@ case object RequestType {
   case object Read extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val value = 2
     val name = "Read"
-    override val originalName = "Read"
+    val originalName = "Read"
   }
 
   private[this] val _SomeRead = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Read)
 
   case class EnumUnknownRequestType(value: Int) extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val name = "EnumUnknownRequestType" + value
-    override val originalName = "EnumUnknownRequestType" + value
+    val originalName = name
   }
 
   /**
