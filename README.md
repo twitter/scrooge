@@ -11,54 +11,44 @@ Scala, which currently generates code for Scala and Java.
 
 It's meant to be a replacement for the apache thrift code generator, and
 generates conforming, compatible binary codecs by building on top of
-libthrift.
+libthrift.  It integrates with the [finagle][0] project, exporting stats
+and finagle APIs, and makes it easy to build high throughput, low latency,
+robust thrift servers and clients.
 
-Since Scala is API-compatible with Java, you can use the apache thrift code
-generator to generate Java files and use them from within Scala, but the
-generated code uses Java collections and mutable "bean" classes, causing some
-annoying boilerplate conversions to be hand-written. This is an attempt to
-bypass the problem by generating Scala code directly. It also uses Scala
-syntax so the generated code is much more compact.
+Part of the motivation behind scrooge's scala implementation is that since Scala
+is API-compatible with Java, you can use the apache thrift code generator to
+generate Java files and use them from within Scala, but the generated code uses
+Java collections and mutable "bean" classes, causing some annoying boilerplate
+conversions to be hand-written. Scrooge bypasses the problem by generating Scala
+code directly. It also uses Scala syntax so the generated code is much more
+compact.
 
-There is a fairly comprehensive set of unit tests, which actually generate
-code, compile it, and execute it to verify expectations.
+There is a comprehensive set of unit tests, which generate code, compile it, and
+execute it to verify expectations, as well as gold files to make it easy to
+review the effects of changes to the generator.
 
 ## Status
 
 This project is used in production at Twitter (and many other organizations),
-and is being actively developed and maintained.
-
-## Quick-start
-
-There are a couple of classes needed by the generated code. These have been
-moved out of scrooge into a separate jar to keep dependencies small.
-Maven users need to add the following to the pom.xml file:
-
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>scrooge-core_2.9.2</artifactId>
-      <version>3.3.2</version>
-    </dependency>
-
-SBT users need this:
-
-    val scroogeCore = "com.twitter" %% "scrooge-core" % "3.3.2"
+and is actively developed and maintained.
 
 ## Building the develop branch locally
 
-You will need the develop branches of [util](https://github.com/twitter/util),
-[ostrich](https://github.com/twitter/ostrich),
-and [finagle](https://github.com/twitter/finagle).
+You will need the develop branch of [util](https://github.com/twitter/util).
+
 Finagle depends on `scrooge-core`, so the order in which you build dependencies
 should be:
 
-* in util: `./sbt publish-local`
-* in ostrich: `./sbt publish-local`
-* in scrooge: `./sbt 'project scrooge-core' publish-local`
-* in finagle: `./sbt publish-local`
+* in util: `./sbt publishLocal`
+* in scrooge: `./sbt publishLocal`
+* in finagle: `./sbt publishLocal`
 
-Then you can build the entire scrooge package.
+You will need the develop branch of
+[finagle](https://github.com/twitter/finagle) to run tests in
+scrooge-generator-tests, but you do not need it to build scrooge otherwise.
 
 ## Full Documentation
 
 <https://twitter.github.io/scrooge/>
+
+[0]: https://github.com/twitter/finagle
