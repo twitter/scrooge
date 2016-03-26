@@ -73,11 +73,6 @@ public final class MavenScroogeCompileMojo extends AbstractMavenScroogeMojo {
   }
 
   @Override
-  protected String getDependencyScopeFilter() {
-    return "compile";
-  }
-
-  @Override
   protected List<File> getReferencedThriftFiles() throws IOException {
     return getRecursiveThriftFiles(project, "classes");
   }

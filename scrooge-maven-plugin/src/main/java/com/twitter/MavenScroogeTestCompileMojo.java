@@ -71,10 +71,6 @@ public final class MavenScroogeTestCompileMojo extends AbstractMavenScroogeMojo 
             ImmutableList.of("**/*.thrift"), ImmutableList.of());
   }
 
-  @Override
-  protected String getDependencyScopeFilter() {
-    return "test";
-  }
 
   @Override
   protected List<File> getReferencedThriftFiles() throws IOException {
