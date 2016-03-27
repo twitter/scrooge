@@ -27,7 +27,6 @@
               </artifact>
             </dependencyArtifacts>
           </project>
-          <localRepository>${localRepository}</localRepository>
           <outputDirectory>${basedir}/target/test/unit/unresolved-idl/output</outputDirectory>
           <thriftOpts>
             <thriftOpt>--finagle</thriftOpt>

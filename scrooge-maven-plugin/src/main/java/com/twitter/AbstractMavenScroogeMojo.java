@@ -5,31 +5,33 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
-import com.jcabi.aether.Aether;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.DefaultDependencyResolutionRequest;
+import org.apache.maven.project.DependencyResolutionException;
 import org.apache.maven.project.DependencyResolutionResult;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.util.artifact.JavaScopes;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -51,10 +53,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Collections.list;
-import static org.codehaus.plexus.util.FileUtils.cleanDirectory;
-import static org.codehaus.plexus.util.FileUtils.copyFile;
-import static org.codehaus.plexus.util.FileUtils.copyStreamToFile;
-import static org.codehaus.plexus.util.FileUtils.getFiles;
+import static org.codehaus.plexus.util.FileUtils.*;
 
 
 /**
@@ -62,8 +61,6 @@ import static org.codehaus.plexus.util.FileUtils.getFiles;
  * This class is extended by {@link MavenScroogeCompileMojo} and
  * {@link MavenScroogeTestCompileMojo} in order to override the specific configuration for
  * compiling the main or test classes respectively.
- *
- * @requiresDependencyResolution
  */
 abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
@@ -73,36 +70,47 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
   /**
    * The current Maven project.
-   *
-   * @parameter default-value="${project}"
-   * @readonly
-   * @required
    */
+  @Parameter( defaultValue = "${project}", readonly = true, required = true )
   protected MavenProject project;
 
   /**
    * A helper used to add resources to the project.
-   *
-   * @component
-   * @required
    */
-  protected MavenProjectHelper projectHelper;
+  protected final MavenProjectHelper projectHelper;
+
+
+  /**
+   * A helper used to get all transative dependencies for the current project.
+   */
+  protected final ProjectDependenciesResolver projectDependenciesResolver;
+
+  /**
+   * The entry point to Aether, i.e. the component doing all the work.
+   */
+  protected final RepositorySystem repoSystem;
+
+  /**
+   * The current repository/network configuration of Maven.
+   */
+  @Parameter(readonly = true, defaultValue = "${repositorySystemSession}")
+  private RepositorySystemSession session;
 
   /**
    * A set of include directories to pass to the thrift compiler.
-   * @parameter
    */
+  @Parameter
   private Set<File> thriftIncludes = new HashSet<File>();
 
   /**
    * Which language the generated files should be ("scala")
-   * @parameter default-value="scala"
    * {@code
    * <configuration>
    *     <language>scala</language>
    * </configuration>
    * }
    */
+  @Parameter(defaultValue = "scala")
   private String language;
 
   /**
@@ -112,19 +120,9 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    *   <thriftOpt>--finagle</thriftOpt>
    * </thriftOpts>
    *}
-   * @parameter
    */
+  @Parameter
   private Set<String> thriftOpts = new HashSet<String>();
-
-  /**
-   * Deprecated. This parameter is ignored.
-   * For each resolved artifact which is a dependency of an idl artifact, the plugin
-   * re-resolves the artifact with idl classifier.
-   * @since 3.17.0
-   * @deprecated This parameter is no longer needed and will be removed in future release.
-   */
-  private Set<String> dependencyIncludes = new HashSet<String>();
-
 
   /***
    * A set of forced libraries for inclusion into the plugin when determining
@@ -145,14 +143,14 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * }
    *
    * Only used by the scrooge generator, usually to avoid clashes with Java namespaces.
-   * @parameter
    */
+  @Parameter
   private Set<ThriftNamespaceMapping> thriftNamespaceMappings = new HashSet<ThriftNamespaceMapping>();
 
   /**
    * A set of include patterns used to filter thrift files.
-   * @parameter
    */
+  @Parameter
   private Set<String> includes = ImmutableSet.of(DEFAULT_INCLUDES);
 
   /**
@@ -163,25 +161,19 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
   /**
    * Whether or not to build the thrift extracted from dependencies, if any
-   * @parameter
    * {@code
    * <configuration>
    *     <buildExtractedThrift>false</buildExtractedThrift>
    * </configuration>
    * }
    */
+  @Parameter
   private boolean buildExtractedThrift = true;
 
   /**
-   * Whether or not to fix hashcode being default 0
-   * @parameter
-   */
-  private boolean fixHashcode = false;
-
-  /**
    * Whether or not to skip thrift generation if generated files are newer than source files.
-   * @parameter
    */
+  @Parameter
   private boolean checkStaleness = true;
 
   /**
@@ -193,73 +185,22 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private static Object lock = new Object();
 
   /**
-   * Artifact factory, needed to download idl jars for thrift generation
-   * @component
-   */
-  @Component
-  protected ArtifactFactory artifactFactory;
-
-  /**
-   * The local maven repository.
-   */
-  @Parameter(defaultValue = "${localRepository}", readonly = true)
-  private ArtifactRepository localRepository;
-
-  /**
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
-   */
-  private RepositorySystemSession session;
-
-
-  @Component
-  private ProjectDependenciesResolver projectDependenciesResolver;
-
-  /**
-   * Remote repositories which will be searched for source attachments.
-   */
-  @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true)
-  protected List remoteArtifactRepositories;
-
-  /**
    * Classifier for the idl thrift libraries
    * {@code
    * <classifier>idl</classifier>
    * }
-   * @parameter default-value="idl"
    */
   @Parameter(property = "maven.scrooge.classifier", defaultValue = "idl" )
   protected String classifier;
 
-  /**
-   * Picks out a File from `thriftFiles` corresponding to a given artifact ID
-   * and file name. Returns null if `artifactId` and `fileName` do not map to a
-   * thrift file path.
-   *
-   * @parameter artifactId The artifact ID of which to look up the path
-   * @parameter fileName the name of the thrift file for which to extract a path
-   * @parameter thriftFiles The set of Thrift files in which to lookup the
-   *            artifact ID.
-   * @return The path of the directory containing Thrift files for the given
-   *         artifact ID. null if artifact ID not found.
-   */
-  private File extractThriftFile(String artifactId, String fileName, Set<File> thriftFiles) {
-    for (File thriftFile : thriftFiles) {
-      boolean fileFound = false;
-      if (fileName.equals(thriftFile.getName())) {
-        for (String pathComponent : thriftFile.getPath().split(File.separator)) {
-          if (pathComponent.equals(artifactId)) {
-            fileFound = true;
-          }
-        }
-      }
 
-      if (fileFound) {
-        return thriftFile;
-      }
-    }
-    return null;
+  protected AbstractMavenScroogeMojo(MavenProjectHelper projectHelper, ProjectDependenciesResolver projectDependenciesResolver,
+                                     RepositorySystem repoSystem) {
+    this.projectHelper = projectHelper;
+    this.projectDependenciesResolver = projectDependenciesResolver;
+    this.repoSystem = repoSystem;
   }
+
 
   /**
    * Executes the mojo.
@@ -317,9 +258,11 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     } catch (IOException e) {
       throw new MojoExecutionException("An IO error occured", e);
     } catch (DependencyResolutionException e) {
-      throw new MojoExecutionException("An dependency resolution error occured", e);
-    } catch (org.apache.maven.project.DependencyResolutionException e) {
-      throw new MojoExecutionException("An dependency resolution error occured", e);
+      throw new MojoExecutionException("An dependency exception error occured", e);
+    } catch (DependencyCollectionException e) {
+      throw new MojoExecutionException("An dependency exception error occured", e);
+    } catch (org.eclipse.aether.resolution.DependencyResolutionException e) {
+      throw new MojoExecutionException("An dependency exception error occured", e);
     }
   }
 
@@ -364,9 +307,9 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   /**
    * build a complete set of local files, files from referenced projects, and dependencies.
    */
-  private Set<File> findThriftFiles() throws IOException, MojoExecutionException, DependencyResolutionException, org.apache.maven.project.DependencyResolutionException {
+  private Set<File> findThriftFiles() throws IOException, MojoExecutionException, DependencyResolutionException, DependencyCollectionException, org.eclipse.aether.resolution.DependencyResolutionException {
     final File thriftSourceRoot = getThriftSourceRoot();
-    Set<File> thriftFiles = new HashSet<File>();
+    Set<File> thriftFiles = Sets.newHashSet();
     if (thriftSourceRoot != null && thriftSourceRoot.exists()) {
       thriftFiles.addAll(findThriftFilesInDirectory(thriftSourceRoot));
     }
@@ -380,34 +323,31 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     return thriftFiles;
   }
 
+
+
   /**
    * Iterate through dependencies
    */
-  private Set<Artifact> findThriftDependencies() throws IOException, MojoExecutionException, DependencyResolutionException, org.apache.maven.project.DependencyResolutionException {
+  private Set<Artifact> findThriftDependencies() throws IOException, MojoExecutionException, DependencyResolutionException, DependencyCollectionException, org.eclipse.aether.resolution.DependencyResolutionException {
     Set<Artifact> thriftDependencies = new HashSet<Artifact>();
-    File repo = this.session.getLocalRepository().getBasedir();
 
     DefaultDependencyResolutionRequest request = new DefaultDependencyResolutionRequest(project,
                                                                                         session);
     DependencyResolutionResult result = projectDependenciesResolver.resolve(request);
 
-    Set<Artifact> transitiveDeps = FluentIterable.from(result.getDependencies()).transform(new Function<Dependency, Artifact>() {
-      @Nullable
-      @Override
-      public Artifact apply(@Nullable Dependency input) {
-        if (input == null) {
-          return null;
-        }
-        return input.getArtifact();
-      }
-    }).toSet();
+    Set<Artifact> transitiveDeps = FluentIterable.from(result.getDependencies()).transform(DEPENDENCY_TO_ARTIFACT).toSet();
 
     for (Artifact artifact : transitiveDeps) {
-      // This artifact has an idl classifier.
+
+      // This artifact has an idl classifier or is forced into inclusion
       if (isIdlCalssifier(artifact, classifier) || isForcedInclusion(artifact)) {
         thriftDependencies.add(artifact);
 
-        List<Artifact> idlTransitiveDeps = new Aether(project, repo).resolve(artifact, JavaScopes.COMPILE);
+        CollectRequest collectRequest = new CollectRequest()
+                .setRoot(new Dependency(artifact, JavaScopes.COMPILE)).setRepositories(project.getRemoteProjectRepositories());
+        DependencyRequest dependencyRequest = new DependencyRequest().setCollectRequest(collectRequest);
+        Set<Artifact> idlTransitiveDeps = FluentIterable.from(repoSystem.resolveDependencies(session, dependencyRequest).getArtifactResults())
+                .transform(ARTIFACT_RESULT_TO_ARTIFACT).toSet();
         thriftDependencies.addAll(idlTransitiveDeps);
 
       }
@@ -469,7 +409,12 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   }
 
   private boolean haveSameContents(File file, final JarFile jar, final JarEntry entry) throws IOException {
-    return false;
+    HashFunction hashFun = Hashing.md5();
+    HashCode fileHash = Files.hash(file, hashFun);
+    HashCode streamHash = ByteStreams.hash(new InputSupplier<InputStream>() {
+      public InputStream getInput() throws IOException { return jar.getInputStream(entry); }
+    }, hashFun);
+    return fileHash.equals(streamHash);
   }
 
   /**
@@ -544,12 +489,34 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
     return classifier;
   }
 
-
   /**
    Returns true if artifact has idl classifier
    */
   private boolean isIdlCalssifier(Artifact artifact, String classifier) {
     return classifier.equalsIgnoreCase(artifact.getClassifier());
   }
+
+  private static final Function<Dependency, Artifact> DEPENDENCY_TO_ARTIFACT =  new Function<Dependency, Artifact>() {
+    @Nullable
+    @Override
+    public Artifact apply(@Nullable Dependency dependency) {
+      if (dependency == null) {
+        return null;
+      }
+      return dependency.getArtifact();
+    }
+  };
+
+  private static final Function<ArtifactResult, Artifact> ARTIFACT_RESULT_TO_ARTIFACT =  new Function<ArtifactResult, Artifact>() {
+    @Nullable
+    @Override
+    public Artifact apply(@Nullable ArtifactResult artifactResult) {
+      if (artifactResult == null) {
+        return null;
+      }
+      return artifactResult.getArtifact();
+    }
+  };
+
 
 }

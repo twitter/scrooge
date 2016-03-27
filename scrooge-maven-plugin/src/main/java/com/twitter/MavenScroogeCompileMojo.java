@@ -1,7 +1,15 @@
 package com.twitter;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.maven.project.ProjectDependenciesResolver;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.aether.RepositorySystem;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -13,37 +21,35 @@ import java.util.Set;
  * thrift files and includes them in the thriftPath so that they can be
  * referenced. Finally, it adds the thrift files to the project as resources so
  * that they are included in the final artifact.
- *
- * @phase generate-sources
- * @goal compile
- * @threadSafe true
  */
-
+@Mojo(name="compile", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true,
+      requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class MavenScroogeCompileMojo extends AbstractMavenScroogeMojo {
+
+  @Inject
+  public MavenScroogeCompileMojo(MavenProjectHelper projectHelper,
+                                 ProjectDependenciesResolver projectDependenciesResolver,
+                                 RepositorySystem repositorySystem) {
+    super(projectHelper, projectDependenciesResolver, repositorySystem);
+  }
 
   /**
    * The source directories containing the sources to be compiled.
-   *
-   * @parameter default-value="${basedir}/src/main/thrift"
-   * @required
    */
+  @Parameter(required = true, defaultValue = "${basedir}/src/main/thrift")
   private File thriftSourceRoot;
 
 
   /**
    * This is the directory into which the {@code .java} will be created.
-   *
-   * @parameter default-value="${project.build.directory}/generated-sources/thrift"
-   * @required
    */
+  @Parameter(required = true, defaultValue = "${project.build.directory}/generated-sources/thrift")
   private File outputDirectory;
 
   /**
    * This is the directory into which dependent {@code .thrift} files will be extracted.
-   *
-   * @parameter default-value="${project.build.directory}/generated-resources/"
-   * @required
    */
+  @Parameter(required = true, defaultValue = "${project.build.directory}/generated-resources/")
   private File resourcesOutputDirectory;
 
   @Override
@@ -67,9 +73,9 @@ public final class MavenScroogeCompileMojo extends AbstractMavenScroogeMojo {
       project.addCompileSourceRoot(new File(outputDirectory, root).getAbsolutePath());
     }
     projectHelper.addResource(project, thriftSourceRoot.getAbsolutePath(),
-            ImmutableList.of("**/*.thrift"), ImmutableList.of());
+            ImmutableList.of("**/*.thrift"), ImmutableList.<String>of());
     projectHelper.addResource(project, resourcesOutputDirectory.getAbsolutePath(),
-            ImmutableList.of("**/*.thrift"), ImmutableList.of());
+            ImmutableList.of("**/*.thrift"), ImmutableList.<String>of());
   }
 
   @Override

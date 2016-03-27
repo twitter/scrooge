@@ -12,7 +12,6 @@
         <artifactId>scrooge-maven-plugin</artifactId>
         <version>3.17.0</version>
         <configuration>
-          <localRepository>${localRepository}</localRepository>
           <thriftOpts>
             <thriftOpt>--finagle</thriftOpt>
           </thriftOpts>
