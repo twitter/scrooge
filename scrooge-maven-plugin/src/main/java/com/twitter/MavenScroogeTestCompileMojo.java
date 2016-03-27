@@ -3,6 +3,7 @@ package com.twitter;
 import com.google.common.collect.ImmutableList;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.ProjectDependenciesResolver;
@@ -27,26 +28,20 @@ public final class MavenScroogeTestCompileMojo extends AbstractMavenScroogeMojo 
 
   /**
    * The source directories containing the sources to be compiled.
-   *
-   * @parameter default-value="${basedir}/src/test/thrift"
-   * @required
    */
+  @Parameter(required = true, defaultValue = "${basedir}/src/test/thrift")
   private File thriftSourceRoot;
 
   /**
    * This is the directory into which the {@code .java} will be created.
-   *
-   * @parameter default-value="${project.build.directory}/generated-test-sources/thrift"
-   * @required
    */
+  @Parameter(required = true, defaultValue = "${project.build.directory}/generated-test-sources/thrift")
   private File outputDirectory;
 
   /**
    * This is the directory into which dependent {@code .thrift} files will be extracted.
-   *
-   * @parameter default-value="${project.build.directory}/generated-test-resources/"
-   * @required
    */
+  @Parameter(required = true, defaultValue = "${project.build.directory}/generated-test-resources/")
   private File resourcesOutputDirectory;
 
   @Inject
