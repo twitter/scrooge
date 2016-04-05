@@ -8,16 +8,17 @@ case object {{EnumName}} {
 {{#values}}
   {{valuedocstring}}
   case object {{name}} extends {{package}}.{{EnumName}} {
-    val value = {{value}}
-    val name = "{{name}}"
-    val originalName = "{{originalName}}"
+    val value: Int = {{value}}
+    val name: String = "{{name}}"
+    val originalName: String = "{{originalName}}"
   }
 
   private[this] val _Some{{name}} = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})
 {{/values}}
 
   case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
-    val name = "EnumUnknown{{EnumName}}" + value
+    val name: String = "EnumUnknown{{EnumName}}" + value
+    def originalName: String = name
   }
 
   /**
