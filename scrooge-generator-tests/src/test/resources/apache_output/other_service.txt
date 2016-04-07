@@ -32,6 +32,7 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
+import com.twitter.finagle.thrift.DeserializeCtx;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class OtherService {
@@ -158,10 +159,19 @@ public class OtherService {
   public static class ServiceToClient extends com.twitter.thrift.TestServiceParent.ServiceToClient implements ServiceIface {
     private final com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
     private final TProtocolFactory protocolFactory;
-    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
-      super(service, protocolFactory);
+    private final scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier;
+    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory, scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier) {
+      super(service, protocolFactory, responseClassifier);
       this.service = service;
       this.protocolFactory = protocolFactory;
+      this.responseClassifier = responseClassifier;
+    }
+
+    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
+      super(service, protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default());
+      this.service = service;
+      this.protocolFactory = protocolFactory;
+      this.responseClassifier = com.twitter.finagle.service.ResponseClassifier.Default();
     }
 
     public Future<Boolean> test_endpoint(int req) {
@@ -177,19 +187,40 @@ public class OtherService {
 
 
         byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
-        ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
-        Future<byte[]> __done__ = this.service.apply(__request__);
-        return __done__.flatMap(new Function<byte[], Future<Boolean>>() {
-          public Future<Boolean> apply(byte[] __buffer__) {
-            TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
-            TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
-            try {
-              return Future.value((new Client(__prot__)).recv_test_endpoint());
-            } catch (Exception e) {
-              return Future.exception(e);
+        final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
+        Function<byte[], com.twitter.util.Try<Boolean>> replyDeserializer =
+          new Function<byte[], com.twitter.util.Try<Boolean>>() {
+            public com.twitter.util.Try<Boolean> apply(byte[] __buffer__) {
+              TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+              TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+              try {
+                return new com.twitter.util.Return(((new Client(__prot__)).recv_test_endpoint()));
+              } catch (Exception e) {
+                return new com.twitter.util.Throw(e);
+              }
             }
-          }
-        });
+          };
+        DeserializeCtx serdeCtx = new DeserializeCtx<Boolean>(__args__, replyDeserializer);
+
+        return com.twitter.finagle.context.Contexts.local().let(
+          DeserializeCtx.Key(),
+          serdeCtx,
+          new com.twitter.util.Function0<Future<Boolean>>() {
+            public Future<Boolean> apply() {
+              Future<byte[]> __done__ = service.apply(__request__);
+              return __done__.flatMap(new Function<byte[], Future<Boolean>>() {
+                public Future<Boolean> apply(byte[] __buffer__) {
+                  TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+                  TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+                  try {
+                    return Future.value((new Client(__prot__)).recv_test_endpoint());
+                  } catch (Exception e) {
+                    return Future.exception(e);
+                  }
+                }
+              });
+            }
+          });
       } catch (TException e) {
         return Future.exception(e);
       }
@@ -372,15 +403,15 @@ public class OtherService {
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     REQ((short)1, "req");
-  
+
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-  
+
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-  
+
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -392,7 +423,7 @@ public class OtherService {
   	return null;
       }
     }
-  
+
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -402,26 +433,26 @@ public class OtherService {
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-  
+
     /**
      * Find the _Fields constant that matches name, or null if its not found.
      */
     public static _Fields findByName(String name) {
       return byName.get(name);
     }
-  
+
     private final short _thriftId;
     private final String _fieldName;
-  
+
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-  
+
     public short getThriftFieldId() {
       return _thriftId;
     }
-  
+
     public String getFieldName() {
       return _fieldName;
     }
@@ -615,7 +646,7 @@ public class OtherService {
 
   public void write(TProtocol oprot) throws TException {
     validate();
-    
+
     oprot.writeStructBegin(STRUCT_DESC);
     oprot.writeFieldBegin(REQ_FIELD_DESC);
     oprot.writeI32(this.req);
@@ -651,15 +682,15 @@ public class OtherService {
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     SUCCESS((short)0, "success");
-  
+
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-  
+
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-  
+
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -671,7 +702,7 @@ public class OtherService {
   	return null;
       }
     }
-  
+
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -681,26 +712,26 @@ public class OtherService {
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-  
+
     /**
      * Find the _Fields constant that matches name, or null if its not found.
      */
     public static _Fields findByName(String name) {
       return byName.get(name);
     }
-  
+
     private final short _thriftId;
     private final String _fieldName;
-  
+
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-  
+
     public short getThriftFieldId() {
       return _thriftId;
     }
-  
+
     public String getFieldName() {
       return _fieldName;
     }
