@@ -5,6 +5,10 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+- scrooge-core, scrooge-generator: `c.t.scrooge.ThriftEnum` now includes an
+  `originalName` method which represents the name as defined in the Thrift
+  IDL file. ``RB_ID=820075``
+
 4.6.0
 -----
 

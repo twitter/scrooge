@@ -6,13 +6,10 @@ trait ThriftEnum extends TEnum {
   def value: Int
   def name: String
 
-// /**
-//  * The original name for the enum value as defined in the input Thrift IDL file.
-//  *
-//  * The default implementation uses [[name]], but generated code
-//  * should use the correct value.
-//  */
-// def originalName: String = name
+  /**
+   * The original name for the enum value as defined in the input Thrift IDL file.
+   */
+  def originalName: String
 
   def getValue = value
 }
