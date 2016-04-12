@@ -5,7 +5,7 @@ import org.codehaus.plexus.util.FileUtils
 import java.io._
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import org.apache.commons.cli.{PosixParser, Options}
+import org.apache.commons.cli.{DefaultParser, Options}
 
 /**
  * Helper class to do side-by-side comparisons on what maven-finagle-thrift plugin generates.
@@ -18,7 +18,7 @@ object Main {
     options.addOption("g", "apache-generated", true, "apache generated thrift directory")
     options.addOption("d", "dest", true, "scrooge generated thrift destination")
     options.addOption("i", "includes", true, "included thrift files")
-    val parser = new PosixParser
+    val parser = new DefaultParser
     val cmdLine = parser.parse(options, args)
 
     val originalGen = cmdLine.getOptionValue("g")
