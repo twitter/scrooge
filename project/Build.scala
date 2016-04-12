@@ -62,7 +62,7 @@ object Scrooge extends Build {
     })
   }
 
-  val sharedSettings = Seq(
+  val sharedSettingsWithoutScalaVersion = Seq(
     version := libVersion,
     organization := "com.twitter",
     crossScalaVersions := Seq("2.10.6", "2.11.7"),
@@ -132,6 +132,18 @@ object Scrooge extends Build {
       }
   )
 
+  val sharedSettings =
+    sharedSettingsWithoutScalaVersion ++
+    Seq(
+      crossScalaVersions := Seq("2.10.6", "2.11.7"),
+      scalaVersion := "2.11.7")
+
+  val settingsWithTwoTen =
+    sharedSettingsWithoutScalaVersion ++
+    Seq(
+      crossScalaVersions := Seq("2.10.6"),
+      scalaVersion := "2.10.6")
+
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
       "org.jmock" % "jmock" % "2.4.0" % "test",
@@ -142,14 +154,29 @@ object Scrooge extends Build {
     )
   )
 
+  lazy val publishedProjects = Seq[sbt.ProjectReference](
+    scroogeCore,
+    scroogeGenerator,
+    scroogeLinter,
+    scroogeSerializer)
+
   lazy val scrooge = Project(
     id = "scrooge",
     base = file("."),
     settings = Defaults.coreDefaultSettings ++
-      sharedSettings
-  ).aggregate(
-    scroogeGenerator, scroogeGeneratorTests, scroogeCore,
-    scroogeSerializer, scroogeLinter
+      sharedSettings,
+    aggregate = publishedProjects :+ (scroogeGeneratorTests: sbt.ProjectReference)
+  )
+
+  // this target is used for publishing dependencies locally
+  lazy val scroogePublishLocal = Project(
+    id = "scrooge-publish-local",
+    // use a different target so that we don't have conflicting output paths
+    // between this and the `scrooge` target.
+    base = file("target/"),
+    settings = Defaults.coreDefaultSettings ++
+      sharedSettings,
+    aggregate = publishedProjects :+ (scroogeSbtPlugin: sbt.ProjectReference)
   )
 
   lazy val scroogeGenerator = Project(
@@ -231,7 +258,7 @@ object Scrooge extends Build {
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
     settings = Defaults.coreDefaultSettings ++
-      sharedSettings ++
+      settingsWithTwoTen ++
       bintrayPublishSettings ++
       buildInfoSettings
   ).settings(
