@@ -168,7 +168,13 @@ object Scrooge extends Build {
     aggregate = publishedProjects :+ (scroogeGeneratorTests: sbt.ProjectReference)
   )
 
-  // this target is used for publishing dependencies locally
+  // This target is used for publishing dependencies locally
+  // and is used for generating all(*) of the dependencies
+  // needed for Finagle, including cross Scala version support.
+  //
+  // (*) Unfortunately, sbt plugins are currently only supported
+  // with Scala 2.10 and as such we cannot include that project
+  // here and it should be published separately to Scala 2.10.
   lazy val scroogePublishLocal = Project(
     id = "scrooge-publish-local",
     // use a different target so that we don't have conflicting output paths
@@ -176,7 +182,7 @@ object Scrooge extends Build {
     base = file("target/"),
     settings = Defaults.coreDefaultSettings ++
       sharedSettings,
-    aggregate = publishedProjects :+ (scroogeSbtPlugin: sbt.ProjectReference)
+    aggregate = publishedProjects
   )
 
   lazy val scroogeGenerator = Project(
