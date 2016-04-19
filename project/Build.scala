@@ -65,8 +65,6 @@ object Scrooge extends Build {
   val sharedSettingsWithoutScalaVersion = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.10.6", "2.11.7"),
-    scalaVersion := "2.11.7",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
@@ -87,8 +85,6 @@ object Scrooge extends Build {
     resolvers += "twitter-repo" at "https://maven.twttr.com",
 
     scalacOptions := scalacOptionsVersion(scalaVersion.value),
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.7"),
 
     // Sonatype publishing
     publishArtifact in Test := false,
@@ -136,13 +132,19 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       crossScalaVersions := Seq("2.10.6", "2.11.7"),
-      scalaVersion := "2.11.7")
+      scalaVersion := "2.11.7",
+      javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.7")
+    )
 
   val settingsWithTwoTen =
     sharedSettingsWithoutScalaVersion ++
     Seq(
       crossScalaVersions := Seq("2.10.6"),
-      scalaVersion := "2.10.6")
+      scalaVersion := "2.10.6",
+      javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.7")
+    )
 
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
@@ -193,17 +195,18 @@ object Scrooge extends Build {
       assemblySettings
   ).settings(
     name := "scrooge-generator",
-    libraryDependencies ++= Seq(
-      util("core") exclude("org.mockito", "mockito-all"),
-      util("codec") exclude("org.mockito", "mockito-all"),
-      util("logging") exclude("org.mockito", "mockito-all"),
+    libraryDependencies ++= (Seq(
       "org.apache.thrift" % "libthrift" % libthriftVersion,
       "com.github.scopt" %% "scopt" % "3.3.0",
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "2.0.1",
       "commons-cli" % "commons-cli" % "1.3.1"
-    ),
+    ).++(CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, x)) if x >= 11 =>
+        Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4")
+      case _ => Nil
+    })),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
   )
@@ -285,7 +288,8 @@ object Scrooge extends Build {
       sharedSettings ++
       assemblySettings
   ).settings(
-    name := "scrooge-linter"
+    name := "scrooge-linter",
+    libraryDependencies += util("logging")
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
