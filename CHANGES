@@ -5,6 +5,11 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+~~~~~
+
+4.7.0
+-----
+
 - scrooge-core, scrooge-generator: `c.t.scrooge.ThriftEnum` now includes an
   `originalName` method which represents the name as defined in the Thrift
   IDL file. ``RB_ID=820075``
@@ -773,3 +778,4 @@ thrift files were not resolved properly.
 - Correctly resolving enum constants and Const values.
 - Title-casing enum value names.
 - Added support for namespace renaming from the command line.
+
