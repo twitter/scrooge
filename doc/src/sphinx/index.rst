@@ -75,6 +75,7 @@ User's guide
    CommandLine
    Finagle
    CodeGenDep
+   GeneratedCodeUsage
    Semantics
    Linter
 
