@@ -413,7 +413,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       "work for basic services" in { _ =>
         import SimpleService._
 
-        val server = Thrift.client.serveIface(
+        val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
           new SimpleService[Future] {
             def deliver(where: String) = Future.value(3)
@@ -431,7 +431,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       "work for inherited services" in { _ =>
         import ReadOnlyService._
         import ReadWriteService._
-        val server = Thrift.client.serveIface(
+        val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
           new ReadWriteService[Future] {
             private[this] var name = "Initial name"
@@ -457,7 +457,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be(Some("New name"))
       }
 
-      def serveExceptionalService(): ListeningServer = Thrift.client.serveIface(
+      def serveExceptionalService(): ListeningServer = Thrift.server.serveIface(
         new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
         new ExceptionalService[Future] {
           private[this] var counter = 0
@@ -487,7 +487,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
 
       "work with filters on args" in { _ =>
         import SimpleService._
-        val server = Thrift.client.serveIface(
+        val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
           new SimpleService[Future] {
             def deliver(input: String) = Future.value(input.length)
@@ -544,7 +544,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         CamelCaseSnakeCaseService.FooBar.name mustBe "foo_bar"
         CamelCaseSnakeCaseService.BazQux.name mustBe "bazQux"
 
-        val server = Thrift.client.serveIface(
+        val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
           new CamelCaseSnakeCaseService[Future] {
             def fooBar(fooBar: String): Future[String] = Future.value(fooBar)
@@ -592,7 +592,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "have correct stats with ResponseClassifier" in { _ =>
-        val server: ListeningServer = Thrift.client.serveIface(
+        val server: ListeningServer = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
           new SimpleService[Future] {
             def deliver(where: String): Future[Int] = Future.value(where.length)

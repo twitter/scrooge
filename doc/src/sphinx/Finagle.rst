@@ -85,7 +85,7 @@ the service interface.
     val serviceImpl = BinaryService.ServiceIface(
       fetchBlob = fetchBlobService
     )
-    val service = Thrift.serve("host:port", Thrift.newMethodIface(serviceImpl))
+    val service = Thrift.server.serve("host:port", Thrift.client.newMethodIface(serviceImpl))
 
 The advantage of this approach is that the ``Services`` can be decorated with
 ``Filters``.
@@ -99,19 +99,19 @@ The advantage of this approach is that the ``Services`` can be decorated with
 Creating a Client
 -----------------
 
-Creating a client is easy, you just provide Finagle's ``Thrift`` object the
+Creating a client is easy, you just provide Finagle's ``Thrift.client`` object the
 iface.
 
 ::
 
-    val client = Thrift.newIface[BinaryService[Future]]("host:port")
+    val client = Thrift.client.newIface[BinaryService[Future]]("host:port")
 
 Alternatively, you can request a ``ServiceIface`` instead.
 
 ::
 
     val clientServiceIface =
-      Thrift.newIface[BinaryService.ServiceIface]("host:port")
+      Thrift.client.newIface[BinaryService.ServiceIface]("host:port")
 
 As in the server case, this allows you to decorate your client with ``Filters``.
 
@@ -134,7 +134,7 @@ able to apply ``Filters`` to your client.
 
 ::
 
-    val clientMethodIface = Thrift.newMethodIface(filteredClient)
+    val clientMethodIface = Thrift.client.newMethodIface(filteredClient)
     val result = clientMethodIface.fetchBlob(1L) // respects the timeoutFilter
 
 You can also use the ``functionToService`` and ``serviceToFunction`` methods on
