@@ -188,9 +188,12 @@ object Scrooge extends Build {
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "2.0.1",
-      "commons-cli" % "commons-cli" % "1.3.1",
-      "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
-    ),
+      "commons-cli" % "commons-cli" % "1.3.1"
+    ).++(CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, x)) if x >= 11 =>
+        Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4")
+      case _ => Nil
+    }),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
   )
