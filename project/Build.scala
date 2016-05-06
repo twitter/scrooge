@@ -49,6 +49,24 @@ object Scrooge extends Build {
     ScroogeRunner.genTestThriftTask
   )
 
+  def scalacOptionsVersion(sv: String): Seq[String] = {
+    Seq(
+      "-deprecation",
+      "-unchecked",
+      "-feature",
+      "-Xlint",
+      "-encoding", "utf8"
+    ) ++ (CrossVersion.partialVersion(sv) match {
+      case Some((2, x)) if x >= 11 =>
+        Seq(
+          "-target:jvm-1.8",
+          "-Ypatmat-exhaust-depth", "40"
+        )
+      case _ =>
+        Nil
+    })
+  }
+
   val sharedSettingsWithoutScalaVersion = Seq(
     version := libVersion,
     organization := "com.twitter",
@@ -66,14 +84,7 @@ object Scrooge extends Build {
     ),
     resolvers += "twitter-repo" at "https://maven.twttr.com",
 
-    scalacOptions := Seq(
-      "-target:jvm-1.8",
-      "-deprecation",
-      "-unchecked",
-      "-feature", "-Xlint",
-      "-encoding", "utf8",
-      "-Ypatmat-exhaust-depth", "40"
-    ),
+    scalacOptions := scalacOptionsVersion(scalaVersion.value),
 
     // Sonatype publishing
     publishArtifact in Test := false,
