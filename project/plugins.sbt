@@ -13,3 +13,6 @@ addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.2.0")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.2")
+
+libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
+

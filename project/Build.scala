@@ -9,6 +9,7 @@ import sbtassembly.Plugin._
 import AssemblyKeys._
 import sbtbuildinfo.Plugin._
 import scoverage.ScoverageSbtPlugin
+import ScriptedPlugin._
 
 object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
@@ -277,7 +278,8 @@ object Scrooge extends Build {
     settings = Defaults.coreDefaultSettings ++
       settingsWithTwoTen ++
       bintrayPublishSettings ++
-      buildInfoSettings
+      buildInfoSettings ++
+      scriptedSettings
   ).settings(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
@@ -286,7 +288,9 @@ object Scrooge extends Build {
       publishMavenStyle := false,
       repository in bintray := "sbt-plugins",
       licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
-      bintrayOrganization in bintray := Some("twittercsl")
+      bintrayOrganization in bintray := Some("twittercsl"),
+      scriptedBufferLog := false,
+      scriptedLaunchOpts ++= Seq("-Dplugin.version=" + version.value)
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
