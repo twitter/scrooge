@@ -285,7 +285,7 @@ object Scrooge extends Build {
       bintrayPublishSettings ++
       buildInfoSettings ++
       scriptedSettings
-  ).settings(
+    ).settings(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "com.twitter",
@@ -301,7 +301,7 @@ object Scrooge extends Build {
         "-Dlibthrift.version=" + libthriftVersion,
         "-Dfinagle.version=" + finagleVersion
       )
-  ).dependsOn(scroogeGenerator)
+    ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",

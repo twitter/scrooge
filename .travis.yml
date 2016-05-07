@@ -29,9 +29,16 @@ before_script:
   - ./bin/travisci
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION update
 
-script: 
-  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+
+script: "echo no op"
+
+matrix:
+  include:
+    - scala: 2.10.6
+      # the 'scripted' sbt plugin tests are only run for 2.10
+      script: travis_retry ./sbt ++$TRAVIS_SCALA_VERSION scrooge-sbt-plugin/scripted && ./sbt ++$TRAVIS_SCALA_VERSION coverage test && ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+    - scala: 2.11.7
+      script: travis_retry ./sbt ++$TRAVIS_SCALA_VERSION coverage test && ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success: 
   - bash <(curl -s https://codecov.io/bash)
