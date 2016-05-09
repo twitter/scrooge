@@ -49,24 +49,6 @@ object Scrooge extends Build {
     ScroogeRunner.genTestThriftTask
   )
 
-  def scalacOptionsVersion(sv: String): Seq[String] = {
-    Seq(
-      "-deprecation",
-      "-unchecked",
-      "-feature",
-      "-Xlint",
-      "-encoding", "utf8"
-    ) ++ (CrossVersion.partialVersion(sv) match {
-      case Some((2, x)) if x >= 11 =>
-        Seq(
-          "-target:jvm-1.8",
-          "-Ypatmat-exhaust-depth", "40"
-        )
-      case _ =>
-        Nil
-    })
-  }
-
   val sharedSettingsWithoutScalaVersion = Seq(
     version := libVersion,
     organization := "com.twitter",
@@ -83,8 +65,6 @@ object Scrooge extends Build {
       "junit" % "junit" % "4.12" % "test"
     ),
     resolvers += "twitter-repo" at "https://maven.twttr.com",
-
-    scalacOptions := scalacOptionsVersion(scalaVersion.value),
 
     // Sonatype publishing
     publishArtifact in Test := false,
@@ -132,14 +112,42 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.11.8",
+      scalacOptions := Seq(
+        "-deprecation",
+        "-unchecked",
+        "-feature", "-Xlint",
+        "-encoding", "utf8",
+        "-target:jvm-1.8",
+        "-Ypatmat-exhaust-depth", "40"),
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
       javacOptions in doc := Seq("-source", "1.8")
     )
 
+  // scalac options for projects that are scala 2.10
+  // or cross compiled with scala 2.10
+  val scalacTwoTenOptions = Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature", "-Xlint",
+    "-encoding", "utf8")
+
+  // settings for projects that are scala 2.10
   val settingsWithTwoTen =
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.10.6",
+      scalacOptions := scalacTwoTenOptions,
+      javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.7")
+    )
+
+  // settings for projects that are cross compiled with scala 2.10
+  val settingsCrossCompiledWithTwoTen =
+    sharedSettingsWithoutScalaVersion ++
+    Seq(
+      crossScalaVersions := Seq("2.10.6", "2.11.8"),
+      scalaVersion := "2.11.8",
+      scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
       javacOptions in doc := Seq("-source", "1.7")
     )
@@ -185,11 +193,13 @@ object Scrooge extends Build {
     aggregate = publishedProjects
   )
 
+  // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
+  // has a dependency on this.
   lazy val scroogeGenerator = Project(
     id = "scrooge-generator",
     base = file("scrooge-generator"),
     settings = Defaults.coreDefaultSettings ++
-      sharedSettings ++
+      settingsCrossCompiledWithTwoTen ++
       assemblySettings
   ).settings(
     name := "scrooge-generator",
