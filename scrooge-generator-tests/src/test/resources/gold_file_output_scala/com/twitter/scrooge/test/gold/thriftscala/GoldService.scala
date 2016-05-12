@@ -8,9 +8,17 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.scrooge.{
   LazyTProtocol,
-  TFieldBlob, ThriftService, ThriftStruct,
-  ThriftStructCodec, ThriftStructCodec3,
-  ThriftStructFieldInfo, ThriftResponse, ThriftUtil, ToThriftService}
+  HasThriftStructCodec3,
+  TFieldBlob,
+  ThriftService,
+  ThriftStruct,
+  ThriftStructCodec,
+  ThriftStructCodec3,
+  ThriftStructFieldInfo,
+  ThriftResponse,
+  ThriftUtil,
+  ToThriftService
+}
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
@@ -198,6 +206,7 @@ object GoldService { self =>
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftStruct
       with scala.Product1[com.twitter.scrooge.test.gold.thriftscala.Request]
+      with HasThriftStructCodec3[Args]
       with java.io.Serializable
     {
       import Args._
@@ -252,6 +261,8 @@ object GoldService { self =>
       }
 
       override def productPrefix: String = "Args"
+
+      def _codec: ThriftStructCodec3[Args] = Args
     }
 
     type SuccessType = com.twitter.scrooge.test.gold.thriftscala.Response
@@ -429,6 +440,7 @@ object GoldService { self =>
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftResponse[com.twitter.scrooge.test.gold.thriftscala.Response] with ThriftStruct
       with scala.Product2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+      with HasThriftStructCodec3[Result]
       with java.io.Serializable
     {
       import Result._
@@ -492,6 +504,8 @@ object GoldService { self =>
       }
 
       override def productPrefix: String = "Result"
+
+      def _codec: ThriftStructCodec3[Result] = Result
     }
 
     type FunctionType = Function1[Args,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
