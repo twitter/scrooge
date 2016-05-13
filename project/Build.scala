@@ -272,6 +272,11 @@ object Scrooge extends Build {
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
+  /*
+   * The sbt-plugin is tested via the 'scripted' test runner.
+   * See http://www.scala-sbt.org/0.13/docs/Testing-sbt-plugins.html for details.
+   **/
+
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
