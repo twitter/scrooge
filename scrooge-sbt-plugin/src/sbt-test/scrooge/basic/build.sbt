@@ -4,7 +4,7 @@ scalaVersion := "2.11.8"
 enablePlugins(BuildInfoPlugin)
 
 libraryDependencies ++= Seq(
-  "org.apache.thrift" % "libthrift" % "0.8.0",
-  "com.twitter" %% "scrooge-core" % "4.6.0",
-  "com.twitter" %% "finagle-thrift" % "6.34.0"
+  "org.apache.thrift" % "libthrift" % sys.props("libthrift.version"),
+  "com.twitter" %% "scrooge-core" % sys.props("scrooge-core.version"),
+  "com.twitter" %% "finagle-thrift" % sys.props("finagle.version")
 )

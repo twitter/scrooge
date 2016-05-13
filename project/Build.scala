@@ -290,7 +290,12 @@ object Scrooge extends Build {
       licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
       bintrayOrganization in bintray := Some("twittercsl"),
       scriptedBufferLog := false,
-      scriptedLaunchOpts ++= Seq("-Dplugin.version=" + version.value)
+      scriptedLaunchOpts ++= Seq(
+        "-Dplugin.version=" + version.value,
+        "-Dscrooge-core.version=" + version.value,
+        "-Dlibthrift.version=" + libthriftVersion,
+        "-Dfinagle.version=" + finagleVersion
+      )
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
