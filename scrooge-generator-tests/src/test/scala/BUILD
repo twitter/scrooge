@@ -16,6 +16,7 @@ junit_tests(name='scala',
     'com/twitter/scrooge/backend/GeneratorFactorySpec.scala',
     'com/twitter/scrooge/frontend/*.scala',
     'com/twitter/scrooge/goldfile/*.scala',
+    'com/twitter/scrooge/goldfile/lua/*.scala',
     'com/twitter/scrooge/mustache/*.scala',
     'com/twitter/scrooge/testutil/*.scala'),
   resources=[

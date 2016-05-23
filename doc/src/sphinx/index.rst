@@ -5,7 +5,7 @@ Scrooge
    :class: floatingflask
 
 Scrooge is a `thrift <http://thrift.apache.org/>`_ code generator written in
-Scala, which currently generates code for Scala and Java.
+Scala, which currently generates code for Scala, Java, Cocoa, Android and Lua.
 
 It's meant to be a replacement for the apache thrift code generator, and
 generates conforming, binary-compatible codecs by building on top of
@@ -31,7 +31,7 @@ Features
 
 - Finagle client/server adaptors can be optionally generated at the same time.
 
-- Has a plugable backend providing a dynamic way to add more generator targets.
+- Has a pluggable backend providing a dynamic way to add more generator targets.
 
 Using Scrooge
 -------------

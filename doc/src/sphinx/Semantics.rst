@@ -8,7 +8,7 @@ different implementations do different things (see
 http://lionet.livejournal.com/66899.html for a good analysis).
 
 Scrooge attempts to be as rigorous as possible in this regard with
-consistently applied and hopefully easy to understand rules.
+consistently applied and, hopefully, easy-to-understand rules.
 
 1. If neither "required" nor "optional" is declared for a field, it then has
    the default requiredness of "optional-in/required-out", or "optInReqOut"
