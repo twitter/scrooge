@@ -1,8 +1,6 @@
 package com.twitter.scrooge
 
-import org.apache.thrift.protocol._
-import org.apache.thrift.TException
-import org.apache.thrift.transport.{TTransport, TTransportException}
+import org.apache.thrift.transport.TTransport
 
 /**
  * TArrayByteTransport decodes Array[Byte] to primitive types
