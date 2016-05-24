@@ -169,7 +169,6 @@ class LuaGenerator(
       .distinct
       .sorted
     dictionary.update("requireStatements", requireStatements.mkString("\n"))
-    dictionary.update("struct", templates("struct"))  // "union" template references the "struct" template
     dictionary
   }
 

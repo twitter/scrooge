@@ -5,6 +5,9 @@
     built at: ?
 --]]
 
+-- Import this file with:
+--   require 'thrift.RequestType'
+
 local RequestType = {
   Create = 1,
   Read = 2,

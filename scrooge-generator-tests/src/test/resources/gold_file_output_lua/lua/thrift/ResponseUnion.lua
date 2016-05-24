@@ -15,8 +15,8 @@ local ResponseUnion = {
   ttype = 'struct',
   name = 'ResponseUnion',
   fields = {
-    [1] = { name = 'id', required = true, ttype = 'i64', },
-    [2] = { name = 'details', required = true, ttype = 'string', },
+    [1] = { name = 'id', ttype = 'i64', },
+    [2] = { name = 'details', ttype = 'string', },
   }
 }
 
