@@ -60,7 +60,7 @@ object Scrooge extends Build {
     ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := true,
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+      "org.scalatest" %% "scalatest" % "2.2.6" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
