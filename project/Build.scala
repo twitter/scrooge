@@ -61,7 +61,7 @@ object Scrooge extends Build {
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.6" % "test",
-      "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
     resolvers += "twitter-repo" at "https://maven.twttr.com",
