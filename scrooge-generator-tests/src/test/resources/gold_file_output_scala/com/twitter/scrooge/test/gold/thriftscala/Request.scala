@@ -7,16 +7,9 @@
 package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
-  TFieldBlob,
-  ThriftException,
-  ThriftStruct,
-  ThriftStructCodec3,
-  ThriftStructFieldInfo,
-  ThriftStructMetaData,
-  ThriftUtil
-}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo,
+  ThriftStructMetaData, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -502,7 +495,6 @@ object Request extends ThriftStructCodec3[Request] {
 trait Request
   extends ThriftStruct
   with scala.Product3[Seq[String], Set[Int], Map[Long, Long]]
-  with HasThriftStructCodec3[Request]
   with java.io.Serializable
 {
   import Request._
@@ -686,6 +678,4 @@ trait Request
   }
 
   override def productPrefix: String = "Request"
-
-  def _codec: ThriftStructCodec3[Request] = Request
 }

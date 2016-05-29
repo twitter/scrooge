@@ -7,10 +7,6 @@ trait ThriftStruct {
   def write(oprot: TProtocol)
 }
 
-trait HasThriftStructCodec3[T <: ThriftStruct] {
-  def _codec: ThriftStructCodec3[T]
-}
-
 trait ThriftResponse[Result] {
   def successField: Option[Result]
   def exceptionFields: Iterable[Option[ThriftException]]

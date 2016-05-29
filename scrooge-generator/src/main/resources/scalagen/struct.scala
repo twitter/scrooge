@@ -2,16 +2,9 @@
 package {{package}}
 
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
-  TFieldBlob, 
-  ThriftException, 
-  ThriftStruct, 
-  ThriftStructCodec3, 
-  ThriftStructFieldInfo,
-  ThriftStructMetaData, 
-  ThriftUtil
-}
+  TFieldBlob, ThriftException, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo,
+  ThriftStructMetaData, ThriftUtil}
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
 import java.nio.ByteBuffer
@@ -407,7 +400,6 @@ class {{StructName}}(
 {{/withTrait}}
   extends {{parentType}}
   with {{product}}
-  with HasThriftStructCodec3[{{StructName}}]
   with java.io.Serializable
 {
   import {{StructName}}._
@@ -632,6 +624,4 @@ class {{StructName}}(
   }
 
   override def productPrefix: String = "{{StructName}}"
-  
-  def _codec: ThriftStructCodec3[{{StructName}}] = {{StructName}}
 }

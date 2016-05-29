@@ -307,7 +307,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case e: Exception_ if (serviceOptions contains WithFinagle) =>
         "ThriftException with com.twitter.finagle.SourcedException with ThriftStruct"
       case e: Exception_ => "ThriftException with ThriftStruct"
-      case u: Union => "ThriftUnion\n  with ThriftStruct"
+      case u: Union => "ThriftUnion with ThriftStruct"
       case result: FunctionResult =>
         val resultType = getSuccessType(result)
         s"ThriftResponse[$resultType] with ThriftStruct"

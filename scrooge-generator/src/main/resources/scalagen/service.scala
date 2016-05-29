@@ -2,17 +2,9 @@ package {{package}}
 
 import com.twitter.scrooge.{
   LazyTProtocol,
-  HasThriftStructCodec3,
-  TFieldBlob,
-  ThriftService,
-  ThriftStruct,
-  ThriftStructCodec,
-  ThriftStructCodec3,
-  ThriftStructFieldInfo, 
-  ThriftResponse,
-  ThriftUtil,
-  ToThriftService
-}
+  TFieldBlob, ThriftService, ThriftStruct,
+  ThriftStructCodec, ThriftStructCodec3,
+  ThriftStructFieldInfo, ThriftResponse, ThriftUtil, ToThriftService}
 {{#withFinagle}}
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}

@@ -1,7 +1,7 @@
 {{#public}}
 package {{package}}
 
-import com.twitter.scrooge.{HasThriftStructCodec3, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -13,12 +13,7 @@ import scala.collection.{Map, Set}
 
 {{/public}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-sealed trait {{StructName}}
-  extends {{parentType}} 
-  with HasThriftStructCodec3[{{StructName}}] {
-  
-  def _codec: ThriftStructCodec3[{{StructName}}] = {{StructName}}
-}
+sealed trait {{StructName}} extends {{parentType}}
 
 private object {{StructName}}Decoder {
   def apply(_iprot: TProtocol, newUnknown: TFieldBlob => {{StructName}}): {{StructName}} = {

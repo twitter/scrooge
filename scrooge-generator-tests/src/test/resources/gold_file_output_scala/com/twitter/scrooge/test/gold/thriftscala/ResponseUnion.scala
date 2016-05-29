@@ -6,7 +6,7 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.scrooge.{HasThriftStructCodec3, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -17,13 +17,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-sealed trait ResponseUnion
-  extends ThriftUnion
-  with ThriftStruct
-  with HasThriftStructCodec3[ResponseUnion] {
-
-  def _codec: ThriftStructCodec3[ResponseUnion] = ResponseUnion
-}
+sealed trait ResponseUnion extends ThriftUnion with ThriftStruct
 
 private object ResponseUnionDecoder {
   def apply(_iprot: TProtocol, newUnknown: TFieldBlob => ResponseUnion): ResponseUnion = {
