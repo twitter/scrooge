@@ -57,13 +57,30 @@ object Scrooge extends Build {
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
     ),
 
-    ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := true,
-
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.6" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
+
+    // scoverage automatically brings in libraries on our behalf, but it hasn't
+    // been updated for 2.12 yet[0].  for now, we need to rely on the 2.11 ones
+    // (which seem to work OK)
+    //
+    // [0]: https://github.com/scoverage/sbt-scoverage/issues/126
+    libraryDependencies := {
+      libraryDependencies.value.map {
+        case moduleId: ModuleID
+          if moduleId.organization == "org.scoverage"
+            && scalaVersion.value.startsWith("2.12") =>
+            moduleId.copy(name = moduleId.name.replace(scalaVersion.value, "2.11"))
+        case moduleId =>
+          moduleId
+      }
+    },
+
+    ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := true,
+
     resolvers += "twitter-repo" at "https://maven.twttr.com",
 
     // Sonatype publishing
@@ -112,6 +129,7 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.11.8",
+      crossScalaVersions := scalaVersion.value +: Seq("2.12.0-M4"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
