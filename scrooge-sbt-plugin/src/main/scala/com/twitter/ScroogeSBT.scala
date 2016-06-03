@@ -171,7 +171,7 @@ object ScroogeSBT extends AutoPlugin {
     scroogeDefaultJavaNamespace := "thrift",
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
-    scroogeThriftOutputFolder in Compile := sourceManaged.value / "thrift",
+    scroogeThriftOutputFolder in Compile := (sourceManaged in Compile).value / "thrift",
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
