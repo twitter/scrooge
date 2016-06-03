@@ -6,7 +6,7 @@
 --]]
 
 -- Import this file with:
---   require 'thrift.OverCapacityException'
+--   require 'com.twitter.scrooge.test.gold.thriftlua.OverCapacityException'
 -- Note: This file depends on libthrift!
 
 

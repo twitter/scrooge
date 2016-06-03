@@ -52,15 +52,17 @@ abstract class GoldFileTest extends FunSuite
     accumulate(f, Vector.empty)
   }
 
+  protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
+
   test("generated output looks as expected") {
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("gold_file_input/gold.thrift").getPath
-
-    Main.main(Array(
+    val inputThrifts = testThriftFiles.map(ccl.getResource(_).getPath)
+    val args = Seq(
       "--language", language,
       "--finagle",
-      "--dest", tempDir.getPath,
-      inputThrift))
+      "--dest", tempDir.getPath) ++ inputThrifts
+
+    Main.main(args.toArray)
 
     def generatedDataFor(file: File): String = {
       val gen = Source.fromFile(file, "UTF-8").mkString

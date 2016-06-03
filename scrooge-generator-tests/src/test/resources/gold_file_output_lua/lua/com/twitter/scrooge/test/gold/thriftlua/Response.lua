@@ -6,10 +6,10 @@
 --]]
 
 -- Import this file with:
---   require 'thrift.Response'
+--   require 'com.twitter.scrooge.test.gold.thriftlua.Response'
 -- Note: This file depends on libthrift!
 
-local ResponseUnion = require 'thrift.ResponseUnion'
+local ResponseUnion = require 'com.twitter.scrooge.test.gold.thriftlua.ResponseUnion'
 
 local Response = {
   ttype = 'struct',

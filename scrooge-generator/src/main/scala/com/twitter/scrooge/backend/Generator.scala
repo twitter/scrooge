@@ -110,12 +110,15 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     file
   }
 
-  protected def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => doc.document.namespace(namespaceLanguage)
-    }
-    javaNamespace.getOrElse(SimpleID(defaultNamespace))
-  }
+  protected def getIncludeNamespace(includeFileName: String): Identifier =
+    includeMap
+      .get(includeFileName)
+      .map { doc: ResolvedDocument =>
+        getNamespace(doc.document)
+      }.getOrElse(SimpleID(defaultNamespace))
+
+  def getNamespace(doc: Document): Identifier =
+    doc.namespace(namespaceLanguage).getOrElse(SimpleID(defaultNamespace))
 
   def normalizeCase[N <: Node](node: N): N = {
     (node match {
@@ -152,9 +155,6 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case n => n
     }).asInstanceOf[N]
   }
-
-  def getNamespace(doc: Document): Identifier =
-    doc.namespace(namespaceLanguage) getOrElse (SimpleID(defaultNamespace))
 
   def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String

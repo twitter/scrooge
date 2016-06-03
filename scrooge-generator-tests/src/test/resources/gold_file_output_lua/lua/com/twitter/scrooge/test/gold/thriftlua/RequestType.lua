@@ -6,7 +6,7 @@
 --]]
 
 -- Import this file with:
---   require 'thrift.RequestType'
+--   require 'com.twitter.scrooge.test.gold.thriftlua.RequestType'
 
 local RequestType = {
   Create = 1,

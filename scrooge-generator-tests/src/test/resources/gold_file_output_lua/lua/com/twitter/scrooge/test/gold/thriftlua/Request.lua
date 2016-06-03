@@ -6,7 +6,7 @@
 --]]
 
 -- Import this file with:
---   require 'thrift.Request'
+--   require 'com.twitter.scrooge.test.gold.thriftlua.Request'
 -- Note: This file depends on libthrift!
 
 

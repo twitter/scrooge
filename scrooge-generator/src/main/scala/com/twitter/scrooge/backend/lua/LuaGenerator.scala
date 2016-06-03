@@ -139,6 +139,24 @@ class LuaGenerator(
       genID(f.sid).toData
     }.mkString(", "))
 
+  // Use "lua" namespace if defined, otherwise default to "java" namespace, but replace "thriftjava"
+  // with "thriftlua"
+  override def getNamespace(doc: Document): Identifier = {
+    def replaceThriftJavaWithThriftLua(s: String) = s.replaceAllLiterally("thriftjava", "thriftlua")
+
+    doc.namespace(namespaceLanguage)
+      .orElse {
+        // If we don't have a lua namespace, fall back to the java one
+        doc
+          .namespace("java")
+          .map {
+            case SimpleID(name, origName) => SimpleID(replaceThriftJavaWithThriftLua(name), origName)
+            case QualifiedID(names) => QualifiedID(names.dropRight(1) ++ names.takeRight(1).map(replaceThriftJavaWithThriftLua))
+          }
+      }
+      .getOrElse(SimpleID(defaultNamespace))
+  }
+
   // Finds all struct types that may be referenced by the given struct or by container types (list,
   // map, set) including nested container types to arbitrary depths.
   private[this] def findRequireableStructTypes(ft: FieldType): Seq[NamedType] = {

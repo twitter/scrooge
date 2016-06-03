@@ -6,7 +6,7 @@
 --]]
 
 -- Import this file with:
---   require 'thrift.ResponseUnion'
+--   require 'com.twitter.scrooge.test.gold.thriftlua.ResponseUnion'
 -- Note: This file depends on libthrift!
 
 
