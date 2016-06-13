@@ -205,7 +205,7 @@ object Scrooge extends Build {
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % libthriftVersion,
-      "com.github.scopt" %% "scopt" % "3.3.0",
+      "com.github.scopt" %% "scopt" % "3.4.0",
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "2.0.1",
