@@ -129,7 +129,7 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.11.8",
-      crossScalaVersions := scalaVersion.value +: Seq("2.12.0-M4"),
+      crossScalaVersions := Seq("2.11.8", "2.12.0-M4"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
