@@ -9,6 +9,7 @@ import sbtassembly.Plugin._
 import AssemblyKeys._
 import sbtbuildinfo.Plugin._
 import scoverage.ScoverageSbtPlugin
+import ScriptedPlugin._
 
 object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
@@ -271,14 +272,20 @@ object Scrooge extends Build {
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
+  /*
+   * The sbt-plugin is tested via the 'scripted' test runner.
+   * See http://www.scala-sbt.org/0.13/docs/Testing-sbt-plugins.html for details.
+   **/
+
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
     settings = Defaults.coreDefaultSettings ++
       settingsWithTwoTen ++
       bintrayPublishSettings ++
-      buildInfoSettings
-  ).settings(
+      buildInfoSettings ++
+      scriptedSettings
+    ).settings(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "com.twitter",
@@ -286,8 +293,15 @@ object Scrooge extends Build {
       publishMavenStyle := false,
       repository in bintray := "sbt-plugins",
       licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
-      bintrayOrganization in bintray := Some("twittercsl")
-  ).dependsOn(scroogeGenerator)
+      bintrayOrganization in bintray := Some("twittercsl"),
+      scriptedBufferLog := false,
+      scriptedLaunchOpts ++= Seq(
+        "-Dplugin.version=" + version.value,
+        "-Dscrooge-core.version=" + version.value,
+        "-Dlibthrift.version=" + libthriftVersion,
+        "-Dfinagle.version=" + finagleVersion
+      )
+    ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
     id = "scrooge-linter",
