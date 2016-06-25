@@ -191,7 +191,7 @@ object Scrooge extends Build {
     base = file("."),
     settings = Defaults.coreDefaultSettings ++
       sharedSettings,
-    aggregate = publishedProjects :+ (scroogeGeneratorTests: sbt.ProjectReference)
+    aggregate = publishedProjects
   )
 
   // This target is used for publishing dependencies locally
@@ -254,7 +254,7 @@ object Scrooge extends Build {
     ),
     test in assembly := {},  // Skip tests when running assembly.
     publishArtifact := false
-  ).dependsOn(scroogeGenerator)
+  ).dependsOn(scroogeGenerator).settings(crossScalaVersions := Seq("2.11.8"))
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",

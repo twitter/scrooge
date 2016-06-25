@@ -29,9 +29,10 @@ before_script:
   - ./bin/travisci
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION update
 
-script: 
+script:
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
   - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 
-after_success: 
+after_success:
   - bash <(curl -s https://codecov.io/bash)
