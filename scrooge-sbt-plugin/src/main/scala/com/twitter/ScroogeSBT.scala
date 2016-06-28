@@ -140,9 +140,9 @@ object ScroogeSBT extends AutoPlugin {
       "generate code from thrift files using scrooge"
     )
 
-    val scroogeLanguage = SettingKey[String](
-      "scrooge-language",
-      "language to generate code in: scala, java"
+    val scroogeLanguages = SettingKey[Seq[String]](
+      "scrooge-languages",
+      "language(s) to generate code in: scala, java, cocoa, android, lua"
     )
   }
 
@@ -175,7 +175,7 @@ object ScroogeSBT extends AutoPlugin {
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
-    scroogeLanguage := "scala",
+    scroogeLanguages := Seq("scala"),
     libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
 
     // complete list of source files
@@ -228,20 +228,22 @@ object ScroogeSBT extends AutoPlugin {
       scroogeThriftSources,
       scroogeThriftOutputFolder,
       scroogeThriftIncludes,
-      scroogeLanguage
-    ) map { (out, sources, outputDir, inc, language) =>
+      scroogeLanguages
+    ) map { (out, sources, outputDir, inc, languages) =>
       // figure out if we need to actually rebuild, based on mtimes.
-      val allSourceDeps = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
+      val allSourceDeps: Seq[File] = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
         files ++ (dir ** "*.thrift").get
       }
       val sourcesLastModified: Seq[Long] = allSourceDeps.map(_.lastModified)
-      val newestSource = if (sourcesLastModified.size > 0) {
+      val newestSource: Long = if (sourcesLastModified.nonEmpty) {
         sourcesLastModified.max
       } else {
         Long.MaxValue
       }
-      val outputsLastModified = (outputDir ** generatedExtensionPattern(language)).get.map(_.lastModified)
-      val oldestOutput = if (outputsLastModified.size > 0) {
+      val outputsLastModified: Seq[Long] = languages.flatMap { language =>
+        (outputDir ** generatedExtensionPattern(language)).get.map(_.lastModified)
+      }
+      val oldestOutput: Long = if (outputsLastModified.nonEmpty) {
         outputsLastModified.min
       } else {
         Long.MinValue
@@ -258,17 +260,21 @@ object ScroogeSBT extends AutoPlugin {
       scroogeBuildOptions,
       scroogeThriftIncludes,
       scroogeThriftNamespaceMap,
-      scroogeLanguage,
+      scroogeLanguages,
       scroogeDisableStrict,
       scroogeScalaWarnOnJavaNSFallback,
       scroogeDefaultJavaNamespace
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, language, disableStrict, warnOnJavaNSFallback, defaultNamespace) =>
+    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, languages, disableStrict, warnOnJavaNSFallback, defaultNamespace) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && sources.nonEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet, disableStrict, warnOnJavaNSFallback, defaultNamespace)
+        languages.foreach { language =>
+          compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet, disableStrict, warnOnJavaNSFallback, defaultNamespace)
+        }
       }
-      (outputDir ** generatedExtensionPattern(language)).get.toSeq
+      languages.flatMap { language =>
+        (outputDir ** generatedExtensionPattern(language)).get
+      }
     },
     sourceGenerators <+= scroogeGen
   )
