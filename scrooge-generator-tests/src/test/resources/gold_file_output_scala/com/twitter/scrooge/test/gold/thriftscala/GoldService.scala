@@ -96,7 +96,8 @@ object GoldService { self =>
           _root_.scala.None,
           _root_.scala.None,
           immutable$Map.empty[String, String],
-          immutable$Map.empty[String, String]
+          immutable$Map.empty[String, String],
+          None
         )
       )
 
@@ -276,7 +277,8 @@ object GoldService { self =>
           _root_.scala.None,
           _root_.scala.None,
           immutable$Map.empty[String, String],
-          immutable$Map.empty[String, String]
+          immutable$Map.empty[String, String],
+          None
         ),
         new ThriftStructFieldInfo(
           ExField,
@@ -286,7 +288,8 @@ object GoldService { self =>
           _root_.scala.None,
           _root_.scala.None,
           immutable$Map.empty[String, String],
-          immutable$Map.empty[String, String]
+          immutable$Map.empty[String, String],
+          None
         )
       )
 

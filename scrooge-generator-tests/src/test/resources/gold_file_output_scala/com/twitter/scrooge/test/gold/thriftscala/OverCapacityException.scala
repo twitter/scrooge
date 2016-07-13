@@ -40,7 +40,8 @@ object OverCapacityException extends ThriftStructCodec3[OverCapacityException] {
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String]
+      immutable$Map.empty[String, String],
+      None
     )
   )
 

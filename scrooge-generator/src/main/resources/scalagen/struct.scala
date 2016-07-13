@@ -66,11 +66,17 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{#pairs}}
         "{{key}}" -> "{{value}}"
 {{/pairs|,}}
-      )
+      ),
 {{/fieldFieldAnnotations}}
 {{^fieldFieldAnnotations}}
-      immutable$Map.empty[String, String]
+      immutable$Map.empty[String, String],
 {{/fieldFieldAnnotations}}
+{{#hasDefaultValue}}
+      Some({{defaultFieldValue}})
+{{/hasDefaultValue}}
+{{^hasDefaultValue}}
+      None
+{{/hasDefaultValue}}
     )
 {{/fields|,}}
   )

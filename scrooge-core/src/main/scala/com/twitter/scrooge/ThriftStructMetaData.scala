@@ -165,8 +165,32 @@ final class ThriftStructFieldInfo(
   val keyManifest: scala.Option[Manifest[_]],
   val valueManifest: scala.Option[Manifest[_]],
   val typeAnnotations: Map[String, String],
-  val fieldAnnotations: Map[String, String]
+  val fieldAnnotations: Map[String, String],
+  val defaultValue: Option[Any]
 ) {
+  /**
+   * Provide backwards compatibility for older scrooge-generator that does not generate the defaultValue field
+   */
+  def this(
+    tfield: TField,
+    isOptional: Boolean,
+    isRequired: Boolean,
+    manifest: Manifest[_],
+    keyManifest: scala.Option[Manifest[_]],
+    valueManifest: scala.Option[Manifest[_]],
+    typeAnnotations: Map[String, String],
+    fieldAnnotations: Map[String, String]
+  ) = this(
+    tfield,
+    isOptional,
+    isRequired,
+    manifest,
+    keyManifest,
+    valueManifest,
+    typeAnnotations,
+    fieldAnnotations,
+    None)
+
   /**
    * Provide backwards compatibility for older scrooge-generator that does not generate the isRequired flag
    */
@@ -186,7 +210,8 @@ final class ThriftStructFieldInfo(
     keyManifest,
     valueManifest,
     typeAnnotations,
-    fieldAnnotations
+    fieldAnnotations,
+    None
   )
 
   /**
@@ -208,7 +233,8 @@ final class ThriftStructFieldInfo(
       keyManifest,
       valueManifest,
       Map.empty[String, String],
-      Map.empty[String, String]
+      Map.empty[String, String],
+      None
     )
 }
 

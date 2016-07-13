@@ -86,10 +86,27 @@ class ThriftStructMetaDataSpec extends Spec {
       fieldInfo.isRequired must be(false)
     }
 
+    // build expected default values
+    val expected = Map[String, Any](
+      "z" -> true,
+      "b" -> 1.toByte,
+      "s" -> 1.toShort,
+      "i" -> 1,
+      "j" -> 1.toLong,
+      "d" -> 1.0,
+      "str" -> "yo",
+      "e" -> NumberID.One,
+      "i_list" -> List(1),
+      "i_set" -> Set(1),
+      "i_map" -> Map[Int, Int](1 -> 1)
+    )
+
     //All of the OneOfEachWithDefault fields are default:
     OneOfEachWithDefault.fieldInfos.foreach { fieldInfo =>
       fieldInfo.isRequired must be(false)
       fieldInfo.isOptional must be(false)
+      fieldInfo.defaultValue.nonEmpty must be(true)
+      fieldInfo.defaultValue.get must be(expected(fieldInfo.tfield.name))
     }
   }
 

@@ -96,15 +96,36 @@ abstract class GoldFileTest extends FunSuite
       val expected = goldDataFor(suffix)
       withClue(suffix) {
         if (genStr != expected) {
+          val genLength = genStr.length
+          val diff = {
+            var i = 0
+            while (i < math.min(genLength, expected.length) && genStr(i) == expected(i)) {
+              i += 1
+            }
+            val surround = 50
+            val substring =
+              genStr.substring(math.max(0, i - surround), i) ++
+              s"|->${genStr(i)}<-|" ++
+              genStr.substring(math.min(i + 1, genLength), math.min(i + surround, genLength))
+
+            s"The difference is at character $i: " +
+              s"($substring). line: ${ genStr.substring(0, i).count(_ == '\n') + 1 }"
+          }
+
           val msg =
             s"""
                |The generated file ${gen.getName} did not match gold file
                |"scrooge/scrooge-generator-tests/src/test/resources/gold_file_output_$language/$suffix".
+               |Generated string is ${genLength} characters long
+               |Expected string is ${expected.length} characters long
+               |
+               |$diff
+               |
                |Compare the output in stdout to the gold file and
                |either fix the generator or update the gold file to match.
              """.stripMargin
           println(msg)
-          println(s"Generated file $suffix:\n${genStr}<<<EOF")
+          println(s"Generated file $suffix:\n$genStr<<<EOF")
           fail(msg)
         }
       }

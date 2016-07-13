@@ -42,7 +42,8 @@ object Response extends ThriftStructCodec3[Response] {
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String]
+      immutable$Map.empty[String, String],
+      None
     ),
     new ThriftStructFieldInfo(
       ResponseUnionField,
@@ -52,7 +53,8 @@ object Response extends ThriftStructCodec3[Response] {
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String]
+      immutable$Map.empty[String, String],
+      None
     )
   )
 
