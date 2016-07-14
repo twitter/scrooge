@@ -72,7 +72,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
       immutable$Map.empty[String, String],
 {{/fieldFieldAnnotations}}
 {{#hasDefaultValue}}
-      Some({{defaultFieldValue}})
+      Some[{{fieldType}}]({{defaultFieldValue}})
 {{/hasDefaultValue}}
 {{^hasDefaultValue}}
       None
