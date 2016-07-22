@@ -26,7 +26,7 @@ notifications:
 
 before_script:
   - unset SBT_OPTS
-  - ./bin/travisci
+  - curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION update
 
 script:
