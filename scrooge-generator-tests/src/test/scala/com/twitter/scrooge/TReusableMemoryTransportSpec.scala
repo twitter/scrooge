@@ -30,4 +30,18 @@ class TReusableMemoryTransportSpec extends Spec {
     trans.numWrittenBytes must be(5)
   }
 
+  "does not reallocate buffer on reset()" in {
+    val cap = 5
+    val trans = TReusableMemoryTransport(cap)
+
+    val stringInBytes = "abcdefghij".getBytes("UTF-8")
+    trans.write(stringInBytes)
+    trans.numWrittenBytes must be(10)
+
+    val oldBuf = trans.getArray
+    trans.reset()
+    trans.numWrittenBytes must be(0)
+    trans.getArray must be theSameInstanceAs oldBuf
+  }
+
 }
