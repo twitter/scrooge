@@ -285,10 +285,15 @@ object ScroogeSBT extends AutoPlugin {
     }
   }
 
+  private[this] val generatedSources = mappings in (Compile, packageSrc) ++= {
+    val thriftOutputFolder = (scroogeThriftOutputFolder in Compile).value
+    ((thriftOutputFolder ** "*") filter { _.isFile }).get pair relativeTo(thriftOutputFolder)
+  }
+
   override lazy val projectSettings =
     Seq(ivyConfigurations += thriftConfig) ++
     inConfig(Test)(genThriftSettings) ++
-    inConfig(Compile)(genThriftSettings) :+ packageThrift
+    inConfig(Compile)(genThriftSettings) :+ packageThrift :+ generatedSources
 
   @deprecated("Settings auto-imported via AutoPlugin mechanism", "2015-03-24")
   lazy val newSettings = projectSettings
