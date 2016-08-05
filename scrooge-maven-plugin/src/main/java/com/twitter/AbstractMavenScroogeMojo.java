@@ -1,5 +1,6 @@
 package com.twitter;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
@@ -517,6 +518,11 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
       return artifactResult.getArtifact();
     }
   };
+
+  @VisibleForTesting
+  void setSession(RepositorySystemSession session) {
+    this.session = session;
+  }
 
 
 }
