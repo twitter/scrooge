@@ -112,12 +112,6 @@
       <version>4.6.0</version>
     </dependency>
     <dependency>
-      <groupId>io.takari.maven.plugins</groupId>
-      <artifactId>takari-plugin-testing</artifactId>
-      <version>2.8.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
@@ -128,6 +122,12 @@
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.19</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-testing</groupId>
+      <artifactId>maven-plugin-testing-harness</artifactId>
+      <scope>test</scope>
+      <version>3.2.0</version>
     </dependency>
 
 
