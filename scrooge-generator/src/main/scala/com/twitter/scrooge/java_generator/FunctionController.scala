@@ -1,7 +1,6 @@
 package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast.{Function => TFunction, _}
-import com.google.common.base.{Function => GFunction}
 import com.twitter.scrooge.ast.Field
 import com.twitter.scrooge.ast.SimpleID
 import com.twitter.scrooge.ast.Struct

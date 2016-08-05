@@ -14,12 +14,12 @@ object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
   val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
-  val libVersion = "4.6.0" + suffix
+  val libVersion = "4.8.0" + suffix
 
   // To build the develop branch you need to publish util, and finagle locally:
   // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
-  val utilVersion = "6.33.0" + suffix
-  val finagleVersion = "6.34.0" + suffix
+  val utilVersion = "6.35.0" + suffix
+  val finagleVersion = "6.36.0" + suffix
 
   val libthriftVersion = "0.5.0-1"
 
@@ -49,46 +49,39 @@ object Scrooge extends Build {
     ScroogeRunner.genTestThriftTask
   )
 
-  def scalacOptionsVersion(sv: String): Seq[String] = {
-    Seq(
-      "-deprecation",
-      "-unchecked",
-      "-feature",
-      "-Xlint",
-      "-encoding", "utf8"
-    ) ++ (CrossVersion.partialVersion(sv) match {
-      case Some((2, x)) if x >= 11 => Seq("-Ypatmat-exhaust-depth", "40")
-      case _ => Nil
-    })
-  }
-
-  val sharedSettings = Seq(
+  val sharedSettingsWithoutScalaVersion = Seq(
     version := libVersion,
     organization := "com.twitter",
-    crossScalaVersions := Seq("2.10.6", "2.11.7"),
-    scalaVersion := "2.11.7",
 
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
     ),
 
-    ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := (
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 10)) => false
-        case _ => true
-      }
-    ),
-
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-      "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
+      "org.scalatest" %% "scalatest" % "2.2.6" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
-    resolvers += "twitter-repo" at "https://maven.twttr.com",
 
-    scalacOptions := scalacOptionsVersion(scalaVersion.value),
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.7"),
+    // scoverage automatically brings in libraries on our behalf, but it hasn't
+    // been updated for 2.12 yet[0].  for now, we need to rely on the 2.11 ones
+    // (which seem to work OK)
+    //
+    // [0]: https://github.com/scoverage/sbt-scoverage/issues/126
+    libraryDependencies := {
+      libraryDependencies.value.map {
+        case moduleId: ModuleID
+          if moduleId.organization == "org.scoverage"
+            && scalaVersion.value.startsWith("2.12") =>
+            moduleId.copy(name = moduleId.name.replace(scalaVersion.value, "2.11"))
+        case moduleId =>
+          moduleId
+      }
+    },
+
+    ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := true,
+
+    resolvers += "twitter-repo" at "https://maven.twttr.com",
 
     // Sonatype publishing
     publishArtifact in Test := false,
@@ -132,6 +125,51 @@ object Scrooge extends Build {
       }
   )
 
+  val sharedSettings =
+    sharedSettingsWithoutScalaVersion ++
+    Seq(
+      scalaVersion := "2.11.8",
+      crossScalaVersions := Seq("2.11.8", "2.12.0-M4"),
+      scalacOptions := Seq(
+        "-deprecation",
+        "-unchecked",
+        "-feature", "-Xlint",
+        "-encoding", "utf8",
+        "-target:jvm-1.8",
+        "-Ypatmat-exhaust-depth", "40"),
+      javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.8")
+    )
+
+  // scalac options for projects that are scala 2.10
+  // or cross compiled with scala 2.10
+  val scalacTwoTenOptions = Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature", "-Xlint",
+    "-encoding", "utf8")
+
+  // settings for projects that are scala 2.10
+  val settingsWithTwoTen =
+    sharedSettingsWithoutScalaVersion ++
+    Seq(
+      scalaVersion := "2.10.6",
+      scalacOptions := scalacTwoTenOptions,
+      javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.7")
+    )
+
+  // settings for projects that are cross compiled with scala 2.10
+  val settingsCrossCompiledWithTwoTen =
+    sharedSettingsWithoutScalaVersion ++
+    Seq(
+      crossScalaVersions := Seq("2.10.6", "2.11.8"),
+      scalaVersion := "2.11.8",
+      scalacOptions := scalacTwoTenOptions,
+      javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.7")
+    )
+
   val jmockSettings = Seq(
     libraryDependencies ++= Seq(
       "org.jmock" % "jmock" % "2.4.0" % "test",
@@ -142,35 +180,59 @@ object Scrooge extends Build {
     )
   )
 
+  lazy val publishedProjects = Seq[sbt.ProjectReference](
+    scroogeCore,
+    scroogeGenerator,
+    scroogeLinter,
+    scroogeSerializer)
+
   lazy val scrooge = Project(
     id = "scrooge",
     base = file("."),
     settings = Defaults.coreDefaultSettings ++
-      sharedSettings
-  ).aggregate(
-    scroogeGenerator, scroogeGeneratorTests, scroogeCore,
-    scroogeSerializer, scroogeLinter
+      sharedSettings,
+    aggregate = publishedProjects
   )
 
+  // This target is used for publishing dependencies locally
+  // and is used for generating all(*) of the dependencies
+  // needed for Finagle, including cross Scala version support.
+  //
+  // (*) Unfortunately, sbt plugins are currently only supported
+  // with Scala 2.10 and as such we cannot include that project
+  // here and it should be published separately to Scala 2.10.
+  lazy val scroogePublishLocal = Project(
+    id = "scrooge-publish-local",
+    // use a different target so that we don't have conflicting output paths
+    // between this and the `scrooge` target.
+    base = file("target/"),
+    settings = Defaults.coreDefaultSettings ++
+      sharedSettings,
+    aggregate = publishedProjects
+  )
+
+  // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
+  // has a dependency on this.
   lazy val scroogeGenerator = Project(
     id = "scrooge-generator",
     base = file("scrooge-generator"),
     settings = Defaults.coreDefaultSettings ++
-      sharedSettings ++
+      settingsCrossCompiledWithTwoTen ++
       assemblySettings
   ).settings(
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
-      util("core") exclude("org.mockito", "mockito-all"),
-      util("codec") exclude("org.mockito", "mockito-all"),
-      util("logging") exclude("org.mockito", "mockito-all"),
       "org.apache.thrift" % "libthrift" % libthriftVersion,
-      "com.github.scopt" %% "scopt" % "3.3.0",
+      "com.github.scopt" %% "scopt" % "3.4.0",
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "2.0.1",
-      "commons-cli" % "commons-cli" % "1.2"
-    ),
+      "commons-cli" % "commons-cli" % "1.3.1"
+    ).++(CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, x)) if x >= 11 =>
+        Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4")
+      case _ => Nil
+    }),
     test in assembly := {},  // Skip tests when running assembly.
     mainClass in assembly := Some("com.twitter.scrooge.Main")
   )
@@ -192,7 +254,7 @@ object Scrooge extends Build {
     ),
     test in assembly := {},  // Skip tests when running assembly.
     publishArtifact := false
-  ).dependsOn(scroogeGenerator)
+  ).dependsOn(scroogeGenerator).settings(crossScalaVersions := Seq("2.11.8"))
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
@@ -231,7 +293,7 @@ object Scrooge extends Build {
     id = "scrooge-sbt-plugin",
     base = file("scrooge-sbt-plugin"),
     settings = Defaults.coreDefaultSettings ++
-      sharedSettings ++
+      settingsWithTwoTen ++
       bintrayPublishSettings ++
       buildInfoSettings
   ).settings(
@@ -252,7 +314,8 @@ object Scrooge extends Build {
       sharedSettings ++
       assemblySettings
   ).settings(
-    name := "scrooge-linter"
+    name := "scrooge-linter",
+    libraryDependencies += util("logging")
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(

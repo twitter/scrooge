@@ -3,6 +3,7 @@ package com.twitter.scrooge
 import sbt._
 import Keys._
 
+import com.twitter.scrooge.backend.{WithFinagle, ServiceOption}
 import java.io.File
 
 object ScroogeSBT extends AutoPlugin {
@@ -17,7 +18,10 @@ object ScroogeSBT extends AutoPlugin {
     thriftIncludes: Set[File],
     namespaceMappings: Map[String, String],
     language: String,
-    flags: Set[String]
+    flags: Set[ServiceOption],
+    disableStrict: Boolean,
+    scalaWarnOnJavaNSFallback: Boolean,
+    defaultNamespace: String
   ) {
 
     val originalLoader: Option[ClassLoader] =
@@ -34,7 +38,11 @@ object ScroogeSBT extends AutoPlugin {
       compiler.destFolder = outputDir.getPath
       thriftIncludes.map { compiler.includePaths += _.getPath }
       namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2) }
-      Main.parseOptions(compiler, flags.toSeq ++ thriftFiles.map { _.getPath })
+      compiler.flags ++= flags
+      compiler.thriftFiles ++= thriftFiles.map(_.getPath())
+      compiler.strict = !disableStrict
+      compiler.scalaWarnOnJavaNSFallback = scalaWarnOnJavaNSFallback
+      compiler.defaultNamespace = defaultNamespace
       compiler.language = language.toLowerCase
       compiler.run()
     } finally {
@@ -52,8 +60,7 @@ object ScroogeSBT extends AutoPlugin {
   }
 
   object autoImport {
-
-    val scroogeBuildOptions = SettingKey[Seq[String]](
+    val scroogeBuildOptions = SettingKey[Seq[ServiceOption]](
       "scrooge-build-options",
       "command line args to pass to scrooge"
     )
@@ -61,6 +68,21 @@ object ScroogeSBT extends AutoPlugin {
     val scroogePublishThrift = SettingKey[Boolean](
       "scrooge-publish-thrift",
       "Whether or not to publish thrift files in the jar"
+    )
+
+    val scroogeDisableStrict = SettingKey[Boolean](
+      "scrooge-disable-strict",
+      "issue warnings on non-severe parse errors instead of aborting"
+    )
+
+    val scroogeScalaWarnOnJavaNSFallback = SettingKey[Boolean](
+      "scrooge-scala-warn-on-java-fallback",
+      "Print a warning when the scala generator falls back to the java namespace"
+    )
+
+    val scroogeDefaultJavaNamespace = SettingKey[String](
+      "scrooge-default-java-namespace",
+      "Use <name> as default namespace if the thrift file doesn't define its own namespace. If this option is not specified either, then use \"thrift\" as default namespace"
     )
 
     val scroogeThriftDependencies = SettingKey[Seq[String]](
@@ -118,9 +140,9 @@ object ScroogeSBT extends AutoPlugin {
       "generate code from thrift files using scrooge"
     )
 
-    val scroogeLanguage = SettingKey[String](
-      "scrooge-language",
-      "language to generate code in: scala, java"
+    val scroogeLanguages = SettingKey[Seq[String]](
+      "scrooge-languages",
+      "language(s) to generate code in: scala, java, cocoa, android, lua"
     )
   }
 
@@ -142,15 +164,18 @@ object ScroogeSBT extends AutoPlugin {
    * e.g. inConfig(Assembly)(genThriftSettings)
    */
   val genThriftSettings: Seq[Setting[_]] = Seq(
-    scroogeBuildOptions := Seq("--finagle"),
+    scroogeBuildOptions := Seq(WithFinagle),
     scroogePublishThrift := false,
+    scroogeDisableStrict := false,
+    scroogeScalaWarnOnJavaNSFallback := false,
+    scroogeDefaultJavaNamespace := "thrift",
     scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
     scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
     scroogeThriftOutputFolder <<= (sourceManaged) { identity },
     scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
-    scroogeLanguage := "scala",
+    scroogeLanguages := Seq("scala"),
     libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
 
     // complete list of source files
@@ -203,20 +228,22 @@ object ScroogeSBT extends AutoPlugin {
       scroogeThriftSources,
       scroogeThriftOutputFolder,
       scroogeThriftIncludes,
-      scroogeLanguage
-    ) map { (out, sources, outputDir, inc, language) =>
+      scroogeLanguages
+    ) map { (out, sources, outputDir, inc, languages) =>
       // figure out if we need to actually rebuild, based on mtimes.
-      val allSourceDeps = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
+      val allSourceDeps: Seq[File] = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
         files ++ (dir ** "*.thrift").get
       }
       val sourcesLastModified: Seq[Long] = allSourceDeps.map(_.lastModified)
-      val newestSource = if (sourcesLastModified.size > 0) {
+      val newestSource: Long = if (sourcesLastModified.nonEmpty) {
         sourcesLastModified.max
       } else {
         Long.MaxValue
       }
-      val outputsLastModified = (outputDir ** generatedExtensionPattern(language)).get.map(_.lastModified)
-      val oldestOutput = if (outputsLastModified.size > 0) {
+      val outputsLastModified: Seq[Long] = languages.flatMap { language =>
+        (outputDir ** generatedExtensionPattern(language)).get.map(_.lastModified)
+      }
+      val oldestOutput: Long = if (outputsLastModified.nonEmpty) {
         outputsLastModified.min
       } else {
         Long.MinValue
@@ -233,14 +260,21 @@ object ScroogeSBT extends AutoPlugin {
       scroogeBuildOptions,
       scroogeThriftIncludes,
       scroogeThriftNamespaceMap,
-      scroogeLanguage
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, language) =>
+      scroogeLanguages,
+      scroogeDisableStrict,
+      scroogeScalaWarnOnJavaNSFallback,
+      scroogeDefaultJavaNamespace
+    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, languages, disableStrict, warnOnJavaNSFallback, defaultNamespace) =>
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (isDirty && sources.nonEmpty) {
         out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet)
+        languages.foreach { language =>
+          compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet, disableStrict, warnOnJavaNSFallback, defaultNamespace)
+        }
       }
-      (outputDir ** generatedExtensionPattern(language)).get.toSeq
+      languages.flatMap { language =>
+        (outputDir ** generatedExtensionPattern(language)).get
+      }
     },
     sourceGenerators <+= scroogeGen
   )

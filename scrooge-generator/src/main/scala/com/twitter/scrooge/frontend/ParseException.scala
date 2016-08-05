@@ -1,8 +1,8 @@
 package com.twitter.scrooge.frontend
 
-import com.twitter.util.NoStacktrace
+import scala.util.control.NoStackTrace
 
-class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) with NoStacktrace{
+class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) with NoStackTrace{
   def this(reason: String) = this(reason, null)
 }
 

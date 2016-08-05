@@ -33,6 +33,7 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
+import com.twitter.finagle.thrift.DeserializeCtx;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class GoldService {
@@ -179,10 +180,20 @@ public class GoldService {
   public static class ServiceToClient implements ServiceIface {
     private final com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
     private final TProtocolFactory protocolFactory;
+    private final scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier;
+
+    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory, scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier) {
+
+      this.service = service;
+      this.protocolFactory = protocolFactory;
+      this.responseClassifier = responseClassifier;
+    }
+
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
 
       this.service = service;
       this.protocolFactory = protocolFactory;
+      this.responseClassifier = com.twitter.finagle.service.ResponseClassifier.Default();
     }
 
     public Future<Response> doGreatThings(Request request) {
@@ -198,19 +209,42 @@ public class GoldService {
 
 
         byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
-        ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
-        Future<byte[]> __done__ = this.service.apply(__request__);
-        return __done__.flatMap(new Function<byte[], Future<Response>>() {
-          public Future<Response> apply(byte[] __buffer__) {
-            TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
-            TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
-            try {
-              return Future.value((new Client(__prot__)).recv_doGreatThings());
-            } catch (Exception e) {
-              return Future.exception(e);
+        final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
+
+        Function<byte[], com.twitter.util.Try<Response>> replyDeserializer =
+          new Function<byte[], com.twitter.util.Try<Response>>() {
+            public com.twitter.util.Try<Response> apply(byte[] __buffer__) {
+              TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+              TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+              try {
+                return new com.twitter.util.Return(((new Client(__prot__)).recv_doGreatThings()));
+              } catch (Exception e) {
+                return new com.twitter.util.Throw(e);
+              }
             }
-          }
-        });
+          };
+        DeserializeCtx serdeCtx = new DeserializeCtx<Response>(__args__, replyDeserializer);
+
+        return com.twitter.finagle.context.Contexts.local().let(
+          DeserializeCtx.Key(),
+          serdeCtx,
+          new com.twitter.util.Function0<Future<Response>>() {
+            public Future<Response> apply() {
+
+              Future<byte[]> __done__ = service.apply(__request__);
+              return __done__.flatMap(new Function<byte[], Future<Response>>() {
+                public Future<Response> apply(byte[] __buffer__) {
+                  TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+                  TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+                  try {
+                    return Future.value((new Client(__prot__)).recv_doGreatThings());
+                  } catch (Exception e) {
+                    return Future.exception(e);
+                  }
+                }
+              });
+            }
+          });
       } catch (TException e) {
         return Future.exception(e);
       }

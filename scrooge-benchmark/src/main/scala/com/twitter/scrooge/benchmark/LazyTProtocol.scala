@@ -4,8 +4,6 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 import java.util.concurrent.TimeUnit
 import java.nio.ByteBuffer
-import org.apache.thrift.protocol.{ TProtocol, TBinaryProtocol }
-import org.apache.thrift.transport.TTransport
 import thrift.benchmark._
 import com.twitter.scrooge._
 

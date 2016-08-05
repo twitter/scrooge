@@ -1,0 +1,43 @@
+{{#docstring}}
+  --[[
+  {{docstring}}
+  --]]
+{{/docstring}}
+
+-- Import this file with:
+--   require '{{package}}.{{StructName}}'
+-- Note: This file depends on libthrift!
+
+{{requireStatements}}
+
+local {{StructName}} = {
+  ttype = 'union',
+  name = '{{StructName}}',
+  fields = {
+{{#fields}}
+    [{{id}}] = { name = '{{fieldName}}', {{#readWriteInfo}}{{fieldType}},{{/readWriteInfo}} },
+{{/fields}}  }
+}
+
+local binaryCodec = require 'libthrift'
+
+{{StructName}}.__codec = binaryCodec.codec({{StructName}})
+
+function {{StructName}}:read(bin)
+  return self.__codec:read(bin)
+end
+
+function {{StructName}}:readTensor(bin)
+  return self.__codec:readTensor(bin)
+end
+
+function {{StructName}}:write(params)
+  return self.__codec:write(params)
+end
+
+function {{StructName}}:writeTensor(params)
+  return self.__codec:writeTensor(params)
+end
+
+return {{StructName}}
+

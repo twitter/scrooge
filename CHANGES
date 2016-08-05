@@ -5,6 +5,31 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+4.8.0
+------
+
+Breaking API Changes
+~~~~~~~~~~~~~~~~~~~~
+
+* scrooge-sbt-plugin: Allow scrooge to build bindings for more than one
+  language. To reflect this, `ScroogeSBT.autoImport.scroogeLanguage` has been
+  renamed to `scroogeLanguages` and is now a `SettingKey[Seq[String]]`
+  instead of a `SettingKey[String].` ``RB_ID=846198``
+
+* Builds are now only for Java 8 and Scala 2.11. See the
+  `blog post <https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/>`_
+  for details. ``RB_ID=828898``
+
+
+~~~~~
+
+4.7.0
+-----
+
+- scrooge-core, scrooge-generator: `c.t.scrooge.ThriftEnum` now includes an
+  `originalName` method which represents the name as defined in the Thrift
+  IDL file. ``RB_ID=820075``
+
 4.6.0
 -----
 
@@ -769,3 +794,4 @@ thrift files were not resolved properly.
 - Correctly resolving enum constants and Const values.
 - Title-casing enum value names.
 - Added support for namespace renaming from the command line.
+

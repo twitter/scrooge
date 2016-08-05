@@ -13,23 +13,24 @@ import com.twitter.scrooge.ThriftEnum
 case object RequestType {
 
   case object Create extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
-    val value = 1
-    val name = "Create"
-    val originalName = "Create"
+    val value: Int = 1
+    val name: String = "Create"
+    val originalName: String = "Create"
   }
 
   private[this] val _SomeCreate = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Create)
 
   case object Read extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
-    val value = 2
-    val name = "Read"
-    val originalName = "Read"
+    val value: Int = 2
+    val name: String = "Read"
+    val originalName: String = "Read"
   }
 
   private[this] val _SomeRead = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Read)
 
   case class EnumUnknownRequestType(value: Int) extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
-    val name = "EnumUnknownRequestType" + value
+    val name: String = "EnumUnknownRequestType" + value
+    def originalName: String = name
   }
 
   /**

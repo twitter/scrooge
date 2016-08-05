@@ -16,11 +16,11 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 
+import com.twitter.scrooge.android_generator.AndroidGeneratorFactory
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.backend.lua.LuaGeneratorFactory
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
-import com.twitter.scrooge.mustache.Dictionary.CodeFragment
-import com.twitter.scrooge.android_generator.AndroidGeneratorFactory
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 import java.io.{File, FileOutputStream, OutputStreamWriter}
 import scala.collection.JavaConverters._
@@ -56,7 +56,8 @@ object GeneratorFactory {
         ScalaGeneratorFactory,
         ApacheJavaGeneratorFactory,
         AndroidGeneratorFactory,
-        CocoaGeneratorFactory
+        CocoaGeneratorFactory,
+        LuaGeneratorFactory
       ) ++
       loadedGenerators
 
@@ -109,12 +110,15 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     file
   }
 
-  protected def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => doc.document.namespace("java")
-    }
-    javaNamespace.getOrElse(SimpleID(defaultNamespace))
-  }
+  protected def getIncludeNamespace(includeFileName: String): Identifier =
+    includeMap
+      .get(includeFileName)
+      .map { doc: ResolvedDocument =>
+        getNamespace(doc.document)
+      }.getOrElse(SimpleID(defaultNamespace))
+
+  def getNamespace(doc: Document): Identifier =
+    doc.namespace(namespaceLanguage).getOrElse(SimpleID(defaultNamespace))
 
   def normalizeCase[N <: Node](node: N): N = {
     (node match {
@@ -151,9 +155,6 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case n => n
     }).asInstanceOf[N]
   }
-
-  def getNamespace(doc: Document): Identifier =
-    doc.namespace("java") getOrElse (SimpleID(defaultNamespace))
 
   def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String

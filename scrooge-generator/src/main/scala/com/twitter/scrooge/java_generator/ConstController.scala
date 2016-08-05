@@ -1,6 +1,6 @@
 package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.ast.{ConstDefinition, Identifier, SimpleID}
+import com.twitter.scrooge.ast.{ConstDefinition, Identifier}
 
 /**
  * Helps generate a class that holds all the constants.

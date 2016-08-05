@@ -122,12 +122,12 @@ init_default_option_file () {
 
 declare -r cms_opts="-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
 declare -r jit_opts="-XX:ReservedCodeCacheSize=256m -XX:+TieredCompilation"
-declare -r default_jvm_opts="-Dfile.encoding=UTF8 -XX:MaxPermSize=384m -Xms512m -Xmx1536m -Xss2m $jit_opts $cms_opts"
+declare -r default_jvm_opts="-Dfile.encoding=UTF8 -Xms512m -Xmx1536m -Xss2m $jit_opts $cms_opts"
 declare -r noshare_opts="-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"
 declare -r latest_28="2.8.2"
 declare -r latest_29="2.9.3"
 declare -r latest_210="2.10.3"
-declare -r latest_211="2.11.0-M5"
+declare -r latest_211="2.11.7"
 
 declare -r script_path=$(get_script_path "$BASH_SOURCE")
 declare -r script_dir="$(dirname $script_path)"

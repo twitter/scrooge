@@ -1,0 +1,37 @@
+{{#docstring}}
+--[[
+{{docstring}}
+--]]
+{{/docstring}}
+
+-- Import this file with:
+--   require '{{package}}.{{EnumName}}'
+
+local {{EnumName}} = {
+{{#values}}
+  {{originalName}} = {{value}},
+{{/values}}}
+
+local inverseMapping = {}
+
+local lookupById = function(enum_id)
+  if not next(inverseMapping) then
+    for label, id in pairs({{EnumName}}) do
+      inverseMapping[tostring(id)] = label
+    end
+  end
+  return inverseMapping[tostring(enum_id)]
+end
+
+setmetatable({{EnumName}}, {
+  __index = function(_, arg)
+    if type(arg) == "number" then
+      return lookupById(arg)
+    else
+      return nil
+    end
+  end
+})
+
+return {{EnumName}}
+

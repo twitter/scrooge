@@ -14,15 +14,10 @@ cache:
    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
 
 scala:
-  - 2.10.6
-  - 2.11.7
+  - 2.11.8
 
 jdk:
-  - oraclejdk7
-  # Note: not currently testing on JDK 8 internally
   - oraclejdk8
-  # Enable once https://github.com/travis-ci/travis-ci/issues/5227 is fixed.
-  #- openjdk7
 
 notifications:
   hipchat:
@@ -34,5 +29,10 @@ before_script:
   - ./bin/travisci
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION update
 
-script: ./sbt ++$TRAVIS_SCALA_VERSION coverage test && ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-after_success: ./sbt ++$TRAVIS_SCALA_VERSION coveralls
+script:
+  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
+  - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
