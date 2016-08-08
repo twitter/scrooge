@@ -1,6 +1,8 @@
 package com.twitter.stubs;
 
+import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.plugin.testing.stubs.ArtifactStub;
+import org.apache.maven.plugin.testing.stubs.DefaultArtifactHandlerStub;
 
 import java.util.List;
 
@@ -14,6 +16,11 @@ public class IdlDepArtifactStub extends ArtifactStub {
   @Override
   public List getDependencyTrail() {
     return idlDeps;
+  }
+
+  @Override
+  public ArtifactHandler getArtifactHandler() {
+    return new DefaultArtifactHandlerStub("jar");
   }
 
   /**

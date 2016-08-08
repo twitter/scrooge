@@ -37,7 +37,6 @@
               </artifact>
             </dependencyArtifacts>
           </project>
-          <localRepository>${localRepository}</localRepository>
           <outputDirectory>${basedir}/target/test/unit/project-idl-deps/output</outputDirectory>
           <thriftOpts>
             <thriftOpt>--finagle</thriftOpt>
