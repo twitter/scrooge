@@ -206,7 +206,7 @@ object GoldService { self =>
         val request: com.twitter.scrooge.test.gold.thriftscala.Request,
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftStruct
-      with scala.Product1[com.twitter.scrooge.test.gold.thriftscala.Request]
+      with _root_.scala.Product1[com.twitter.scrooge.test.gold.thriftscala.Request]
       with HasThriftStructCodec3[Args]
       with java.io.Serializable
     {
@@ -403,7 +403,7 @@ object GoldService { self =>
           ex
         )
 
-      def unapply(_item: Result): _root_.scala.Option[scala.Product2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item)
+      def unapply(_item: Result): _root_.scala.Option[_root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
 
 
       @inline private def readSuccessValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Response = {
@@ -442,7 +442,7 @@ object GoldService { self =>
         val ex: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException],
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftResponse[com.twitter.scrooge.test.gold.thriftscala.Response] with ThriftStruct
-      with scala.Product2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+      with _root_.scala.Product2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
       with HasThriftStructCodec3[Result]
       with java.io.Serializable
     {
@@ -458,6 +458,13 @@ object GoldService { self =>
 
       def _1 = success
       def _2 = ex
+
+      def toTuple: _root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]] = {
+        (
+          success,
+          ex
+        )
+      }
 
       def successField: Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
       def exceptionFields: Iterable[Option[com.twitter.scrooge.ThriftException]] = Seq(ex)

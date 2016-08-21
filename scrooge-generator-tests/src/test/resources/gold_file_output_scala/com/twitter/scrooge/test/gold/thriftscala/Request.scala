@@ -409,7 +409,7 @@ object Request extends ThriftStructCodec3[Request] {
       subRequests
     )
 
-  def unapply(_item: Request): _root_.scala.Option[scala.Product5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]] = _root_.scala.Some(_item)
+  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]] = _root_.scala.Some(_item.toTuple)
 
 
   @inline private def readAListValue(_iprot: TProtocol): Seq[String] = {
@@ -678,7 +678,7 @@ object Request extends ThriftStructCodec3[Request] {
 
 trait Request
   extends ThriftStruct
-  with scala.Product5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  with _root_.scala.Product5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]
   with HasThriftStructCodec3[Request]
   with java.io.Serializable
 {
@@ -697,6 +697,16 @@ trait Request
   def _3 = aMap
   def _4 = aRequest
   def _5 = subRequests
+
+  def toTuple: _root_.scala.Tuple5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]] = {
+    (
+      aList,
+      aSet,
+      aMap,
+      aRequest,
+      subRequests
+    )
+  }
 
 
   /**

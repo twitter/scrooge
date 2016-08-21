@@ -273,7 +273,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
   def unapply(_item: {{StructName}}): _root_.scala.Option[{{>optionalType}}] = _root_.scala.Some(_item.{{fieldName}})
 {{/arity1}}
 {{#arityN}}
-  def unapply(_item: {{StructName}}): _root_.scala.Option[{{product}}] = _root_.scala.Some(_item)
+  def unapply(_item: {{StructName}}): _root_.scala.Option[{{tuple}}] = _root_.scala.Some(_item.toTuple)
 {{/arityN}}
 
 
@@ -442,6 +442,16 @@ class {{StructName}}(
   def _{{indexP1}} = {{fieldName}}
 {{/fields}}
 
+{{#arityN}}
+  def toTuple: {{tuple}} = {
+    (
+{{#fields}}
+      {{fieldName}}
+{{/fields|,}}
+    )
+  }
+
+{{/arityN}}
 {{#isResponse}}
   def successField: Option[{{successFieldType}}] = {{successFieldValue}}
   def exceptionFields: Iterable[Option[com.twitter.scrooge.ThriftException]] = {{exceptionValues}}

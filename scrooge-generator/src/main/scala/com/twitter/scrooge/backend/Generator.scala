@@ -475,7 +475,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   }
 
   /**
-   * Returns a String "scala.Product${N}[Type1, Type2, ...]" or "scala.Product".
+   * Returns a String "_root_.scala.Product${N}[Type1, Type2, ...]" or "scala.Product".
    */
   def productN(fields: Seq[Field], namespace: Option[Identifier]): String = {
     val arity = fields.length
@@ -483,9 +483,24 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       val fieldTypes = fields.map { f =>
         genFieldType(f).toData
       }.mkString(", ")
-      s"scala.Product$arity[$fieldTypes]"
+      s"_root_.scala.Product$arity[$fieldTypes]"
     } else {
-      "scala.Product"
+      "_root_.scala.Product"
+    }
+  }
+
+  /**
+   * Returns a String "_root_.scala.Tuple${N}[Type1, Type2, ...]"
+   */
+  def tupleN(fields: Seq[Field], namespace: Option[Identifier]): String = {
+    val arity = fields.length
+    if (arity >= 1 && arity <= 22) {
+      val fieldTypes = fields.map { f =>
+        genFieldType(f).toData
+      }.mkString(", ")
+      s"_root_.scala.Tuple$arity[$fieldTypes]"
+    } else {
+      "_root_.scala.Product"
     }
   }
 }

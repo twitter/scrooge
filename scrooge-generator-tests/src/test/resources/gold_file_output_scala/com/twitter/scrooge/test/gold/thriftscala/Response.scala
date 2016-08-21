@@ -234,7 +234,7 @@ object Response extends ThriftStructCodec3[Response] {
       responseUnion
     )
 
-  def unapply(_item: Response): _root_.scala.Option[scala.Product2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]] = _root_.scala.Some(_item)
+  def unapply(_item: Response): _root_.scala.Option[_root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]] = _root_.scala.Some(_item.toTuple)
 
 
   @inline private def readStatusCodeValue(_iprot: TProtocol): Int = {
@@ -343,7 +343,7 @@ object Response extends ThriftStructCodec3[Response] {
 
 trait Response
   extends ThriftStruct
-  with scala.Product2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+  with _root_.scala.Product2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
   with HasThriftStructCodec3[Response]
   with java.io.Serializable
 {
@@ -356,6 +356,13 @@ trait Response
 
   def _1 = statusCode
   def _2 = responseUnion
+
+  def toTuple: _root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] = {
+    (
+      statusCode,
+      responseUnion
+    )
+  }
 
 
   /**
