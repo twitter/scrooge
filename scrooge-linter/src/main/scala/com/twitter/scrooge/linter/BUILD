@@ -6,10 +6,10 @@ scala_library(
   ),
   name='scala',
   dependencies=[
-    '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     '3rdparty/jvm/com/github/scopt',
     'scrooge/scrooge-generator',
     'util/util-logging',
+    '3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators',
   ],
   fatal_warnings=True,
   sources=globs('*.scala'),

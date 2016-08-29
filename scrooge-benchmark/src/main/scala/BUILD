@@ -4,6 +4,7 @@ scala_library(name='scala',
     '3rdparty/jvm/org/openjdk/jmh:jmh-core',
     'scrooge/scrooge-benchmark/src/main/thrift:thrift-scala',
     'scrooge/scrooge-serializer',
+    'scrooge/scrooge-core/src/main/scala:scala',
   ],
   fatal_warnings=True,
   sources=rglobs('*.scala')
