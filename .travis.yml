@@ -27,12 +27,12 @@ notifications:
 before_script:
   - unset SBT_OPTS
   - curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
-  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION update
+  - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION update
 
 script:
-  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
-  - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+  - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
+  - ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
