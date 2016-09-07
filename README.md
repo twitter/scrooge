@@ -34,18 +34,18 @@ and is actively developed and maintained.
 
 ## Building the develop branch locally
 
-You will need the develop branch of [util](https://github.com/twitter/util).
+We are not currently publishing snapshots for Scrooge's dependencies, which
+means that it may be necessary to publish the `develop` branches of these
+libraries locally in order to work on Scrooge's `develop` branch. To do so
+you can use our build tool, [dodo](https://github.com/twitter/dodo).
 
-Finagle depends on `scrooge-core`, so the order in which you build dependencies
-should be:
+``` bash
+curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
+```
 
-* in util: `./sbt publishLocal`
-* in scrooge: `./sbt publishLocal`
-* in finagle: `./sbt publishLocal`
-
-You will need the develop branch of
-[finagle](https://github.com/twitter/finagle) to run tests in
-scrooge-generator-tests, but you do not need it to build scrooge otherwise.
+If you have any questions or run into any problems, please create
+an issue here, tweet at us at [@finagle](https://twitter.com/finagle), or email
+the Finaglers mailing list.
 
 ## Full Documentation
 
