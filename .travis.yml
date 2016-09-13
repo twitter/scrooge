@@ -30,8 +30,8 @@ before_script:
   - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION update
 
 script:
-  - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
+  - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
   - ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success:
