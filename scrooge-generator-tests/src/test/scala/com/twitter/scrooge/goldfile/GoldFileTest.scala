@@ -96,27 +96,27 @@ abstract class GoldFileTest extends FunSuite
       val expected = goldDataFor(suffix)
       withClue(suffix) {
         if (genStr != expected) {
-          val genLength = genStr.length
           val diff = {
             var i = 0
-            while (i < math.min(genLength, expected.length) && genStr(i) == expected(i)) {
+            while (i < math.min(genStr.length, expected.length) && genStr(i) == expected(i)) {
               i += 1
             }
             val surround = 50
+            val longerStr = if (genStr.length >= expected.length) genStr else expected
             val substring =
-              genStr.substring(math.max(0, i - surround), i) ++
-              s"|->${genStr(i)}<-|" ++
-              genStr.substring(math.min(i + 1, genLength), math.min(i + surround, genLength))
+              longerStr.substring(math.max(0, i - surround), i) ++
+              s"|->${longerStr(i)}<-|" ++
+              longerStr.substring(math.min(i + 1, longerStr.length), math.min(i + surround, longerStr.length))
 
             s"The difference is at character $i: " +
-              s"($substring). line: ${ genStr.substring(0, i).count(_ == '\n') + 1 }"
+              s"($substring). line: ${ longerStr.substring(0, i).count(_ == '\n') + 1 }"
           }
 
           val msg =
             s"""
                |The generated file ${gen.getName} did not match gold file
                |"scrooge/scrooge-generator-tests/src/test/resources/gold_file_output_$language/$suffix".
-               |Generated string is ${genLength} characters long
+               |Generated string is ${genStr.length} characters long
                |Expected string is ${expected.length} characters long
                |
                |$diff

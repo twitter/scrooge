@@ -21,6 +21,8 @@ struct Request {
   1: list<string> aList,
   2: set<i32> aSet,
   3: map<i64, i64> aMap,
+  4: optional Request aRequest,
+  5: list<Request> subRequests
 }
 
 struct Response {

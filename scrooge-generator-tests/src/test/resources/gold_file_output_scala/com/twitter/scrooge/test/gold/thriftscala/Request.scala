@@ -38,6 +38,10 @@ object Request extends ThriftStructCodec3[Request] {
   val ASetFieldManifest = implicitly[Manifest[Set[Int]]]
   val AMapField = new TField("aMap", TType.MAP, 3)
   val AMapFieldManifest = implicitly[Manifest[Map[Long, Long]]]
+  val ARequestField = new TField("aRequest", TType.STRUCT, 4)
+  val ARequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  val SubRequestsField = new TField("subRequests", TType.LIST, 5)
+  val SubRequestsFieldManifest = implicitly[Manifest[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]]
 
   /**
    * Field information in declaration order.
@@ -75,6 +79,28 @@ object Request extends ThriftStructCodec3[Request] {
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       Some[Map[Long, Long]](Map[Long, Long]())
+    ),
+    new ThriftStructFieldInfo(
+      ARequestField,
+      true,
+      false,
+      ARequestFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
+    ),
+    new ThriftStructFieldInfo(
+      SubRequestsField,
+      false,
+      false,
+      SubRequestsFieldManifest,
+      _root_.scala.None,
+      _root_.scala.Some(implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]),
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      Some[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]](Seq[com.twitter.scrooge.test.gold.thriftscala.Request]())
     )
   )
 
@@ -121,6 +147,20 @@ object Request extends ThriftStructCodec3[Request] {
 
             newKey -> newValue
           }
+        },
+      aRequest =
+        {
+          val field = original.aRequest
+          field.map { field =>
+            com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
+          }
+        },
+      subRequests =
+        {
+          val field = original.subRequests
+          field.map { field =>
+            com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
+          }
         }
     )
 
@@ -133,6 +173,8 @@ object Request extends ThriftStructCodec3[Request] {
     var aList: Seq[String] = Seq[String]()
     var aSet: Set[Int] = Set[Int]()
     var aMap: Map[Long, Long] = Map[Long, Long]()
+    var aRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Request] = None
+    var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -187,6 +229,34 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 4 =>
+            _field.`type` match {
+              case TType.STRUCT =>
+
+                aRequest = Some(readARequestValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw new TProtocolException(
+                  "Received wrong type for field 'aRequest' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 5 =>
+            _field.`type` match {
+              case TType.LIST =>
+
+                subRequests = readSubRequestsValue(_iprot)
+              case _actualType =>
+                val _expectedType = TType.LIST
+                throw new TProtocolException(
+                  "Received wrong type for field 'subRequests' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -205,6 +275,8 @@ object Request extends ThriftStructCodec3[Request] {
       aList,
       aSet,
       aMap,
+      aRequest,
+      subRequests,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -222,6 +294,8 @@ object Request extends ThriftStructCodec3[Request] {
     var aList: Seq[String] = Seq[String]()
     var aSet: Set[Int] = Set[Int]()
     var aMap: Map[Long, Long] = Map[Long, Long]()
+    var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
+    var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -271,6 +345,32 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 4 =>
+            _field.`type` match {
+              case TType.STRUCT =>
+                aRequest = _root_.scala.Some(readARequestValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw new TProtocolException(
+                  "Received wrong type for field 'aRequest' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 5 =>
+            _field.`type` match {
+              case TType.LIST =>
+                subRequests = readSubRequestsValue(_iprot)
+              case _actualType =>
+                val _expectedType = TType.LIST
+                throw new TProtocolException(
+                  "Received wrong type for field 'subRequests' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -285,6 +385,8 @@ object Request extends ThriftStructCodec3[Request] {
       aList,
       aSet,
       aMap,
+      aRequest,
+      subRequests,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -295,15 +397,19 @@ object Request extends ThriftStructCodec3[Request] {
   def apply(
     aList: Seq[String] = Seq[String](),
     aSet: Set[Int] = Set[Int](),
-    aMap: Map[Long, Long] = Map[Long, Long]()
+    aMap: Map[Long, Long] = Map[Long, Long](),
+    aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
+    subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
   ): Request =
     new Immutable(
       aList,
       aSet,
-      aMap
+      aMap,
+      aRequest,
+      subRequests
     )
 
-  def unapply(_item: Request): _root_.scala.Option[scala.Product3[Seq[String], Set[Int], Map[Long, Long]]] = _root_.scala.Some(_item)
+  def unapply(_item: Request): _root_.scala.Option[scala.Product5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]] = _root_.scala.Some(_item)
 
 
   @inline private def readAListValue(_iprot: TProtocol): Seq[String] = {
@@ -421,6 +527,64 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeMapEnd()
   }
 
+  @inline private def readARequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
+    com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
+  }
+
+  @inline private def writeARequestField(aRequest_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(ARequestField)
+    writeARequestValue(aRequest_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeARequestValue(aRequest_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
+    aRequest_item.write(_oprot)
+  }
+
+  @inline private def readSubRequestsValue(_iprot: TProtocol): Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = {
+    val _list = _iprot.readListBegin()
+    if (_list.size == 0) {
+      _iprot.readListEnd()
+      Nil
+    } else {
+      val _rv = new mutable$ArrayBuffer[com.twitter.scrooge.test.gold.thriftscala.Request](_list.size)
+      var _i = 0
+      while (_i < _list.size) {
+        _rv += {
+          com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
+        }
+        _i += 1
+      }
+      _iprot.readListEnd()
+      _rv
+    }
+  }
+
+  @inline private def writeSubRequestsField(subRequests_item: Seq[com.twitter.scrooge.test.gold.thriftscala.Request], _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(SubRequestsField)
+    writeSubRequestsValue(subRequests_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeSubRequestsValue(subRequests_item: Seq[com.twitter.scrooge.test.gold.thriftscala.Request], _oprot: TProtocol): Unit = {
+    _oprot.writeListBegin(new TList(TType.STRUCT, subRequests_item.size))
+    subRequests_item match {
+      case _: IndexedSeq[_] =>
+        var _i = 0
+        val _size = subRequests_item.size
+        while (_i < _size) {
+          val subRequests_item_element = subRequests_item(_i)
+          subRequests_item_element.write(_oprot)
+          _i += 1
+        }
+      case _ =>
+        subRequests_item.foreach { subRequests_item_element =>
+          subRequests_item_element.write(_oprot)
+        }
+    }
+    _oprot.writeListEnd()
+  }
+
 
   object Immutable extends ThriftStructCodec3[Request] {
     override def encode(_item: Request, _oproto: TProtocol): Unit = { _item.write(_oproto) }
@@ -437,16 +601,22 @@ object Request extends ThriftStructCodec3[Request] {
       val aList: Seq[String],
       val aSet: Set[Int],
       val aMap: Map[Long, Long],
+      val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
+      val subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
     def this(
       aList: Seq[String] = Seq[String](),
       aSet: Set[Int] = Set[Int](),
-      aMap: Map[Long, Long] = Map[Long, Long]()
+      aMap: Map[Long, Long] = Map[Long, Long](),
+      aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
+      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
     ) = this(
       aList,
       aSet,
       aMap,
+      aRequest,
+      subRequests,
       Map.empty
     )
   }
@@ -463,6 +633,8 @@ object Request extends ThriftStructCodec3[Request] {
       val aList: Seq[String],
       val aSet: Set[Int],
       val aMap: Map[Long, Long],
+      val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
+      val subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
 
@@ -498,13 +670,15 @@ object Request extends ThriftStructCodec3[Request] {
     override def aList: Seq[String] = _underlying_Request.aList
     override def aSet: Set[Int] = _underlying_Request.aSet
     override def aMap: Map[Long, Long] = _underlying_Request.aMap
+    override def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.aRequest
+    override def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.subRequests
     override def _passthroughFields = _underlying_Request._passthroughFields
   }
 }
 
 trait Request
   extends ThriftStruct
-  with scala.Product3[Seq[String], Set[Int], Map[Long, Long]]
+  with scala.Product5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]
   with HasThriftStructCodec3[Request]
   with java.io.Serializable
 {
@@ -513,12 +687,16 @@ trait Request
   def aList: Seq[String]
   def aSet: Set[Int]
   def aMap: Map[Long, Long]
+  def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]
+  def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request]
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
   def _1 = aList
   def _2 = aSet
   def _3 = aMap
+  def _4 = aRequest
+  def _5 = subRequests
 
 
   /**
@@ -555,6 +733,20 @@ trait Request
               } else {
                 _root_.scala.None
               }
+            case 4 =>
+              if (aRequest.isDefined) {
+                writeARequestValue(aRequest.get, _oprot)
+                _root_.scala.Some(Request.ARequestField)
+              } else {
+                _root_.scala.None
+              }
+            case 5 =>
+              if (subRequests ne null) {
+                writeSubRequestsValue(subRequests, _oprot)
+                _root_.scala.Some(Request.SubRequestsField)
+              } else {
+                _root_.scala.None
+              }
             case _ => _root_.scala.None
           }
         _fieldOpt match {
@@ -584,6 +776,8 @@ trait Request
     var aList: Seq[String] = this.aList
     var aSet: Set[Int] = this.aSet
     var aMap: Map[Long, Long] = this.aMap
+    var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
+    var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
     var _passthroughFields = this._passthroughFields
     _blob.id match {
       case 1 =>
@@ -592,12 +786,18 @@ trait Request
         aSet = readASetValue(_blob.read)
       case 3 =>
         aMap = readAMapValue(_blob.read)
+      case 4 =>
+        aRequest = _root_.scala.Some(readARequestValue(_blob.read))
+      case 5 =>
+        subRequests = readSubRequestsValue(_blob.read)
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
     new Immutable(
       aList,
       aSet,
       aMap,
+      aRequest,
+      subRequests,
       _passthroughFields
     )
   }
@@ -611,6 +811,8 @@ trait Request
     var aList: Seq[String] = this.aList
     var aSet: Set[Int] = this.aSet
     var aMap: Map[Long, Long] = this.aMap
+    var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
+    var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
 
     _fieldId match {
       case 1 =>
@@ -619,12 +821,18 @@ trait Request
         aSet = Set[Int]()
       case 3 =>
         aMap = Map[Long, Long]()
+      case 4 =>
+        aRequest = _root_.scala.None
+      case 5 =>
+        subRequests = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
       case _ =>
     }
     new Immutable(
       aList,
       aSet,
       aMap,
+      aRequest,
+      subRequests,
       _passthroughFields - _fieldId
     )
   }
@@ -640,6 +848,10 @@ trait Request
 
   def unsetAMap: Request = unsetField(3)
 
+  def unsetARequest: Request = unsetField(4)
+
+  def unsetSubRequests: Request = unsetField(5)
+
 
   override def write(_oprot: TProtocol): Unit = {
     Request.validate(this)
@@ -647,6 +859,8 @@ trait Request
     if (aList ne null) writeAListField(aList, _oprot)
     if (aSet ne null) writeASetField(aSet, _oprot)
     if (aMap ne null) writeAMapField(aMap, _oprot)
+    if (aRequest.isDefined) writeARequestField(aRequest.get, _oprot)
+    if (subRequests ne null) writeSubRequestsField(subRequests, _oprot)
     if (_passthroughFields.nonEmpty) {
       _passthroughFields.values.foreach { _.write(_oprot) }
     }
@@ -658,12 +872,16 @@ trait Request
     aList: Seq[String] = this.aList,
     aSet: Set[Int] = this.aSet,
     aMap: Map[Long, Long] = this.aMap,
+    aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest,
+    subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): Request =
     new Immutable(
       aList,
       aSet,
       aMap,
+      aRequest,
+      subRequests,
       _passthroughFields
     )
 
@@ -679,12 +897,14 @@ trait Request
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
 
-  override def productArity: Int = 3
+  override def productArity: Int = 5
 
   override def productElement(n: Int): Any = n match {
     case 0 => this.aList
     case 1 => this.aSet
     case 2 => this.aMap
+    case 3 => this.aRequest
+    case 4 => this.subRequests
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 

@@ -525,6 +525,12 @@ struct LargeDeltas {
   4000: list<i32> big_numbers
 }
 
+struct TreeNode {
+    1: i32 data,
+    2: list<TreeNode> children,
+    3: optional TreeNode parent
+}
+
 service ReadOnlyService {
   string getName()
 }
