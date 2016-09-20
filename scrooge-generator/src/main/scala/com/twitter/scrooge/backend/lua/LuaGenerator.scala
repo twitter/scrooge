@@ -126,7 +126,7 @@ class LuaGenerator(
     case TI32 => v("i32")
     case TI64 => v("i64")
     case TString => v("string")
-    case TBinary => v("string")   // Lua doesn't have a separate binary type, send binary as strings
+    case TBinary => v("binary")
     case _ => v("")
   }
 
