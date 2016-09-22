@@ -15,11 +15,12 @@ import org.apache.thrift.protocol._
 import org.jmock.Expectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
+import org.scalatest.concurrent.Eventually
 import scala.language.reflectiveCalls
 import thrift.test._
 import thrift.test.ExceptionalService._
 
-class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
+class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
     "generate a service interface" in { _ =>
       val service: SimpleService[Some] = new SimpleService[Some] {
@@ -426,6 +427,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         Await.result(simpleService.deliver(Deliver.Args("Boston")).map { result =>
           result.success
         }) must be(Some(3))
+
+        Await.result(server.close(), 2.seconds)
       }
 
       "work for inherited services" in { _ =>
@@ -455,6 +458,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         Await.result(readWriteClientService.setName(SetName.Args("New name"))) must be(SetName.Result())
 
         Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be(Some("New name"))
+
+        Await.result(server.close, 2.seconds)
       }
 
       def serveExceptionalService(): ListeningServer = Thrift.server.serveIface(
@@ -483,6 +488,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])), "client")
 
         Await.result(clientService.deliver(Deliver.Args("")).map(_.ex3)) must be (Some(new EmptyXception()))
+
+        Await.result(server.close(), 2.seconds)
       }
 
       "work with filters on args" in { _ =>
@@ -505,6 +512,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         val filteredServiceIface = simpleServiceIface.copy(deliver = doubleFilter andThen simpleServiceIface.deliver)
         val methodIface = Thrift.client.newMethodIface(filteredServiceIface)
         Await.result(methodIface.deliver("123")) must be(6)
+
+        Await.result(server.close(), 2.seconds)
       }
 
       "work with retrying filters" in { _ =>
@@ -526,6 +535,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
             ThriftServiceIface.resultFilter(Deliver) andThen
             clientService.deliver
         Await.result(retriedDeliveryService(Deliver.Args("there"))) must be (123)
+
+        Await.result(service.close(), 2.seconds)
       }
 
       "work with a newMethodIface" in { _ =>
@@ -538,6 +549,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         intercept[EmptyXception] {
           Await.result(futureIface.deliver(""))
         }
+
+        Await.result(service.close(), 2.seconds)
       }
 
       "work with both camelCase and snake_case function names" in { _ =>
@@ -558,6 +571,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
         Await.result(richClient.bazQux("baz")) mustBe "baz"
+
+        Await.result(server.close(), 2.seconds)
       }
 
       "have correct stats" in { _ =>
@@ -574,9 +589,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           Await.result(futureIface.deliver(where = "abc"))
         }
 
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "requests")) must be (1)
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (1)
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (1)
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "requests")) must be (1) }
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (1) }
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (1) }
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
@@ -585,10 +600,12 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         // The 3rd request succeeds
         Await.result(futureIface.deliver(where = "abc"))
 
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "requests")) must be (3)
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "success")) must be (1)
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (2)
-        statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (2)
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "requests")) must be (3) }
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "success")) must be (1) }
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures")) must be (2) }
+        eventually { statsReceiver.counters(Seq("customServiceName", "ExceptionalService", "deliver", "failures", "thrift.test.Xception")) must be (2) }
+
+        Await.result(service.close(), 2.seconds)
       }
 
       "have correct stats with ResponseClassifier" in { _ =>
@@ -620,16 +637,16 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
         val failures = stats.counter("SimpleService", "deliver", "failures")
 
         Await.result(svc.deliver("abcd"), 5.seconds) // length 4 is a failure
-        assert(1 == requests())
-        assert(0 == success())
-        assert(1 == failures())
+        eventually { assert(1 == requests()) }
+        eventually { assert(0 == success()) }
+        eventually { assert(1 == failures()) }
 
         Await.result(svc.deliver("ab"), 5.seconds) // length 2 is ok
-        assert(2 == requests())
-        assert(1 == success())
-        assert(1 == failures())
+        eventually { assert(2 == requests()) }
+        eventually { assert(1 == success()) }
+        eventually { assert(1 == failures()) }
 
-        server.close()
+        Await.result(server.close(), 2.seconds)
       }
 
       "have stats with serviceName not set" in { _ =>
@@ -646,7 +663,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper {
           Await.result(futureIface.deliver(where = "abc"))
         }
 
-        statsReceiver.counters(Seq("ExceptionalService", "deliver", "requests")) must be (1)
+        eventually { statsReceiver.counters(Seq("ExceptionalService", "deliver", "requests")) must be (1) }
+
+        Await.result(service.close(), 2.seconds)
       }
     }
 
