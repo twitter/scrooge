@@ -5,6 +5,9 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+- Add support for self-referencing types from `pinsri` via
+  https://github.com/twitter/scrooge/pull/244 ``RB_ID=``
+
 - scrooge: Remove unmaintained bin/ directory. ``RB_ID=873411``
 
 4.10.0

@@ -31,17 +31,23 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField A_LIST_FIELD_DESC = new TField("aList", TType.LIST, (short)1);
   private static final TField A_SET_FIELD_DESC = new TField("aSet", TType.SET, (short)2);
   private static final TField A_MAP_FIELD_DESC = new TField("aMap", TType.MAP, (short)3);
+  private static final TField A_REQUEST_FIELD_DESC = new TField("aRequest", TType.STRUCT, (short)4);
+  private static final TField SUB_REQUESTS_FIELD_DESC = new TField("subRequests", TType.LIST, (short)5);
 
 
   private List<String> aList;
   private Set<Integer> aSet;
   private Map<Long,Long> aMap;
+  private Request aRequest;
+  private List<Request> subRequests;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     A_LIST((short)1, "aList"),
     A_SET((short)2, "aSet"),
-    A_MAP((short)3, "aMap");
+    A_MAP((short)3, "aMap"),
+    A_REQUEST((short)4, "aRequest"),
+    SUB_REQUESTS((short)5, "subRequests");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -62,6 +68,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   	return A_SET;
         case 3: // A_MAP
   	return A_MAP;
+        case 4: // A_REQUEST
+  	return A_REQUEST;
+        case 5: // SUB_REQUESTS
+  	return SUB_REQUESTS;
         default:
   	return null;
       }
@@ -110,6 +120,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new MapMetaData(TType.MAP,
             new FieldValueMetaData(TType.I64),
             new FieldValueMetaData(TType.I64))));
+    tmpMap.put(_Fields.A_REQUEST, new FieldMetaData("aRequest", TFieldRequirementType.OPTIONAL,
+      new StructMetaData(TType.STRUCT, Request.class)));
+    tmpMap.put(_Fields.SUB_REQUESTS, new FieldMetaData("subRequests", TFieldRequirementType.DEFAULT,
+      new ListMetaData(TType.LIST,
+                new StructMetaData(TType.STRUCT, Request.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
   }
@@ -121,7 +136,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public Request(
       List<String> aList,
       Set<Integer> aSet,
-      Map<Long,Long> aMap
+      Map<Long,Long> aMap,
+      Request aRequest,
+      List<Request> subRequests
   ) {
     this();
     if(aList != null) {
@@ -132,6 +149,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if(aMap != null) {
       this.aMap = aMap;
+    }
+    if(aRequest != null) {
+      this.aRequest = aRequest;
+    }
+    if(subRequests != null) {
+      this.subRequests = subRequests;
     }
   }
 
@@ -165,6 +188,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       this.aMap = __this__aMap;
     }
+    if (other.isSet(_Fields.A_REQUEST)) {
+      this.aRequest = new Request(other.aRequest);
+    }
+    if (other.isSet(_Fields.SUB_REQUESTS)) {
+      List<Request> __this__subRequests = new ArrayList<Request>();
+      for (Request other_element : other.subRequests) {
+        __this__subRequests.add(new Request(other_element));
+      }
+      this.subRequests = __this__subRequests;
+    }
   }
 
   public Request deepCopy() {
@@ -176,6 +209,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.aList = null;
     this.aSet = null;
     this.aMap = null;
+    this.aRequest = null;
+    this.subRequests = null;
   }
 
   @SuppressWarnings("unchecked")
@@ -200,6 +235,17 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           this.aSet.add((Integer)elem);
         } else {
           throw new IllegalArgumentException("Type of field " + aSet + " should be Set, but found " +  elem.getClass().toString() + " type");
+        }
+        break;
+      }
+      case SUB_REQUESTS: {
+        if (elem instanceof Request ) {
+          if (this.subRequests == null) {
+            this.subRequests = new ArrayList<Request>();
+          }
+          this.subRequests.add((Request)elem);
+        } else {
+          throw new IllegalArgumentException("Type of field " + subRequests + " should be List, but found " +  elem.getClass().toString() + " type");
         }
         break;
       }
@@ -247,6 +293,20 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         this.aMap = (Map<Long,Long>) value;
       }
       break;
+    case A_REQUEST:
+      if (value == null) {
+        this.aRequest = null;
+      } else {
+        this.aRequest = (Request) value;
+      }
+      break;
+    case SUB_REQUESTS:
+      if (value == null) {
+        this.subRequests = null;
+      } else {
+        this.subRequests = (List<Request>) value;
+      }
+      break;
     }
   }
 
@@ -258,6 +318,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return this.aSet;
     case A_MAP:
       return this.aMap;
+    case A_REQUEST:
+      return this.aRequest;
+    case SUB_REQUESTS:
+      return this.subRequests;
     }
     throw new IllegalStateException();
   }
@@ -274,6 +338,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       case A_MAP:
           Any rval_aMap = (Any)((Map<Long,Long>) getFieldValue(field));
           return rval_aMap;
+      case A_REQUEST:
+          Any rval_aRequest = (Any)((Request) getFieldValue(field));
+          return rval_aRequest;
+      case SUB_REQUESTS:
+          Any rval_subRequests = (Any)((List<Request>) getFieldValue(field));
+          return rval_subRequests;
       default:
         throw new IllegalStateException("Invalid field type");
     }
@@ -288,6 +358,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         return aSet != null;
     case A_MAP:
         return aMap != null;
+    case A_REQUEST:
+        return aRequest != null;
+    case SUB_REQUESTS:
+        return subRequests != null;
     }
     throw new IllegalStateException();
   }
@@ -328,6 +402,22 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!this.aMap.equals(that.aMap))
         return false;
     }
+    boolean this_present_aRequest = true && this.isSet(_Fields.A_REQUEST);
+    boolean that_present_aRequest = true && that.isSet(_Fields.A_REQUEST);
+    if (this_present_aRequest || that_present_aRequest) {
+      if (!(this_present_aRequest && that_present_aRequest))
+        return false;
+      if (!this.aRequest.equals(that.aRequest))
+        return false;
+    }
+    boolean this_present_subRequests = true && this.isSet(_Fields.SUB_REQUESTS);
+    boolean that_present_subRequests = true && that.isSet(_Fields.SUB_REQUESTS);
+    if (this_present_subRequests || that_present_subRequests) {
+      if (!(this_present_subRequests && that_present_subRequests))
+        return false;
+      if (!this.subRequests.equals(that.subRequests))
+        return false;
+    }
 
     return true;
   }
@@ -344,6 +434,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (true && (isSet(_Fields.A_MAP))) {
         hashCode = 31 * hashCode + aMap.hashCode();
+    }
+    if (true && (isSet(_Fields.A_REQUEST))) {
+        hashCode = 31 * hashCode + aRequest.hashCode();
+    }
+    if (true && (isSet(_Fields.SUB_REQUESTS))) {
+        hashCode = 31 * hashCode + subRequests.hashCode();
     }
     return hashCode;
   }
@@ -382,6 +478,26 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSet(_Fields.A_MAP)) {
       lastComparison = TBaseHelper.compareTo(this.aMap, typedOther.aMap);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSet(_Fields.A_REQUEST)).compareTo(typedOther.isSet(_Fields.A_REQUEST));
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSet(_Fields.A_REQUEST)) {
+      lastComparison = TBaseHelper.compareTo(this.aRequest, typedOther.aRequest);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSet(_Fields.SUB_REQUESTS)).compareTo(typedOther.isSet(_Fields.SUB_REQUESTS));
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSet(_Fields.SUB_REQUESTS)) {
+      lastComparison = TBaseHelper.compareTo(this.subRequests, typedOther.subRequests);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -457,6 +573,32 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 4: // A_REQUEST
+          if (field.type == TType.STRUCT) {
+            this.aRequest = new Request();
+            this.aRequest.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 5: // SUB_REQUESTS
+          if (field.type == TType.LIST) {
+            {
+            TList _list10 = iprot.readListBegin();
+            this.subRequests = new ArrayList<Request>(_list10.size);
+            for (int _i11 = 0; _i11 < _list10.size; ++_i11)
+            {
+              Request _elem12;
+              _elem12 = new Request();
+              _elem12.read(iprot);
+              this.subRequests.add(_elem12);
+            }
+            iprot.readListEnd();
+            }
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -476,9 +618,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(A_LIST_FIELD_DESC);
       {
         oprot.writeListBegin(new TList(TType.STRING, this.aList.size()));
-        for (String _iter10 : this.aList)
+        for (String _iter13 : this.aList)
         {
-          oprot.writeString(_iter10);
+          oprot.writeString(_iter13);
         }
         oprot.writeListEnd();
       }
@@ -488,9 +630,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(A_SET_FIELD_DESC);
       {
         oprot.writeSetBegin(new TSet(TType.I32, this.aSet.size()));
-        for (int _iter11 : this.aSet)
+        for (int _iter14 : this.aSet)
         {
-          oprot.writeI32(_iter11);
+          oprot.writeI32(_iter14);
         }
         oprot.writeSetEnd();
       }
@@ -500,12 +642,31 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(A_MAP_FIELD_DESC);
       {
         oprot.writeMapBegin(new TMap(TType.I64, TType.I64, this.aMap.size()));
-        for (Map.Entry<Long, Long> _iter12 : this.aMap.entrySet())
+        for (Map.Entry<Long, Long> _iter15 : this.aMap.entrySet())
         {
-          oprot.writeI64(_iter12.getKey());
-          oprot.writeI64(_iter12.getValue());
+          oprot.writeI64(_iter15.getKey());
+          oprot.writeI64(_iter15.getValue());
         }
         oprot.writeMapEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+    if (this.aRequest != null) {
+      if (isSet(_Fields.A_REQUEST)) {
+        oprot.writeFieldBegin(A_REQUEST_FIELD_DESC);
+        this.aRequest.write(oprot);
+        oprot.writeFieldEnd();
+      }
+    }
+    if (this.subRequests != null) {
+      oprot.writeFieldBegin(SUB_REQUESTS_FIELD_DESC);
+      {
+        oprot.writeListBegin(new TList(TType.STRUCT, this.subRequests.size()));
+        for (Request _iter16 : this.subRequests)
+        {
+          _iter16.write(oprot);
+        }
+        oprot.writeListEnd();
       }
       oprot.writeFieldEnd();
     }
@@ -540,6 +701,24 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       sb.append(this.aMap);
     }
     first = false;
+    if (isSet(_Fields.A_REQUEST)) {
+      if (!first) sb.append(", ");
+      sb.append("aRequest:");
+      if (this.aRequest == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.aRequest);
+      }
+      first = false;
+      }
+    if (!first) sb.append(", ");
+    sb.append("subRequests:");
+    if (this.subRequests == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.subRequests);
+    }
+    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -551,11 +730,15 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public static final _Fields A_LIST = _Fields.A_LIST;
   public static final _Fields A_SET = _Fields.A_SET;
   public static final _Fields A_MAP = _Fields.A_MAP;
+  public static final _Fields A_REQUEST = _Fields.A_REQUEST;
+  public static final _Fields SUB_REQUESTS = _Fields.SUB_REQUESTS;
 
   public static class Builder {
     private List<String> aList;
     private Set<Integer> aSet;
     private Map<Long,Long> aMap;
+    private Request aRequest;
+    private List<Request> subRequests;
   @SuppressWarnings("unchecked")
   public Builder set (_Fields field, Object value) {
     switch(field) {
@@ -574,6 +757,18 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       case A_MAP: {
         if (value != null) {
           this.aMap = (Map<Long,Long>) value;
+        }
+        break;
+      }
+      case A_REQUEST: {
+        if (value != null) {
+          this.aRequest = (Request) value;
+        }
+        break;
+      }
+      case SUB_REQUESTS: {
+        if (value != null) {
+          this.subRequests = (List<Request>) value;
         }
         break;
       }
@@ -608,6 +803,17 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         }
         break;
       }
+      case SUB_REQUESTS: {
+        if (elem instanceof Request ) {
+          if (this.subRequests == null) {
+              this.subRequests = new ArrayList<Request>();
+          }
+          this.subRequests.add((Request)elem);
+        } else {
+          throw new IllegalArgumentException("Type of field " + subRequests + " should be List, but found " +  elem.getClass().toString() + " type");
+        }
+        break;
+      }
     }
     return this;
   }
@@ -630,7 +836,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   }
   public Request build() {
     // check for required fields
-    return new Request(aList,aSet,aMap);
+    return new Request(aList,aSet,aMap,aRequest,subRequests);
     }
   }
 }

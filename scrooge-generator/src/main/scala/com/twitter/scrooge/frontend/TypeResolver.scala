@@ -202,7 +202,11 @@ case class TypeResolver(
           d.copy(fieldType = resolved),
           withType(sid.name, resolved))
       case s @ Struct(sid, _, fs, _, _) =>
-        val resolved = s.copy(fields = fs.map(apply))
+        // Add the current struct name to the scope to allow self referencing types
+        // TODO: Enforce optional with self referenced field.
+        // For now, we'll depend on the language compiler to error out in those cases.
+        val resolver = withType(sid.name, StructType(s, scopePrefix))
+        val resolved = s.copy(fields = fs.map(resolver.apply))
         ResolvedDefinition(
           resolved,
           withType(sid.name, StructType(resolved, scopePrefix)))

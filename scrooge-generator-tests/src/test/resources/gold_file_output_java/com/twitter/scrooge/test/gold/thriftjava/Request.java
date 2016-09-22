@@ -35,17 +35,23 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField A_LIST_FIELD_DESC = new TField("aList", TType.LIST, (short)1);
   private static final TField A_SET_FIELD_DESC = new TField("aSet", TType.SET, (short)2);
   private static final TField A_MAP_FIELD_DESC = new TField("aMap", TType.MAP, (short)3);
+  private static final TField A_REQUEST_FIELD_DESC = new TField("aRequest", TType.STRUCT, (short)4);
+  private static final TField SUB_REQUESTS_FIELD_DESC = new TField("subRequests", TType.LIST, (short)5);
 
 
   public List<String> aList;
   public Set<Integer> aSet;
   public Map<Long,Long> aMap;
+  public Request aRequest;
+  public List<Request> subRequests;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     A_LIST((short)1, "aList"),
     A_SET((short)2, "aSet"),
-    A_MAP((short)3, "aMap");
+    A_MAP((short)3, "aMap"),
+    A_REQUEST((short)4, "aRequest"),
+    SUB_REQUESTS((short)5, "subRequests");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -66,6 +72,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   	return A_SET;
         case 3: // A_MAP
   	return A_MAP;
+        case 4: // A_REQUEST
+  	return A_REQUEST;
+        case 5: // SUB_REQUESTS
+  	return SUB_REQUESTS;
         default:
   	return null;
       }
@@ -121,6 +131,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new MapMetaData(TType.MAP,
             new FieldValueMetaData(TType.I64),
             new FieldValueMetaData(TType.I64))));
+    tmpMap.put(_Fields.A_REQUEST, new FieldMetaData("aRequest", TFieldRequirementType.OPTIONAL,
+      new StructMetaData(TType.STRUCT, Request.class)));
+    tmpMap.put(_Fields.SUB_REQUESTS, new FieldMetaData("subRequests", TFieldRequirementType.DEFAULT,
+      new ListMetaData(TType.LIST,
+                new StructMetaData(TType.STRUCT, Request.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
   }
@@ -132,12 +147,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public Request(
     List<String> aList,
     Set<Integer> aSet,
-    Map<Long,Long> aMap)
+    Map<Long,Long> aMap,
+    List<Request> subRequests)
   {
     this();
     this.aList = aList;
     this.aSet = aSet;
     this.aMap = aMap;
+    this.subRequests = subRequests;
   }
 
   /**
@@ -169,6 +186,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       this.aMap = __this__aMap;
     }
+    if (other.isSetARequest()) {
+      this.aRequest = new Request(other.aRequest);
+    }
+    if (other.isSetSubRequests()) {
+      List<Request> __this__subRequests = new ArrayList<Request>();
+      for (Request other_element : other.subRequests) {
+        __this__subRequests.add(new Request(other_element));
+      }
+      this.subRequests = __this__subRequests;
+    }
   }
 
   public Request deepCopy() {
@@ -180,6 +207,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.aList = null;
     this.aSet = null;
     this.aMap = null;
+    this.aRequest = null;
+    this.subRequests = null;
   }
 
   public int getAListSize() {
@@ -298,6 +327,71 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
   }
 
+  public Request getARequest() {
+    return this.aRequest;
+  }
+
+  public Request setARequest(Request aRequest) {
+    this.aRequest = aRequest;
+
+    return this;
+  }
+
+  public void unsetARequest() {
+    this.aRequest = null;
+  }
+
+  /** Returns true if field aRequest is set (has been asigned a value) and false otherwise */
+  public boolean isSetARequest() {
+    return this.aRequest != null;
+  }
+
+  public void setARequestIsSet(boolean value) {
+    if (!value) {
+      this.aRequest = null;
+    }
+  }
+
+  public int getSubRequestsSize() {
+    return (this.subRequests == null) ? 0 : this.subRequests.size();
+  }
+
+  public java.util.Iterator<Request> getSubRequestsIterator() {
+    return (this.subRequests == null) ? null : this.subRequests.iterator();
+  }
+
+  public void addToSubRequests(Request elem) {
+    if (this.subRequests == null) {
+      this.subRequests = new ArrayList<Request>();
+    }
+    this.subRequests.add(elem);
+  }
+
+  public List<Request> getSubRequests() {
+    return this.subRequests;
+  }
+
+  public Request setSubRequests(List<Request> subRequests) {
+    this.subRequests = subRequests;
+
+    return this;
+  }
+
+  public void unsetSubRequests() {
+    this.subRequests = null;
+  }
+
+  /** Returns true if field subRequests is set (has been asigned a value) and false otherwise */
+  public boolean isSetSubRequests() {
+    return this.subRequests != null;
+  }
+
+  public void setSubRequestsIsSet(boolean value) {
+    if (!value) {
+      this.subRequests = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case A_LIST:
@@ -321,6 +415,20 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         setAMap((Map<Long,Long>)value);
       }
       break;
+    case A_REQUEST:
+      if (value == null) {
+        unsetARequest();
+      } else {
+        setARequest((Request)value);
+      }
+      break;
+    case SUB_REQUESTS:
+      if (value == null) {
+        unsetSubRequests();
+      } else {
+        setSubRequests((List<Request>)value);
+      }
+      break;
     }
   }
 
@@ -332,6 +440,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return getASet();
     case A_MAP:
       return getAMap();
+    case A_REQUEST:
+      return getARequest();
+    case SUB_REQUESTS:
+      return getSubRequests();
     }
     throw new IllegalStateException();
   }
@@ -349,6 +461,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return isSetASet();
     case A_MAP:
       return isSetAMap();
+    case A_REQUEST:
+      return isSetARequest();
+    case SUB_REQUESTS:
+      return isSetSubRequests();
     }
     throw new IllegalStateException();
   }
@@ -389,6 +505,22 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!this.aMap.equals(that.aMap))
         return false;
     }
+    boolean this_present_aRequest = true && this.isSetARequest();
+    boolean that_present_aRequest = true && that.isSetARequest();
+    if (this_present_aRequest || that_present_aRequest) {
+      if (!(this_present_aRequest && that_present_aRequest))
+        return false;
+      if (!this.aRequest.equals(that.aRequest))
+        return false;
+    }
+    boolean this_present_subRequests = true && this.isSetSubRequests();
+    boolean that_present_subRequests = true && that.isSetSubRequests();
+    if (this_present_subRequests || that_present_subRequests) {
+      if (!(this_present_subRequests && that_present_subRequests))
+        return false;
+      if (!this.subRequests.equals(that.subRequests))
+        return false;
+    }
 
     return true;
   }
@@ -408,6 +540,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     builder.append(present_aMap);
     if (present_aMap)
       builder.append(aMap);
+    boolean present_aRequest = true && (isSetARequest());
+    builder.append(present_aRequest);
+    if (present_aRequest)
+      builder.append(aRequest);
+    boolean present_subRequests = true && (isSetSubRequests());
+    builder.append(present_subRequests);
+    if (present_subRequests)
+      builder.append(subRequests);
     return builder.toHashCode();
   }
 
@@ -445,6 +585,26 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSetAMap()) {
       lastComparison = TBaseHelper.compareTo(this.aMap, typedOther.aMap);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetARequest()).compareTo(typedOther.isSetARequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetARequest()) {
+      lastComparison = TBaseHelper.compareTo(this.aRequest, typedOther.aRequest);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSubRequests()).compareTo(typedOther.isSetSubRequests());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSubRequests()) {
+      lastComparison = TBaseHelper.compareTo(this.subRequests, typedOther.subRequests);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -520,6 +680,32 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 4: // A_REQUEST
+          if (field.type == TType.STRUCT) {
+            this.aRequest = new Request();
+            this.aRequest.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 5: // SUB_REQUESTS
+          if (field.type == TType.LIST) {
+            {
+            TList _list10 = iprot.readListBegin();
+            this.subRequests = new ArrayList<Request>(_list10.size);
+            for (int _i11 = 0; _i11 < _list10.size; ++_i11)
+            {
+              Request _elem12;
+              _elem12 = new Request();
+              _elem12.read(iprot);
+              this.subRequests.add(_elem12);
+            }
+            iprot.readListEnd();
+            }
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -539,9 +725,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(A_LIST_FIELD_DESC);
       {
         oprot.writeListBegin(new TList(TType.STRING, this.aList.size()));
-        for (String _iter10 : this.aList)
+        for (String _iter13 : this.aList)
         {
-          oprot.writeString(_iter10);
+          oprot.writeString(_iter13);
         }
         oprot.writeListEnd();
       }
@@ -551,9 +737,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(A_SET_FIELD_DESC);
       {
         oprot.writeSetBegin(new TSet(TType.I32, this.aSet.size()));
-        for (int _iter11 : this.aSet)
+        for (int _iter14 : this.aSet)
         {
-          oprot.writeI32(_iter11);
+          oprot.writeI32(_iter14);
         }
         oprot.writeSetEnd();
       }
@@ -563,12 +749,31 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(A_MAP_FIELD_DESC);
       {
         oprot.writeMapBegin(new TMap(TType.I64, TType.I64, this.aMap.size()));
-        for (Map.Entry<Long, Long> _iter12 : this.aMap.entrySet())
+        for (Map.Entry<Long, Long> _iter15 : this.aMap.entrySet())
         {
-          oprot.writeI64(_iter12.getKey());
-          oprot.writeI64(_iter12.getValue());
+          oprot.writeI64(_iter15.getKey());
+          oprot.writeI64(_iter15.getValue());
         }
         oprot.writeMapEnd();
+      }
+      oprot.writeFieldEnd();
+    }
+    if (this.aRequest != null) {
+      if (isSetARequest()) {
+        oprot.writeFieldBegin(A_REQUEST_FIELD_DESC);
+        this.aRequest.write(oprot);
+        oprot.writeFieldEnd();
+      }
+    }
+    if (this.subRequests != null) {
+      oprot.writeFieldBegin(SUB_REQUESTS_FIELD_DESC);
+      {
+        oprot.writeListBegin(new TList(TType.STRUCT, this.subRequests.size()));
+        for (Request _iter16 : this.subRequests)
+        {
+          _iter16.write(oprot);
+        }
+        oprot.writeListEnd();
       }
       oprot.writeFieldEnd();
     }
@@ -601,6 +806,24 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       sb.append("null");
     } else {
       sb.append(this.aMap);
+    }
+    first = false;
+    if (isSetARequest()) {
+      if (!first) sb.append(", ");
+      sb.append("aRequest:");
+      if (this.aRequest == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.aRequest);
+      }
+      first = false;
+      }
+    if (!first) sb.append(", ");
+    sb.append("subRequests:");
+    if (this.subRequests == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.subRequests);
     }
     first = false;
     sb.append(")");

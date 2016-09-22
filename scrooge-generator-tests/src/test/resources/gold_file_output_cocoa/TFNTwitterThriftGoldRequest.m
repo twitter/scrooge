@@ -26,16 +26,22 @@
     [ms appendFormat:@"%@ ", _aSet];
     [ms appendString:@"aMap:"];
     [ms appendFormat:@"%@ ", _aMap];
+    [ms appendString:@"aRequest:"];
+    [ms appendFormat:@"%@ ", _aRequest];
+    [ms appendString:@"subRequests:"];
+    [ms appendFormat:@"%@ ", _subRequests];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests
 {
     if (self = [super init]) {
         [self setAList:aList];
         [self setASet:aSet];
         [self setAMap:aMap];
+        [self setARequest:aRequest];
+        [self setSubRequests:subRequests];
     }
 
     return self;
@@ -53,6 +59,12 @@
         if ([decoder containsValueForKey:@"3"]) {
             [self setAMap:[decoder decodeObjectForKey:@"3"]];
         }
+        if ([decoder containsValueForKey:@"4"]) {
+            [self setARequest:[decoder decodeObjectForKey:@"4"]];
+        }
+        if ([decoder containsValueForKey:@"5"]) {
+            [self setSubRequests:[decoder decodeObjectForKey:@"5"]];
+        }
     }
     return self;
 }
@@ -67,6 +79,12 @@
     }
     if (_aMapIsSet) {
         [encoder encodeObject:_aMap forKey:@"3"];
+    }
+    if (_aRequestIsSet) {
+        [encoder encodeObject:_aRequest forKey:@"4"];
+    }
+    if (_subRequestsIsSet) {
+        [encoder encodeObject:_subRequests forKey:@"5"];
     }
 }
 
@@ -86,6 +104,18 @@
 {
     _aMap = [aMap copy];
     _aMapIsSet = YES;
+}
+
+- (void)setARequest:(TFNTwitterThriftGoldRequest *)aRequest
+{
+    _aRequest = aRequest;
+    _aRequestIsSet = YES;
+}
+
+- (void)setSubRequests:(NSArray *)subRequests
+{
+    _subRequests = [subRequests copy];
+    _subRequestsIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -160,6 +190,37 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 4:
+                if (fieldType == TType_STRUCT) {
+                    TFNTwitterThriftGoldRequest* aRequest_item;
+                    aRequest_item = [[TFNTwitterThriftGoldRequest alloc] init];
+                    [aRequest_item read:inProtocol];
+                    [self setARequest:aRequest_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 5:
+                if (fieldType == TType_LIST) {
+                    NSArray * subRequests_item;
+                    int _subRequests_item_size;
+                    [inProtocol readListBeginReturningElementType:NULL size:&_subRequests_item_size];
+                    NSMutableArray *subRequests_item_mutable = [[NSMutableArray alloc] initWithCapacity:_subRequests_item_size];
+                    for (int _subRequests_item_i = 0; _subRequests_item_i < _subRequests_item_size; ++_subRequests_item_i) {
+                        TFNTwitterThriftGoldRequest * subRequests_item_element;
+                        subRequests_item_element = [[TFNTwitterThriftGoldRequest alloc] init];
+                        [subRequests_item_element read:inProtocol];
+                        [subRequests_item_mutable addObject: subRequests_item_element];
+                    }
+                    subRequests_item = subRequests_item_mutable;
+                    [inProtocol readListEnd];
+                    [self setSubRequests:subRequests_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -210,6 +271,23 @@
             [outProtocol writeI64:aMap_item_value];
         }
         [outProtocol writeMapEnd];
+        [outProtocol writeFieldEnd];
+    }
+    if (_aRequestIsSet) {
+        [outProtocol writeFieldBeginWithName:@"aRequest" type:TType_STRUCT fieldID:4];
+        TFNTwitterThriftGoldRequest* aRequest_item = _aRequest;
+        [aRequest_item write: outProtocol];
+        [outProtocol writeFieldEnd];
+    }
+    if (_subRequestsIsSet) {
+        [outProtocol writeFieldBeginWithName:@"subRequests" type:TType_LIST fieldID:5];
+        NSArray * subRequests_item = _subRequests;
+        [outProtocol writeListBeginWithElementType:TType_STRUCT size:(int)[subRequests_item count]];
+        for (int _subRequests_item_i = 0; _subRequests_item_i < [subRequests_item count]; _subRequests_item_i++) {
+            TFNTwitterThriftGoldRequest * subRequests_item_element = subRequests_item[_subRequests_item_i];
+            [subRequests_item_element write: outProtocol];
+        }
+        [outProtocol writeListEnd];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

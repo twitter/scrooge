@@ -7,7 +7,7 @@
 #import <Foundation/Foundation.h>
 
 #import "ApacheThrift/TBase.h"
-
+#import "TFNTwitterThriftGoldRequest.h"
 
 @interface TFNTwitterThriftGoldRequest : NSObject <TBase, NSCoding>
 
@@ -20,8 +20,14 @@
 @property (nonatomic, copy) NSDictionary * aMap;
 @property (nonatomic, readonly) BOOL aMapIsSet;
 
+@property (nonatomic) TFNTwitterThriftGoldRequest* aRequest;
+@property (nonatomic, readonly) BOOL aRequestIsSet;
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap;
+@property (nonatomic, copy) NSArray * subRequests;
+@property (nonatomic, readonly) BOOL subRequestsIsSet;
+
+
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

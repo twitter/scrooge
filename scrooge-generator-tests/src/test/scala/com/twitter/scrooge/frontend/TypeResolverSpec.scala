@@ -54,6 +54,38 @@ class TypeResolverSpec extends Spec {
       }
     }
 
+    "resolve self-referencing types" in {
+      val input =
+        """struct S {
+          |  1: i32 a,
+          |  2: string b,
+          |  3: optional S s
+          |}
+          |
+          |struct Node {
+          |  1: list<Node> children,
+          |  2: i32 data
+          |}
+        """.stripMargin
+      resolve(input)
+    }
+
+    "does not resolve non-self-referencing recursive types" in {
+      intercept[TypeNotFoundException] {
+        val input =
+          """struct Foo {
+            |  1: i32 a,
+            |  2: optional Bar b
+            |}
+            |
+            |struct Bar {
+            |  1: optional Foo f
+            |}
+          """.stripMargin
+        resolve(input)
+      }
+    }
+
     "transform MapType" in {
       resolver(MapType(enumRef, structRef, None)) match {
         case MapType(enumType, structType, None) =>
