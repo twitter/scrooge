@@ -21,6 +21,7 @@ class ThriftStructMetaDataSpec extends Spec {
     metaData.structClassName must be("thrift.test.XtructColl")
     metaData.structName must be("XtructColl")
     metaData.structClass must be(classOf[XtructColl])
+    metaData.fieldInfos must equal(XtructColl.fieldInfos)
     metaData.unionFields must be(Nil)
 
     val Seq(f1, f2, f3, f4) = fields

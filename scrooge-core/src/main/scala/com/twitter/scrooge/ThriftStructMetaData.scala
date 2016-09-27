@@ -74,6 +74,21 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
   }
 
   /**
+   * For non-unions, will return its [[ThriftStructFieldInfo ThriftStructFieldInfos]].
+   *
+   * For unions, will return an empty `Seq`.
+   */
+  val fieldInfos: Seq[ThriftStructFieldInfo] = {
+    if (isUnion) {
+      Nil
+    } else {
+      codecClass.getMethod("fieldInfos")
+        .invoke(codec)
+        .asInstanceOf[Seq[ThriftStructFieldInfo]]
+    }
+  }
+
+  /**
    * For unions, will return its [[ThriftUnionFieldInfo ThriftUnionFieldInfos]].
    *
    * For non-unions, will return an empty `Seq`.
