@@ -145,7 +145,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
   private boolean buildExtractedThrift = true;
   
   /**
-   * Whether or not to include ("scrooge") folder in namespace folder, if any
+   * Whether or not to skip creation of scrooge folder in output directory, if need skip
    * @parameter
    * {@code
    * <configuration>
