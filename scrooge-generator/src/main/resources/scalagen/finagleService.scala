@@ -60,7 +60,7 @@ class {{ServiceName}}$FinagleService(
 
   protected val functionMap = new mutable$HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
 
-  protected def addFunction(name: String, f: (TProtocol, Int) => Future[Array[Byte]]) {
+  protected def addFunction(name: String, f: (TProtocol, Int) => Future[Array[Byte]]): Unit = {
     functionMap(name) = f
   }
 
