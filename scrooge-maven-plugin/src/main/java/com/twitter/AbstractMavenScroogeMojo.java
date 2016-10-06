@@ -143,6 +143,17 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
    * }
    */
   private boolean buildExtractedThrift = true;
+  
+  /**
+   * Whether or not to skip creation of scrooge folder in output directory, if need skip
+   * @parameter
+   * {@code
+   * <configuration>
+   *     <includeOutputDirectoryNamespace>false</includeOutputDirectoryNamespace>
+   * </configuration>
+   * }
+   */
+  private boolean includeOutputDirectoryNamespace = true;
 
   /**
    * Whether or not to fix hashcode being default 0
@@ -276,7 +287,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
 
           runner.compile(
                   getLog(),
-                  new File(outputDirectory, "scrooge"),
+                  includeOutputDirectoryNamespace ? new File(outputDirectory, "scrooge") : outputDirectory,
                   thriftFiles,
                   includes,
                   thriftNamespaceMap,

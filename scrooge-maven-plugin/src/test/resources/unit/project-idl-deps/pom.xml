@@ -43,6 +43,7 @@
             <thriftOpt>--finagle</thriftOpt>
           </thriftOpts>
           <language>java</language>
+          <includeOutputDirectoryNamespace>false</includeOutputDirectoryNamespace>
           <resourcesOutputDirectory>${basedir}/target/test/unit/project-idl-deps/target</resourcesOutputDirectory>
           <thriftSourceRoot>${basedir}/target/test/unit/project-idl-deps/src/main/thrift</thriftSourceRoot>
         </configuration>

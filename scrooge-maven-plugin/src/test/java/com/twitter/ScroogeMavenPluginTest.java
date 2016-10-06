@@ -57,8 +57,8 @@ public class ScroogeMavenPluginTest extends AbstractMojoTestCase {
     assertNotNull(mojo);
     mojo.execute();
     // Check if both thrift artifacts have scrooge generated classes
-    String[] fileNames =  new String[] {"/scrooge/com/twitter/hello/thriftjava/HelloMessage.java",
-                                        "/scrooge/com/twitter/person/thriftjava/Person.java"};
+    String[] fileNames =  new String[] {"/com/twitter/hello/thriftjava/HelloMessage.java",
+                                        "/com/twitter/person/thriftjava/Person.java"};
     final Collection<String> absExpectFiles = Collections2.transform(
       Arrays.asList(fileNames),
       new Function<String, String>() {
