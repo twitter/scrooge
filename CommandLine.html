@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command Line &mdash; Scrooge 4.10.0 documentation</title>
+    <title>Command Line &mdash; Scrooge 4.11.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.10.0',
+        VERSION:     '4.11.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.10.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.11.0 documentation" href="index.html" />
     <link rel="next" title="Finagle Integration" href="Finagle.html" />
     <link rel="prev" title="Maven Plugin" href="MVNPlugin.html" />
    
@@ -31,11 +31,11 @@
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
 
   </head>
-  <body>
+  <body role="document">
   
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -47,33 +47,36 @@
         <li class="right" >
           <a href="MVNPlugin.html" title="Maven Plugin"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Scrooge</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="command-line">
 <h1>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
 <p>To get command line help:</p>
-<div class="highlight-scala"><pre>$ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main --help'</pre>
+<div class="highlight-scala"><div class="highlight"><pre>$ ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main --help&#39;
+</pre></div>
 </div>
 <p>To generate source with content written to the current directory:</p>
-<div class="highlight-scala"><pre>$ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]'</pre>
+<div class="highlight-scala"><div class="highlight"><pre>$ ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;
+</pre></div>
 </div>
 <p>To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:</p>
-<div class="highlight-scala"><pre>$ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main \
+<div class="highlight-scala"><div class="highlight"><pre>$ ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main \
   -d &lt;target-dir&gt;   \
   -i &lt;include-path&gt; \
   -s                \
-  &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]'</pre>
+  &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;
+</pre></div>
 </div>
 <p>A complete command line help menu:</p>
-<div class="highlight-scala"><pre>Usage: ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main [options] &lt;files...&gt;'
+<div class="highlight-scala"><div class="highlight"><pre>Usage: ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main [options] &lt;files...&gt;&#39;
 
   --help
         show this help screen
@@ -90,7 +93,7 @@ extra include paths, rebuilding only those files that have changed:</p>
   -n &lt;oldname&gt;=&lt;newname&gt; | --namespace-map &lt;oldname&gt;=&lt;newname&gt;
         map old namespace to new (may be used multiple times)
   --default-java-namespace &lt;name&gt;
-        Use &lt;name&gt; as default namespace if the thrift file doesn't define its own namespace. If this option is not specified either, then use "thrift" as default namespace
+        Use &lt;name&gt; as default namespace if the thrift file doesn&#39;t define its own namespace. If this option is not specified either, then use &quot;thrift&quot; as default namespace
   --disable-strict
         issue warnings on non-severe parse errors instead of aborting
   --gen-file-map &lt;path&gt;
@@ -98,9 +101,9 @@ extra include paths, rebuilding only those files that have changed:</p>
   --dry-run
         parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
   -s | --skip-unchanged
-        Don't re-generate if the target is newer than the input
+        Don&#39;t re-generate if the target is newer than the input
   -l &lt;value&gt; | --language &lt;value&gt;
-        name of language to generate code in ('scala' is currently supported)
+        name of language to generate code in (&#39;scala&#39; is currently supported)
   --experiment-flag &lt;flag&gt;
         [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
   --scala-warn-on-java-ns-fallback
@@ -108,7 +111,8 @@ extra include paths, rebuilding only those files that have changed:</p>
   --finagle
         generate finagle classes
   &lt;files...&gt;
-        thrift files to compile</pre>
+        thrift files to compile
+</pre></div>
 </div>
 </div>
 
@@ -116,7 +120,7 @@ extra include paths, rebuilding only those files that have changed:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/scrooge.png" alt="Logo"/>
