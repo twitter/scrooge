@@ -46,6 +46,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
   {{/non_default_constructor}}
 
+  {{#deep_copy_constructor}}
   /**
    * Performs a deep copy on <i>other</i>.
    */
@@ -77,6 +78,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{/fields}}
     {{/consolidate_newlines}}
   }
+  {{/deep_copy_constructor}}
 
   public {{name}} deepCopy() {
     return new {{name}}(this);

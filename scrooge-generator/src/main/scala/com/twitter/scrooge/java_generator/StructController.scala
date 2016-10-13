@@ -44,4 +44,9 @@ class StructController(
     !f.requiredness.isOptional
   })
   val non_default_constructor = non_optional_fields.size > 0
+
+  val deep_copy_constructor = !{
+    non_optional_fields.size == 1 &&
+      generator.typeName(non_optional_fields.head.fieldType) == name
+  }
 }

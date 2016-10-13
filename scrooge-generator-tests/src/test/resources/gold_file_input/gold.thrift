@@ -17,6 +17,10 @@ union ResponseUnion {
   2: string details
 }
 
+struct CollectionId {
+  1: required CollectionId collectionId;
+}
+
 struct Request {
   1: list<string> aList,
   2: set<i32> aSet,

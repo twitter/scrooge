@@ -4,12 +4,15 @@ as it is included in Scrooge's user's guide.
 
 4.x
 -----
+- scrooge-generator: Fix pathological case for self-referencing
+  types with Java generation. ``RB_ID=880813``
 
 4.11.0
 ------
 
-- Add support for self-referencing types from `pinsri` via
-  https://github.com/twitter/scrooge/pull/244 ``RB_ID=``
+- scrooge-generator: Add support for self-referencing types from 
+  `pinsri` via https://github.com/twitter/scrooge/pull/244 
+  ``RB_ID=873802``
 
 - scrooge: Remove unmaintained bin/ directory. ``RB_ID=873411``
 
