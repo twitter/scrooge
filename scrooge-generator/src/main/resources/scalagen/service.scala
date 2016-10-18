@@ -46,9 +46,9 @@ object {{ServiceName}} { self =>
 
 {{#withFinagle}}
 {{#generateServiceIface}}
-  {{^disableCaseClass}}case {{/disableCaseClass}}class ServiceIface(
+  case class ServiceIface(
 {{#inheritedFunctions}}
-      {{#disableCaseClass}}val {{/disableCaseClass}}{{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
+      {{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.BaseServiceIface
     with {{/parent}}BaseServiceIface

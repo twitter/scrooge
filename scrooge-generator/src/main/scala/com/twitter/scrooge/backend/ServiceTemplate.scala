@@ -21,7 +21,6 @@ import com.twitter.scrooge.frontend.ResolvedService
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
 import scala.collection.mutable
-import scala.util.Properties
 
 trait ServiceTemplate { self: TemplateGenerator =>
   def functionDictionary(function: Function, generic: Option[String]): Dictionary = {
@@ -263,19 +262,6 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "finagleServices" -> v(
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
       ),
-      "disableCaseClass" -> {
-        val isScala210 = Properties.releaseVersion.exists(_.startsWith("2.10"))
-
-        val over22functions = {
-          val numParentFunctions = resolvedDoc.collectParentServices(service).map {
-            case (_, service) => service.functions.length
-          }.sum
-          val totalFunctions = service.functions.length + numParentFunctions
-          totalFunctions > 22
-        }
-
-        v(isScala210 && over22functions)
-      },
       // scalac 2.11 fails to compile classes with more than 254 method arguments
       // due to https://issues.scala-lang.org/browse/SI-7324
       // We skip generation of ServiceIfaces for thrift services with 255+ methods.

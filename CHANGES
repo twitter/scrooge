@@ -4,6 +4,14 @@ as it is included in Scrooge's user's guide.
 
 4.x
 -----
+- scrooge-generator: Remove check for 22 args when generating scala 
+  ServiceIface. Now that we no longer support Scala 2.10 we can always
+  generate a case class for the generated scala ServiceIface. 
+  ``RB_ID=882203``
+- scrooge-generator: Don't allow Structs and Typedefs with the same 
+  identifier. Structs and typedefs should not have the same name. This
+  makes it difficult to properly support self-referencing types. 
+  ``RB_ID=881684``
 - scrooge-generator: Fix pathological case for self-referencing
   types with Java generation. ``RB_ID=880813``
 
