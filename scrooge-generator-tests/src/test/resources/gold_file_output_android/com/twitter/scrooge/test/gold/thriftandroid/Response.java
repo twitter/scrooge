@@ -54,11 +54,11 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 1: // STATUS_CODE
-  	return STATUS_CODE;
+          return STATUS_CODE;
         case 2: // RESPONSE_UNION
-  	return RESPONSE_UNION;
+          return RESPONSE_UNION;
         default:
-  	return null;
+          return null;
       }
     }
 

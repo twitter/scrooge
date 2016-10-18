@@ -38,8 +38,6 @@ namespace go ThriftTest
 namespace php ThriftTest
 namespace * thrift.test
 
-struct EmptyStruct {}
-
 #
 # blah
 #

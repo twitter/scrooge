@@ -146,6 +146,16 @@ class TypeResolverSpec extends Spec {
       resolver(struct, None).definition must be(struct.copy(fields = struct.fields.map(resolver.apply)))
     }
 
+    "fail to transform when a Typedef has same identifier as a Struct" in {
+      val typedef = Typedef(SimpleID("BlahBlah"), TI64, Map.empty)
+
+      val localResolver = TypeResolver()
+        .withType(typedef.sid.name, TI64)
+      intercept[DuplicatedIdentifierException] {
+        localResolver(struct, None).definition
+      }
+    }
+
     "transform an Exception" in {
       resolver(ex, None).definition must be(ex.copy(fields = ex.fields.map(resolver.apply)))
     }

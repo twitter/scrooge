@@ -28,6 +28,7 @@ case class UndefinedConstantException(name: String, node: Positional) extends Po
 case class UndefinedSymbolException(name: String, node: Positional) extends PositionalException(name, node)
 case class TypeMismatchException(name: String, node: Positional) extends PositionalException(name, node)
 case class QualifierNotFoundException(name: String, node: Positional) extends PositionalException(name, node)
+case class DuplicatedIdentifierException(message: String, node: Positional) extends PositionalException(message, node)
 
 case class ResolvedDocument(document: Document, resolver: TypeResolver) {
   /**
@@ -80,7 +81,8 @@ case class ResolvedDocument(document: Document, resolver: TypeResolver) {
 
   /**
    * Collect and resolve services extended by the given service.
-   * @return a list of [[ResolvedService ResolvedServices]] that contain FQNs for the parent services.
+    *
+    * @return a list of [[ResolvedService ResolvedServices]] that contain FQNs for the parent services.
    */
   def resolveParentServices(
     service: Service,
@@ -164,7 +166,8 @@ case class TypeResolver(
 
   /**
    * Resolves all types in the given document.
-   * @param scopePrefix the scope of the document if the document is an include
+    *
+    * @param scopePrefix the scope of the document if the document is an include
    */
   def apply(doc: Document, scopePrefix: Option[SimpleID] = None): ResolvedDocument = {
     var resolver = this
@@ -202,10 +205,18 @@ case class TypeResolver(
           d.copy(fieldType = resolved),
           withType(sid.name, resolved))
       case s @ Struct(sid, _, fs, _, _) =>
-        // Add the current struct name to the scope to allow self referencing types
-        // TODO: Enforce optional with self referenced field.
-        // For now, we'll depend on the language compiler to error out in those cases.
-        val resolver = withType(sid.name, StructType(s, scopePrefix))
+        // Do not allow Structs with the same name as a Typedef
+        val resolver = if (typeMap.contains(sid.name)) {
+          val fieldType: FieldType = typeMap(sid.name)
+          if (fieldType != StructType(s, scopePrefix)) throw new DuplicatedIdentifierException(
+            s"Detected a duplicated identifier [${sid.name}] for differing types: Struct, ${typeMap(sid.name)}", s)
+          else this // return the current TypeResolver as we've already resolved this type
+        } else {
+          // Add the current struct name to the scope to allow self referencing types
+          // TODO: Enforce optional with self referenced field.
+          // For now, we'll depend on the language compiler to error out in those cases.
+          withType(sid.name, StructType(s, scopePrefix))
+        }
         val resolved = s.copy(fields = fs.map(resolver.apply))
         ResolvedDefinition(
           resolved,

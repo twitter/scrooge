@@ -51,9 +51,9 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 1: // CHILL_TIME_SECONDS
-  	return CHILL_TIME_SECONDS;
+          return CHILL_TIME_SECONDS;
         default:
-  	return null;
+          return null;
       }
     }
 

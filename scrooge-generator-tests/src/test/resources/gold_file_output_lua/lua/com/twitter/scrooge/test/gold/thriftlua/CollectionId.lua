@@ -15,7 +15,7 @@ local CollectionId = {
   ttype = 'struct',
   name = 'CollectionId',
   fields = {
-    [1] = { name = 'collectionId', required = true, ttype = 'struct', fields = CollectionId.fields, },
+    [1] = { name = 'collectionLongId', required = true, ttype = 'i64', },
   }
 }
 

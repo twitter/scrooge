@@ -32,18 +32,18 @@ import scala.collection.{Map, Set}
 object CollectionId extends ThriftStructCodec3[CollectionId] {
   private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("CollectionId")
-  val CollectionIdField = new TField("collectionId", TType.STRUCT, 1)
-  val CollectionIdFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.CollectionId]]
+  val CollectionLongIdField = new TField("collectionLongId", TType.I64, 1)
+  val CollectionLongIdFieldManifest = implicitly[Manifest[Long]]
 
   /**
    * Field information in declaration order.
    */
   lazy val fieldInfos: scala.List[ThriftStructFieldInfo] = scala.List[ThriftStructFieldInfo](
     new ThriftStructFieldInfo(
-      CollectionIdField,
+      CollectionLongIdField,
       false,
       true,
-      CollectionIdFieldManifest,
+      CollectionLongIdFieldManifest,
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
@@ -59,15 +59,14 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
    * Checks that all required fields are non-null.
    */
   def validate(_item: CollectionId): Unit = {
-    if (_item.collectionId == null) throw new TProtocolException("Required field collectionId cannot be null")
   }
 
   def withoutPassthroughFields(original: CollectionId): CollectionId =
     new Immutable(
-      collectionId =
+      collectionLongId =
         {
-          val field = original.collectionId
-          com.twitter.scrooge.test.gold.thriftscala.CollectionId.withoutPassthroughFields(field)
+          val field = original.collectionLongId
+          field
         }
     )
 
@@ -77,8 +76,8 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): CollectionId = {
 
-    var collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId = null
-    var _got_collectionId = false
+    var collectionLongId: Long = 0L
+    var _got_collectionLongId = false
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -93,14 +92,14 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
         _field.id match {
           case 1 =>
             _field.`type` match {
-              case TType.STRUCT =>
+              case TType.I64 =>
 
-                collectionId = readCollectionIdValue(_iprot)
-                _got_collectionId = true
+                collectionLongId = readCollectionLongIdValue(_iprot)
+                _got_collectionLongId = true
               case _actualType =>
-                val _expectedType = TType.STRUCT
+                val _expectedType = TType.I64
                 throw new TProtocolException(
-                  "Received wrong type for field 'collectionId' (expected=%s, actual=%s).".format(
+                  "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).".format(
                     ttypeToString(_expectedType),
                     ttypeToString(_actualType)
                   )
@@ -116,13 +115,13 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
     }
     _iprot.readStructEnd()
 
-    if (!_got_collectionId) throw new TProtocolException("Required field 'collectionId' was not found in serialized data for struct CollectionId")
+    if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
     new LazyImmutable(
       _iprot,
       _iprot.buffer,
       _start_offset,
       _iprot.offset,
-      collectionId,
+      collectionLongId,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -137,8 +136,8 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
     }
 
   private[this] def eagerDecode(_iprot: TProtocol): CollectionId = {
-    var collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId = null
-    var _got_collectionId = false
+    var collectionLongId: Long = 0L
+    var _got_collectionLongId = false
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -151,13 +150,13 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
         _field.id match {
           case 1 =>
             _field.`type` match {
-              case TType.STRUCT =>
-                collectionId = readCollectionIdValue(_iprot)
-                _got_collectionId = true
+              case TType.I64 =>
+                collectionLongId = readCollectionLongIdValue(_iprot)
+                _got_collectionLongId = true
               case _actualType =>
-                val _expectedType = TType.STRUCT
+                val _expectedType = TType.I64
                 throw new TProtocolException(
-                  "Received wrong type for field 'collectionId' (expected=%s, actual=%s).".format(
+                  "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).".format(
                     ttypeToString(_expectedType),
                     ttypeToString(_actualType)
                   )
@@ -173,9 +172,9 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
     }
     _iprot.readStructEnd()
 
-    if (!_got_collectionId) throw new TProtocolException("Required field 'collectionId' was not found in serialized data for struct CollectionId")
+    if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
     new Immutable(
-      collectionId,
+      collectionLongId,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -184,27 +183,27 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
   }
 
   def apply(
-    collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId
+    collectionLongId: Long
   ): CollectionId =
     new Immutable(
-      collectionId
+      collectionLongId
     )
 
-  def unapply(_item: CollectionId): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.CollectionId] = _root_.scala.Some(_item.collectionId)
+  def unapply(_item: CollectionId): _root_.scala.Option[Long] = _root_.scala.Some(_item.collectionLongId)
 
 
-  @inline private def readCollectionIdValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.CollectionId = {
-    com.twitter.scrooge.test.gold.thriftscala.CollectionId.decode(_iprot)
+  @inline private def readCollectionLongIdValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
   }
 
-  @inline private def writeCollectionIdField(collectionId_item: com.twitter.scrooge.test.gold.thriftscala.CollectionId, _oprot: TProtocol): Unit = {
-    _oprot.writeFieldBegin(CollectionIdField)
-    writeCollectionIdValue(collectionId_item, _oprot)
+  @inline private def writeCollectionLongIdField(collectionLongId_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(CollectionLongIdField)
+    writeCollectionLongIdValue(collectionLongId_item, _oprot)
     _oprot.writeFieldEnd()
   }
 
-  @inline private def writeCollectionIdValue(collectionId_item: com.twitter.scrooge.test.gold.thriftscala.CollectionId, _oprot: TProtocol): Unit = {
-    collectionId_item.write(_oprot)
+  @inline private def writeCollectionLongIdValue(collectionLongId_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(collectionLongId_item)
   }
 
 
@@ -220,13 +219,13 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
    * new instances.
    */
   class Immutable(
-      val collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId,
+      val collectionLongId: Long,
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends CollectionId {
     def this(
-      collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId
+      collectionLongId: Long
     ) = this(
-      collectionId,
+      collectionLongId,
       Map.empty
     )
   }
@@ -240,7 +239,7 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
       _buf: Array[Byte],
       _start_offset: Int,
       _end_offset: Int,
-      val collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId,
+      val collectionLongId: Long,
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends CollectionId {
 
@@ -273,24 +272,24 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
    */
   trait Proxy extends CollectionId {
     protected def _underlying_CollectionId: CollectionId
-    override def collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId = _underlying_CollectionId.collectionId
+    override def collectionLongId: Long = _underlying_CollectionId.collectionLongId
     override def _passthroughFields = _underlying_CollectionId._passthroughFields
   }
 }
 
 trait CollectionId
   extends ThriftStruct
-  with scala.Product1[com.twitter.scrooge.test.gold.thriftscala.CollectionId]
+  with scala.Product1[Long]
   with HasThriftStructCodec3[CollectionId]
   with java.io.Serializable
 {
   import CollectionId._
 
-  def collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId
+  def collectionLongId: Long
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
-  def _1 = collectionId
+  def _1 = collectionLongId
 
 
   /**
@@ -307,9 +306,9 @@ trait CollectionId
         val _fieldOpt: _root_.scala.Option[TField] =
           _fieldId match {
             case 1 =>
-              if (collectionId ne null) {
-                writeCollectionIdValue(collectionId, _oprot)
-                _root_.scala.Some(CollectionId.CollectionIdField)
+              if (true) {
+                writeCollectionLongIdValue(collectionLongId, _oprot)
+                _root_.scala.Some(CollectionId.CollectionLongIdField)
               } else {
                 _root_.scala.None
               }
@@ -339,15 +338,15 @@ trait CollectionId
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): CollectionId = {
-    var collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId = this.collectionId
+    var collectionLongId: Long = this.collectionLongId
     var _passthroughFields = this._passthroughFields
     _blob.id match {
       case 1 =>
-        collectionId = readCollectionIdValue(_blob.read)
+        collectionLongId = readCollectionLongIdValue(_blob.read)
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
     new Immutable(
-      collectionId,
+      collectionLongId,
       _passthroughFields
     )
   }
@@ -358,15 +357,15 @@ trait CollectionId
    * from the passthroughFields map, if present.
    */
   def unsetField(_fieldId: Short): CollectionId = {
-    var collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId = this.collectionId
+    var collectionLongId: Long = this.collectionLongId
 
     _fieldId match {
       case 1 =>
-        collectionId = null
+        collectionLongId = 0L
       case _ =>
     }
     new Immutable(
-      collectionId,
+      collectionLongId,
       _passthroughFields - _fieldId
     )
   }
@@ -376,13 +375,13 @@ trait CollectionId
    * known, it is reverted to its default value; if the field is unknown, it is removed
    * from the passthroughFields map, if present.
    */
-  def unsetCollectionId: CollectionId = unsetField(1)
+  def unsetCollectionLongId: CollectionId = unsetField(1)
 
 
   override def write(_oprot: TProtocol): Unit = {
     CollectionId.validate(this)
     _oprot.writeStructBegin(Struct)
-    if (collectionId ne null) writeCollectionIdField(collectionId, _oprot)
+    writeCollectionLongIdField(collectionLongId, _oprot)
     if (_passthroughFields.nonEmpty) {
       _passthroughFields.values.foreach { _.write(_oprot) }
     }
@@ -391,11 +390,11 @@ trait CollectionId
   }
 
   def copy(
-    collectionId: com.twitter.scrooge.test.gold.thriftscala.CollectionId = this.collectionId,
+    collectionLongId: Long = this.collectionLongId,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): CollectionId =
     new Immutable(
-      collectionId,
+      collectionLongId,
       _passthroughFields
     )
 
@@ -414,7 +413,7 @@ trait CollectionId
   override def productArity: Int = 1
 
   override def productElement(n: Int): Any = n match {
-    case 0 => this.collectionId
+    case 0 => this.collectionLongId
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 

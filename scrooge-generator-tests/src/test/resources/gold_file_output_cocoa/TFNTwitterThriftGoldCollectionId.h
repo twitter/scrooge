@@ -7,15 +7,15 @@
 #import <Foundation/Foundation.h>
 
 #import "ApacheThrift/TBase.h"
-#import "TFNTwitterThriftGoldCollectionId.h"
+
 
 @interface TFNTwitterThriftGoldCollectionId : NSObject <TBase, NSCoding>
 
-@property (nonatomic) TFNTwitterThriftGoldCollectionId* collectionId;
-@property (nonatomic, readonly) BOOL collectionIdIsSet;
+@property (nonatomic) int64_t collectionLongId;
+@property (nonatomic, readonly) BOOL collectionLongIdIsSet;
 
 
-- (instancetype)initWithCollectionId:(TFNTwitterThriftGoldCollectionId*)collectionId;
+- (instancetype)initWithCollectionLongId:(int64_t)collectionLongId;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

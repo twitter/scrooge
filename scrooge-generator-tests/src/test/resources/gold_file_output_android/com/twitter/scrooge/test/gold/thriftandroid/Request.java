@@ -63,17 +63,17 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 1: // A_LIST
-  	return A_LIST;
+          return A_LIST;
         case 2: // A_SET
-  	return A_SET;
+          return A_SET;
         case 3: // A_MAP
-  	return A_MAP;
+          return A_MAP;
         case 4: // A_REQUEST
-  	return A_REQUEST;
+          return A_REQUEST;
         case 5: // SUB_REQUESTS
-  	return SUB_REQUESTS;
+          return SUB_REQUESTS;
         default:
-  	return null;
+          return null;
       }
     }
 

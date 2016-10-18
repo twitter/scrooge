@@ -20,16 +20,16 @@
 - (NSString*)description
 {
     NSMutableString* ms = [NSMutableString stringWithString:@"TFNTwitterThriftGoldCollectionId( "];
-    [ms appendString:@"collectionId:"];
-    [ms appendFormat:@"%@ ", _collectionId];
+    [ms appendString:@"collectionLongId:"];
+    [ms appendFormat:@"%@ ", @(_collectionLongId)];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithCollectionId:(TFNTwitterThriftGoldCollectionId*)collectionId
+- (instancetype)initWithCollectionLongId:(int64_t)collectionLongId
 {
     if (self = [super init]) {
-        [self setCollectionId:collectionId];
+        [self setCollectionLongId:collectionLongId];
     }
 
     return self;
@@ -39,7 +39,7 @@
 {
     if (self = [super init]) {
         if ([decoder containsValueForKey:@"1"]) {
-            [self setCollectionId:[decoder decodeObjectForKey:@"1"]];
+            [self setCollectionLongId:[decoder decodeInt64ForKey:@"1"]];
         }
     }
     return self;
@@ -47,15 +47,15 @@
 
 - (void)encodeWithCoder:(NSCoder*)encoder
 {
-    if (_collectionIdIsSet) {
-        [encoder encodeObject:_collectionId forKey:@"1"];
+    if (_collectionLongIdIsSet) {
+        [encoder encodeInt64:_collectionLongId forKey:@"1"];
     }
 }
 
-- (void)setCollectionId:(TFNTwitterThriftGoldCollectionId *)collectionId
+- (void)setCollectionLongId:(int64_t)collectionLongId
 {
-    _collectionId = collectionId;
-    _collectionIdIsSet = YES;
+    _collectionLongId = collectionLongId;
+    _collectionLongIdIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -72,11 +72,10 @@
         }
         switch (fieldID) {
             case 1:
-                if (fieldType == TType_STRUCT) {
-                    TFNTwitterThriftGoldCollectionId* collectionId_item;
-                    collectionId_item = [[TFNTwitterThriftGoldCollectionId alloc] init];
-                    [collectionId_item read:inProtocol];
-                    [self setCollectionId:collectionId_item];
+                if (fieldType == TType_I64) {
+                    int64_t collectionLongId_item;
+                    collectionLongId_item = [inProtocol readI64];
+                    [self setCollectionLongId:collectionLongId_item];
                 } else {
                     NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -97,10 +96,10 @@
 {
     [self validate];
     [outProtocol writeStructBeginWithName:@"TFNTwitterThriftGoldCollectionId"];
-    if (_collectionIdIsSet) {
-        [outProtocol writeFieldBeginWithName:@"collectionId" type:TType_STRUCT fieldID:1];
-        TFNTwitterThriftGoldCollectionId* collectionId_item = _collectionId;
-        [collectionId_item write: outProtocol];
+    if (_collectionLongIdIsSet) {
+        [outProtocol writeFieldBeginWithName:@"collectionLongId" type:TType_I64 fieldID:1];
+        int64_t collectionLongId_item = _collectionLongId;
+        [outProtocol writeI64:collectionLongId_item];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];
@@ -109,8 +108,8 @@
 
 - (void)validate
 {
-    if (!_collectionIdIsSet) {
-        @throw [TProtocolException exceptionWithName:@"TProtocolException" reason:@"Required field 'collectionId' is not set."];
+    if (!_collectionLongIdIsSet) {
+        @throw [TProtocolException exceptionWithName:@"TProtocolException" reason:@"Required field 'collectionLongId' is not set."];
     }
 }
 

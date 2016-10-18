@@ -3,6 +3,8 @@ namespace java com.twitter.scrooge.test.gold.thriftjava
 #@namespace scala com.twitter.scrooge.test.gold.thriftscala
 #@namespace android com.twitter.scrooge.test.gold.thriftandroid
 
+typedef i64 CollectionLongId
+
 exception OverCapacityException {
   1: i32 chillTimeSeconds
 }
@@ -18,7 +20,7 @@ union ResponseUnion {
 }
 
 struct CollectionId {
-  1: required CollectionId collectionId;
+  1: required CollectionLongId collectionLongId;
 }
 
 struct Request {

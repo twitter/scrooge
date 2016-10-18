@@ -32,14 +32,14 @@ import org.apache.thrift.protocol.*;
 public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, java.io.Serializable, Cloneable {
   private static final TStruct STRUCT_DESC = new TStruct("CollectionId");
 
-  private static final TField COLLECTION_ID_FIELD_DESC = new TField("collectionId", TType.STRUCT, (short)1);
+  private static final TField COLLECTION_LONG_ID_FIELD_DESC = new TField("collectionLongId", TType.I64, (short)1);
 
 
-  public CollectionId collectionId;
+  public long collectionLongId;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
-    COLLECTION_ID((short)1, "collectionId");
+    COLLECTION_LONG_ID((short)1, "collectionLongId");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -54,10 +54,10 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // COLLECTION_ID
-  	return COLLECTION_ID;
+        case 1: // COLLECTION_LONG_ID
+          return COLLECTION_LONG_ID;
         default:
-  	return null;
+          return null;
       }
     }
 
@@ -97,12 +97,14 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
 
   // isset id assignments
+  private static final int __COLLECTIONLONGID_ISSET_ID = 0;
+  private BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.COLLECTION_ID, new FieldMetaData("collectionId", TFieldRequirementType.REQUIRED,
-      new StructMetaData(TType.STRUCT, CollectionId.class)));
+    tmpMap.put(_Fields.COLLECTION_LONG_ID, new FieldMetaData("collectionLongId", TFieldRequirementType.REQUIRED,
+      new FieldValueMetaData(TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(CollectionId.class, metaDataMap);
   }
@@ -112,12 +114,21 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   }
 
   public CollectionId(
-    CollectionId collectionId)
+    long collectionLongId)
   {
     this();
-    this.collectionId = collectionId;
+    this.collectionLongId = collectionLongId;
+    setCollectionLongIdIsSet(true);
   }
 
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public CollectionId(CollectionId other) {
+    __isset_bit_vector.clear();
+    __isset_bit_vector.or(other.__isset_bit_vector);
+    this.collectionLongId = other.collectionLongId;
+  }
 
   public CollectionId deepCopy() {
     return new CollectionId(this);
@@ -125,41 +136,41 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
   @java.lang.Override
   public void clear() {
-    this.collectionId = null;
+    setCollectionLongIdIsSet(false);
+    this.collectionLongId = 0;
   }
 
-  public CollectionId getCollectionId() {
-    return this.collectionId;
+  public long getCollectionLongId() {
+    return this.collectionLongId;
   }
 
-  public CollectionId setCollectionId(CollectionId collectionId) {
-    this.collectionId = collectionId;
+  public CollectionId setCollectionLongId(long collectionLongId) {
+    this.collectionLongId = collectionLongId;
+    setCollectionLongIdIsSet(true);
 
     return this;
   }
 
-  public void unsetCollectionId() {
-    this.collectionId = null;
+  public void unsetCollectionLongId() {
+  __isset_bit_vector.clear(__COLLECTIONLONGID_ISSET_ID);
   }
 
-  /** Returns true if field collectionId is set (has been asigned a value) and false otherwise */
-  public boolean isSetCollectionId() {
-    return this.collectionId != null;
+  /** Returns true if field collectionLongId is set (has been asigned a value) and false otherwise */
+  public boolean isSetCollectionLongId() {
+    return __isset_bit_vector.get(__COLLECTIONLONGID_ISSET_ID);
   }
 
-  public void setCollectionIdIsSet(boolean value) {
-    if (!value) {
-      this.collectionId = null;
-    }
+  public void setCollectionLongIdIsSet(boolean value) {
+    __isset_bit_vector.set(__COLLECTIONLONGID_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case COLLECTION_ID:
+    case COLLECTION_LONG_ID:
       if (value == null) {
-        unsetCollectionId();
+        unsetCollectionLongId();
       } else {
-        setCollectionId((CollectionId)value);
+        setCollectionLongId((Long)value);
       }
       break;
     }
@@ -167,8 +178,8 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case COLLECTION_ID:
-      return getCollectionId();
+    case COLLECTION_LONG_ID:
+      return new Long(getCollectionLongId());
     }
     throw new IllegalStateException();
   }
@@ -180,8 +191,8 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     }
 
     switch (field) {
-    case COLLECTION_ID:
-      return isSetCollectionId();
+    case COLLECTION_LONG_ID:
+      return isSetCollectionLongId();
     }
     throw new IllegalStateException();
   }
@@ -198,12 +209,12 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   public boolean equals(CollectionId that) {
     if (that == null)
       return false;
-    boolean this_present_collectionId = true && this.isSetCollectionId();
-    boolean that_present_collectionId = true && that.isSetCollectionId();
-    if (this_present_collectionId || that_present_collectionId) {
-      if (!(this_present_collectionId && that_present_collectionId))
+    boolean this_present_collectionLongId = true;
+    boolean that_present_collectionLongId = true;
+    if (this_present_collectionLongId || that_present_collectionLongId) {
+      if (!(this_present_collectionLongId && that_present_collectionLongId))
         return false;
-      if (!this.collectionId.equals(that.collectionId))
+      if (this.collectionLongId != that.collectionLongId)
         return false;
     }
 
@@ -213,10 +224,10 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   @java.lang.Override
   public int hashCode() {
     HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_collectionId = true && (isSetCollectionId());
-    builder.append(present_collectionId);
-    if (present_collectionId)
-      builder.append(collectionId);
+    boolean present_collectionLongId = true;
+    builder.append(present_collectionLongId);
+    if (present_collectionLongId)
+      builder.append(collectionLongId);
     return builder.toHashCode();
   }
 
@@ -228,12 +239,12 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     int lastComparison = 0;
     CollectionId typedOther = (CollectionId)other;
 
-    lastComparison = Boolean.valueOf(isSetCollectionId()).compareTo(typedOther.isSetCollectionId());
+    lastComparison = Boolean.valueOf(isSetCollectionLongId()).compareTo(typedOther.isSetCollectionLongId());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetCollectionId()) {
-      lastComparison = TBaseHelper.compareTo(this.collectionId, typedOther.collectionId);
+    if (isSetCollectionLongId()) {
+      lastComparison = TBaseHelper.compareTo(this.collectionLongId, typedOther.collectionLongId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -256,10 +267,10 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
         break;
       }
       switch (field.id) {
-        case 1: // COLLECTION_ID
-          if (field.type == TType.STRUCT) {
-            this.collectionId = new CollectionId();
-            this.collectionId.read(iprot);
+        case 1: // COLLECTION_LONG_ID
+          if (field.type == TType.I64) {
+            this.collectionLongId = iprot.readI64();
+            setCollectionLongIdIsSet(true);
           } else {
             TProtocolUtil.skip(iprot, field.type);
           }
@@ -272,6 +283,9 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     iprot.readStructEnd();
 
     // check for required fields of primitive type, which can't be checked in the validate method
+    if (!isSetCollectionLongId()) {
+      throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data! Struct: " + toString());
+    }
     validate();
   }
 
@@ -279,11 +293,9 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     validate();
 
     oprot.writeStructBegin(STRUCT_DESC);
-    if (this.collectionId != null) {
-      oprot.writeFieldBegin(COLLECTION_ID_FIELD_DESC);
-      this.collectionId.write(oprot);
-      oprot.writeFieldEnd();
-    }
+    oprot.writeFieldBegin(COLLECTION_LONG_ID_FIELD_DESC);
+    oprot.writeI64(this.collectionLongId);
+    oprot.writeFieldEnd();
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -292,12 +304,8 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   public String toString() {
     StringBuilder sb = new StringBuilder("CollectionId(");
     boolean first = true;
-    sb.append("collectionId:");
-    if (this.collectionId == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.collectionId);
-    }
+    sb.append("collectionLongId:");
+    sb.append(this.collectionLongId);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -305,9 +313,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
   public void validate() throws TException {
     // check for required fields
-    if (collectionId == null) {
-      throw new TProtocolException("Required field 'collectionId' was not present! Struct: " + toString());
-    }
+    // alas, we cannot check 'collectionLongId' because it's a primitive and you chose the non-beans generator.
   }
 }
 

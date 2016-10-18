@@ -54,11 +54,11 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 1: // ID
-  	return ID;
+          return ID;
         case 2: // DETAILS
-  	return DETAILS;
+          return DETAILS;
         default:
-  	return null;
+          return null;
       }
     }
 

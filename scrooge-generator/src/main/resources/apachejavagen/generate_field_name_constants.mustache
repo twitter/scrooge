@@ -22,10 +22,10 @@ public enum _Fields implements TFieldIdEnum {
     switch(fieldId) {
       {{#fields}}
       case {{key}}: // {{#constant_name}}{{name}}{{/constant_name}}
-	return {{#constant_name}}{{name}}{{/constant_name}};
+        return {{#constant_name}}{{name}}{{/constant_name}};
       {{/fields}}
       default:
-	return null;
+        return null;
     }
   }
 

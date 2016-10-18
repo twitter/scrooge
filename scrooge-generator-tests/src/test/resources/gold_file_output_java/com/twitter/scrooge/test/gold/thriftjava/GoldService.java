@@ -475,9 +475,9 @@ public class GoldService {
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 1: // REQUEST
-  	return REQUEST;
+          return REQUEST;
         default:
-  	return null;
+          return null;
       }
     }
 
@@ -766,11 +766,11 @@ public class GoldService {
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 0: // SUCCESS
-  	return SUCCESS;
+          return SUCCESS;
         case 1: // EX
-  	return EX;
+          return EX;
         default:
-  	return null;
+          return null;
       }
     }
 
