@@ -7,18 +7,17 @@ Add the following lines to your `project/plugins.sbt` file:
 
 ::
 
-    resolvers += "twitter-repo" at "https://maven.twttr.com"
-
     addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "4.5.0")
 
 In your `build.sbt` file:
 
 ::
 
+    // Exclusion rule required to evict the com.twitter libthrift library.
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.8.0",
-      "com.twitter" %% "scrooge-core" % "4.6.0",
-      "com.twitter" %% "finagle-thrift" % "6.34.0"
+      "org.apache.thrift" % "libthrift" % "0.9.2",
+      "com.twitter" %% "scrooge-core" % "4.6.0" exclude("com.twitter", "libthrift"),
+      "com.twitter" %% "finagle-thrift" % "6.34.0" exclude("com.twitter", "libthrift")
     )
 
 or, in your `project/Build.scala` file:
@@ -31,9 +30,9 @@ or, in your `project/Build.scala` file:
       settings = Project.defaultSettings
     ).settings(
       libraryDependencies ++= Seq(
-        "org.apache.thrift" % "libthrift" % "0.8.0",
-        "com.twitter" %% "scrooge-core" % "4.6.0",
-        "com.twitter" %% "finagle-thrift" % "6.34.0"
+        "org.apache.thrift" % "libthrift" % "0.9.2",
+        "com.twitter" %% "scrooge-core" % "4.6.0" exclude("com.twitter", "libthrift"),
+        "com.twitter" %% "finagle-thrift" % "6.34.0" exclude("com.twitter", "libthrift")
       )
     )
 

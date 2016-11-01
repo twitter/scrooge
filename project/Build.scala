@@ -21,7 +21,7 @@ object Scrooge extends Build {
   val utilVersion = "6.38.0" + suffix
   val finagleVersion = "6.39.0" + suffix
 
-  val libthriftVersion = "0.5.0-1"
+  val libthriftVersion = "0.5.0-7"
 
   def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
   def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
@@ -222,7 +222,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % libthriftVersion,
+      "com.twitter" % "libthrift" % libthriftVersion,
       "com.github.scopt" %% "scopt" % "3.4.0",
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
@@ -264,7 +264,7 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-core",
     libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % libthriftVersion % "provided"
+      "com.twitter" % "libthrift" % libthriftVersion % "provided"
     )
   )
 
@@ -285,7 +285,7 @@ object Scrooge extends Build {
       util("app"),
       util("codec"),
       "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test",
-      "org.apache.thrift" % "libthrift" % libthriftVersion % "provided"
+      "com.twitter" % "libthrift" % libthriftVersion % "provided"
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
@@ -336,7 +336,7 @@ object Scrooge extends Build {
   .settings(
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
-      "org.apache.thrift" % "libthrift" % libthriftVersion
+      "com.twitter" % "libthrift" % libthriftVersion
     )
   ).dependsOn(scroogeGenerator, scroogeSerializer)
 
