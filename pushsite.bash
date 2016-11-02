@@ -6,7 +6,7 @@ dir=/tmp/scrooge.$$
 trap "rm -fr $dir" 0 1 2
 
 echo 'making site...' 1>&2
-./sbt scrooge-doc/make-site >/dev/null 2>&1
+./sbt --warn scrooge-doc/make-site
 
 echo 'cloning...' 1>&2
 git clone -b gh-pages git@github.com:twitter/scrooge.git $dir >/dev/null 2>&1
