@@ -1,4 +1,4 @@
-target(name='scrooge-serializer',
+target(
   dependencies=[
     'scrooge/scrooge-serializer/src/main/scala'
   ]

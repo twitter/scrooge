@@ -1,4 +1,4 @@
-target(name='scrooge-benchmark',
+target(
   dependencies=[
     'scrooge/scrooge-benchmark/src/main/scala'
   ]
