@@ -6,7 +6,7 @@ import org.apache.thrift.TByteArrayOutputStream
 object TReusableMemoryTransport {
 
   def apply(initialSize: Int = 512): TReusableMemoryTransport = {
-    new TReusableMemoryTransport(new TByteArrayOutputStream(initialSize))
+    new TReusableMemoryTransport(new TUnboundedByteArrayOutputStream(initialSize))
   }
 
 }
