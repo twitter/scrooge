@@ -58,8 +58,8 @@ object Scrooge extends Build {
     ),
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "2.2.6" % "test",
-      "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",
+      "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.13.1" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
 
@@ -129,7 +129,7 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.11.8",
-      crossScalaVersions := Seq("2.11.8", "2.12.0-M4"),
+      crossScalaVersions := Seq("2.11.8", "2.12.0-RC1"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
