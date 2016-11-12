@@ -8,7 +8,7 @@ import pl.project13.scala.sbt.JmhPlugin
 import sbtassembly.Plugin._
 import AssemblyKeys._
 import sbtbuildinfo.Plugin._
-import scoverage.ScoverageSbtPlugin
+import scoverage.ScoverageKeys
 
 object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
@@ -59,27 +59,11 @@ object Scrooge extends Build {
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-      "org.scalacheck" %% "scalacheck" % "1.13.1" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.13.4" % "test",
       "junit" % "junit" % "4.12" % "test"
     ),
 
-    // scoverage automatically brings in libraries on our behalf, but it hasn't
-    // been updated for 2.12 yet[0].  for now, we need to rely on the 2.11 ones
-    // (which seem to work OK)
-    //
-    // [0]: https://github.com/scoverage/sbt-scoverage/issues/126
-    libraryDependencies := {
-      libraryDependencies.value.map {
-        case moduleId: ModuleID
-          if moduleId.organization == "org.scoverage"
-            && scalaVersion.value.startsWith("2.12") =>
-            moduleId.copy(name = moduleId.name.replace(scalaVersion.value, "2.11"))
-        case moduleId =>
-          moduleId
-      }
-    },
-
-    ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := true,
+    ScoverageKeys.coverageHighlighting := true,
 
     resolvers += "twitter-repo" at "https://maven.twttr.com",
 
@@ -129,7 +113,7 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.11.8",
-      crossScalaVersions := Seq("2.11.8", "2.12.0-RC1"),
+      crossScalaVersions := Seq("2.11.8", "2.12.0"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
@@ -223,7 +207,7 @@ object Scrooge extends Build {
     name := "scrooge-generator",
     libraryDependencies ++= Seq(
       "com.twitter" % "libthrift" % libthriftVersion,
-      "com.github.scopt" %% "scopt" % "3.4.0",
+      "com.github.scopt" %% "scopt" % "3.5.0",
       "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
       "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
       "com.google.code.findbugs" % "jsr305" % "2.0.1",

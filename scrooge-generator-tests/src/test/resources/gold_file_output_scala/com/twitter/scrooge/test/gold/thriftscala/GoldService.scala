@@ -244,9 +244,13 @@ object GoldService { self =>
 
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
 
+      private def _equals(x: Args, y: Args): Boolean =
+          x.productArity == y.productArity &&
+          x.productIterator.sameElements(y.productIterator)
+
       override def equals(other: Any): Boolean =
         canEqual(other) &&
-          _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+          _equals(this, other.asInstanceOf[Args]) &&
           _passthroughFields == other.asInstanceOf[Args]._passthroughFields
 
       override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
@@ -488,9 +492,13 @@ object GoldService { self =>
 
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
 
+      private def _equals(x: Result, y: Result): Boolean =
+          x.productArity == y.productArity &&
+          x.productIterator.sameElements(y.productIterator)
+
       override def equals(other: Any): Boolean =
         canEqual(other) &&
-          _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+          _equals(this, other.asInstanceOf[Result]) &&
           _passthroughFields == other.asInstanceOf[Result]._passthroughFields
 
       override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)

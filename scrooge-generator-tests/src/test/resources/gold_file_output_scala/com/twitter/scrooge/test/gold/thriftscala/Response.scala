@@ -486,9 +486,13 @@ trait Response
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Response]
 
+  private def _equals(x: Response, y: Response): Boolean =
+      x.productArity == y.productArity &&
+      x.productIterator.sameElements(y.productIterator)
+
   override def equals(other: Any): Boolean =
     canEqual(other) &&
-      _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+      _equals(this, other.asInstanceOf[Response]) &&
       _passthroughFields == other.asInstanceOf[Response]._passthroughFields
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)

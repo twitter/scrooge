@@ -887,9 +887,13 @@ trait Request
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Request]
 
+  private def _equals(x: Request, y: Request): Boolean =
+      x.productArity == y.productArity &&
+      x.productIterator.sameElements(y.productIterator)
+
   override def equals(other: Any): Boolean =
     canEqual(other) &&
-      _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+      _equals(this, other.asInstanceOf[Request]) &&
       _passthroughFields == other.asInstanceOf[Request]._passthroughFields
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)

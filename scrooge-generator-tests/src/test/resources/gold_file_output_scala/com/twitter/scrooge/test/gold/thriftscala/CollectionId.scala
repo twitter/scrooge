@@ -400,9 +400,13 @@ trait CollectionId
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[CollectionId]
 
+  private def _equals(x: CollectionId, y: CollectionId): Boolean =
+      x.productArity == y.productArity &&
+      x.productIterator.sameElements(y.productIterator)
+
   override def equals(other: Any): Boolean =
     canEqual(other) &&
-      _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+      _equals(this, other.asInstanceOf[CollectionId]) &&
       _passthroughFields == other.asInstanceOf[CollectionId]._passthroughFields
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)

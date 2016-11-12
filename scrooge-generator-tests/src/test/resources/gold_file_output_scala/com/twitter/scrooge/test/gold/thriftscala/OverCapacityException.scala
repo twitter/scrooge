@@ -272,9 +272,13 @@ class OverCapacityException(
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[OverCapacityException]
 
+  private def _equals(x: OverCapacityException, y: OverCapacityException): Boolean =
+      x.productArity == y.productArity &&
+      x.productIterator.sameElements(y.productIterator)
+
   override def equals(other: Any): Boolean =
     canEqual(other) &&
-      _root_.scala.runtime.ScalaRunTime._equals(this, other) &&
+      _equals(this, other.asInstanceOf[OverCapacityException]) &&
       _passthroughFields == other.asInstanceOf[OverCapacityException]._passthroughFields
 
   override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
