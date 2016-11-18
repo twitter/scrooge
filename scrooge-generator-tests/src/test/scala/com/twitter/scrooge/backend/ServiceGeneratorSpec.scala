@@ -655,7 +655,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val clientService = Thrift.client.
           configured(Stats(statsReceiver)).
           newServiceIface[ExceptionalService.ServiceIface](
-            Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])))
+            Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])), "client")
 
         val futureIface = Thrift.client.newMethodIface(clientService)
 
