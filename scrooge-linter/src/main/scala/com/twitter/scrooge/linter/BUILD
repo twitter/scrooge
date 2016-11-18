@@ -4,7 +4,6 @@ scala_library(
     name = 'scrooge-linter',
     repo = artifactory,
   ),
-  name='scala',
   dependencies=[
     '3rdparty/jvm/com/github/scopt',
     'scrooge/scrooge-generator',
@@ -13,11 +12,4 @@ scala_library(
   ],
   fatal_warnings=True,
   sources=globs('*.scala'),
-)
-
-jvm_binary(
-  name='bin',
-  basename='scrooge-linter',
-  main='com.twitter.scrooge.linter.Main',
-  dependencies=[':scala']
 )
