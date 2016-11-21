@@ -31,7 +31,7 @@ before_script:
 
 script:
   - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION scrooge-generator-tests/coverage scrooge-generator-tests/test scrooge-generator-tests/coverageReport
+  - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
   - ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success:

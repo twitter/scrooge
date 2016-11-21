@@ -2,12 +2,12 @@ package com.twitter.scrooge.backend
 
 import com.twitter.conversions.time._
 import com.twitter.finagle
-import com.twitter.finagle.param.{Stats, Label}
+import com.twitter.finagle.param.Stats
 import com.twitter.finagle.service.{ResponseClass, ResponseClassifier, ReqRep}
 import com.twitter.finagle.{Address, ListeningServer, Name, Thrift, Service, SimpleFilter, SourcedException}
 import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.finagle.thrift.{ThriftClientRequest, ThriftServiceIface}
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec, ThriftException}
+import com.twitter.scrooge.ThriftException
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.util.{Await, Future, Return}
 import java.net.{InetAddress, InetSocketAddress}
@@ -663,7 +663,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           Await.result(futureIface.deliver(where = "abc"))
         }
 
-        eventually { statsReceiver.counters(Seq("ExceptionalService", "deliver", "requests")) must be (1) }
+        eventually { statsReceiver.counters(Seq("client", "ExceptionalService", "deliver", "requests")) must be (1) }
 
         Await.result(service.close(), 2.seconds)
       }

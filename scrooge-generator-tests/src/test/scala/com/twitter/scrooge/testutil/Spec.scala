@@ -1,10 +1,13 @@
 package com.twitter.scrooge.testutil
 
+import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 import org.junit.runner.RunWith
-import org.scalatest.{MustMatchers, WordSpec}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.{JMockCycleFixture, MockitoSugar}
 import org.scalatest.fixture.{WordSpec => FixtureWordSpec}
+import org.scalatest.jmock.JMockCycleFixture
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{MustMatchers, WordSpec}
+
 import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
 
 @RunWith(classOf[JUnitRunner])
