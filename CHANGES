@@ -37,6 +37,9 @@ No Changes
 - scrooge-core: `c.t.scrooge.TReusableMemoryTransport` now uses TUnboundedByteArrayOutputStream
   instead of TByteArrayOutputStream to avoid buffer reallocation on reset.
 
+- scrooge-core: `c.t.scrooge.TReusableMemoryTransport` now uses TUnboundedByteArrayOutputStream
+  instead of TByteArrayOutputStream to avoid buffer reallocation on reset.
+
 4.8.0
 ------
 
