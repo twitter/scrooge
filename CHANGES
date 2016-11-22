@@ -4,6 +4,10 @@ as it is included in Scrooge's user's guide.
 
 4.x
 -----
+
+4.12.0
+------
+
 - scrooge-generator: Remove check for 22 args when generating scala 
   ServiceIface. Now that we no longer support Scala 2.10 we can always
   generate a case class for the generated scala ServiceIface. 
