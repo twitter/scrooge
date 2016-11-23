@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Generated Scala Code Usage &mdash; Scrooge 4.11.0 documentation</title>
+    <title>Generated Scala Code Usage &#8212; Scrooge 4.12.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.11.0',
+        VERSION:     '4.12.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Scrooge 4.11.0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Scrooge 4.12.0 documentation" href="index.html" />
     <link rel="next" title="Implementation Semantics" href="Semantics.html" />
     <link rel="prev" title="Dependencies of the generated code" href="CodeGenDep.html" />
    
@@ -47,7 +49,7 @@
         <li class="right" >
           <a href="CodeGenDep.html" title="Dependencies of the generated code"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,7 +64,7 @@
 <div class="section" id="unions">
 <h2>Unions<a class="headerlink" href="#unions" title="Permalink to this headline">¶</a></h2>
 <p>Scrooge generates Scala case classes that can be used to construct union instances. Consider the following union which may have a string value or a User struct value:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
     <span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span>
     <span class="mi">2</span><span class="k">:</span> <span class="kt">string</span> <span class="kt">name</span>
 <span class="o">}</span>
@@ -74,12 +76,12 @@
 </pre></div>
 </div>
 <p>To create an instance of Visitor, use the case classes named for each field:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Alice&quot;</span><span class="o">)</span>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Alice&quot;</span><span class="o">)</span>
 <span class="nc">Visitor</span><span class="o">.</span><span class="nc">User</span><span class="o">(</span><span class="nc">User</span><span class="o">(</span><span class="mi">123L</span><span class="o">,</span> <span class="s">&quot;Bob&quot;</span><span class="o">))</span>
 </pre></div>
 </div>
 <p>The case classes for union fields can be used to access values in a typesafe way via pattern matching:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">v</span><span class="k">:</span> <span class="kt">Visitor</span> <span class="o">=</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Erica&quot;</span><span class="o">)</span>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">v</span><span class="k">:</span> <span class="kt">Visitor</span> <span class="o">=</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Erica&quot;</span><span class="o">)</span>
 <span class="k">val</span> <span class="n">displayName</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="s">&quot;guest &quot;</span> <span class="o">+</span> <span class="n">name</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">User</span><span class="o">(</span><span class="n">u</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">u</span><span class="o">.</span><span class="n">name</span>
@@ -87,7 +89,7 @@
 </pre></div>
 </div>
 <p>Because new fields can be added to unions, Scrooge provides UnknownUnionField which should be used for compatibility with newer versions:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span class="k">val</span> <span class="n">displayName</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">displayName</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="s">&quot;guest &quot;</span> <span class="o">+</span> <span class="n">name</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">User</span><span class="o">(</span><span class="n">u</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">u</span><span class="o">.</span><span class="n">name</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">UnknownUnionField</span> <span class="k">=&gt;</span> <span class="s">&quot;unknown visitor&quot;</span>
@@ -95,7 +97,7 @@
 </pre></div>
 </div>
 <p>Note that you must use the provided extractors when pattern matching against unions; you cannot use the constructors for structs themselves. The following will fail with a MatchError:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span class="n">userVisitor</span> <span class="k">match</span> <span class="o">{</span>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">userVisitor</span> <span class="k">match</span> <span class="o">{</span>
   <span class="k">case</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">name</span>
   <span class="k">case</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span> <span class="n">s</span>
 <span class="o">}</span>
