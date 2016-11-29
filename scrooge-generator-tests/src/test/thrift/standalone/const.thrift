@@ -69,7 +69,7 @@ const weekDay myWfhDay = weekDay.thu;
 const list<weekDay> myDaysOut = [myWfhDay, weekDay.Sat, weekDay.sUN]
 
 struct StuctTest {
-  1: i32 negativeI32One
+  1: i32 negativeI32FieldOne
   2: string fieldTwo
   3: i64 fieldThree
 }

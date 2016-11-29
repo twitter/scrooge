@@ -302,7 +302,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       thrift.test.Constants.long_key_long_value_map(2147483648L) must be(2147483648L)
       thrift.test.Constants.long_set.contains(2147483648L) must be(true)
       thrift.test.Constants.long_list.contains(2147483648L) must be(true)
-      thrift.test.Constants.structTestConstant.negativeI32One must be(-39)
+      thrift.test.Constants.structTestConstant.negativeI32FieldOne must be(-39)
       thrift.test.Constants.structTestConstant.fieldTwo must be("two")
       thrift.test.Constants.structTestConstant.fieldThree must be(-986)
     }
