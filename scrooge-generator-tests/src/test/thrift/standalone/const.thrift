@@ -68,3 +68,14 @@ enum weekDay {
 const weekDay myWfhDay = weekDay.thu;
 const list<weekDay> myDaysOut = [myWfhDay, weekDay.Sat, weekDay.sUN]
 
+struct StuctTest {
+  1: i32 negativeI32FieldOne
+  2: string fieldTwo
+  3: i64 fieldThree
+}
+
+const StuctTest structTestConstant = {
+  "negativeI32FieldOne": -39
+  "fieldTwo": "two"
+  "fieldThree": -986
+}
