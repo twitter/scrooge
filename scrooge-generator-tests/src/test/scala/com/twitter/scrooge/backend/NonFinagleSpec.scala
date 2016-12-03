@@ -1,6 +1,6 @@
 package com.twitter.scrooge.backend
 
-import com.twitter.util.{Return, Throw, Try}
+import com.twitter.util.Try
 import com.twitter.scrooge.testutil.Spec
 
 class NonFinagleSpec extends Spec {
@@ -8,7 +8,6 @@ class NonFinagleSpec extends Spec {
     "work in Scala" in {
       import vanilla.test._
       import vanilla.test1._
-      import vanilla.test2._
       val chicago = Airport("ORD", "Chicago", Location(123, 321))
       val nyc = Airport("JFK", "New York", Location(789, 987))
       val service: ExtendedAirportService[Try] = new ExtendedAirportService[Try] {

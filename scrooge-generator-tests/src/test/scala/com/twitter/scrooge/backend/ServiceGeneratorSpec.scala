@@ -7,7 +7,7 @@ import com.twitter.finagle.service.{ResponseClass, ResponseClassifier, ReqRep}
 import com.twitter.finagle.{Address, ListeningServer, Name, Thrift, Service, SimpleFilter, SourcedException}
 import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.finagle.thrift.{ThriftClientRequest, ThriftServiceIface}
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec, ThriftException}
+import com.twitter.scrooge.ThriftException
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.util.{Await, Future, Return}
 import java.net.{InetAddress, InetSocketAddress}

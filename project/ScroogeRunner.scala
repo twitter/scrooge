@@ -101,7 +101,7 @@ object ScroogeRunner {
 
         val file = s"$base/src/test/thrift/relative/candy.thrift"
         val importArg =
-          s"-i $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/dir3"
+          s"--include-path $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/dir3"
         runScrooge(Seq(Scala, Android), s"$file $importArg")
       }
 
@@ -156,8 +156,8 @@ object ScroogeRunner {
       section("standalone/") {
         val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
         runScrooge(Seq(Scala), files)
-        runScrooge(Seq(ApacheJava, Android), s"$base/src/test/thrift/standalone/enumSet.thrift")
-        runScrooge(Seq(ApacheJava, Android), s"$base/src/test/thrift/standalone/exception_fields.thrift")
+        runScrooge(Seq(ApacheJava, Android),
+          s"$base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift")
       }
 
       section("scala/") {
