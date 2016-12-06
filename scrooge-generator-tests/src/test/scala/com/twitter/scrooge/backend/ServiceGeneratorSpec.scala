@@ -338,37 +338,6 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         e must be(ex)
         context.assertIsSatisfied()
       }
-
-      "handles exceptions in decode" in { _ =>
-        val svc = Service.mk { tcr: ThriftClientRequest =>
-          Future.value(Array.empty[Byte])
-        }
-        val statsRecv = new InMemoryStatsReceiver()
-        // create a client that always throws an exception in `decodeResponse`
-        // to ensure that it seen by response classification.
-        val throwOnDecodeClient = new ExceptionalService$FinagleClient(
-          svc,
-          serviceName = "a_svc",
-          stats = statsRecv)
-        {
-          override protected def decodeResponse[T <: ThriftStruct](
-            resBytes: Array[Byte],
-            codec: ThriftStructCodec[T]
-          ): T =
-            throw new RuntimeException()
-        }
-
-        intercept[RuntimeException] {
-          Await.result(throwOnDecodeClient.deliver("wut"), 5.seconds)
-        }
-
-        val requests = statsRecv.counter("a_svc", "deliver", "requests")
-        val success = statsRecv.counter("a_svc", "deliver", "success")
-        val failures = statsRecv.counter("a_svc", "deliver", "failures")
-        assert(1 == requests())
-        assert(0 == success())
-        assert(1 == failures())
-      }
     }
 
     "correctly inherit traits across services" should {
