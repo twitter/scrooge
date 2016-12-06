@@ -10,43 +10,33 @@ private[this] object {{__stats_name}} {
   val inputArgs = {{funcObjectName}}.Args({{argNames}})
   val replyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[{{typeName}}] =
     response => {
-      val decodeResult: _root_.com.twitter.util.Try[{{funcObjectName}}.Result] =
-        _root_.com.twitter.util.Try {
-          decodeResponse(response, {{funcObjectName}}.Result)
-        }
-
-      decodeResult match {
-        case t@_root_.com.twitter.util.Throw(_) =>
-          t.cast[{{typeName}}]
-        case  _root_.com.twitter.util.Return(result) =>
-          val serviceException: Throwable =
+      val result = decodeResponse(response, {{funcObjectName}}.Result)
+      val exception: Throwable =
 {{#hasThrows}}
-            if (false)
-              null // can never happen, but needed to open a block
+      if (false)
+        null // can never happen, but needed to open a block
 {{#throws}}
-            else if (result.{{throwName}}.isDefined)
-              setServiceName(result.{{throwName}}.get)
+      else if (result.{{throwName}}.isDefined)
+        setServiceName(result.{{throwName}}.get)
 {{/throws}}
-            else
-              null
+      else
+        null
 {{/hasThrows}}
 {{^hasThrows}}
-            null
+      null
 {{/hasThrows}}
 
 {{#isVoid}}
-          if (serviceException != null) _root_.com.twitter.util.Throw(serviceException)
-          else _root_.com.twitter.util.Return.Unit
+      if (exception != null) _root_.com.twitter.util.Throw(exception) else Return.Unit
 {{/isVoid}}
 {{^isVoid}}
-          if (result.success.isDefined)
-            _root_.com.twitter.util.Return(result.success.get)
-          else if (serviceException != null)
-            _root_.com.twitter.util.Throw(serviceException)
-          else
-            _root_.com.twitter.util.Throw(missingResult("{{clientFuncNameForWire}}"))
+      if (result.success.isDefined)
+        _root_.com.twitter.util.Return(result.success.get)
+      else if (exception != null)
+        _root_.com.twitter.util.Throw(exception)
+      else
+        _root_.com.twitter.util.Throw(missingResult("{{clientFuncNameForWire}}"))
 {{/isVoid}}
-      }
     }
 
   val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[{{typeName}}](inputArgs, replyDeserializer)

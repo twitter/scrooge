@@ -40,7 +40,7 @@ class {{ServiceName}}$FinagleClient(
   import {{ServiceName}}._
 {{^hasParent}}
 
-  protected def encodeRequest(name: String, args: ThriftStruct): ThriftClientRequest = {
+  protected def encodeRequest(name: String, args: ThriftStruct) = {
     val buf = new TMemoryBuffer(512)
     val oprot = protocolFactory.getProtocol(buf)
 
@@ -52,10 +52,7 @@ class {{ServiceName}}$FinagleClient(
     new ThriftClientRequest(bytes, false)
   }
 
-  protected def decodeResponse[T <: ThriftStruct](
-    resBytes: Array[Byte],
-    codec: ThriftStructCodec[T]
-  ): T = {
+  protected def decodeResponse[T <: ThriftStruct](resBytes: Array[Byte], codec: ThriftStructCodec[T]) = {
     val iprot = protocolFactory.getProtocol(new TMemoryInputTransport(resBytes))
     val msg = iprot.readMessageBegin()
     try {
