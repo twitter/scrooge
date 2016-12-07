@@ -19,8 +19,7 @@ Scrooge generates the following wrapper classes:
 ::
 
     import com.twitter.finagle.Service
-    import com.twitter.finagle.thrift.{ThriftClientRequest,
-      ThriftServerFramedCodec, ThriftClientFramedCodec}
+    import com.twitter.finagle.thrift.ThriftClientRequest
     import com.twitter.util.Future
 
     /*
