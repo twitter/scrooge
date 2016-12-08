@@ -352,6 +352,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
       "exceptionMessageField" -> exceptionMsgField.map(genID).getOrElse { v("")},
       "product" -> v(productN(struct.fields, namespace)),
+      "tuple" -> v(tupleN(struct.fields, namespace)),
       "arity0" -> v(arity == 0),
       "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
       "arityN" -> v(arity > 1 && arity <= 22),

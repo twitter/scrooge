@@ -149,7 +149,7 @@ class OverCapacityException(
     val chillTimeSeconds: Int,
     val _passthroughFields: immutable$Map[Short, TFieldBlob])
   extends ThriftException with com.twitter.finagle.SourcedException with ThriftStruct
-  with scala.Product1[Int]
+  with _root_.scala.Product1[Int]
   with HasThriftStructCodec3[OverCapacityException]
   with java.io.Serializable
 {

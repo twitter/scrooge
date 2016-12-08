@@ -279,7 +279,7 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
 
 trait CollectionId
   extends ThriftStruct
-  with scala.Product1[Long]
+  with _root_.scala.Product1[Long]
   with HasThriftStructCodec3[CollectionId]
   with java.io.Serializable
 {
