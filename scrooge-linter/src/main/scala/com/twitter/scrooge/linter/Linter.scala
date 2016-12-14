@@ -19,10 +19,8 @@ package com.twitter.scrooge.linter
 import com.twitter.logging.{ConsoleHandler, Formatter}
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser, TypeResolver}
-
 import java.io.File
-import java.util.logging.{Logger, LogRecord, LogManager, Level}
-
+import java.util.logging.{Level, LogManager, LogRecord, Logger}
 import scala.collection.mutable.ArrayBuffer
 
 object LintLevel extends Enumeration {
@@ -30,7 +28,7 @@ object LintLevel extends Enumeration {
   val Warning, Error = Value
 }
 
-import LintLevel._
+import com.twitter.scrooge.linter.LintLevel._
 
 case class LintMessage(msg: String, level: LintLevel = Warning)
 
@@ -48,6 +46,7 @@ object LintRule {
 
   val DefaultRules = Seq(
     Namespaces,
+    CompilerOptimizedMethodParamLimit,
     RelativeIncludes,
     CamelCase,
     RequiredFieldDefault,
@@ -140,6 +139,65 @@ object LintRule {
         case include @ Include(f, d) if f.contains("..") =>
           LintMessage(s"Relative include path found:\n${include.pos.longString}")
       }
+    }
+  }
+
+  object CompilerOptimizedMethodParamLimit extends LintRule {
+
+    /**
+     * It turns out that C2 jvm compiler has a limit on the number of fields a method can take.
+     * The limit is between 66 and 69.
+     *
+     * When a method M takes more fields than the limit, then C2 compiler refuses to compile the
+     * method and marks the method as not compilable at all tiers. This makes every subsequently
+     * compiled call to M a call into the interpreter causing hotspots and high CPU times/throttling.
+     */
+    private[this] val optimalLimit: Int = 66
+
+    private[this] def lintMessage(lintType: String, thriftObj: String): LintMessage = {
+      val msg =
+        s"""
+           |Too many $lintType found in $thriftObj. Optimal compiler limit is $optimalLimit.
+           | This will generate a method too large for inlining which may lead to higher than expected CPU costs.
+        """.stripMargin.replace("\n", "")
+
+      LintMessage(msg, level = Warning)
+    }
+
+    def apply(doc: Document): Seq[LintMessage] = {
+
+      // struct fields are generated in an unapply function
+      val structs = doc.defs.collect {
+        case s: StructLike if s.fields.length >= optimalLimit =>
+          lintMessage("fields for thrift struct", s"${s.originalName} struct")
+      }
+
+      // service function fields are generated as a function
+      val serviceFnParams = doc.defs.collect {
+        case service@Service(id, _, _, _) =>
+          service.functions.collect {
+            case Function(fnId, _, _, args, _, _) if args.length >= optimalLimit =>
+              lintMessage("thrift service method parameters", s"${id.name}.${fnId.name} function")
+          }
+      }.flatten
+
+      // service function exceptions fields generate thrift response struct
+      // constructors and an unapply function
+      val serviceFnExceptions = doc.defs.collect {
+        case service@Service(id, _, _, _) =>
+          service.functions.collect {
+            case Function(fnId, _, _, _, throws, _) if throws.length >= optimalLimit =>
+              lintMessage("thrift service method exceptions", s"${id.name}.${fnId.name} function")
+          }
+      }.flatten
+
+      // service functions are generated as constructor parameters for the service
+      val serviceFns = doc.defs.collect {
+        case service@Service(id, _, fns, _) if fns.length >= optimalLimit =>
+          lintMessage("thrift service methods", s"${id.name} struct")
+      }
+
+      structs ++ serviceFns ++ serviceFnParams ++ serviceFnExceptions
     }
   }
 

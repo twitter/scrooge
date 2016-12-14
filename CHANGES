@@ -5,6 +5,10 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+- scrooge-linter: Add thrift definition linter warnings if generated
+  thrift will exceed JVM HotSpot ClipInlining check.
+  ``RB_ID=896379``
+
 4.12.0
 ------
 

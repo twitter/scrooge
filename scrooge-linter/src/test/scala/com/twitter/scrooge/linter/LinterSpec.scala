@@ -18,9 +18,8 @@ package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast._
 import org.junit.runner.RunWith
-import org.scalatest.WordSpec
+import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.MustMatchers
 
 
 @RunWith(classOf[JUnitRunner])
@@ -28,6 +27,16 @@ class LinterSpec extends WordSpec with MustMatchers {
 
   def mustPass(errors: Iterable[LintMessage]) =
     errors.size must equal(0)
+
+  def genFields(n: Int = 1): Seq[Field] = (0 until n) map { i =>
+    Field(
+      i,
+      SimpleID(s"val$i"),
+      s"val$i",
+      TString,
+      default = Some(StringLiteral(s"val-$i")),
+      requiredness = Requiredness.Required)
+  }
 
   "Linter" should {
     "pass Namespaces" in {
@@ -319,5 +328,85 @@ class LinterSpec extends WordSpec with MustMatchers {
       errors.length must be(1)
       assert(errors(0).msg contains ("Field id should be supplied"))
     }
+
+    "warn on max struct fields" in {
+      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
+        Seq(),
+        Seq(FunctionArgs(
+          SimpleID("SomeType"),
+          "SomeType",
+          genFields(100))))).toSeq
+      warnings.size must be(1)
+      assert(warnings(0).msg contains ("fields for thrift struct"))
+      assert(warnings(0).msg contains ("SomeType"))
+    }
+
+    "warn on max service function fields" in {
+      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
+        Seq(),
+        Seq(Service(
+          SimpleID("SomeType"),
+          parent = None,
+          functions = Seq(
+            Function(
+              SimpleID("someFunc"),
+              "someFunc",
+              TString,
+              genFields(100),
+              throws = Seq(),
+              docstring = None
+            )
+          ),
+          Some("SomeType"))))).toSeq
+      warnings.size must be(1)
+      assert(warnings(0).msg contains ("thrift service method parameters"))
+      assert(warnings(0).msg contains ("SomeType.someFunc"))
+    }
+
+    "warn on max service function exception fields" in {
+      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
+        Seq(),
+        Seq(Service(
+          SimpleID("SomeType"),
+          parent = None,
+          functions = Seq(
+            Function(
+              SimpleID("someFunc"),
+              "someFunc",
+              TString,
+              args =  Seq(),
+              throws = genFields(100),
+              docstring = None
+            )
+          ),
+          Some("SomeType"))))).toSeq
+      warnings.size must be(1)
+      assert(warnings(0).msg contains ("thrift service method exceptions"))
+      assert(warnings(0).msg contains ("SomeType.someFunc"))
+    }
+
+    "warn on max service functions " in {
+      val funcs = (0 until 100) map { i =>
+        Function(
+          SimpleID(s"val$i"),
+          s"val$i",
+          TString,
+          Seq(),
+          Seq(),
+          None)
+      }
+
+      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
+        Seq(),
+        Seq(Service(
+          SimpleID("SomeType"),
+          parent = None,
+          functions = funcs,
+          Some("SomeType"))))).toSeq
+      warnings.size must be(1)
+      assert(warnings(0).msg contains ("thrift service methods"))
+      assert(warnings(0).msg contains ("SomeType"))
+    }
   }
+
 }
