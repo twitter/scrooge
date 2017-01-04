@@ -14,12 +14,14 @@
 local Request = {
   ttype = 'struct',
   name = 'Request',
-  fields = {
-    [1] = { name = 'aList', required = true, ttype = 'list', value = 'string', },
-    [2] = { name = 'aSet', required = true, ttype = 'set', value = 'i32', },
-    [3] = { name = 'aMap', required = true, ttype = 'map', key = 'i64', value = 'i64', },
-  }
+  fields = { }
 }
+
+Request.fields[1] = { name = 'aList', required = true, ttype = 'list', value = 'string', }
+Request.fields[2] = { name = 'aSet', required = true, ttype = 'set', value = 'i32', }
+Request.fields[3] = { name = 'aMap', required = true, ttype = 'map', key = 'i64', value = 'i64', }
+Request.fields[4] = { name = 'aRequest', ttype = 'struct', fields = Request.fields, }
+Request.fields[5] = { name = 'subRequests', required = true, ttype = 'list', value = Request, }
 
 local binaryCodec = require 'libthrift'
 

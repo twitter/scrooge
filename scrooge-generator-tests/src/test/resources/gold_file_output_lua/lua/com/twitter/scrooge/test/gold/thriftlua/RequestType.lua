@@ -25,11 +25,16 @@ local lookupById = function(enum_id)
 end
 
 setmetatable(RequestType, {
-  __index = function(_, arg)
+  __index = function(tbl, arg)
     if type(arg) == "number" then
       return lookupById(arg)
     else
-      return nil
+      local upper = arg:upper()
+      if rawget(tbl, upper) then
+        return rawget(tbl, upper)
+      else
+        error('Key `' .. arg .. '` is not a valid entry in the `RequestType` enum.')
+      end
     end
   end
 })

@@ -14,11 +14,11 @@
 local ResponseUnion = {
   ttype = 'union',
   name = 'ResponseUnion',
-  fields = {
-    [1] = { name = 'id', ttype = 'i64', },
-    [2] = { name = 'details', ttype = 'string', },
-  }
+  fields = { }
 }
+
+ResponseUnion.fields[1] = { name = 'id', ttype = 'i64', }
+ResponseUnion.fields[2] = { name = 'details', ttype = 'string', }
 
 local binaryCodec = require 'libthrift'
 

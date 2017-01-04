@@ -159,13 +159,16 @@ class LuaGenerator(
 
   // Finds all struct types that may be referenced by the given struct or by container types (list,
   // map, set) including nested container types to arbitrary depths.
-  private[this] def findRequireableStructTypes(ft: FieldType): Seq[NamedType] = {
+  // `excludeSelfType` is the SimpleID of the self type such that we avoid adding a require statement
+  // for self-type references that were introduced in http://go/rb/873802.
+  private[this] def findRequireableStructTypes(ft: FieldType, excludeSelfType: SimpleID): Seq[NamedType] = {
     ft match {
+      case t: NamedType if (excludeSelfType == t.sid) => Nil
       case t: StructType => Seq(t)
       case t: EnumType => Seq(t)
-      case ListType(t, _) => findRequireableStructTypes(t)
-      case MapType(keyType, valueType, _) => findRequireableStructTypes(keyType) ++ findRequireableStructTypes(valueType)
-      case SetType(t, _) => findRequireableStructTypes(t)
+      case ListType(t, _) => findRequireableStructTypes(t, excludeSelfType)
+      case MapType(keyType, valueType, _) => findRequireableStructTypes(keyType, excludeSelfType) ++ findRequireableStructTypes(valueType, excludeSelfType)
+      case SetType(t, _) => findRequireableStructTypes(t, excludeSelfType)
       case _ => Nil
     }
   }
@@ -182,7 +185,7 @@ class LuaGenerator(
     val requireStatements = struct
       .fields
       .map(_.fieldType)
-      .flatMap(findRequireableStructTypes)
+      .flatMap(findRequireableStructTypes(_, struct.sid))
       .map(genRequireStatement(_, namespace))
       .distinct
       .sorted

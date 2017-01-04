@@ -14,11 +14,11 @@ local ResponseUnion = require 'com.twitter.scrooge.test.gold.thriftlua.ResponseU
 local Response = {
   ttype = 'struct',
   name = 'Response',
-  fields = {
-    [1] = { name = 'statusCode', required = true, ttype = 'i32', },
-    [2] = { name = 'responseUnion', required = true, ttype = 'struct', fields = ResponseUnion.fields, },
-  }
+  fields = { }
 }
+
+Response.fields[1] = { name = 'statusCode', required = true, ttype = 'i32', }
+Response.fields[2] = { name = 'responseUnion', required = true, ttype = 'struct', fields = ResponseUnion.fields, }
 
 local binaryCodec = require 'libthrift'
 

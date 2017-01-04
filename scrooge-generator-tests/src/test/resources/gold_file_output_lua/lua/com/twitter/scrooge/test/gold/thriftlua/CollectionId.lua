@@ -14,10 +14,10 @@
 local CollectionId = {
   ttype = 'struct',
   name = 'CollectionId',
-  fields = {
-    [1] = { name = 'collectionLongId', required = true, ttype = 'i64', },
-  }
+  fields = { }
 }
+
+CollectionId.fields[1] = { name = 'collectionLongId', required = true, ttype = 'i64', }
 
 local binaryCodec = require 'libthrift'
 

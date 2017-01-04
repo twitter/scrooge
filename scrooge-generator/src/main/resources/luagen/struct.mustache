@@ -13,11 +13,12 @@
 local {{StructName}} = {
   ttype = 'struct',
   name = '{{StructName}}',
-  fields = {
-{{#fields}}
-    [{{id}}] = { name = '{{fieldName}}', {{^optional}}required = true, {{/optional}}{{#readWriteInfo}}{{fieldType}},{{/readWriteInfo}} },
-{{/fields}}  }
+  fields = { }
 }
+
+{{#fields}}
+{{StructName}}.fields[{{id}}] = { name = '{{fieldName}}', {{^optional}}required = true, {{/optional}}{{#readWriteInfo}}{{fieldType}},{{/readWriteInfo}} }
+{{/fields}}
 
 local binaryCodec = require 'libthrift'
 

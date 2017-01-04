@@ -32,9 +32,14 @@ abstract class GoldFileTest extends FunSuite
 
   protected def language: String
 
-  private val version = " \\*   version: .*".r
-  private val rev =     " \\*   rev: .*".r
-  private val builtAt = " \\*   built at: .*".r
+  private val headerRegEx =
+    """ (\*)?   version: .*
+      | (\*)?   rev: .*
+      | (\*)?   built at: .*""".stripMargin.r
+  private val headerNormalizedReplacement =
+    """ $1   version: ?
+      | $2   rev: ?
+      | $3   built at: ?""".stripMargin
   private val trailingSpaces = Pattern.compile("[ ]+$", Pattern.MULTILINE)
 
   private def generatedFiles(f: File): Seq[File] = {
@@ -68,12 +73,7 @@ abstract class GoldFileTest extends FunSuite
       val gen = Source.fromFile(file, "UTF-8").mkString
 
       // normalize the headers
-      val headersNormalized = builtAt.replaceFirstIn(
-        rev.replaceFirstIn(
-          version.replaceFirstIn(gen,
-            " *   version: ?"),
-          " *   rev: ?"),
-        " *   built at: ?")
+      val headersNormalized = headerRegEx.replaceAllIn(gen, headerNormalizedReplacement)
 
       trailingSpaces.matcher(headersNormalized).replaceAll("")
     }

@@ -1,7 +1,7 @@
 {{#docstring}}
-  --[[
-  {{docstring}}
-  --]]
+--[[
+{{docstring}}
+--]]
 {{/docstring}}
 
 -- Import this file with:
@@ -13,11 +13,12 @@
 local {{StructName}} = {
   ttype = 'union',
   name = '{{StructName}}',
-  fields = {
-{{#fields}}
-    [{{id}}] = { name = '{{fieldName}}', {{#readWriteInfo}}{{fieldType}},{{/readWriteInfo}} },
-{{/fields}}  }
+  fields = { }
 }
+
+{{#fields}}
+{{StructName}}.fields[{{id}}] = { name = '{{fieldName}}', {{#readWriteInfo}}{{fieldType}},{{/readWriteInfo}} }
+{{/fields}}
 
 local binaryCodec = require 'libthrift'
 

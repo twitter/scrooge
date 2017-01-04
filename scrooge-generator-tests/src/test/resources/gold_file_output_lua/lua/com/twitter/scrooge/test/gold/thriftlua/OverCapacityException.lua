@@ -14,10 +14,10 @@
 local OverCapacityException = {
   ttype = 'struct',
   name = 'OverCapacityException',
-  fields = {
-    [1] = { name = 'chillTimeSeconds', required = true, ttype = 'i32', },
-  }
+  fields = { }
 }
+
+OverCapacityException.fields[1] = { name = 'chillTimeSeconds', required = true, ttype = 'i32', }
 
 local binaryCodec = require 'libthrift'
 

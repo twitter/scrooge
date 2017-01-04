@@ -14,10 +14,10 @@
 local Foo = {
   ttype = 'struct',
   name = 'Foo',
-  fields = {
-    [1] = { name = 'bar', required = true, ttype = 'string', },
-  }
+  fields = { }
 }
+
+Foo.fields[1] = { name = 'bar', required = true, ttype = 'string', }
 
 local binaryCodec = require 'libthrift'
 
