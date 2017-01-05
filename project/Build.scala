@@ -112,8 +112,8 @@ object Scrooge extends Build {
   val sharedSettings =
     sharedSettingsWithoutScalaVersion ++
     Seq(
-      scalaVersion := "2.11.8",
-      crossScalaVersions := Seq("2.11.8", "2.12.0"),
+      scalaVersion := "2.12.1",
+      crossScalaVersions := Seq("2.11.8", "2.12.1"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
@@ -147,8 +147,8 @@ object Scrooge extends Build {
   val settingsCrossCompiledWithTwoTen =
     sharedSettingsWithoutScalaVersion ++
     Seq(
-      crossScalaVersions := Seq("2.10.6", "2.11.8"),
-      scalaVersion := "2.11.8",
+      crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1"),
+      scalaVersion := "2.12.1",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
       javacOptions in doc := Seq("-source", "1.7")
@@ -238,7 +238,7 @@ object Scrooge extends Build {
     ),
     test in assembly := {},  // Skip tests when running assembly.
     publishArtifact := false
-  ).dependsOn(scroogeGenerator).settings(crossScalaVersions := Seq("2.11.8"))
+  ).dependsOn(scroogeGenerator)
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
