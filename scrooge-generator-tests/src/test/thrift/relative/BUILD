@@ -1,25 +1,30 @@
-java_thrift_library(name='includes-scala',
-  sources=[
-    'dir1/dir4/include4.thrift',
-    'dir1/include1.thrift',
-    'dir2/include2.thrift',
-    'dir3/include3.thrift',
-  ],
+java_thrift_library(name='thrift-scala',
+  sources=rglobs('*.thrift'),
   compiler='scrooge',
   language='scala',
   rpc_style='finagle',
+  dependencies=[
+    '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2:include-scala',
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3:include-scala',
+  ],
+  include_paths=[
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2',
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3',
+  ],
 )
 
-# todo: add android
-# todo: this isn't working
-## https://github.com/pantsbuild/pants/blob/5dd58b845977bc6bce9b13b6e57006811a2443a7/contrib/scrooge/src/python/pants/contrib/scrooge/tasks/thrift_linter.py#L84
-#java_thrift_library(name='thrift-scala',
-#  # ok this goes to the --include-path for the linter but we need it to be directories
-#  dependencies=[
-#    'dir2', 'dir3',
-#  ],
-#  sources=['candy.thrift'],
-#  compiler='scrooge',
-#  language='scala',
-#  rpc_style='finagle',
-#)
+java_thrift_library(name='thrift-android',
+  sources=rglobs('*.thrift'),
+  compiler='scrooge',
+  language='android',
+  rpc_style='finagle',
+  dependencies=[
+    '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
+  ],
+  include_paths=[
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2',
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3',
+  ],
+  default_java_namespace='android_thrift_default_namespace',
+)

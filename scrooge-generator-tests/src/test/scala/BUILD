@@ -17,47 +17,31 @@ junit_tests(
     'scrooge/scrooge-generator-tests/src/test/thrift/airport:thrift-namespace-android',
     'scrooge/scrooge-generator-tests/src/test/thrift/airport:thrift-namespace-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift/airport:thrift-scala',
-#    'scrooge/scrooge-generator-tests/src/test/thrift/defaults:thrift-android',
+    'scrooge/scrooge-generator-tests/src/test/thrift/android_integration:thrift-android',
+    'scrooge/scrooge-generator-tests/src/test/thrift/defaults:thrift-android',
     'scrooge/scrooge-generator-tests/src/test/thrift/defaults:thrift-java',
     'scrooge/scrooge-generator-tests/src/test/thrift/defaults:thrift-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift/integration:thrift-android',
     'scrooge/scrooge-generator-tests/src/test/thrift/integration:thrift-java',
     'scrooge/scrooge-generator-tests/src/test/thrift/integration:thrift-scala',
-#    'scrooge/scrooge-generator-tests/src/test/thrift/namespace:thrift-android',
-#    'scrooge/scrooge-generator-tests/src/test/thrift/namespace:thrift-scala',
-    'scrooge/scrooge-generator-tests/src/test/thrift/relative:includes-scala',
-#    'scrooge/scrooge-generator-tests/src/test/thrift/relative:thrift-scala',
+    'scrooge/scrooge-generator-tests/src/test/thrift/namespace:thrift-android',
+    'scrooge/scrooge-generator-tests/src/test/thrift/namespace:thrift-scala',
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative:thrift-android',
+    'scrooge/scrooge-generator-tests/src/test/thrift/relative:thrift-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift/scala:thrift-java',
     'scrooge/scrooge-generator-tests/src/test/thrift/scala:thrift-scala',
-#    'scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-android',
-#    'scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-java',
+    'scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-android',
+    'scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-java',
     'scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-scala',
-#    'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-android',
+    'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-android',
     'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-scala',
     'util/util-core/src/main/scala:scala',
   ],
   sources=rglobs(
     '*.scala',
     exclude=[
-      # this needs the relative:thrift-scala target
-      ['com/twitter/scrooge/android_generator/AndroidGeneratorSpec.scala'],
-
-      # this needs the namespace:thrift-* targets
-      ['com/twitter/scrooge/backend/NamespaceSpec.scala'],
-
-      # this needs --default-java-namespace apache_java_thrift for standalone
-      ['com/twitter/scrooge/backend/ApacheJavaMetadataSpec.scala'],
-
-      # this needs the relative:thrift-scala target
-      ['com/twitter/scrooge/backend/ScalaGeneratorSpec.scala'],
-
-      # this is not respecting the namespace_map in integration:thrift-java
-      ['com/twitter/scrooge/integration/ScalaIntegrationSpec.scala'],
-
       # these tests fail at runtime
-      ['com/twitter/scrooge/java_generator/ApacheJavaGeneratorSpec.scala'],
       ['com/twitter/scrooge/cocoa_generator/CocoaGeneratorSpec.scala'],
-
     ]
   ),
   resources=[
