@@ -1,7 +1,7 @@
 package com.twitter.scrooge.backend.node
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.backend.{Generator, GeneratorFactory, TemplateGenerator}
+import com.twitter.scrooge.backend.{Generator, GeneratorFactory, ServiceOption, TemplateGenerator}
 import com.twitter.scrooge.frontend.ResolvedDocument
 import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
 import com.twitter.scrooge.mustache.HandlebarLoader
@@ -16,24 +16,19 @@ object NodeGeneratorFactory extends GeneratorFactory {
     import HandlebarLoader._
 
     commentStyle match {
-      case BlockBegin => "--[["
+      case BlockBegin => "/**"
       case BlockContinuation => "  "
-      case BlockEnd => "--]]\n"
-      case SingleLineComment => "-- "
+      case BlockEnd => "*/\n"
+      case SingleLineComment => "// "
     }
   }
 
   val language = "node"
   val templateLoader = new HandlebarLoader("/nodegen/", ".mustache", commentFunction)
-  def apply(
-             doc: ResolvedDocument,
-             defaultNamespace: String,
-             experimentFlags: Seq[String]
-           ): Generator = new NodeGenerator(
-    doc,
-    defaultNamespace,
-    templateLoader
-  )
+  def apply(doc: ResolvedDocument,
+            defaultNamespace: String,
+            experimentFlags: Seq[String]): Generator =
+    new NodeGenerator(doc, defaultNamespace, templateLoader)
 }
 
 class NodeGenerator (
@@ -49,18 +44,71 @@ class NodeGenerator (
   val experimentFlags = Seq.empty[String]
   def templates: HandlebarLoader = templateLoader
 
-  def genType(t: FunctionType): CodeFragment = v("")
-  def genPrimitiveType(t: FunctionType): CodeFragment = v("")
+  var has_fields = false
+
+  def genType(t: FunctionType): CodeFragment = t match {
+    case bt: BaseType => genPrimitiveType(bt)
+    case StructType(st, _) => v(s"ttypes.${genID(st.sid.toTitleCase)}")
+//    case EnumType(et, _) =>  v(s"ttype = 'enum', value = ${genID(et.sid.toTitleCase)}")
+//    case ListType(valueType, _) => v(s"ttype = 'list', ${genComponentType("value", valueType)}")
+//    case MapType(keyType, valueType, _) =>
+//      v(s"ttype = 'map', ${genComponentType("key", keyType)}, ${genComponentType("value", valueType)}")
+//    case SetType(valueType, _) => v(s"ttype = 'set', ${genComponentType("value", valueType)}")
+    case _ => v("")
+  }
+
+
+  def genPrimitiveType(t: FunctionType): CodeFragment = t match {
+    case Void => v("void")
+    case TBool => v("boolean")
+    case TByte => v("number")
+    case TDouble => v("number")
+    case TI16 => v("number")
+    case TI32 => v("number")
+    case TI64 => v("number")
+    case TString => v("string")
+    case TBinary => v("string")
+    case _ => v("")
+  }
+
   def genFieldType(f: Field): CodeFragment = v("")
   // For functions (services) -- not supported in Lua
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = v("")
-
 
   def quoteKeyword(str: String): String =
     if (NodeKeywords.contains(str))
       s"_$str"
     else
       str
+
+  override def fieldsToDict(fields: Seq[Field],
+                            blacklist: Seq[String],
+                            namespace: Option[Identifier] = None) = {
+
+    val dictionaries = super.fieldsToDict(fields, blacklist)
+
+    (dictionaries, fields, 0 until dictionaries.size).zipped.foreach {
+      case (dictionary, field, index) =>
+        dictionary("fieldNameCamelCase") = genID(field.sid.toCamelCase).toString
+        dictionary("fieldNameTitleCase") = genID(field.sid.toTitleCase).toString
+        dictionary("fieldTypeTitleCase") = Identifier.toTitleCase(genType(field.fieldType).toString)
+        dictionary("isPrimitive") = isPrimitive(field.fieldType) || field.fieldType.isInstanceOf[EnumType]
+    }
+
+    dictionaries
+  }
+
+  override def structDict(struct: StructLike,
+                          namespace: Option[Identifier],
+                          includes: Seq[Include], serviceOptions:
+                          Set[ServiceOption],
+                          toplevel: Boolean = false) = {
+    val dictionary = super.structDict(struct, namespace, includes, serviceOptions)
+    dictionary("has_fields") = struct.fields.length > 0
+
+    dictionary
+  }
+
 
   // For constants support, not implemented
   def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")

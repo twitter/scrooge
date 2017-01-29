@@ -7,7 +7,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.twitter/scrooge-core_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/com.twitter/scrooge-core_2.12)
 
 Scrooge is a [thrift](https://thrift.apache.org/) code generator written in
-Scala, which currently generates code for Scala, Java, Cocoa, Android and Lua.
+Scala, which currently generates code for Scala, Java, Cocoa, Android, Lua and Node.
 
 It's meant to be a replacement for the apache thrift code generator, and
 generates conforming, compatible binary codecs by building on top of

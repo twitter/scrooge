@@ -1,44 +1,77 @@
 {{#docstring}}
---[[
+/**
 {{docstring}}
---]]
+*/
 {{/docstring}}
 
--- Import this file with:
---   require '{{package}}.{{StructName}}'
--- Note: This file depends on libthrift!
+// Import this file with:
+//   require '{{package}}.{{StructName}}'
+// Note: This file depends on libthrift!
+
+const thrift = require("thrift");
+const Thrift = thrift.Thrift;
+const Q = thrift.Q;
 
 {{requireStatements}}
 
-local {{StructName}} = {
-  ttype = 'struct',
-  name = '{{StructName}}',
-  fields = { }
+export class {{StructName}} {
+    public success: boolean;
+    {{#fields}}public {{fieldName}}: {{fieldType}};
+    {{/fields}}
+    constructor(args?) {
+        {{#fields}}this.{{fieldName}} = null;
+        {{/fields}}
+        if (args) {
+            {{#fields}}if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
+                this.{{fieldName}} = args.{{fieldName}};
+            } else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!');
+            }
+            {{/fields}}
+        }
+    }
+
+    public read(input) {
+        input.readStructBegin();
+        while (true) {
+            const ret = input.readFieldBegin();
+            const fname = ret.fname;
+            const ftype = ret.ftype;
+            const fid = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            {{#has_fields}}switch (fid) {
+                {{#fields}}case {{id}}:
+                    if (ftype === Thrift.Type.{{fieldTypeTitleCase}}) {
+                        this.{{fieldName}} = input.read{{fieldfieldTypeTitleCaseType}}();
+                    } else {
+                        input.skip(ftype);
+                    }
+                    break;
+                {{/fields}}
+                default:
+                    input.skip(ftype);
+            }
+            {{/has_fields}}
+            {{^has_fields}}input.skip(ftype);
+            {{/has_fields}}
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return;
+    }
+
+    public write(output) {
+        output.writeStructBegin("{{StructName}}");
+        {{#fields}}if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
+            output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{fieldTypeTitleCase}}, {{id}});
+            output.write{{fieldTypeTitleCase}}(this.{{fieldName}});
+            output.writeFieldEnd();
+        }
+        {{/fields}}
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
 }
-
-{{#fields}}
-{{StructName}}.fields[{{id}}] = { name = '{{fieldName}}', {{^optional}}required = true, {{/optional}}{{#readWriteInfo}}{{fieldType}},{{/readWriteInfo}} }
-{{/fields}}
-
-local binaryCodec = require 'libthrift'
-
-{{StructName}}.__codec = binaryCodec.codec({{StructName}})
-
-function {{StructName}}:read(bin)
-  return self.__codec:read(bin)
-end
-
-function {{StructName}}:readTensor(bin)
-  return self.__codec:readTensor(bin)
-end
-
-function {{StructName}}:write(params)
-  return self.__codec:write(params)
-end
-
-function {{StructName}}:writeTensor(params)
-  return self.__codec:writeTensor(params)
-end
-
-return {{StructName}}
-

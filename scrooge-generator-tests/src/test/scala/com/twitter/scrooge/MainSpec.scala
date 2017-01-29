@@ -5,7 +5,7 @@ import scala.io.Source
 import com.twitter.scrooge.testutil.{Spec, TempDirectory}
 
 class MainSpec extends Spec {
-  "Scrooge Main" should {
+  "Scrooe Main" should {
     "gen file mapping with absolute paths" in {
       val inDir = TempDirectory.create(None)
       val outDir = TempDirectory.create(None)
