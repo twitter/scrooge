@@ -1,2 +1,273 @@
-// Service interfaces are not supported for Node
+const thrift = require("thrift");
+const Thrift = thrift.Thrift;
+const Q = thrift.Q;
 
+{{#structs}}import * as ttypes from './{{StructName}}';
+{{/structs}}
+
+{{#syncFunctions}}
+class {{ServiceName}}{{funcNameTitleCase}}Args {
+    {{#args}}public {{fieldName}}: {{fieldType}};
+    {{/args}}
+
+    constructor(args?) {
+        {{#args}}this.{{fieldName}} = null;{{/args}}
+        if (args) {
+            {{#args}}if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
+                {{#isPrimitive}}this.{{fieldName}} = args.{{fieldName}};{{/isPrimitive}}
+                {{^isPrimitive}}this.{{fieldName}} = new {{fieldType}}(args.{{fieldName}});{{/isPrimitive}}
+            }{{/args}}
+        }
+    }
+
+    public read(input) {
+        input.readStructBegin("{{ServiceName}}{{funcNameTitleCase}}Args");
+        while (true) {
+            const ret = input.readFieldBegin();
+            const fname = ret.fname;
+            const ftype = ret.ftype;
+            const fid = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            {{#args}}switch (fid) {
+                {{#args}}case {{id}}:
+                    if (ftype === Thrift.Type.{{fieldTypeTitleCase}}) {
+                        {{#isPrimitive}}this.{{fieldName}} = input.read{{fieldTypeTitleCase}}();{{/isPrimitive}}
+                        {{^isPrimitive}}this.{{fieldName}} = new {{fieldType}}();
+                            this.{{fieldName}}.read(input);
+                        {{/isPrimitive}}
+                    } else {
+                        input.skip(ftype);
+                    }
+                    break;
+                    {{/args}}
+                default:
+                    input.skip(ftype);
+            }
+            {{/args}}
+            {{^args}}input.skip(ftype);{{/args}}
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return;
+    }
+
+    public write(output) {
+        output.writeStructBegin("{{ServiceName}}{{funcNameTitleCase}}Args");
+        {{#args}}if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
+            {{#isPrimitive}}output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{fieldTypeTitleCase}}, {{id}});
+            output.write{{fieldTypeTitleCase}}(this.{{fieldName}});{{/isPrimitive}}
+            {{^isPrimitive}}output.writeFieldBegin("{{fieldName}}", Thrift.Type.STRUCT, {{id}});
+            this.{{fieldName}}.write(output);{{/isPrimitive}}
+            output.writeFieldEnd();
+        }{{/args}}
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+}
+
+
+class {{ServiceName}}{{funcNameTitleCase}}Result {
+    public success: {{typeName}};
+
+    constructor(args?) {
+        this.success;
+        if (args) {
+            if (args.success !== undefined && args.success !== null) {
+                this.success = {{resultType}};
+            }
+        }
+    }
+
+    public read(input) {
+        input.readStructBegin();
+        while (true) {
+            const ret = input.readFieldBegin();
+            const fname = ret.fname;
+            const ftype = ret.ftype;
+            const fid = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            switch (fid) {
+            {{#type}}case 0:
+                if (ftype === Thrift.Type.{{funcTypeTitleCase}}) {
+                    {{#isPrimitive}}
+                        this.success = input.read{{upcaseType}}();
+                    {{/isPrimitive}}
+                    {{^isPrimitive}}
+                        this.success = new {{tsTypeType}}();
+                        this.success.read(input);
+                    {{/isPrimitive}}
+                } else {
+                    input.skip(ftype);
+                }
+                break;
+            {{/type}}
+            {{^type}}case 0:
+                input.skip(ftype);
+                break;
+            {{/type}}
+            default:
+                input.skip(ftype);
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return;
+    }
+
+    public write(output) {
+        output.writeStructBegin("{{ServiceName}}{{funcNameTitleCase}}Result");
+        if (this.success !== null && this.success !== undefined) {
+            {{#isPrimitive}}output.writeFieldBegin("success", Thrift.Type.{{upcaseType}}, 0);
+                output.write{{upcaseType}}(this.success);
+            {{/isPrimitive}}
+            {{^isPrimitive}}output.writeFieldBegin("success", Thrift.Type.STRUCT, 0);
+                this.success.write(output);
+            {{/isPrimitive}}
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+}
+{{/syncFunctions}}
+
+class {{ServiceName}}{{funcNameTitleCase}}Client {
+    public output;
+    public pClass;
+    private _seqid;
+    private _reqs;
+
+    constructor(output, pClass) {
+        this.output = output;
+        this.pClass = pClass;
+        this._seqid = 0;
+        this._reqs = {};
+    }
+
+    public seqid() {
+        return this._seqid;
+    }
+
+    public new_seqid() {
+        return this._seqid += 1;
+    }
+
+    {{#syncFunctions}}public {{funcName}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback) {
+        this._seqid = this.new_seqid();
+        if (callback === undefined) {
+            let defer = Q.defer();
+            this._reqs[this.seqid()] = function(error, result) {
+                if (error) {
+                    defer.reject(error);
+                } else {
+                    defer.resolve(result);
+                }
+            };
+            this.send_{{funcName}}({{#args}}{{fieldName}}, {{/args}});
+            return defer.promise;
+        } else {
+            this._reqs[this.seqid()] = callback;
+            this.send_{{funcName}}({{#args}}{{fieldName}} {{/args}});
+        }
+    }
+
+    public send_{{funcName}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}) {
+        const output = new this.pClass(this.output);
+        output.writeMessageBegin("{{funcName}}", Thrift.MessageType.CALL, this.seqid());
+        const args = new {{ServiceName}}{{funcNameTitleCase}}Args();
+        {{#args}}args.{{fieldName}} = {{fieldName}};{{/args}}
+        args.write(output);
+        output.writeMessageEnd();
+        return this.output.flush();
+    }
+
+    public recv_{{funcName}}(input, mtype, rseqid) {
+        const noop = () => null;
+        let callback = this._reqs[rseqid] || noop;
+        delete this._reqs[rseqid];
+        if (mtype === Thrift.MessageType.EXCEPTION) {
+            const x = new Thrift.TApplicationException();
+            x.read(input);
+            input.readMessageEnd();
+            return callback(x);
+        }
+        const result = new {{ServiceName}}{{funcNameTitleCase}}Result();
+        result.read(input);
+        input.readMessageEnd();
+
+        if (null !== result.success) {
+            return callback(null, result.success);
+        }
+        return callback("{{funcName}} failed: unknown result");
+    }
+    {{/syncFunctions}}
+}
+
+class {{ServiceName}}{{funcNameTitleCase}}Processor {
+    private _handler;
+
+    constructor(handler) {
+        this._handler = handler;
+    }
+
+    public process(input, output) {
+        const r = input.readMessageBegin();
+        if (this["process_" + r.fname]) {
+            return this["process_" + r.fname].call(this, r.rseqid, input, output);
+        } else {
+            input.skip(Thrift.Type.STRUCT);
+            input.readMessageEnd();
+            const err = `Unknown function ${r.fname}`;
+            const x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, err);
+            output.writeMessageBegin(r.fname, Thrift.MessageType.EXCEPTION, r.rseqid);
+            x.write(output);
+            output.writeMessageEnd();
+            output.flush();
+        }
+    }
+
+    {{#syncFunctions}}public process_{{funcName}}(seqid, input, output) {
+        const args = new {{ServiceName}}{{funcNameTitleCase}}Args();
+        args.read(input);
+        input.readMessageEnd();
+        if (this._handler.{{funcName}}.length === {{argsLength}}) {
+            Q.fcall(this._handler.{{funcName}}{{#args}}, args.{{fieldName}}{{/args}}).then((data) => {
+                const result = new {{ServiceName}}{{funcNameTitleCase}}Result({success: data});
+                output.writeMessageBegin("{{funcName}}", Thrift.MessageType.REPLY, seqid);
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+            }, (err) => {
+                const result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                output.writeMessageBegin("{{funcName}}", Thrift.MessageType.EXCEPTION, seqid);
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+            });
+        } else {
+            this._handler.{{funcName}}({{#args}}args.{{fieldName}}, {{/args}}(err, data) => {
+                let result;
+                if (err == null) {
+                    result = new {{ServiceName}}{{funcNameTitleCase}}Result((err != null ? err : {success: data}));
+                    output.writeMessageBegin("{{fieldName}}", Thrift.MessageType.REPLY, seqid);
+                } else {
+                    result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                    output.writeMessageBegin("{{fieldName}}", Thrift.MessageType.EXCEPTION, seqid);
+                }
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+            });
+        }
+    }
+    {{/syncFunctions}}
+}
+
+export { {{ServiceName}}Processor as Processor }
+export { {{ServiceName}}Client as Client }

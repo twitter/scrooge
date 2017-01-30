@@ -4,7 +4,7 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.{Generator, GeneratorFactory, ServiceOption, TemplateGenerator}
 import com.twitter.scrooge.frontend.ResolvedDocument
 import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
-import com.twitter.scrooge.mustache.HandlebarLoader
+import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 
 /**
   * Created by nnance on 1/28/17.
@@ -81,6 +81,14 @@ class NodeGenerator (
     else
       str
 
+  override def isPrimitive(t: FunctionType): Boolean = {
+    t match {
+      case Void | TString | TBool | TByte | TI16 | TI32 | TI64 | TDouble => true
+      case _ => false
+    }
+  }
+
+
   override def fieldsToDict(fields: Seq[Field],
                             blacklist: Seq[String],
                             namespace: Option[Identifier] = None) = {
@@ -109,6 +117,35 @@ class NodeGenerator (
     dictionary
   }
 
+  override def functionDictionary(function: Function, generic: Option[String]) = {
+    val dict = super.functionDictionary(function, generic)
+    dict("funcNameTitleCase") = genID(function.funcName.toTitleCase).toString
+    dict("args") = fieldsToDict(function.args, List.empty)
+    dict("argsLength") = function.args.length.toString
+    dict("resultType") = {
+      val funcType = genType(function.funcType)
+      if (isPrimitive(function.funcType)) {
+        "args.success"
+      } else {
+        s"new $funcType(args.success)"
+      }
+    }
+
+    dict
+  }
+
+  override def serviceDict(service: Service,
+                           namespace: Identifier,
+                           includes: Seq[Include],
+                           options: Set[ServiceOption]): Dictionary = {
+    val dict = super.serviceDict(service, namespace, includes, options)
+    val doc = normalizeCase(resolvedDoc.document)
+    dict("structs") = doc.structs.map { struct =>
+      structDict(struct, Some(namespace), includes, options, true)
+    }
+
+    dict
+  }
 
   // For constants support, not implemented
   def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
