@@ -110,11 +110,11 @@ case class TypeResolver(
     includeMap: Map[String, ResolvedDocument] = Map.empty) {
 
   protected def getResolver(includePath: String, pos: Positional = new Positional { pos = NoPosition }): TypeResolver = {
-    includeMap.get(includePath).getOrElse(throw new QualifierNotFoundException(includePath, pos)).resolver
+    includeMap.getOrElse(includePath, throw new QualifierNotFoundException(includePath, pos)).resolver
   }
 
   def resolveFieldType(id: Identifier): FieldType = id match {
-    case SimpleID(name, _) => typeMap.get(name).getOrElse(throw new TypeNotFoundException(name, id))
+    case SimpleID(name, _) => typeMap.getOrElse(name, throw new TypeNotFoundException(name, id))
     case qid: QualifiedID => getResolver(qid.names.head, qid).resolveFieldType(qid.tail)
   }
 
@@ -124,12 +124,13 @@ case class TypeResolver(
       case Some(filename) => getResolver(filename.name).resolveService(parent.sid)
     }
 
-  def resolveService(sid: SimpleID): Service = serviceMap.get(sid.name).getOrElse(
+  def resolveService(sid: SimpleID): Service = serviceMap.getOrElse(
+    sid.name,
     throw new UndefinedSymbolException(sid.name, sid))
 
   def resolveConst(id: Identifier): (FieldType, RHS) = id match {
     case SimpleID(name, _) =>
-      val const = constMap.get(name).getOrElse(throw new UndefinedConstantException(name, id))
+      val const = constMap.getOrElse(name, throw new UndefinedConstantException(name, id))
       (const.fieldType, const.value)
     case qid: QualifiedID => getResolver(qid.names.head).resolveConst(qid.tail)
   }
@@ -300,7 +301,7 @@ case class TypeResolver(
             case (fieldName: String, values: Seq[(String, RHS)]) if values.length == 1 =>
               values.head
             case (fieldName: String, _: Seq[(String, RHS)]) =>
-              throw new TypeMismatchException(s"Duplicate default values for ${fieldName} found for $fieldType", m)
+              throw new TypeMismatchException(s"Duplicate default values for $fieldName found for $fieldType", m)
             // Can't have 0 elements here because fieldMultiMap is built by groupBy.
           }
 
@@ -310,7 +311,7 @@ case class TypeResolver(
                 case field if fieldMap.contains(field.sid.name) =>
                   (field, fieldMap(field.sid.name))
               }
-              if (definedFields.length == 0)
+              if (definedFields.isEmpty)
                 throw new UndefinedConstantException(s"Constant value missing for union ${u.originalName}", m)
               if (definedFields.length > 1)
                 throw new UndefinedConstantException(s"Multiple constant values for union ${u.originalName}", m)
@@ -327,14 +328,14 @@ case class TypeResolver(
                   val resolvedRhs = apply(fieldMap(fieldName), field.fieldType)
                   structMap += field -> resolvedRhs
                 } else if (!field.requiredness.isOptional && field.default.isEmpty) {
-                  throw new TypeMismatchException(s"Value required for ${fieldName} in $fieldType", m)
+                  throw new TypeMismatchException(s"Value required for $fieldName in $fieldType", m)
                 }
               }
               StructRHS(sid = st.sid, elems = structMap.result())
           }
         case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m, m)
       }
-    case i @ IdRHS(id) => {
+    case i @ IdRHS(id) =>
       val (constFieldType, constRHS) = id match {
         case sid: SimpleID =>
           // When the rhs value is a simpleID, it can only be a constant
@@ -356,7 +357,6 @@ case class TypeResolver(
           id
         )
       constRHS
-    }
     case _ => c
   }
 }

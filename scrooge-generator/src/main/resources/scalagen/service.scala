@@ -88,7 +88,7 @@ object {{ServiceName}} { self =>
 
   implicit object MethodIfaceBuilder
     extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): {{ServiceName}}[Future] =
+    def newMethodIface(serviceIface: ServiceIface): {{ServiceName}}.MethodIface =
       new MethodIface(serviceIface)
   }
 {{/generateServiceIface}}

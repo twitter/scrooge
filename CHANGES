@@ -5,6 +5,9 @@ as it is included in Scrooge's user's guide.
 4.x
 -----
 
+- scrooge-generator: MethodIfaceBuilder#newMethodIface now returns
+  a MethodIface. ``RB_ID=907700``
+
 4.14.0
 ------
 

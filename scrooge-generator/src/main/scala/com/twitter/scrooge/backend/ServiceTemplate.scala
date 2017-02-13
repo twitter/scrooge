@@ -24,7 +24,7 @@ import scala.collection.mutable
 
 trait ServiceTemplate { self: TemplateGenerator =>
   def functionDictionary(function: Function, generic: Option[String]): Dictionary = {
-    val hasThrows = function.throws.size > 0
+    val hasThrows = function.throws.nonEmpty
     val throwsDictionaries =
       if (hasThrows) {
         function.throws map { ex =>
@@ -69,7 +69,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "is_oneway" -> v(function.funcType == OnewayVoid),
       "functionType" -> {
         val returnType = s"Future[${genType(function.funcType)}]"
-        val types = s"[Args,${returnType}]"
+        val types = s"[Args,$returnType]"
         v(s"Function1$types")
       },
       "moreThan22Args" -> v(function.args.size > 22)
@@ -312,7 +312,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
         }
         val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
           functionDictionary(function, Some("Future")) ++=
-            (("dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase))))
+            ("dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)))
         }
         v(ownFunctions)
       }

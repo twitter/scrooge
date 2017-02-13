@@ -151,7 +151,7 @@ class ScalaGenerator(
       case None => genID(union.sid)
     }
     val rhs = genConstant(union.initializer, Some(union.field.fieldType))
-    v(s"${unionId}.$fieldId($rhs)")
+    v(s"$unionId.$fieldId($rhs)")
   }
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
