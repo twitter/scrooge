@@ -47,6 +47,8 @@ Travis CI more useful for development, but for now you don't need to worry if
 it's failing (assuming that you are able to build and test your changes
 locally).
 
+Run the tests with: `./sbt scrooge-generator-tests/test`
+
 ## Compatibility
 
 We try to keep public APIs stable for the obvious reasons. Often,
