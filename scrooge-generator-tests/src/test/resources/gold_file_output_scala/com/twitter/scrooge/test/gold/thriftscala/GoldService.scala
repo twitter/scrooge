@@ -80,7 +80,7 @@ object GoldService { self =>
 
   implicit object MethodIfaceBuilder
     extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, GoldService[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): GoldService.MethodIface =
+    def newMethodIface(serviceIface: ServiceIface): MethodIface =
       new MethodIface(serviceIface)
   }
 
