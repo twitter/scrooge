@@ -339,7 +339,7 @@ public class TestService {
       return true;
     }
 
-    private class test_endpoint implements ProcessFunction {
+    private class test_endpoint implements TestServiceParent.Processor.ProcessFunction {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         test_endpoint_args args = new test_endpoint_args();
@@ -376,7 +376,7 @@ public class TestService {
         oprot.getTransport().flush();
       }
     }
-    private class test_oneway implements ProcessFunction {
+    private class test_oneway implements TestServiceParent.Processor.ProcessFunction {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         test_oneway_args args = new test_oneway_args();

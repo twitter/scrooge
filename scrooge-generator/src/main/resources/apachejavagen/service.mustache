@@ -13,25 +13,25 @@ import com.twitter.finagle.thrift.DeserializeCtx;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class {{name}} {
-  public interface Iface{{#extends_iface}} extends {{name}}.Iface{{/extends_iface}} {
+  public interface Iface{{#extends_iface}} extends {{parent_name}}.Iface{{/extends_iface}} {
     {{#functions}}
     public {{{return_type.type_name}}} {{name}}({{{argument_list_with_types}}}) throws {{exceptions_string}}TException;
     {{/functions}}
   }
 
-  public interface AsyncIface{{#extends_iface}} extends {{name}}.AsyncIface{{/extends_iface}} {
+  public interface AsyncIface{{#extends_iface}} extends {{parent_name}}.AsyncIface{{/extends_iface}} {
     {{#functions}}
     public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<AsyncClient.{{name}}_call> resultHandler) throws TException;
     {{/functions}}
   }
 
-  public interface ServiceIface{{#extends_iface}} extends {{name}}.ServiceIface{{/extends_iface}} {
+  public interface ServiceIface{{#extends_iface}} extends {{parent_name}}.ServiceIface{{/extends_iface}} {
     {{#functions}}
     public Future<{{{return_type.type_name_in_container}}}> {{name}}({{{argument_list_with_types}}});
     {{/functions}}
   }
 
-  public static class Client{{#extends_iface}} extends {{name}}.Client{{/extends_iface}} implements TServiceClient, Iface {
+  public static class Client{{#extends_iface}} extends {{parent_name}}.Client{{/extends_iface}} implements TServiceClient, Iface {
     public static class Factory implements TServiceClientFactory<Client> {
       public Factory() {}
       public Client getClient(TProtocol prot) {
@@ -132,7 +132,7 @@ public class {{name}} {
     {{/functions}}
   }
 
-  public static class AsyncClient extends {{#extends_iface}}{{name}}.AsyncClient{{/extends_iface}}{{^extends_iface}}TAsyncClient{{/extends_iface}} implements AsyncIface {
+  public static class AsyncClient extends {{#extends_iface}}{{parent_name}}.AsyncClient{{/extends_iface}}{{^extends_iface}}TAsyncClient{{/extends_iface}} implements AsyncIface {
     public static class Factory implements TAsyncClientFactory<AsyncClient> {
       private final TAsyncClientManager clientManager;
       private final TProtocolFactory protocolFactory;
@@ -193,7 +193,7 @@ public class {{name}} {
    }
 
 
-  public static class ServiceToClient{{#extends_iface}} extends {{name}}.ServiceToClient{{/extends_iface}} implements ServiceIface {
+  public static class ServiceToClient{{#extends_iface}} extends {{parent_name}}.ServiceToClient{{/extends_iface}} implements ServiceIface {
     private final com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
     private final TProtocolFactory protocolFactory;
     {{^is_oneway}}
@@ -309,7 +309,7 @@ public class {{name}} {
     {{/functions}}
   }
 
-  public static class Processor{{#extends_iface}} extends {{name}}.Processor{{/extends_iface}} implements TProcessor {
+  public static class Processor{{#extends_iface}} extends {{parent_name}}.Processor{{/extends_iface}} implements TProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(Iface iface)
     {
@@ -352,7 +352,7 @@ public class {{name}} {
     }
 
     {{#functions}}
-    private class {{name}} implements ProcessFunction {
+    private class {{name}} implements {{#extends_iface}}{{parent_name}}.Processor.{{/extends_iface}}ProcessFunction {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         {{name}}_args args = new {{name}}_args();
@@ -409,7 +409,7 @@ public class {{name}} {
     {{/functions}}
   }
 
-  public static class Service {{#extends_iface}}extends {{name}}.Service{{/extends_iface}}{{^extends_iface}}extends com.twitter.finagle.Service<byte[], byte[]>{{/extends_iface}} {
+  public static class Service {{#extends_iface}}extends {{parent_name}}.Service{{/extends_iface}}{{^extends_iface}}extends com.twitter.finagle.Service<byte[], byte[]>{{/extends_iface}} {
     private final ServiceIface iface;
     private final TProtocolFactory protocolFactory;
     {{^extends_iface}}
