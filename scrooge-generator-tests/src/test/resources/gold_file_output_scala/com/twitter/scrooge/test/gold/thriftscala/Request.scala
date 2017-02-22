@@ -56,7 +56,7 @@ object Request extends ThriftStructCodec3[Request] {
       _root_.scala.Some(implicitly[Manifest[String]]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      Some[Seq[String]](Seq[String]())
+      None
     ),
     new ThriftStructFieldInfo(
       ASetField,
@@ -67,7 +67,7 @@ object Request extends ThriftStructCodec3[Request] {
       _root_.scala.Some(implicitly[Manifest[Int]]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      Some[Set[Int]](Set[Int]())
+      None
     ),
     new ThriftStructFieldInfo(
       AMapField,
@@ -78,7 +78,7 @@ object Request extends ThriftStructCodec3[Request] {
       _root_.scala.Some(implicitly[Manifest[Long]]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      Some[Map[Long, Long]](Map[Long, Long]())
+      None
     ),
     new ThriftStructFieldInfo(
       ARequestField,
@@ -100,7 +100,7 @@ object Request extends ThriftStructCodec3[Request] {
       _root_.scala.Some(implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      Some[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]](Seq[com.twitter.scrooge.test.gold.thriftscala.Request]())
+      None
     )
   )
 

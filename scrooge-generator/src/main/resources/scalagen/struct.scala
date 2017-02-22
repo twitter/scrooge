@@ -78,12 +78,12 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{^fieldFieldAnnotations}}
       immutable$Map.empty[String, String],
 {{/fieldFieldAnnotations}}
-{{#hasDefaultValue}}
-      Some[{{fieldType}}]({{defaultFieldValue}})
-{{/hasDefaultValue}}
-{{^hasDefaultValue}}
+{{#hasDefaultFieldValueForFieldInfo}}
+      Some[{{fieldType}}]({{defaultFieldValueForFieldInfo}})
+{{/hasDefaultFieldValueForFieldInfo}}
+{{^hasDefaultFieldValueForFieldInfo}}
       None
-{{/hasDefaultValue}}
+{{/hasDefaultFieldValueForFieldInfo}}
     )
 {{/fields|,}}
   )

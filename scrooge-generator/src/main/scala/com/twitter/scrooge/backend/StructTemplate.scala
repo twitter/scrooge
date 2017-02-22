@@ -187,6 +187,8 @@ trait StructTemplate { self: TemplateGenerator =>
           "qualifiedFieldType" -> v(templates("qualifiedFieldType")),
           "hasDefaultValue" -> v(genDefaultFieldValue(field).isDefined),
           "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
+          "hasDefaultFieldValueForFieldInfo" -> v(genDefaultFieldValueForFieldInfo(field).isDefined),
+          "defaultFieldValueForFieldInfo" -> genDefaultFieldValueForFieldInfo(field).getOrElse(NoValue),
           "defaultReadValue" -> genDefaultReadValue(field),
           "hasGetter" -> v(!blacklist.contains(field.sid.name)),
           "hasIsDefined" -> v(field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(field.fieldType))),

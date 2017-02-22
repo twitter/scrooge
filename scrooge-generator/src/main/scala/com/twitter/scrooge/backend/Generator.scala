@@ -260,6 +260,14 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     v(code)
   }
 
+  def genDefaultFieldValueForFieldInfo(f: Field): Option[CodeFragment] = {
+    if (f.requiredness.isOptional) {
+      None
+    } else {
+      f.default.map(genConstant(_, Some(f.fieldType)))
+    }
+  }
+
   def genDefaultFieldValue(f: Field): Option[CodeFragment] = {
     if (f.requiredness.isOptional) {
       None
