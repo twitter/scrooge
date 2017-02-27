@@ -164,8 +164,8 @@ trait StructTemplate { self: TemplateGenerator =>
             case SetType(valueType, _) => Some(genType(valueType))
             case _ => None
           }),
-          "fieldTypeAnnotations" -> StructTemplate.renderPairs(field.typeAnnotations),
-          "fieldFieldAnnotations" -> StructTemplate.renderPairs(field.fieldAnnotations),
+          "fieldTypeAnnotations" -> TemplateGenerator.renderPairs(field.typeAnnotations),
+          "fieldFieldAnnotations" -> TemplateGenerator.renderPairs(field.fieldAnnotations),
           "isImported" -> v(field.fieldType match {
             case n: NamedType => n.scopePrefix.isDefined
             case _ => false
@@ -360,24 +360,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
       "withTrait" -> v(isStruct),
-      "structAnnotations" -> StructTemplate.renderPairs(struct.annotations)
+      "structAnnotations" -> TemplateGenerator.renderPairs(struct.annotations)
     )
   }
 }
 
-object StructTemplate {
-
-  /**
-   * Renders a map as:
-   *   Dictionary("pairs" -> ListValue(Seq(Dictionary("key" -> ..., "value" -> ...)))
-   */
-  private def renderPairs(pairs: Map[String, String]): Dictionary.Value = {
-    if (pairs.isEmpty) {
-      NoValue
-    } else {
-      val pairDicts: Seq[Dictionary] =
-        pairs.map { case (key, value) => Dictionary("key" -> v(key), "value" -> v(value)) }.toSeq
-      v(Dictionary("pairs" -> v(pairDicts)))
-    }
-  }
-}

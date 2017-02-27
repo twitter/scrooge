@@ -21,6 +21,7 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.lua.LuaGeneratorFactory
 import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
+import com.twitter.scrooge.mustache.Dictionary.{NoValue, v}
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 import java.io.{File, FileOutputStream, OutputStreamWriter}
 import scala.collection.JavaConverters._
@@ -87,6 +88,22 @@ trait GeneratorFactory {
     defaultNamespace: String,
     experimentFlags: Seq[String]
   ): Generator
+}
+
+object TemplateGenerator {
+  /**
+   * Renders a map as:
+   *   Dictionary("pairs" -> ListValue(Seq(Dictionary("key" -> ..., "value" -> ...)))
+   */
+  def renderPairs(pairs: Map[String, String]): Dictionary.Value = {
+    if (pairs.isEmpty) {
+      NoValue
+    } else {
+      val pairDicts: Seq[Dictionary] =
+        pairs.map { case (key, value) => Dictionary("key" -> v(key), "value" -> v(value)) }.toSeq
+      v(Dictionary("pairs" -> v(pairDicts)))
+    }
+  }
 }
 
 abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)

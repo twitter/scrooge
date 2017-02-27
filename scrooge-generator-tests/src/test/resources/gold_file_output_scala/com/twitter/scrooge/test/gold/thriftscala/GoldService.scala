@@ -47,6 +47,10 @@ trait GoldService[+MM[_]] extends ThriftService {
 
 object GoldService { self =>
 
+  val annotations: immutable$Map[String, String] = immutable$Map(
+    "an.annotation" -> "true"
+  )
+
   case class ServiceIface(
       doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.Result]
   ) extends BaseServiceIface
@@ -525,6 +529,10 @@ object GoldService { self =>
 
       def _codec: ThriftStructCodec3[Result] = Result
     }
+
+    val annotations: immutable$Map[String, String] = immutable$Map(
+      "some.annotation" -> "false"
+    )
 
     type FunctionType = Function1[Args,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
     type ServiceType = com.twitter.finagle.Service[Args, Result]

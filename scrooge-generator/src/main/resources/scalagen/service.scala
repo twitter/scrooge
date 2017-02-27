@@ -44,6 +44,17 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 {{docstring}}
 object {{ServiceName}} { self =>
 
+{{#annotations}}
+  val annotations: immutable$Map[String, String] = immutable$Map(
+{{#pairs}}
+    "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+  )
+{{/annotations}}
+{{^annotations}}
+  val annotations: immutable$Map[String, String] = immutable$Map.empty
+{{/annotations}}
+
 {{#withFinagle}}
 {{#generateServiceIface}}
   case class ServiceIface(
@@ -110,6 +121,17 @@ object {{ServiceName}} { self =>
 {{#internalResultStruct}}
     {{>struct}}
 {{/internalResultStruct}}
+
+{{#annotations}}
+    val annotations: immutable$Map[String, String] = immutable$Map(
+{{#pairs}}
+      "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+    )
+{{/annotations}}
+{{^annotations}}
+    val annotations: immutable$Map[String, String] = immutable$Map.empty
+{{/annotations}}
 
 {{#withFinagle}}
     type FunctionType = {{functionType}}

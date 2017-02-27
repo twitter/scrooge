@@ -12,7 +12,12 @@ case class ConstDefinition(
   docstring: Option[String]
 ) extends Definition
 
-case class Typedef(sid: SimpleID, fieldType: FieldType, annotations: Map[String, String] = Map.empty) extends Definition
+case class Typedef(
+  sid: SimpleID,
+  fieldType: FieldType,
+  referentAnnotations: Map[String, String] = Map.empty,
+  aliasAnnotations: Map[String, String] = Map.empty
+) extends Definition
 
 case class Enum(
   sid: SimpleID,
@@ -21,8 +26,18 @@ case class Enum(
   annotations: Map[String, String] = Map.empty
 ) extends Definition
 
-case class EnumField(sid: SimpleID, value: Int, docstring: Option[String]) extends Definition
-case class Senum(sid: SimpleID, values: Seq[String]) extends Definition
+case class EnumField(
+  sid: SimpleID,
+  value: Int,
+  docstring: Option[String],
+  annotations: Map[String, String] = Map.empty
+) extends Definition
+
+case class Senum(
+  sid: SimpleID,
+  values: Seq[String],
+  annotations: Map[String, String] = Map.empty
+) extends Definition
 
 sealed abstract class StructLike extends Definition {
   val originalName: String
@@ -79,7 +94,8 @@ case class Service(
   sid: SimpleID,
   parent: Option[ServiceParent],
   functions: Seq[Function],
-  docstring: Option[String]
+  docstring: Option[String],
+  annotations: Map[String, String] = Map.empty
 ) extends Definition
 
 /**

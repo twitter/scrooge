@@ -10,9 +10,9 @@ exception OverCapacityException {
 }
 
 enum RequestType {
-  Create = 1,
+  Create = 1 (some.annotation = "true"),
   Read = 2,
-}
+} (enum.annotation = "false")
 
 union ResponseUnion {
   1: i64 id
@@ -43,6 +43,6 @@ service GoldService {
     1: Request request
   ) throws (
     1: OverCapacityException ex
-  )
+  ) (some.annotation = "false")
 
-}
+} (an.annotation = "true")

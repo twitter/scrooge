@@ -252,6 +252,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
               )
             )
           },
+          "annotations" -> TemplateGenerator.renderPairs(f.annotations),
           "funcObjectName" -> genID(functionObjectName(f)),
           "unwrapArgs" -> v(unwrapArgs(f.args.length))
         ) + functionDictionary(f, Some("Future"))
@@ -315,7 +316,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
             ("dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)))
         }
         v(ownFunctions)
-      }
+      },
+
+      "annotations" -> TemplateGenerator.renderPairs(service.annotations)
     )
   }
 

@@ -19,7 +19,8 @@ trait EnumTemplate { self: TemplateGenerator =>
           "name" -> genID(value.sid),
           "originalName" -> v(value.sid.originalName),
           "unquotedNameLowerCase" -> v(value.sid.fullName.toLowerCase),
-          "value" -> v(value.value.toString)
+          "value" -> v(value.value.toString),
+          "annotations" -> TemplateGenerator.renderPairs(value.annotations)
         )
       })
     )

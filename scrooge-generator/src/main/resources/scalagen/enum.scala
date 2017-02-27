@@ -1,6 +1,7 @@
 package {{package}}
 
 import com.twitter.scrooge.ThriftEnum
+import scala.collection.immutable.{Map => immutable$Map}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -11,6 +12,16 @@ case object {{EnumName}} {
     val value: Int = {{value}}
     val name: String = "{{name}}"
     val originalName: String = "{{originalName}}"
+{{#annotations}}
+    val annotations: immutable$Map[String, String] = immutable$Map(
+{{#pairs}}
+      "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+    )
+{{/annotations}}
+{{^annotations}}
+    val annotations: immutable$Map[String, String] = immutable$Map.empty
+{{/annotations}}
   }
 
   private[this] val _Some{{name}} = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})

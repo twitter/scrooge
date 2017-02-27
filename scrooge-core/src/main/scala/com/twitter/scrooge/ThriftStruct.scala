@@ -113,6 +113,8 @@ trait ThriftMethod {
   /** Convert a service implementation of this method into a function implementation */
   def serviceToFunction(svc: ServiceType): FunctionType
 
+  /** Thrift annotations (user-defined key-value metadata) on the method */
+  def annotations: Map[String, String]
   /** Thrift method name */
   def name: String
   /** Thrift service name. A thrift service is a list of methods. */

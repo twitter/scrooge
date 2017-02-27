@@ -278,15 +278,17 @@ class ThriftParser(
   // functions
 
   lazy val function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(field) <~ ")") ~
-    (opt(throws) <~ opt(listSeparator)) ^^ {
-    case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws =>
+    (opt(throws) <~ opt(listSeparator)) ~ defaultedAnnotations ^^ {
+    case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws ~ annotations =>
       Function(
         id,
         id.name,
         if (oneway.isDefined) OnewayVoid else ftype,
         fixFieldIds(args),
         throws.map(fixFieldIds).getOrElse(Nil),
-        comment)
+        comment,
+        annotations
+      )
   }
 
   lazy val functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
@@ -302,11 +304,11 @@ class ThriftParser(
       ConstDefinition(sid, ftype, convertRhs(ftype, const), comment)
   }
 
-  lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ^^ {
-    case dtype ~ annotations ~ sid => Typedef(sid, dtype, annotations)
+  lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ~ defaultedAnnotations ^^ {
+    case dtype ~ referentAnnotations ~ sid ~ aliasAnnotations => Typedef(sid, dtype, referentAnnotations, aliasAnnotations)
   }
 
-  lazy val enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(opt(comments) ~ simpleID ~ opt("=" ~> intConstant) <~
+  lazy val enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(opt(comments) ~ simpleID ~ opt("=" ~> intConstant) ~ defaultedAnnotations <~
     opt(listSeparator)) ~ ("}" ~> defaultedAnnotations) ^^ {
     case comment ~ sid ~ items ~ annotation  =>
       var failed: Option[Int] = None
@@ -314,14 +316,14 @@ class ThriftParser(
       var nextValue = 0
       val values = new mutable.ListBuffer[EnumField]
       items.foreach {
-        case c ~ k ~ v =>
+        case c ~ k ~ v ~ a =>
           val value = v.map {
             _.value.toInt
           }.getOrElse(nextValue)
           if (seen contains value) failed = Some(value)
           nextValue = value + 1
           seen += value
-          values += EnumField(k, value, c)
+          values += EnumField(k, value, c, a)
       }
       if (failed.isDefined) {
         throw new RepeatingEnumValueException(sid.name, failed.get)
@@ -330,11 +332,11 @@ class ThriftParser(
       }
   }
 
-  lazy val senum = (("senum" ~> simpleID) <~ "{") ~ rep(stringLiteral <~ opt(listSeparator)) <~
-    "}" ^^ {
-    case sid ~ items => Senum(sid, items.map {
+  lazy val senum = (("senum" ~> simpleID) <~ "{") ~ (rep(stringLiteral <~ opt(listSeparator)) <~
+    "}") ~ defaultedAnnotations ^^ {
+    case sid ~ items ~ annotations  => Senum(sid, items.map {
       _.value
-    })
+    }, annotations)
   }
 
   def structLike(keyword: String) =
@@ -369,9 +371,9 @@ class ThriftParser(
   }
 
   lazy val service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> serviceParentID) ~ ("{" ~> rep(function) <~
-    "}") ^^ {
-    case comment ~ sid ~ extend ~ functions =>
-      Service(sid, extend, functions, comment)
+    "}") ~ defaultedAnnotations ^^ {
+    case comment ~ sid ~ extend ~ functions ~ annotations =>
+      Service(sid, extend, functions, comment, annotations)
   }
 
   // This is a simpleID without the keyword check. Filenames that are thrift keywords are allowed.

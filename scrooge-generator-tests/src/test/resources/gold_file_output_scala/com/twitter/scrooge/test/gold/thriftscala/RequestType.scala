@@ -7,6 +7,7 @@
 package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.scrooge.ThriftEnum
+import scala.collection.immutable.{Map => immutable$Map}
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -16,6 +17,9 @@ case object RequestType {
     val value: Int = 1
     val name: String = "Create"
     val originalName: String = "Create"
+    val annotations: immutable$Map[String, String] = immutable$Map(
+      "some.annotation" -> "true"
+    )
   }
 
   private[this] val _SomeCreate = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Create)
@@ -24,6 +28,7 @@ case object RequestType {
     val value: Int = 2
     val name: String = "Read"
     val originalName: String = "Read"
+    val annotations: immutable$Map[String, String] = immutable$Map.empty
   }
 
   private[this] val _SomeRead = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Read)

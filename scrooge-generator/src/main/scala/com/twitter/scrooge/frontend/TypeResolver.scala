@@ -200,7 +200,7 @@ case class TypeResolver(
    */
   def apply(definition: Definition, scopePrefix: Option[SimpleID]): ResolvedDefinition = {
     definition match {
-      case d @ Typedef(sid, t, _) =>
+      case d @ Typedef(sid, t, _, _) =>
         val resolved = apply(t)
         ResolvedDefinition(
           d.copy(fieldType = resolved),
@@ -236,14 +236,14 @@ case class TypeResolver(
         val fieldType = apply(t)
         val resolved = c.copy(fieldType = fieldType, value = apply(v, fieldType))
         ResolvedDefinition(resolved, withConst(resolved))
-      case s @ Service(sid, parent, fs, _) =>
+      case s @ Service(sid, parent, fs, _, _) =>
         // No need to modify Service, but check that we can resolve parent.
         parent.foreach { serviceParent => resolveServiceParent(serviceParent) }
         val resolved = s.copy(functions = fs.map(apply))
         ResolvedDefinition(resolved, withService(resolved))
       case e @ Enum(sid, _, _, _) =>
         ResolvedDefinition(e, withType(sid.name, EnumType(e, scopePrefix)))
-      case s @ Senum(sid, _) =>
+      case s @ Senum(sid, _, _) =>
         ResolvedDefinition(s, withType(sid.name, TString))
       case d: EnumField => ResolvedDefinition(d, this)
       case d: FunctionArgs => ResolvedDefinition(d, this)
@@ -252,7 +252,7 @@ case class TypeResolver(
   }
 
   def apply(f: Function): Function = f match {
-    case Function(_, _, t, as, ts, _) =>
+    case Function(_, _, t, as, ts, _, _) =>
       f.copy(funcType = apply(t), args = as.map(apply), throws = ts.map(apply))
   }
 

@@ -73,6 +73,8 @@ case class Function(
     funcType: FunctionType,
     args: Seq[Field],
     throws: Seq[Field],
-    docstring: Option[String])
+    docstring: Option[String],
+    annotations: Map[String, String] = Map.empty
+)
   extends Node
 

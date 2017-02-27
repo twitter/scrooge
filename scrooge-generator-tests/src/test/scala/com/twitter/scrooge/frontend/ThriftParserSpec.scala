@@ -1,5 +1,6 @@
 package com.twitter.scrooge.frontend
 
+import com.twitter.scrooge.ast.Requiredness.Default
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.testutil.Spec
 
@@ -507,6 +508,110 @@ enum Foo
       intercept[TypeMismatchException] {
         parser.parse("struct S { 1: bool B = 15 }", parser.struct)
       }
+    }
+
+    "Apache-compatible annotations" in {
+      // see http://svn.apache.org/viewvc/thrift/trunk/test/AnnotationTest.thrift?view=markup&pathrev=1386848
+
+      parser.parse("""typedef list<i32> ( cpp.template = "std::list" ) int_linked_list""", parser.typedef) must be(
+        Typedef(SimpleID("int_linked_list", None), ListType(TI32, None), Map("cpp.template" -> "std::list"))
+      )
+
+      parser.parse("""typedef string ( unicode.encoding = "UTF-16" ) non_latin_string (foo="bar")""", parser.typedef) must be(
+        Typedef(SimpleID("non_latin_string", None), TString, Map("unicode.encoding" -> "UTF-16"), Map("foo" -> "bar"))
+      )
+
+      // TODO(CSL-4127): support annotations on nested types
+      // parser.parse("""typedef list< double ( cpp.fixed_point = "16" ) > tiny_float_list""", parser.typedef) must be()
+
+      parser.parse(
+        """
+          |struct foo {
+          |  1: i32 bar ( presence = "required" );
+          |  2: i32 baz ( presence = "manual", cpp.use_pointer = "", );
+          |  3: i32 qux;
+          |  4: i32 bop;
+          |} (
+          |  cpp.type = "DenseFoo",
+          |  python.type = "DenseFoo",
+          |  java.final = "",
+          |)
+        """.stripMargin, parser.struct) must be(
+        Struct(SimpleID("foo", None), "foo", Seq(
+          Field(1, SimpleID("bar", None), "bar", TI32, None, Default, Map(), Map("presence" -> "required"), None),
+          Field(2, SimpleID("baz", None), "baz", TI32, None, Default, Map(), Map("presence" -> "manual",  "cpp.use_pointer" -> ""), None),
+          Field(3, SimpleID("qux", None), "qux", TI32, None, Default, Map(), Map(), None),
+          Field(4, SimpleID("bop", None), "bop", TI32, None, Default, Map(), Map(), None)), None, Map("cpp.type" -> "DenseFoo",  "python.type" -> "DenseFoo",  "java.final" -> ""))
+      )
+
+      parser.parse(
+      """
+        |exception foo_error {
+        |  1: i32 error_code ( foo="bar" )
+        |  2: string error_msg
+        |} (foo = "bar")
+        |
+      """.stripMargin, parser.exception) must be(
+        Exception_(SimpleID("foo_error", None), "foo_error", Seq(
+          Field(1, SimpleID("error_code", None), "error_code", TI32, None, Default, Map(), Map("foo" -> "bar"), None),
+          Field(2, SimpleID("error_msg", None), "error_msg", TString, None, Default, Map(), Map(), None)),
+          None, Map("foo" -> "bar"))
+      )
+
+      parser.parse(
+      """
+        |enum weekdays {
+        |  SUNDAY ( weekend = "yes" ),
+        |  MONDAY,
+        |  TUESDAY,
+        |  WEDNESDAY,
+        |  THURSDAY,
+        |  FRIDAY,
+        |  SATURDAY ( weekend = "yes" )
+        |} (foo.bar="baz")
+        |
+      """.stripMargin, parser.enum) must be (
+          Enum(SimpleID("weekdays", None), Seq(
+            EnumField(SimpleID("SUNDAY", None), 0, None, Map("weekend" -> "yes")),
+            EnumField(SimpleID("MONDAY", None), 1, None, Map()),
+            EnumField(SimpleID("TUESDAY", None), 2, None, Map()),
+            EnumField(SimpleID("WEDNESDAY", None), 3, None, Map()),
+            EnumField(SimpleID("THURSDAY", None), 4, None, Map()),
+            EnumField(SimpleID("FRIDAY", None), 5, None, Map()),
+            EnumField(SimpleID("SATURDAY", None), 6, None, Map("weekend" -> "yes"))
+          ), None, Map("foo.bar" -> "baz"))
+      )
+
+      // Annotations on senum values are not supported
+      parser.parse(
+      """
+        |senum seasons {
+        |  "Spring",
+        |  "Summer",
+        |  "Fall",
+        |  "Winter"
+        |} ( foo = "bar" )
+        |
+      """.stripMargin, parser.senum) must be (
+        Senum(
+          SimpleID("seasons", None),
+          Seq("Spring",  "Summer",  "Fall",  "Winter"),
+          Map("foo" -> "bar"))
+      )
+
+      parser.parse(
+      """
+        |service foo_service {
+        |  void foo() ( foo = "bar" )
+        |} (a.b="c")
+        |
+      """.stripMargin, parser.service) must be (
+        Service(SimpleID("foo_service", None), None, Seq(
+          Function(SimpleID("foo", None), "foo", Void, Seq(), Seq(), None, Map("foo" -> "bar"))
+        ),
+        None,
+        Map("a.b" -> "c"))
+      )
     }
   }
 

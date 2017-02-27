@@ -4,6 +4,10 @@ as it is included in Scrooge's user's guide.
 
 4.x
 -----
+
+- scrooge-generator: Add parsing, AST, and Scala code generation
+  support for annotations on enums, enum fields, services, and
+  service methods. ``RB_ID=908556``
 - scrooge-generator: Fix default values for collections in scala bindings ``RB_ID=908152``
 - scrooge-generator: MethodIfaceBuilder#newMethodIface now returns
   a MethodIface. ``RB_ID=907700``
@@ -23,13 +27,13 @@ No Changes
 4.12.0
 ------
 
-- scrooge-generator: Remove check for 22 args when generating scala 
+- scrooge-generator: Remove check for 22 args when generating scala
   ServiceIface. Now that we no longer support Scala 2.10 we can always
-  generate a case class for the generated scala ServiceIface. 
+  generate a case class for the generated scala ServiceIface.
   ``RB_ID=882203``
-- scrooge-generator: Don't allow Structs and Typedefs with the same 
+- scrooge-generator: Don't allow Structs and Typedefs with the same
   identifier. Structs and typedefs should not have the same name. This
-  makes it difficult to properly support self-referencing types. 
+  makes it difficult to properly support self-referencing types.
   ``RB_ID=881684``
 - scrooge-generator: Fix pathological case for self-referencing
   types with Java generation. ``RB_ID=880813``
@@ -37,8 +41,8 @@ No Changes
 4.11.0
 ------
 
-- scrooge-generator: Add support for self-referencing types from 
-  `pinsri` via https://github.com/twitter/scrooge/pull/244 
+- scrooge-generator: Add support for self-referencing types from
+  `pinsri` via https://github.com/twitter/scrooge/pull/244
   ``RB_ID=873802``
 
 - scrooge: Remove unmaintained bin/ directory. ``RB_ID=873411``
