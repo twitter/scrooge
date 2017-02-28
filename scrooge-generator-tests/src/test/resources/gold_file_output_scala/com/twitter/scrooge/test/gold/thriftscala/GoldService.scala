@@ -44,29 +44,27 @@ trait GoldService[+MM[_]] extends ThriftService {
 }
 
 
-
 object GoldService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map(
     "an.annotation" -> "true"
   )
 
-  case class ServiceIface(
-      doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.Result]
-  ) extends BaseServiceIface
-
-  // This is needed to support service inheritance.
   trait BaseServiceIface extends ToThriftService {
-    def doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.Result]
+    def doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
 
-    override def toThriftService: ThriftService = new MethodIface(this)
+    def toThriftService: ThriftService = new MethodIface(this)
   }
+
+  case class ServiceIface(
+      doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+  ) extends BaseServiceIface
 
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-        pf: TProtocolFactory = Protocols.binaryFactory(),
+        pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
         stats: com.twitter.finagle.stats.StatsReceiver
       ): ServiceIface =
         new ServiceIface(
@@ -76,10 +74,8 @@ object GoldService { self =>
 
   class MethodIface(serviceIface: BaseServiceIface)
     extends GoldService[Future] {
-    private[this] val __doGreatThings_service =
-      ThriftServiceIface.resultFilter(self.DoGreatThings) andThen serviceIface.doGreatThings
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
-      __doGreatThings_service(self.DoGreatThings.Args(request))
+      serviceIface.doGreatThings(self.DoGreatThings.Args(request))
   }
 
   implicit object MethodIfaceBuilder
@@ -537,23 +533,29 @@ object GoldService { self =>
     type FunctionType = Function1[Args,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
     type ServiceType = com.twitter.finagle.Service[Args, Result]
 
+    type ServiceIfaceServiceType = com.twitter.finagle.Service[Args, SuccessType]
+
+    def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType =
+      com.twitter.finagle.Service.mk { args: Args =>
+        f(args)
+      }
+
     private[this] val toResult = (res: SuccessType) => Result(Some(res))
 
-    def functionToService(f: FunctionType): ServiceType = {
+    def functionToService(f: FunctionType): ServiceType =
       com.twitter.finagle.Service.mk { args: Args =>
         f(args).map(toResult)
       }
-    }
 
     def serviceToFunction(svc: ServiceType): FunctionType = { args: Args =>
-      ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
+      com.twitter.finagle.thrift.ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
     }
 
-    val name = "doGreatThings"
-    val serviceName = "GoldService"
+    val name: String = "doGreatThings"
+    val serviceName: String = "GoldService"
     val argsCodec = Args
     val responseCodec = Result
-    val oneway = false
+    val oneway: Boolean = false
   }
 
   // Compatibility aliases.
@@ -564,14 +566,15 @@ object GoldService { self =>
   type doGreatThings$result = DoGreatThings.Result
 
 
-  trait FutureIface extends GoldService[Future] {
+  trait FutureIface
+    extends GoldService[Future] {
     /** Hello, I'm a comment. */
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
   }
 
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-      protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
+      protocolFactory: org.apache.thrift.protocol.TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "GoldService",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver,
       responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default)
@@ -593,7 +596,7 @@ object GoldService { self =>
 
   class FinagledService(
       iface: FutureIface,
-      protocolFactory: TProtocolFactory)
+      protocolFactory: org.apache.thrift.protocol.TProtocolFactory)
     extends GoldService$FinagleService(
       iface,
       protocolFactory)

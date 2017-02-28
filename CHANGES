@@ -12,6 +12,11 @@ as it is included in Scrooge's user's guide.
 - scrooge-generator: MethodIfaceBuilder#newMethodIface now returns
   a MethodIface. ``RB_ID=907700``
 
+- scrooge-generator: Scala's types for ServiceIfaces are now a `Service` from
+  `ThriftMethod.Args` to `ThriftMethod.SuccessType`, instead of `ThriftMethod.Args`
+  to `ThriftMethod.Result`. This is a breaking API change though it should generally
+  be easy to adapt existing code to it. ``RB_ID=908846``
+
 4.14.0
 ------
 
