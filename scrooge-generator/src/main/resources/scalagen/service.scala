@@ -40,6 +40,7 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 {{/genericFunctions}}
 }
 
+
 {{docstring}}
 object {{ServiceName}} { self =>
 
@@ -56,26 +57,27 @@ object {{ServiceName}} { self =>
 
 {{#withFinagle}}
 {{#generateServiceIface}}
-  trait BaseServiceIface extends {{#parent}}{{parent}}.BaseServiceIface{{/parent}}{{^parent}}ToThriftService{{/parent}} {
-{{#dedupedOwnFunctions}}
-    def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
-{{/dedupedOwnFunctions}}
-
-    {{#parent}}override {{/parent}}def toThriftService: ThriftService = new MethodIface(this)
-  }
-
   case class ServiceIface(
 {{#inheritedFunctions}}
-      {{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+      {{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.Result]
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.BaseServiceIface
     with {{/parent}}BaseServiceIface
+
+  // This is needed to support service inheritance.
+  trait BaseServiceIface extends {{#parent}}{{parent}}.BaseServiceIface{{/parent}}{{^parent}}ToThriftService{{/parent}} {
+{{#dedupedOwnFunctions}}
+    def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.Result]
+{{/dedupedOwnFunctions}}
+
+    override def toThriftService: ThriftService = new MethodIface(this)
+  }
 
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-        pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
+        pf: TProtocolFactory = Protocols.binaryFactory(),
         stats: com.twitter.finagle.stats.StatsReceiver
       ): ServiceIface =
         new ServiceIface(
@@ -86,11 +88,12 @@ object {{ServiceName}} { self =>
   }
 
   class MethodIface(serviceIface: BaseServiceIface)
-    extends {{#parent}}{{parent}}.MethodIface(serviceIface)
-    with {{/parent}}{{ServiceName}}[Future] {
+    extends {{#parent}}{{parent}}.MethodIface(serviceIface) with {{/parent}}{{ServiceName}}[Future] {
 {{#dedupedOwnFunctions}}
+    private[this] val __{{funcName}}_service =
+      ThriftServiceIface.resultFilter(self.{{funcObjectName}}) andThen serviceIface.{{dedupedFuncName}}
     def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
-      serviceIface.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+      __{{funcName}}_service(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
 {{/dedupedOwnFunctions}}
   }
 
@@ -134,39 +137,31 @@ object {{ServiceName}} { self =>
     type FunctionType = {{functionType}}
     type ServiceType = com.twitter.finagle.Service[Args, Result]
 
-    type ServiceIfaceServiceType = com.twitter.finagle.Service[Args, SuccessType]
-
-    def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType =
-      com.twitter.finagle.Service.mk { args: Args =>
-        f(args)
-      }
-
     private[this] val toResult = (res: SuccessType) => Result({{^isVoid}}Some(res){{/isVoid}})
 
-    def functionToService(f: FunctionType): ServiceType =
+    def functionToService(f: FunctionType): ServiceType = {
       com.twitter.finagle.Service.mk { args: Args =>
         f(args).map(toResult)
       }
+    }
 
     def serviceToFunction(svc: ServiceType): FunctionType = { args: Args =>
-      com.twitter.finagle.thrift.ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
+      ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
     }
 {{/withFinagle}}
 {{^withFinagle}}
     type FunctionType = Nothing
     type ServiceType = Nothing
-    type ServiceIfaceServiceType = Nothing
 
-    def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType = ???
     def functionToService(f: FunctionType): ServiceType = ???
     def serviceToFunction(svc: ServiceType): FunctionType = ???
 {{/withFinagle}}
 
-    val name: String = "{{originalFuncName}}"
-    val serviceName: String = "{{ServiceName}}"
+    val name = "{{originalFuncName}}"
+    val serviceName = "{{ServiceName}}"
     val argsCodec = Args
     val responseCodec = Result
-    val oneway: Boolean = {{is_oneway}}
+    val oneway = {{is_oneway}}
   }
 
   // Compatibility aliases.
@@ -179,9 +174,7 @@ object {{ServiceName}} { self =>
 {{/thriftFunctions}}
 
 {{#withFinagle}}
-  trait FutureIface
-    extends {{#futureIfaceParent}}{{futureIfaceParent}}
-    with {{/futureIfaceParent}}{{ServiceName}}[Future] {
+  trait FutureIface extends {{#futureIfaceParent}}{{futureIfaceParent}} with {{/futureIfaceParent}}{{ServiceName}}[Future] {
 {{#asyncFunctions}}
     {{>function}}
 {{/asyncFunctions}}
@@ -189,7 +182,7 @@ object {{ServiceName}} { self =>
 
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-      protocolFactory: org.apache.thrift.protocol.TProtocolFactory = Protocols.binaryFactory(),
+      protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "{{ServiceName}}",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver,
       responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default)
@@ -211,7 +204,7 @@ object {{ServiceName}} { self =>
 
   class FinagledService(
       iface: FutureIface,
-      protocolFactory: org.apache.thrift.protocol.TProtocolFactory)
+      protocolFactory: TProtocolFactory)
     extends {{ServiceName}}$FinagleService(
       iface,
       protocolFactory)

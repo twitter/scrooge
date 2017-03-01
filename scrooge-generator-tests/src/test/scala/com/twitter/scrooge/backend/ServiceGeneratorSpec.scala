@@ -392,7 +392,10 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val simpleService: SimpleService.ServiceIface =
           Thrift.client.newServiceIface[SimpleService.ServiceIface](
             Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])), "simple")
-        Await.result(simpleService.deliver(Deliver.Args("Boston")), 5.seconds) must be(3)
+        val simpleServiceIface = Thrift.client.newMethodIface(simpleService)
+        Await.result(simpleService.deliver(Deliver.Args("Boston")).map { result =>
+          result.success
+        }) must be(Some(3))
 
         Await.result(server.close(), 2.seconds)
       }
@@ -415,17 +418,17 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val readOnlyClientService = Thrift.client.newServiceIface[ReadOnlyService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])), "read-only")
-        Await.result(readOnlyClientService.getName(GetName.Args()), 5.seconds) must be ("Initial name")
+        Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be (Some("Initial name"))
 
         val readWriteClientService = Thrift.client.newServiceIface[ReadWriteService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])), "read-write")
-        Await.result(readWriteClientService.getName(GetName.Args()), 5.seconds) must be ("Initial name")
+        Await.result(readWriteClientService.getName(GetName.Args()).map(_.success)) must be (Some("Initial name"))
 
-        Await.result(readWriteClientService.setName(SetName.Args("New name")), 5.seconds) must be(())
+        Await.result(readWriteClientService.setName(SetName.Args("New name"))) must be(SetName.Result())
 
-        Await.result(readOnlyClientService.getName(GetName.Args()), 5.seconds) must be("New name")
+        Await.result(readOnlyClientService.getName(GetName.Args()).map(_.success)) must be(Some("New name"))
 
-        Await.result(server.close(), 2.seconds)
+        Await.result(server.close, 2.seconds)
       }
 
       def serveExceptionalService(): ListeningServer = Thrift.server.serveIface(
@@ -453,9 +456,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val clientService = Thrift.client.newServiceIface[ExceptionalService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])), "client")
 
-        intercept[EmptyXception] {
-          Await.result(clientService.deliver(Deliver.Args("")), 5.seconds)
-        }
+        Await.result(clientService.deliver(Deliver.Args("")).map(_.ex3)) must be (Some(new EmptyXception()))
 
         Await.result(server.close(), 2.seconds)
       }
@@ -472,8 +473,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           Thrift.client.newServiceIface[SimpleService.ServiceIface](
             Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])), "simple")
 
-        val doubleFilter = new SimpleFilter[Deliver.Args, Deliver.SuccessType] {
-          def apply(args: Deliver.Args, service: Service[Deliver.Args, Deliver.SuccessType]) =
+        val doubleFilter = new SimpleFilter[Deliver.Args, Deliver.Result] {
+          def apply(args: Deliver.Args, service: Service[Deliver.Args, Deliver.Result]) =
             service(args.copy(where = args.where + args.where))
         }
 
@@ -500,6 +501,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val retriedDeliveryService =
           new RetryExceptionsFilter(retryPolicy, new JavaTimer(true)) andThen
+            ThriftServiceIface.resultFilter(Deliver) andThen
             clientService.deliver
         Await.result(retriedDeliveryService(Deliver.Args("there"))) must be (123)
 
