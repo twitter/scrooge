@@ -39,7 +39,7 @@ trait ThriftUnion
  */
 trait ThriftStructCodec[T <: ThriftStruct] {
   @throws(classOf[org.apache.thrift.TException])
-  def encode(t: T, oprot: TProtocol) = encoder(t, oprot)
+  def encode(t: T, oprot: TProtocol): Unit = encoder(t, oprot)
 
   @throws(classOf[org.apache.thrift.TException])
   def decode(iprot: TProtocol): T = decoder(iprot)
@@ -86,43 +86,123 @@ abstract class ThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec[T
 }
 
 /**
- * Metadata for a thrift method.
+ * Metadata for a method for a Thrift service.
+ *
+ * Comments below will use this example IDL:
+ * {{{
+ * service ExampleService {
+ *   i32 boringMethod(
+ *     1: i32 input1,
+ *     2: string input2
+ *   )
+ * }
+ * }}}
  */
 trait ThriftMethod {
-  /** A struct wrapping method arguments */
+  /**
+   * A struct wrapping method arguments
+   *
+   * For Scala generated code this will be a wrapper around all of the inputs.
+   * Roughly:
+   * {{{
+   * class Args(input1: Int, input2: String) extends ThriftStruct
+   * }}}
+   */
   type Args <: ThriftStruct
-  /** The successful return type */
+
+  /**
+   * The successful return type
+   *
+   * For Scala generated code this will be the response's type.
+   * Roughly:
+   * {{{
+   * type SuccessType = Int
+   * }}}
+   */
   type SuccessType
+
   /** Contains success or thrift application exceptions */
   type Result <: ThriftResponse[SuccessType] with ThriftStruct
 
+  // Note there is some indirection here for `FunctionType`, `ServiceType`
+  // and `ServiceIfaceServiceType`. This is because for Scala generated with
+  // Finagle bindings, these add dependencies on Twitter util and Finagle.
+  // This indirection allows us to sidestep that and keep scrooge-core
+  // free of those dependencies.
+
   /**
    * The type of this method, as a function.
-   * e.g. Function2[Int, String, Future[String]]
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * {{{
+   * Function2[Int, String, Future[Int]]
+   * }}}
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
    */
   type FunctionType
 
   /**
-   * The type of this method, as a Service
-   * e.g. Service[Args, Result]
+   * The type of this method, as a Finagle `Service` from `Args` to
+   * `Result`.
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * `Service[Args, Result]`.
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
+   *
+   * @see [[ServiceIfaceServiceType]] for a more ergonomic API.
    */
   type ServiceType
 
-  /** Convert a function implementation of this method into a service implementation */
+  /**
+   * The type of this method, as a Finagle `Service` from `Args` to
+   * `SuccessType`.
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * `Service[Args, SuccessType]`.
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
+   */
+  type ServiceIfaceServiceType
+
+  /**
+   * Convert a function implementation of this method into a
+   * ServiceIface `Service` implementation returning `SuccessType`.
+   *
+   * For Scala generated code without Finagle bindings, this will not implemented.
+   */
+  def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType
+
+  /**
+   * Convert a function implementation of this method into a
+   * `Service` implementation returning `Result`.
+   *
+   * For Scala generated code without Finagle bindings, this will not implemented.
+   */
   def functionToService(f: FunctionType): ServiceType
-  /** Convert a service implementation of this method into a function implementation */
+
+  /**
+   * Convert a service implementation of this method into a function implementation
+   *
+   * For Scala generated code without Finagle bindings, this will not implemented.
+   */
   def serviceToFunction(svc: ServiceType): FunctionType
 
   /** Thrift annotations (user-defined key-value metadata) on the method */
   def annotations: Map[String, String]
   /** Thrift method name */
   def name: String
+
   /** Thrift service name. A thrift service is a list of methods. */
   def serviceName: String
+
   /** Codec for the request args */
   def argsCodec: ThriftStructCodec3[Args]
+
   /** Codec for the response */
   def responseCodec: ThriftStructCodec3[Result]
+
   /** True for oneway thrift methods */
   def oneway: Boolean
 }
