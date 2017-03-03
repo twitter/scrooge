@@ -174,9 +174,9 @@ object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
       id: IdAlias)
     extends ResponseUnion {
 
-    //protected type ContainedType = IdAlias
+    protected type ContainedType = IdAlias
 
-    def containedValue(): IdAlias = id
+    def containedValue(): ContainedType = id
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
       _root_.scala.Some(Id.fieldInfo)
@@ -215,9 +215,9 @@ object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
       details: DetailsAlias)
     extends ResponseUnion {
 
-    //protected type ContainedType = DetailsAlias
+    protected type ContainedType = DetailsAlias
 
-    def containedValue(): DetailsAlias = details
+    def containedValue(): ContainedType = details
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
       _root_.scala.Some(Details.fieldInfo)
@@ -241,7 +241,9 @@ object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
       private val field: TFieldBlob)
     extends ResponseUnion {
 
-    def containedValue(): Unit = ()
+    protected type ContainedType = Unit
+
+    def containedValue(): ContainedType = ()
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] = _root_.scala.None
 
