@@ -9,6 +9,13 @@ as it is included in Scrooge's user's guide.
   `unionStructFieldInfo`. These were already a part of the generated Scala
   implementations for unions, but now it is defined on the trait. ``RB_ID=909576``
 
+- scrooge-core: Removed `c.t.s.ThriftStructCodec` deprecated `encoder`
+  and `decoder` methods. Use `encode` and `decode` instead. ``RB_ID=``
+
+- scrooge-core: Remove deprecated `encoder` and `decoder` methods
+  from `c.t.s.ThriftStructCodec`. Use `encode` and `decode` instead.
+  ``RB_ID=909714``
+
 - scrooge-generator: Add parsing, AST, and Scala code generation
   support for annotations on enums, enum fields, services, and
   service methods. ``RB_ID=908556``
