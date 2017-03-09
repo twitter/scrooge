@@ -59,6 +59,17 @@ object GoldService { self =>
   case class ServiceIface(
       doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
   ) extends BaseServiceIface
+    with com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServiceIface` now including the filter.
+     */
+    def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ServiceIface =
+      copy(
+        doGreatThings = filter.toFilter.andThen(doGreatThings)
+      )
+  }
 
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
@@ -67,9 +78,9 @@ object GoldService { self =>
         pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
         stats: com.twitter.finagle.stats.StatsReceiver
       ): ServiceIface =
-        new ServiceIface(
+        ServiceIface(
           doGreatThings = ThriftServiceIface(self.DoGreatThings, binaryService, pf, stats)
-      )
+        )
   }
 
   class MethodIface(serviceIface: BaseServiceIface)

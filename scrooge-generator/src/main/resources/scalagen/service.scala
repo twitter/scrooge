@@ -70,6 +70,19 @@ object {{ServiceName}} { self =>
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.BaseServiceIface
     with {{/parent}}BaseServiceIface
+    with com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServiceIface` now including the filter.
+     */
+    def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ServiceIface =
+      copy(
+{{#inheritedFunctions}}
+        {{funcName}} = filter.toFilter.andThen({{funcName}})
+{{/inheritedFunctions|,}}
+      )
+  }
 
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
@@ -78,11 +91,11 @@ object {{ServiceName}} { self =>
         pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
         stats: com.twitter.finagle.stats.StatsReceiver
       ): ServiceIface =
-        new ServiceIface(
+        ServiceIface(
 {{#inheritedFunctions}}
           {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, pf, stats)
 {{/inheritedFunctions|,}}
-      )
+        )
   }
 
   class MethodIface(serviceIface: BaseServiceIface)
