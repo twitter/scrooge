@@ -30,11 +30,13 @@
     [ms appendFormat:@"%@ ", _aRequest];
     [ms appendString:@"subRequests:"];
     [ms appendFormat:@"%@ ", _subRequests];
+    [ms appendString:@"hasDefault:"];
+    [ms appendFormat:@"%@ ", _hasDefault];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault
 {
     if (self = [super init]) {
         [self setAList:aList];
@@ -42,6 +44,7 @@
         [self setAMap:aMap];
         [self setARequest:aRequest];
         [self setSubRequests:subRequests];
+        [self setHasDefault:hasDefault];
     }
 
     return self;
@@ -65,6 +68,9 @@
         if ([decoder containsValueForKey:@"5"]) {
             [self setSubRequests:[decoder decodeObjectForKey:@"5"]];
         }
+        if ([decoder containsValueForKey:@"6"]) {
+            [self setHasDefault:[decoder decodeObjectForKey:@"6"]];
+        }
     }
     return self;
 }
@@ -85,6 +91,9 @@
     }
     if (_subRequestsIsSet) {
         [encoder encodeObject:_subRequests forKey:@"5"];
+    }
+    if (_hasDefaultIsSet) {
+        [encoder encodeObject:_hasDefault forKey:@"6"];
     }
 }
 
@@ -116,6 +125,12 @@
 {
     _subRequests = [subRequests copy];
     _subRequestsIsSet = YES;
+}
+
+- (void)setHasDefault:(NSString *)hasDefault
+{
+    _hasDefault = [hasDefault copy];
+    _hasDefaultIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -221,6 +236,16 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 6:
+                if (fieldType == TType_STRING) {
+                    NSString * hasDefault_item;
+                    hasDefault_item = [inProtocol readString];
+                    [self setHasDefault:hasDefault_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -288,6 +313,12 @@
             [subRequests_item_element write: outProtocol];
         }
         [outProtocol writeListEnd];
+        [outProtocol writeFieldEnd];
+    }
+    if (_hasDefaultIsSet) {
+        [outProtocol writeFieldBeginWithName:@"hasDefault" type:TType_STRING fieldID:6];
+        NSString * hasDefault_item = _hasDefault;
+        [outProtocol writeString:hasDefault_item];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

@@ -9,6 +9,10 @@ exception OverCapacityException {
   1: i32 chillTimeSeconds
 }
 
+exception AnotherException {
+  1: i32 errorCode
+}
+
 enum RequestType {
   Create = 1 (some.annotation = "true"),
   Read = 2,
@@ -28,7 +32,8 @@ struct Request {
   2: set<i32> aSet,
   3: map<i64, i64> aMap,
   4: optional Request aRequest,
-  5: list<Request> subRequests
+  5: list<Request> subRequests,
+  6: string hasDefault = "the_default"
 }
 
 struct Response {
@@ -46,3 +51,12 @@ service GoldService {
   ) (some.annotation = "false")
 
 } (an.annotation = "true")
+
+service PlatinumService extends GoldService {
+  i32 moreCoolThings(
+    1: Request request
+  ) throws (
+    1: AnotherException ax,
+    2: OverCapacityException oce
+  )
+}

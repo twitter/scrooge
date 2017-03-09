@@ -22,6 +22,7 @@ Request.fields[2] = { name = 'aSet', required = true, ttype = 'set', value = 'i3
 Request.fields[3] = { name = 'aMap', required = true, ttype = 'map', key = 'i64', value = 'i64', }
 Request.fields[4] = { name = 'aRequest', ttype = 'struct', fields = Request.fields, }
 Request.fields[5] = { name = 'subRequests', required = true, ttype = 'list', value = Request, }
+Request.fields[6] = { name = 'hasDefault', required = true, ttype = 'string', }
 
 local binaryCodec = require 'libthrift'
 

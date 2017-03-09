@@ -26,8 +26,11 @@
 @property (nonatomic, copy) NSArray * subRequests;
 @property (nonatomic, readonly) BOOL subRequestsIsSet;
 
+@property (nonatomic, copy) NSString * hasDefault;
+@property (nonatomic, readonly) BOOL hasDefaultIsSet;
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests;
+
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

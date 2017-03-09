@@ -42,6 +42,8 @@ object Request extends ThriftStructCodec3[Request] {
   val ARequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
   val SubRequestsField = new TField("subRequests", TType.LIST, 5)
   val SubRequestsFieldManifest = implicitly[Manifest[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]]
+  val HasDefaultField = new TField("hasDefault", TType.STRING, 6)
+  val HasDefaultFieldManifest = implicitly[Manifest[String]]
 
   /**
    * Field information in declaration order.
@@ -101,6 +103,17 @@ object Request extends ThriftStructCodec3[Request] {
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
+    ),
+    new ThriftStructFieldInfo(
+      HasDefaultField,
+      false,
+      false,
+      HasDefaultFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      Some[String]("the_default")
     )
   )
 
@@ -161,6 +174,11 @@ object Request extends ThriftStructCodec3[Request] {
           field.map { field =>
             com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
           }
+        },
+      hasDefault =
+        {
+          val field = original.hasDefault
+          field
         }
     )
 
@@ -175,6 +193,7 @@ object Request extends ThriftStructCodec3[Request] {
     var aMap: Map[Long, Long] = Map[Long, Long]()
     var aRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Request] = None
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+    var hasDefaultOffset: Int = -1
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -257,6 +276,20 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 6 =>
+            _field.`type` match {
+              case TType.STRING =>
+                hasDefaultOffset = _iprot.offsetSkipString
+
+              case _actualType =>
+                val _expectedType = TType.STRING
+                throw new TProtocolException(
+                  "Received wrong type for field 'hasDefault' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -277,6 +310,7 @@ object Request extends ThriftStructCodec3[Request] {
       aMap,
       aRequest,
       subRequests,
+      hasDefaultOffset,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -296,6 +330,7 @@ object Request extends ThriftStructCodec3[Request] {
     var aMap: Map[Long, Long] = Map[Long, Long]()
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+    var hasDefault: String = "the_default"
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -371,6 +406,19 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 6 =>
+            _field.`type` match {
+              case TType.STRING =>
+                hasDefault = readHasDefaultValue(_iprot)
+              case _actualType =>
+                val _expectedType = TType.STRING
+                throw new TProtocolException(
+                  "Received wrong type for field 'hasDefault' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -387,6 +435,7 @@ object Request extends ThriftStructCodec3[Request] {
       aMap,
       aRequest,
       subRequests,
+      hasDefault,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -399,17 +448,19 @@ object Request extends ThriftStructCodec3[Request] {
     aSet: Set[Int] = Set[Int](),
     aMap: Map[Long, Long] = Map[Long, Long](),
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
-    subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+    subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
+    hasDefault: String = "the_default"
   ): Request =
     new Immutable(
       aList,
       aSet,
       aMap,
       aRequest,
-      subRequests
+      subRequests,
+      hasDefault
     )
 
-  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String]] = _root_.scala.Some(_item.toTuple)
 
 
   @inline private def readAListValue(_iprot: TProtocol): Seq[String] = {
@@ -585,6 +636,20 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeListEnd()
   }
 
+  @inline private def readHasDefaultValue(_iprot: TProtocol): String = {
+    _iprot.readString()
+  }
+
+  @inline private def writeHasDefaultField(hasDefault_item: String, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(HasDefaultField)
+    writeHasDefaultValue(hasDefault_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeHasDefaultValue(hasDefault_item: String, _oprot: TProtocol): Unit = {
+    _oprot.writeString(hasDefault_item)
+  }
+
 
   object Immutable extends ThriftStructCodec3[Request] {
     override def encode(_item: Request, _oproto: TProtocol): Unit = { _item.write(_oproto) }
@@ -603,6 +668,7 @@ object Request extends ThriftStructCodec3[Request] {
       val aMap: Map[Long, Long],
       val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       val subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
+      val hasDefault: String,
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
     def this(
@@ -610,13 +676,15 @@ object Request extends ThriftStructCodec3[Request] {
       aSet: Set[Int] = Set[Int](),
       aMap: Map[Long, Long] = Map[Long, Long](),
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
-      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
+      hasDefault: String = "the_default"
     ) = this(
       aList,
       aSet,
       aMap,
       aRequest,
       subRequests,
+      hasDefault,
       Map.empty
     )
   }
@@ -635,6 +703,7 @@ object Request extends ThriftStructCodec3[Request] {
       val aMap: Map[Long, Long],
       val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       val subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
+      hasDefaultOffset: Int,
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
 
@@ -645,6 +714,12 @@ object Request extends ThriftStructCodec3[Request] {
       }
     }
 
+    lazy val hasDefault: String =
+      if (hasDefaultOffset == -1)
+        "the_default"
+      else {
+        _proto.decodeString(_buf, hasDefaultOffset)
+      }
 
     /**
      * Override the super hash code to make it a lazy val rather than def.
@@ -672,13 +747,14 @@ object Request extends ThriftStructCodec3[Request] {
     override def aMap: Map[Long, Long] = _underlying_Request.aMap
     override def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.aRequest
     override def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.subRequests
+    override def hasDefault: String = _underlying_Request.hasDefault
     override def _passthroughFields = _underlying_Request._passthroughFields
   }
 }
 
 trait Request
   extends ThriftStruct
-  with _root_.scala.Product5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  with _root_.scala.Product6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String]
   with HasThriftStructCodec3[Request]
   with java.io.Serializable
 {
@@ -689,6 +765,7 @@ trait Request
   def aMap: Map[Long, Long]
   def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]
   def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request]
+  def hasDefault: String
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
@@ -697,14 +774,16 @@ trait Request
   def _3 = aMap
   def _4 = aRequest
   def _5 = subRequests
+  def _6 = hasDefault
 
-  def toTuple: _root_.scala.Tuple5[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request]] = {
+  def toTuple: _root_.scala.Tuple6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String] = {
     (
       aList,
       aSet,
       aMap,
       aRequest,
-      subRequests
+      subRequests,
+      hasDefault
     )
   }
 
@@ -757,6 +836,13 @@ trait Request
               } else {
                 _root_.scala.None
               }
+            case 6 =>
+              if (hasDefault ne null) {
+                writeHasDefaultValue(hasDefault, _oprot)
+                _root_.scala.Some(Request.HasDefaultField)
+              } else {
+                _root_.scala.None
+              }
             case _ => _root_.scala.None
           }
         _fieldOpt match {
@@ -788,6 +874,7 @@ trait Request
     var aMap: Map[Long, Long] = this.aMap
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
+    var hasDefault: String = this.hasDefault
     var _passthroughFields = this._passthroughFields
     _blob.id match {
       case 1 =>
@@ -800,6 +887,8 @@ trait Request
         aRequest = _root_.scala.Some(readARequestValue(_blob.read))
       case 5 =>
         subRequests = readSubRequestsValue(_blob.read)
+      case 6 =>
+        hasDefault = readHasDefaultValue(_blob.read)
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
     new Immutable(
@@ -808,6 +897,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
+      hasDefault,
       _passthroughFields
     )
   }
@@ -823,6 +913,7 @@ trait Request
     var aMap: Map[Long, Long] = this.aMap
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
+    var hasDefault: String = this.hasDefault
 
     _fieldId match {
       case 1 =>
@@ -835,6 +926,8 @@ trait Request
         aRequest = _root_.scala.None
       case 5 =>
         subRequests = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+      case 6 =>
+        hasDefault = "the_default"
       case _ =>
     }
     new Immutable(
@@ -843,6 +936,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
+      hasDefault,
       _passthroughFields - _fieldId
     )
   }
@@ -862,6 +956,8 @@ trait Request
 
   def unsetSubRequests: Request = unsetField(5)
 
+  def unsetHasDefault: Request = unsetField(6)
+
 
   override def write(_oprot: TProtocol): Unit = {
     Request.validate(this)
@@ -871,6 +967,7 @@ trait Request
     if (aMap ne null) writeAMapField(aMap, _oprot)
     if (aRequest.isDefined) writeARequestField(aRequest.get, _oprot)
     if (subRequests ne null) writeSubRequestsField(subRequests, _oprot)
+    if (hasDefault ne null) writeHasDefaultField(hasDefault, _oprot)
     if (_passthroughFields.nonEmpty) {
       _passthroughFields.values.foreach { _.write(_oprot) }
     }
@@ -884,6 +981,7 @@ trait Request
     aMap: Map[Long, Long] = this.aMap,
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest,
     subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests,
+    hasDefault: String = this.hasDefault,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): Request =
     new Immutable(
@@ -892,6 +990,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
+      hasDefault,
       _passthroughFields
     )
 
@@ -911,7 +1010,7 @@ trait Request
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
 
-  override def productArity: Int = 5
+  override def productArity: Int = 6
 
   override def productElement(n: Int): Any = n match {
     case 0 => this.aList
@@ -919,6 +1018,7 @@ trait Request
     case 2 => this.aMap
     case 3 => this.aRequest
     case 4 => this.subRequests
+    case 5 => this.hasDefault
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
