@@ -1,1 +1,8 @@
-// Handled by `libthrift` in Node
+{{#isPrimitive}}
+    output.writeFieldBegin("{{name}}", Thrift.Type.{{typeTitleCase}}, {{id}})
+    output.write{{typeTitleCase}}(this.{{name}})
+{{/isPrimitive}}
+{{^isPrimitive}}
+    output.writeFieldBegin("{{name}}", Thrift.Type.STRUCT, {{id}})
+    this.{{name}}.write(output)
+{{/isPrimitive}}

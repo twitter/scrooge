@@ -1,77 +1,70 @@
 {{#docstring}}
-/**
 {{docstring}}
-*/
 {{/docstring}}
 
 // Import this file with:
-//   require '{{package}}.{{StructName}}'
+// import { {{StructName}} } from '{{package}}'
 // Note: This file depends on libthrift!
 
-const thrift = require("thrift");
-const Thrift = thrift.Thrift;
-const Q = thrift.Q;
+import thrift from 'thrift'
+import {Q, Thrift} from 'thrift'
 
 {{requireStatements}}
 
 export class {{StructName}} {
-    public success: boolean;
-    {{#fields}}public {{fieldName}}: {{fieldType}};
-    {{/fields}}
+    public success: boolean
+    {{#each fields}}
+    public {{fieldName}}: {{fieldType}}
+    {{/each}}
     constructor(args?) {
-        {{#fields}}this.{{fieldName}} = null;
-        {{/fields}}
+        {{#if fields}}
         if (args) {
-            {{#fields}}if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
-                this.{{fieldName}} = args.{{fieldName}};
+            {{#each fields}}
+            if (args.{{name}} !== undefined && args.{{name}} !== null) {
+                this.{{name}} = args.{{name}}
             } else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!');
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
             }
-            {{/fields}}
+            {{/each}}
         }
+        {{/if}}
     }
 
     public read(input) {
-        input.readStructBegin();
+        input.readStructBegin()
         while (true) {
-            const ret = input.readFieldBegin();
-            const fname = ret.fname;
-            const ftype = ret.ftype;
-            const fid = ret.fid;
+            const {fname, ftype, fid} = input.readFieldBegin()
             if (ftype === Thrift.Type.STOP) {
-                break;
+                break
             }
-            {{#has_fields}}switch (fid) {
-                {{#fields}}case {{id}}:
-                    if (ftype === Thrift.Type.{{fieldTypeTitleCase}}) {
-                        this.{{fieldName}} = input.read{{fieldfieldTypeTitleCaseType}}();
-                    } else {
-                        input.skip(ftype);
-                    }
-                    break;
-                {{/fields}}
+            {{#if fields}}
+            switch (fid) {
+                {{#each fields}}case {{id}}:
+                    {{>readField}}
+                    break
+                {{/each}}
                 default:
-                    input.skip(ftype);
+                    input.skip(ftype)
             }
-            {{/has_fields}}
-            {{^has_fields}}input.skip(ftype);
-            {{/has_fields}}
-            input.readFieldEnd();
+            {{else}}
+            input.skip(ftype)
+            {{/if}}
+            input.readFieldEnd()
         }
-        input.readStructEnd();
-        return;
+        input.readStructEnd()
+        return
     }
 
     public write(output) {
-        output.writeStructBegin("{{StructName}}");
-        {{#fields}}if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
-            output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{fieldTypeTitleCase}}, {{id}});
-            output.write{{fieldTypeTitleCase}}(this.{{fieldName}});
-            output.writeFieldEnd();
+        output.writeStructBegin("{{StructName}}")
+        {{#each fields}}
+        if (this.{{name}} !== null && this.{{name}} !== undefined) {
+            {{>writeField}}
+            output.writeFieldEnd()
         }
-        {{/fields}}
-        output.writeFieldStop();
-        output.writeStructEnd();
-        return;
+        {{/each}}
+        output.writeFieldStop()
+        output.writeStructEnd()
+        return
     }
 }

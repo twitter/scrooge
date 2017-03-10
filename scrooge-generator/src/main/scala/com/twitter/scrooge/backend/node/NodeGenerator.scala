@@ -2,7 +2,7 @@ package com.twitter.scrooge.backend.node
 
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.{Generator, GeneratorFactory, ServiceOption, TemplateGenerator}
-import com.twitter.scrooge.frontend.ResolvedDocument
+import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 
@@ -11,24 +11,25 @@ import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
   */
 
 object NodeGeneratorFactory extends GeneratorFactory {
+  val language = "node"
+  new HandlebarLoader("")
+  val handlebarLoader = new HandlebarLoader("/nodegen/", ".mustache", commentFunction)
+  def apply(
+     doc: ResolvedDocument,
+     defaultNamespace: String,
+     experimentFlags: Seq[String]
+   ): Generator = new NodeGenerator(doc, defaultNamespace, handlebarLoader)
 
   def commentFunction(commentStyle: HandlebarLoader.CommentStyle): String = {
     import HandlebarLoader._
 
     commentStyle match {
       case BlockBegin => "/**"
-      case BlockContinuation => "  "
-      case BlockEnd => "*/\n"
+      case BlockContinuation => " * "
+      case BlockEnd => " */\n"
       case SingleLineComment => "// "
     }
   }
-
-  val language = "node"
-  val templateLoader = new HandlebarLoader("/nodegen/", ".mustache", commentFunction)
-  def apply(doc: ResolvedDocument,
-            defaultNamespace: String,
-            experimentFlags: Seq[String]): Generator =
-    new NodeGenerator(doc, defaultNamespace, templateLoader)
 }
 
 class NodeGenerator (
@@ -46,34 +47,20 @@ class NodeGenerator (
 
   var has_fields = false
 
-  def genType(t: FunctionType): CodeFragment = t match {
-    case bt: BaseType => genPrimitiveType(bt)
-    case StructType(st, _) => v(s"ttypes.${genID(st.sid.toTitleCase)}")
-//    case EnumType(et, _) =>  v(s"ttype = 'enum', value = ${genID(et.sid.toTitleCase)}")
-//    case ListType(valueType, _) => v(s"ttype = 'list', ${genComponentType("value", valueType)}")
-//    case MapType(keyType, valueType, _) =>
-//      v(s"ttype = 'map', ${genComponentType("key", keyType)}, ${genComponentType("value", valueType)}")
-//    case SetType(valueType, _) => v(s"ttype = 'set', ${genComponentType("value", valueType)}")
-    case _ => v("")
+  private[this] object NodeGenerator {
+
+    object NodeKeywords {
+      private[this] val keywords = Set(
+        "break", "case", "catch", "class", "const", "continue", "debugger",
+        "default", "delete", "do", "else", "enum", "export", "extends", "false",
+        "finally", "for", "function", "if", "import", "in", "instanceof", "new",
+        "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof",
+        "var", "void", "while", "with")
+
+      def contains(str: String): Boolean = keywords.contains(str.toLowerCase)
+    }
+
   }
-
-
-  def genPrimitiveType(t: FunctionType): CodeFragment = t match {
-    case Void => v("void")
-    case TBool => v("boolean")
-    case TByte => v("number")
-    case TDouble => v("number")
-    case TI16 => v("number")
-    case TI32 => v("number")
-    case TI64 => v("number")
-    case TString => v("string")
-    case TBinary => v("string")
-    case _ => v("")
-  }
-
-  def genFieldType(f: Field): CodeFragment = v("")
-  // For functions (services) -- not supported in Lua
-  def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = v("")
 
   def quoteKeyword(str: String): String =
     if (NodeKeywords.contains(str))
@@ -81,13 +68,47 @@ class NodeGenerator (
     else
       str
 
+  def genType(t: FunctionType): CodeFragment = t match {
+    case bt: BaseType => genPrimitiveType(bt)
+    case StructType(st, _) => v(s"${genID(st.sid.toTitleCase)}")
+    case MapType(k, vv, _) =>
+      v("Map<" + genType(k).toData + ", " + genType(vv).toData + ">")
+    case SetType(x, _) =>
+      v("Set<" + genType(x).toData + ">")
+    case ListType(x, _) =>
+      v("Array<" + genType(x).toData + ">")
+    case t: NamedType =>
+      val id = doc.qualifyName(t, namespaceLanguage, defaultNamespace)
+      v(genID(id.toTitleCase).toData)
+    case r: ReferenceType =>
+      throw new ScroogeInternalException("ReferenceType should not appear in backend")
+    case _ =>
+      v("unknownNonPrimitive")
+  }
+
+
+  def genPrimitiveType(t: FunctionType): CodeFragment = t match {
+    case Void => v("void")
+    case TBool => v("boolean")
+    case TByte => v("byte")
+    case TDouble => v("number")
+    case TI16 => v("number")
+    case TI32 => v("number")
+    case TI64 => v("number")
+    case TString => v("string")
+    case TBinary => v("Buffer")
+    case _ => v("unknownPrimitive")
+  }
+
+  def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = v("genFieldParams")
+
   override def isPrimitive(t: FunctionType): Boolean = {
-    t match {
+    def matcher(x: FunctionType) = x match {
       case Void | TString | TBool | TByte | TI16 | TI32 | TI64 | TDouble => true
       case _ => false
     }
+    matcher(t) || t.isInstanceOf[EnumType]
   }
-
 
   override def fieldsToDict(fields: Seq[Field],
                             blacklist: Seq[String],
@@ -97,13 +118,50 @@ class NodeGenerator (
 
     (dictionaries, fields, 0 until dictionaries.size).zipped.foreach {
       case (dictionary, field, index) =>
+        dictionary("name") = genID(field.sid).toString
+        dictionary("typeTitleCase") = Identifier.toTitleCase(genType(field.fieldType).toString)
+
         dictionary("fieldNameCamelCase") = genID(field.sid.toCamelCase).toString
         dictionary("fieldNameTitleCase") = genID(field.sid.toTitleCase).toString
         dictionary("fieldTypeTitleCase") = Identifier.toTitleCase(genType(field.fieldType).toString)
-        dictionary("isPrimitive") = isPrimitive(field.fieldType) || field.fieldType.isInstanceOf[EnumType]
+        dictionary("isPrimitive") = isPrimitive(field.fieldType)
     }
 
     dictionaries
+  }
+
+  override def getNamespace(doc: Document): Identifier = {
+    def replaceThriftJavaWithThriftLua(s: String) = s.replaceAllLiterally("thriftjava", "thriftnode")
+
+    doc.namespace(namespaceLanguage)
+      .orElse {
+        // If we don't have a lua namespace, fall back to the java one
+        doc
+          .namespace("java")
+          .map {
+            case SimpleID(name, origName) => SimpleID(replaceThriftJavaWithThriftLua(name), origName)
+            case QualifiedID(names) => QualifiedID(names.dropRight(1) ++ names.takeRight(1).map(replaceThriftJavaWithThriftLua))
+          }
+      }
+      .getOrElse(SimpleID(defaultNamespace))
+  }
+
+  private[this] def findRequireableStructTypes(ft: FieldType, excludeSelfType: SimpleID): Seq[NamedType] = {
+    ft match {
+      case t: NamedType if (excludeSelfType == t.sid) => Nil
+      case t: StructType => Seq(t)
+      case t: EnumType => Seq(t)
+      case ListType(t, _) => findRequireableStructTypes(t, excludeSelfType)
+      case MapType(keyType, valueType, _) => findRequireableStructTypes(keyType, excludeSelfType) ++ findRequireableStructTypes(valueType, excludeSelfType)
+      case SetType(t, _) => findRequireableStructTypes(t, excludeSelfType)
+      case _ => Nil
+    }
+  }
+
+  private[this] def genRequireStatement(t: NamedType, namespace: Option[Identifier]): String = {
+    val typeName = t.sid.toTitleCase.fullName
+//    val qualifiedName = qualifyNamedType(t, namespace).fullName
+    s"import {$typeName} from './$typeName'"
   }
 
   override def structDict(struct: StructLike,
@@ -112,8 +170,16 @@ class NodeGenerator (
                           Set[ServiceOption],
                           toplevel: Boolean = false) = {
     val dictionary = super.structDict(struct, namespace, includes, serviceOptions)
-    dictionary("has_fields") = struct.fields.length > 0
 
+    val requireStatements = struct
+      .fields
+      .map(_.fieldType)
+      .flatMap(findRequireableStructTypes(_, struct.sid))
+      .map(genRequireStatement(_, namespace))
+      .distinct
+      .sorted
+
+    dictionary.update("requireStatements", requireStatements.mkString("\n"))
     dictionary
   }
 
@@ -139,6 +205,7 @@ class NodeGenerator (
                            includes: Seq[Include],
                            options: Set[ServiceOption]): Dictionary = {
     val dict = super.serviceDict(service, namespace, includes, options)
+    dict("syncFunctionStructs") = genSyncFunctionStructs(dict)
     val doc = normalizeCase(resolvedDoc.document)
     dict("structs") = doc.structs.map { struct =>
       structDict(struct, Some(namespace), includes, options, true)
@@ -147,13 +214,64 @@ class NodeGenerator (
     dict
   }
 
-  // For constants support, not implemented
-  def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
-  def genSet(set: SetRHS, fieldType: Option[FieldType]): CodeFragment = v("")
-  def genMap(map: MapRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
-  def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
-  def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
-  def genUnion(struct: UnionRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
+  def genSyncFunctionStructs(dict: Dictionary): Seq[Dictionary] = {
+    val structs = new Dictionary()
+    for (f <- dict("syncFunctions").children) {
+      val baseClassName = dict("ServiceName") + f("funcNameTitleCase").toData
+      val argsDict = new Dictionary()
+      argsDict("fields") = f("args").children
+      structs(baseClassName + "Args") = Seq(argsDict)
+
+      val resultDict = new Dictionary()
+      val resultField = new Dictionary()
+      resultField("name") = f("success").toData
+      resultField("type") = f("typeName").toData
+      resultDict("fields") = Seq(resultField)
+
+      structs(baseClassName + "Result") = Seq(resultDict)
+    }
+    Seq(dict)
+  }
+
+  def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+    val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
+    val code = list.elems.map { e =>
+      genConstant(e, listElemType).toData
+    }.mkString(", ")
+    v(s"[$code]")
+  }
+
+  def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+    val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
+    val code = set.elems.map { e =>
+      genConstant(e, setElemType).toData
+    }.mkString(", ")
+    v(s"Set([$code])")
+  }
+
+  def genMap(map: MapRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+    val mapType = fieldType.map(_.asInstanceOf[MapType])
+    val code = map.elems.map { case (k, v) =>
+      val key = genConstant(k, mapType.map(_.keyType)).toData
+      val value = genConstant(v, mapType.map(_.valueType)).toData
+      s"[$key, $value]"
+    }.mkString(", ")
+
+    v(s"Map([$code])")
+  }
+
+  def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
+    def getTypeId: Identifier = fieldType.getOrElse(Void) match {
+      case n: NamedType => qualifyNamedType(n)
+      case _ =>  enum.enum.sid
+    }
+    genID(enum.value.sid.toTitleCase.addScope(getTypeId.toTitleCase))
+  }
+
+    // For constants support, not implemented
+//  def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = v("")
+  def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment = v("struct")
+  def genUnion(struct: UnionRHS, fieldType: Option[FieldType] = None): CodeFragment = v("union")
 
   // For mutability/immutability support, not implemented
   def genToImmutable(t: FieldType): CodeFragment = v("")
@@ -166,16 +284,14 @@ class NodeGenerator (
   def getParentFinagleService(p: ServiceParent): CodeFragment = v("")
   def getParentFinagleClient(p: ServiceParent): CodeFragment = v("")
 
-}
-
-private[this] object NodeGenerator {
-  object NodeKeywords {
-    private[this] val keywords = Set(
-      "break", "case", "catch", "class", "const", "continue", "debugger",
-      "default", "delete", "do", "else", "enum", "export", "extends", "false",
-      "finally", "for", "function", "if", "import", "in", "instanceof", "new",
-      "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof",
-      "var", "void", "while", "with")
-    def contains(str: String): Boolean = keywords.contains(str.toLowerCase)
+  def genFieldType(f: Field): CodeFragment = {
+    val baseType = genType(f.fieldType).toData
+    val code =
+      if (f.requiredness.isOptional) {
+        baseType + "| null"
+      } else {
+        baseType
+      }
+    v(code)
   }
 }

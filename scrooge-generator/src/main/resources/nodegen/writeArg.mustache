@@ -1,0 +1,9 @@
+{{#isPrimitive}}
+    output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{fieldTypeTitleCase}}, {{id}})
+    output.write{{fieldTypeTitleCase}}(this.{{fieldName}})
+{{/isPrimitive}}
+{{^isPrimitive}}
+    output.writeFieldBegin("{{fieldName}}", Thrift.Type.STRUCT, {{id}})
+    this.{{fieldName}}.write(output)
+{{/isPrimitive}}
+output.writeFieldEnd()
