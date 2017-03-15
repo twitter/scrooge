@@ -4,9 +4,6 @@ sudo: required
 
 language: scala
 
-env:
-  - SKIP_FLAKY=true
-
 # These directories are cached to S3 at the end of the build
 cache:
   directories:
@@ -32,8 +29,8 @@ before_script:
   - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION update
 
 script:
-  - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - travis_retry ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
+  - travis_retry ./sbt -DSKIP_FLAKY=true -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  - travis_retry ./sbt -DSKIP_FLAKY=true -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
   - ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success:
