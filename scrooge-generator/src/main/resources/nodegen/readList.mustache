@@ -1,14 +1,10 @@
-const meta = input.readListBegin()
-if (meta.size === 0) {
-input.readListEnd()
-return
-}
-const elems = new Array<{{eltType}}>()
-for (let i; i < meta.size; i++) {
-const elem = {{#eltReadWriteInfo}}
-    {{>readValue}}
-{{/eltReadWriteInfo}}
-elems.push(elem)
-}
-input.readListEnd()
-return elems
+(function(){
+    const meta = input.readListBegin()
+    const elems = new Array<{{eltType}}>()
+    for (let i = 0; i < meta.size; i++) {
+        const elem = {{#eltReadWriteInfo}}{{>readValue}}{{/eltReadWriteInfo}}
+        elems.push(elem)
+    }
+    input.readListEnd()
+    return elems
+})()

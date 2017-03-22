@@ -1,8 +1,16 @@
-{{#isPrimitive}}
-    output.writeFieldBegin("{{name}}", Thrift.Type.{{typeTitleCase}}, {{id}})
-    output.write{{typeTitleCase}}(this.{{name}})
-{{/isPrimitive}}
-{{^isPrimitive}}
-    output.writeFieldBegin("{{name}}", Thrift.Type.STRUCT, {{id}})
-    this.{{name}}.write(output)
-{{/isPrimitive}}
+{{#optional}}
+if (this.{{fieldName}} !== undefined) {
+{{/optional}}
+{{^optional}}
+{{#nullable}}
+if (this.{{fieldName}} !== null) {
+{{/nullable}}
+{{^nullable}}
+if (true) {
+{{/nullable}}
+{{/optional}}
+    const {{valueVariableName}} = this.{{fieldName}}
+    output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{constType}}{{#isEnum}}I32{{/isEnum}}, {{id}})
+    {{#readWriteInfo}}{{>writeValue}}{{/readWriteInfo}}
+    output.writeFieldEnd()
+}

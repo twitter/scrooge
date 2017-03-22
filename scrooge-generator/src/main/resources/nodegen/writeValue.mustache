@@ -1,1 +1,20 @@
-// Not needed for Node
+// isList: {{isList}}, isSet: {{isSet}}, isMap: {{isMap}}, isStruct: {{isStruct}}, isEnum: {{isEnum}}, isBase: {{isBase}}
+{{#isList}}
+{{>writeList}}
+{{/isList}}
+{{#isSet}}
+{{>writeSet}}
+{{/isSet}}
+{{#isMap}}
+{{>writeMap}}
+{{/isMap}}
+{{#isStruct}}
+{{>writeStruct}}
+{{/isStruct}}
+{{#isEnum}}
+{{>writeEnum}}
+{{/isEnum}}
+{{#isBase}}
+{{>writeBase}}
+{{/isBase}}
+

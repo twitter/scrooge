@@ -1,16 +1,16 @@
 import thrift from 'thrift'
 import {Thrift, Q} from 'thrift'
 
-{{#each structs}}
+{{#structs}}
 import { {{StructName}} } from './{{StructName}}'
-{{/each}}
+{{/structs}}
 
-{{#each syncFunctionStructs}}
-    {{>struct argsStruct}}
-    {{>struct requestStruct}}
-{{/each}}
+{{#syncFunctionStructs}}
+{{#argsStruct}}{{>struct}}{{/argsStruct}}
+{{#resultStruct}}{{>struct}}{{/resultStruct}}
+{{/syncFunctionStructs}}
 
-class {{ServiceName}}Client {
+export class Client {
     public output
     public pClass
     private _seqid
@@ -32,7 +32,7 @@ class {{ServiceName}}Client {
     }
 
     {{#syncFunctions}}
-    public {{name}}({{#each args}}{{name}}: {{type}}, {{/each}}callback) {
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback) {
         this._seqid = this.new_seqid()
         if (callback === undefined) {
             let defer = Q.defer()
@@ -43,19 +43,19 @@ class {{ServiceName}}Client {
                     defer.resolve(result)
                 }
             }
-            this.send_{{name}}({{#each args}}{{name}}, {{/each}})
+            this.send_{{name}}({{#args}}{{fieldName}}, {{/args}})
             return defer.promise
         } else {
             this._reqs[this.seqid()] = callback
-            this.send_{{name}}({{#each args}}{{name}} {{/each}})
+            this.send_{{name}}({{#args}}{{fieldName}} {{/args}})
         }
     }
 
-    public send_{{name}}({{#each args}}{{name}}: {{type}}, {{/each}}) {
+    public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}) {
         const output = new this.pClass(this.output)
         output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
-        {{#each args}}args.{{name}} = {{name}}{{/each}}
+        {{#args}}args.{{fieldName}} = {{fieldName}}{{/args}}
         args.write(output)
         output.writeMessageEnd()
         return this.output.flush()
@@ -83,7 +83,7 @@ class {{ServiceName}}Client {
     {{/syncFunctions}}
 }
 
-class {{ServiceName}}Processor {
+export class Processor {
     private _handler
 
     constructor(handler) {
@@ -110,8 +110,8 @@ class {{ServiceName}}Processor {
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
         args.read(input)
         input.readMessageEnd()
-        if (this._handler.{{name}}.length === {{args.length}}) {
-            Q.fcall(this._handler.{{name}}{{#each args}}, args.{{name}}{{/each}}).then((data) => {
+        if (this._handler.{{name}}.length === {{argsLength}}) {
+            Q.fcall(this._handler.{{name}}{{#args}}, args.{{fieldName}}{{/args}}).then((data) => {
                 const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                 result.write(output)
@@ -125,7 +125,7 @@ class {{ServiceName}}Processor {
                 output.flush()
             })
         } else {
-            this._handler.{{name}}({{#each args}}args.{{name}}, {{/each}}(err, data) => {
+            this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}(err, data) => {
                 let result
                 if (err == null) {
                     result = new {{ServiceName}}{{nameTitleCase}}Result((err != null ? err : {success: data}))
@@ -142,7 +142,4 @@ class {{ServiceName}}Processor {
     }
     {{/syncFunctions}}
 }
-
-export { {{ServiceName}}Processor as Processor }
-export { {{ServiceName}}Client as Client }
 

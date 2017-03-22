@@ -1,1 +1,11 @@
-// Handled by `libthrift` in Node
+output.writeMapBegin(Thrift.Type.{{keyWireConstType}}, Thrift.Type.{{valueWireConstType}}, {{name}}.length)
+for (let [{{keyName}}, {{valueName}}] of {{name}}) {
+{{#keyReadWriteInfo}}
+    {{>writeValue}}
+{{/keyReadWriteInfo}}
+{{#valueReadWriteInfo}}
+    {{>writeValue}}
+{{/valueReadWriteInfo}}
+}
+output.writeMapEnd()
+

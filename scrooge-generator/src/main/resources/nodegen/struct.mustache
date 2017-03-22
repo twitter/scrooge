@@ -1,33 +1,31 @@
 {{#docstring}}
 {{docstring}}
 {{/docstring}}
-
-// Import this file with:
-// import { {{StructName}} } from '{{package}}'
-// Note: This file depends on libthrift!
+{{#importDoc}}
+{{>importDoc}}
 
 import thrift from 'thrift'
 import {Q, Thrift} from 'thrift'
 
 {{requireStatements}}
+{{/importDoc}}
 
 export class {{StructName}} {
-    public success: boolean
-    {{#each fields}}
+{{#fields}}
     public {{fieldName}}: {{fieldType}}
-    {{/each}}
+{{/fields}}
     constructor(args?) {
-        {{#if fields}}
+{{#has_fields}}
         if (args) {
-            {{#each fields}}
-            if (args.{{name}} !== undefined && args.{{name}} !== null) {
-                this.{{name}} = args.{{name}}
+{{#fields}}
+            if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
+                this.{{fieldName}} = args.{{fieldName}}
             } else {
                 throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
             }
-            {{/each}}
+{{/fields}}
         }
-        {{/if}}
+{{/has_fields}}
     }
 
     public read(input) {
@@ -37,18 +35,19 @@ export class {{StructName}} {
             if (ftype === Thrift.Type.STOP) {
                 break
             }
-            {{#if fields}}
+{{#has_fields}}
             switch (fid) {
-                {{#each fields}}case {{id}}:
+                {{#fields}}case {{index}}:
+                    // reading {{fieldName}}
                     {{>readField}}
                     break
-                {{/each}}
+{{/fields}}
                 default:
                     input.skip(ftype)
             }
-            {{else}}
+{{/has_fields}}{{^has_fields}}
             input.skip(ftype)
-            {{/if}}
+{{/has_fields}}
             input.readFieldEnd()
         }
         input.readStructEnd()
@@ -57,12 +56,12 @@ export class {{StructName}} {
 
     public write(output) {
         output.writeStructBegin("{{StructName}}")
-        {{#each fields}}
-        if (this.{{name}} !== null && this.{{name}} !== undefined) {
+{{#fields}}
+        if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
+            // writing {{fieldName}}
             {{>writeField}}
-            output.writeFieldEnd()
         }
-        {{/each}}
+{{/fields}}
         output.writeFieldStop()
         output.writeStructEnd()
         return

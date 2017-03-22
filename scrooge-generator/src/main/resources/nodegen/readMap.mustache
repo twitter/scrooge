@@ -1,1 +1,19 @@
-// Handled by `libthrift` in Node
+(function(){
+    const meta = input.readMapBegin()
+    const map = new Map<{{keyType}}, {{valueType}}>()
+    for (let i = 0; i < meta.size; i++) {
+        const key = {
+{{#keyReadWriteInfo}}
+            {{>readValue}}
+{{/keyReadWriteInfo}}
+        }
+        const value = {
+{{#valueReadWriteInfo}}
+            {{>readValue}}
+{{/valueReadWriteInfo}}
+        }
+        map.set(key, value)
+    }
+    input.readMapEnd()
+    return map
+})()

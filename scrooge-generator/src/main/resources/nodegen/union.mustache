@@ -1,2 +1,68 @@
-// not used for Node
+{{#docstring}}
+{{docstring}}
+{{/docstring}}
+{{#importDoc}}
+{{>importDoc}}
 
+import thrift from 'thrift'
+import {Q, Thrift} from 'thrift'
+
+{{requireStatements}}
+{{/importDoc}}
+
+export class {{StructName}} {
+{{#fields}}
+    public {{fieldName}}: {{noNamespaceFieldType}}
+{{/fields}}
+    constructor(args?) {
+{{#has_fields}}
+        if (args) {
+{{#fields}}
+            if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
+                this.{{fieldName}} = args.{{fieldName}}
+            } else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
+            }
+{{/fields}}
+        }
+{{/has_fields}}
+    }
+
+    public read(input) {
+        input.readStructBegin()
+        while (true) {
+            const {fname, ftype, fid} = input.readFieldBegin()
+            if (ftype === Thrift.Type.STOP) {
+                break
+            }
+{{#has_fields}}
+            switch (fid) {
+                {{#fields}}case {{index}}:
+                    {{>readField}}
+                    break
+                {{/fields}}
+                default:
+                    input.skip(ftype)
+            }
+{{/has_fields}}{{^has_fields}}
+            input.skip(ftype)
+{{/has_fields}}
+            input.readFieldEnd()
+        }
+        input.readStructEnd()
+        return
+    }
+
+    public write(output) {
+        output.writeStructBegin("{{StructName}}")
+        {{#fields}}
+        if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
+            {{>writeField}}
+            output.writeFieldEnd()
+        }
+        {{/fields}}
+        output.writeFieldStop()
+        output.writeStructEnd()
+        return
+    }
+}

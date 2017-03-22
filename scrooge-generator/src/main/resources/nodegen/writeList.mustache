@@ -1,1 +1,8 @@
-// Handled by `libthrift` in Node
+output.writeListBegin(Thrift.Type.{{eltWireConstType}}, {{name}}.length)
+for (let i = 0; i < {{name}}.length; i++) {
+    const {{eltName}} = {{name}}[i]
+{{#eltReadWriteInfo}}
+    {{>writeValue}}
+{{/eltReadWriteInfo}}
+}
+output.writeListEnd()

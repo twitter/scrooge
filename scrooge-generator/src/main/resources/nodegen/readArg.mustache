@@ -1,9 +1,0 @@
-{{#isPrimitive}}
-    if (ftype === Thrift.Type.{{constType}}) {
-    this.{{fieldName}} = input.read{{fieldTypeTitleCase}}()
-    this.{{fieldName}}.read(input)
-{{/isPrimitive}}
-{{^isPrimitive}}
-    if (ftype === Thrift.Type.STRUCT) {
-    this.{{fieldName}} = new {{fieldType}}()
-{{/isPrimitive}}

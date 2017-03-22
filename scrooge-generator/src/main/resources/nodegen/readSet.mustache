@@ -1,1 +1,10 @@
-// Handled by `libthrift` in Node
+(function(){
+    const meta = input.readSetBegin()
+    const set = new Set<{{eltType}}>()
+    for (let i = 0; i < meta.size; i++) {
+        const elem = {{#eltReadWriteInfo}}{{>readValue}}{{/eltReadWriteInfo}}
+        set.add(elem)
+    }
+    input.readSetEnd()
+    return set
+})()

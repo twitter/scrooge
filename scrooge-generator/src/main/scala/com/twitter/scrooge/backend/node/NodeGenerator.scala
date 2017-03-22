@@ -5,6 +5,7 @@ import com.twitter.scrooge.backend.{Generator, GeneratorFactory, ServiceOption, 
 import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
 import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
 import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
+import com.twitter.scrooge.ast._
 
 /**
   * Created by nnance on 1/28/17.
@@ -12,7 +13,6 @@ import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
 
 object NodeGeneratorFactory extends GeneratorFactory {
   val language = "node"
-  new HandlebarLoader("")
   val handlebarLoader = new HandlebarLoader("/nodegen/", ".mustache", commentFunction)
   def apply(
      doc: ResolvedDocument,
@@ -70,6 +70,7 @@ class NodeGenerator (
 
   def genType(t: FunctionType): CodeFragment = t match {
     case bt: BaseType => genPrimitiveType(bt)
+    case Void => v("void")
     case StructType(st, _) => v(s"${genID(st.sid.toTitleCase)}")
     case MapType(k, vv, _) =>
       v("Map<" + genType(k).toData + ", " + genType(vv).toData + ">")
@@ -78,12 +79,16 @@ class NodeGenerator (
     case ListType(x, _) =>
       v("Array<" + genType(x).toData + ">")
     case t: NamedType =>
-      val id = doc.qualifyName(t, namespaceLanguage, defaultNamespace)
+      val id = doc.qualifySimpleID(t.sid, namespaceLanguage, defaultNamespace)
       v(genID(id.toTitleCase).toData)
     case r: ReferenceType =>
       throw new ScroogeInternalException("ReferenceType should not appear in backend")
-    case _ =>
-      v("unknownNonPrimitive")
+    case x =>
+      if (x.toString().equals("Void")) {
+        v("void")
+      } else {
+        v("any")
+      }
   }
 
 
@@ -118,8 +123,8 @@ class NodeGenerator (
 
     (dictionaries, fields, 0 until dictionaries.size).zipped.foreach {
       case (dictionary, field, index) =>
-        dictionary("name") = genID(field.sid).toString
         dictionary("typeTitleCase") = Identifier.toTitleCase(genType(field.fieldType).toString)
+        dictionary("noNamespaceFieldType") = genType(field.fieldType).toString.replaceAll(""".*\.""", "")
 
         dictionary("fieldNameCamelCase") = genID(field.sid.toCamelCase).toString
         dictionary("fieldNameTitleCase") = genID(field.sid.toTitleCase).toString
@@ -180,12 +185,15 @@ class NodeGenerator (
       .sorted
 
     dictionary.update("requireStatements", requireStatements.mkString("\n"))
+    dictionary("importDoc") = true
     dictionary
   }
 
   override def functionDictionary(function: Function, generic: Option[String]) = {
     val dict = super.functionDictionary(function, generic)
+    dict("name") = genID(function.funcName).toString
     dict("funcNameTitleCase") = genID(function.funcName.toTitleCase).toString
+    dict("nameTitleCase") = genID(function.funcName.toTitleCase).toString
     dict("args") = fieldsToDict(function.args, List.empty)
     dict("argsLength") = function.args.length.toString
     dict("resultType") = {
@@ -205,7 +213,7 @@ class NodeGenerator (
                            includes: Seq[Include],
                            options: Set[ServiceOption]): Dictionary = {
     val dict = super.serviceDict(service, namespace, includes, options)
-    dict("syncFunctionStructs") = genSyncFunctionStructs(dict)
+    dict("syncFunctionStructs") = genSyncFunctionStructs(service, dict)
     val doc = normalizeCase(resolvedDoc.document)
     dict("structs") = doc.structs.map { struct =>
       structDict(struct, Some(namespace), includes, options, true)
@@ -214,23 +222,31 @@ class NodeGenerator (
     dict
   }
 
-  def genSyncFunctionStructs(dict: Dictionary): Seq[Dictionary] = {
-    val structs = new Dictionary()
-    for (f <- dict("syncFunctions").children) {
-      val baseClassName = dict("ServiceName") + f("funcNameTitleCase").toData
-      val argsDict = new Dictionary()
-      argsDict("fields") = f("args").children
-      structs(baseClassName + "Args") = Seq(argsDict)
+  def genSyncFunctionStructs(service: Service, dict: Dictionary): Seq[Dictionary] = {
+    service.functions.map(f => {
+      val baseClassName = service.sid.fullName + f.funcName.toTitleCase.fullName
+      val argsStruct = Dictionary(
+        "StructName" -> v(baseClassName + "Args"),
+        "fields" -> v(fieldsToDict(f.args, Nil)),
+        "has_fields" -> v(f.args.nonEmpty)
+      )
 
-      val resultDict = new Dictionary()
-      val resultField = new Dictionary()
-      resultField("name") = f("success").toData
-      resultField("type") = f("typeName").toData
-      resultDict("fields") = Seq(resultField)
 
-      structs(baseClassName + "Result") = Seq(resultDict)
-    }
-    Seq(dict)
+      val successFieldType = functionTypeToFieldType(f.funcType)
+      val successField: Seq[Field] = successFieldType.map(Field(0, SimpleID("success", Some("success")), "success", _)).toSeq
+      val resultFields = f.throws ++ successField
+      val resultFieldsDict = fieldsToDict(resultFields, Nil)
+      val resultStruct = Dictionary(
+        "StructName" -> v(baseClassName + "Result"),
+        "has_fields" -> v(!f.funcType.isInstanceOf[Void.type]),
+        "fields" -> v(resultFieldsDict)
+      )
+
+      Dictionary(
+        "argsStruct" -> v(argsStruct),
+        "resultStruct" -> v(resultStruct)
+      )
+    })
   }
 
   def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -293,5 +309,11 @@ class NodeGenerator (
         baseType
       }
     v(code)
+  }
+
+  def functionTypeToFieldType(t: FunctionType): Option[FieldType] = t match {
+    case x: FieldType => Some(x)
+    case Void => None
+    case OnewayVoid => None
   }
 }
