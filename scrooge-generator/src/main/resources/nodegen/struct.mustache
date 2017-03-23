@@ -18,17 +18,15 @@ export class {{StructName}} {
     public {{fieldName}}: {{fieldType}}
 {{/fields}}
     constructor(args?) {
-{{#has_fields}}
         if (args) {
 {{#fields}}
             if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
                 this.{{fieldName}} = args.{{fieldName}}
-            } else {
+            }{{^optional}} else {
                 throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
-            }
+            }{{/optional}}
 {{/fields}}
         }
-{{/has_fields}}
     }
 
     public read(input) {
@@ -39,8 +37,8 @@ export class {{StructName}} {
                 break
             }
             switch (fid) {
-                {{#fields}}case {{id}}:
-                    // reading {{fieldName}}
+{{#fields}}
+                case {{id}}:
                     {{>readField}}
                     break
 {{/fields}}
@@ -57,7 +55,6 @@ export class {{StructName}} {
         output.writeStructBegin("{{StructName}}")
 {{#fields}}
         if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
-            // writing {{fieldName}}
             {{>writeField}}
         }
 {{/fields}}

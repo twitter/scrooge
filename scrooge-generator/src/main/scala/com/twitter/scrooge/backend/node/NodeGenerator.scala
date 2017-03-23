@@ -231,7 +231,6 @@ class NodeGenerator (
         "has_fields" -> v(f.args.nonEmpty)
       )
 
-
       val successFieldType = functionTypeToFieldType(f.funcType)
       val successField: Seq[Field] = successFieldType.map(Field(0, SimpleID("success", Some("success")), "success", _)).toSeq
       val resultFields = f.throws ++ successField

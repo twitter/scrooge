@@ -16,7 +16,7 @@ export class Client {
     private _seqid
     public _reqs
 
-    constructor(output, pClass) {
+    constructor(output: Transport, pClass: Protocol) {
         this.output = output
         this.pClass = pClass
         this._seqid = 0
@@ -54,8 +54,8 @@ export class Client {
     public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}) {
         const output = new this.pClass(this.output)
         output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
-        const args = new {{ServiceName}}{{nameTitleCase}}Args()
-        {{#args}}args.{{fieldName}} = {{fieldName}}{{/args}}
+        const args = new {{ServiceName}}{{nameTitleCase}}Args({ {{#args}}{{fieldName}}, {{/args}} })
+        {{#args}}//args.{{fieldName}} = {{fieldName}}{{/args}}
         args.write(output)
         output.writeMessageEnd()
         return this.output.flush()
@@ -75,7 +75,10 @@ export class Client {
         result.read(input)
         input.readMessageEnd()
 
-        if (null !== result.success) {
+        if (result.ex != null) {
+            return callback(result.ex)
+        }
+        if (result.success != null) {
             return callback(null, result.success)
         }
         return callback("{{name}} failed: unknown result")
