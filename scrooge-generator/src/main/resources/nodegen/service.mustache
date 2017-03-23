@@ -32,7 +32,7 @@ export class Client {
     }
 
     {{#syncFunctions}}
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback) {
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback?): Promise<{{typeName}}>|undefined {
         this._seqid = this.new_seqid()
         if (callback === undefined) {
             let defer = Q.defer()

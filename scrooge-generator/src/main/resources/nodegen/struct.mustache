@@ -11,6 +11,9 @@ import {Q, Thrift} from 'thrift'
 {{/importDoc}}
 
 export class {{StructName}} {
+{{#fakeFields}}
+    public {{fieldName}}: {{fieldType}}
+{{/fakeFields}}
 {{#fields}}
     public {{fieldName}}: {{fieldType}}
 {{/fields}}
@@ -35,9 +38,8 @@ export class {{StructName}} {
             if (ftype === Thrift.Type.STOP) {
                 break
             }
-{{#has_fields}}
             switch (fid) {
-                {{#fields}}case {{index}}:
+                {{#fields}}case {{id}}:
                     // reading {{fieldName}}
                     {{>readField}}
                     break
@@ -45,9 +47,6 @@ export class {{StructName}} {
                 default:
                     input.skip(ftype)
             }
-{{/has_fields}}{{^has_fields}}
-            input.skip(ftype)
-{{/has_fields}}
             input.readFieldEnd()
         }
         input.readStructEnd()

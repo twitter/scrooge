@@ -235,11 +235,17 @@ class NodeGenerator (
       val successFieldType = functionTypeToFieldType(f.funcType)
       val successField: Seq[Field] = successFieldType.map(Field(0, SimpleID("success", Some("success")), "success", _)).toSeq
       val resultFields = f.throws ++ successField
-      val resultFieldsDict = fieldsToDict(resultFields, Nil)
+      val resultFieldsDicts: Seq[Dictionary] = fieldsToDict(resultFields, Nil)
+      val fakeFieldsDicts = if (successField.isEmpty) {
+        Seq(Dictionary("fieldName" -> v("success"), "fieldType" -> v("void")))
+      } else {
+        Seq()
+      }
       val resultStruct = Dictionary(
         "StructName" -> v(baseClassName + "Result"),
         "has_fields" -> v(!f.funcType.isInstanceOf[Void.type]),
-        "fields" -> v(resultFieldsDict)
+        "fields" -> v(resultFieldsDicts),
+        "fakeFields" -> v(fakeFieldsDicts)
       )
 
       Dictionary(

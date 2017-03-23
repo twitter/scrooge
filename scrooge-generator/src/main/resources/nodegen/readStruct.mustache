@@ -1,2 +1,5 @@
-new {{fieldType}}()
-this.{{fieldName}}.read(input)
+(() => {
+    const struct = new {{fieldType}}()
+    struct.read(input)
+    return struct
+})()
