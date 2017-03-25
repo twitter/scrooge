@@ -69,18 +69,18 @@ containing a ``Service`` for each thrift method.
 ::
 
     case class ServiceIface(
-      fetchBlob: Service[FetchBlob.Args, FetchBlob.Result]
+      fetchBlob: Service[FetchBlob.Args, FetchBlob.SuccessType]
     )
 
 Note that every method in the IDL becomes a ``Service`` for the corresponding
-``Args`` and ``Result`` structures. The wrappers are needed to wrap multiple
+``Args`` and ``SuccessType`` structures. The wrappers are needed to wrap multiple
 method arguments into one type.  Instead of implementing the service interface
 directly, you can provide an instance of the ``ServiceIface`` and convert it to
 the service interface.
 
 ::
 
-    val fetchBlobService: Service[FetchBlob.Args, FetchBlob.Result] = // ...
+    val fetchBlobService: Service[FetchBlob.Args, FetchBlob.SuccessType] = // ...
     val serviceImpl = BinaryService.ServiceIface(
       fetchBlob = fetchBlobService
     )
