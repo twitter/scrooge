@@ -3,16 +3,17 @@ junit_tests(
     '3rdparty/jvm/asm',
     '3rdparty/jvm/cglib',
     '3rdparty/jvm/junit',
-    '3rdparty/jvm/org/objenesis',
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     '3rdparty/jvm/org/hamcrest:hamcrest-core',
     '3rdparty/jvm/org/jmock',
     '3rdparty/jvm/org/mockito:mockito-all',
+    '3rdparty/jvm/org/objenesis',
     '3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators',
     '3rdparty/jvm/org/scalatest',
     'finagle/finagle-thrift/src/main/java:java',
     'scrooge/scrooge-core',
     'scrooge/scrooge-generator',
+    'scrooge/scrooge-generator-tests/src/test/resources:resources',
     'scrooge/scrooge-generator-tests/src/test/thrift/airport:thrift-android',
     'scrooge/scrooge-generator-tests/src/test/thrift/airport:thrift-namespace-android',
     'scrooge/scrooge-generator-tests/src/test/thrift/airport:thrift-namespace-scala',
@@ -35,6 +36,7 @@ junit_tests(
     'scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-android',
     'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-scala',
+    'scrooge/scrooge-generator-tests/src/test/thrift:thrift',
     'util/util-core/src/main/scala:scala',
   ],
   sources=rglobs(
@@ -44,8 +46,4 @@ junit_tests(
       ['com/twitter/scrooge/cocoa_generator/CocoaGeneratorSpec.scala'],
     ]
   ),
-  resources=[
-    'scrooge/scrooge-generator-tests/src/test/resources:resources',
-    'scrooge/scrooge-generator-tests/src/test/thrift:thrift',
-  ],
 )
