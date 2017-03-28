@@ -5,10 +5,16 @@
 {{>importDoc}}
 
 import thrift from 'thrift'
-import {Q, Thrift} from 'thrift'
+import {Q, Thrift, Protocol} from 'thrift'
 
 {{requireStatements}}
 {{/importDoc}}
+
+export interface I{{StructName}}Args {
+{{#fields}}
+    {{fieldName}}{{#optional}}?{{/optional}}: {{fieldType}}
+{{/fields}}
+}
 
 export class {{StructName}} {
 {{#fakeFields}}
@@ -17,7 +23,7 @@ export class {{StructName}} {
 {{#fields}}
     public {{fieldName}}: {{fieldType}}
 {{/fields}}
-    constructor(args?) {
+    constructor(args?: I{{StructName}}Args) {
         if (args) {
 {{#fields}}
             if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
@@ -29,7 +35,7 @@ export class {{StructName}} {
         }
     }
 
-    public read(input) {
+    public read(input: Protocol): void {
         input.readStructBegin()
         while (true) {
             const {fname, ftype, fid} = input.readFieldBegin()
@@ -51,7 +57,7 @@ export class {{StructName}} {
         return
     }
 
-    public write(output) {
+    public write(output: Protocol): void {
         output.writeStructBegin("{{StructName}}")
 {{#fields}}
         if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {

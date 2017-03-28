@@ -1,5 +1,5 @@
 import thrift from 'thrift'
-import {Thrift, Q} from 'thrift'
+import {Q, Thrift, Protocol} from 'thrift'
 
 {{#structs}}
 import { {{StructName}} } from './{{StructName}}'
@@ -11,28 +11,26 @@ import { {{StructName}} } from './{{StructName}}'
 {{/syncFunctionStructs}}
 
 export class Client {
-    public output
-    public pClass
-    private _seqid
-    public _reqs
+    private _seqid: number
+    public _reqs: {[key: string]: (e: Error, r: any) => void}
 
-    constructor(output: Transport, pClass: Protocol) {
-        this.output = output
-        this.pClass = pClass
+    constructor(public output: Protocol, public pClass: Protocol) {
         this._seqid = 0
         this._reqs = {}
     }
 
-    public seqid() {
+    public seqid(): number {
         return this._seqid
     }
 
-    public new_seqid() {
+    public new_seqid(): number {
         return this._seqid += 1
     }
 
-    {{#syncFunctions}}
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback?): Promise<{{typeName}}>|undefined {
+{{#syncFunctions}}
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback: (e: Error, r: {{typeName}}) => void): void
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): Promise<{{typeName}}>
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback?): Promise<{{typeName}}>|void {
         this._seqid = this.new_seqid()
         if (callback === undefined) {
             let defer = Q.defer()
@@ -51,7 +49,7 @@ export class Client {
         }
     }
 
-    public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}) {
+    public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): void {
         const output = new this.pClass(this.output)
         output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
         const args = new {{ServiceName}}{{nameTitleCase}}Args({ {{#args}}{{fieldName}}, {{/args}} })
@@ -61,7 +59,7 @@ export class Client {
         return this.output.flush()
     }
 
-    public recv_{{name}}(input, mtype, rseqid) {
+    public recv_{{name}}(input: Protocol, mtype: Thrift.MessageType, rseqid: number): void {
         const noop = () => null
         let callback = this._reqs[rseqid] || noop
         delete this._reqs[rseqid]
@@ -93,7 +91,7 @@ export class Processor {
         this._handler = handler
     }
 
-    public process(input, output) {
+    public process(input: Protocol, output: Protocol) {
         const r = input.readMessageBegin()
         if (this["process_" + r.fname]) {
             return this["process_" + r.fname].call(this, r.rseqid, input, output)
@@ -109,7 +107,7 @@ export class Processor {
         }
     }
 
-    {{#syncFunctions}}public process_{{name}}(seqid, input, output) {
+    {{#syncFunctions}}public process_{{name}}(seqid: number, input: Protocol, output: Protocol) {
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
         args.read(input)
         input.readMessageEnd()
