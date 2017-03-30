@@ -5,16 +5,18 @@
 {{>importDoc}}
 
 import thrift from 'thrift'
-import {Q, Thrift, Protocol} from 'thrift'
+import {Thrift, Protocol} from 'thrift'
 
 {{requireStatements}}
 {{/importDoc}}
 
+{{#has_fields}}
 export interface I{{StructName}}Args {
 {{#fields}}
     {{fieldName}}{{#optional}}?{{/optional}}: {{fieldType}}
 {{/fields}}
 }
+{{/has_fields}}
 
 export class {{StructName}} {
 {{#fakeFields}}
@@ -23,16 +25,14 @@ export class {{StructName}} {
 {{#fields}}
     public {{fieldName}}: {{fieldType}}
 {{/fields}}
-    constructor(args?: I{{StructName}}Args) {
-        if (args) {
+    constructor(args{{^has_fields}}?: {}{{/has_fields}}{{#has_fields}}: I{{StructName}}Args{{/has_fields}}) {
 {{#fields}}
-            if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
+            if (args.{{fieldName}} != null) {
                 this.{{fieldName}} = args.{{fieldName}}
             }{{^optional}} else {
                 throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
             }{{/optional}}
 {{/fields}}
-        }
     }
 
     public read(input: Protocol): void {
@@ -42,6 +42,7 @@ export class {{StructName}} {
             if (ftype === Thrift.Type.STOP) {
                 break
             }
+{{#has_fields}}
             switch (fid) {
 {{#fields}}
                 case {{id}}:
@@ -51,6 +52,10 @@ export class {{StructName}} {
                 default:
                     input.skip(ftype)
             }
+{{/has_fields}}
+{{^has_fields}}
+            input.skip(ftype)
+{{/has_fields}}
             input.readFieldEnd()
         }
         input.readStructEnd()
@@ -60,7 +65,7 @@ export class {{StructName}} {
     public write(output: Protocol): void {
         output.writeStructBegin("{{StructName}}")
 {{#fields}}
-        if (this.{{fieldName}} !== null && this.{{fieldName}} !== undefined) {
+        if (this.{{fieldName}} != null) {
             {{>writeField}}
         }
 {{/fields}}

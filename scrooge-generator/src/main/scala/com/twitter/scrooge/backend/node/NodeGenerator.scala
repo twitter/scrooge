@@ -186,6 +186,7 @@ class NodeGenerator (
 
     dictionary.update("requireStatements", requireStatements.mkString("\n"))
     dictionary("importDoc") = true
+    dictionary("has_fields") = struct.fields.nonEmpty
     dictionary
   }
 
@@ -213,7 +214,7 @@ class NodeGenerator (
                            includes: Seq[Include],
                            options: Set[ServiceOption]): Dictionary = {
     val dict = super.serviceDict(service, namespace, includes, options)
-    dict("syncFunctionStructs") = genSyncFunctionStructs(service, dict)
+    dict("syncFunctionStructs") = genSyncFunctionStructs(service)
     val doc = normalizeCase(resolvedDoc.document)
     dict("structs") = doc.structs.map { struct =>
       structDict(struct, Some(namespace), includes, options, true)
@@ -222,7 +223,7 @@ class NodeGenerator (
     dict
   }
 
-  def genSyncFunctionStructs(service: Service, dict: Dictionary): Seq[Dictionary] = {
+  def genSyncFunctionStructs(service: Service): Seq[Dictionary] = {
     service.functions.map(f => {
       val baseClassName = service.sid.fullName + f.funcName.toTitleCase.fullName
       val argsStruct = Dictionary(
