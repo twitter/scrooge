@@ -72,6 +72,7 @@ class NodeGenerator (
     case bt: BaseType => genPrimitiveType(bt)
     case Void => v("void")
     case StructType(st, _) => v(s"${genID(st.sid.toTitleCase)}")
+    case EnumType(st, _) => v(s"${genID(st.sid.toTitleCase)}")
     case MapType(k, vv, _) =>
       v("Map<" + genType(k).toData + ", " + genType(vv).toData + ">")
     case SetType(x, _) =>
@@ -287,7 +288,7 @@ class NodeGenerator (
       case n: NamedType => qualifyNamedType(n)
       case _ =>  enum.enum.sid
     }
-    genID(enum.value.sid.toTitleCase.addScope(getTypeId.toTitleCase))
+    genID(enum.value.sid.toTitleCase)
   }
 
     // For constants support, not implemented
