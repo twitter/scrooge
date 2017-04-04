@@ -1,5 +1,5 @@
 import thrift from 'thrift'
-import {Thrift, Protocol} from 'thrift'
+import {Thrift, Protocol, Transport, Int64, AnyProtocolClass} from 'thrift'
 
 {{#structs}}
 import { {{StructName}} } from './{{StructName}}'
@@ -12,9 +12,9 @@ import { {{StructName}} } from './{{StructName}}'
 
 export class Client {
     private _seqid: number
-    public _reqs: {[key: string]: (e: Error, r: any) => void}
+    public _reqs: {[key: string]: (e?: Error|object, r?: any) => void}
 
-    constructor(public output: Protocol, public pClass: Protocol) {
+    constructor(public output: Transport, public pClass: AnyProtocolClass) {
         this._seqid = 0
         this._reqs = {}
     }
@@ -28,12 +28,15 @@ export class Client {
     }
 
 {{#syncFunctions}}
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback: (e: Error, r: {{typeName}}) => void): void
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback: (e?: Error|object, r?: {{typeName}}) => void): void
     public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): Promise<{{typeName}}>
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback?: (e: Error, r: {{typeName}}) => void): Promise<{{typeName}}>|void {
-        this._seqid = this.new_seqid(V)
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback?: (e?: Error|object, r?: {{typeName}}) => void): Promise<{{typeName}}>|void {
+        this._seqid = this.new_seqid()
         if (callback instanceof Function) {
-            return new Promise((resolve, reject) => {
+            this._reqs[this.seqid()] = callback
+            this.send_{{name}}({{#args}}{{fieldName}} {{/args}})
+        } else {
+            return new Promise<{{typeName}}>((resolve, reject) => {
                 this._reqs[this.seqid()] = function(error, result) {
                     if (error) {
                         reject(error)
@@ -43,16 +46,14 @@ export class Client {
                 }
                 this.send_{{name}}({{#args}}{{fieldName}}, {{/args}})
             })
-        } else {
-            this._reqs[this.seqid()] = callback
-            this.send_{{name}}({{#args}}{{fieldName}} {{/args}})
         }
     }
 
     public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): void {
-        const output = new this.pClass(this.output)
+        const output = new (this.pClass as any)(this.output)
         output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
-        const args = new {{ServiceName}}{{nameTitleCase}}Args({ {{#args}}{{fieldName}}, {{/args}} })
+        const args = new {{ServiceName}}{{nameTitleCase}}Args()
+        args.populate({ {{#args}}{{fieldName}}, {{/args}} })
         args.write(output)
         output.writeMessageEnd()
         return this.output.flush()
@@ -72,13 +73,18 @@ export class Client {
         result.read(input)
         input.readMessageEnd()
 
+        // Dont check if
+{{#hasThrows}}
         if (result.ex != null) {
             return callback(result.ex)
         }
+{{/hasThrows}}
+{{^isVoid}}
         if (result.success != null) {
-            return callback(null, result.success)
+            return callback(undefined, result.success)
         }
-        return callback("{{name}} failed: unknown result")
+{{/isVoid}}
+        return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
     }
     {{/syncFunctions}}
 }
@@ -111,13 +117,22 @@ export class Processor {
         args.read(input)
         input.readMessageEnd()
         if (this._handler.{{name}}.length === {{argsLength}}) {
-            Promise.resolve(this._handler.{{name}}{{#args}}, args.{{fieldName}}{{/args}}).then((data) => {
+            // TODO: Im a bit iffy on this
+            new Promise<{{typeName}}>((resolve, reject) => {
+                try {
+                    resolve(
+                        this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}})
+                    )
+                } catch (e) {
+                    reject(e)
+                }
+            }).then((data: {{typeName}}) => {
                 const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                 result.write(output)
                 output.writeMessageEnd()
                 output.flush()
-            }, (err) => {
+            }).catch((err: Error) => {
                 const result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
                 result.write(output)
@@ -125,10 +140,11 @@ export class Processor {
                 output.flush()
             })
         } else {
-            this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}(err, data) => {
+            this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}(err?: Error, data?: {{typeName}}) => {
                 let result
                 if (err == null) {
-                    result = new {{ServiceName}}{{nameTitleCase}}Result((err != null ? err : {success: data}))
+                    result = new {{ServiceName}}{{nameTitleCase}}Result()
+                    result.populate((err != null ? err : {success: data}))
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                 } else {
                     result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)

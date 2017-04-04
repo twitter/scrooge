@@ -5,18 +5,19 @@
 {{>importDoc}}
 
 import thrift from 'thrift'
-import {Thrift, Protocol} from 'thrift'
+import {Thrift, Protocol, Int64} from 'thrift'
 
 {{requireStatements}}
 {{/importDoc}}
 
-{{#has_fields}}
 export interface I{{StructName}}Args {
+{{#fakeFields}}
+    {{fieldName}}{{#optional}}?{{/optional}}: {{fieldType}}
+{{/fakeFields}}
 {{#fields}}
     {{fieldName}}{{#optional}}?{{/optional}}: {{fieldType}}
 {{/fields}}
 }
-{{/has_fields}}
 
 export class {{StructName}} {
 {{#fakeFields}}
@@ -25,7 +26,20 @@ export class {{StructName}} {
 {{#fields}}
     public {{fieldName}}: {{fieldType}}
 {{/fields}}
-    constructor(args{{^has_fields}}?: {}{{/has_fields}}{{#has_fields}}: I{{StructName}}Args{{/has_fields}}) {
+    // If possible, populate this with .populate method instead so that
+    // we can ensure the struct is constructed correctly
+constructor(args?: I{{StructName}}Args) {
+{{#has_fields}}
+        if (args) {
+{{#fields}}
+            if (args.{{fieldName}} != null) {
+                this.{{fieldName}} = args.{{fieldName}}
+            }
+{{/fields}}
+        }
+{{/has_fields}}
+    }
+    populate(args: I{{StructName}}Args) {
 {{#fields}}
             if (args.{{fieldName}} != null) {
                 this.{{fieldName}} = args.{{fieldName}}
@@ -38,7 +52,12 @@ export class {{StructName}} {
     public read(input: Protocol): void {
         input.readStructBegin()
         while (true) {
-            const {fname, ftype, fid} = input.readFieldBegin()
+{{#has_fields}}
+    const {ftype, fid} = input.readFieldBegin()
+{{/has_fields}}
+{{^has_fields}}
+    const {ftype} = input.readFieldBegin()
+{{/has_fields}}
             if (ftype === Thrift.Type.STOP) {
                 break
             }

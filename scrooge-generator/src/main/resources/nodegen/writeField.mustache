@@ -10,7 +10,7 @@ if (true) {
 {{/nullable}}
 {{/optional}}
     const {{valueVariableName}} = this.{{fieldName}}
-    output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{constType}}{{#isEnum}}I32{{/isEnum}}, {{id}})
+    output.writeFieldBegin("{{fieldName}}", Thrift.Type.{{^isEnum}}{{constType}}{{/isEnum}}{{#isEnum}}I32{{/isEnum}}, {{id}})
     {{#readWriteInfo}}{{>writeValue}}{{/readWriteInfo}}
     output.writeFieldEnd()
 }

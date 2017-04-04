@@ -99,7 +99,7 @@ class NodeGenerator (
     case TDouble => v("number")
     case TI16 => v("number")
     case TI32 => v("number")
-    case TI64 => v("number")
+    case TI64 => v("Int64")
     case TString => v("string")
     case TBinary => v("Buffer")
     case _ => v("unknownPrimitive")
@@ -233,11 +233,11 @@ class NodeGenerator (
       )
 
       val successFieldType = functionTypeToFieldType(f.funcType)
-      val successField: Seq[Field] = successFieldType.map(Field(0, SimpleID("success", Some("success")), "success", _)).toSeq
-      val resultFields = f.throws ++ successField
+      val successField: Seq[Field] = successFieldType.map(Field(0, SimpleID("success", Some("success")), "success", _, requiredness=Requiredness.Optional)).toSeq
+      val resultFields = f.throws.map(_.copy(requiredness = Requiredness.Optional)) ++ successField
       val resultFieldsDicts: Seq[Dictionary] = fieldsToDict(resultFields, Nil)
       val fakeFieldsDicts = if (successField.isEmpty) {
-        Seq(Dictionary("fieldName" -> v("success"), "fieldType" -> v("void")))
+        Seq(Dictionary("fieldName" -> v("success"), "fieldType" -> v("void"), "optional" -> v(true)))
       } else {
         Seq()
       }
