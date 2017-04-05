@@ -59,7 +59,6 @@ abstract class GoldFileTest extends FunSuite
 
   protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
 
-  if (!sys.props.contains("SKIP_FLAKY"))
   test("generated output looks as expected") {
     val ccl = Thread.currentThread().getContextClassLoader
     val inputThrifts = testThriftFiles.map(ccl.getResource(_).getPath)

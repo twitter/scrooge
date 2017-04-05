@@ -59,6 +59,18 @@ object PlatinumService { self =>
       doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
   ) extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface
     with BaseServiceIface
+    with com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServiceIface` now including the filter.
+     */
+    def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ServiceIface =
+      copy(
+        moreCoolThings = filter.toFilter.andThen(moreCoolThings),
+        doGreatThings = filter.toFilter.andThen(doGreatThings)
+      )
+  }
 
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
@@ -67,10 +79,10 @@ object PlatinumService { self =>
         pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
         stats: com.twitter.finagle.stats.StatsReceiver
       ): ServiceIface =
-        new ServiceIface(
+        ServiceIface(
           moreCoolThings = ThriftServiceIface(self.MoreCoolThings, binaryService, pf, stats),
           doGreatThings = ThriftServiceIface(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, binaryService, pf, stats)
-      )
+        )
   }
 
   class MethodIface(serviceIface: BaseServiceIface)
