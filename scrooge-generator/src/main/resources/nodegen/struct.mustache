@@ -28,16 +28,23 @@ export class {{StructName}} {
 {{/fields}}
     // If possible, populate this with .populate method instead so that
     // we can ensure the struct is constructed correctly
-constructor(args?: I{{StructName}}Args) {
-{{#has_fields}}
+constructor({{^has_fields}}_{{/has_fields}}args?: I{{StructName}}Args) {
+{{#has_fields}}{{#fakeFields.length}}
         if (args) {
 {{#fields}}
             if (args.{{fieldName}} != null) {
                 this.{{fieldName}} = args.{{fieldName}}
             }
 {{/fields}}
+{{#fakeFields}}
+    if (args.{{fieldName}} != null) {
+    this.{{fieldName}} = args.{{fieldName}}
+    }{{^optional}} else {
+    throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
+    }{{/optional}}
+{{/fakeFields}}
         }
-{{/has_fields}}
+{{/fakeFields.length}}{{/has_fields}}
     }
     populate(args: I{{StructName}}Args) {
 {{#fields}}
@@ -47,6 +54,13 @@ constructor(args?: I{{StructName}}Args) {
                 throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
             }{{/optional}}
 {{/fields}}
+{{#fakeFields}}
+    if (args.{{fieldName}} != null) {
+    this.{{fieldName}} = args.{{fieldName}}
+    }{{^optional}} else {
+    throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
+    }{{/optional}}
+{{/fakeFields}}
     }
 
     public read(input: Protocol): void {
