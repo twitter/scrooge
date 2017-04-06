@@ -1,2 +1,1 @@
 _iprot.{{protocolReadMethod}}()
-
