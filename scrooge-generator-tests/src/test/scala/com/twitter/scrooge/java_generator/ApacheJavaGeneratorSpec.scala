@@ -23,9 +23,7 @@ import thrift.apache_java_test._
  */
 class ApacheJavaGeneratorSpec extends Spec {
   def generateDoc(str: String): Document = {
-    val importer = Importer(Seq(
-      "src/test/resources/test_thrift",
-      "scrooge-generator-tests/src/test/resources/test_thrift"))
+    val importer = Importer("scrooge/scrooge-generator-tests/src/test/resources/test_thrift")
     val parser = new ThriftParser(importer, true)
     val doc = parser.parse(str, parser.document)
     TypeResolver()(doc).document
@@ -168,7 +166,6 @@ class ApacheJavaGeneratorSpec extends Spec {
       verify(sw, getFileContents("apache_output/test_service_without_parent.txt"))
     }
 
-    if (!sys.props.contains("SKIP_FLAKY"))
     "generate service with a parent from a different namespace" in {
       val doc = generateDoc(getFileContents("test_thrift/service_with_parent_different_namespace.thrift"))
       val baseDoc = mock[Document]

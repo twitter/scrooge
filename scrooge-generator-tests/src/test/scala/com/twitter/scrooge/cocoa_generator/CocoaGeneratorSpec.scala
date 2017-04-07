@@ -16,7 +16,7 @@ class CocoaGeneratorSpec extends Spec {
         "cocoa_output/TFNTwitterThriftScribeTestStruct.h",
         "cocoa_output/TFNTwitterThriftScribeTestStruct.m").map{new File(_)}
 
-  def getFileContents(resource: String) = {
+  def getFileContents(resource: String): String = {
     val ccl = Thread.currentThread().getContextClassLoader
     val is = ccl.getResourceAsStream(resource) match {
         case null => new FileInputStream(resource)
@@ -36,31 +36,29 @@ class CocoaGeneratorSpec extends Spec {
 
   "Cocoa generator" should {
     val tempDir = TempDirectory.create(None)
-    "Generate thirft file in " + tempDir should{
 
-      val ccl = Thread.currentThread().getContextClassLoader
-      val inputThrift = ccl.getResource("test_thrift/cocoa.thrift").getPath()
+    val ccl = Thread.currentThread().getContextClassLoader
+    val inputThrift = ccl.getResource("test_thrift/cocoa.thrift").getPath()
 
-      val args = Array[String](
-        "-l", "cocoa",
-        "-d", tempDir.getPath,
-        inputThrift)
-      Main.main(args)
+    val args = Array[String](
+      "-l", "cocoa",
+      "-d", tempDir.getPath,
+      inputThrift)
+    Main.main(args)
 
-      val generated_flist = getListOfFiles(tempDir)
+    val generated_flist = getListOfFiles(tempDir)
 
-      "generate some .m .h files" in {
-        assert(templateFiles.size == generated_flist.size, "missing file, generated files are:"
-            + generated_flist.toString())
-      }
+    "generate some .m .h files" in {
+      assert(templateFiles.size == generated_flist.size, "missing file, generated files are:"
+        + generated_flist.toString())
+    }
 
-      "generate proper content inside files" in{
-        templateFiles.map{ tFile => 
-          generated_flist.find(_.getName() == tFile.getName()) match {
-            case Some(genFile) => 
-              verify(getFileContents(tFile.toString()), getFileContents(genFile.toString()))
-            case None => fail("generator did not produce " + tFile)
-          }
+    "generate proper content inside files" in {
+      templateFiles.map { tFile =>
+        generated_flist.find(_.getName() == tFile.getName()) match {
+          case Some(genFile) =>
+            verify(getFileContents(tFile.toString()), getFileContents(genFile.toString()))
+          case None => fail("generator did not produce " + tFile)
         }
       }
     }

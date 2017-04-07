@@ -39,11 +39,5 @@ junit_tests(
     'scrooge/scrooge-generator-tests/src/test/thrift:thrift',
     'util/util-core/src/main/scala:scala',
   ],
-  sources=rglobs(
-    '*.scala',
-    exclude=[
-      # these tests fail at runtime
-      ['com/twitter/scrooge/cocoa_generator/CocoaGeneratorSpec.scala'],
-    ]
-  ),
+  sources=rglobs('*.scala'),
 )
