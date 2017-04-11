@@ -89,17 +89,16 @@ export class Client {
 }
 
 export class Processor {
-    private _handler: any
+    private _handler
 
-    constructor(handler: any) {
+    constructor(handler) {
         this._handler = handler
     }
 
     public process(input: Protocol, output: Protocol) {
         const r = input.readMessageBegin()
-        const p = this["process_" + r.fname]
-        if (p && p instanceof Function) {
-            return p.call(this, r.rseqid, input, output)
+        if (this["process_" + r.fname]) {
+            return this["process_" + r.fname].call(this, r.rseqid, input, output)
         } else {
             input.skip(Thrift.Type.STRUCT)
             input.readMessageEnd()
