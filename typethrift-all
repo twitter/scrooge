@@ -1,6 +1,6 @@
 set -e
 function all {
-    local ttPath=/Users/evan.simmons/ck/clif/typethrift
+    local ttPath=/Users/ian.harshman/git-repos/calculator-service
     local idlPath=$ttPath/idl
     for file in $idlPath/*; do
         ./sbt -jvm-debug 5005 "scrooge-generator/run-main com.twitter.scrooge.Main -l node -d ./thrift $file"

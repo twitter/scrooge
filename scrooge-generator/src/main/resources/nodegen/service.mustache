@@ -135,7 +135,8 @@ export class Processor {
             }).catch((err: Error) => {
                 let result
                 {{#hasThrows}}{{#throws}}if (err instanceof {{throwType}}) {
-                    result = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}})
+                    result = new {{ServiceName}}{{nameTitleCase}}Result()
+                    result.populate({{{throwName}}: err as {{throwType}}})
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                 } else {{/throws}}{
                     result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
@@ -161,7 +162,8 @@ export class Processor {
                     result.populate((err != null ? err : {success: data}))
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                 {{#throws}}} else if (err instanceof {{throwType}}) {
-                    result = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}})
+                    result = new {{ServiceName}}{{nameTitleCase}}Result()
+                    result.populate({{{throwName}}: err as {{throwType}}})
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                 {{/throws}}} else {
                     result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
