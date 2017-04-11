@@ -1,6 +1,5 @@
 set -e
 function all {
-    echo $1
     local ttPath=$1
     local idlPath=$ttPath/idl
     for file in $idlPath/*; do
