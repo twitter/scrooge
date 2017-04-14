@@ -141,17 +141,14 @@ export class Processor {
                     result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
                 }
-                result.write(output)
-                output.writeMessageEnd()
-                output.flush()
                 {{/hasThrows}}
                 {{^hasThrows}}
                 result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
+                {{/hasThrows}}
                 result.write(output)
                 output.writeMessageEnd()
                 output.flush()
-                {{/hasThrows}}
             })
         } else {
             this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}(err?: Error, data?: {{typeName}}) => {
