@@ -34,7 +34,7 @@ export class Client {
         this._seqid = this.new_seqid()
         if (callback instanceof Function) {
             this._reqs[this.seqid()] = callback
-            this.send_{{name}}({{#args}}{{fieldName}} {{/args}})
+            this.send_{{name}}({{#args}}{{fieldName}}, {{/args}})
         } else {
             return new Promise<{{typeName}}>((resolve, reject) => {
                 this._reqs[this.seqid()] = function(error, result) {
@@ -74,11 +74,10 @@ export class Client {
         input.readMessageEnd()
 
         // Dont check if
-{{#hasThrows}}
-        if (result.ex != null) {
-            return callback(result.ex)
+        {{#throws}}if (result.{{throwName}} != null) {
+            return callback(result.{{throwName}})
         }
-{{/hasThrows}}
+        {{/throws}}
 {{^isVoid}}
         if (result.success != null) {
             return callback(undefined, result.success)
@@ -90,17 +89,16 @@ export class Client {
 }
 
 export class Processor {
-    private _handler: any
+    private _handler
 
-    constructor(handler: any) {
+    constructor(handler) {
         this._handler = handler
     }
 
     public process(input: Protocol, output: Protocol) {
         const r = input.readMessageBegin()
-        const p = this["process_" + r.fname]
-        if (p && p instanceof Function) {
-            return p.call(this, r.rseqid, input, output)
+        if (this["process_" + r.fname]) {
+            return this["process_" + r.fname].call(this, r.rseqid, input, output)
         } else {
             input.skip(Thrift.Type.STRUCT)
             input.readMessageEnd()
@@ -134,8 +132,20 @@ export class Processor {
                 output.writeMessageEnd()
                 output.flush()
             }).catch((err: Error) => {
-                const result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                let result
+                {{#hasThrows}}{{#throws}}if (err instanceof {{throwType}}) {
+                    result = new {{ServiceName}}{{nameTitleCase}}Result()
+                    result.populate({{{throwName}}: err as {{throwType}}})
+                    output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
+                } else {{/throws}}{
+                    result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                    output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
+                }
+                {{/hasThrows}}
+                {{^hasThrows}}
+                result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
+                {{/hasThrows}}
                 result.write(output)
                 output.writeMessageEnd()
                 output.flush()
@@ -147,7 +157,11 @@ export class Processor {
                     result = new {{ServiceName}}{{nameTitleCase}}Result()
                     result.populate((err != null ? err : {success: data}))
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
-                } else {
+                {{#throws}}} else if (err instanceof {{throwType}}) {
+                    result = new {{ServiceName}}{{nameTitleCase}}Result()
+                    result.populate({{{throwName}}: err as {{throwType}}})
+                    output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
+                {{/throws}}} else {
                     result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                     output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
                 }
