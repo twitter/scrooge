@@ -8,6 +8,7 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
 import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.Utils.verify
+import com.twitter.util.Try
 import java.io._
 import java.util.EnumSet
 import org.apache.thrift.protocol.TBinaryProtocol
@@ -22,8 +23,26 @@ import thrift.apache_java_test._
  *     --gen java -o /tmp/thrift test_thrift/empty_struct.thrift
  */
 class ApacheJavaGeneratorSpec extends Spec {
+
+  def getFileContents(resource: String): String = {
+    val ccl = Thread.currentThread().getContextClassLoader
+    val is = ccl.getResourceAsStream(resource)
+    val br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))
+    try CharStreams.toString(br)
+    finally br.close()
+  }
+
+  object TestThriftResourceImporter extends Importer {
+    val canonicalPaths: Seq[String] = Nil
+    def lastModified(filename: String): Option[Long] = None
+    def apply(filename: String): Option[FileContents] =
+      Try(getFileContents("test_thrift/" + filename))
+        .map(data => FileContents(this, data, Some(filename)))
+        .toOption
+  }
+
   def generateDoc(str: String): Document = {
-    val importer = Importer("scrooge/scrooge-generator-tests/src/test/resources/test_thrift")
+    val importer = TestThriftResourceImporter
     val parser = new ThriftParser(importer, true)
     val doc = parser.parse(str, parser.document)
     TypeResolver()(doc).document
@@ -38,14 +57,6 @@ class ApacheJavaGeneratorSpec extends Spec {
       templateCache,
       genHashcode = genHashcode
     )
-
-  def getFileContents(resource: String): String = {
-    val ccl = Thread.currentThread().getContextClassLoader
-    val is = ccl.getResourceAsStream(resource)
-    val br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))
-    try CharStreams.toString(br)
-    finally br.close()
-  }
 
   "Generator" should {
     System.setProperty("mustache.debug", "true")
