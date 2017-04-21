@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Finagle Integration &#8212; Scrooge 4.15.0 documentation</title>
+    <title>Finagle Integration &#8212; Scrooge 4.16.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.15.0',
+        VERSION:     '4.16.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Scrooge 4.15.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.16.0 documentation" href="index.html" />
     <link rel="next" title="Dependencies of the generated code" href="CodeGenDep.html" />
     <link rel="prev" title="Command Line" href="CommandLine.html" />
    
@@ -117,16 +117,16 @@ interface and use it with Finagle&#8217;s <code class="docutils literal"><span c
 <p>Additionally, Scrooge generates a <code class="docutils literal"><span class="pre">ServiceIface</span></code> which is a case class
 containing a <code class="docutils literal"><span class="pre">Service</span></code> for each thrift method.</p>
 <div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">case</span> <span class="k">class</span> <span class="nc">ServiceIface</span><span class="o">(</span>
-  <span class="n">fetchBlob</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">FetchBlob.Args</span>, <span class="kt">FetchBlob.Result</span><span class="o">]</span>
+  <span class="n">fetchBlob</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">FetchBlob.Args</span>, <span class="kt">FetchBlob.SuccessType</span><span class="o">]</span>
 <span class="o">)</span>
 </pre></div>
 </div>
 <p>Note that every method in the IDL becomes a <code class="docutils literal"><span class="pre">Service</span></code> for the corresponding
-<code class="docutils literal"><span class="pre">Args</span></code> and <code class="docutils literal"><span class="pre">Result</span></code> structures. The wrappers are needed to wrap multiple
+<code class="docutils literal"><span class="pre">Args</span></code> and <code class="docutils literal"><span class="pre">SuccessType</span></code> structures. The wrappers are needed to wrap multiple
 method arguments into one type.  Instead of implementing the service interface
 directly, you can provide an instance of the <code class="docutils literal"><span class="pre">ServiceIface</span></code> and convert it to
 the service interface.</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">fetchBlobService</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">FetchBlob.Args</span>, <span class="kt">FetchBlob.Result</span><span class="o">]</span> <span class="k">=</span> <span class="c1">// ...</span>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">fetchBlobService</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">FetchBlob.Args</span>, <span class="kt">FetchBlob.SuccessType</span><span class="o">]</span> <span class="k">=</span> <span class="c1">// ...</span>
 <span class="k">val</span> <span class="n">serviceImpl</span> <span class="k">=</span> <span class="nc">BinaryService</span><span class="o">.</span><span class="nc">ServiceIface</span><span class="o">(</span>
   <span class="n">fetchBlob</span> <span class="k">=</span> <span class="n">fetchBlobService</span>
 <span class="o">)</span>
