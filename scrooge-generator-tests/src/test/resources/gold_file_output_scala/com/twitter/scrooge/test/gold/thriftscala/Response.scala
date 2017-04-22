@@ -341,6 +341,10 @@ object Response extends ThriftStructCodec3[Response] {
   }
 }
 
+/**
+ * Prefer the companion object's [[com.twitter.scrooge.test.gold.thriftscala.Response.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
 trait Response
   extends ThriftStruct
   with _root_.scala.Product2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]

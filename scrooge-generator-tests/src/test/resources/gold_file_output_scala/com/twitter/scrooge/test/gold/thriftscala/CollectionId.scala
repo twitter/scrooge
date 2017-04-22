@@ -277,6 +277,10 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
   }
 }
 
+/**
+ * Prefer the companion object's [[com.twitter.scrooge.test.gold.thriftscala.CollectionId.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
 trait CollectionId
   extends ThriftStruct
   with _root_.scala.Product1[Long]

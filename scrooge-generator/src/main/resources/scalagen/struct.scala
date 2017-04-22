@@ -402,9 +402,19 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 }
 
 {{#withTrait}}
+/**
+ * Prefer the companion object's [[{{package}}.{{StructName}}.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
 trait {{StructName}}
 {{/withTrait}}
 {{^withTrait}}
+{{#isException}}
+/**
+ * Prefer the companion object's [[{{package}}.{{StructName}}.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
+{{/isException}}
 class {{StructName}}(
 {{#fields}}
     val {{fieldName}}: {{>optionalType}},

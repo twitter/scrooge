@@ -145,6 +145,10 @@ object AnotherException extends ThriftStructCodec3[AnotherException] {
 
 }
 
+/**
+ * Prefer the companion object's [[com.twitter.scrooge.test.gold.thriftscala.AnotherException.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
 class AnotherException(
     val errorCode: Int,
     val _passthroughFields: immutable$Map[Short, TFieldBlob])

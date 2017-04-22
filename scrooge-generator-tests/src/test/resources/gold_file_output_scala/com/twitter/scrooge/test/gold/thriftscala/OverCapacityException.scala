@@ -145,6 +145,10 @@ object OverCapacityException extends ThriftStructCodec3[OverCapacityException] {
 
 }
 
+/**
+ * Prefer the companion object's [[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
 class OverCapacityException(
     val chillTimeSeconds: Int,
     val _passthroughFields: immutable$Map[Short, TFieldBlob])

@@ -752,6 +752,10 @@ object Request extends ThriftStructCodec3[Request] {
   }
 }
 
+/**
+ * Prefer the companion object's [[com.twitter.scrooge.test.gold.thriftscala.Request.apply]]
+ * for construction if you don't need to specify passthrough fields.
+ */
 trait Request
   extends ThriftStruct
   with _root_.scala.Product6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String]
