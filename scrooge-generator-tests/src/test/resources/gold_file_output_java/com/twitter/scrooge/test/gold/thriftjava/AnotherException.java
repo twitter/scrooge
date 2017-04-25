@@ -164,6 +164,7 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
     __isset_bit_vector.set(__ERRORCODE_ISSET_ID, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case ERROR_CODE:

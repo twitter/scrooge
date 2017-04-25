@@ -149,7 +149,7 @@ public class GoldService {
       manager.call(__method_call__);
     }
 
-    public static class doGreatThings_call extends TAsyncMethodCall {
+    public static class doGreatThings_call extends TAsyncMethodCall<doGreatThings_call> {
       private Request request;
 
       public doGreatThings_call(Request request, AsyncMethodCallback<doGreatThings_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -217,9 +217,9 @@ public class GoldService {
               TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
               TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
               try {
-                return new com.twitter.util.Return(((new Client(__prot__)).recv_doGreatThings()));
+                return new com.twitter.util.Return<Response>(((new Client(__prot__)).recv_doGreatThings()));
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<Response>(e);
               }
             }
           };
@@ -581,6 +581,7 @@ public class GoldService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQUEST:
@@ -907,6 +908,7 @@ public class GoldService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case SUCCESS:

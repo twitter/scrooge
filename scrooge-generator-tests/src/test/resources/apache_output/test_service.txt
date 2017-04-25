@@ -148,7 +148,7 @@ public class TestService {
       manager.call(__method_call__);
     }
 
-    public static class test_endpoint_call extends TAsyncMethodCall {
+    public static class test_endpoint_call extends TAsyncMethodCall<test_endpoint_call> {
       private TestRequest request;
 
       public test_endpoint_call(TestRequest request, AsyncMethodCallback<test_endpoint_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -179,7 +179,7 @@ public class TestService {
       manager.call(__method_call__);
     }
 
-    public static class test_oneway_call extends TAsyncMethodCall {
+    public static class test_oneway_call extends TAsyncMethodCall<test_oneway_call> {
       private TestRequest request;
 
       public test_oneway_call(TestRequest request, AsyncMethodCallback<test_oneway_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -246,9 +246,9 @@ public class TestService {
               TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
               TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
               try {
-                return new com.twitter.util.Return(((new Client(__prot__)).recv_test_endpoint()));
+                return new com.twitter.util.Return<Boolean>(((new Client(__prot__)).recv_test_endpoint()));
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<Boolean>(e);
               }
             }
           };
@@ -701,6 +701,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQUEST:
@@ -1024,6 +1025,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case SUCCESS:
@@ -1350,6 +1352,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQUEST:

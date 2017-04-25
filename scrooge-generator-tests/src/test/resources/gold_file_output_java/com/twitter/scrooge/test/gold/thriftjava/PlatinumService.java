@@ -135,7 +135,7 @@ public class PlatinumService {
       manager.call(__method_call__);
     }
 
-    public static class moreCoolThings_call extends TAsyncMethodCall {
+    public static class moreCoolThings_call extends TAsyncMethodCall<moreCoolThings_call> {
       private Request request;
 
       public moreCoolThings_call(Request request, AsyncMethodCallback<moreCoolThings_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -203,9 +203,9 @@ public class PlatinumService {
               TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
               TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
               try {
-                return new com.twitter.util.Return(((new Client(__prot__)).recv_moreCoolThings()));
+                return new com.twitter.util.Return<Integer>(((new Client(__prot__)).recv_moreCoolThings()));
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<Integer>(e);
               }
             }
           };
@@ -568,6 +568,7 @@ public class PlatinumService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQUEST:
@@ -935,6 +936,7 @@ public class PlatinumService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case SUCCESS:

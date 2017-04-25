@@ -164,6 +164,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
     __isset_bit_vector.set(__CHILLTIMESECONDS_ISSET_ID, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case CHILL_TIME_SECONDS:

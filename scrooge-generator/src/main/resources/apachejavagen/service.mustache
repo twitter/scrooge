@@ -156,7 +156,7 @@ public class {{name}} {
       manager.call(__method_call__);
     }
 
-    public static class {{name}}_call extends TAsyncMethodCall {
+    public static class {{name}}_call extends TAsyncMethodCall<{{name}}_call> {
       {{#fields}}
       private {{{field_type.type_name}}} {{name}};
       {{/fields}}
@@ -241,13 +241,13 @@ public class {{name}} {
               try {
                 {{#is_oneway_or_void}}
                 (new Client(__prot__)).recv_{{name}}();
-                return new com.twitter.util.Return(null);
+                return new com.twitter.util.Return<{{{return_type.type_name_in_container}}}>(null);
                 {{/is_oneway_or_void}}
                 {{^is_oneway_or_void}}
-                return new com.twitter.util.Return(((new Client(__prot__)).recv_{{name}}()));
+                return new com.twitter.util.Return<{{{return_type.type_name_in_container}}}>(((new Client(__prot__)).recv_{{name}}()));
                 {{/is_oneway_or_void}}
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<{{{return_type.type_name_in_container}}}>(e);
               }
             }
           };

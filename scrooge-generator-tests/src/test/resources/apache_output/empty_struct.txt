@@ -110,6 +110,7 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
   public void clear() {
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     }

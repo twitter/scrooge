@@ -431,6 +431,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case A_LIST:

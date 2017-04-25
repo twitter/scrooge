@@ -128,7 +128,7 @@ public class OtherService {
       manager.call(__method_call__);
     }
 
-    public static class test_endpoint_call extends TAsyncMethodCall {
+    public static class test_endpoint_call extends TAsyncMethodCall<test_endpoint_call> {
       private int req;
 
       public test_endpoint_call(int req, AsyncMethodCallback<test_endpoint_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -194,9 +194,9 @@ public class OtherService {
               TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
               TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
               try {
-                return new com.twitter.util.Return(((new Client(__prot__)).recv_test_endpoint()));
+                return new com.twitter.util.Return<Boolean>(((new Client(__prot__)).recv_test_endpoint()));
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<Boolean>(e);
               }
             }
           };
@@ -527,6 +527,7 @@ public class OtherService {
     __isset_bit_vector.set(__REQ_ISSET_ID, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQ:
@@ -806,6 +807,7 @@ public class OtherService {
     __isset_bit_vector.set(__SUCCESS_ISSET_ID, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case SUCCESS:

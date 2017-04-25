@@ -183,7 +183,7 @@ public class TestService {
       manager.call(__method_call__);
     }
 
-    public static class test_void_endpoint_call extends TAsyncMethodCall {
+    public static class test_void_endpoint_call extends TAsyncMethodCall<test_void_endpoint_call> {
       private TestRequest request;
 
       public test_void_endpoint_call(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -214,7 +214,7 @@ public class TestService {
       manager.call(__method_call__);
     }
 
-    public static class test_endpoint_without_exception_call extends TAsyncMethodCall {
+    public static class test_endpoint_without_exception_call extends TAsyncMethodCall<test_endpoint_without_exception_call> {
       private TestRequest request;
 
       public test_endpoint_without_exception_call(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
@@ -281,9 +281,9 @@ public class TestService {
               TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
               try {
                 (new Client(__prot__)).recv_test_void_endpoint();
-                return new com.twitter.util.Return(null);
+                return new com.twitter.util.Return<Void>(null);
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<Void>(e);
               }
             }
           };
@@ -333,9 +333,9 @@ public class TestService {
               TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
               TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
               try {
-                return new com.twitter.util.Return(((new Client(__prot__)).recv_test_endpoint_without_exception()));
+                return new com.twitter.util.Return<TestResult>(((new Client(__prot__)).recv_test_endpoint_without_exception()));
               } catch (Exception e) {
-                return new com.twitter.util.Throw(e);
+                return new com.twitter.util.Throw<TestResult>(e);
               }
             }
           };
@@ -787,6 +787,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQUEST:
@@ -1069,6 +1070,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case EX:
@@ -1350,6 +1352,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case REQUEST:
@@ -1632,6 +1635,7 @@ public class TestService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case SUCCESS:

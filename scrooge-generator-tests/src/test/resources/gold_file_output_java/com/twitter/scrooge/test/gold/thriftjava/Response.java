@@ -202,6 +202,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case STATUS_CODE:

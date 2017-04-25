@@ -164,6 +164,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     __isset_bit_vector.set(__COLLECTIONLONGID_ISSET_ID, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case COLLECTION_LONG_ID:
