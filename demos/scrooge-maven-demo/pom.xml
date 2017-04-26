@@ -52,11 +52,6 @@
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
-      <artifactId>finagle-ostrich4_2.12</artifactId>
-      <version>6.41.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
       <artifactId>scrooge-core_2.12</artifactId>
       <version>4.13.0</version>
     </dependency>
