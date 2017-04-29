@@ -20,6 +20,7 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.ResolvedService
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
+
 import scala.collection.mutable
 
 trait ServiceTemplate { self: TemplateGenerator =>
