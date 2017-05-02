@@ -1,7 +1,7 @@
 package com.twitter.example
 import com.twitter.mydemo.renamed.{User, UserService}
 import com.twitter.finagle.Thrift
-import com.twitter.finagle.thrift.{ThriftServerFramedCodec, ThriftClientRequest}
+import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.finagle.builder.{ServerBuilder, ClientBuilder}
 import org.apache.thrift.protocol.TBinaryProtocol
 import java.net.{SocketAddress, InetSocketAddress}
