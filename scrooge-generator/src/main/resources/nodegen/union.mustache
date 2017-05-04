@@ -14,14 +14,19 @@ export class {{StructName}} {
 {{#fields}}
     public {{fieldName}}: {{noNamespaceFieldType}}
 {{/fields}}
+{{#fields}}
+    static {{FieldName}}({{fieldName}}: {{noNamespaceFieldType}}): {{StructName}} {
+        return new {{StructName}}({
+            {{fieldName}}: {{fieldName}}
+        });
+    }
+{{/fields}}
     constructor(args?) {
 {{#has_fields}}
         if (args) {
 {{#fields}}
             if (args.{{fieldName}} !== undefined && args.{{fieldName}} !== null) {
                 this.{{fieldName}} = args.{{fieldName}}
-            } else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
             }
 {{/fields}}
         }
