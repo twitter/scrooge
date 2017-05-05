@@ -2,7 +2,6 @@ package com.twitter.scrooge.backend
 
 import com.twitter.conversions.time._
 import com.twitter.finagle.{Service, SourcedException}
-import com.twitter.finagle.thrift.ThriftServiceIface
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.scrooge.{ThriftStruct, ThriftException}
 import com.twitter.util.{Await, Future}
@@ -11,13 +10,10 @@ import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.jmock.Expectations
-import org.jmock.Expectations.{any, returnValue}
+import org.jmock.Expectations.returnValue
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
-import thrift.`def`.default._
-import includes.a.thriftscala._
-import includes.b.thriftscala._
 import inheritance.aaa.{Aaa, Box}
 import inheritance.bbb.Bbb
 import inheritance.ccc.Ccc
@@ -506,7 +502,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         "missing required value throws exception during deserialization" should {
           "with no default value" in { cycle => import cycle._
             val protocol = mock[TProtocol]
-            expecting { e => import e._
+            expecting { e =>
               emptyRead(e, protocol)
             }
 
@@ -519,7 +515,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
           "with default value" in { cycle => import cycle._
             val protocol = mock[TProtocol]
-            expecting { e => import e._
+            expecting { e =>
               emptyRead(e, protocol)
             }
 
@@ -799,7 +795,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       "zero fields" should {
         "read" in { cycle => import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
             emptyRead(e, protocol)
           }
 

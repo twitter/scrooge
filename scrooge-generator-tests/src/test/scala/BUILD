@@ -39,5 +39,6 @@ junit_tests(
     'scrooge/scrooge-generator-tests/src/test/thrift:thrift',
     'util/util-core/src/main/scala:scala',
   ],
+  fatal_warnings=True,
   sources=rglobs('*.scala'),
 )

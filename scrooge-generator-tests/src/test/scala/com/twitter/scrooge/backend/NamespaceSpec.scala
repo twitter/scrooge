@@ -4,7 +4,6 @@ import com.twitter.scrooge.testutil.Spec
 
 class NamespaceSpec extends Spec {
   "Scala Generator" should {
-    import foo._
     import bar._
     import com.fake._
     "import from another namespace" in {

@@ -9,12 +9,9 @@ import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.{integration_android => androidGen}
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.Utils.verify
-import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TMemoryBuffer
 import org.mockito.Mockito._
 import thrift.complete.android.test1.{StructXA, StructXB, SimpleWithDefaults}
 import thrift.complete.android.test2.ComplexCollections

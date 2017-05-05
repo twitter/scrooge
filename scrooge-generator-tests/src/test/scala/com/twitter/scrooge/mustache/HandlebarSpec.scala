@@ -38,7 +38,7 @@ class HandlebarSpec extends Spec {
     }
 
     "optional blocks" in {
-      val template = "You {{#money}}have ${{money}}{{/money}}{{^money}}are broke{{/money}}."
+      val template = s"You {{#money}}have $${{money}}{{/money}}{{^money}}are broke{{/money}}."
       Handlebar.generate(template, Dictionary("money" -> v("5"))) must be("You have $5.")
       Handlebar.generate(template, Dictionary()) must be("You are broke.")
       Handlebar.generate(template, Dictionary("money" -> v(true))) must be("You have $true.")
