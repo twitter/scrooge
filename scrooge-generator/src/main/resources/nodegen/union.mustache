@@ -42,7 +42,7 @@ export class {{StructName}} {
             }
 {{#has_fields}}
             switch (fid) {
-                {{#fields}}case {{index}}:
+                {{#fields}}case {{id}}:
                     {{>readField}}
                     break
                 {{/fields}}
