@@ -1,17 +1,17 @@
 package com.twitter.example
-import com.twitter.mydemo.renamed.{User, UserService}
+
 import com.twitter.finagle.Thrift
-import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.finagle.builder.{ServerBuilder, ClientBuilder}
-import org.apache.thrift.protocol.TBinaryProtocol
-import java.net.{SocketAddress, InetSocketAddress}
+import com.twitter.mydemo.renamed.{User, UserService}
 import com.twitter.util.Future
+import java.net.{SocketAddress, InetSocketAddress}
 import java.util.concurrent.atomic.AtomicInteger
+import org.apache.thrift.protocol.TBinaryProtocol
 
 object DemoClient {
   def buildClient(address: SocketAddress) = {
     val clientService = ClientBuilder()
-      .hosts(Seq(address))
+      .hosts(address.asInstanceOf[InetSocketAddress])
       .stack(Thrift.client)
       .hostConnectionLimit(1)
       .build()
@@ -34,7 +34,7 @@ object DemoServer {
     val protocol = new TBinaryProtocol.Factory()
     val serverService = new UserService.FinagledService(new MyUserImpl, protocol)
     ServerBuilder()
-      .stack(Thrift.client)
+      .stack(Thrift.server)
       .name("binary_service")
       .bindTo(new InetSocketAddress(0))
       .build(serverService)

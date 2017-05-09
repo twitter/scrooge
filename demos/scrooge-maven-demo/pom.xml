@@ -33,27 +33,27 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core_2.12</artifactId>
-      <version>6.40.0</version>
+      <version>6.43.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-codec_2.12</artifactId>
-      <version>6.40.0</version>
+      <version>6.43.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.12</artifactId>
-      <version>6.41.0</version>
+      <version>6.44.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-thrift_2.12</artifactId>
-      <version>6.41.0</version>
+      <version>6.44.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-core_2.12</artifactId>
-      <version>4.13.0</version>
+      <version>4.16.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
