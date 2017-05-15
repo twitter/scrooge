@@ -2,7 +2,7 @@ package {{package}}
 
 import com.twitter.finagle.Thrift
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.scrooge.{ThriftStruct, TReusableMemoryTransport}
+import com.twitter.scrooge.{TReusableBuffer, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -39,24 +39,7 @@ class {{ServiceName}}$FinagleService(
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.maxThriftBufferSize)
 {{^hasParent}}
 
-  private[this] val tlReusableBuffer = new ThreadLocal[TReusableMemoryTransport] {
-    override def initialValue() = TReusableMemoryTransport(512)
-  }
-
-  private[this] def reusableBuffer: TReusableMemoryTransport = {
-    val buf = tlReusableBuffer.get()
-    buf.reset()
-    buf
-  }
-
-  private[this] val resetCounter = stats.scope("buffer").counter("resetCount")
-
-  private[this] def resetBuffer(trans: TReusableMemoryTransport): Unit = {
-    if (trans.currentCapacity > maxThriftBufferSize) {
-      resetCounter.incr()
-      tlReusableBuffer.remove()
-    }
-  }
+  private[this] val tlReusableBuffer = TReusableBuffer()
 
   protected val functionMap = new mutable$HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
 
@@ -67,7 +50,7 @@ class {{ServiceName}}$FinagleService(
   protected def exception(name: String, seqid: Int, code: Int, message: String): Future[Array[Byte]] = {
     try {
       val x = new TApplicationException(code, message)
-      val memoryBuffer = reusableBuffer
+      val memoryBuffer = tlReusableBuffer.get()
       try {
         val oprot = protocolFactory.getProtocol(memoryBuffer)
 
@@ -77,7 +60,7 @@ class {{ServiceName}}$FinagleService(
         oprot.getTransport().flush()
         Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()))
       } finally {
-        resetBuffer(memoryBuffer)
+        tlReusableBuffer.reset()
       }
     } catch {
       case e: Exception => Future.exception(e)
@@ -86,7 +69,7 @@ class {{ServiceName}}$FinagleService(
 
   protected def reply(name: String, seqid: Int, result: ThriftStruct): Future[Array[Byte]] = {
     try {
-      val memoryBuffer = reusableBuffer
+      val memoryBuffer = tlReusableBuffer.get()
       try {
         val oprot = protocolFactory.getProtocol(memoryBuffer)
 
@@ -96,7 +79,7 @@ class {{ServiceName}}$FinagleService(
 
         Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()))
       } finally {
-        resetBuffer(memoryBuffer)
+        tlReusableBuffer.reset()
       }
     } catch {
       case e: Exception => Future.exception(e)
@@ -131,3 +114,4 @@ class {{ServiceName}}$FinagleService(
   {{>function}}
 {{/function}}
 }
+

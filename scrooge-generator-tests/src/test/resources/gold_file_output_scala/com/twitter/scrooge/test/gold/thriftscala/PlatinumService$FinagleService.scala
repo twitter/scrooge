@@ -8,7 +8,7 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.Thrift
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.scrooge.{ThriftStruct, TReusableMemoryTransport}
+import com.twitter.scrooge.{TReusableBuffer, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays

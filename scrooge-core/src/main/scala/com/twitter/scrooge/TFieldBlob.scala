@@ -1,10 +1,14 @@
 package com.twitter.scrooge
 
+import com.twitter.io.Buf
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
 
 object TFieldBlob {
+
+  def apply(field: TField, data: Array[Byte]): TFieldBlob = TFieldBlob(field, Buf.ByteArray.Owned(data))
+
   def read(field: TField, iprot: TProtocol): TFieldBlob = {
     capture(field) { ThriftUtil.transfer(_, iprot, field.`type`) }
   }
@@ -13,8 +17,7 @@ object TFieldBlob {
     val buff = new TMemoryBuffer(32)
     val bprot = new TCompactProtocol(buff)
     f(bprot)
-    val data = Arrays.copyOfRange(buff.getArray, 0, buff.length)
-    TFieldBlob(field, data)
+    TFieldBlob(field, Buf.ByteArray.Owned(buff.getArray()))
   }
 }
 
@@ -22,14 +25,25 @@ object TFieldBlob {
  * This class encapsulates a TField reference with a TCompactProtocol-encoded
  * binary blob.
  */
-case class TFieldBlob(field: TField, data: Array[Byte]) {
-  def id = field.id 
+case class TFieldBlob(field: TField, content: Buf) {
+
+  def this(field: TField, data: Array[Byte]) =
+    this(field, Buf.ByteArray.Owned(data))
+
+  def id = field.id
+
+  @deprecated("TFieldBlob now uses `c.t.io.Buf` to represent the data, call `content` instead", "2017-05-10")
+  lazy val data: Array[Byte] = Arrays.copyOfRange(Buf.ByteArray.Owned.extract(content), 0, content.length)
 
   /**
    * Creates a TCompactProtocol to read the encoded data.
    */
-  def read: TCompactProtocol =
-    new TCompactProtocol(new TMemoryInputTransport(data))
+  def read: TCompactProtocol = {
+    Buf.ByteArray.coerce(content) match {
+      case Buf.ByteArray.Owned(bytes, off, len) => new TCompactProtocol(new TMemoryInputTransport(bytes, off, len))
+      case b => throw new IllegalArgumentException(s"Not a valid Buf for TFieldBlob: $b")
+    }
+  }
 
   def write(oprot: TProtocol): Unit = {
     oprot.writeFieldBegin(field)
@@ -46,7 +60,7 @@ case class TFieldBlob(field: TField, data: Array[Byte]) {
       // TField does not override the correct equals method, but instead implements
       // an equals method with a different signature, so we need to call .equals
       // instead of using ==
-      case TFieldBlob(field2, data2) => field.equals(field2) && Arrays.equals(data, data2)
+      case TFieldBlob(field2, buf2) => field.equals(field2) && content.equals(buf2)
       case _ => false
     }
 }

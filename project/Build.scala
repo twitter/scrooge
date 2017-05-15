@@ -248,7 +248,8 @@ object Scrooge extends Build {
   ).settings(
     name := "scrooge-core",
     libraryDependencies ++= Seq(
-      "com.twitter" % "libthrift" % libthriftVersion % "provided"
+      "com.twitter" % "libthrift" % libthriftVersion % "provided",
+      util("core")
     )
   )
 

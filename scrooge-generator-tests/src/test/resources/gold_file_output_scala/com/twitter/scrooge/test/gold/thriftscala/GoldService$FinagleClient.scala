@@ -10,13 +10,13 @@ import com.twitter.finagle.SourcedException
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
-import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
+import org.apache.thrift.transport.TMemoryInputTransport
 import scala.collection.{Map, Set}
 import scala.language.higherKinds
 
@@ -45,16 +45,22 @@ class GoldService$FinagleClient(
 
   import GoldService._
 
+  private[this] val tlReusableBuffer = TReusableBuffer()
+
   protected def encodeRequest(name: String, args: ThriftStruct) = {
-    val buf = new TMemoryBuffer(512)
-    val oprot = protocolFactory.getProtocol(buf)
+    val memoryBuffer = tlReusableBuffer.get()
+    try {
+      val oprot = protocolFactory.getProtocol(memoryBuffer)
 
-    oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
-    args.write(oprot)
-    oprot.writeMessageEnd()
-
-    val bytes = Arrays.copyOfRange(buf.getArray, 0, buf.length)
-    new ThriftClientRequest(bytes, false)
+      oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
+      args.write(oprot)
+      oprot.writeMessageEnd()
+      oprot.getTransport().flush()
+      val bytes = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length())
+      new ThriftClientRequest(bytes, false)
+    } finally {
+      tlReusableBuffer.reset()
+    }
   }
 
   protected def decodeResponse[T <: ThriftStruct](resBytes: Array[Byte], codec: ThriftStructCodec[T]) = {

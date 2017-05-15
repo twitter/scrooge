@@ -5,6 +5,14 @@
 4.x
 -----
 
+4.17.0
+------
+
+- scrooge-core: To reduce object allocations, `c.t.s.TFieldBlob` now uses `c.t.io.Buf`,
+  and add `c.t.s.TReusableBuffer` for providing thread-safe reusable buffer. ``RB_ID=914874``
+
+- scrooge-core: Add dependency on util-core. ``RB_ID=914874``
+
 4.16.0
 ------
 

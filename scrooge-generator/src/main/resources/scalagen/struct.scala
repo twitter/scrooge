@@ -1,6 +1,7 @@
 {{#public}}
 package {{package}}
 
+import com.twitter.io.Buf
 import com.twitter.scrooge.{
   HasThriftStructCodec3,
   LazyTProtocol,
@@ -506,8 +507,7 @@ class {{StructName}}(
           }
         _fieldOpt match {
           case _root_.scala.Some(_field) =>
-            val _data = Arrays.copyOfRange(_buff.getArray, 0, _buff.length)
-            _root_.scala.Some(TFieldBlob(_field, _data))
+            _root_.scala.Some(TFieldBlob(_field, Buf.ByteArray.Owned(_buff.getArray())))
           case _root_.scala.None =>
             _root_.scala.None
         }

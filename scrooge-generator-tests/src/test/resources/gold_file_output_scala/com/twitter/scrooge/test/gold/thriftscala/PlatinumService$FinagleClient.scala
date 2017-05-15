@@ -10,13 +10,13 @@ import com.twitter.finagle.SourcedException
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
-import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
+import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
-import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
+import org.apache.thrift.transport.TMemoryInputTransport
 import scala.collection.{Map, Set}
 import scala.language.higherKinds
 

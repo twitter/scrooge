@@ -51,6 +51,6 @@ the Finaglers mailing list.
 
 <https://twitter.github.io/scrooge/>
 
-Copyright 2013-2016 Twitter, Inc.
+Copyright 2013-2017 Twitter, Inc.
 
 [0]: https://github.com/twitter/finagle
