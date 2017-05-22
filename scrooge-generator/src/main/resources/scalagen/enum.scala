@@ -34,7 +34,6 @@ case object {{EnumName}} {
 
   /**
    * Find the enum by its integer value, as defined in the Thrift IDL.
-   * @throws NoSuchElementException if the value is not found.
    */
   def apply(value: Int): {{package}}.{{EnumName}} =
     value match {
