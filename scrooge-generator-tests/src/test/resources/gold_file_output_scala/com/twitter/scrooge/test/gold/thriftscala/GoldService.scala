@@ -76,10 +76,11 @@ object GoldService { self =>
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
         pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
-        stats: com.twitter.finagle.stats.StatsReceiver
+        stats: com.twitter.finagle.stats.StatsReceiver,
+        responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
       ): ServiceIface =
         ServiceIface(
-          doGreatThings = ThriftServiceIface(self.DoGreatThings, binaryService, pf, stats)
+          doGreatThings = ThriftServiceIface(self.DoGreatThings, binaryService, pf, stats, responseClassifier)
         )
   }
 

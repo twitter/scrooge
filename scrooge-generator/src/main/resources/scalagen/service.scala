@@ -89,11 +89,12 @@ object {{ServiceName}} { self =>
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
         pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
-        stats: com.twitter.finagle.stats.StatsReceiver
+        stats: com.twitter.finagle.stats.StatsReceiver,
+        responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
       ): ServiceIface =
         ServiceIface(
 {{#inheritedFunctions}}
-          {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, pf, stats)
+          {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, pf, stats, responseClassifier)
 {{/inheritedFunctions|,}}
         )
   }
