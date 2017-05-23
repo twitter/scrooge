@@ -166,8 +166,20 @@ class NodeGenerator (
 
   private[this] def genRequireStatement(t: NamedType, namespace: Option[Identifier]): String = {
     val typeName = t.sid.toTitleCase.fullName
-//    val qualifiedName = qualifyNamedType(t, namespace).fullName
-    s"import {$typeName} from './$typeName'"
+
+    val modulePath = {
+      val qualifiedName = qualifyNamedType(t, namespace).fullName
+
+      val traverseUp = namespace match {
+        case Some(ns: QualifiedID) => "./" + "../" * ns.names.length
+        case _ => "./"
+      }
+      val traverseDown = qualifiedName.replace(".", "/")
+
+      traverseUp + traverseDown
+    }
+
+    s"import {$typeName} from '$modulePath'"
   }
 
   override def structDict(struct: StructLike,
