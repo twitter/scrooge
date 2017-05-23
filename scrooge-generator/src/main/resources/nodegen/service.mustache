@@ -5,6 +5,8 @@ import {Thrift, Protocol, Transport, Int64, AnyProtocolClass} from 'thrift'
 import { {{StructName}} } from './{{StructName}}'
 {{/structs}}
 
+{{requireStatements}}
+
 {{#syncFunctionStructs}}
 {{#argsStruct}}{{>struct}}{{/argsStruct}}
 {{#resultStruct}}{{>struct}}{{/resultStruct}}

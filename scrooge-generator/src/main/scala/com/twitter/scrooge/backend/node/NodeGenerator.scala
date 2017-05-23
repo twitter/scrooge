@@ -228,6 +228,22 @@ class NodeGenerator (
                            options: Set[ServiceOption]): Dictionary = {
     val dict = super.serviceDict(service, namespace, includes, options)
     dict("syncFunctionStructs") = genSyncFunctionStructs(service)
+
+    // get all requireable structs in service methods
+    val fieldTypes: Seq[FieldType] = service.functions.flatMap { function =>
+      function.throws.map(_.fieldType) ++ function.args.map(_.fieldType) ++ Seq(function.funcType)
+    } collect {
+      case f: FieldType => f
+    }
+
+    val requireStatements = fieldTypes
+      .flatMap(findRequireableStructTypes(_, service.sid))
+      .map(genRequireStatement(_, Some(namespace)))
+      .distinct
+      .sorted
+
+    dict.update("requireStatements", requireStatements.mkString("\n"))
+
     val doc = normalizeCase(resolvedDoc.document)
     dict("structs") = doc.structs.map { struct =>
       structDict(struct, Some(namespace), includes, options, true)
