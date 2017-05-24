@@ -244,11 +244,6 @@ class NodeGenerator (
 
     dict.update("requireStatements", requireStatements.mkString("\n"))
 
-    val doc = normalizeCase(resolvedDoc.document)
-    dict("structs") = doc.structs.map { struct =>
-      structDict(struct, Some(namespace), includes, options, true)
-    }
-
     dict
   }
 

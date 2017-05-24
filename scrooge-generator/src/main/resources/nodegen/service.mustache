@@ -1,10 +1,6 @@
 import thrift from 'thrift'
 import {Thrift, Protocol, Transport, Int64, AnyProtocolClass} from 'thrift'
 
-{{#structs}}
-import { {{StructName}} } from './{{StructName}}'
-{{/structs}}
-
 {{requireStatements}}
 
 {{#syncFunctionStructs}}
