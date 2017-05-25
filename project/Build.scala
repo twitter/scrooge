@@ -282,14 +282,15 @@ object Scrooge extends Build {
       bintrayPublishSettings ++
       buildInfoSettings
   ).settings(
-      sourceGenerators in Compile <+= buildInfo,
-      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-      buildInfoPackage := "com.twitter",
-      sbtPlugin := true,
-      publishMavenStyle := false,
-      repository in bintray := "sbt-plugins",
-      licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
-      bintrayOrganization in bintray := Some("twittercsl")
+    scalaVersion := "2.10.6",
+    sourceGenerators in Compile <+= buildInfo,
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.twitter",
+    sbtPlugin := true,
+    publishMavenStyle := false,
+    repository in bintray := "sbt-plugins",
+    licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
+    bintrayOrganization in bintray := Some("twittercsl")
   ).dependsOn(scroogeGenerator)
 
   lazy val scroogeLinter = Project(
