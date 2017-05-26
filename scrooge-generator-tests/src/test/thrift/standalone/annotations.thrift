@@ -17,6 +17,10 @@ union AnnoUnion {
   1: AnnoStruct unionField (unionFieldKey = "unionFieldValue")
 } (unionKey = "unionValue")
 
+enum AnnoEnum {
+  ENUM_1 = 1 (enumFieldKey = "enumFieldValue")
+} (enumKey = "enumValue")
+
 exception AnnoException {
   1: string (excTypeKey = "excTypeValue") excField (excFieldKey = "excFieldValue")
 }

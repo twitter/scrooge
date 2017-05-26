@@ -13,6 +13,11 @@ import scala.collection.immutable.{Map => immutable$Map}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 case object RequestType {
 
+  val annotations: immutable$Map[String, String] = immutable$Map(
+    "enum.annotation" -> "false"
+  )
+
+
   case object Create extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val value: Int = 1
     val name: String = "Create"

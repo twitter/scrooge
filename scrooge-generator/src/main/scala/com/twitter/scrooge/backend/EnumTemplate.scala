@@ -13,6 +13,7 @@ trait EnumTemplate { self: TemplateGenerator =>
       "package" -> genID(namespace),
       "EnumName" -> genID(enum.sid.toTitleCase),
       "docstring" -> v(enum.docstring.getOrElse("")),
+      "annotations" -> TemplateGenerator.renderPairs(enum.annotations),
       "values" -> v(enum.values.map { value =>
         Dictionary(
           "valuedocstring" -> v(value.docstring.getOrElse("")),

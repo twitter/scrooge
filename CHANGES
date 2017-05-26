@@ -5,6 +5,8 @@
 4.x
 -----
 
+- scrooge-generator: Scala code generation support for annotations on enums ``RB_ID=917467``
+
 4.17.0
 ------
 

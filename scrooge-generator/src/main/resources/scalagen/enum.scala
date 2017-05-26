@@ -6,6 +6,18 @@ import scala.collection.immutable.{Map => immutable$Map}
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 case object {{EnumName}} {
+
+{{#annotations}}
+  val annotations: immutable$Map[String, String] = immutable$Map(
+{{#pairs}}
+    "{{key}}" -> "{{value}}"
+{{/pairs|,}}
+  )
+{{/annotations}}
+{{^annotations}}
+  val annotations: immutable$Map[String, String] = immutable$Map.empty
+{{/annotations}}
+
 {{#values}}
   {{valuedocstring}}
   case object {{name}} extends {{package}}.{{EnumName}} {

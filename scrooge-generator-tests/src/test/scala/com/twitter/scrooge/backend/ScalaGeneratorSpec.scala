@@ -3,9 +3,9 @@ package com.twitter.scrooge.backend
 import com.twitter.conversions.time._
 import com.twitter.finagle.{Service, SourcedException}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
-import com.twitter.scrooge.{ThriftStruct, ThriftException}
+import com.twitter.scrooge.{ThriftException, ThriftStruct}
 import com.twitter.util.{Await, Future}
-import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
@@ -19,6 +19,7 @@ import inheritance.bbb.Bbb
 import inheritance.ccc.Ccc
 import inheritance.ccc.CccExtended
 import inheritance.ddd.Ddd
+import scrooge.test.annotations.thriftscala.AnnoEnum
 
 class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
@@ -64,6 +65,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         NumberID.Five.name must be("Five")
         NumberID.Six.name must be("Six")
         NumberID.Eight.name must be("Eight")
+      }
+
+      "annotations" in { _ =>
+        AnnoEnum.annotations.get("enumKey") must contain("enumValue")
+        AnnoEnum.Enum1.annotations.get("enumFieldKey") must contain("enumFieldValue")
       }
 
       "apply" in { _ =>
