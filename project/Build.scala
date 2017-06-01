@@ -113,7 +113,7 @@ object Scrooge extends Build {
     sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.12.1",
-      crossScalaVersions := Seq("2.11.8", "2.12.1"),
+      crossScalaVersions := Seq("2.11.11", "2.12.1"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
@@ -147,7 +147,7 @@ object Scrooge extends Build {
   val settingsCrossCompiledWithTwoTen =
     sharedSettingsWithoutScalaVersion ++
     Seq(
-      crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1"),
+      crossScalaVersions := Seq("2.10.6", "2.11.11", "2.12.1"),
       scalaVersion := "2.12.1",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
