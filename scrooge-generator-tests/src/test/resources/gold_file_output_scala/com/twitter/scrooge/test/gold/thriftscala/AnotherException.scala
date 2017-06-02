@@ -18,10 +18,13 @@ import com.twitter.scrooge.{
   ThriftStructMetaData,
   ThriftUtil
 }
+import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
+import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
 import scala.collection.mutable.{
@@ -31,7 +34,7 @@ import scala.collection.{Map, Set}
 
 
 object AnotherException extends ThriftStructCodec3[AnotherException] {
-  private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("AnotherException")
   val ErrorCodeField = new TField("errorCode", TType.I32, 1)
   val ErrorCodeFieldManifest = implicitly[Manifest[Int]]
@@ -74,6 +77,7 @@ object AnotherException extends ThriftStructCodec3[AnotherException] {
   override def encode(_item: AnotherException, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
   }
+
 
   override def decode(_iprot: TProtocol): AnotherException = {
     var errorCode: Int = 0
@@ -129,7 +133,7 @@ object AnotherException extends ThriftStructCodec3[AnotherException] {
   def unapply(_item: AnotherException): _root_.scala.Option[Int] = _root_.scala.Some(_item.errorCode)
 
 
-  @inline private def readErrorCodeValue(_iprot: TProtocol): Int = {
+  @inline private[thriftscala] def readErrorCodeValue(_iprot: TProtocol): Int = {
     _iprot.readI32()
   }
 
@@ -301,3 +305,4 @@ class AnotherException(
 
   def _codec: ThriftStructCodec3[AnotherException] = AnotherException
 }
+

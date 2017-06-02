@@ -18,10 +18,13 @@ import com.twitter.scrooge.{
   ThriftStructMetaData,
   ThriftUtil
 }
+import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
+import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
 import scala.collection.mutable.{
@@ -31,7 +34,7 @@ import scala.collection.{Map, Set}
 
 
 object CollectionId extends ThriftStructCodec3[CollectionId] {
-  private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("CollectionId")
   val CollectionLongIdField = new TField("collectionLongId", TType.I64, 1)
   val CollectionLongIdFieldManifest = implicitly[Manifest[Long]]
@@ -73,6 +76,41 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
 
   override def encode(_item: CollectionId, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
+  }
+
+  @volatile private[this] var adaptiveDecoder: Decoder[CollectionId] = _
+
+  private[this] val accessRecordingDecoderBuilder: AccessRecorder => Decoder[CollectionId] = { accessRecorder =>
+    new Decoder[CollectionId] {
+      def apply(prot: AdaptTProtocol): CollectionId = new AccessRecordingWrapper(lazyDecode(prot), accessRecorder)
+    }
+  }
+  private[this] val fallbackDecoder = new Decoder[CollectionId] {
+    def apply(prot: AdaptTProtocol): CollectionId = lazyDecode(prot)
+  }
+  private[this] def adaptiveDecode(_iprot: AdaptTProtocol): CollectionId = {
+    val adaptContext = _iprot.adaptContext
+    val reloadRequired = adaptContext.shouldReloadDecoder
+    synchronized {
+      if (adaptiveDecoder == null || reloadRequired) {
+        adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
+      }
+    }
+    adaptiveDecoder(_iprot)
+  }
+
+  /**
+   * AccessRecordingWrapper keeps track of fields that are accessed while
+   * delegating to underlying struct.
+   */
+  private[this] class AccessRecordingWrapper(underlying: CollectionId, accessRecorder: AccessRecorder) extends CollectionId {
+    override def collectionLongId: Long = {
+      accessRecorder.fieldAccessed(1)
+      underlying.collectionLongId
+    }
+    override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
+
+    override def _passthroughFields = underlying._passthroughFields
   }
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): CollectionId = {
@@ -132,11 +170,12 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
 
   override def decode(_iprot: TProtocol): CollectionId =
     _iprot match {
+      case i: AdaptTProtocol => adaptiveDecode(i)
       case i: LazyTProtocol => lazyDecode(i)
       case i => eagerDecode(i)
     }
 
-  private[this] def eagerDecode(_iprot: TProtocol): CollectionId = {
+  private[thriftscala] def eagerDecode(_iprot: TProtocol): CollectionId = {
     var collectionLongId: Long = 0L
     var _got_collectionLongId = false
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
@@ -193,7 +232,7 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
   def unapply(_item: CollectionId): _root_.scala.Option[Long] = _root_.scala.Some(_item.collectionLongId)
 
 
-  @inline private def readCollectionLongIdValue(_iprot: TProtocol): Long = {
+  @inline private[thriftscala] def readCollectionLongIdValue(_iprot: TProtocol): Long = {
     _iprot.readI64()
   }
 
@@ -428,4 +467,122 @@ trait CollectionId
   override def productPrefix: String = "CollectionId"
 
   def _codec: ThriftStructCodec3[CollectionId] = CollectionId
+}
+
+private class CollectionId$$AdaptDecoder {
+
+  def decode(_iprot: AdaptTProtocol): CollectionId = {
+    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+    var _done = false
+    val _start_offset = _iprot.offset
+
+    val adapt = new CollectionId$$Adapt(
+      _iprot,
+      _iprot.buffer,
+      _start_offset)
+
+    var _got_collectionLongId = false
+    AdaptTProtocol.usedStartMarker(1)
+    var collectionLongId: Long = 0L
+    AdaptTProtocol.usedEndMarker(1)
+
+    _iprot.readStructBegin()
+    while (!_done) {
+      val _field = _iprot.readFieldBegin()
+      if (_field.`type` == TType.STOP) {
+        _done = true
+      } else {
+        _field.id match {
+          case 1 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(1)
+                collectionLongId = CollectionId.readCollectionLongIdValue(_iprot)
+                AdaptTProtocol.usedEndMarker(1)
+                AdaptTProtocol.unusedStartMarker(1)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(1)
+                _got_collectionLongId = true
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "collectionLongId")
+            }
+            AdaptTProtocol.usedStartMarker(1)
+            adapt.set_collectionLongId(collectionLongId)
+            AdaptTProtocol.usedEndMarker(1)
+          }
+
+          case _ =>
+            if (_passthroughFields == null)
+              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+        }
+        _iprot.readFieldEnd()
+      }
+    }
+    _iprot.readStructEnd()
+
+    if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
+    adapt.set__endOffset(_iprot.offset)
+    if (_passthroughFields != null) {
+      adapt.set__passthroughFields(_passthroughFields.result())
+    }
+    adapt
+  }
+}
+
+/**
+ * This is the base template for Adaptive decoding. This class gets pruned and
+ * reloaded at runtime.
+ */
+private class CollectionId$$Adapt(
+    _proto: AdaptTProtocol,
+    _buf: Array[Byte],
+    _start_offset: Int) extends CollectionId {
+
+  /**
+   * In case any unexpected field is accessed, fallback to eager decoding.
+   */
+  private[this] lazy val delegate: CollectionId = {
+    val bytes = Arrays.copyOfRange(_buf, _start_offset, _end_offset)
+    val proto = _proto.withBytes(bytes)
+    CollectionId.eagerDecode(proto)
+  }
+
+  private[this] var m_collectionLongId: Long = _
+  def set_collectionLongId(collectionLongId: Long): Unit = m_collectionLongId = collectionLongId
+  // This will be removed by ASM if field is unused.
+  def collectionLongId: Long = m_collectionLongId
+  // This will be removed by ASM if field is used otherwise renamed to collectionLongId.
+  def delegated_collectionLongId: Long = delegate.collectionLongId
+
+
+  private[this] var _end_offset: Int = _
+  def set__endOffset(offset: Int) = _end_offset = offset
+
+  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = CollectionId.NoPassthroughFields
+  def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
+    __passthroughFields = passthroughFields
+
+  override def _passthroughFields: immutable$Map[Short, TFieldBlob] = __passthroughFields
+
+  /*
+  Override the super hash code to make it a lazy val rather than def.
+
+  Calculating the hash code can be expensive, caching it where possible
+  can provide significant performance wins. (Key in a hash map for instance)
+  Usually not safe since the normal constructor will accept a mutable map or
+  set as an arg
+  Here however we control how the class is generated from serialized data.
+  With the class private and the contract that we throw away our mutable references
+  having the hash code lazy here is safe.
+  */
+  override lazy val hashCode: Int = super.hashCode
+
+  override def write(_oprot: TProtocol): Unit = {
+    _oprot match {
+      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      case _ => super.write(_oprot)
+    }
+  }
 }

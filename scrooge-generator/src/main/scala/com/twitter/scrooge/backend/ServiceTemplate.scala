@@ -200,7 +200,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
     service: Service,
     namespace: Identifier,
     includes: Seq[Include],
-    options: Set[ServiceOption]
+    options: Set[ServiceOption],
+    genAdapt: Boolean
   ) = {
     val withFinagle = options.contains(WithFinagle)
     Dictionary(
@@ -237,14 +238,16 @@ trait ServiceTemplate { self: TemplateGenerator =>
               functionArgsStruct(f),
               Some(namespace),
               includes,
-              options)),
+              options,
+              genAdapt)),
           "internalResultStruct" -> {
             val functionResult = resultStruct(f)
             v(structDict(
               functionResult,
               Some(namespace),
               includes,
-              options) +
+              options,
+              genAdapt) +
               Dictionary(
                 "successFieldType" -> getSuccessType(functionResult),
                 "successFieldValue" -> getSuccessValue(functionResult),

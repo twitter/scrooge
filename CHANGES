@@ -4,6 +4,9 @@
 
 4.x
 -----
+- scrooge-adaptive: Add support for adaptive decoding, that learns 
+  from field access patterns and optimizes the decoder to cheaply 
+  skip over unused fields. ``RB_ID=908416``
 
 - scrooge-generator: Scala code generation support for annotations on enums ``RB_ID=917467``
 

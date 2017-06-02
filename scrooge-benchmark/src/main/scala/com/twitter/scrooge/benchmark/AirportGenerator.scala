@@ -6,14 +6,6 @@ import thrift.benchmark._
 
 object AirportGenerator {
 
-  private[this] implicit class RichRandom(val rng: Random) extends AnyVal {
-    def nextOptString(len: Int): Option[String] =
-      if(rng.nextBoolean) Some(rng.nextString(len)) else None
-
-    def maybeRng[T](fn: Random => T): Option[T] =
-      if(rng.nextBoolean) Some(fn(rng)) else None
-  }
-
   def buildLocation(rng: Random): Location = {
      // Next double is only between 0 and 1, so times long will give us something
      // across a wide possible range
@@ -35,7 +27,7 @@ object AirportGenerator {
     Airport(code, name, country, state, closestCity, location)
   }
 
-  private[this] def buildAirports(rng: Random, num: Int): Array[Airport] =
+  def buildAirports(rng: Random, num: Int): Array[Airport] =
     (0 until num).map{ _ => buildAirport(rng) }.toArray
 
   def buildAirportsAndBytes(seed: Long, num: Int): (Array[Airport], Array[Array[Byte]]) = {

@@ -124,7 +124,8 @@ class AndroidGenerator(
   override def apply(
     serviceOptions: Set[ServiceOption],
     outputPath: File,
-    dryRun: Boolean = false
+    dryRun: Boolean = false,
+    genAdapt: Boolean = false
   ): Iterable[File] = {
     val doc = resolvedDoc.document
     val generatedFiles = new mutable.ListBuffer[File]

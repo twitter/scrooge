@@ -65,6 +65,7 @@ abstract class GoldFileTest extends FunSuite
     val args = Seq(
       "--language", language,
       "--finagle",
+      "--gen-adapt",
       "--dest", tempDir.getPath) ++ inputThrifts
 
     Main.main(args.toArray)

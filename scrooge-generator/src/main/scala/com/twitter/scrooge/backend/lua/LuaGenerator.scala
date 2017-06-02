@@ -179,8 +179,14 @@ class LuaGenerator(
     s"local $typeName = require '$qualifiedName'"
   }
 
-  override def structDict(struct: StructLike, namespace: Option[Identifier], includes: Seq[Include], serviceOptions: Set[ServiceOption], toplevel: Boolean = false) = {
-    val dictionary = super.structDict(struct, namespace, includes, serviceOptions)
+  override def structDict(
+    struct: StructLike,
+    namespace: Option[Identifier],
+    includes: Seq[Include],
+    serviceOptions: Set[ServiceOption],
+    genAdapt: Boolean,
+    toplevel: Boolean = false) = {
+    val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     // Struct or Enum types referenced in the struct that need a `require` statement at the top of the lua file
     val requireStatements = struct
       .fields

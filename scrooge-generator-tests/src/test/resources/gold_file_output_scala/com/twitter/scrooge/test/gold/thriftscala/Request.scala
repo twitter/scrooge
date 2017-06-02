@@ -18,10 +18,13 @@ import com.twitter.scrooge.{
   ThriftStructMetaData,
   ThriftUtil
 }
+import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
+import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
 import scala.collection.mutable.{
@@ -31,7 +34,7 @@ import scala.collection.{Map, Set}
 
 
 object Request extends ThriftStructCodec3[Request] {
-  private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("Request")
   val AListField = new TField("aList", TType.LIST, 1)
   val AListFieldManifest = implicitly[Manifest[Seq[String]]]
@@ -187,6 +190,61 @@ object Request extends ThriftStructCodec3[Request] {
     _item.write(_oproto)
   }
 
+  @volatile private[this] var adaptiveDecoder: Decoder[Request] = _
+
+  private[this] val accessRecordingDecoderBuilder: AccessRecorder => Decoder[Request] = { accessRecorder =>
+    new Decoder[Request] {
+      def apply(prot: AdaptTProtocol): Request = new AccessRecordingWrapper(lazyDecode(prot), accessRecorder)
+    }
+  }
+  private[this] val fallbackDecoder = new Decoder[Request] {
+    def apply(prot: AdaptTProtocol): Request = lazyDecode(prot)
+  }
+  private[this] def adaptiveDecode(_iprot: AdaptTProtocol): Request = {
+    val adaptContext = _iprot.adaptContext
+    val reloadRequired = adaptContext.shouldReloadDecoder
+    synchronized {
+      if (adaptiveDecoder == null || reloadRequired) {
+        adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
+      }
+    }
+    adaptiveDecoder(_iprot)
+  }
+
+  /**
+   * AccessRecordingWrapper keeps track of fields that are accessed while
+   * delegating to underlying struct.
+   */
+  private[this] class AccessRecordingWrapper(underlying: Request, accessRecorder: AccessRecorder) extends Request {
+    override def aList: Seq[String] = {
+      accessRecorder.fieldAccessed(1)
+      underlying.aList
+    }
+    override def aSet: Set[Int] = {
+      accessRecorder.fieldAccessed(2)
+      underlying.aSet
+    }
+    override def aMap: Map[Long, Long] = {
+      accessRecorder.fieldAccessed(3)
+      underlying.aMap
+    }
+    override def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = {
+      accessRecorder.fieldAccessed(4)
+      underlying.aRequest
+    }
+    override def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = {
+      accessRecorder.fieldAccessed(5)
+      underlying.subRequests
+    }
+    override def hasDefault: String = {
+      accessRecorder.fieldAccessed(6)
+      underlying.hasDefault
+    }
+    override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
+
+    override def _passthroughFields = underlying._passthroughFields
+  }
+
   private[this] def lazyDecode(_iprot: LazyTProtocol): Request = {
 
     var aList: Seq[String] = Seq[String]()
@@ -321,11 +379,12 @@ object Request extends ThriftStructCodec3[Request] {
 
   override def decode(_iprot: TProtocol): Request =
     _iprot match {
+      case i: AdaptTProtocol => adaptiveDecode(i)
       case i: LazyTProtocol => lazyDecode(i)
       case i => eagerDecode(i)
     }
 
-  private[this] def eagerDecode(_iprot: TProtocol): Request = {
+  private[thriftscala] def eagerDecode(_iprot: TProtocol): Request = {
     var aList: Seq[String] = Seq[String]()
     var aSet: Set[Int] = Set[Int]()
     var aMap: Map[Long, Long] = Map[Long, Long]()
@@ -464,7 +523,7 @@ object Request extends ThriftStructCodec3[Request] {
   def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String]] = _root_.scala.Some(_item.toTuple)
 
 
-  @inline private def readAListValue(_iprot: TProtocol): Seq[String] = {
+  @inline private[thriftscala] def readAListValue(_iprot: TProtocol): Seq[String] = {
     val _list = _iprot.readListBegin()
     if (_list.size == 0) {
       _iprot.readListEnd()
@@ -508,7 +567,7 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeListEnd()
   }
 
-  @inline private def readASetValue(_iprot: TProtocol): Set[Int] = {
+  @inline private[thriftscala] def readASetValue(_iprot: TProtocol): Set[Int] = {
     val _set = _iprot.readSetBegin()
     if (_set.size == 0) {
       _iprot.readSetEnd()
@@ -541,7 +600,7 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeSetEnd()
   }
 
-  @inline private def readAMapValue(_iprot: TProtocol): Map[Long, Long] = {
+  @inline private[thriftscala] def readAMapValue(_iprot: TProtocol): Map[Long, Long] = {
     val _map = _iprot.readMapBegin()
     if (_map.size == 0) {
       _iprot.readMapEnd()
@@ -579,7 +638,7 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeMapEnd()
   }
 
-  @inline private def readARequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
+  @inline private[thriftscala] def readARequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
     com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
   }
 
@@ -593,7 +652,7 @@ object Request extends ThriftStructCodec3[Request] {
     aRequest_item.write(_oprot)
   }
 
-  @inline private def readSubRequestsValue(_iprot: TProtocol): Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = {
+  @inline private[thriftscala] def readSubRequestsValue(_iprot: TProtocol): Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = {
     val _list = _iprot.readListBegin()
     if (_list.size == 0) {
       _iprot.readListEnd()
@@ -637,7 +696,7 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeListEnd()
   }
 
-  @inline private def readHasDefaultValue(_iprot: TProtocol): String = {
+  @inline private[thriftscala] def readHasDefaultValue(_iprot: TProtocol): String = {
     _iprot.readString()
   }
 
@@ -1029,4 +1088,271 @@ trait Request
   override def productPrefix: String = "Request"
 
   def _codec: ThriftStructCodec3[Request] = Request
+}
+
+private class Request$$AdaptDecoder {
+
+  def decode(_iprot: AdaptTProtocol): Request = {
+    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+    var _done = false
+    val _start_offset = _iprot.offset
+
+    val adapt = new Request$$Adapt(
+      _iprot,
+      _iprot.buffer,
+      _start_offset)
+
+    AdaptTProtocol.usedStartMarker(1)
+    var aList: Seq[String] = Seq[String]()
+
+    adapt.set_aList(aList)
+    AdaptTProtocol.usedEndMarker(1)
+
+    AdaptTProtocol.usedStartMarker(2)
+    var aSet: Set[Int] = Set[Int]()
+
+    adapt.set_aSet(aSet)
+    AdaptTProtocol.usedEndMarker(2)
+
+    AdaptTProtocol.usedStartMarker(3)
+    var aMap: Map[Long, Long] = Map[Long, Long]()
+
+    adapt.set_aMap(aMap)
+    AdaptTProtocol.usedEndMarker(3)
+
+    AdaptTProtocol.usedStartMarker(4)
+    var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
+
+    adapt.set_aRequest(aRequest)
+    AdaptTProtocol.usedEndMarker(4)
+
+    AdaptTProtocol.usedStartMarker(5)
+    var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+
+    adapt.set_subRequests(subRequests)
+    AdaptTProtocol.usedEndMarker(5)
+
+    AdaptTProtocol.usedStartMarker(6)
+    var hasDefault: String = "the_default"
+
+    adapt.set_hasDefault(hasDefault)
+    AdaptTProtocol.usedEndMarker(6)
+
+    _iprot.readStructBegin()
+    while (!_done) {
+      val _field = _iprot.readFieldBegin()
+      if (_field.`type` == TType.STOP) {
+        _done = true
+      } else {
+        _field.id match {
+          case 1 => {
+            _field.`type` match {
+              case TType.LIST =>
+                AdaptTProtocol.usedStartMarker(1)
+                aList = Request.readAListValue(_iprot)
+                AdaptTProtocol.usedEndMarker(1)
+                AdaptTProtocol.unusedStartMarker(1)
+                _iprot.offsetSkipList()
+                AdaptTProtocol.unusedEndMarker(1)
+              case _actualType =>
+                val _expectedType = TType.LIST
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aList")
+            }
+            AdaptTProtocol.usedStartMarker(1)
+            adapt.set_aList(aList)
+            AdaptTProtocol.usedEndMarker(1)
+          }
+          case 2 => {
+            _field.`type` match {
+              case TType.SET =>
+                AdaptTProtocol.usedStartMarker(2)
+                aSet = Request.readASetValue(_iprot)
+                AdaptTProtocol.usedEndMarker(2)
+                AdaptTProtocol.unusedStartMarker(2)
+                _iprot.offsetSkipSet()
+                AdaptTProtocol.unusedEndMarker(2)
+              case _actualType =>
+                val _expectedType = TType.SET
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aSet")
+            }
+            AdaptTProtocol.usedStartMarker(2)
+            adapt.set_aSet(aSet)
+            AdaptTProtocol.usedEndMarker(2)
+          }
+          case 3 => {
+            _field.`type` match {
+              case TType.MAP =>
+                AdaptTProtocol.usedStartMarker(3)
+                aMap = Request.readAMapValue(_iprot)
+                AdaptTProtocol.usedEndMarker(3)
+                AdaptTProtocol.unusedStartMarker(3)
+                _iprot.offsetSkipMap()
+                AdaptTProtocol.unusedEndMarker(3)
+              case _actualType =>
+                val _expectedType = TType.MAP
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aMap")
+            }
+            AdaptTProtocol.usedStartMarker(3)
+            adapt.set_aMap(aMap)
+            AdaptTProtocol.usedEndMarker(3)
+          }
+          case 4 => {
+            _field.`type` match {
+              case TType.STRUCT =>
+                AdaptTProtocol.usedStartMarker(4)
+                aRequest = _root_.scala.Some(Request.readARequestValue(_iprot))
+                AdaptTProtocol.usedEndMarker(4)
+                AdaptTProtocol.unusedStartMarker(4)
+                _iprot.offsetSkipStruct()
+                AdaptTProtocol.unusedEndMarker(4)
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aRequest")
+            }
+            AdaptTProtocol.usedStartMarker(4)
+            adapt.set_aRequest(aRequest)
+            AdaptTProtocol.usedEndMarker(4)
+          }
+          case 5 => {
+            _field.`type` match {
+              case TType.LIST =>
+                AdaptTProtocol.usedStartMarker(5)
+                subRequests = Request.readSubRequestsValue(_iprot)
+                AdaptTProtocol.usedEndMarker(5)
+                AdaptTProtocol.unusedStartMarker(5)
+                _iprot.offsetSkipList()
+                AdaptTProtocol.unusedEndMarker(5)
+              case _actualType =>
+                val _expectedType = TType.LIST
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "subRequests")
+            }
+            AdaptTProtocol.usedStartMarker(5)
+            adapt.set_subRequests(subRequests)
+            AdaptTProtocol.usedEndMarker(5)
+          }
+          case 6 => {
+            _field.`type` match {
+              case TType.STRING =>
+                AdaptTProtocol.usedStartMarker(6)
+                hasDefault = Request.readHasDefaultValue(_iprot)
+                AdaptTProtocol.usedEndMarker(6)
+                AdaptTProtocol.unusedStartMarker(6)
+                _iprot.offsetSkipString()
+                AdaptTProtocol.unusedEndMarker(6)
+              case _actualType =>
+                val _expectedType = TType.STRING
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "hasDefault")
+            }
+            AdaptTProtocol.usedStartMarker(6)
+            adapt.set_hasDefault(hasDefault)
+            AdaptTProtocol.usedEndMarker(6)
+          }
+
+          case _ =>
+            if (_passthroughFields == null)
+              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+        }
+        _iprot.readFieldEnd()
+      }
+    }
+    _iprot.readStructEnd()
+
+    adapt.set__endOffset(_iprot.offset)
+    if (_passthroughFields != null) {
+      adapt.set__passthroughFields(_passthroughFields.result())
+    }
+    adapt
+  }
+}
+
+/**
+ * This is the base template for Adaptive decoding. This class gets pruned and
+ * reloaded at runtime.
+ */
+private class Request$$Adapt(
+    _proto: AdaptTProtocol,
+    _buf: Array[Byte],
+    _start_offset: Int) extends Request {
+
+  /**
+   * In case any unexpected field is accessed, fallback to eager decoding.
+   */
+  private[this] lazy val delegate: Request = {
+    val bytes = Arrays.copyOfRange(_buf, _start_offset, _end_offset)
+    val proto = _proto.withBytes(bytes)
+    Request.eagerDecode(proto)
+  }
+
+  private[this] var m_aList: Seq[String] = _
+  def set_aList(aList: Seq[String]): Unit = m_aList = aList
+  // This will be removed by ASM if field is unused.
+  def aList: Seq[String] = m_aList
+  // This will be removed by ASM if field is used otherwise renamed to aList.
+  def delegated_aList: Seq[String] = delegate.aList
+
+  private[this] var m_aSet: Set[Int] = _
+  def set_aSet(aSet: Set[Int]): Unit = m_aSet = aSet
+  // This will be removed by ASM if field is unused.
+  def aSet: Set[Int] = m_aSet
+  // This will be removed by ASM if field is used otherwise renamed to aSet.
+  def delegated_aSet: Set[Int] = delegate.aSet
+
+  private[this] var m_aMap: Map[Long, Long] = _
+  def set_aMap(aMap: Map[Long, Long]): Unit = m_aMap = aMap
+  // This will be removed by ASM if field is unused.
+  def aMap: Map[Long, Long] = m_aMap
+  // This will be removed by ASM if field is used otherwise renamed to aMap.
+  def delegated_aMap: Map[Long, Long] = delegate.aMap
+
+  private[this] var m_aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _
+  def set_aRequest(aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]): Unit = m_aRequest = aRequest
+  // This will be removed by ASM if field is unused.
+  def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = m_aRequest
+  // This will be removed by ASM if field is used otherwise renamed to aRequest.
+  def delegated_aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = delegate.aRequest
+
+  private[this] var m_subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _
+  def set_subRequests(subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request]): Unit = m_subRequests = subRequests
+  // This will be removed by ASM if field is unused.
+  def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = m_subRequests
+  // This will be removed by ASM if field is used otherwise renamed to subRequests.
+  def delegated_subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = delegate.subRequests
+
+  private[this] var m_hasDefault: String = _
+  def set_hasDefault(hasDefault: String): Unit = m_hasDefault = hasDefault
+  // This will be removed by ASM if field is unused.
+  def hasDefault: String = m_hasDefault
+  // This will be removed by ASM if field is used otherwise renamed to hasDefault.
+  def delegated_hasDefault: String = delegate.hasDefault
+
+
+  private[this] var _end_offset: Int = _
+  def set__endOffset(offset: Int) = _end_offset = offset
+
+  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = Request.NoPassthroughFields
+  def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
+    __passthroughFields = passthroughFields
+
+  override def _passthroughFields: immutable$Map[Short, TFieldBlob] = __passthroughFields
+
+  /*
+  Override the super hash code to make it a lazy val rather than def.
+
+  Calculating the hash code can be expensive, caching it where possible
+  can provide significant performance wins. (Key in a hash map for instance)
+  Usually not safe since the normal constructor will accept a mutable map or
+  set as an arg
+  Here however we control how the class is generated from serialized data.
+  With the class private and the contract that we throw away our mutable references
+  having the hash code lazy here is safe.
+  */
+  override lazy val hashCode: Int = super.hashCode
+
+  override def write(_oprot: TProtocol): Unit = {
+    _oprot match {
+      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      case _ => super.write(_oprot)
+    }
+  }
 }

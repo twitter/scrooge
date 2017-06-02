@@ -18,10 +18,13 @@ import com.twitter.scrooge.{
   ThriftStructMetaData,
   ThriftUtil
 }
+import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
+import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
 import scala.collection.mutable.{
@@ -31,7 +34,7 @@ import scala.collection.{Map, Set}
 
 
 object Response extends ThriftStructCodec3[Response] {
-  private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("Response")
   val StatusCodeField = new TField("statusCode", TType.I32, 1)
   val StatusCodeFieldManifest = implicitly[Manifest[Int]]
@@ -91,6 +94,45 @@ object Response extends ThriftStructCodec3[Response] {
 
   override def encode(_item: Response, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
+  }
+
+  @volatile private[this] var adaptiveDecoder: Decoder[Response] = _
+
+  private[this] val accessRecordingDecoderBuilder: AccessRecorder => Decoder[Response] = { accessRecorder =>
+    new Decoder[Response] {
+      def apply(prot: AdaptTProtocol): Response = new AccessRecordingWrapper(lazyDecode(prot), accessRecorder)
+    }
+  }
+  private[this] val fallbackDecoder = new Decoder[Response] {
+    def apply(prot: AdaptTProtocol): Response = lazyDecode(prot)
+  }
+  private[this] def adaptiveDecode(_iprot: AdaptTProtocol): Response = {
+    val adaptContext = _iprot.adaptContext
+    val reloadRequired = adaptContext.shouldReloadDecoder
+    synchronized {
+      if (adaptiveDecoder == null || reloadRequired) {
+        adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
+      }
+    }
+    adaptiveDecoder(_iprot)
+  }
+
+  /**
+   * AccessRecordingWrapper keeps track of fields that are accessed while
+   * delegating to underlying struct.
+   */
+  private[this] class AccessRecordingWrapper(underlying: Response, accessRecorder: AccessRecorder) extends Response {
+    override def statusCode: Int = {
+      accessRecorder.fieldAccessed(1)
+      underlying.statusCode
+    }
+    override def responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = {
+      accessRecorder.fieldAccessed(2)
+      underlying.responseUnion
+    }
+    override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
+
+    override def _passthroughFields = underlying._passthroughFields
   }
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): Response = {
@@ -163,11 +205,12 @@ object Response extends ThriftStructCodec3[Response] {
 
   override def decode(_iprot: TProtocol): Response =
     _iprot match {
+      case i: AdaptTProtocol => adaptiveDecode(i)
       case i: LazyTProtocol => lazyDecode(i)
       case i => eagerDecode(i)
     }
 
-  private[this] def eagerDecode(_iprot: TProtocol): Response = {
+  private[thriftscala] def eagerDecode(_iprot: TProtocol): Response = {
     var statusCode: Int = 0
     var responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = null
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
@@ -238,7 +281,7 @@ object Response extends ThriftStructCodec3[Response] {
   def unapply(_item: Response): _root_.scala.Option[_root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]] = _root_.scala.Some(_item.toTuple)
 
 
-  @inline private def readStatusCodeValue(_iprot: TProtocol): Int = {
+  @inline private[thriftscala] def readStatusCodeValue(_iprot: TProtocol): Int = {
     _iprot.readI32()
   }
 
@@ -252,7 +295,7 @@ object Response extends ThriftStructCodec3[Response] {
     _oprot.writeI32(statusCode_item)
   }
 
-  @inline private def readResponseUnionValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = {
+  @inline private[thriftscala] def readResponseUnionValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = {
     com.twitter.scrooge.test.gold.thriftscala.ResponseUnion.decode(_iprot)
   }
 
@@ -522,4 +565,147 @@ trait Response
   override def productPrefix: String = "Response"
 
   def _codec: ThriftStructCodec3[Response] = Response
+}
+
+private class Response$$AdaptDecoder {
+
+  def decode(_iprot: AdaptTProtocol): Response = {
+    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+    var _done = false
+    val _start_offset = _iprot.offset
+
+    val adapt = new Response$$Adapt(
+      _iprot,
+      _iprot.buffer,
+      _start_offset)
+
+    AdaptTProtocol.usedStartMarker(1)
+    var statusCode: Int = 0
+    AdaptTProtocol.usedEndMarker(1)
+
+    AdaptTProtocol.usedStartMarker(2)
+    var responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = null
+    AdaptTProtocol.usedEndMarker(2)
+
+    _iprot.readStructBegin()
+    while (!_done) {
+      val _field = _iprot.readFieldBegin()
+      if (_field.`type` == TType.STOP) {
+        _done = true
+      } else {
+        _field.id match {
+          case 1 => {
+            _field.`type` match {
+              case TType.I32 =>
+                AdaptTProtocol.usedStartMarker(1)
+                statusCode = Response.readStatusCodeValue(_iprot)
+                AdaptTProtocol.usedEndMarker(1)
+                AdaptTProtocol.unusedStartMarker(1)
+                _iprot.offsetSkipI32()
+                AdaptTProtocol.unusedEndMarker(1)
+              case _actualType =>
+                val _expectedType = TType.I32
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "statusCode")
+            }
+            AdaptTProtocol.usedStartMarker(1)
+            adapt.set_statusCode(statusCode)
+            AdaptTProtocol.usedEndMarker(1)
+          }
+          case 2 => {
+            _field.`type` match {
+              case TType.STRUCT =>
+                AdaptTProtocol.usedStartMarker(2)
+                responseUnion = Response.readResponseUnionValue(_iprot)
+                AdaptTProtocol.usedEndMarker(2)
+                AdaptTProtocol.unusedStartMarker(2)
+                _iprot.offsetSkipStruct()
+                AdaptTProtocol.unusedEndMarker(2)
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "responseUnion")
+            }
+            AdaptTProtocol.usedStartMarker(2)
+            adapt.set_responseUnion(responseUnion)
+            AdaptTProtocol.usedEndMarker(2)
+          }
+
+          case _ =>
+            if (_passthroughFields == null)
+              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+        }
+        _iprot.readFieldEnd()
+      }
+    }
+    _iprot.readStructEnd()
+
+    adapt.set__endOffset(_iprot.offset)
+    if (_passthroughFields != null) {
+      adapt.set__passthroughFields(_passthroughFields.result())
+    }
+    adapt
+  }
+}
+
+/**
+ * This is the base template for Adaptive decoding. This class gets pruned and
+ * reloaded at runtime.
+ */
+private class Response$$Adapt(
+    _proto: AdaptTProtocol,
+    _buf: Array[Byte],
+    _start_offset: Int) extends Response {
+
+  /**
+   * In case any unexpected field is accessed, fallback to eager decoding.
+   */
+  private[this] lazy val delegate: Response = {
+    val bytes = Arrays.copyOfRange(_buf, _start_offset, _end_offset)
+    val proto = _proto.withBytes(bytes)
+    Response.eagerDecode(proto)
+  }
+
+  private[this] var m_statusCode: Int = _
+  def set_statusCode(statusCode: Int): Unit = m_statusCode = statusCode
+  // This will be removed by ASM if field is unused.
+  def statusCode: Int = m_statusCode
+  // This will be removed by ASM if field is used otherwise renamed to statusCode.
+  def delegated_statusCode: Int = delegate.statusCode
+
+  private[this] var m_responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = _
+  def set_responseUnion(responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion): Unit = m_responseUnion = responseUnion
+  // This will be removed by ASM if field is unused.
+  def responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = m_responseUnion
+  // This will be removed by ASM if field is used otherwise renamed to responseUnion.
+  def delegated_responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = delegate.responseUnion
+
+
+  private[this] var _end_offset: Int = _
+  def set__endOffset(offset: Int) = _end_offset = offset
+
+  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = Response.NoPassthroughFields
+  def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
+    __passthroughFields = passthroughFields
+
+  override def _passthroughFields: immutable$Map[Short, TFieldBlob] = __passthroughFields
+
+  /*
+  Override the super hash code to make it a lazy val rather than def.
+
+  Calculating the hash code can be expensive, caching it where possible
+  can provide significant performance wins. (Key in a hash map for instance)
+  Usually not safe since the normal constructor will accept a mutable map or
+  set as an arg
+  Here however we control how the class is generated from serialized data.
+  With the class private and the contract that we throw away our mutable references
+  having the hash code lazy here is safe.
+  */
+  override lazy val hashCode: Int = super.hashCode
+
+  override def write(_oprot: TProtocol): Unit = {
+    _oprot match {
+      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      case _ => super.write(_oprot)
+    }
+  }
 }

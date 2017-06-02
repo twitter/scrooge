@@ -13,10 +13,15 @@ import com.twitter.scrooge.{
   ThriftStructMetaData,
   ThriftUtil
 }
+{{#adapt}}
+import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
+{{/adapt}}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport}
+import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
 import scala.collection.mutable.{
@@ -27,7 +32,7 @@ import scala.collection.{Map, Set}
 {{/public}}
 {{docstring}}
 object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
-  private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
@@ -129,6 +134,47 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
     _item.write(_oproto)
   }
 
+{{#adapt}}
+{{#withTrait}}
+  @volatile private[this] var adaptiveDecoder: Decoder[{{StructName}}] = _
+
+  private[this] val accessRecordingDecoderBuilder: AccessRecorder => Decoder[{{StructName}}] = { accessRecorder =>
+    new Decoder[{{StructName}}] {
+      def apply(prot: AdaptTProtocol): {{StructName}} = new AccessRecordingWrapper(lazyDecode(prot), accessRecorder)
+    }
+  }
+  private[this] val fallbackDecoder = new Decoder[{{StructName}}] {
+    def apply(prot: AdaptTProtocol): {{StructName}} = lazyDecode(prot)
+  }
+  private[this] def adaptiveDecode(_iprot: AdaptTProtocol): {{StructName}} = {
+    val adaptContext = _iprot.adaptContext
+    val reloadRequired = adaptContext.shouldReloadDecoder
+    synchronized {
+      if (adaptiveDecoder == null || reloadRequired) {
+        adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
+      }
+    }
+    adaptiveDecoder(_iprot)
+  }
+
+  /**
+   * AccessRecordingWrapper keeps track of fields that are accessed while
+   * delegating to underlying struct.
+   */
+  private[this] class AccessRecordingWrapper(underlying: {{StructName}}, accessRecorder: AccessRecorder) extends {{StructName}} {
+{{#fields}}
+    override def {{fieldName}}: {{>optionalType}} = {
+      accessRecorder.fieldAccessed({{id}})
+      underlying.{{fieldName}}
+    }
+{{/fields}}
+    override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
+
+    override def _passthroughFields = underlying._passthroughFields
+  }
+{{/withTrait}}
+{{/adapt}}
+
 {{#withTrait}}
   private[this] def lazyDecode(_iprot: LazyTProtocol): {{StructName}} = {
 
@@ -196,11 +242,14 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   override def decode(_iprot: TProtocol): {{StructName}} =
     _iprot match {
+{{#adapt}}
+      case i: AdaptTProtocol => adaptiveDecode(i)
+{{/adapt}}
       case i: LazyTProtocol => lazyDecode(i)
       case i => eagerDecode(i)
     }
 
-  private[this] def eagerDecode(_iprot: TProtocol): {{StructName}} = {
+  private[{{packageName}}] def eagerDecode(_iprot: TProtocol): {{StructName}} = {
 {{/withTrait}}
 {{^withTrait}}
   override def decode(_iprot: TProtocol): {{StructName}} = {
@@ -279,7 +328,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
 
 {{#fields}}
-  @inline private def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
+  @inline private[{{packageName}}] def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
 {{#readWriteInfo}}
     {{>readValue}}
 {{/readWriteInfo}}
@@ -665,3 +714,133 @@ class {{StructName}}(
 
   def _codec: ThriftStructCodec3[{{StructName}}] = {{StructName}}
 }
+
+{{#adapt}}
+{{#withTrait}}
+private class {{StructName}}$$AdaptDecoder {
+
+  def decode(_iprot: AdaptTProtocol): {{StructName}} = {
+    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+    var _done = false
+    val _start_offset = _iprot.offset
+
+    val adapt = new {{StructName}}$$Adapt(
+      _iprot,
+      _iprot.buffer,
+      _start_offset)
+
+{{#fields}}
+{{#required}}
+    var {{gotName}} = false
+{{/required}}
+    AdaptTProtocol.usedStartMarker({{id}})
+{{#optional}}
+    var {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
+{{! Set the default value for optional fields in adapt struct }}
+    adapt.{{setName}}({{fieldName}})
+{{/optional}}
+{{^optional}}
+    var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+{{#hasDefaultValue}}
+{{! Optional fields with default values appear as required but may not be present in bytes and need to be set to default value. }}
+    adapt.{{setName}}({{fieldName}})
+{{/hasDefaultValue}}
+{{/optional}}
+    AdaptTProtocol.usedEndMarker({{id}})
+
+{{/fields}}
+    _iprot.readStructBegin()
+    while (!_done) {
+      val _field = _iprot.readFieldBegin()
+      if (_field.`type` == TType.STOP) {
+        _done = true
+      } else {
+        _field.id match {
+{{#fields}}
+          case {{id}} => {
+            {{>readAdaptField}}
+          }
+{{/fields}}
+
+          case _ =>
+            if (_passthroughFields == null)
+              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+        }
+        _iprot.readFieldEnd()
+      }
+    }
+    _iprot.readStructEnd()
+
+{{#fields}}
+{{#required}}
+    if (!{{gotName}}) throw new TProtocolException("Required field '{{fieldName}}' was not found in serialized data for struct {{StructName}}")
+{{/required}}
+{{/fields}}
+    adapt.set__endOffset(_iprot.offset)
+    if (_passthroughFields != null) {
+      adapt.set__passthroughFields(_passthroughFields.result())
+    }
+    adapt
+  }
+}
+
+/**
+ * This is the base template for Adaptive decoding. This class gets pruned and
+ * reloaded at runtime.
+ */
+private class {{StructName}}$$Adapt(
+    _proto: AdaptTProtocol,
+    _buf: Array[Byte],
+    _start_offset: Int) extends {{StructName}} {
+
+  /**
+   * In case any unexpected field is accessed, fallback to eager decoding.
+   */
+  private[this] lazy val delegate: {{StructName}} = {
+    val bytes = Arrays.copyOfRange(_buf, _start_offset, _end_offset)
+    val proto = _proto.withBytes(bytes)
+    {{StructName}}.eagerDecode(proto)
+  }
+
+{{#fields}}
+  private[this] var {{memberName}}: {{>optionalType}} = _
+  def {{setName}}({{fieldName}}: {{>optionalType}}): Unit = {{memberName}} = {{fieldName}}
+  // This will be removed by ASM if field is unused.
+  def {{fieldName}}: {{>optionalType}} = {{memberName}}
+  // This will be removed by ASM if field is used otherwise renamed to {{fieldName}}.
+  def {{delegateName}}: {{>optionalType}} = delegate.{{fieldName}}
+
+{{/fields}}
+
+  private[this] var _end_offset: Int = _
+  def set__endOffset(offset: Int) = _end_offset = offset
+
+  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = {{StructName}}.NoPassthroughFields
+  def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
+    __passthroughFields = passthroughFields
+
+  override def _passthroughFields: immutable$Map[Short, TFieldBlob] = __passthroughFields
+
+  /*
+  Override the super hash code to make it a lazy val rather than def.
+
+  Calculating the hash code can be expensive, caching it where possible
+  can provide significant performance wins. (Key in a hash map for instance)
+  Usually not safe since the normal constructor will accept a mutable map or
+  set as an arg
+  Here however we control how the class is generated from serialized data.
+  With the class private and the contract that we throw away our mutable references
+  having the hash code lazy here is safe.
+  */
+  override lazy val hashCode: Int = super.hashCode
+
+  override def write(_oprot: TProtocol): Unit = {
+    _oprot match {
+      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      case _ => super.write(_oprot)
+    }
+  }
+}
+{{/withTrait}}
+{{/adapt}}

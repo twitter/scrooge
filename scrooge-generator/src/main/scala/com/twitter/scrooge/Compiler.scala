@@ -38,6 +38,7 @@ class Compiler {
   val namespaceMappings = new mutable.HashMap[String, String]
   var verbose = false
   var strict = true
+  var genAdapt = false
   var skipUnchanged = false
   var experimentFlags = new mutable.ListBuffer[String]
   var fileMapPath: scala.Option[String] = None
@@ -94,7 +95,8 @@ class Compiler {
         val generatedFiles = generator(
           flags.toSet,
           new File(destFolder),
-          dryRun
+          dryRun,
+          genAdapt
         ).map {
           _.getPath
         }

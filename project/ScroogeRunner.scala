@@ -44,11 +44,18 @@ object ScroogeRunner {
   case object Android extends Language("android", androidNamespace)
 
   class Runner(out: Keys.TaskStreams, cp: Classpath, outputDir: File) {
-    def run(language: Language, namespace: String, finagle: Boolean = true, args: String) : Unit =  {
+    def run(
+      language: Language,
+      namespace: String,
+      finagle: Boolean = true,
+      args: String,
+      genAdapt: Boolean = true
+    ): Unit =  {
       val finagleArg = if(finagle) "--finagle" else ""
+      val adaptArg = if (genAdapt) "--gen-adapt" else ""
 
       val command =
-        s"java -cp ${cp.files.absString} com.twitter.scrooge.Main --verbose $finagleArg " +
+        s"java -cp ${cp.files.absString} com.twitter.scrooge.Main --verbose $finagleArg $adaptArg " +
           s" -d ${outputDir.getAbsolutePath} -l ${language.scroogeName} $namespace $args"
 
       val result: Int = command ! out.log
@@ -60,8 +67,12 @@ object ScroogeRunner {
       }
     }
 
-    def runScrooge(languages: Seq[Language], args: String) = languages foreach { lang =>
-      run(lang, lang.defaultNamespace, finagle = true, args = args)
+    def runScrooge(
+      languages: Seq[Language],
+      args: String,
+      genAdapt: Boolean = true
+    ) = languages foreach { lang =>
+      run(lang, lang.defaultNamespace, finagle = true, genAdapt = genAdapt, args = args)
     }
 
     def section(description: String)(f: => Unit) = {
@@ -81,6 +92,20 @@ object ScroogeRunner {
       (outputDir ** "*.java").get.toSeq
 
   }
+
+  val genAdaptiveScroogeTestThrift = TaskKey[Seq[File]]("genAdaptiveScroogeTestThrift",
+    "Uses Scrooge to generate code from thrift sources, for use in Adaptive Scrooge tests")
+
+  val genAdaptiveScroogeTestThriftTask = genAdaptiveScroogeTestThrift <<=
+    (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
+      val runner = new Runner(out, cp, outputDir)
+      import runner._
+
+      val files = filesInDir(s"$base/src/test/thrift") mkString " "
+      runScrooge(Seq(Scala), files)
+
+      filesGenerated
+    }
 
   val genTestThrift = TaskKey[Seq[File]]("genTestThrift",
     "Uses Scrooge to generate code from thrift sources, for use in tests")

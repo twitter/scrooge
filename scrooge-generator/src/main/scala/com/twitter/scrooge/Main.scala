@@ -131,6 +131,11 @@ object Main {
         c
       }.text("generate finagle classes")
 
+      opt[Unit]("gen-adapt").action { (_, c) =>
+        c.genAdapt = true
+        c
+      }.text("Generate code for adaptive decoding for scala.")
+
       arg[String]("<files...>").unbounded().action { (files, c) =>
         c.thriftFiles += files
         c

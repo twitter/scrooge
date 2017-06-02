@@ -49,6 +49,11 @@ object Scrooge extends Build {
     ScroogeRunner.genTestThriftTask
   )
 
+  val adaptiveScroogeTestThriftSettings = Seq(
+    sourceGenerators in Test <+= ScroogeRunner.genAdaptiveScroogeTestThrift,
+    ScroogeRunner.genAdaptiveScroogeTestThriftTask
+  )
+
   val sharedSettingsWithoutScalaVersion = Seq(
     version := libVersion,
     organization := "com.twitter",
@@ -165,6 +170,7 @@ object Scrooge extends Build {
   )
 
   lazy val publishedProjects = Seq[sbt.ProjectReference](
+    scroogeAdaptive,
     scroogeCore,
     scroogeGenerator,
     scroogeLinter,
@@ -238,7 +244,7 @@ object Scrooge extends Build {
     ),
     test in assembly := {},  // Skip tests when running assembly.
     publishArtifact := false
-  ).dependsOn(scroogeGenerator)
+  ).dependsOn(scroogeCore, scroogeGenerator)
 
   lazy val scroogeCore = Project(
     id = "scrooge-core",
@@ -273,6 +279,23 @@ object Scrooge extends Build {
       "com.twitter" % "libthrift" % libthriftVersion % "provided"
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test")
+
+  lazy val scroogeAdaptive = Project(
+    id = "scrooge-adaptive",
+    base = file("scrooge-adaptive"),
+    settings = Defaults.coreDefaultSettings ++
+      inConfig(Test)(adaptiveScroogeTestThriftSettings) ++
+      sharedSettings
+  ).settings(
+    name := "scrooge-adaptive",
+    libraryDependencies ++= Seq(
+      "asm" % "asm" % "3.3.1",
+      "asm" % "asm-commons" % "3.3.1",
+      "asm" % "asm-util" % "3.3.1",
+      "com.twitter" % "libthrift" % libthriftVersion % "provided",
+      finagle("thrift") % "test"
+    )
+  ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
   lazy val scroogeSbtPlugin = Project(
     id = "scrooge-sbt-plugin",
@@ -324,7 +347,10 @@ object Scrooge extends Build {
       "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
       "com.twitter" % "libthrift" % libthriftVersion
     )
-  ).dependsOn(scroogeGenerator, scroogeSerializer)
+  ).dependsOn(
+    scroogeAdaptive % "compile->test", // Need ReloadOnceAdaptBinarySerializer defined in test
+    scroogeGenerator,
+    scroogeSerializer)
 
   lazy val scroogeDoc = Project(
     id = "scrooge-doc",

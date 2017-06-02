@@ -109,7 +109,8 @@ trait StructTemplate { self: TemplateGenerator =>
             "type" -> genType(t),
             "name" -> genID(sid),
             "protocolWriteMethod" -> genProtocolWriteMethod(t),
-            "protocolReadMethod" -> genProtocolReadMethod(t)
+            "protocolReadMethod" -> genProtocolReadMethod(t),
+            "protocolSkipMethod" -> genProtocolSkipMethod(t)
           )))
       case t: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should have been resolved by now")
@@ -133,7 +134,7 @@ trait StructTemplate { self: TemplateGenerator =>
         Dictionary(
           "index" -> v(index.toString),
           "indexP1" -> v((index + 1).toString),
-          "_fieldName" -> genID(field.sid.prepend("_")), // for Java only
+          "_fieldName" -> genID(field.sid.prepend("_")), // for Java and Scala only
           "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")),
           "readName" -> genID(field.sid.toTitleCase.prepend("read")),
           "getBlobName" -> genID(field.sid.toTitleCase.prepend("get").append("Blob")),
@@ -143,6 +144,9 @@ trait StructTemplate { self: TemplateGenerator =>
           "fieldName" -> fieldName,
           "fieldNameForWire" -> v(field.originalName),
           "fieldNameCamelCase" -> camelCaseFieldName,
+          "setName" -> genID(field.sid.toCamelCase.prepend("set_")), // for Scala only
+          "delegateName" -> genID(field.sid.toCamelCase.prepend("delegated_")), // for Scala only
+          "memberName" -> genID(field.sid.toCamelCase.prepend("m_")), // for Scala only
           "newFieldName" -> genID(field.sid.toTitleCase.prepend("new")),
           "FieldName" -> genID(field.sid.toTitleCase),
           "FIELD_NAME" -> genID(field.sid.toUpperCase),
@@ -212,7 +216,9 @@ trait StructTemplate { self: TemplateGenerator =>
           "offsetSkipProtocol" -> genOffsetSkipProtocolMethod(field.fieldType),
           "readUnionField" -> v(templates("readUnionField")),
           "readLazyField" -> v(templates("readLazyField")),
+          "readAdaptField" -> v(templates("readAdaptField")),
           "readValue" -> v(templates("readValue")),
+          "skipValue" -> v(templates("skipValue")),
           "writeField" -> v(templates("writeField")),
           "writeValue" -> v(templates("writeValue")),
           "writeList" -> v(templates("writeList")),
@@ -298,11 +304,14 @@ trait StructTemplate { self: TemplateGenerator =>
     v(s"Seq($exceptions)")
   }
 
+  private def basename(fqdn: String): String = fqdn.split('.').last
+
   def structDict(
     struct: StructLike,
     namespace: Option[Identifier],
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption],
+    genAdapt: Boolean,
     toplevel: Boolean = false // True if this struct is defined in its own file. False for internal structs.
   ): Dictionary = {
     val parentType = struct match {
@@ -333,9 +342,13 @@ trait StructTemplate { self: TemplateGenerator =>
 
     val structName = if (toplevel) genID(struct.sid.toTitleCase) else genID(struct.sid)
 
+    val pkg = namespace.map(genID).getOrElse(v(""))
+    val pkgName = v(basename(pkg.toData))
+
     Dictionary(
       "public" -> v(toplevel),
-      "package" -> namespace.map(genID).getOrElse(v("")),
+      "package" -> pkg,
+      "packageName" -> pkgName,
       "docstring" -> v(struct.docstring.getOrElse("")),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
@@ -360,6 +373,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
       "withTrait" -> v(isStruct),
+      "adapt" -> v(genAdapt),
       "structAnnotations" -> TemplateGenerator.renderPairs(struct.annotations)
     )
   }

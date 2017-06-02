@@ -33,10 +33,15 @@ case object WithFinagle extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 abstract class Generator(doc: ResolvedDocument) {
+  /**
+   * @param genAdapt Generate code for Adaptive Decoding.
+   *                 This flag is only used for scala presently.
+   */
   def apply(
     serviceOptions: Set[ServiceOption],
     outputPath: File,
-    dryRun: Boolean = false
+    dryRun: Boolean = false,
+    genAdapt: Boolean = false
   ): Iterable[File]
 
   /**
@@ -344,10 +349,26 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TDouble => "readDouble"
       case TString => "readString"
       case TBinary => "readBinary"
-      case x => throw new ScroogeInternalException("protocolReadMethod#" + t)
+      case x => throw new ScroogeInternalException("genProtocolReadMethod#" + t)
     }
     v(code)
   }
+
+  def genProtocolSkipMethod(t: FunctionType): CodeFragment = {
+    val code = t match {
+      case TBool => "offsetSkipBool"
+      case TByte => "offsetSkipBool"
+      case TI16 => "offsetSkipI16"
+      case TI32 => "offsetSkipI32"
+      case TI64 => "offsetSkipI64"
+      case TDouble => "offsetSkipDouble"
+      case TString => "offsetSkipString"
+      case TBinary => "offsetSkipBinary"
+      case x => throw new ScroogeInternalException("genProtocolSkipMethod#" + t)
+    }
+    v(code)
+  }
+
 
   def genOffsetSkipProtocolMethod(t: FunctionType): CodeFragment = {
     val code = t match {
@@ -425,7 +446,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   def apply(
     serviceOptions: Set[ServiceOption],
     outputPath: File,
-    dryRun: Boolean = false
+    dryRun: Boolean = false,
+    genAdapt: Boolean = false
   ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
     val doc = normalizeCase(resolvedDoc.document)
@@ -465,7 +487,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
               case _ => "struct"
             }
 
-          val dict = structDict(struct, Some(namespace), includes, serviceOptions, true)
+          val dict = structDict(struct, Some(namespace), includes, serviceOptions, genAdapt, true)
           writeFile(file, templates.header, templates(templateName).generate(dict))
         }
         generatedFiles += file
@@ -478,7 +500,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
         val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
 
         if (!dryRun) {
-          val dict = serviceDict(service, namespace, includes, serviceOptions)
+          val dict = serviceDict(service, namespace, includes, serviceOptions, genAdapt)
           writeFile(interfaceFile, templates.header, templates("service").generate(dict))
 
           finagleClientFileOpt foreach { file =>

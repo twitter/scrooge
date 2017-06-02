@@ -99,7 +99,7 @@ object GoldService { self =>
   object DoGreatThings extends com.twitter.scrooge.ThriftMethod {
 
     object Args extends ThriftStructCodec3[Args] {
-      private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+      val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct = new TStruct("doGreatThings_args")
       val RequestField = new TField("request", TType.STRUCT, 1)
       val RequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
@@ -142,6 +142,7 @@ object GoldService { self =>
       override def encode(_item: Args, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
       }
+
 
       override def decode(_iprot: TProtocol): Args = {
         var request: com.twitter.scrooge.test.gold.thriftscala.Request = null
@@ -197,7 +198,7 @@ object GoldService { self =>
       def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
 
 
-      @inline private def readRequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
+      @inline private[thriftscala] def readRequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
         com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
       }
 
@@ -285,7 +286,7 @@ object GoldService { self =>
     type SuccessType = com.twitter.scrooge.test.gold.thriftscala.Response
 
     object Result extends ThriftStructCodec3[Result] {
-      private val NoPassthroughFields = immutable$Map.empty[Short, TFieldBlob]
+      val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct = new TStruct("doGreatThings_result")
       val SuccessField = new TField("success", TType.STRUCT, 0)
       val SuccessFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
@@ -350,6 +351,7 @@ object GoldService { self =>
       override def encode(_item: Result, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
       }
+
 
       override def decode(_iprot: TProtocol): Result = {
         var success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
@@ -422,7 +424,7 @@ object GoldService { self =>
       def unapply(_item: Result): _root_.scala.Option[_root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
 
 
-      @inline private def readSuccessValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Response = {
+      @inline private[thriftscala] def readSuccessValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Response = {
         com.twitter.scrooge.test.gold.thriftscala.Response.decode(_iprot)
       }
 
@@ -436,7 +438,7 @@ object GoldService { self =>
         success_item.write(_oprot)
       }
 
-      @inline private def readExValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.OverCapacityException = {
+      @inline private[thriftscala] def readExValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.OverCapacityException = {
         com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.decode(_iprot)
       }
 

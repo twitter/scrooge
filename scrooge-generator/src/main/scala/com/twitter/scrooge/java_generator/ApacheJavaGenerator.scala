@@ -214,7 +214,8 @@ class ApacheJavaGenerator(
   def apply(
     serviceOptions: Set[ServiceOption],
     outputPath: File,
-    dryRun: Boolean = false
+    dryRun: Boolean = false,
+    genAdapt: Boolean = false
   ): Iterable[File] = {
     // TODO: Implement serviceOptions (WithFinagle, etc)
     val generatedFiles = new mutable.ListBuffer[File]

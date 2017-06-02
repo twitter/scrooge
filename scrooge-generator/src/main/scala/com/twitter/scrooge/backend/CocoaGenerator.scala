@@ -145,8 +145,15 @@ class CocoaGenerator(
     dictionaries
   }
 
-  override def structDict(struct: StructLike, namespace: Option[Identifier], includes: Seq[Include], serviceOptions: Set[ServiceOption], toplevel: Boolean = false) = {
-    val dictionary = super.structDict(struct, namespace, includes, serviceOptions)
+  override def structDict(
+    struct: StructLike,
+    namespace: Option[Identifier],
+    includes: Seq[Include],
+    serviceOptions: Set[ServiceOption],
+    genAdapt: Boolean,
+    toplevel: Boolean = false
+  ) = {
+    val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     dictionary("headers") = getDependentHeaders(struct)
 
     dictionary
@@ -268,7 +275,8 @@ class CocoaGenerator(
   override def apply(
     serviceOptions: Set[ServiceOption],
     outputPath: File,
-    dryRun: Boolean = false
+    dryRun: Boolean = false,
+    genAdapt: Boolean = false
   ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
     val doc = normalizeCase(resolvedDoc.document)
