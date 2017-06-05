@@ -12,9 +12,15 @@ import scoverage.ScoverageKeys
 
 object Scrooge extends Build {
   val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
-  val suffix = if (branch == "master") "" else "-SNAPSHOT"
 
-  val libVersion = "4.13.0" + suffix
+//  TODO: Since Twitter doesn't publish SNAPSHOT dependencies for this project,
+//  we are using non-SNAPSHOT dependencies to make builds easier for now. If we decide
+//  to contribute the node generator back to Scrooge, we can revert this change.
+//
+//  val suffix = if (branch == "master") "" else "-SNAPSHOT"
+//  val libVersion = "4.13.0" + suffix
+  val suffix = ""
+  val libVersion = "4.13.0" + "SNAPSHOT"
 
   // To build the develop branch you need to publish util, and finagle locally:
   // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
