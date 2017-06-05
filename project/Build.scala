@@ -292,8 +292,7 @@ object Scrooge extends Build {
       "asm" % "asm" % "3.3.1",
       "asm" % "asm-commons" % "3.3.1",
       "asm" % "asm-util" % "3.3.1",
-      "com.twitter" % "libthrift" % libthriftVersion % "provided",
-      finagle("thrift") % "test"
+      "com.twitter" % "libthrift" % libthriftVersion % "provided"
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
