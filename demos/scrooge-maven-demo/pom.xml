@@ -132,7 +132,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>4.16.0</version>
+        <version>4.18.0</version>
         <configuration>
           <thriftNamespaceMappings>
             <thriftNamespaceMapping>
