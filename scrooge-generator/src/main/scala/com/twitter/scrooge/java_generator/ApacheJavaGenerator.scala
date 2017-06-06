@@ -192,7 +192,7 @@ class ApacheJavaGenerator(
       case TI32 => "TType.I32"
       case TI64 => "TType.I64"
       case TDouble => "TType.DOUBLE"
-      case EnumType(enumValue, scope) => "TType.I32"
+      case EnumType(enumValue, scope) => "TType.ENUM"
       case StructType(structLike, scope) => "TType.STRUCT"
       case MapType(key, value, cpp) => "TType.MAP"
       case SetType(key, cpp) => "TType.SET"
