@@ -48,6 +48,13 @@ class Compiler {
   var defaultNamespace: String = CompilerDefaults.defaultNamespace
   var scalaWarnOnJavaNSFallback: Boolean = false
 
+  /**
+   * Customizations may override this method to control
+   * the importer used
+   */
+  protected def getImporter: Importer =
+    Importer(new File(".")) +: Importer(includePaths)
+
   def run() {
     // if --gen-file-map is specified, prepare the map file.
     fileMapWriter = fileMapPath.map { path =>
@@ -62,7 +69,7 @@ class Compiler {
       new FileWriter(file)
     }
 
-    val importer = Importer(new File(".")) +: Importer(includePaths)
+    val importer = getImporter
 
     val isJava = language.equals("java")
     val documentCache = new TrieMap[String, Document]
