@@ -50,6 +50,8 @@ A complete command line help menu:
             issue warnings on non-severe parse errors instead of aborting
       --gen-file-map <path>
             generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files
+      --gen-adapt
+            generate code for adaptive decoding for scala.
       --dry-run
             parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
       -s | --skip-unchanged

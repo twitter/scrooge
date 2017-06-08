@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command Line &#8212; Scrooge 4.16.0 documentation</title>
+    <title>Command Line &#8212; Scrooge 4.18.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.16.0',
+        VERSION:     '4.18.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Scrooge 4.16.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 4.18.0 documentation" href="index.html" />
     <link rel="next" title="Finagle Integration" href="Finagle.html" />
     <link rel="prev" title="Maven Plugin" href="MVNPlugin.html" />
    
@@ -100,6 +100,8 @@ extra include paths, rebuilding only those files that have changed:</p>
         issue warnings on non-severe parse errors instead of aborting
   --gen-file-map &lt;path&gt;
         generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files
+  --gen-adapt
+        generate code for adaptive decoding for scala.
   --dry-run
         parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
   -s | --skip-unchanged
