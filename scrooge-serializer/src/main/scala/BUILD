@@ -8,7 +8,11 @@ scala_library(
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     'util/util-app',
     'util/util-codec',
-    'scrooge/scrooge-core'
+    'scrooge/scrooge-core',
+  ],
+  strict_deps=True,
+  exports=[
+    'scrooge/scrooge-core',
   ],
   fatal_warnings=True,
   sources=rglobs('*.scala'),
