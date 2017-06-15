@@ -27,6 +27,9 @@ struct CollectionId {
   1: required CollectionLongId collectionLongId;
 }
 
+/**
+ * Request struct docstring
+ */
 struct Request {
   1: list<string> aList,
   2: set<i32> aSet,
@@ -34,6 +37,25 @@ struct Request {
   4: optional Request aRequest,
   5: list<Request> subRequests,
   6: string hasDefault = "the_default"
+
+  7: optional i64 noComment
+
+  // ignored double slash comment
+  8: optional i64 doubleSlashComment
+
+  # ignored hashtag comment
+  9: optional i64 hashtagComment
+
+  /*
+   * ignored single asterisk comment
+   */
+  10: optional i64 singleAsteriskComment
+
+  /**
+   * docstring comment
+   */
+  11: optional i64 docStringComment
+
 }
 
 struct Response {

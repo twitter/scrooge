@@ -29,8 +29,23 @@
 @property (nonatomic, copy) NSString * hasDefault;
 @property (nonatomic, readonly) BOOL hasDefaultIsSet;
 
+@property (nonatomic) int64_t noComment;
+@property (nonatomic, readonly) BOOL noCommentIsSet;
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault;
+@property (nonatomic) int64_t doubleSlashComment;
+@property (nonatomic, readonly) BOOL doubleSlashCommentIsSet;
+
+@property (nonatomic) int64_t hashtagComment;
+@property (nonatomic, readonly) BOOL hashtagCommentIsSet;
+
+@property (nonatomic) int64_t singleAsteriskComment;
+@property (nonatomic, readonly) BOOL singleAsteriskCommentIsSet;
+
+@property (nonatomic) int64_t docStringComment;
+@property (nonatomic, readonly) BOOL docStringCommentIsSet;
+
+
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

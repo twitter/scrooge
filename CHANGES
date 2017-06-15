@@ -8,6 +8,9 @@
   object allocations. This in turn adds `scrooge-core` as dependency for generated
   java code. ``PHAB_ID=D60406``
 
+- scrooge-generator: support for thrift struct field doccomments for scala
+  generated code ``RB_ID=918179``
+
 4.18.0
 ------
 - scrooge-adaptive: Add support for adaptive decoding, that learns 

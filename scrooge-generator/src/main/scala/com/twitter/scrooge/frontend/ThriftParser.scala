@@ -418,7 +418,9 @@ class ThriftParser(
   lazy val comments: Parser[String] = {
     rep1(docComment) ^^ {
       case cs =>
-        cs.mkString("\n")
+        cs
+          .filterNot(_.replaceFirst("/*", "").contains("/*")) // omit invalid comment
+          .mkString("\n")
     }
   }
 

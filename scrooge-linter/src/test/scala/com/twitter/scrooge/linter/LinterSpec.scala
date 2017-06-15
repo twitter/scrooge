@@ -407,6 +407,74 @@ class LinterSpec extends WordSpec with MustMatchers {
       assert(warnings(0).msg contains ("thrift service methods"))
       assert(warnings(0).msg contains ("SomeType"))
     }
-  }
 
+    "detect malformed comment string" in {
+      val expectedMessage = "Malformed Docstring"
+
+      val invalidCommentStrings = Seq("/** /* */")
+      invalidCommentStrings.foreach { docString: String =>
+
+        val funcField = LintRule.MalformedDocstring(Document(
+          Seq(),
+          Seq(FunctionArgs(
+            SimpleID("SomeType"),
+            "SomeType",
+            genFields().map(_.copy(docstring = Some(docString))))))).toSeq
+        funcField.size must be(1)
+        assert(funcField(0).msg contains (expectedMessage))
+
+        val structLike = LintRule.MalformedDocstring(Document(
+          Seq(),
+          Seq(Struct(
+            SimpleID("SomeType"),
+            "SomeType",
+            genFields(),
+            Some(docString))))).toSeq
+        structLike.size must be(1)
+        assert(structLike(0).msg contains (expectedMessage))
+
+        val structLikeField = LintRule.MalformedDocstring(Document(
+          Seq(),
+          Seq(Struct(
+            SimpleID("SomeType"),
+            "SomeType",
+            Seq(Field(1,
+              SimpleID("someField"),
+              "someField",
+              TString, docstring = Some(docString))),
+            None)))).toSeq
+        structLikeField.size must be(1)
+        assert(structLikeField(0).msg contains (expectedMessage))
+
+        val const = LintRule.MalformedDocstring(Document(
+          Seq(),
+          Seq(ConstDefinition(
+            SimpleID("SomeType"),
+            TString,
+            StringLiteral("test"),
+            Some(docString)))
+            )).toSeq
+        const.size must be(1)
+        assert(const(0).msg contains (expectedMessage))
+
+        val enum = LintRule.MalformedDocstring(Document(
+          Seq(),
+          Seq(Enum(
+            SimpleID("SomeType"),
+            Seq(EnumField(SimpleID("enumField"), 0, None)),
+            Some(docString)))
+        )).toSeq
+        enum.size must be(1)
+        assert(enum(0).msg contains (expectedMessage))
+
+        val enumField = LintRule.MalformedDocstring(Document(
+          Seq(),
+          Seq(EnumField(SimpleID("enumField"), 0, Some(docString)))
+        )).toSeq
+        enumField.size must be(1)
+        assert(enumField(0).msg contains (expectedMessage))
+      }
+
+    }
+  }
 }

@@ -492,6 +492,9 @@ class {{StructName}}(
 {{#withTrait}}
 
 {{#fields}}
+{{#docstring}}
+  {{docstring}}
+{{/docstring}}
   def {{fieldName}}: {{>optionalType}}
 {{/fields}}
 

@@ -32,11 +32,21 @@
     [ms appendFormat:@"%@ ", _subRequests];
     [ms appendString:@"hasDefault:"];
     [ms appendFormat:@"%@ ", _hasDefault];
+    [ms appendString:@"noComment:"];
+    [ms appendFormat:@"%@ ", @(_noComment)];
+    [ms appendString:@"doubleSlashComment:"];
+    [ms appendFormat:@"%@ ", @(_doubleSlashComment)];
+    [ms appendString:@"hashtagComment:"];
+    [ms appendFormat:@"%@ ", @(_hashtagComment)];
+    [ms appendString:@"singleAsteriskComment:"];
+    [ms appendFormat:@"%@ ", @(_singleAsteriskComment)];
+    [ms appendString:@"docStringComment:"];
+    [ms appendFormat:@"%@ ", @(_docStringComment)];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment
 {
     if (self = [super init]) {
         [self setAList:aList];
@@ -45,6 +55,11 @@
         [self setARequest:aRequest];
         [self setSubRequests:subRequests];
         [self setHasDefault:hasDefault];
+        [self setNoComment:noComment];
+        [self setDoubleSlashComment:doubleSlashComment];
+        [self setHashtagComment:hashtagComment];
+        [self setSingleAsteriskComment:singleAsteriskComment];
+        [self setDocStringComment:docStringComment];
     }
 
     return self;
@@ -71,6 +86,21 @@
         if ([decoder containsValueForKey:@"6"]) {
             [self setHasDefault:[decoder decodeObjectForKey:@"6"]];
         }
+        if ([decoder containsValueForKey:@"7"]) {
+            [self setNoComment:[decoder decodeInt64ForKey:@"7"]];
+        }
+        if ([decoder containsValueForKey:@"8"]) {
+            [self setDoubleSlashComment:[decoder decodeInt64ForKey:@"8"]];
+        }
+        if ([decoder containsValueForKey:@"9"]) {
+            [self setHashtagComment:[decoder decodeInt64ForKey:@"9"]];
+        }
+        if ([decoder containsValueForKey:@"10"]) {
+            [self setSingleAsteriskComment:[decoder decodeInt64ForKey:@"10"]];
+        }
+        if ([decoder containsValueForKey:@"11"]) {
+            [self setDocStringComment:[decoder decodeInt64ForKey:@"11"]];
+        }
     }
     return self;
 }
@@ -94,6 +124,21 @@
     }
     if (_hasDefaultIsSet) {
         [encoder encodeObject:_hasDefault forKey:@"6"];
+    }
+    if (_noCommentIsSet) {
+        [encoder encodeInt64:_noComment forKey:@"7"];
+    }
+    if (_doubleSlashCommentIsSet) {
+        [encoder encodeInt64:_doubleSlashComment forKey:@"8"];
+    }
+    if (_hashtagCommentIsSet) {
+        [encoder encodeInt64:_hashtagComment forKey:@"9"];
+    }
+    if (_singleAsteriskCommentIsSet) {
+        [encoder encodeInt64:_singleAsteriskComment forKey:@"10"];
+    }
+    if (_docStringCommentIsSet) {
+        [encoder encodeInt64:_docStringComment forKey:@"11"];
     }
 }
 
@@ -131,6 +176,36 @@
 {
     _hasDefault = [hasDefault copy];
     _hasDefaultIsSet = YES;
+}
+
+- (void)setNoComment:(int64_t)noComment
+{
+    _noComment = noComment;
+    _noCommentIsSet = YES;
+}
+
+- (void)setDoubleSlashComment:(int64_t)doubleSlashComment
+{
+    _doubleSlashComment = doubleSlashComment;
+    _doubleSlashCommentIsSet = YES;
+}
+
+- (void)setHashtagComment:(int64_t)hashtagComment
+{
+    _hashtagComment = hashtagComment;
+    _hashtagCommentIsSet = YES;
+}
+
+- (void)setSingleAsteriskComment:(int64_t)singleAsteriskComment
+{
+    _singleAsteriskComment = singleAsteriskComment;
+    _singleAsteriskCommentIsSet = YES;
+}
+
+- (void)setDocStringComment:(int64_t)docStringComment
+{
+    _docStringComment = docStringComment;
+    _docStringCommentIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -246,6 +321,56 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 7:
+                if (fieldType == TType_I64) {
+                    int64_t noComment_item;
+                    noComment_item = [inProtocol readI64];
+                    [self setNoComment:noComment_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 8:
+                if (fieldType == TType_I64) {
+                    int64_t doubleSlashComment_item;
+                    doubleSlashComment_item = [inProtocol readI64];
+                    [self setDoubleSlashComment:doubleSlashComment_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 9:
+                if (fieldType == TType_I64) {
+                    int64_t hashtagComment_item;
+                    hashtagComment_item = [inProtocol readI64];
+                    [self setHashtagComment:hashtagComment_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 10:
+                if (fieldType == TType_I64) {
+                    int64_t singleAsteriskComment_item;
+                    singleAsteriskComment_item = [inProtocol readI64];
+                    [self setSingleAsteriskComment:singleAsteriskComment_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 11:
+                if (fieldType == TType_I64) {
+                    int64_t docStringComment_item;
+                    docStringComment_item = [inProtocol readI64];
+                    [self setDocStringComment:docStringComment_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -319,6 +444,36 @@
         [outProtocol writeFieldBeginWithName:@"hasDefault" type:TType_STRING fieldID:6];
         NSString * hasDefault_item = _hasDefault;
         [outProtocol writeString:hasDefault_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_noCommentIsSet) {
+        [outProtocol writeFieldBeginWithName:@"noComment" type:TType_I64 fieldID:7];
+        int64_t noComment_item = _noComment;
+        [outProtocol writeI64:noComment_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_doubleSlashCommentIsSet) {
+        [outProtocol writeFieldBeginWithName:@"doubleSlashComment" type:TType_I64 fieldID:8];
+        int64_t doubleSlashComment_item = _doubleSlashComment;
+        [outProtocol writeI64:doubleSlashComment_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_hashtagCommentIsSet) {
+        [outProtocol writeFieldBeginWithName:@"hashtagComment" type:TType_I64 fieldID:9];
+        int64_t hashtagComment_item = _hashtagComment;
+        [outProtocol writeI64:hashtagComment_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_singleAsteriskCommentIsSet) {
+        [outProtocol writeFieldBeginWithName:@"singleAsteriskComment" type:TType_I64 fieldID:10];
+        int64_t singleAsteriskComment_item = _singleAsteriskComment;
+        [outProtocol writeI64:singleAsteriskComment_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_docStringCommentIsSet) {
+        [outProtocol writeFieldBeginWithName:@"docStringComment" type:TType_I64 fieldID:11];
+        int64_t docStringComment_item = _docStringComment;
+        [outProtocol writeI64:docStringComment_item];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

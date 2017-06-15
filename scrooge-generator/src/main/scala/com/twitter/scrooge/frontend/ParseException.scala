@@ -22,7 +22,6 @@ class RepeatingEnumValueException(name: String, value: Int)
 class UnionFieldInvalidNameException(union: String, field: String)
   extends ParseException("Field " + field + " in union " + union + " is prohibited")
 
-
 // warnings (non-severe errors). If the strict mode is on, Scrooge will throw these exceptions;
 // otherwise it merely prints warnings.
 class ParseWarning(reason: String, cause: Throwable)

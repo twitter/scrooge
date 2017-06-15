@@ -142,6 +142,7 @@ trait StructTemplate { self: TemplateGenerator =>
           "getName" -> genID(field.sid.toTitleCase.prepend("get")), // for Java only
           "isSetName" -> genID(field.sid.toTitleCase.prepend("isSet")), // for Java only
           "fieldName" -> fieldName,
+          "docstring" -> v(field.docstring.getOrElse("")),
           "fieldNameForWire" -> v(field.originalName),
           "fieldNameCamelCase" -> camelCaseFieldName,
           "setName" -> genID(field.sid.toCamelCase.prepend("set_")), // for Scala only

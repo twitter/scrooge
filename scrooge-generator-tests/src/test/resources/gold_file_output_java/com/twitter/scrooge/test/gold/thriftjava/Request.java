@@ -38,6 +38,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField A_REQUEST_FIELD_DESC = new TField("aRequest", TType.STRUCT, (short)4);
   private static final TField SUB_REQUESTS_FIELD_DESC = new TField("subRequests", TType.LIST, (short)5);
   private static final TField HAS_DEFAULT_FIELD_DESC = new TField("hasDefault", TType.STRING, (short)6);
+  private static final TField NO_COMMENT_FIELD_DESC = new TField("noComment", TType.I64, (short)7);
+  private static final TField DOUBLE_SLASH_COMMENT_FIELD_DESC = new TField("doubleSlashComment", TType.I64, (short)8);
+  private static final TField HASHTAG_COMMENT_FIELD_DESC = new TField("hashtagComment", TType.I64, (short)9);
+  private static final TField SINGLE_ASTERISK_COMMENT_FIELD_DESC = new TField("singleAsteriskComment", TType.I64, (short)10);
+  private static final TField DOC_STRING_COMMENT_FIELD_DESC = new TField("docStringComment", TType.I64, (short)11);
 
 
   public List<String> aList;
@@ -46,6 +51,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public Request aRequest;
   public List<Request> subRequests;
   public String hasDefault;
+  public long noComment;
+  public long doubleSlashComment;
+  public long hashtagComment;
+  public long singleAsteriskComment;
+  public long docStringComment;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -54,7 +64,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     A_MAP((short)3, "aMap"),
     A_REQUEST((short)4, "aRequest"),
     SUB_REQUESTS((short)5, "subRequests"),
-    HAS_DEFAULT((short)6, "hasDefault");
+    HAS_DEFAULT((short)6, "hasDefault"),
+    NO_COMMENT((short)7, "noComment"),
+    DOUBLE_SLASH_COMMENT((short)8, "doubleSlashComment"),
+    HASHTAG_COMMENT((short)9, "hashtagComment"),
+    SINGLE_ASTERISK_COMMENT((short)10, "singleAsteriskComment"),
+    DOC_STRING_COMMENT((short)11, "docStringComment");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -81,6 +96,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return SUB_REQUESTS;
         case 6: // HAS_DEFAULT
           return HAS_DEFAULT;
+        case 7: // NO_COMMENT
+          return NO_COMMENT;
+        case 8: // DOUBLE_SLASH_COMMENT
+          return DOUBLE_SLASH_COMMENT;
+        case 9: // HASHTAG_COMMENT
+          return HASHTAG_COMMENT;
+        case 10: // SINGLE_ASTERISK_COMMENT
+          return SINGLE_ASTERISK_COMMENT;
+        case 11: // DOC_STRING_COMMENT
+          return DOC_STRING_COMMENT;
         default:
           return null;
       }
@@ -122,6 +147,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
 
   // isset id assignments
+  private static final int __NOCOMMENT_ISSET_ID = 0;
+  private static final int __DOUBLESLASHCOMMENT_ISSET_ID = 1;
+  private static final int __HASHTAGCOMMENT_ISSET_ID = 2;
+  private static final int __SINGLEASTERISKCOMMENT_ISSET_ID = 3;
+  private static final int __DOCSTRINGCOMMENT_ISSET_ID = 4;
+  private BitSet __isset_bit_vector = new BitSet(5);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   static {
@@ -143,6 +174,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
                 new StructMetaData(TType.STRUCT, Request.class))));
     tmpMap.put(_Fields.HAS_DEFAULT, new FieldMetaData("hasDefault", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.STRING)));
+    tmpMap.put(_Fields.NO_COMMENT, new FieldMetaData("noComment", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.DOUBLE_SLASH_COMMENT, new FieldMetaData("doubleSlashComment", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.HASHTAG_COMMENT, new FieldMetaData("hashtagComment", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.SINGLE_ASTERISK_COMMENT, new FieldMetaData("singleAsteriskComment", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.DOC_STRING_COMMENT, new FieldMetaData("docStringComment", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
   }
@@ -171,6 +212,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
    * Performs a deep copy on <i>other</i>.
    */
   public Request(Request other) {
+    __isset_bit_vector.clear();
+    __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetAList()) {
       List<String> __this__aList = new ArrayList<String>();
       for (String other_element : other.aList) {
@@ -209,6 +252,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     if (other.isSetHasDefault()) {
       this.hasDefault = other.hasDefault;
     }
+    this.noComment = other.noComment;
+    this.doubleSlashComment = other.doubleSlashComment;
+    this.hashtagComment = other.hashtagComment;
+    this.singleAsteriskComment = other.singleAsteriskComment;
+    this.docStringComment = other.docStringComment;
   }
 
   public Request deepCopy() {
@@ -223,6 +271,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.aRequest = null;
     this.subRequests = null;
     this.hasDefault = "the_default";
+    setNoCommentIsSet(false);
+    this.noComment = 0;
+    setDoubleSlashCommentIsSet(false);
+    this.doubleSlashComment = 0;
+    setHashtagCommentIsSet(false);
+    this.hashtagComment = 0;
+    setSingleAsteriskCommentIsSet(false);
+    this.singleAsteriskComment = 0;
+    setDocStringCommentIsSet(false);
+    this.docStringComment = 0;
   }
 
   public int getAListSize() {
@@ -431,6 +489,126 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
   }
 
+  public long getNoComment() {
+    return this.noComment;
+  }
+
+  public Request setNoComment(long noComment) {
+    this.noComment = noComment;
+    setNoCommentIsSet(true);
+
+    return this;
+  }
+
+  public void unsetNoComment() {
+  __isset_bit_vector.clear(__NOCOMMENT_ISSET_ID);
+  }
+
+  /** Returns true if field noComment is set (has been asigned a value) and false otherwise */
+  public boolean isSetNoComment() {
+    return __isset_bit_vector.get(__NOCOMMENT_ISSET_ID);
+  }
+
+  public void setNoCommentIsSet(boolean value) {
+    __isset_bit_vector.set(__NOCOMMENT_ISSET_ID, value);
+  }
+
+  public long getDoubleSlashComment() {
+    return this.doubleSlashComment;
+  }
+
+  public Request setDoubleSlashComment(long doubleSlashComment) {
+    this.doubleSlashComment = doubleSlashComment;
+    setDoubleSlashCommentIsSet(true);
+
+    return this;
+  }
+
+  public void unsetDoubleSlashComment() {
+  __isset_bit_vector.clear(__DOUBLESLASHCOMMENT_ISSET_ID);
+  }
+
+  /** Returns true if field doubleSlashComment is set (has been asigned a value) and false otherwise */
+  public boolean isSetDoubleSlashComment() {
+    return __isset_bit_vector.get(__DOUBLESLASHCOMMENT_ISSET_ID);
+  }
+
+  public void setDoubleSlashCommentIsSet(boolean value) {
+    __isset_bit_vector.set(__DOUBLESLASHCOMMENT_ISSET_ID, value);
+  }
+
+  public long getHashtagComment() {
+    return this.hashtagComment;
+  }
+
+  public Request setHashtagComment(long hashtagComment) {
+    this.hashtagComment = hashtagComment;
+    setHashtagCommentIsSet(true);
+
+    return this;
+  }
+
+  public void unsetHashtagComment() {
+  __isset_bit_vector.clear(__HASHTAGCOMMENT_ISSET_ID);
+  }
+
+  /** Returns true if field hashtagComment is set (has been asigned a value) and false otherwise */
+  public boolean isSetHashtagComment() {
+    return __isset_bit_vector.get(__HASHTAGCOMMENT_ISSET_ID);
+  }
+
+  public void setHashtagCommentIsSet(boolean value) {
+    __isset_bit_vector.set(__HASHTAGCOMMENT_ISSET_ID, value);
+  }
+
+  public long getSingleAsteriskComment() {
+    return this.singleAsteriskComment;
+  }
+
+  public Request setSingleAsteriskComment(long singleAsteriskComment) {
+    this.singleAsteriskComment = singleAsteriskComment;
+    setSingleAsteriskCommentIsSet(true);
+
+    return this;
+  }
+
+  public void unsetSingleAsteriskComment() {
+  __isset_bit_vector.clear(__SINGLEASTERISKCOMMENT_ISSET_ID);
+  }
+
+  /** Returns true if field singleAsteriskComment is set (has been asigned a value) and false otherwise */
+  public boolean isSetSingleAsteriskComment() {
+    return __isset_bit_vector.get(__SINGLEASTERISKCOMMENT_ISSET_ID);
+  }
+
+  public void setSingleAsteriskCommentIsSet(boolean value) {
+    __isset_bit_vector.set(__SINGLEASTERISKCOMMENT_ISSET_ID, value);
+  }
+
+  public long getDocStringComment() {
+    return this.docStringComment;
+  }
+
+  public Request setDocStringComment(long docStringComment) {
+    this.docStringComment = docStringComment;
+    setDocStringCommentIsSet(true);
+
+    return this;
+  }
+
+  public void unsetDocStringComment() {
+  __isset_bit_vector.clear(__DOCSTRINGCOMMENT_ISSET_ID);
+  }
+
+  /** Returns true if field docStringComment is set (has been asigned a value) and false otherwise */
+  public boolean isSetDocStringComment() {
+    return __isset_bit_vector.get(__DOCSTRINGCOMMENT_ISSET_ID);
+  }
+
+  public void setDocStringCommentIsSet(boolean value) {
+    __isset_bit_vector.set(__DOCSTRINGCOMMENT_ISSET_ID, value);
+  }
+
   @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
@@ -476,6 +654,41 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         setHasDefault((String)value);
       }
       break;
+    case NO_COMMENT:
+      if (value == null) {
+        unsetNoComment();
+      } else {
+        setNoComment((Long)value);
+      }
+      break;
+    case DOUBLE_SLASH_COMMENT:
+      if (value == null) {
+        unsetDoubleSlashComment();
+      } else {
+        setDoubleSlashComment((Long)value);
+      }
+      break;
+    case HASHTAG_COMMENT:
+      if (value == null) {
+        unsetHashtagComment();
+      } else {
+        setHashtagComment((Long)value);
+      }
+      break;
+    case SINGLE_ASTERISK_COMMENT:
+      if (value == null) {
+        unsetSingleAsteriskComment();
+      } else {
+        setSingleAsteriskComment((Long)value);
+      }
+      break;
+    case DOC_STRING_COMMENT:
+      if (value == null) {
+        unsetDocStringComment();
+      } else {
+        setDocStringComment((Long)value);
+      }
+      break;
     }
   }
 
@@ -493,6 +706,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return getSubRequests();
     case HAS_DEFAULT:
       return getHasDefault();
+    case NO_COMMENT:
+      return new Long(getNoComment());
+    case DOUBLE_SLASH_COMMENT:
+      return new Long(getDoubleSlashComment());
+    case HASHTAG_COMMENT:
+      return new Long(getHashtagComment());
+    case SINGLE_ASTERISK_COMMENT:
+      return new Long(getSingleAsteriskComment());
+    case DOC_STRING_COMMENT:
+      return new Long(getDocStringComment());
     }
     throw new IllegalStateException();
   }
@@ -516,6 +739,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return isSetSubRequests();
     case HAS_DEFAULT:
       return isSetHasDefault();
+    case NO_COMMENT:
+      return isSetNoComment();
+    case DOUBLE_SLASH_COMMENT:
+      return isSetDoubleSlashComment();
+    case HASHTAG_COMMENT:
+      return isSetHashtagComment();
+    case SINGLE_ASTERISK_COMMENT:
+      return isSetSingleAsteriskComment();
+    case DOC_STRING_COMMENT:
+      return isSetDocStringComment();
     }
     throw new IllegalStateException();
   }
@@ -580,6 +813,46 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!this.hasDefault.equals(that.hasDefault))
         return false;
     }
+    boolean this_present_noComment = true && this.isSetNoComment();
+    boolean that_present_noComment = true && that.isSetNoComment();
+    if (this_present_noComment || that_present_noComment) {
+      if (!(this_present_noComment && that_present_noComment))
+        return false;
+      if (this.noComment != that.noComment)
+        return false;
+    }
+    boolean this_present_doubleSlashComment = true && this.isSetDoubleSlashComment();
+    boolean that_present_doubleSlashComment = true && that.isSetDoubleSlashComment();
+    if (this_present_doubleSlashComment || that_present_doubleSlashComment) {
+      if (!(this_present_doubleSlashComment && that_present_doubleSlashComment))
+        return false;
+      if (this.doubleSlashComment != that.doubleSlashComment)
+        return false;
+    }
+    boolean this_present_hashtagComment = true && this.isSetHashtagComment();
+    boolean that_present_hashtagComment = true && that.isSetHashtagComment();
+    if (this_present_hashtagComment || that_present_hashtagComment) {
+      if (!(this_present_hashtagComment && that_present_hashtagComment))
+        return false;
+      if (this.hashtagComment != that.hashtagComment)
+        return false;
+    }
+    boolean this_present_singleAsteriskComment = true && this.isSetSingleAsteriskComment();
+    boolean that_present_singleAsteriskComment = true && that.isSetSingleAsteriskComment();
+    if (this_present_singleAsteriskComment || that_present_singleAsteriskComment) {
+      if (!(this_present_singleAsteriskComment && that_present_singleAsteriskComment))
+        return false;
+      if (this.singleAsteriskComment != that.singleAsteriskComment)
+        return false;
+    }
+    boolean this_present_docStringComment = true && this.isSetDocStringComment();
+    boolean that_present_docStringComment = true && that.isSetDocStringComment();
+    if (this_present_docStringComment || that_present_docStringComment) {
+      if (!(this_present_docStringComment && that_present_docStringComment))
+        return false;
+      if (this.docStringComment != that.docStringComment)
+        return false;
+    }
 
     return true;
   }
@@ -611,6 +884,26 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     builder.append(present_hasDefault);
     if (present_hasDefault)
       builder.append(hasDefault);
+    boolean present_noComment = true && (isSetNoComment());
+    builder.append(present_noComment);
+    if (present_noComment)
+      builder.append(noComment);
+    boolean present_doubleSlashComment = true && (isSetDoubleSlashComment());
+    builder.append(present_doubleSlashComment);
+    if (present_doubleSlashComment)
+      builder.append(doubleSlashComment);
+    boolean present_hashtagComment = true && (isSetHashtagComment());
+    builder.append(present_hashtagComment);
+    if (present_hashtagComment)
+      builder.append(hashtagComment);
+    boolean present_singleAsteriskComment = true && (isSetSingleAsteriskComment());
+    builder.append(present_singleAsteriskComment);
+    if (present_singleAsteriskComment)
+      builder.append(singleAsteriskComment);
+    boolean present_docStringComment = true && (isSetDocStringComment());
+    builder.append(present_docStringComment);
+    if (present_docStringComment)
+      builder.append(docStringComment);
     return builder.toHashCode();
   }
 
@@ -678,6 +971,56 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSetHasDefault()) {
       lastComparison = TBaseHelper.compareTo(this.hasDefault, typedOther.hasDefault);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetNoComment()).compareTo(typedOther.isSetNoComment());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetNoComment()) {
+      lastComparison = TBaseHelper.compareTo(this.noComment, typedOther.noComment);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetDoubleSlashComment()).compareTo(typedOther.isSetDoubleSlashComment());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDoubleSlashComment()) {
+      lastComparison = TBaseHelper.compareTo(this.doubleSlashComment, typedOther.doubleSlashComment);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetHashtagComment()).compareTo(typedOther.isSetHashtagComment());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetHashtagComment()) {
+      lastComparison = TBaseHelper.compareTo(this.hashtagComment, typedOther.hashtagComment);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSingleAsteriskComment()).compareTo(typedOther.isSetSingleAsteriskComment());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSingleAsteriskComment()) {
+      lastComparison = TBaseHelper.compareTo(this.singleAsteriskComment, typedOther.singleAsteriskComment);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetDocStringComment()).compareTo(typedOther.isSetDocStringComment());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDocStringComment()) {
+      lastComparison = TBaseHelper.compareTo(this.docStringComment, typedOther.docStringComment);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -786,6 +1129,46 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 7: // NO_COMMENT
+          if (field.type == TType.I64) {
+            this.noComment = iprot.readI64();
+            setNoCommentIsSet(true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 8: // DOUBLE_SLASH_COMMENT
+          if (field.type == TType.I64) {
+            this.doubleSlashComment = iprot.readI64();
+            setDoubleSlashCommentIsSet(true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 9: // HASHTAG_COMMENT
+          if (field.type == TType.I64) {
+            this.hashtagComment = iprot.readI64();
+            setHashtagCommentIsSet(true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 10: // SINGLE_ASTERISK_COMMENT
+          if (field.type == TType.I64) {
+            this.singleAsteriskComment = iprot.readI64();
+            setSingleAsteriskCommentIsSet(true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 11: // DOC_STRING_COMMENT
+          if (field.type == TType.I64) {
+            this.docStringComment = iprot.readI64();
+            setDocStringCommentIsSet(true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -862,6 +1245,31 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeString(this.hasDefault);
       oprot.writeFieldEnd();
     }
+    if (isSetNoComment()) {
+      oprot.writeFieldBegin(NO_COMMENT_FIELD_DESC);
+      oprot.writeI64(this.noComment);
+      oprot.writeFieldEnd();
+    }
+    if (isSetDoubleSlashComment()) {
+      oprot.writeFieldBegin(DOUBLE_SLASH_COMMENT_FIELD_DESC);
+      oprot.writeI64(this.doubleSlashComment);
+      oprot.writeFieldEnd();
+    }
+    if (isSetHashtagComment()) {
+      oprot.writeFieldBegin(HASHTAG_COMMENT_FIELD_DESC);
+      oprot.writeI64(this.hashtagComment);
+      oprot.writeFieldEnd();
+    }
+    if (isSetSingleAsteriskComment()) {
+      oprot.writeFieldBegin(SINGLE_ASTERISK_COMMENT_FIELD_DESC);
+      oprot.writeI64(this.singleAsteriskComment);
+      oprot.writeFieldEnd();
+    }
+    if (isSetDocStringComment()) {
+      oprot.writeFieldBegin(DOC_STRING_COMMENT_FIELD_DESC);
+      oprot.writeI64(this.docStringComment);
+      oprot.writeFieldEnd();
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -919,6 +1327,36 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       sb.append(this.hasDefault);
     }
     first = false;
+    if (isSetNoComment()) {
+      if (!first) sb.append(", ");
+      sb.append("noComment:");
+      sb.append(this.noComment);
+      first = false;
+      }
+    if (isSetDoubleSlashComment()) {
+      if (!first) sb.append(", ");
+      sb.append("doubleSlashComment:");
+      sb.append(this.doubleSlashComment);
+      first = false;
+      }
+    if (isSetHashtagComment()) {
+      if (!first) sb.append(", ");
+      sb.append("hashtagComment:");
+      sb.append(this.hashtagComment);
+      first = false;
+      }
+    if (isSetSingleAsteriskComment()) {
+      if (!first) sb.append(", ");
+      sb.append("singleAsteriskComment:");
+      sb.append(this.singleAsteriskComment);
+      first = false;
+      }
+    if (isSetDocStringComment()) {
+      if (!first) sb.append(", ");
+      sb.append("docStringComment:");
+      sb.append(this.docStringComment);
+      first = false;
+      }
     sb.append(")");
     return sb.toString();
   }

@@ -32,7 +32,9 @@ import scala.collection.mutable.{
   HashMap => mutable$HashMap, HashSet => mutable$HashSet}
 import scala.collection.{Map, Set}
 
-
+/**
+ * Request struct docstring
+ */
 object Request extends ThriftStructCodec3[Request] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("Request")
@@ -48,6 +50,16 @@ object Request extends ThriftStructCodec3[Request] {
   val SubRequestsFieldManifest = implicitly[Manifest[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]]
   val HasDefaultField = new TField("hasDefault", TType.STRING, 6)
   val HasDefaultFieldManifest = implicitly[Manifest[String]]
+  val NoCommentField = new TField("noComment", TType.I64, 7)
+  val NoCommentFieldManifest = implicitly[Manifest[Long]]
+  val DoubleSlashCommentField = new TField("doubleSlashComment", TType.I64, 8)
+  val DoubleSlashCommentFieldManifest = implicitly[Manifest[Long]]
+  val HashtagCommentField = new TField("hashtagComment", TType.I64, 9)
+  val HashtagCommentFieldManifest = implicitly[Manifest[Long]]
+  val SingleAsteriskCommentField = new TField("singleAsteriskComment", TType.I64, 10)
+  val SingleAsteriskCommentFieldManifest = implicitly[Manifest[Long]]
+  val DocStringCommentField = new TField("docStringComment", TType.I64, 11)
+  val DocStringCommentFieldManifest = implicitly[Manifest[Long]]
 
   /**
    * Field information in declaration order.
@@ -118,6 +130,61 @@ object Request extends ThriftStructCodec3[Request] {
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       Some[String]("the_default")
+    ),
+    new ThriftStructFieldInfo(
+      NoCommentField,
+      true,
+      false,
+      NoCommentFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
+    ),
+    new ThriftStructFieldInfo(
+      DoubleSlashCommentField,
+      true,
+      false,
+      DoubleSlashCommentFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
+    ),
+    new ThriftStructFieldInfo(
+      HashtagCommentField,
+      true,
+      false,
+      HashtagCommentFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
+    ),
+    new ThriftStructFieldInfo(
+      SingleAsteriskCommentField,
+      true,
+      false,
+      SingleAsteriskCommentFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
+    ),
+    new ThriftStructFieldInfo(
+      DocStringCommentField,
+      true,
+      false,
+      DocStringCommentFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
     )
   )
 
@@ -183,6 +250,41 @@ object Request extends ThriftStructCodec3[Request] {
         {
           val field = original.hasDefault
           field
+        },
+      noComment =
+        {
+          val field = original.noComment
+          field.map { field =>
+            field
+          }
+        },
+      doubleSlashComment =
+        {
+          val field = original.doubleSlashComment
+          field.map { field =>
+            field
+          }
+        },
+      hashtagComment =
+        {
+          val field = original.hashtagComment
+          field.map { field =>
+            field
+          }
+        },
+      singleAsteriskComment =
+        {
+          val field = original.singleAsteriskComment
+          field.map { field =>
+            field
+          }
+        },
+      docStringComment =
+        {
+          val field = original.docStringComment
+          field.map { field =>
+            field
+          }
         }
     )
 
@@ -240,6 +342,26 @@ object Request extends ThriftStructCodec3[Request] {
       accessRecorder.fieldAccessed(6)
       underlying.hasDefault
     }
+    override def noComment: _root_.scala.Option[Long] = {
+      accessRecorder.fieldAccessed(7)
+      underlying.noComment
+    }
+    override def doubleSlashComment: _root_.scala.Option[Long] = {
+      accessRecorder.fieldAccessed(8)
+      underlying.doubleSlashComment
+    }
+    override def hashtagComment: _root_.scala.Option[Long] = {
+      accessRecorder.fieldAccessed(9)
+      underlying.hashtagComment
+    }
+    override def singleAsteriskComment: _root_.scala.Option[Long] = {
+      accessRecorder.fieldAccessed(10)
+      underlying.singleAsteriskComment
+    }
+    override def docStringComment: _root_.scala.Option[Long] = {
+      accessRecorder.fieldAccessed(11)
+      underlying.docStringComment
+    }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
     override def _passthroughFields = underlying._passthroughFields
@@ -253,6 +375,11 @@ object Request extends ThriftStructCodec3[Request] {
     var aRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Request] = None
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
     var hasDefaultOffset: Int = -1
+    var noCommentOffset: Int = -1
+    var doubleSlashCommentOffset: Int = -1
+    var hashtagCommentOffset: Int = -1
+    var singleAsteriskCommentOffset: Int = -1
+    var docStringCommentOffset: Int = -1
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -349,6 +476,76 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 7 =>
+            _field.`type` match {
+              case TType.I64 =>
+                noCommentOffset = _iprot.offsetSkipI64
+
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'noComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 8 =>
+            _field.`type` match {
+              case TType.I64 =>
+                doubleSlashCommentOffset = _iprot.offsetSkipI64
+
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'doubleSlashComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 9 =>
+            _field.`type` match {
+              case TType.I64 =>
+                hashtagCommentOffset = _iprot.offsetSkipI64
+
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'hashtagComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 10 =>
+            _field.`type` match {
+              case TType.I64 =>
+                singleAsteriskCommentOffset = _iprot.offsetSkipI64
+
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'singleAsteriskComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 11 =>
+            _field.`type` match {
+              case TType.I64 =>
+                docStringCommentOffset = _iprot.offsetSkipI64
+
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -370,6 +567,11 @@ object Request extends ThriftStructCodec3[Request] {
       aRequest,
       subRequests,
       hasDefaultOffset,
+      noCommentOffset,
+      doubleSlashCommentOffset,
+      hashtagCommentOffset,
+      singleAsteriskCommentOffset,
+      docStringCommentOffset,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -391,6 +593,11 @@ object Request extends ThriftStructCodec3[Request] {
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
     var hasDefault: String = "the_default"
+    var noComment: _root_.scala.Option[Long] = _root_.scala.None
+    var doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None
+    var hashtagComment: _root_.scala.Option[Long] = _root_.scala.None
+    var singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None
+    var docStringComment: _root_.scala.Option[Long] = _root_.scala.None
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -479,6 +686,71 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 7 =>
+            _field.`type` match {
+              case TType.I64 =>
+                noComment = _root_.scala.Some(readNoCommentValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'noComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 8 =>
+            _field.`type` match {
+              case TType.I64 =>
+                doubleSlashComment = _root_.scala.Some(readDoubleSlashCommentValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'doubleSlashComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 9 =>
+            _field.`type` match {
+              case TType.I64 =>
+                hashtagComment = _root_.scala.Some(readHashtagCommentValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'hashtagComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 10 =>
+            _field.`type` match {
+              case TType.I64 =>
+                singleAsteriskComment = _root_.scala.Some(readSingleAsteriskCommentValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'singleAsteriskComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 11 =>
+            _field.`type` match {
+              case TType.I64 =>
+                docStringComment = _root_.scala.Some(readDocStringCommentValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -496,6 +768,11 @@ object Request extends ThriftStructCodec3[Request] {
       aRequest,
       subRequests,
       hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -509,7 +786,12 @@ object Request extends ThriftStructCodec3[Request] {
     aMap: Map[Long, Long] = Map[Long, Long](),
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
     subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
-    hasDefault: String = "the_default"
+    hasDefault: String = "the_default",
+    noComment: _root_.scala.Option[Long] = _root_.scala.None,
+    doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
+    hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
+    singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
+    docStringComment: _root_.scala.Option[Long] = _root_.scala.None
   ): Request =
     new Immutable(
       aList,
@@ -517,10 +799,15 @@ object Request extends ThriftStructCodec3[Request] {
       aMap,
       aRequest,
       subRequests,
-      hasDefault
+      hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment
     )
 
-  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple11[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long]]] = _root_.scala.Some(_item.toTuple)
 
 
   @inline private[thriftscala] def readAListValue(_iprot: TProtocol): Seq[String] = {
@@ -710,6 +997,76 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeString(hasDefault_item)
   }
 
+  @inline private[thriftscala] def readNoCommentValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
+  }
+
+  @inline private def writeNoCommentField(noComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(NoCommentField)
+    writeNoCommentValue(noComment_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeNoCommentValue(noComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(noComment_item)
+  }
+
+  @inline private[thriftscala] def readDoubleSlashCommentValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
+  }
+
+  @inline private def writeDoubleSlashCommentField(doubleSlashComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(DoubleSlashCommentField)
+    writeDoubleSlashCommentValue(doubleSlashComment_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeDoubleSlashCommentValue(doubleSlashComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(doubleSlashComment_item)
+  }
+
+  @inline private[thriftscala] def readHashtagCommentValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
+  }
+
+  @inline private def writeHashtagCommentField(hashtagComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(HashtagCommentField)
+    writeHashtagCommentValue(hashtagComment_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeHashtagCommentValue(hashtagComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(hashtagComment_item)
+  }
+
+  @inline private[thriftscala] def readSingleAsteriskCommentValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
+  }
+
+  @inline private def writeSingleAsteriskCommentField(singleAsteriskComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(SingleAsteriskCommentField)
+    writeSingleAsteriskCommentValue(singleAsteriskComment_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeSingleAsteriskCommentValue(singleAsteriskComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(singleAsteriskComment_item)
+  }
+
+  @inline private[thriftscala] def readDocStringCommentValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
+  }
+
+  @inline private def writeDocStringCommentField(docStringComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(DocStringCommentField)
+    writeDocStringCommentValue(docStringComment_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeDocStringCommentValue(docStringComment_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(docStringComment_item)
+  }
+
 
   object Immutable extends ThriftStructCodec3[Request] {
     override def encode(_item: Request, _oproto: TProtocol): Unit = { _item.write(_oproto) }
@@ -729,6 +1086,11 @@ object Request extends ThriftStructCodec3[Request] {
       val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       val subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
       val hasDefault: String,
+      val noComment: _root_.scala.Option[Long],
+      val doubleSlashComment: _root_.scala.Option[Long],
+      val hashtagComment: _root_.scala.Option[Long],
+      val singleAsteriskComment: _root_.scala.Option[Long],
+      val docStringComment: _root_.scala.Option[Long],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
     def this(
@@ -737,7 +1099,12 @@ object Request extends ThriftStructCodec3[Request] {
       aMap: Map[Long, Long] = Map[Long, Long](),
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
       subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
-      hasDefault: String = "the_default"
+      hasDefault: String = "the_default",
+      noComment: _root_.scala.Option[Long] = _root_.scala.None,
+      doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
+      hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
+      singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
+      docStringComment: _root_.scala.Option[Long] = _root_.scala.None
     ) = this(
       aList,
       aSet,
@@ -745,6 +1112,11 @@ object Request extends ThriftStructCodec3[Request] {
       aRequest,
       subRequests,
       hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
       Map.empty
     )
   }
@@ -764,6 +1136,11 @@ object Request extends ThriftStructCodec3[Request] {
       val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       val subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
       hasDefaultOffset: Int,
+      noCommentOffset: Int,
+      doubleSlashCommentOffset: Int,
+      hashtagCommentOffset: Int,
+      singleAsteriskCommentOffset: Int,
+      docStringCommentOffset: Int,
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
 
@@ -779,6 +1156,36 @@ object Request extends ThriftStructCodec3[Request] {
         "the_default"
       else {
         _proto.decodeString(_buf, hasDefaultOffset)
+      }
+    lazy val noComment: _root_.scala.Option[Long] =
+      if (noCommentOffset == -1)
+        None
+      else {
+        Some(_proto.decodeI64(_buf, noCommentOffset))
+      }
+    lazy val doubleSlashComment: _root_.scala.Option[Long] =
+      if (doubleSlashCommentOffset == -1)
+        None
+      else {
+        Some(_proto.decodeI64(_buf, doubleSlashCommentOffset))
+      }
+    lazy val hashtagComment: _root_.scala.Option[Long] =
+      if (hashtagCommentOffset == -1)
+        None
+      else {
+        Some(_proto.decodeI64(_buf, hashtagCommentOffset))
+      }
+    lazy val singleAsteriskComment: _root_.scala.Option[Long] =
+      if (singleAsteriskCommentOffset == -1)
+        None
+      else {
+        Some(_proto.decodeI64(_buf, singleAsteriskCommentOffset))
+      }
+    lazy val docStringComment: _root_.scala.Option[Long] =
+      if (docStringCommentOffset == -1)
+        None
+      else {
+        Some(_proto.decodeI64(_buf, docStringCommentOffset))
       }
 
     /**
@@ -808,6 +1215,11 @@ object Request extends ThriftStructCodec3[Request] {
     override def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.aRequest
     override def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.subRequests
     override def hasDefault: String = _underlying_Request.hasDefault
+    override def noComment: _root_.scala.Option[Long] = _underlying_Request.noComment
+    override def doubleSlashComment: _root_.scala.Option[Long] = _underlying_Request.doubleSlashComment
+    override def hashtagComment: _root_.scala.Option[Long] = _underlying_Request.hashtagComment
+    override def singleAsteriskComment: _root_.scala.Option[Long] = _underlying_Request.singleAsteriskComment
+    override def docStringComment: _root_.scala.Option[Long] = _underlying_Request.docStringComment
     override def _passthroughFields = _underlying_Request._passthroughFields
   }
 }
@@ -818,7 +1230,7 @@ object Request extends ThriftStructCodec3[Request] {
  */
 trait Request
   extends ThriftStruct
-  with _root_.scala.Product6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String]
+  with _root_.scala.Product11[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long]]
   with HasThriftStructCodec3[Request]
   with java.io.Serializable
 {
@@ -830,6 +1242,14 @@ trait Request
   def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]
   def subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request]
   def hasDefault: String
+  def noComment: _root_.scala.Option[Long]
+  def doubleSlashComment: _root_.scala.Option[Long]
+  def hashtagComment: _root_.scala.Option[Long]
+  def singleAsteriskComment: _root_.scala.Option[Long]
+  /**
+   * docstring comment
+   */
+  def docStringComment: _root_.scala.Option[Long]
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
@@ -839,15 +1259,25 @@ trait Request
   def _4 = aRequest
   def _5 = subRequests
   def _6 = hasDefault
+  def _7 = noComment
+  def _8 = doubleSlashComment
+  def _9 = hashtagComment
+  def _10 = singleAsteriskComment
+  def _11 = docStringComment
 
-  def toTuple: _root_.scala.Tuple6[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String] = {
+  def toTuple: _root_.scala.Tuple11[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long]] = {
     (
       aList,
       aSet,
       aMap,
       aRequest,
       subRequests,
-      hasDefault
+      hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment
     )
   }
 
@@ -907,6 +1337,41 @@ trait Request
               } else {
                 _root_.scala.None
               }
+            case 7 =>
+              if (noComment.isDefined) {
+                writeNoCommentValue(noComment.get, _oprot)
+                _root_.scala.Some(Request.NoCommentField)
+              } else {
+                _root_.scala.None
+              }
+            case 8 =>
+              if (doubleSlashComment.isDefined) {
+                writeDoubleSlashCommentValue(doubleSlashComment.get, _oprot)
+                _root_.scala.Some(Request.DoubleSlashCommentField)
+              } else {
+                _root_.scala.None
+              }
+            case 9 =>
+              if (hashtagComment.isDefined) {
+                writeHashtagCommentValue(hashtagComment.get, _oprot)
+                _root_.scala.Some(Request.HashtagCommentField)
+              } else {
+                _root_.scala.None
+              }
+            case 10 =>
+              if (singleAsteriskComment.isDefined) {
+                writeSingleAsteriskCommentValue(singleAsteriskComment.get, _oprot)
+                _root_.scala.Some(Request.SingleAsteriskCommentField)
+              } else {
+                _root_.scala.None
+              }
+            case 11 =>
+              if (docStringComment.isDefined) {
+                writeDocStringCommentValue(docStringComment.get, _oprot)
+                _root_.scala.Some(Request.DocStringCommentField)
+              } else {
+                _root_.scala.None
+              }
             case _ => _root_.scala.None
           }
         _fieldOpt match {
@@ -938,6 +1403,11 @@ trait Request
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
     var hasDefault: String = this.hasDefault
+    var noComment: _root_.scala.Option[Long] = this.noComment
+    var doubleSlashComment: _root_.scala.Option[Long] = this.doubleSlashComment
+    var hashtagComment: _root_.scala.Option[Long] = this.hashtagComment
+    var singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment
+    var docStringComment: _root_.scala.Option[Long] = this.docStringComment
     var _passthroughFields = this._passthroughFields
     _blob.id match {
       case 1 =>
@@ -952,6 +1422,16 @@ trait Request
         subRequests = readSubRequestsValue(_blob.read)
       case 6 =>
         hasDefault = readHasDefaultValue(_blob.read)
+      case 7 =>
+        noComment = _root_.scala.Some(readNoCommentValue(_blob.read))
+      case 8 =>
+        doubleSlashComment = _root_.scala.Some(readDoubleSlashCommentValue(_blob.read))
+      case 9 =>
+        hashtagComment = _root_.scala.Some(readHashtagCommentValue(_blob.read))
+      case 10 =>
+        singleAsteriskComment = _root_.scala.Some(readSingleAsteriskCommentValue(_blob.read))
+      case 11 =>
+        docStringComment = _root_.scala.Some(readDocStringCommentValue(_blob.read))
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
     new Immutable(
@@ -961,6 +1441,11 @@ trait Request
       aRequest,
       subRequests,
       hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
       _passthroughFields
     )
   }
@@ -977,6 +1462,11 @@ trait Request
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
     var subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
     var hasDefault: String = this.hasDefault
+    var noComment: _root_.scala.Option[Long] = this.noComment
+    var doubleSlashComment: _root_.scala.Option[Long] = this.doubleSlashComment
+    var hashtagComment: _root_.scala.Option[Long] = this.hashtagComment
+    var singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment
+    var docStringComment: _root_.scala.Option[Long] = this.docStringComment
 
     _fieldId match {
       case 1 =>
@@ -991,6 +1481,16 @@ trait Request
         subRequests = Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
       case 6 =>
         hasDefault = "the_default"
+      case 7 =>
+        noComment = _root_.scala.None
+      case 8 =>
+        doubleSlashComment = _root_.scala.None
+      case 9 =>
+        hashtagComment = _root_.scala.None
+      case 10 =>
+        singleAsteriskComment = _root_.scala.None
+      case 11 =>
+        docStringComment = _root_.scala.None
       case _ =>
     }
     new Immutable(
@@ -1000,6 +1500,11 @@ trait Request
       aRequest,
       subRequests,
       hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
       _passthroughFields - _fieldId
     )
   }
@@ -1021,6 +1526,16 @@ trait Request
 
   def unsetHasDefault: Request = unsetField(6)
 
+  def unsetNoComment: Request = unsetField(7)
+
+  def unsetDoubleSlashComment: Request = unsetField(8)
+
+  def unsetHashtagComment: Request = unsetField(9)
+
+  def unsetSingleAsteriskComment: Request = unsetField(10)
+
+  def unsetDocStringComment: Request = unsetField(11)
+
 
   override def write(_oprot: TProtocol): Unit = {
     Request.validate(this)
@@ -1031,6 +1546,11 @@ trait Request
     if (aRequest.isDefined) writeARequestField(aRequest.get, _oprot)
     if (subRequests ne null) writeSubRequestsField(subRequests, _oprot)
     if (hasDefault ne null) writeHasDefaultField(hasDefault, _oprot)
+    if (noComment.isDefined) writeNoCommentField(noComment.get, _oprot)
+    if (doubleSlashComment.isDefined) writeDoubleSlashCommentField(doubleSlashComment.get, _oprot)
+    if (hashtagComment.isDefined) writeHashtagCommentField(hashtagComment.get, _oprot)
+    if (singleAsteriskComment.isDefined) writeSingleAsteriskCommentField(singleAsteriskComment.get, _oprot)
+    if (docStringComment.isDefined) writeDocStringCommentField(docStringComment.get, _oprot)
     if (_passthroughFields.nonEmpty) {
       _passthroughFields.values.foreach { _.write(_oprot) }
     }
@@ -1045,6 +1565,11 @@ trait Request
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest,
     subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests,
     hasDefault: String = this.hasDefault,
+    noComment: _root_.scala.Option[Long] = this.noComment,
+    doubleSlashComment: _root_.scala.Option[Long] = this.doubleSlashComment,
+    hashtagComment: _root_.scala.Option[Long] = this.hashtagComment,
+    singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment,
+    docStringComment: _root_.scala.Option[Long] = this.docStringComment,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): Request =
     new Immutable(
@@ -1054,6 +1579,11 @@ trait Request
       aRequest,
       subRequests,
       hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
       _passthroughFields
     )
 
@@ -1073,7 +1603,7 @@ trait Request
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
 
-  override def productArity: Int = 6
+  override def productArity: Int = 11
 
   override def productElement(n: Int): Any = n match {
     case 0 => this.aList
@@ -1082,6 +1612,11 @@ trait Request
     case 3 => this.aRequest
     case 4 => this.subRequests
     case 5 => this.hasDefault
+    case 6 => this.noComment
+    case 7 => this.doubleSlashComment
+    case 8 => this.hashtagComment
+    case 9 => this.singleAsteriskComment
+    case 10 => this.docStringComment
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
@@ -1137,6 +1672,36 @@ private class Request$$AdaptDecoder {
 
     adapt.set_hasDefault(hasDefault)
     AdaptTProtocol.usedEndMarker(6)
+
+    AdaptTProtocol.usedStartMarker(7)
+    var noComment: _root_.scala.Option[Long] = _root_.scala.None
+
+    adapt.set_noComment(noComment)
+    AdaptTProtocol.usedEndMarker(7)
+
+    AdaptTProtocol.usedStartMarker(8)
+    var doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None
+
+    adapt.set_doubleSlashComment(doubleSlashComment)
+    AdaptTProtocol.usedEndMarker(8)
+
+    AdaptTProtocol.usedStartMarker(9)
+    var hashtagComment: _root_.scala.Option[Long] = _root_.scala.None
+
+    adapt.set_hashtagComment(hashtagComment)
+    AdaptTProtocol.usedEndMarker(9)
+
+    AdaptTProtocol.usedStartMarker(10)
+    var singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None
+
+    adapt.set_singleAsteriskComment(singleAsteriskComment)
+    AdaptTProtocol.usedEndMarker(10)
+
+    AdaptTProtocol.usedStartMarker(11)
+    var docStringComment: _root_.scala.Option[Long] = _root_.scala.None
+
+    adapt.set_docStringComment(docStringComment)
+    AdaptTProtocol.usedEndMarker(11)
 
     _iprot.readStructBegin()
     while (!_done) {
@@ -1247,6 +1812,91 @@ private class Request$$AdaptDecoder {
             adapt.set_hasDefault(hasDefault)
             AdaptTProtocol.usedEndMarker(6)
           }
+          case 7 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(7)
+                noComment = _root_.scala.Some(Request.readNoCommentValue(_iprot))
+                AdaptTProtocol.usedEndMarker(7)
+                AdaptTProtocol.unusedStartMarker(7)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(7)
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "noComment")
+            }
+            AdaptTProtocol.usedStartMarker(7)
+            adapt.set_noComment(noComment)
+            AdaptTProtocol.usedEndMarker(7)
+          }
+          case 8 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(8)
+                doubleSlashComment = _root_.scala.Some(Request.readDoubleSlashCommentValue(_iprot))
+                AdaptTProtocol.usedEndMarker(8)
+                AdaptTProtocol.unusedStartMarker(8)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(8)
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "doubleSlashComment")
+            }
+            AdaptTProtocol.usedStartMarker(8)
+            adapt.set_doubleSlashComment(doubleSlashComment)
+            AdaptTProtocol.usedEndMarker(8)
+          }
+          case 9 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(9)
+                hashtagComment = _root_.scala.Some(Request.readHashtagCommentValue(_iprot))
+                AdaptTProtocol.usedEndMarker(9)
+                AdaptTProtocol.unusedStartMarker(9)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(9)
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "hashtagComment")
+            }
+            AdaptTProtocol.usedStartMarker(9)
+            adapt.set_hashtagComment(hashtagComment)
+            AdaptTProtocol.usedEndMarker(9)
+          }
+          case 10 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(10)
+                singleAsteriskComment = _root_.scala.Some(Request.readSingleAsteriskCommentValue(_iprot))
+                AdaptTProtocol.usedEndMarker(10)
+                AdaptTProtocol.unusedStartMarker(10)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(10)
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "singleAsteriskComment")
+            }
+            AdaptTProtocol.usedStartMarker(10)
+            adapt.set_singleAsteriskComment(singleAsteriskComment)
+            AdaptTProtocol.usedEndMarker(10)
+          }
+          case 11 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(11)
+                docStringComment = _root_.scala.Some(Request.readDocStringCommentValue(_iprot))
+                AdaptTProtocol.usedEndMarker(11)
+                AdaptTProtocol.unusedStartMarker(11)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(11)
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "docStringComment")
+            }
+            AdaptTProtocol.usedStartMarker(11)
+            adapt.set_docStringComment(docStringComment)
+            AdaptTProtocol.usedEndMarker(11)
+          }
 
           case _ =>
             if (_passthroughFields == null)
@@ -1325,6 +1975,41 @@ private class Request$$Adapt(
   def hasDefault: String = m_hasDefault
   // This will be removed by ASM if field is used otherwise renamed to hasDefault.
   def delegated_hasDefault: String = delegate.hasDefault
+
+  private[this] var m_noComment: _root_.scala.Option[Long] = _
+  def set_noComment(noComment: _root_.scala.Option[Long]): Unit = m_noComment = noComment
+  // This will be removed by ASM if field is unused.
+  def noComment: _root_.scala.Option[Long] = m_noComment
+  // This will be removed by ASM if field is used otherwise renamed to noComment.
+  def delegated_noComment: _root_.scala.Option[Long] = delegate.noComment
+
+  private[this] var m_doubleSlashComment: _root_.scala.Option[Long] = _
+  def set_doubleSlashComment(doubleSlashComment: _root_.scala.Option[Long]): Unit = m_doubleSlashComment = doubleSlashComment
+  // This will be removed by ASM if field is unused.
+  def doubleSlashComment: _root_.scala.Option[Long] = m_doubleSlashComment
+  // This will be removed by ASM if field is used otherwise renamed to doubleSlashComment.
+  def delegated_doubleSlashComment: _root_.scala.Option[Long] = delegate.doubleSlashComment
+
+  private[this] var m_hashtagComment: _root_.scala.Option[Long] = _
+  def set_hashtagComment(hashtagComment: _root_.scala.Option[Long]): Unit = m_hashtagComment = hashtagComment
+  // This will be removed by ASM if field is unused.
+  def hashtagComment: _root_.scala.Option[Long] = m_hashtagComment
+  // This will be removed by ASM if field is used otherwise renamed to hashtagComment.
+  def delegated_hashtagComment: _root_.scala.Option[Long] = delegate.hashtagComment
+
+  private[this] var m_singleAsteriskComment: _root_.scala.Option[Long] = _
+  def set_singleAsteriskComment(singleAsteriskComment: _root_.scala.Option[Long]): Unit = m_singleAsteriskComment = singleAsteriskComment
+  // This will be removed by ASM if field is unused.
+  def singleAsteriskComment: _root_.scala.Option[Long] = m_singleAsteriskComment
+  // This will be removed by ASM if field is used otherwise renamed to singleAsteriskComment.
+  def delegated_singleAsteriskComment: _root_.scala.Option[Long] = delegate.singleAsteriskComment
+
+  private[this] var m_docStringComment: _root_.scala.Option[Long] = _
+  def set_docStringComment(docStringComment: _root_.scala.Option[Long]): Unit = m_docStringComment = docStringComment
+  // This will be removed by ASM if field is unused.
+  def docStringComment: _root_.scala.Option[Long] = m_docStringComment
+  // This will be removed by ASM if field is used otherwise renamed to docStringComment.
+  def delegated_docStringComment: _root_.scala.Option[Long] = delegate.docStringComment
 
 
   private[this] var _end_offset: Int = _

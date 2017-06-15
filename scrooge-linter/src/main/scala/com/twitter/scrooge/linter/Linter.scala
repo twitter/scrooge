@@ -52,7 +52,8 @@ object LintRule {
     RequiredFieldDefault,
     Keywords,
     TransitivePersistence,
-    FieldIndexGreaterThanZeroRule
+    FieldIndexGreaterThanZeroRule,
+    MalformedDocstring
  )
 
   val Rules = DefaultRules ++ Seq(
@@ -332,6 +333,47 @@ object LintRule {
                 s" greater than zero in struct \n${struct.originalName}", Warning)
           }
       }.flatten
+    }
+  }
+
+  object MalformedDocstring extends LintRule {
+    // Thrift docstring is invalid
+    def apply(doc: Document): Seq[LintMessage] = {
+      val docStrings: Seq[String] =
+        doc.defs
+          .flatMap {
+            case enumField: EnumField =>
+              Seq(enumField.docstring)
+            case enum: Enum =>
+              Seq(enum.docstring)
+            case const: ConstDefinition =>
+              Seq(const.docstring)
+            case struct: StructLike =>
+              Seq(struct.docstring) ++
+                struct.fields.map(_.docstring)
+            case service: Service =>
+              Seq(service.docstring) ++
+                service.functions.map(_.docstring)
+            case _ => Seq.empty
+          }
+          .flatten
+
+      verifyDocstring(docStrings)
+    }
+
+    private def lintMessage(msg: String): LintMessage = {
+      LintMessage(s"Malformed Docstring: $msg. Docstring will be omitted from generated code.")
+    }
+
+    private def verifyDocstring(docstrings: Seq[String]): Seq[LintMessage] = {
+      docstrings
+        .flatMap { docstring: String =>
+          if (docstring.replaceFirst("/*", "").contains("/*")) {
+            Some(lintMessage("contains extra '/*' in docstring body"))
+          } else {
+            None
+          }
+        }
     }
   }
 }

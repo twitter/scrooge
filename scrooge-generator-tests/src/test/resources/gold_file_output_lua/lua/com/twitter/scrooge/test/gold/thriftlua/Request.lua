@@ -4,6 +4,11 @@
     rev: ?
     built at: ?
 --]]
+--[[
+/**
+ * Request struct docstring
+ */
+--]]
 
 -- Import this file with:
 --   require 'com.twitter.scrooge.test.gold.thriftlua.Request'
@@ -23,6 +28,11 @@ Request.fields[3] = { name = 'aMap', required = true, ttype = 'map', key = 'i64'
 Request.fields[4] = { name = 'aRequest', ttype = 'struct', fields = Request.fields, }
 Request.fields[5] = { name = 'subRequests', required = true, ttype = 'list', value = Request, }
 Request.fields[6] = { name = 'hasDefault', required = true, ttype = 'string', }
+Request.fields[7] = { name = 'noComment', ttype = 'i64', }
+Request.fields[8] = { name = 'doubleSlashComment', ttype = 'i64', }
+Request.fields[9] = { name = 'hashtagComment', ttype = 'i64', }
+Request.fields[10] = { name = 'singleAsteriskComment', ttype = 'i64', }
+Request.fields[11] = { name = 'docStringComment', ttype = 'i64', }
 
 local binaryCodec = require 'libthrift'
 
