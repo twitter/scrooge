@@ -8,6 +8,7 @@ java_thrift_library(name='thrift-scala',
   namespace_map={
     'thrift.test': 'com.twitter.scrooge.integration_scala',
   },
+  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-android',

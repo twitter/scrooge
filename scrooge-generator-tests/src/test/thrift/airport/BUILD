@@ -3,6 +3,7 @@ java_thrift_library(name='thrift-scala',
   compiler='scrooge',
   language='scala',
   rpc_style='finagle',
+  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-android',
@@ -25,6 +26,7 @@ java_thrift_library(name='thrift-namespace-scala',
     'thrift.test1': 'vanilla.test1',
     'thrift.test2': 'vanilla.test2',
   },
+  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-namespace-android',

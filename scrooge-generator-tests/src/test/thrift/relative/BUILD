@@ -12,6 +12,7 @@ java_thrift_library(name='thrift-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2',
     'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3',
   ],
+  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-android',

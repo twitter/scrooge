@@ -4,6 +4,7 @@ java_thrift_library(name='thrift-scala',
   language='scala',
   rpc_style='finagle',
   default_java_namespace='bar',
+  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-android',

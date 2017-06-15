@@ -6,4 +6,5 @@ java_thrift_library(name='thrift',
   namespace_map={
     'com.twitter.demo.thriftscala': 'com.twitter.mydemo.renamed',
   },
+  strict_deps=True,
 )
