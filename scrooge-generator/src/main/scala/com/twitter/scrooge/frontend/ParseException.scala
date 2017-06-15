@@ -54,4 +54,4 @@ class KeywordException(id: String)
 /**
  * ScroogeInternalException indicates a Scrooge bug
  */
-class ScroogeInternalException(msg: String) extends Exception
+class ScroogeInternalException(msg: String) extends Exception(msg)

@@ -13,6 +13,12 @@
 
 4.18.0
 ------
+- scrooge-generator: Expose some methods of TemplateGenerator as static methods ``PHAB_ID=D60494``
+
+- scrooge-generator-tests: Add ability for langauge implementations outside of scrooge directory 
+  to use GoldFileTest, expose generated files to subclasses of GoldFileTest, add option to keep
+  generated files for debugging. ``PHAB_ID=D60494``
+
 - scrooge-adaptive: Add support for adaptive decoding, that learns 
   from field access patterns and optimizes the decoder to cheaply 
   skip over unused fields. ``RB_ID=908416``

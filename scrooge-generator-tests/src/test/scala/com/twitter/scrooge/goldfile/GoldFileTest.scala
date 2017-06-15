@@ -5,7 +5,7 @@ import com.twitter.scrooge.Main
 import com.twitter.scrooge.testutil.TempDirectory
 import java.io.File
 import java.util.regex.Pattern
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.io.Source
 
 /**
@@ -17,20 +17,44 @@ import scala.io.Source
  * templates.
  */
 abstract class GoldFileTest extends FunSuite
-  with BeforeAndAfter {
+  with BeforeAndAfterAll {
 
   private var tempDir: File = _
+  protected var generatedFiles: Seq[File] = _
 
-  before {
+  override protected def beforeAll(): Unit = {
     tempDir = TempDirectory.create(None, deleteAtExit = false)
+    if (!deleteTempFiles) {
+      println(s"Temp dir $tempDir")
+    }
+
+    val ccl = Thread.currentThread().getContextClassLoader
+
+    val inputThrifts = testThriftFiles.map { r =>
+      Option(ccl.getResource(r))
+        .getOrElse(sys.error(s"Couldn't find resource: $r"))
+        .getPath
+    }
+
+    val args = Seq(
+      "--language", language,
+      "--finagle",
+      "--gen-adapt",
+      "--dest", tempDir.getPath) ++ inputThrifts
+
+    Main.main(args.toArray)
+    generatedFiles = generatedFiles(tempDir)
   }
 
-  after {
-    if (!Files.delete(tempDir))
-      fail(s"Failed to delete $tempDir")
+  override protected def afterAll(): Unit = {
+    if (deleteTempFiles) {
+      if (!Files.delete(tempDir))
+        fail(s"Failed to delete $tempDir")
+    }
   }
 
   protected def language: String
+  protected def deleteTempFiles: Boolean = true
 
   private val headerRegEx =
     """ (\*)?   version: .*
@@ -58,17 +82,10 @@ abstract class GoldFileTest extends FunSuite
   }
 
   protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
+  protected def goldFilesRoot: String = s"gold_file_output_$language"
 
   test("generated output looks as expected") {
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrifts = testThriftFiles.map(ccl.getResource(_).getPath)
-    val args = Seq(
-      "--language", language,
-      "--finagle",
-      "--gen-adapt",
-      "--dest", tempDir.getPath) ++ inputThrifts
-
-    Main.main(args.toArray)
 
     def generatedDataFor(file: File): String = {
       val gen = Source.fromFile(file, "UTF-8").mkString
@@ -80,14 +97,14 @@ abstract class GoldFileTest extends FunSuite
     }
 
     def goldDataFor(suffix: String): String = {
-      val is = ccl.getResourceAsStream(s"gold_file_output_$language/$suffix")
+      val path = s"$goldFilesRoot/$suffix"
+      val is = ccl.getResourceAsStream(path)
       if (is == null)
         return ""
       Source.fromInputStream(is, "UTF-8").mkString
     }
 
-    val gens = generatedFiles(tempDir)
-    gens.foreach { gen =>
+    generatedFiles.foreach { gen =>
       // we want to take the path after tempDir and compare to suffixed gold file
       // in our resources dir.
       // the +1 removes what would be a leading slash from suffix
@@ -116,7 +133,7 @@ abstract class GoldFileTest extends FunSuite
           val msg =
             s"""
                |The generated file ${gen.getName} did not match gold file
-               |"scrooge/scrooge-generator-tests/src/test/resources/gold_file_output_$language/$suffix".
+               |"$goldFilesRoot/$suffix".
                |Generated string is ${genStr.length} characters long
                |Expected string is ${expected.length} characters long
                |

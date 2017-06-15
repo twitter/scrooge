@@ -109,37 +109,14 @@ object TemplateGenerator {
       v(Dictionary("pairs" -> v(pairDicts)))
     }
   }
-}
 
-abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
-  extends Generator(resolvedDoc)
-  with StructTemplate
-  with ServiceTemplate
-  with ConstsTemplate
-  with EnumTemplate {
-  import Dictionary._
-
-  /**
-   * Map from included file names to the namespaces defined in those files.
-   */
-  val defaultNamespace: String
-  val experimentFlags: Seq[String]
-
-  /******************** helper functions ************************/
-  protected def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean): File = {
+  def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean): File = {
     val file = new File(destFolder, namespace.replace('.', File.separatorChar))
     if (!dryRun) file.mkdirs()
     file
   }
 
-  protected def getIncludeNamespace(includeFileName: String): Identifier =
-    includeMap
-      .get(includeFileName)
-      .map { doc: ResolvedDocument =>
-        getNamespace(doc.document)
-      }.getOrElse(SimpleID(defaultNamespace))
-
-  def getNamespace(doc: Document): Identifier =
+  def getNamespace(doc: Document, namespaceLanguage: String, defaultNamespace: String): Identifier =
     doc.namespace(namespaceLanguage).getOrElse(SimpleID(defaultNamespace))
 
   def normalizeCase[N <: Node](node: N): N = {
@@ -177,6 +154,38 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case n => n
     }).asInstanceOf[N]
   }
+}
+
+abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
+  extends Generator(resolvedDoc)
+  with StructTemplate
+  with ServiceTemplate
+  with ConstsTemplate
+  with EnumTemplate {
+  import Dictionary._
+
+  /**
+   * Map from included file names to the namespaces defined in those files.
+   */
+  val defaultNamespace: String
+  val experimentFlags: Seq[String]
+
+  /******************** helper functions ************************/
+  protected def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean): File =
+    TemplateGenerator.namespacedFolder(destFolder, namespace, dryRun)
+
+  protected def getIncludeNamespace(includeFileName: String): Identifier =
+    includeMap
+      .get(includeFileName)
+      .map { doc: ResolvedDocument =>
+        getNamespace(doc.document)
+      }.getOrElse(SimpleID(defaultNamespace))
+
+  def getNamespace(doc: Document): Identifier =
+    TemplateGenerator.getNamespace(doc, namespaceLanguage, defaultNamespace)
+
+  def normalizeCase[N <: Node](node: N): N =
+    TemplateGenerator.normalizeCase(node)
 
   def quote(str: String) = "\"" + str + "\""
   def quoteKeyword(str: String): String

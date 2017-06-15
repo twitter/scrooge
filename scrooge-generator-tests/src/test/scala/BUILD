@@ -1,5 +1,35 @@
+# Scrooge language implementations that live outside of the scrooge directory
+# benefit from being able to depend on GoldFileTest.
+# In order to make GoldFileTest available to other pants targets as a dependency
+# it needs to belong to its own 'java_library' target, ideally without additional
+# dependencies like all the unit tests below (depending on all those extra tests would
+# cause them to be run twice anyway). So here we define a small pants target for just
+# GoldFileTest and the dependencies it needs and expose it as a 'java_library'.
+#
+# Below, in the junit_tests target we depend on this 'lib' target, but make sure to exclude
+# these sources, as we want to depend on the pants target that 'owns' the sources and not the
+# source files directly. Depending directly on the source files breaks a pants rule that
+# no 2 targets can 'own' the same source files.
+#
+# NOTE: In the future, we should consider splitting GoldFileTest into its own jvm package
+# with its own BUILD file which would simplify this.
+
+LIB_SOURCES = ['com/twitter/scrooge/goldfile/GoldFileTest.scala', 'com/twitter/scrooge/testutil/TempDirectory.scala']
+
+java_library(
+  name = 'lib',
+  dependencies=[
+      '3rdparty/jvm/junit',
+      '3rdparty/jvm/org/scalatest',
+      'scrooge/scrooge-core',
+      'scrooge/scrooge-generator',
+  ],
+  sources = LIB_SOURCES
+)
+
 junit_tests(
   dependencies=[
+    ':lib',
     '3rdparty/jvm/asm',
     '3rdparty/jvm/cglib',
     '3rdparty/jvm/junit',
@@ -38,7 +68,11 @@ junit_tests(
     'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift:thrift',
     'util/util-core/src/main/scala:scala',
+
   ],
   fatal_warnings=True,
-  sources=rglobs('*.scala'),
+
+  # see comments above, we need to avoid 'owning' the LIB_SOURCES files
+  # and instead 'depend' on them
+  sources=rglobs('*.scala', exclude = LIB_SOURCES),
 )
