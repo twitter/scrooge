@@ -27,6 +27,8 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.TReusableBuffer;
+import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -180,6 +182,7 @@ public class GoldService {
   public static class ServiceToClient implements ServiceIface {
     private final com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
     private final TProtocolFactory protocolFactory;
+    private final TReusableBuffer tlReusableBuffer = new TReusableBuffer(512, 16 * 1024);
     private final scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier;
 
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory, scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier) {
@@ -198,8 +201,7 @@ public class GoldService {
 
     public Future<Response> doGreatThings(Request request) {
       try {
-        // TODO: size
-        TMemoryBuffer __memoryTransport__ = new TMemoryBuffer(512);
+        TReusableMemoryTransport __memoryTransport__ = tlReusableBuffer.get();
         TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
         __prot__.writeMessageBegin(new TMessage("doGreatThings", TMessageType.CALL, 0));
         doGreatThings_args __args__ = new doGreatThings_args();
@@ -247,6 +249,8 @@ public class GoldService {
           });
       } catch (TException e) {
         return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
       }
     }
   }
@@ -326,6 +330,7 @@ public class GoldService {
   public static class Service extends com.twitter.finagle.Service<byte[], byte[]> {
     private final ServiceIface iface;
     private final TProtocolFactory protocolFactory;
+    private final TReusableBuffer tlReusableBuffer = new TReusableBuffer(512, 16 * 1024);
     protected HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>> functionMap = new HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>>();
     public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
       this.iface = iface;
@@ -339,7 +344,7 @@ public class GoldService {
             try {
               iprot.readMessageEnd();
               TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-              TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+              TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
               TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
               oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.EXCEPTION, seqid));
@@ -350,6 +355,8 @@ public class GoldService {
               return Future.value(buffer);
             } catch (Exception e1) {
               return Future.exception(e1);
+            } finally {
+              tlReusableBuffer.reset();
             }
           } catch (Exception e) {
             return Future.exception(e);
@@ -375,7 +382,7 @@ public class GoldService {
                 result.setSuccessIsSet(true);
 
                 try {
-                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
                   oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.REPLY, seqid));
@@ -385,6 +392,8 @@ public class GoldService {
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
+                } finally {
+                  tlReusableBuffer.reset();
                 }
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -397,7 +406,7 @@ public class GoldService {
                   else {
                     return Future.exception(t);
                   }
-                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
                   oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.REPLY, seqid));
                   result.write(oprot);
@@ -406,6 +415,8 @@ public class GoldService {
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
+                } finally {
+                  tlReusableBuffer.reset();
                 }
               }
             });
@@ -433,7 +444,7 @@ public class GoldService {
           TProtocolUtil.skip(iprot, TType.STRUCT);
           iprot.readMessageEnd();
           TApplicationException x = new TApplicationException(TApplicationException.UNKNOWN_METHOD, "Invalid method name: '"+msg.name+"'");
-          TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+          TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
           TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
           oprot.writeMessageBegin(new TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));
           x.write(oprot);
@@ -442,6 +453,8 @@ public class GoldService {
           return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
         } catch (Exception e) {
           return Future.exception(e);
+        } finally {
+          tlReusableBuffer.reset();
         }
       }
 

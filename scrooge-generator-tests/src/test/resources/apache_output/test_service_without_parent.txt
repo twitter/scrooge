@@ -26,6 +26,8 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.TReusableBuffer;
+import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -245,6 +247,7 @@ public class TestService {
   public static class ServiceToClient implements ServiceIface {
     private final com.twitter.finagle.Service<ThriftClientRequest, byte[]> service;
     private final TProtocolFactory protocolFactory;
+    private final TReusableBuffer tlReusableBuffer = new TReusableBuffer(512, 16 * 1024);
     private final scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier;
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory, scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier) {
 
@@ -262,8 +265,7 @@ public class TestService {
 
     public Future<Void> test_void_endpoint(TestRequest request) {
       try {
-        // TODO: size
-        TMemoryBuffer __memoryTransport__ = new TMemoryBuffer(512);
+        TReusableMemoryTransport __memoryTransport__ = tlReusableBuffer.get();
         TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
         __prot__.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.CALL, 0));
         test_void_endpoint_args __args__ = new test_void_endpoint_args();
@@ -311,12 +313,13 @@ public class TestService {
           });
       } catch (TException e) {
         return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
       }
     }
     public Future<TestResult> test_endpoint_without_exception(TestRequest request) {
       try {
-        // TODO: size
-        TMemoryBuffer __memoryTransport__ = new TMemoryBuffer(512);
+        TReusableMemoryTransport __memoryTransport__ = tlReusableBuffer.get();
         TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
         __prot__.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.CALL, 0));
         test_endpoint_without_exception_args __args__ = new test_endpoint_without_exception_args();
@@ -362,6 +365,8 @@ public class TestService {
           });
       } catch (TException e) {
         return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
       }
     }
   }
@@ -467,6 +472,7 @@ public class TestService {
   public static class Service extends com.twitter.finagle.Service<byte[], byte[]> {
     private final ServiceIface iface;
     private final TProtocolFactory protocolFactory;
+    private final TReusableBuffer tlReusableBuffer = new TReusableBuffer(512, 16 * 1024);
     protected HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>> functionMap = new HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>>();
     public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
       this.iface = iface;
@@ -480,7 +486,7 @@ public class TestService {
             try {
               iprot.readMessageEnd();
               TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-              TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+              TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
               TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
               oprot.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.EXCEPTION, seqid));
@@ -491,6 +497,8 @@ public class TestService {
               return Future.value(buffer);
             } catch (Exception e1) {
               return Future.exception(e1);
+            } finally {
+              tlReusableBuffer.reset();
             }
           } catch (Exception e) {
             return Future.exception(e);
@@ -514,7 +522,7 @@ public class TestService {
                 test_void_endpoint_result result = new test_void_endpoint_result();
 
                 try {
-                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
                   oprot.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.REPLY, seqid));
@@ -524,6 +532,8 @@ public class TestService {
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
+                } finally {
+                  tlReusableBuffer.reset();
                 }
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -536,7 +546,7 @@ public class TestService {
                   else {
                     return Future.exception(t);
                   }
-                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
                   oprot.writeMessageBegin(new TMessage("test_void_endpoint", TMessageType.REPLY, seqid));
                   result.write(oprot);
@@ -545,6 +555,8 @@ public class TestService {
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
+                } finally {
+                  tlReusableBuffer.reset();
                 }
               }
             });
@@ -562,7 +574,7 @@ public class TestService {
             try {
               iprot.readMessageEnd();
               TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-              TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+              TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
               TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
               oprot.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.EXCEPTION, seqid));
@@ -573,6 +585,8 @@ public class TestService {
               return Future.value(buffer);
             } catch (Exception e1) {
               return Future.exception(e1);
+            } finally {
+              tlReusableBuffer.reset();
             }
           } catch (Exception e) {
             return Future.exception(e);
@@ -598,7 +612,7 @@ public class TestService {
                 result.setSuccessIsSet(true);
 
                 try {
-                  TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
                   TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
                   oprot.writeMessageBegin(new TMessage("test_endpoint_without_exception", TMessageType.REPLY, seqid));
@@ -608,6 +622,8 @@ public class TestService {
                   return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
                 } catch (Exception e) {
                   return Future.exception(e);
+                } finally {
+                  tlReusableBuffer.reset();
                 }
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -639,7 +655,7 @@ public class TestService {
           TProtocolUtil.skip(iprot, TType.STRUCT);
           iprot.readMessageEnd();
           TApplicationException x = new TApplicationException(TApplicationException.UNKNOWN_METHOD, "Invalid method name: '"+msg.name+"'");
-          TMemoryBuffer memoryBuffer = new TMemoryBuffer(512);
+          TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
           TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
           oprot.writeMessageBegin(new TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));
           x.write(oprot);
@@ -648,6 +664,8 @@ public class TestService {
           return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
         } catch (Exception e) {
           return Future.exception(e);
+        } finally {
+          tlReusableBuffer.reset();
         }
       }
 
