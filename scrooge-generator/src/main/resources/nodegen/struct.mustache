@@ -4,8 +4,7 @@
 {{#importDoc}}
 {{>importDoc}}
 
-import thrift from 'thrift'
-import {Thrift, Protocol, Int64} from 'thrift'
+import {Thrift, TProtocol, Int64} from 'thrift'
 
 {{requireStatements}}
 {{/importDoc}}
@@ -49,7 +48,7 @@ constructor(args?: I{{StructName}}Args) {
 {{/fields}}
     }
 
-    public read(input: Protocol): void {
+    public read(input: TProtocol): void {
         input.readStructBegin()
         while (true) {
 {{#has_fields}}
@@ -81,7 +80,7 @@ constructor(args?: I{{StructName}}Args) {
         return
     }
 
-    public write(output: Protocol): void {
+    public write(output: TProtocol): void {
         output.writeStructBegin("{{StructName}}")
 {{#fields}}
         if (this.{{fieldName}} != null) {

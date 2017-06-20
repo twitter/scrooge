@@ -1,5 +1,4 @@
-import thrift from 'thrift'
-import {Thrift, Protocol, Transport, Int64, AnyProtocolClass} from 'thrift'
+import {Thrift, TProtocol, TTransport, Int64} from 'thrift'
 
 {{requireStatements}}
 
@@ -12,7 +11,7 @@ export class Client {
     private _seqid: number
     public _reqs: {[key: string]: (e?: Error|object, r?: any) => void}
 
-    constructor(public output: Transport, public pClass: AnyProtocolClass) {
+    constructor(public output: Transport, public pClass: {new (trans: TTransport): TProtocol;}) {
         this._seqid = 0
         this._reqs = {}
     }
@@ -57,7 +56,7 @@ export class Client {
         return this.output.flush()
     }
 
-    public recv_{{name}}(input: Protocol, mtype: Thrift.MessageType, rseqid: number): void {
+    public recv_{{name}}(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
         const noop = () => null
         let callback = this._reqs[rseqid] || noop
         delete this._reqs[rseqid]
@@ -93,7 +92,7 @@ export class Processor {
         this._handler = handler
     }
 
-    public process(input: Protocol, output: Protocol) {
+    public process(input: TProtocol, output: TProtocol) {
         const r = input.readMessageBegin()
         if (this["process_" + r.fname]) {
             return this["process_" + r.fname].call(this, r.rseqid, input, output)
@@ -109,7 +108,7 @@ export class Processor {
         }
     }
 
-    {{#syncFunctions}}public process_{{name}}(seqid: number, input: Protocol, output: Protocol) {
+    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol) {
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
         args.read(input)
         input.readMessageEnd()
