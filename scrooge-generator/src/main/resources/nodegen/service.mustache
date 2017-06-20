@@ -11,7 +11,7 @@ export class Client {
     private _seqid: number
     public _reqs: {[key: string]: (e?: Error|object, r?: any) => void}
 
-    constructor(public output: Transport, public pClass: {new (trans: TTransport): TProtocol;}) {
+    constructor(public output: TTransport, public pClass: {new (trans: TTransport): TProtocol;}) {
         this._seqid = 0
         this._reqs = {}
     }
