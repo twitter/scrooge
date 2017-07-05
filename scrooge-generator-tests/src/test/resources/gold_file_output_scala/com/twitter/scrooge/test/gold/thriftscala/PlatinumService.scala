@@ -88,7 +88,7 @@ object PlatinumService { self =>
 
   class MethodIface(serviceIface: BaseServiceIface)
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodIface(serviceIface)
-    with PlatinumService[Future] {
+    with FutureIface {
     def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] =
       serviceIface.moreCoolThings(self.MoreCoolThings.Args(request))
   }

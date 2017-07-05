@@ -11,16 +11,21 @@
 - scrooge-generator: support for thrift struct field doccomments for scala
   generated code ``RB_ID=918179``
 
+- scrooge-generator: The `MethodIface` in generated Scala code implements
+  `FutureIface`. It already "was" that type in practice but did not implement
+  that trait. ``PHAB_ID=D67289``
+
+
 4.18.0
 ------
 - scrooge-generator: Expose some methods of TemplateGenerator as static methods ``PHAB_ID=D60494``
 
-- scrooge-generator-tests: Add ability for langauge implementations outside of scrooge directory 
+- scrooge-generator-tests: Add ability for langauge implementations outside of scrooge directory
   to use GoldFileTest, expose generated files to subclasses of GoldFileTest, add option to keep
   generated files for debugging. ``PHAB_ID=D60494``
 
-- scrooge-adaptive: Add support for adaptive decoding, that learns 
-  from field access patterns and optimizes the decoder to cheaply 
+- scrooge-adaptive: Add support for adaptive decoding, that learns
+  from field access patterns and optimizes the decoder to cheaply
   skip over unused fields. ``RB_ID=908416``
 
 - scrooge-generator: Scala code generation support for annotations on enums ``RB_ID=917467``

@@ -101,7 +101,7 @@ object {{ServiceName}} { self =>
 
   class MethodIface(serviceIface: BaseServiceIface)
     extends {{#parent}}{{parent}}.MethodIface(serviceIface)
-    with {{/parent}}{{ServiceName}}[Future] {
+    with {{/parent}}FutureIface {
 {{#dedupedOwnFunctions}}
     def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
       serviceIface.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}

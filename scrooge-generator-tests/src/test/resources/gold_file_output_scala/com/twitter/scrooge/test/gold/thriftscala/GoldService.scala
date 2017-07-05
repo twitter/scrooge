@@ -85,7 +85,7 @@ object GoldService { self =>
   }
 
   class MethodIface(serviceIface: BaseServiceIface)
-    extends GoldService[Future] {
+    extends FutureIface {
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
       serviceIface.doGreatThings(self.DoGreatThings.Args(request))
   }
