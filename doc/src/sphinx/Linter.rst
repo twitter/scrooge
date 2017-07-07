@@ -7,7 +7,8 @@ Running the linter
 ------------------------
 
 To run the thrift linter with sbt:
-::
+
+.. code-block:: bash
 
     $ ./sbt 'scrooge-linter/run-main com.twitter.scrooge.linter.Main --help'
 
