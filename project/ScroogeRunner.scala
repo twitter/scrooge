@@ -96,135 +96,135 @@ object ScroogeRunner {
   val genAdaptiveScroogeTestThrift = TaskKey[Seq[File]]("genAdaptiveScroogeTestThrift",
     "Uses Scrooge to generate code from thrift sources, for use in Adaptive Scrooge tests")
 
-  val genAdaptiveScroogeTestThriftTask = genAdaptiveScroogeTestThrift <<=
-    (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
-      val runner = new Runner(out, cp, outputDir)
-      import runner._
+  val genAdaptiveScroogeTestThriftTask = genAdaptiveScroogeTestThrift := {
+    val base = baseDirectory.value
+    val runner = new Runner(streams.value, dependencyClasspath.value, sourceManaged.value)
+    import runner._
 
-      val files = filesInDir(s"$base/src/test/thrift") mkString " "
-      runScrooge(Seq(Scala), files)
+    val files = filesInDir(s"$base/src/test/thrift") mkString " "
+    runScrooge(Seq(Scala), files)
 
-      filesGenerated
-    }
+    filesGenerated
+  }
 
   val genTestThrift = TaskKey[Seq[File]]("genTestThrift",
     "Uses Scrooge to generate code from thrift sources, for use in tests")
 
-  val genTestThriftTask = genTestThrift <<=
-    (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
-      val runner = new Runner(out, cp, outputDir)
-      import runner._
+  val genTestThriftTask = genTestThrift := {
+    val base = baseDirectory.value
+    val runner = new Runner(streams.value, dependencyClasspath.value, sourceManaged.value)
+    import runner._
 
-      section("defaults/") {
-        val files = filesInDir(s"$base/src/test/thrift/defaults") mkString " "
-        runScrooge(Seq(ApacheJava, Scala, Android), files)
-      }
-
-      section("relative/") {
-        val files = filesInDir(s"$base/src/test/thrift/relative").filter(_.contains("include")) mkString " "
-        runScrooge(Seq(Scala, Android), files)
-
-        val file = s"$base/src/test/thrift/relative/candy.thrift"
-        val importArg =
-          s"--include-path $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/dir3"
-        runScrooge(Seq(Scala, Android), s"$file $importArg")
-      }
-
-      val airportThriftFiles = filesInDir(s"$base/src/test/thrift/airport") mkString " "
-
-      section("airport/ for Finagle usage") {
-        runScrooge(Seq(Scala, Android), airportThriftFiles)
-      }
-
-      section("airport/ for vanilla usage") {
-        val scalaVanillaNamespace =
-          """-n thrift.test=vanilla.test
-            |-n thrift.test1=vanilla.test1
-            |-n thrift.test2=vanilla.test2
-          """.stripMargin
-
-        val androidVanillaNamespace =
-          """-n androidthrift.test=vanilla_android.test
-            |-n androidthrift.test1=vanilla_android.test1
-            |-n androidthrift.test2=vanilla_android.test2
-          """.stripMargin
-
-        run(language = Scala, namespace = scalaVanillaNamespace, finagle = false, args = airportThriftFiles)
-        run(language = Android, namespace = androidVanillaNamespace, finagle = false, args = airportThriftFiles)
-      }
-
-      section("namespace/ with bar and java_bar as default namespace") {
-        val files = filesInDir(s"$base/src/test/thrift/namespace") mkString " "
-        run(language = Scala,
-          namespace = s"${Scala.defaultNamespace} --default-java-namespace bar",
-          args = files)
-        run(language = Android,
-          namespace = s"${Android.defaultNamespace} --default-java-namespace android_bar",
-          args = files)
-      }
-
-      section("integration/") {
-        val files = filesInDir(s"$base/src/test/thrift/integration") mkString " "
-        val androidFiles = (filesInDir(s"$base/src/test/thrift/integration") ++ filesInDir(s"$base/src/test/thrift/android_integration")) mkString " "
-        run(language = Scala,
-          namespace = s"${Scala.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_scala",
-          args = s"--disable-strict $files")
-        run(language = ApacheJava,
-          namespace = s"${ApacheJava.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_apache",
-          args = s"--disable-strict $files")
-        run(language = Android,
-          namespace = s"${Android.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_android",
-          args = s"--disable-strict $androidFiles")
-
-      }
-
-      section("standalone/") {
-        val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
-        runScrooge(Seq(Scala), files)
-        runScrooge(Seq(ApacheJava, Android),
-          s"$base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift")
-      }
-
-      section("scala/") {
-        val files = filesInDir(s"$base/src/test/thrift/scala") mkString " "
-        runScrooge(Seq(ApacheJava, Scala), files)
-      }
-
-      section("constant_sets.thrift") {
-        val file = s"$base/src/test/thrift/constant_sets.thrift"
-        runScrooge(Seq(Scala, Android), file)
-      }
-
-      filesGenerated
+    section("defaults/") {
+      val files = filesInDir(s"$base/src/test/thrift/defaults") mkString " "
+      runScrooge(Seq(ApacheJava, Scala, Android), files)
     }
+
+    section("relative/") {
+      val files = filesInDir(s"$base/src/test/thrift/relative").filter(_.contains("include")) mkString " "
+      runScrooge(Seq(Scala, Android), files)
+
+      val file = s"$base/src/test/thrift/relative/candy.thrift"
+      val importArg =
+        s"--include-path $base/src/test/thrift/relative/dir2${File.pathSeparator}$base/src/test/thrift/relative/dir3"
+      runScrooge(Seq(Scala, Android), s"$file $importArg")
+    }
+
+    val airportThriftFiles = filesInDir(s"$base/src/test/thrift/airport") mkString " "
+
+    section("airport/ for Finagle usage") {
+      runScrooge(Seq(Scala, Android), airportThriftFiles)
+    }
+
+    section("airport/ for vanilla usage") {
+      val scalaVanillaNamespace =
+        """-n thrift.test=vanilla.test
+          |-n thrift.test1=vanilla.test1
+          |-n thrift.test2=vanilla.test2
+        """.stripMargin
+
+      val androidVanillaNamespace =
+        """-n androidthrift.test=vanilla_android.test
+          |-n androidthrift.test1=vanilla_android.test1
+          |-n androidthrift.test2=vanilla_android.test2
+        """.stripMargin
+
+      run(language = Scala, namespace = scalaVanillaNamespace, finagle = false, args = airportThriftFiles)
+      run(language = Android, namespace = androidVanillaNamespace, finagle = false, args = airportThriftFiles)
+    }
+
+    section("namespace/ with bar and java_bar as default namespace") {
+      val files = filesInDir(s"$base/src/test/thrift/namespace") mkString " "
+      run(language = Scala,
+        namespace = s"${Scala.defaultNamespace} --default-java-namespace bar",
+        args = files)
+      run(language = Android,
+        namespace = s"${Android.defaultNamespace} --default-java-namespace android_bar",
+        args = files)
+    }
+
+    section("integration/") {
+      val files = filesInDir(s"$base/src/test/thrift/integration") mkString " "
+      val androidFiles = (filesInDir(s"$base/src/test/thrift/integration") ++ filesInDir(s"$base/src/test/thrift/android_integration")) mkString " "
+      run(language = Scala,
+        namespace = s"${Scala.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_scala",
+        args = s"--disable-strict $files")
+      run(language = ApacheJava,
+        namespace = s"${ApacheJava.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_apache",
+        args = s"--disable-strict $files")
+      run(language = Android,
+        namespace = s"${Android.defaultNamespace} -n thrift.test=com.twitter.scrooge.integration_android",
+        args = s"--disable-strict $androidFiles")
+
+    }
+
+    section("standalone/") {
+      val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
+      runScrooge(Seq(Scala), files)
+      runScrooge(Seq(ApacheJava, Android),
+        s"$base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift")
+    }
+
+    section("scala/") {
+      val files = filesInDir(s"$base/src/test/thrift/scala") mkString " "
+      runScrooge(Seq(ApacheJava, Scala), files)
+    }
+
+    section("constant_sets.thrift") {
+      val file = s"$base/src/test/thrift/constant_sets.thrift"
+      runScrooge(Seq(Scala, Android), file)
+    }
+
+    filesGenerated
+  }
 
   val genBenchmarkThrift = TaskKey[Seq[File]]("genBenchmarkThrift",
     "Uses Scrooge to generate sources to use in benchmarking")
-  val genBenchmarkThriftTask = genBenchmarkThrift <<=
-    (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
-      val runner = new Runner(out, cp, outputDir)
-      import runner._
+  val genBenchmarkThriftTask = genBenchmarkThrift := {
+    val base = baseDirectory.value
+    val runner = new Runner(streams.value, dependencyClasspath.value, sourceManaged.value)
+    import runner._
 
-      section("benchmark/") {
-        val files = filesInDir(s"$base/src/main/thrift") mkString " "
-        runScrooge(Seq(Scala, Android), files)
-      }
-
-      filesGenerated
+    section("benchmark/") {
+      val files = filesInDir(s"$base/src/main/thrift") mkString " "
+      runScrooge(Seq(Scala, Android), files)
     }
+
+    filesGenerated
+  }
 
   val genSerializerTestThrift = TaskKey[Seq[File]]("genSerializerTestThrift",
     "Uses Scrooge to generate sources to use in serializer tests")
-  val genSerializerTestThriftTask = genSerializerTestThrift <<=
-    (streams, baseDirectory, dependencyClasspath, sourceManaged) map { (out, base, cp, outputDir) =>
-      val runner = new Runner(out, cp, outputDir)
-      import runner._
+  val genSerializerTestThriftTask = genSerializerTestThrift := {
+    val base = baseDirectory.value
+    val runner = new Runner(streams.value, dependencyClasspath.value, sourceManaged.value)
+    import runner._
 
-      section("serializer/") {
-        val files = filesInDir(s"$base/src/test/thrift") mkString " "
-        runScrooge(Seq(Scala), files)
-      }
-
-      filesGenerated
+    section("serializer/") {
+      val files = filesInDir(s"$base/src/test/thrift") mkString " "
+      runScrooge(Seq(Scala), files)
     }
+
+    filesGenerated
+  }
 }
