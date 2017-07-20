@@ -33,10 +33,9 @@ object Scrooge extends Build {
     "dump-classpath", "generate a file containing the full classpath")
 
   val dumpClasspathSettings: Seq[Setting[_]] = Seq(
-    dumpClasspath <<= (
-      baseDirectory,
-      fullClasspath in Runtime
-    ) map { (base, cp) =>
+    dumpClasspath := {
+      val base = baseDirectory.value
+      val cp = (fullClasspath in Runtime).value
       val file = new File((base / ".classpath.txt").getAbsolutePath)
       val out = new java.io.FileWriter(file)
       try out.write(cp.files.absString) finally out.close()
@@ -45,12 +44,12 @@ object Scrooge extends Build {
   )
 
   val testThriftSettings: Seq[Setting[_]] = Seq(
-    sourceGenerators in Test <+= ScroogeRunner.genTestThrift,
+    sourceGenerators in Test += ScroogeRunner.genTestThrift,
     ScroogeRunner.genTestThriftTask
   )
 
   val adaptiveScroogeTestThriftSettings = Seq(
-    sourceGenerators in Test <+= ScroogeRunner.genAdaptiveScroogeTestThrift,
+    sourceGenerators in Test += ScroogeRunner.genAdaptiveScroogeTestThrift,
     ScroogeRunner.genAdaptiveScroogeTestThriftTask
   )
 
@@ -95,23 +94,23 @@ object Scrooge extends Build {
           <url>https://www.twitter.com/</url>
         </developer>
       </developers>,
-    publishTo <<= version { (v: String) =>
+    publishTo := {
       val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT"))
+      if (version.value.trim.endsWith("SNAPSHOT"))
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
     },
 
-    resourceGenerators in Compile <+=
-      (resourceManaged in Compile, name, version) map { (dir, name, ver) =>
-        val file = dir / "com" / "twitter" / name / "build.properties"
-        val buildRev = Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
-        val buildName = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date)
-        val contents = s"name=$name\nversion=$ver\nbuild_revision=$buildRev\nbuild_name=$buildName"
-        IO.write(file, contents)
-        Seq(file)
-      }
+    resourceGenerators in Compile += Def.task {
+      val dir = (resourceManaged in Compile).value
+      val file = dir / "com" / "twitter" / name.value / "build.properties"
+      val buildRev = Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
+      val buildName = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date)
+      val contents = s"name=${name.value}\nversion=${version.value}\nbuild_revision=$buildRev\nbuild_name=$buildName"
+      IO.write(file, contents)
+      Seq(file)
+    }
   )
 
   val sharedSettings =
@@ -260,7 +259,7 @@ object Scrooge extends Build {
   )
 
   val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
-    sourceGenerators <+= ScroogeRunner.genSerializerTestThrift,
+    sourceGenerators += ScroogeRunner.genSerializerTestThrift,
     ScroogeRunner.genSerializerTestThriftTask
   )
 
@@ -305,7 +304,7 @@ object Scrooge extends Build {
       buildInfoSettings
   ).settings(
     scalaVersion := "2.10.6",
-    sourceGenerators in Compile <+= buildInfo,
+    sourceGenerators in Compile += buildInfo,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.twitter",
     sbtPlugin := true,
@@ -327,7 +326,7 @@ object Scrooge extends Build {
   ).dependsOn(scroogeGenerator)
 
   val benchThriftSettings: Seq[Setting[_]] = Seq(
-    sourceGenerators <+= ScroogeRunner.genBenchmarkThrift,
+    sourceGenerators += ScroogeRunner.genBenchmarkThrift,
     ScroogeRunner.genBenchmarkThriftTask
   )
 
@@ -360,16 +359,16 @@ object Scrooge extends Build {
       site.settings ++
       site.sphinxSupport() ++
       Seq(
-        scalacOptions in doc <++= version.map(v => Seq("-doc-title", "Scrooge", "-doc-version", v)),
+        scalacOptions in doc ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
         includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
       )
     ).configs(DocTest).settings(
       inConfig(DocTest)(Defaults.testSettings): _*
     ).settings(
-      unmanagedSourceDirectories in DocTest <+= baseDirectory { _ / "src/sphinx/code" },
+      unmanagedSourceDirectories in DocTest += baseDirectory.value / "src/sphinx/code",
 
       // Make the "test" command run both, test and doctest:test
-      test <<= Seq(test in Test, test in DocTest).dependOn
+      test := Seq(test in Test, test in DocTest).dependOn.value
     )
 
   /* Test Configuration for running tests on doc sources */
