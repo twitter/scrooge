@@ -4,6 +4,9 @@
 
 4.x
 -----
+
+4.19.0
+------
 - scrooge-generator: Generated Java code now is using `c.t.s.TReusableBuffer` to reduce
   object allocations. This in turn adds `scrooge-core` as dependency for generated
   java code. ``PHAB_ID=D60406``
