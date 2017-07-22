@@ -169,11 +169,10 @@ lazy val publishedProjects = Seq[sbt.ProjectReference](
 
 lazy val scrooge = Project(
   id = "scrooge",
-  base = file("."),
-  settings = Defaults.coreDefaultSettings ++
-    sharedSettings,
-  aggregate = publishedProjects
-)
+  base = file(".")
+).settings(
+  sharedSettings
+).aggregate(publishedProjects: _*)
 
 // This target is used for publishing dependencies locally
 // and is used for generating all(*) of the dependencies
@@ -186,20 +185,19 @@ lazy val scroogePublishLocal = Project(
   id = "scrooge-publish-local",
   // use a different target so that we don't have conflicting output paths
   // between this and the `scrooge` target.
-  base = file("target/"),
-  settings = Defaults.coreDefaultSettings ++
-    sharedSettings,
-  aggregate = publishedProjects
-)
+  base = file("target/")
+).settings(
+  sharedSettings
+).aggregate(publishedProjects: _*)
 
 // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
 // has a dependency on this.
 lazy val scroogeGenerator = Project(
   id = "scrooge-generator",
-  base = file("scrooge-generator"),
-  settings = Defaults.coreDefaultSettings ++
-    settingsCrossCompiledWithTwoTen ++
-    assemblySettings
+  base = file("scrooge-generator")
+).settings(
+  settingsCrossCompiledWithTwoTen,
+  assemblySettings
 ).settings(
   name := "scrooge-generator",
   libraryDependencies ++= Seq(
@@ -220,12 +218,12 @@ lazy val scroogeGenerator = Project(
 
 lazy val scroogeGeneratorTests = Project(
   id = "scrooge-generator-tests",
-  base = file("scrooge-generator-tests"),
-  settings = Defaults.coreDefaultSettings ++
-    inConfig(Test)(testThriftSettings) ++
-    sharedSettings ++
-    assemblySettings ++
-    jmockSettings
+  base = file("scrooge-generator-tests")
+).settings(
+  inConfig(Test)(testThriftSettings),
+  sharedSettings,
+  assemblySettings,
+  jmockSettings
 ).settings(
   name := "scrooge-generator-tests",
   libraryDependencies ++= Seq(
@@ -239,9 +237,9 @@ lazy val scroogeGeneratorTests = Project(
 
 lazy val scroogeCore = Project(
   id = "scrooge-core",
-  base = file("scrooge-core"),
-  settings = Defaults.coreDefaultSettings ++
-    sharedSettings
+  base = file("scrooge-core")
+).settings(
+  sharedSettings
 ).settings(
   name := "scrooge-core",
   libraryDependencies ++= Seq(
@@ -257,10 +255,10 @@ val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
 
 lazy val scroogeSerializer = Project(
   id = "scrooge-serializer",
-  base = file("scrooge-serializer"),
-  settings = Defaults.coreDefaultSettings ++
-    inConfig(Test)(serializerTestThriftSettings) ++
-    sharedSettings
+  base = file("scrooge-serializer")
+).settings(
+  inConfig(Test)(serializerTestThriftSettings),
+  sharedSettings
 ).settings(
   name := "scrooge-serializer",
   libraryDependencies ++= Seq(
@@ -273,10 +271,10 @@ lazy val scroogeSerializer = Project(
 
 lazy val scroogeAdaptive = Project(
   id = "scrooge-adaptive",
-  base = file("scrooge-adaptive"),
-  settings = Defaults.coreDefaultSettings ++
-    inConfig(Test)(adaptiveScroogeTestThriftSettings) ++
-    sharedSettings
+  base = file("scrooge-adaptive")
+).settings(
+  inConfig(Test)(adaptiveScroogeTestThriftSettings),
+  sharedSettings
 ).settings(
   name := "scrooge-adaptive",
   libraryDependencies ++= Seq(
@@ -289,11 +287,11 @@ lazy val scroogeAdaptive = Project(
 
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
-  base = file("scrooge-sbt-plugin"),
-  settings = Defaults.coreDefaultSettings ++
-    settingsWithTwoTen ++
-    bintrayPublishSettings ++
-    buildInfoSettings
+  base = file("scrooge-sbt-plugin")
+).settings(
+  settingsWithTwoTen,
+  bintrayPublishSettings,
+  buildInfoSettings
 ).settings(
   scalaVersion := "2.10.6",
   sourceGenerators in Compile += buildInfo,
@@ -308,10 +306,10 @@ lazy val scroogeSbtPlugin = Project(
 
 lazy val scroogeLinter = Project(
   id = "scrooge-linter",
-  base = file("scrooge-linter"),
-  settings = Defaults.coreDefaultSettings ++
-    sharedSettings ++
-    assemblySettings
+  base = file("scrooge-linter")
+).settings(
+  sharedSettings,
+  assemblySettings
 ).settings(
   name := "scrooge-linter",
   libraryDependencies += util("logging")
@@ -324,15 +322,14 @@ val benchThriftSettings: Seq[Setting[_]] = Seq(
 
 lazy val scroogeBenchmark = Project(
   id = "scrooge-benchmark",
-  base = file("scrooge-benchmark"),
-  settings = Defaults.coreDefaultSettings ++
-    inConfig(Compile)(benchThriftSettings) ++
-    sharedSettings ++
-    dumpClasspathSettings ++
-    JmhPlugin.projectSettings
-)
-.enablePlugins(JmhPlugin)
-.settings(
+  base = file("scrooge-benchmark")
+).settings(
+  inConfig(Compile)(benchThriftSettings),
+  sharedSettings,
+  dumpClasspathSettings
+).enablePlugins(
+  JmhPlugin
+).settings(
   libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
     "com.twitter" % "libthrift" % libthriftVersion
@@ -340,28 +337,28 @@ lazy val scroogeBenchmark = Project(
 ).dependsOn(
   scroogeAdaptive % "compile->test", // Need ReloadOnceAdaptBinarySerializer defined in test
   scroogeGenerator,
-  scroogeSerializer)
+  scroogeSerializer
+)
 
 lazy val scroogeDoc = Project(
   id = "scrooge-doc",
-  base = file("doc"),
-  settings =
-    Defaults.coreDefaultSettings ++
-    sharedSettings ++
-    site.settings ++
-    site.sphinxSupport() ++
-    Seq(
-      scalacOptions in doc ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
-      includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
-    )
-  ).configs(DocTest).settings(
-    inConfig(DocTest)(Defaults.testSettings): _*
-  ).settings(
-    unmanagedSourceDirectories in DocTest += baseDirectory.value / "src/sphinx/code",
-
-    // Make the "test" command run both, test and doctest:test
-    test := Seq(test in Test, test in DocTest).dependOn.value
+  base = file("doc")
+).settings(
+  sharedSettings,
+  site.settings,
+  site.sphinxSupport(),
+  Seq(
+    scalacOptions in doc ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
+    includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
   )
+).configs(DocTest).settings(
+  inConfig(DocTest)(Defaults.testSettings): _*
+).settings(
+  unmanagedSourceDirectories in DocTest += baseDirectory.value / "src/sphinx/code",
+
+  // Make the "test" command run both, test and doctest:test
+  test := Seq(test in Test, test in DocTest).dependOn.value
+)
 
 /* Test Configuration for running tests on doc sources */
 lazy val DocTest = config("testdoc") extend Test
