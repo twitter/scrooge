@@ -2,8 +2,7 @@ package com.twitter.scrooge
 
 import sbt._
 import Keys._
-
-import com.twitter.scrooge.backend.{WithFinagle, ServiceOption}
+import com.twitter.scrooge.backend.{ServiceOption, WithFinagle}
 import java.io.File
 
 object ScroogeSBT extends AutoPlugin {
@@ -169,48 +168,36 @@ object ScroogeSBT extends AutoPlugin {
     scroogeDisableStrict := false,
     scroogeScalaWarnOnJavaNSFallback := false,
     scroogeDefaultJavaNamespace := "thrift",
-    scroogeThriftSourceFolder <<= (sourceDirectory) { _ / "thrift" },
-    scroogeThriftExternalSourceFolder <<= (target) { _ / "thrift_external" },
+    scroogeThriftSourceFolder := sourceDirectory.value / "thrift",
+    scroogeThriftExternalSourceFolder := target.value / "thrift_external",
     scroogeThriftOutputFolder in Compile := (sourceManaged in Compile).value / "thrift",
     scroogeThriftOutputFolder in Test := (sourceManaged in Test).value / "thrift",
-    scroogeThriftIncludeFolders <<= (scroogeThriftSourceFolder) { Seq(_) },
+    scroogeThriftIncludeFolders := Seq(scroogeThriftSourceFolder.value),
     scroogeThriftNamespaceMap := Map(),
     scroogeThriftDependencies := Seq(),
     scroogeLanguages := Seq("scala"),
     libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
 
     // complete list of source files
-    scroogeThriftSources <<= scroogeThriftSourceFolder map { (srcDir) => (srcDir ** "*.thrift").get },
+    scroogeThriftSources := (scroogeThriftSourceFolder.value ** "*.thrift").get,
 
     // complete list of include directories
-    scroogeThriftIncludes <<= (
-      scroogeThriftIncludeFolders,
-      scroogeUnpackDeps
-    ) map { (includes, extDirs) =>
-      includes ++ extDirs
-    },
+    scroogeThriftIncludes := scroogeThriftIncludeFolders.value ++ scroogeUnpackDeps.value,
 
     // unpack thrift files from all dependencies in the `thrift` configuration
     //
     // returns Seq[File] - directories that include thrift files
-    scroogeUnpackDeps <<= (
-      streams,
-      configuration,
-      classpathTypes,
-      update,
-      scroogeThriftDependencies,
-      scroogeThriftExternalSourceFolder
-    ) map { (out, configuration, cpTypes, update, deps, extDir) =>
-      IO.createDirectory(extDir)
-      val whitelist = deps.toSet
+    scroogeUnpackDeps := {
+      IO.createDirectory(scroogeThriftExternalSourceFolder.value)
+      val whitelist = scroogeThriftDependencies.value.toSet
       val dependencies =
-        Classpaths.managedJars(thriftConfig, cpTypes, update) ++
-        filter(Classpaths.managedJars(configuration, cpTypes, update), whitelist)
+        Classpaths.managedJars(thriftConfig, classpathTypes.value, update.value) ++
+        filter(Classpaths.managedJars(configuration.value, classpathTypes.value, update.value), whitelist)
 
       val paths = dependencies.map { dep =>
         val module = dep.get(AttributeKey[ModuleID]("module-id"))
         module.flatMap { m =>
-          val dest = new File(extDir, m.name)
+          val dest = new File(scroogeThriftExternalSourceFolder.value, m.name)
           IO.createDirectory(dest)
           val thriftFiles = IO.unzip(dep.data, dest, "*.thrift").toSeq
           if (thriftFiles.isEmpty) {
@@ -224,60 +211,57 @@ object ScroogeSBT extends AutoPlugin {
     },
 
     // look at includes and our sources to see if anything is newer than any of our output files
-    scroogeIsDirty <<= (
-      streams,
-      scroogeThriftSources,
-      scroogeThriftOutputFolder,
-      scroogeThriftIncludes,
-      scroogeLanguages
-    ) map { (out, sources, outputDir, inc, languages) =>
+    scroogeIsDirty := {
       // figure out if we need to actually rebuild, based on mtimes.
-      val allSourceDeps: Seq[File] = sources ++ inc.foldLeft(Seq[File]()) { (files, dir) =>
-        files ++ (dir ** "*.thrift").get
-      }
+      val allSourceDeps: Seq[File] =
+        scroogeThriftSources.value ++ scroogeThriftIncludes.value.foldLeft(Seq[File]()) { (files, dir) =>
+          files ++ (dir ** "*.thrift").get
+        }
       val sourcesLastModified: Seq[Long] = allSourceDeps.map(_.lastModified)
-      val newestSource: Long = if (sourcesLastModified.nonEmpty) {
-        sourcesLastModified.max
-      } else {
-        Long.MaxValue
-      }
-      val outputsLastModified: Seq[Long] = languages.flatMap { language =>
-        (outputDir ** generatedExtensionPattern(language)).get.map(_.lastModified)
-      }
-      val oldestOutput: Long = if (outputsLastModified.nonEmpty) {
-        outputsLastModified.min
-      } else {
-        Long.MinValue
-      }
+      val newestSource: Long =
+        if (sourcesLastModified.nonEmpty) {
+          sourcesLastModified.max
+        } else {
+          Long.MaxValue
+        }
+      val outputsLastModified: Seq[Long] =
+        scroogeLanguages.value.flatMap { language =>
+          (scroogeThriftOutputFolder.value ** generatedExtensionPattern(language)).get.map(_.lastModified)
+        }
+      val oldestOutput: Long =
+        if (outputsLastModified.nonEmpty) {
+          outputsLastModified.min
+        } else {
+          Long.MinValue
+        }
       oldestOutput < newestSource
     },
 
     // actually run scrooge
-    scroogeGen <<= (
-      streams,
-      scroogeIsDirty,
-      scroogeThriftSources,
-      scroogeThriftOutputFolder,
-      scroogeBuildOptions,
-      scroogeThriftIncludes,
-      scroogeThriftNamespaceMap,
-      scroogeLanguages,
-      scroogeDisableStrict,
-      scroogeScalaWarnOnJavaNSFallback,
-      scroogeDefaultJavaNamespace
-    ) map { (out, isDirty, sources, outputDir, opts, inc, ns, languages, disableStrict, warnOnJavaNSFallback, defaultNamespace) =>
+    scroogeGen := {
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
-      if (isDirty && sources.nonEmpty) {
-        out.log.info("Generating scrooge thrift for %s ...".format(sources.mkString(", ")))
-        languages.foreach { language =>
-          compile(out.log, outputDir, sources.toSet, inc.toSet, ns, language, opts.toSet, disableStrict, warnOnJavaNSFallback, defaultNamespace)
+      if (scroogeIsDirty.value && scroogeThriftSources.value.nonEmpty) {
+        streams.value.log.info("Generating scrooge thrift for %s ...".format(scroogeThriftSources.value.mkString(", ")))
+        scroogeLanguages.value.foreach { language =>
+          compile(
+            streams.value.log,
+            scroogeThriftOutputFolder.value,
+            scroogeThriftSources.value.toSet,
+            scroogeThriftIncludes.value.toSet,
+            scroogeThriftNamespaceMap.value,
+            language,
+            scroogeBuildOptions.value.toSet,
+            scroogeDisableStrict.value,
+            scroogeScalaWarnOnJavaNSFallback.value,
+            scroogeDefaultJavaNamespace.value
+          )
         }
       }
-      languages.flatMap { language =>
-        (outputDir ** generatedExtensionPattern(language)).get
+      scroogeLanguages.value.flatMap { language =>
+        (scroogeThriftOutputFolder.value ** generatedExtensionPattern(language)).get
       }
     },
-    sourceGenerators <+= scroogeGen
+    sourceGenerators += scroogeGen
   )
 
   val packageThrift = mappings in (Compile, packageBin) ++= {
