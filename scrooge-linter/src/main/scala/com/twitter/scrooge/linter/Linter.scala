@@ -405,20 +405,33 @@ class Linter(cfg: Config) {
 
     val messages = LintRule.all(rules)(doc)
 
-    messages.foreach {
-      case LintMessage(msg, Error) =>
-        error(s"$inputFile\n$msg")
-      case LintMessage(msg, Warning) =>
-        warning(s"$inputFile\n$msg")
-    }
-
     val errorCount = messages.count(_.level == Error)
     val warnCount = messages.count(_.level == Warning)
 
-    if (errorCount + warnCount > 0 ) {
-      warning("%d warnings and %d errors found".format(messages.size - errorCount, errorCount))
+    if (cfg.fatalWarnings) {
+      val errorAndWarnCount = errorCount + warnCount
+      messages.foreach {
+        case LintMessage(msg, _) =>
+          error(s"$inputFile\n$msg")
+      }
+
+      if (errorAndWarnCount > 0) {
+        warning("%d warnings and %d errors found".format(0, errorAndWarnCount))
+      }
+      errorAndWarnCount
+    } else {
+      messages.foreach {
+        case LintMessage(msg, Error) =>
+          error(s"$inputFile\n$msg")
+        case LintMessage(msg, Warning) =>
+          warning(s"$inputFile\n$msg")
+      }
+
+      if (errorCount + warnCount > 0) {
+        warning("%d warnings and %d errors found".format(warnCount, errorCount))
+      }
+      errorCount
     }
-    errorCount
   }
 
   // Lint cfg.files and return the total number of lint errors found.
