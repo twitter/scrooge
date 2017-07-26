@@ -8,7 +8,8 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
   def to_enum = generator.getTypeString(fieldType)
   val type_name = generator.typeName(fieldType)
   val type_name_in_container = generator.typeName(fieldType, inContainer = true)
-  val type_name_in_container_skip_generic = generator.typeName(fieldType, inContainer = true, skipGeneric = true)
+  val type_name_in_container_skip_generic =
+    generator.typeName(fieldType, inContainer = true, skipGeneric = true)
   val init_type_name = generator.typeName(fieldType, inInit = true)
   def is_enum_set: Boolean = fieldType match {
     case SetType(_: EnumType, _) => true
@@ -34,7 +35,10 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
   val is_map = fieldType.isInstanceOf[MapType]
   def map_types = fieldType match {
     case MapType(k, v, _) =>
-      Map("key_type" -> new FieldTypeController(k, generator), "value_type" -> new FieldTypeController(v, generator))
+      Map(
+        "key_type" -> new FieldTypeController(k, generator),
+        "value_type" -> new FieldTypeController(v, generator)
+      )
     case _ => false
   }
   val is_binary = fieldType == TBinary

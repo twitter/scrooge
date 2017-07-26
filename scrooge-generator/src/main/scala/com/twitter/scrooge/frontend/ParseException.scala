@@ -2,39 +2,39 @@ package com.twitter.scrooge.frontend
 
 import scala.util.control.NoStackTrace
 
-class ParseException(reason: String, cause: Throwable) extends Exception(reason, cause) with NoStackTrace{
+class ParseException(reason: String, cause: Throwable)
+    extends Exception(reason, cause)
+    with NoStackTrace {
   def this(reason: String) = this(reason, null)
 }
 
 class FileParseException(filename: String, cause: Throwable)
-  extends ParseException("Exception parsing: %s".format(filename), cause)
+    extends ParseException("Exception parsing: %s".format(filename), cause)
 
 // severe errors
 class NegativeFieldIdException(name: String)
-  extends ParseException("Negative user-provided id in field " + name)
+    extends ParseException("Negative user-provided id in field " + name)
 
 class DuplicateFieldIdException(name: String)
-  extends ParseException("Duplicate user-provided id in field " + name)
+    extends ParseException("Duplicate user-provided id in field " + name)
 
 class RepeatingEnumValueException(name: String, value: Int)
-  extends ParseException("Repeating enum value in " + name + ": " + value)
+    extends ParseException("Repeating enum value in " + name + ": " + value)
 
 class UnionFieldInvalidNameException(union: String, field: String)
-  extends ParseException("Field " + field + " in union " + union + " is prohibited")
+    extends ParseException("Field " + field + " in union " + union + " is prohibited")
 
 // warnings (non-severe errors). If the strict mode is on, Scrooge will throw these exceptions;
 // otherwise it merely prints warnings.
-class ParseWarning(reason: String, cause: Throwable)
-  extends ParseException(reason, cause)
-{
+class ParseWarning(reason: String, cause: Throwable) extends ParseException(reason, cause) {
   def this(reason: String) = this(reason, null)
 }
 
 class UnionFieldRequiredException(union: String, field: String)
-  extends ParseWarning("Field " + field + " in union " + union + " cannot be required")
+    extends ParseWarning("Field " + field + " in union " + union + " cannot be required")
 
 class UnionFieldOptionalException(union: String, field: String)
-  extends ParseWarning("Field " + field + " in union " + union + " cannot be optional")
+    extends ParseWarning("Field " + field + " in union " + union + " cannot be optional")
 
 object UnionFieldRequirednessException {
   def apply(union: String, field: String, requiredness: String): ParseWarning = {
@@ -46,10 +46,12 @@ object UnionFieldRequirednessException {
 }
 
 class InvalidThriftFilenameException(filename: String, regex: String)
-  extends ParseWarning("Thrift filename " + filename + " is invalid, did not pass this check: " + regex)
+    extends ParseWarning(
+      "Thrift filename " + filename + " is invalid, did not pass this check: " + regex
+    )
 
 class KeywordException(id: String)
-  extends ParseWarning(s"Identifier '$id' is invalid: it is a thrift keyword.")
+    extends ParseWarning(s"Identifier '$id' is invalid: it is a thrift keyword.")
 
 /**
  * ScroogeInternalException indicates a Scrooge bug

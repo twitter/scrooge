@@ -42,7 +42,10 @@ class ThriftBadDataTest extends FunSuite {
     val readStrLength = decodeI32(bytes, 3)
     assert(tpe == 11, "Should match type of string")
     assert(fieldId == 1, "Should field ID 1")
-    assert(readStrLength == inputString.size, "Ascii string, if in right place string lengths should match")
+    assert(
+      readStrLength == inputString.size,
+      "Ascii string, if in right place string lengths should match"
+    )
 
     // Encode a very large number in place so it should OOM trying to allocate
     encodeI32(bytes, 3, Int.MaxValue)

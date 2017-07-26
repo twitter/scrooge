@@ -33,6 +33,7 @@ case object WithFinagle extends ServiceOption
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 abstract class Generator(doc: ResolvedDocument) {
+
   /**
    * @param genAdapt Generate code for Adaptive Decoding.
    *                 This flag is only used for scala presently.
@@ -56,7 +57,8 @@ abstract class Generator(doc: ResolvedDocument) {
 object GeneratorFactory {
   private[this] val factories: Map[String, GeneratorFactory] = {
     val klass = classOf[GeneratorFactory]
-    val loadedGenerators = java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator.asScala
+    val loadedGenerators =
+      java.util.ServiceLoader.load(klass, klass.getClassLoader).iterator.asScala
     val factories =
       List(
         ScalaGeneratorFactory,
@@ -65,9 +67,11 @@ object GeneratorFactory {
         CocoaGeneratorFactory,
         LuaGeneratorFactory
       ) ++
-      loadedGenerators
+        loadedGenerators
 
-    factories.map { g => (g.language -> g) }.toMap
+    factories.map { g =>
+      (g.language -> g)
+    }.toMap
   }
 
   def languages = factories.keys
@@ -84,6 +88,7 @@ object GeneratorFactory {
 }
 
 trait GeneratorFactory {
+
   /**
    * Command line language matches on this.
    */
@@ -96,6 +101,7 @@ trait GeneratorFactory {
 }
 
 object TemplateGenerator {
+
   /**
    * Renders a map as:
    *   Dictionary("pairs" -> ListValue(Seq(Dictionary("key" -> ..., "value" -> ...)))
@@ -127,14 +133,13 @@ object TemplateGenerator {
       case e: EnumRHS =>
         e.copy(normalizeCase(e.enum), normalizeCase(e.value))
       case f: Field =>
-        f.copy(
-          sid = f.sid.toCamelCase,
-          default = f.default.map(normalizeCase))
+        f.copy(sid = f.sid.toCamelCase, default = f.default.map(normalizeCase))
       case f: Function =>
         f.copy(
           funcName = f.funcName.toCamelCase,
           args = f.args.map(normalizeCase),
-          throws = f.throws.map(normalizeCase))
+          throws = f.throws.map(normalizeCase)
+        )
       case c: ConstDefinition =>
         c.copy(value = normalizeCase(c.value))
       case e: Enum =>
@@ -157,11 +162,11 @@ object TemplateGenerator {
 }
 
 abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
-  extends Generator(resolvedDoc)
-  with StructTemplate
-  with ServiceTemplate
-  with ConstsTemplate
-  with EnumTemplate {
+    extends Generator(resolvedDoc)
+    with StructTemplate
+    with ServiceTemplate
+    with ConstsTemplate
+    with EnumTemplate {
   import Dictionary._
 
   /**
@@ -179,7 +184,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       .get(includeFileName)
       .map { doc: ResolvedDocument =>
         getNamespace(doc.document)
-      }.getOrElse(SimpleID(defaultNamespace))
+      }
+      .getOrElse(SimpleID(defaultNamespace))
 
   def getNamespace(doc: Document): Identifier =
     TemplateGenerator.getNamespace(doc, namespaceLanguage, defaultNamespace)
@@ -256,11 +262,11 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case DoubleLiteral(value) => v(value.toString)
       case IntLiteral(value) => v(value.toString)
       case BoolLiteral(value) => v(value.toString)
-      case c@ListRHS(_) => genList(c, fieldType)
-      case c@SetRHS(_) => genSet(c, fieldType)
-      case c@MapRHS(_) => genMap(c, fieldType)
+      case c @ ListRHS(_) => genList(c, fieldType)
+      case c @ SetRHS(_) => genSet(c, fieldType)
+      case c @ MapRHS(_) => genMap(c, fieldType)
       case c: EnumRHS => genEnum(c, fieldType)
-      case iv@IdRHS(id) => genID(id)
+      case iv @ IdRHS(id) => genID(id)
       case s: StructRHS => genStruct(s, fieldType)
       case u: UnionRHS => genUnion(u, fieldType)
     }
@@ -378,7 +384,6 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     v(code)
   }
 
-
   def genOffsetSkipProtocolMethod(t: FunctionType): CodeFragment = {
     val code = t match {
       case TBool => "offsetSkipBool"
@@ -389,7 +394,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TDouble => "offsetSkipDouble"
       case TString => "offsetSkipString"
       case TBinary => "offsetSkipBinary"
-      case x => s"""Invalid type passed($x) for genOffsetSkipProtocolMethod method. Compile will fail here."""
+      case x =>
+        s"""Invalid type passed($x) for genOffsetSkipProtocolMethod method. Compile will fail here."""
     }
     v(code)
   }
@@ -404,7 +410,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TDouble => "decodeDouble"
       case TString => "decodeString"
       case TBinary => "decodeBinary"
-      case x => s"""Invalid type passed ($x) for genDecodeProtocolMethod method. Compile will fail here."""
+      case x =>
+        s"""Invalid type passed ($x) for genDecodeProtocolMethod method. Compile will fail here."""
     }
     v(code)
   }
@@ -436,18 +443,17 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
   def finagleClientFile(
     packageDir: File,
-    service: Service, options:
-    Set[ServiceOption]
+    service: Service,
+    options: Set[ServiceOption]
   ): Option[File] =
     None
 
   def finagleServiceFile(
     packageDir: File,
-    service: Service, options:
-    Set[ServiceOption]
+    service: Service,
+    options: Set[ServiceOption]
   ): Option[File] =
     None
-
 
   def templates: HandlebarLoader
   def fileExtension: String
@@ -463,7 +469,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     val namespace = getNamespace(resolvedDoc.document)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
     val includes = doc.headers.collect {
-      case x@Include(_, _) => x
+      case x @ Include(_, _) => x
     }
 
     if (doc.consts.nonEmpty) {
@@ -475,56 +481,53 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       generatedFiles += file
     }
 
-    doc.enums.foreach {
-      enum =>
-        val file = new File(packageDir, enum.sid.toTitleCase.name + fileExtension)
-        if (!dryRun) {
-          val dict = enumDict(namespace, enum)
-          writeFile(file, templates.header, templates("enum").generate(dict))
-        }
-        generatedFiles += file
+    doc.enums.foreach { enum =>
+      val file = new File(packageDir, enum.sid.toTitleCase.name + fileExtension)
+      if (!dryRun) {
+        val dict = enumDict(namespace, enum)
+        writeFile(file, templates.header, templates("enum").generate(dict))
+      }
+      generatedFiles += file
     }
 
-    doc.structs.foreach {
-      struct =>
-        val file = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
+    doc.structs.foreach { struct =>
+      val file = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
 
-        if (!dryRun) {
-          val templateName =
-            struct match {
-              case _: Union => "union"
-              case _ => "struct"
-            }
+      if (!dryRun) {
+        val templateName =
+          struct match {
+            case _: Union => "union"
+            case _ => "struct"
+          }
 
-          val dict = structDict(struct, Some(namespace), includes, serviceOptions, genAdapt, true)
-          writeFile(file, templates.header, templates(templateName).generate(dict))
-        }
-        generatedFiles += file
+        val dict = structDict(struct, Some(namespace), includes, serviceOptions, genAdapt, true)
+        writeFile(file, templates.header, templates(templateName).generate(dict))
+      }
+      generatedFiles += file
     }
 
-    doc.services.foreach {
-      service =>
-        val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
-        val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
-        val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
+    doc.services.foreach { service =>
+      val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
+      val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
+      val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
 
-        if (!dryRun) {
-          val dict = serviceDict(service, namespace, includes, serviceOptions, genAdapt)
-          writeFile(interfaceFile, templates.header, templates("service").generate(dict))
+      if (!dryRun) {
+        val dict = serviceDict(service, namespace, includes, serviceOptions, genAdapt)
+        writeFile(interfaceFile, templates.header, templates("service").generate(dict))
 
-          finagleClientFileOpt foreach { file =>
-            val dict = finagleClient(service, namespace)
-            writeFile(file, templates.header, templates("finagleClient").generate(dict))
-          }
-
-          finagleServiceFileOpt foreach { file =>
-            val dict = finagleService(service, namespace)
-            writeFile(file, templates.header, templates("finagleService").generate(dict))
-          }
+        finagleClientFileOpt foreach { file =>
+          val dict = finagleClient(service, namespace)
+          writeFile(file, templates.header, templates("finagleClient").generate(dict))
         }
-        generatedFiles += interfaceFile
-        generatedFiles ++= finagleServiceFileOpt
-        generatedFiles ++= finagleClientFileOpt
+
+        finagleServiceFileOpt foreach { file =>
+          val dict = finagleService(service, namespace)
+          writeFile(file, templates.header, templates("finagleService").generate(dict))
+        }
+      }
+      generatedFiles += interfaceFile
+      generatedFiles ++= finagleServiceFileOpt
+      generatedFiles ++= finagleClientFileOpt
     }
 
     generatedFiles
@@ -536,9 +539,11 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   def productN(fields: Seq[Field], namespace: Option[Identifier]): String = {
     val arity = fields.length
     if (arity >= 1 && arity <= 22) {
-      val fieldTypes = fields.map { f =>
-        genFieldType(f).toData
-      }.mkString(", ")
+      val fieldTypes = fields
+        .map { f =>
+          genFieldType(f).toData
+        }
+        .mkString(", ")
       s"_root_.scala.Product$arity[$fieldTypes]"
     } else {
       "_root_.scala.Product"
@@ -551,9 +556,11 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   def tupleN(fields: Seq[Field], namespace: Option[Identifier]): String = {
     val arity = fields.length
     if (arity >= 1 && arity <= 22) {
-      val fieldTypes = fields.map { f =>
-        genFieldType(f).toData
-      }.mkString(", ")
+      val fieldTypes = fields
+        .map { f =>
+          genFieldType(f).toData
+        }
+        .mkString(", ")
       s"_root_.scala.Tuple$arity[$fieldTypes]"
     } else {
       "_root_.scala.Product"

@@ -1,6 +1,5 @@
 package com.twitter.scrooge.ast
 
-
 sealed abstract class Definition extends DefinitionNode {
   val sid: SimpleID
 }

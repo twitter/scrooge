@@ -4,12 +4,12 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.ast.Field
 
 class StructController(
-    struct: StructLike,
-    val in_class: Boolean,
-    generator: ApacheJavaGenerator,
-    ns: Option[Identifier],
-    val is_result: Boolean = false)
-  extends TypeController(struct, generator, ns) {
+  struct: StructLike,
+  val in_class: Boolean,
+  generator: ApacheJavaGenerator,
+  ns: Option[Identifier],
+  val is_result: Boolean = false
+) extends TypeController(struct, generator, ns) {
   val struct_type_name = generator.typeName(StructType(struct))
   val is_final = false // TODO: not sure if we need this annotations support
   val is_exception = struct.isInstanceOf[Exception_]
@@ -17,9 +17,10 @@ class StructController(
   val allFields = struct.fields
 
   def cleanup(fields: Seq[Field]): Seq[StructFieldController] = {
-    fields.zipWithIndex map { case (f, i) =>
-      val serializePrefix = if (is_union) "" else "this."
-      new StructFieldController(f, i, fields.size, generator, ns, serializePrefix)
+    fields.zipWithIndex map {
+      case (f, i) =>
+        val serializePrefix = if (is_union) "" else "this."
+        new StructFieldController(f, i, fields.size, generator, ns, serializePrefix)
     }
   }
   val fields = cleanup(allFields)

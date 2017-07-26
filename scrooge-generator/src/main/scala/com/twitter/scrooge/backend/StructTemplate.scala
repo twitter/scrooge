@@ -15,7 +15,6 @@ package com.twitter.scrooge.backend
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
@@ -32,7 +31,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "isMap" -> v(false),
       "isStruct" -> v(false),
       "isEnum" -> v(false),
-      "isBase" -> v(false))
+      "isBase" -> v(false)
+    )
 
   def genWireConstType(t: FunctionType): CodeFragment = t match {
     case _: EnumType => v("I32")
@@ -45,53 +45,65 @@ trait StructTemplate { self: TemplateGenerator =>
         val elt = sid.append("_element")
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
-          "isList" -> v(Dictionary(
-            "name" -> genID(sid),
-            "eltName" -> genID(elt),
-            "eltConstType" -> genConstType(t.eltType),
-            "eltWireConstType" -> genWireConstType(t.eltType),
-            "eltType" -> genType(t.eltType),
-            "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
-          )))
+          "isList" -> v(
+            Dictionary(
+              "name" -> genID(sid),
+              "eltName" -> genID(elt),
+              "eltConstType" -> genConstType(t.eltType),
+              "eltWireConstType" -> genWireConstType(t.eltType),
+              "eltType" -> genType(t.eltType),
+              "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
+            )
+          )
+        )
       case t: SetType =>
-        val elt =  sid.append("_element")
+        val elt = sid.append("_element")
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
-          "isSet" -> v(Dictionary(
-            "name" -> genID(sid),
-            "eltName" -> genID(elt),
-            "eltConstType" -> genConstType(t.eltType),
-            "eltWireConstType" -> genWireConstType(t.eltType),
-            "eltType" -> genType(t.eltType),
-            "isEnumSet" -> v(t.eltType.isInstanceOf[EnumType]),
-            "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
-          )))
+          "isSet" -> v(
+            Dictionary(
+              "name" -> genID(sid),
+              "eltName" -> genID(elt),
+              "eltConstType" -> genConstType(t.eltType),
+              "eltWireConstType" -> genWireConstType(t.eltType),
+              "eltType" -> genType(t.eltType),
+              "isEnumSet" -> v(t.eltType.isInstanceOf[EnumType]),
+              "eltReadWriteInfo" -> v(readWriteInfo(elt, t.eltType))
+            )
+          )
+        )
       case t: MapType =>
-        val key =  sid.append("_key")
-        val value =  sid.append("_value")
+        val key = sid.append("_key")
+        val value = sid.append("_value")
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
-          "isMap" -> v(Dictionary(
-            "name" -> genID(sid),
-            "keyConstType" -> genConstType(t.keyType),
-            "keyWireConstType" -> genWireConstType(t.keyType),
-            "valueConstType" -> genConstType(t.valueType),
-            "valueWireConstType" -> genWireConstType(t.valueType),
-            "keyType" -> genType(t.keyType),
-            "valueType" -> genType(t.valueType),
-            "keyName" -> genID(key),
-            "valueName" -> genID(value),
-            "keyReadWriteInfo" -> v(readWriteInfo(key, t.keyType)),
-            "valueReadWriteInfo" -> v(readWriteInfo(value, t.valueType))
-          )))
+          "isMap" -> v(
+            Dictionary(
+              "name" -> genID(sid),
+              "keyConstType" -> genConstType(t.keyType),
+              "keyWireConstType" -> genWireConstType(t.keyType),
+              "valueConstType" -> genConstType(t.valueType),
+              "valueWireConstType" -> genWireConstType(t.valueType),
+              "keyType" -> genType(t.keyType),
+              "valueType" -> genType(t.valueType),
+              "keyName" -> genID(key),
+              "valueName" -> genID(value),
+              "keyReadWriteInfo" -> v(readWriteInfo(key, t.keyType)),
+              "valueReadWriteInfo" -> v(readWriteInfo(value, t.valueType))
+            )
+          )
+        )
       case t: StructType =>
         TypeTemplate + Dictionary(
           "isNamedType" -> v(true),
           "isImported" -> v(t.scopePrefix.isDefined),
           "fieldType" -> genType(t),
-          "isStruct" -> v(Dictionary(
-            "name" -> genID(sid)
-          )))
+          "isStruct" -> v(
+            Dictionary(
+              "name" -> genID(sid)
+            )
+          )
+        )
       case t: EnumType =>
         TypeTemplate + Dictionary(
           "isNamedType" -> v(true),
@@ -99,19 +111,25 @@ trait StructTemplate { self: TemplateGenerator =>
           "fieldType" -> {
             genType(t.copy(enum = t.enum.copy(t.enum.sid.toTitleCase)))
           },
-          "isEnum" -> v(Dictionary(
-            "name" -> genID(sid)
-          )))
+          "isEnum" -> v(
+            Dictionary(
+              "name" -> genID(sid)
+            )
+          )
+        )
       case t: BaseType =>
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
-          "isBase" -> v(Dictionary(
-            "type" -> genType(t),
-            "name" -> genID(sid),
-            "protocolWriteMethod" -> genProtocolWriteMethod(t),
-            "protocolReadMethod" -> genProtocolReadMethod(t),
-            "protocolSkipMethod" -> genProtocolSkipMethod(t)
-          )))
+          "isBase" -> v(
+            Dictionary(
+              "type" -> genType(t),
+              "name" -> genID(sid),
+              "protocolWriteMethod" -> genProtocolWriteMethod(t),
+              "protocolReadMethod" -> genProtocolReadMethod(t),
+              "protocolSkipMethod" -> genProtocolSkipMethod(t)
+            )
+          )
+        )
       case t: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should have been resolved by now")
     }
@@ -126,10 +144,11 @@ trait StructTemplate { self: TemplateGenerator =>
       case (field, index) =>
         val valueVariableID = field.sid.append("_item")
         val fieldName = genID(field.sid)
-        val camelCaseFieldName = if (fieldName.toString.indexOf('_') >= 0)
-          genID(field.sid.toCamelCase)
-        else
-          NoValue
+        val camelCaseFieldName =
+          if (fieldName.toString.indexOf('_') >= 0)
+            genID(field.sid.toCamelCase)
+          else
+            NoValue
 
         Dictionary(
           "index" -> v(index.toString),
@@ -156,7 +175,9 @@ trait StructTemplate { self: TemplateGenerator =>
           "fieldConst" -> genID(field.sid.toTitleCase.append("Field")),
           "constType" -> genConstType(field.fieldType),
           "isPrimitive" -> v(isPrimitive(field.fieldType)),
-          "isLazyReadEnabled" -> v(isLazyReadEnabled(field.fieldType, field.requiredness.isOptional)),
+          "isLazyReadEnabled" -> v(
+            isLazyReadEnabled(field.fieldType, field.requiredness.isOptional)
+          ),
           "primitiveFieldType" -> genPrimitiveType(field.fieldType),
           "fieldType" -> genType(field.fieldType),
           "fieldKeyType" -> v(field.fieldType match {
@@ -179,9 +200,11 @@ trait StructTemplate { self: TemplateGenerator =>
           "passthroughFields" -> {
             val insides = buildPassthroughFields(field.fieldType)
             if (field.requiredness.isOptional) {
-              v(Dictionary(
-                "ptIter" -> insides
-              ))
+              v(
+                Dictionary(
+                  "ptIter" -> insides
+                )
+              )
             } else {
               insides
             }
@@ -192,11 +215,18 @@ trait StructTemplate { self: TemplateGenerator =>
           "qualifiedFieldType" -> v(templates("qualifiedFieldType")),
           "hasDefaultValue" -> v(genDefaultFieldValue(field).isDefined),
           "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
-          "hasDefaultFieldValueForFieldInfo" -> v(genDefaultFieldValueForFieldInfo(field).isDefined),
-          "defaultFieldValueForFieldInfo" -> genDefaultFieldValueForFieldInfo(field).getOrElse(NoValue),
+          "hasDefaultFieldValueForFieldInfo" -> v(
+            genDefaultFieldValueForFieldInfo(field).isDefined
+          ),
+          "defaultFieldValueForFieldInfo" -> genDefaultFieldValueForFieldInfo(field)
+            .getOrElse(NoValue),
           "defaultReadValue" -> genDefaultReadValue(field),
           "hasGetter" -> v(!blacklist.contains(field.sid.name)),
-          "hasIsDefined" -> v(field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(field.fieldType))),
+          "hasIsDefined" -> v(
+            field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(
+              field.fieldType
+            ))
+          ),
           "required" -> v(field.requiredness.isRequired),
           "optional" -> v(field.requiredness.isOptional),
           "nullable" -> v(isNullableType(field.fieldType, field.requiredness.isOptional)),
@@ -204,10 +234,12 @@ trait StructTemplate { self: TemplateGenerator =>
             (field.fieldType match {
               case ListType(eltType, _) => List(genType(eltType))
               case SetType(eltType, _) => List(genType(eltType))
-              case MapType(keyType, valueType, _) => List(
-                v("(" + genType(keyType).toData + ", " + genType(valueType).toData + ")"))
+              case MapType(keyType, valueType, _) =>
+                List(v("(" + genType(keyType).toData + ", " + genType(valueType).toData + ")"))
               case _ => Nil
-            }) map { t => Dictionary("elementType" -> t) }
+            }) map { t =>
+              Dictionary("elementType" -> t)
+            }
           },
           "readFieldValueName" -> genID(field.sid.toTitleCase.prepend("read").append("Value")),
           "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
@@ -251,23 +283,35 @@ trait StructTemplate { self: TemplateGenerator =>
   private def buildPassthroughFields(fieldType: FieldType): Value = {
     val overrides =
       fieldType match {
-        case _: StructType => Dictionary("ptStruct" ->
-          v(Dictionary(
-            "className" -> genType(fieldType)
-          ))
-        )
-        case t: SetType => Dictionary("ptIter" ->
-          buildPassthroughFields(t.eltType)
-        )
-        case t: ListType => Dictionary("ptIter" ->
-          buildPassthroughFields(t.eltType)
-        )
-        case t: MapType => Dictionary("ptMap" ->
-          v(Dictionary(
-            "ptKey" -> buildPassthroughFields(t.keyType),
-            "ptValue" -> buildPassthroughFields(t.valueType)
-          ))
-        )
+        case _: StructType =>
+          Dictionary(
+            "ptStruct" ->
+              v(
+                Dictionary(
+                  "className" -> genType(fieldType)
+                )
+              )
+          )
+        case t: SetType =>
+          Dictionary(
+            "ptIter" ->
+              buildPassthroughFields(t.eltType)
+          )
+        case t: ListType =>
+          Dictionary(
+            "ptIter" ->
+              buildPassthroughFields(t.eltType)
+          )
+        case t: MapType =>
+          Dictionary(
+            "ptMap" ->
+              v(
+                Dictionary(
+                  "ptKey" -> buildPassthroughFields(t.keyType),
+                  "ptValue" -> buildPassthroughFields(t.valueType)
+                )
+              )
+          )
         case _ => Dictionary("ptPrimitive" -> v(true))
       }
 
@@ -275,15 +319,17 @@ trait StructTemplate { self: TemplateGenerator =>
   }
 
   private def exceptionMsgFieldName(struct: StructLike): Option[SimpleID] = {
-    val msgField: Option[Field] = struct.fields.find { field =>
-      // 1st choice: find a field called message
-      field.sid.name == "message"
-    }.orElse {
-      // 2nd choice: the first string field
-      struct.fields.find {
-        field => field.fieldType == TString
+    val msgField: Option[Field] = struct.fields
+      .find { field =>
+        // 1st choice: find a field called message
+        field.sid.name == "message"
       }
-    }
+      .orElse {
+        // 2nd choice: the first string field
+        struct.fields.find { field =>
+          field.fieldType == TString
+        }
+      }
 
     msgField.map { _.sid }
   }
@@ -301,7 +347,11 @@ trait StructTemplate { self: TemplateGenerator =>
     }
 
   def getExceptionFields(result: FunctionResult): CodeFragment = {
-    val exceptions = result.exceptions.map { field: Field => genID(field.sid).toData }.mkString(", ")
+    val exceptions = result.exceptions
+      .map { field: Field =>
+        genID(field.sid).toData
+      }
+      .mkString(", ")
     v(s"Seq($exceptions)")
   }
 
@@ -356,7 +406,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Nil)),
       "alternativeConstructor" -> v(
         struct.fields.exists(_.requiredness.isOptional)
-        && struct.fields.exists(_.requiredness.isDefault)),
+          && struct.fields.exists(_.requiredness.isDefault)
+      ),
       "StructNameForWire" -> v(struct.originalName),
       "StructName" ->
         structName,
@@ -366,7 +417,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "isException" -> v(isException),
       "isResponse" -> v(isResponse),
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),
-      "exceptionMessageField" -> exceptionMsgField.map(genID).getOrElse { v("")},
+      "exceptionMessageField" -> exceptionMsgField.map(genID).getOrElse { v("") },
       "product" -> v(productN(struct.fields, namespace)),
       "tuple" -> v(tupleN(struct.fields, namespace)),
       "arity0" -> v(arity == 0),
@@ -379,4 +430,3 @@ trait StructTemplate { self: TemplateGenerator =>
     )
   }
 }
-

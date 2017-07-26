@@ -23,6 +23,7 @@ case class ReferenceType(id: Identifier) extends FieldType
 
 sealed trait NamedType extends FieldType {
   def sid: SimpleID
+
   /** Filename of the containing file if the type is included from another file */
   def scopePrefix: Option[SimpleID]
 }
@@ -39,10 +40,8 @@ case class EnumType(enum: Enum, scopePrefix: Option[SimpleID] = None) extends Na
 
 sealed abstract class ContainerType(cppType: Option[String]) extends FieldType
 
-case class MapType(
-    keyType: FieldType,
-    valueType: FieldType,
-    cppType: Option[String]) extends ContainerType(cppType) {
+case class MapType(keyType: FieldType, valueType: FieldType, cppType: Option[String])
+    extends ContainerType(cppType) {
 
   override def toString: String = s"Map($keyType, $valueType)"
 }

@@ -9,6 +9,7 @@ sealed abstract class Header extends HeaderNode
  * @param document the content of the file to be included.
  */
 case class Include(filePath: String, document: Document) extends Header {
+
   /**
    * The definitions in the included file must be used with a prefix.
    * For example, if it says

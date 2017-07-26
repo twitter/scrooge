@@ -15,16 +15,25 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
   }
 
   val consolidate_newlines = newHelper { input =>
-    val consolidated = consolidate_newline_regex.replaceAllIn(trim_regex
-      .replaceAllIn(input, "\n"), "\n")
+    val consolidated = consolidate_newline_regex.replaceAllIn(
+      trim_regex
+        .replaceAllIn(input, "\n"),
+      "\n"
+    )
     consolidated.replaceAll("<br/>", "").replaceAll("&nbsp;", " ")
   }
 
-  val newlines_to_spaces = newHelper { input => input.replaceAll("\n", " ") }
+  val newlines_to_spaces = newHelper { input =>
+    input.replaceAll("\n", " ")
+  }
 
-  val trim = newHelper { input => input.replaceAll("\n", "").trim }
+  val trim = newHelper { input =>
+    input.replaceAll("\n", "").trim
+  }
 
-  val cap = newHelper { input => input.capitalize }
+  val cap = newHelper { input =>
+    input.capitalize
+  }
 
   val constant_name = newHelper { input =>
     val constantName = new StringBuilder
@@ -41,7 +50,9 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
     constantName.toString()
   }
 
-  val isset_field_id = newHelper { fieldName => "__" + fieldName.toUpperCase + "_ISSET_ID" }
+  val isset_field_id = newHelper { fieldName =>
+    "__" + fieldName.toUpperCase + "_ISSET_ID"
+  }
 
   def i_2 = newHelper { input =>
     indent(input, 2)
@@ -52,14 +63,16 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
   }
 
   def indent(
-      input: String,
-      indentation: Int,
-      skipFirst: Boolean = true,
-      addLast: Boolean = true): String = {
+    input: String,
+    indentation: Int,
+    skipFirst: Boolean = true,
+    addLast: Boolean = true
+  ): String = {
     if (indentation > 0) {
       val items = input.split("\n").toSeq
-      val strings = items.zipWithIndex map { case (v, i) =>
-        if (skipFirst && i == 0) v else " " * indentation + v
+      val strings = items.zipWithIndex map {
+        case (v, i) =>
+          if (skipFirst && i == 0) v else " " * indentation + v
       }
       strings.mkString("\n") + (if (addLast) "\n" else "")
     } else {

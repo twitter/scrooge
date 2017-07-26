@@ -5,19 +5,19 @@ case class Document(headers: Seq[Header], defs: Seq[Definition]) extends Documen
     (headers collect {
       // first try to find language specific namespace scope
       case Namespace(l, x) if l == language => x
-    }).headOption orElse(headers collect {
+    }).headOption orElse (headers collect {
       // then see if universal namespace scope is defined
       case Namespace(l, x) if l == "*" => x
     }).headOption
   }
 
-  def mapNamespaces(namespaceMap: Map[String,String]): Document = {
+  def mapNamespaces(namespaceMap: Map[String, String]): Document = {
     copy(
       headers = headers map {
         case header @ Namespace(_, ns) => {
-          namespaceMap.get(ns.fullName) map {
-            newNs => header.copy(id = Identifier(newNs))
-          } getOrElse(header)
+          namespaceMap.get(ns.fullName) map { newNs =>
+            header.copy(id = Identifier(newNs))
+          } getOrElse (header)
         }
         case include @ Include(_, doc) => {
           include.copy(document = doc.mapNamespaces(namespaceMap))

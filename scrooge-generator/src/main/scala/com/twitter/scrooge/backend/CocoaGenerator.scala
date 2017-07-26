@@ -45,7 +45,7 @@ class CocoaGenerator(
   def templates = implementationTemplateLoader
 
   implicit class RichDictionary(dictionary: Dictionary) {
-    def update(keyPath: Seq[String], data: String) : Unit = {
+    def update(keyPath: Seq[String], data: String): Unit = {
       keyPath match {
         case head :: Nil => dictionary(head) = data
         case head :: tail => dictionary(head).children.head(tail) = data
@@ -109,16 +109,23 @@ class CocoaGenerator(
   }
 
   def getDependentHeaders(struct: StructLike): String = {
-    getDependentTypes(struct).map(t => s"""#import \"${genType(t).toString}.h\"""").toList.sorted.mkString("\n")
+    getDependentTypes(struct)
+      .map(t => s"""#import \"${genType(t).toString}.h\"""")
+      .toList
+      .sorted
+      .mkString("\n")
   }
 
   override def readWriteInfo[T <: FieldType](sid: SimpleID, t: FieldType): Dictionary = {
     val dictionary = super.readWriteInfo(sid, t)
     t match {
       case t: MapType => {
-        dictionary(Seq("isMap", "isKeyPrimitive")) = isPrimitive(t.keyType) || t.keyType.isInstanceOf[EnumType]
-        dictionary(Seq("isMap", "keyGetValueMethod")) = getTypeValueMethod(t.keyType, genID(sid) + "_key_id")
-        dictionary(Seq("isMap", "valueGetValueMethod")) = getTypeValueMethod(t.valueType, genID(sid) + "_value_id")
+        dictionary(Seq("isMap", "isKeyPrimitive")) = isPrimitive(t.keyType) || t.keyType
+          .isInstanceOf[EnumType]
+        dictionary(Seq("isMap", "keyGetValueMethod")) =
+          getTypeValueMethod(t.keyType, genID(sid) + "_key_id")
+        dictionary(Seq("isMap", "valueGetValueMethod")) =
+          getTypeValueMethod(t.valueType, genID(sid) + "_value_id")
       }
       case _ =>
     }
@@ -137,8 +144,10 @@ class CocoaGenerator(
         dictionary("decodeMethod") = getFieldNSCoderMethod(field, true)
         dictionary("encodeMethod") = getFieldNSCoderMethod(field, false)
         dictionary("fieldNameCamelCase") = genID(field.sid.toCamelCase).toString
-        dictionary("fieldNameInInit") = genID(if (index == 0) field.sid.toTitleCase else field.sid.toCamelCase).toString
-        dictionary("isPrimitive") = isPrimitive(field.fieldType) || field.fieldType.isInstanceOf[EnumType]
+        dictionary("fieldNameInInit") =
+          genID(if (index == 0) field.sid.toTitleCase else field.sid.toCamelCase).toString
+        dictionary("isPrimitive") = isPrimitive(field.fieldType) || field.fieldType
+          .isInstanceOf[EnumType]
         dictionary("wireConstType") = genWireConstType(field.fieldType).data
     }
 
@@ -161,13 +170,66 @@ class CocoaGenerator(
 
   private[this] object CocoaKeywords {
     private[this] val set = Set[String](
-      "auto", "break", "case", "char", "const", "continue", "default", "do", "double",
-      "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int", "long",
-      "register", "restrict", "return", "short", "signed", "sizeof", "static", "struct",
-      "switch", "typedef", "union", "unsigned", "void", "volatile", "while", "_bool",
-      "_complex", "_imaginary", "bool", "class", "bycopy", "byref", "id", "imp", "in",
-      "inout", "nil", "no", "null", "oneway", "out", "protocol", "sel", "self", "super",
-      "yes", "atomic", "nonatomic", "retain", "strong")
+      "auto",
+      "break",
+      "case",
+      "char",
+      "const",
+      "continue",
+      "default",
+      "do",
+      "double",
+      "else",
+      "enum",
+      "extern",
+      "float",
+      "for",
+      "goto",
+      "if",
+      "inline",
+      "int",
+      "long",
+      "register",
+      "restrict",
+      "return",
+      "short",
+      "signed",
+      "sizeof",
+      "static",
+      "struct",
+      "switch",
+      "typedef",
+      "union",
+      "unsigned",
+      "void",
+      "volatile",
+      "while",
+      "_bool",
+      "_complex",
+      "_imaginary",
+      "bool",
+      "class",
+      "bycopy",
+      "byref",
+      "id",
+      "imp",
+      "in",
+      "inout",
+      "nil",
+      "no",
+      "null",
+      "oneway",
+      "out",
+      "protocol",
+      "sel",
+      "self",
+      "super",
+      "yes",
+      "atomic",
+      "nonatomic",
+      "retain",
+      "strong"
+    )
     def contains(str: String): Boolean = set.contains(str.toLowerCase)
   }
 
@@ -189,8 +251,8 @@ class CocoaGenerator(
     doc.namespace(namespaceLanguage) getOrElse SimpleID(defaultNamespace)
 
   override def getIncludeNamespace(includeFileName: String): Identifier = {
-    val cocoaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => doc.document.namespace(namespaceLanguage)
+    val cocoaNamespace = includeMap.get(includeFileName).flatMap { doc: ResolvedDocument =>
+      doc.document.namespace(namespaceLanguage)
     }
     cocoaNamespace getOrElse SimpleID(defaultNamespace)
   }
@@ -201,7 +263,7 @@ class CocoaGenerator(
     t.scopePrefix match {
       case Some(scope) => t.sid.prepend(getIncludeNamespace(scope.name).fullName)
       case None => t.sid.prepend(currentNamespace)
-  }
+    }
 
   // For constants support, not implemented yet
   def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment =
@@ -257,8 +319,10 @@ class CocoaGenerator(
 
   // Finagle support, not implemented
   def genBaseFinagleService = throw new Exception("not implemented")
-  def getParentFinagleService(p: ServiceParent): CodeFragment = throw new Exception("not implemented")
-  def getParentFinagleClient(p: ServiceParent): CodeFragment = throw new Exception("not implemented")
+  def getParentFinagleService(p: ServiceParent): CodeFragment =
+    throw new Exception("not implemented")
+  def getParentFinagleClient(p: ServiceParent): CodeFragment =
+    throw new Exception("not implemented")
 
   private[this] def writeFile(file: File, fileHeader: String, fileContent: String) {
     val stream = new FileOutputStream(file)
@@ -287,43 +351,55 @@ class CocoaGenerator(
       case x: Include => x
     }
 
-    val enumsWithNamespace = doc.enums.map(enum => Enum(
-      SimpleID(currentNamespace + enum.sid.name),
-      enum.values,
-      enum.docstring,
-      enum.annotations)
+    val enumsWithNamespace = doc.enums.map(
+      enum =>
+        Enum(
+          SimpleID(currentNamespace + enum.sid.name),
+          enum.values,
+          enum.docstring,
+          enum.annotations
+      )
     )
 
     if (!dryRun) {
-      enumsWithNamespace.foreach {
-        enum =>
-          val hFile = new File(packageDir, enum.sid.toTitleCase.name + headerExtension)
-          val dict = enumDict(namespace, enum)
-          writeFile(hFile, headerTemplateLoader.header, headerTemplateLoader("enum").generate(dict))
+      enumsWithNamespace.foreach { enum =>
+        val hFile = new File(packageDir, enum.sid.toTitleCase.name + headerExtension)
+        val dict = enumDict(namespace, enum)
+        writeFile(hFile, headerTemplateLoader.header, headerTemplateLoader("enum").generate(dict))
       }
     }
 
-    val structsWithNamespace = doc.structs.map(struct => Struct(
-      SimpleID(currentNamespace + struct.sid.name),
-      struct.originalName,
-      struct.fields,
-      struct.docstring,
-      struct.annotations)
+    val structsWithNamespace = doc.structs.map(
+      struct =>
+        Struct(
+          SimpleID(currentNamespace + struct.sid.name),
+          struct.originalName,
+          struct.fields,
+          struct.docstring,
+          struct.annotations
+      )
     )
 
     if (!dryRun) {
-      structsWithNamespace.foreach {
-        struct =>
-          val hFile = new File(packageDir, struct.sid.toTitleCase.name + headerExtension)
-          val mFile = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
+      structsWithNamespace.foreach { struct =>
+        val hFile = new File(packageDir, struct.sid.toTitleCase.name + headerExtension)
+        val mFile = new File(packageDir, struct.sid.toTitleCase.name + fileExtension)
 
-          val templateName = "struct"
-          val dict = structDict(struct, Some(namespace), includes, serviceOptions, true)
-          writeFile(mFile, implementationTemplateLoader.header, implementationTemplateLoader(templateName).generate(dict))
-          writeFile(hFile, headerTemplateLoader.header, headerTemplateLoader(templateName).generate(dict))
+        val templateName = "struct"
+        val dict = structDict(struct, Some(namespace), includes, serviceOptions, true)
+        writeFile(
+          mFile,
+          implementationTemplateLoader.header,
+          implementationTemplateLoader(templateName).generate(dict)
+        )
+        writeFile(
+          hFile,
+          headerTemplateLoader.header,
+          headerTemplateLoader(templateName).generate(dict)
+        )
 
-          generatedFiles += hFile
-          generatedFiles += mFile
+        generatedFiles += hFile
+        generatedFiles += mFile
       }
     }
 

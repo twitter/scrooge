@@ -26,6 +26,7 @@ abstract class DefinitionNode extends Node
 abstract class IdNode extends Node
 
 sealed abstract class Requiredness extends Node {
+
   /**
    * Indicates that the field is marked as optional in the IDL
    * and does not have a default value defined.
@@ -45,6 +46,7 @@ sealed abstract class Requiredness extends Node {
 }
 
 object Requiredness {
+
   /** @see [[Requiredness.isOptional]] */
   case object Optional extends Requiredness
 
@@ -56,25 +58,23 @@ object Requiredness {
 }
 
 case class Field(
-    index: Int,
-    sid: SimpleID,
-    originalName: String,
-    fieldType: FieldType,
-    default: Option[RHS] = None,
-    requiredness: Requiredness = Requiredness.Default,
-    typeAnnotations: Map[String, String] = Map.empty,
-    fieldAnnotations: Map[String, String] = Map.empty,
-    docstring: Option[String] = None)
-  extends Node
+  index: Int,
+  sid: SimpleID,
+  originalName: String,
+  fieldType: FieldType,
+  default: Option[RHS] = None,
+  requiredness: Requiredness = Requiredness.Default,
+  typeAnnotations: Map[String, String] = Map.empty,
+  fieldAnnotations: Map[String, String] = Map.empty,
+  docstring: Option[String] = None
+) extends Node
 
 case class Function(
-    funcName: SimpleID,
-    originalName: String,
-    funcType: FunctionType,
-    args: Seq[Field],
-    throws: Seq[Field],
-    docstring: Option[String],
-    annotations: Map[String, String] = Map.empty
-)
-  extends Node
-
+  funcName: SimpleID,
+  originalName: String,
+  funcType: FunctionType,
+  args: Seq[Field],
+  throws: Seq[Field],
+  docstring: Option[String],
+  annotations: Map[String, String] = Map.empty
+) extends Node

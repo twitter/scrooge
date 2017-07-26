@@ -26,13 +26,12 @@ object AndroidGeneratorFactory extends GeneratorFactory {
   ): Generator = new AndroidGenerator(doc, defaultNamespace, templateCache)
 }
 
-
 class AndroidGenerator(
-    resolvedDoc: ResolvedDocument,
-    defaultNamespace: String,
-    templateCache: TrieMap[String, Mustache],
-    genHashcode: Boolean = true
-  ) extends ApacheJavaGenerator(resolvedDoc, defaultNamespace, templateCache, genHashcode) {
+  resolvedDoc: ResolvedDocument,
+  defaultNamespace: String,
+  templateCache: TrieMap[String, Mustache],
+  genHashcode: Boolean = true
+) extends ApacheJavaGenerator(resolvedDoc, defaultNamespace, templateCache, genHashcode) {
   override val namespaceLanguage = "android"
 
   override def renderMustache(template: String, controller: Any = this) = {
@@ -48,16 +47,18 @@ class AndroidGenerator(
   }
 
   override def getNamespace(doc: Document): Identifier = doc.namespace("android") getOrElse {
-    if (defaultNamespace == CompilerDefaults.defaultNamespace) 
-      throw new ParseException("You must specify an android namespace in your thrift " +
-                    "(eg: #@namespace android name.space.here) " +
-                    "or use the --default-java-namespace to specify a default namespace")
+    if (defaultNamespace == CompilerDefaults.defaultNamespace)
+      throw new ParseException(
+        "You must specify an android namespace in your thrift " +
+          "(eg: #@namespace android name.space.here) " +
+          "or use the --default-java-namespace to specify a default namespace"
+      )
     SimpleID(defaultNamespace)
   }
 
   override def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => doc.document.namespace("android")
+    val javaNamespace = includeMap.get(includeFileName).flatMap { doc: ResolvedDocument =>
+      doc.document.namespace("android")
     }
     javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
@@ -66,7 +67,8 @@ class AndroidGenerator(
     t: FunctionType,
     inContainer: Boolean = false,
     inInit: Boolean = false,
-    skipGeneric: Boolean = false): String = {
+    skipGeneric: Boolean = false
+  ): String = {
     t match {
       case Void => if (inContainer) "Void" else "void"
       case OnewayVoid => if (inContainer) "Void" else "void"
@@ -81,7 +83,9 @@ class AndroidGenerator(
       case n: NamedType => qualifyNamedType(n.sid, n.scopePrefix).fullName
       case MapType(k, v, _) => {
         val prefix = if (inInit) "HashMap" else "Map"
-        prefix + (if (skipGeneric) "" else "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")
+        prefix + (if (skipGeneric) ""
+                  else
+                    "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")
       }
       case SetType(x, _) => {
         val prefix = if (inInit) "HashSet" else "Set"
@@ -115,8 +119,8 @@ class AndroidGenerator(
 
   def isListOrSetType(t: FunctionType) = {
     t match {
-      case ListType(_,_) => true
-      case SetType(_,_) => true
+      case ListType(_, _) => true
+      case SetType(_, _) => true
       case _ => false
     }
   }
@@ -147,7 +151,10 @@ class AndroidGenerator(
     }
 
     if (doc.consts.nonEmpty) {
-      generatedFiles += renderFile("consts.mustache", new ConstController(doc.consts, this, Some(namespace)))
+      generatedFiles += renderFile(
+        "consts.mustache",
+        new ConstController(doc.consts, this, Some(namespace))
+      )
     }
 
     doc.enums.foreach { enum =>
@@ -155,7 +162,10 @@ class AndroidGenerator(
     }
 
     doc.structs.foreach { struct =>
-      generatedFiles += renderFile("struct.mustache", new StructController(struct, false, this, Some(namespace)))
+      generatedFiles += renderFile(
+        "struct.mustache",
+        new StructController(struct, false, this, Some(namespace))
+      )
     }
 
     generatedFiles

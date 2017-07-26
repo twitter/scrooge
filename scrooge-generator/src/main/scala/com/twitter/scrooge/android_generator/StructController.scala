@@ -4,8 +4,13 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.ast.Field
 import com.twitter.scrooge.java_generator.{TypeController => JavaTypeController}
 
-class StructController(struct: StructLike, val in_class: Boolean, generator: AndroidGenerator, ns: Option[Identifier], val is_result: Boolean = false)
-  extends JavaTypeController(struct, generator, ns) {
+class StructController(
+  struct: StructLike,
+  val in_class: Boolean,
+  generator: AndroidGenerator,
+  ns: Option[Identifier],
+  val is_result: Boolean = false
+) extends JavaTypeController(struct, generator, ns) {
   val struct_type_name = generator.typeName(StructType(struct))
   val is_final = false // TODO: not sure if we need this annotations support
   val is_exception = struct.isInstanceOf[Exception_]
@@ -13,9 +18,10 @@ class StructController(struct: StructLike, val in_class: Boolean, generator: And
   val allFields = struct.fields
 
   def cleanup(fields: Seq[Field]): Seq[StructFieldController] = {
-    fields.zipWithIndex map { case (f, i) =>
-      val serializePrefix = if (is_union) "" else "this."
-      new StructFieldController(f, i, fields.size, generator, ns, serializePrefix)
+    fields.zipWithIndex map {
+      case (f, i) =>
+        val serializePrefix = if (is_union) "" else "this."
+        new StructFieldController(f, i, fields.size, generator, ns, serializePrefix)
     }
   }
   val fields = cleanup(allFields)
@@ -47,10 +53,9 @@ class StructController(struct: StructLike, val in_class: Boolean, generator: And
 
   val has_map_fields = cleanup(allFields.filter { f =>
     f.fieldType match {
-      case MapType(_,_,_) => true
+      case MapType(_, _, _) => true
       case _ => false
     }
   }).nonEmpty
-
 
 }

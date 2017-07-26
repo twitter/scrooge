@@ -7,7 +7,6 @@ import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
 import com.twitter.scrooge.mustache.HandlebarLoader
 import java.io.File
 
-
 object LuaGeneratorFactory extends GeneratorFactory {
 
   def luaCommentFunction(commentStyle: HandlebarLoader.CommentStyle): String = {
@@ -35,10 +34,10 @@ object LuaGeneratorFactory extends GeneratorFactory {
 }
 
 class LuaGenerator(
-    val doc: ResolvedDocument,
-    val defaultNamespace: String,
-    val templateLoader: HandlebarLoader)
-  extends TemplateGenerator(doc) {
+  val doc: ResolvedDocument,
+  val defaultNamespace: String,
+  val templateLoader: HandlebarLoader
+) extends TemplateGenerator(doc) {
 
   import LuaGenerator._
 
@@ -76,7 +75,11 @@ class LuaGenerator(
     }).asInstanceOf[N]
   }
 
-  protected override def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean): File = {
+  protected override def namespacedFolder(
+    destFolder: File,
+    namespace: String,
+    dryRun: Boolean
+  ): File = {
     val file = new File(destFolder, "lua/" + namespace.replace('.', File.separatorChar))
     if (!dryRun) file.mkdirs()
     file
@@ -109,10 +112,12 @@ class LuaGenerator(
   def genType(t: FunctionType): CodeFragment = t match {
     case bt: BaseType => v(s"ttype = '${genPrimitiveType(bt)}'")
     case StructType(st, _) => v(s"ttype = 'struct', fields = ${genID(st.sid.toTitleCase)}.fields")
-    case EnumType(et, _) =>  v(s"ttype = 'enum', value = ${genID(et.sid.toTitleCase)}")
+    case EnumType(et, _) => v(s"ttype = 'enum', value = ${genID(et.sid.toTitleCase)}")
     case ListType(valueType, _) => v(s"ttype = 'list', ${genComponentType("value", valueType)}")
     case MapType(keyType, valueType, _) =>
-      v(s"ttype = 'map', ${genComponentType("key", keyType)}, ${genComponentType("value", valueType)}")
+      v(
+        s"ttype = 'map', ${genComponentType("key", keyType)}, ${genComponentType("value", valueType)}"
+      )
     case SetType(valueType, _) => v(s"ttype = 'set', ${genComponentType("value", valueType)}")
     case _ => v("")
   }
@@ -135,23 +140,32 @@ class LuaGenerator(
 
   // For functions (services) -- not supported in Lua
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment =
-    v(fields.map { f =>
-      genID(f.sid).toData
-    }.mkString(", "))
+    v(
+      fields
+        .map { f =>
+          genID(f.sid).toData
+        }
+        .mkString(", ")
+    )
 
   // Use "lua" namespace if defined, otherwise default to "java" namespace, but replace "thriftjava"
   // with "thriftlua"
   override def getNamespace(doc: Document): Identifier = {
     def replaceThriftJavaWithThriftLua(s: String) = s.replaceAllLiterally("thriftjava", "thriftlua")
 
-    doc.namespace(namespaceLanguage)
+    doc
+      .namespace(namespaceLanguage)
       .orElse {
         // If we don't have a lua namespace, fall back to the java one
         doc
           .namespace("java")
           .map {
-            case SimpleID(name, origName) => SimpleID(replaceThriftJavaWithThriftLua(name), origName)
-            case QualifiedID(names) => QualifiedID(names.dropRight(1) ++ names.takeRight(1).map(replaceThriftJavaWithThriftLua))
+            case SimpleID(name, origName) =>
+              SimpleID(replaceThriftJavaWithThriftLua(name), origName)
+            case QualifiedID(names) =>
+              QualifiedID(
+                names.dropRight(1) ++ names.takeRight(1).map(replaceThriftJavaWithThriftLua)
+              )
           }
       }
       .getOrElse(SimpleID(defaultNamespace))
@@ -161,13 +175,20 @@ class LuaGenerator(
   // map, set) including nested container types to arbitrary depths.
   // `excludeSelfType` is the SimpleID of the self type such that we avoid adding a require statement
   // for self-type references that were introduced in http://go/rb/873802.
-  private[this] def findRequireableStructTypes(ft: FieldType, excludeSelfType: SimpleID): Seq[NamedType] = {
+  private[this] def findRequireableStructTypes(
+    ft: FieldType,
+    excludeSelfType: SimpleID
+  ): Seq[NamedType] = {
     ft match {
       case t: NamedType if (excludeSelfType == t.sid) => Nil
       case t: StructType => Seq(t)
       case t: EnumType => Seq(t)
       case ListType(t, _) => findRequireableStructTypes(t, excludeSelfType)
-      case MapType(keyType, valueType, _) => findRequireableStructTypes(keyType, excludeSelfType) ++ findRequireableStructTypes(valueType, excludeSelfType)
+      case MapType(keyType, valueType, _) =>
+        findRequireableStructTypes(keyType, excludeSelfType) ++ findRequireableStructTypes(
+          valueType,
+          excludeSelfType
+        )
       case SetType(t, _) => findRequireableStructTypes(t, excludeSelfType)
       case _ => Nil
     }
@@ -185,11 +206,11 @@ class LuaGenerator(
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
-    toplevel: Boolean = false) = {
+    toplevel: Boolean = false
+  ) = {
     val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     // Struct or Enum types referenced in the struct that need a `require` statement at the top of the lua file
-    val requireStatements = struct
-      .fields
+    val requireStatements = struct.fields
       .map(_.fieldType)
       .flatMap(findRequireableStructTypes(_, struct.sid))
       .map(genRequireStatement(_, namespace))
@@ -208,9 +229,29 @@ class LuaGenerator(
 private[this] object LuaGenerator {
   object LuaKeywords {
     private[this] val keywords = Set(
-      "and", "break", "do", "else", "elseif", "end", "false", "goto", "for",
-      "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
-      "true", "until", "while")
+      "and",
+      "break",
+      "do",
+      "else",
+      "elseif",
+      "end",
+      "false",
+      "goto",
+      "for",
+      "function",
+      "if",
+      "in",
+      "local",
+      "nil",
+      "not",
+      "or",
+      "repeat",
+      "return",
+      "then",
+      "true",
+      "until",
+      "while"
+    )
     def contains(str: String): Boolean = keywords.contains(str.toLowerCase)
   }
 }

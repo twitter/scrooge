@@ -19,13 +19,13 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
   ): Generator = new ApacheJavaGenerator(doc, defaultNamespace, templateCache)
 }
 
-
 class ApacheJavaGenerator(
-    resolvedDoc: ResolvedDocument,
-    defaultNamespace: String,
-    templateCache: TrieMap[String, Mustache],
-    val genHashcode: Boolean = true) // Defaulting to true for pants.
-  extends Generator(resolvedDoc) {
+  resolvedDoc: ResolvedDocument,
+  defaultNamespace: String,
+  templateCache: TrieMap[String, Mustache],
+  val genHashcode: Boolean = true
+) // Defaulting to true for pants.
+    extends Generator(resolvedDoc) {
   val namespaceLanguage = "java"
   var counter = 0
 
@@ -48,13 +48,8 @@ class ApacheJavaGenerator(
     fieldType: FieldType,
     ns: Option[Identifier]
   ): String = {
-    val controller = new DeepCopyController(
-      source_name_p1,
-      source_name_p2,
-      result_name,
-      fieldType,
-      this,
-      ns)
+    val controller =
+      new DeepCopyController(source_name_p1, source_name_p2, result_name, fieldType, this, ns)
     renderMustache("generate_deep_copy_container.mustache", controller).trim
   }
 
@@ -120,8 +115,8 @@ class ApacheJavaGenerator(
     doc.namespace("java").getOrElse(SimpleID(defaultNamespace))
 
   def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => doc.document.namespace("java")
+    val javaNamespace = includeMap.get(includeFileName).flatMap { doc: ResolvedDocument =>
+      doc.document.namespace("java")
     }
     javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
@@ -152,14 +147,16 @@ class ApacheJavaGenerator(
       case n: NamedType => qualifyNamedType(n.sid, n.scopePrefix).fullName
       case MapType(k, v, _) =>
         val prefix = if (inInit) "HashMap" else "Map"
-        prefix + (if (skipGeneric) "" else "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")
+        prefix + (if (skipGeneric) ""
+                  else
+                    "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")
       case SetType(x, _) =>
-        val prefix = if (inInit)
-          x match {
-            case e:EnumType => "EnumSet"
-            case _ => "HashSet"
-          }
-        else "Set"
+        val prefix =
+          if (inInit)
+            x match {
+              case e: EnumType => "EnumSet"
+              case _ => "HashSet"
+            } else "Set"
         prefix + (if (skipGeneric) "" else "<" + typeName(x, inContainer = true) + ">")
       case ListType(x, _) =>
         val prefix = if (inInit) "ArrayList" else "List"
@@ -238,7 +235,10 @@ class ApacheJavaGenerator(
     }
 
     if (doc.consts.nonEmpty) {
-      generatedFiles += renderFile("consts.mustache", new ConstController(doc.consts, this, Some(namespace)))
+      generatedFiles += renderFile(
+        "consts.mustache",
+        new ConstController(doc.consts, this, Some(namespace))
+      )
     }
 
     doc.enums.foreach { enum =>
@@ -246,11 +246,17 @@ class ApacheJavaGenerator(
     }
 
     doc.structs.foreach { struct =>
-      generatedFiles += renderFile("struct.mustache", new StructController(struct, false, this, Some(namespace)))
+      generatedFiles += renderFile(
+        "struct.mustache",
+        new StructController(struct, false, this, Some(namespace))
+      )
     }
 
     doc.services.foreach { service =>
-      generatedFiles += renderFile("service.mustache", new ServiceController(service, this, Some(namespace)))
+      generatedFiles += renderFile(
+        "service.mustache",
+        new ServiceController(service, this, Some(namespace))
+      )
     }
 
     generatedFiles

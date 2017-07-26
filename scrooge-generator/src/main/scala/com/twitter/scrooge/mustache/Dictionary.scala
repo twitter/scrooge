@@ -66,7 +66,7 @@ object Dictionary {
   /**
    * Wrap a boolean flag in a dictionary value.
    */
-  def v(data: Boolean): Value =  BooleanValue(data)
+  def v(data: Boolean): Value = BooleanValue(data)
 
   /**
    * Add a child Dictionary. This is used to process Sections in mustache templates
@@ -91,7 +91,7 @@ object Dictionary {
   def apply(values: (String, Value)*): Dictionary = new Dictionary ++= (values: _*)
 }
 
-case class Dictionary private(
+case class Dictionary private (
   private val parent: Option[Dictionary],
   private val map: mutable.Map[String, Dictionary.Value]
 ) {
@@ -102,12 +102,16 @@ case class Dictionary private(
   def this() = this(None, new mutable.HashMap())
 
   def apply(key: String): Value = {
-    map.get(key).map {
-      case ListValue(data) => ListValue(data map { _.copy(parent = Some(this)) })
-      case v => v
-    }.orElse {
-      parent.map { _.apply(key) }
-    }.getOrElse(NoValue)
+    map
+      .get(key)
+      .map {
+        case ListValue(data) => ListValue(data map { _.copy(parent = Some(this)) })
+        case v => v
+      }
+      .orElse {
+        parent.map { _.apply(key) }
+      }
+      .getOrElse(NoValue)
   }
 
   def update(key: String, data: String): Unit = {

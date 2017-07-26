@@ -29,11 +29,7 @@ object ScalaGeneratorFactory extends GeneratorFactory {
     doc: ResolvedDocument,
     defaultNamespace: String,
     experimentFlags: Seq[String]
-  ): Generator = new ScalaGenerator(
-    doc,
-    defaultNamespace,
-    experimentFlags,
-    handlebarLoader)
+  ): Generator = new ScalaGenerator(doc, defaultNamespace, experimentFlags, handlebarLoader)
 }
 
 class ScalaGenerator(
@@ -51,11 +47,46 @@ class ScalaGenerator(
 
   private object ScalaKeywords {
     private[this] val set = Set[String](
-      "abstract", "case", "catch", "class", "def", "do", "else", "extends",
-      "false", "final", "finally", "for", "forSome", "if", "implicit", "import",
-      "lazy", "match", "new", "null", "object", "override", "package", "private",
-      "protected", "return", "sealed", "super", "this", "throw", "trait", "try",
-      "true", "type", "val", "var", "while", "with", "yield")
+      "abstract",
+      "case",
+      "catch",
+      "class",
+      "def",
+      "do",
+      "else",
+      "extends",
+      "false",
+      "final",
+      "finally",
+      "for",
+      "forSome",
+      "if",
+      "implicit",
+      "import",
+      "lazy",
+      "match",
+      "new",
+      "null",
+      "object",
+      "override",
+      "package",
+      "private",
+      "protected",
+      "return",
+      "sealed",
+      "super",
+      "this",
+      "throw",
+      "trait",
+      "try",
+      "true",
+      "type",
+      "val",
+      "var",
+      "while",
+      "with",
+      "yield"
+    )
     def contains(str: String): Boolean = set.contains(str)
   }
 
@@ -75,8 +106,8 @@ class ScalaGenerator(
     }
 
   override protected def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap {
-      doc: ResolvedDocument => getNamespaceWithWarning(doc.document)
+    val javaNamespace = includeMap.get(includeFileName).flatMap { doc: ResolvedDocument =>
+      getNamespaceWithWarning(doc.document)
     }
     javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
@@ -90,9 +121,11 @@ class ScalaGenerator(
   ): CodeFragment = {
     val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
     val code =
-      list.elems.map { e =>
-        genConstant(e, listElemType).toData
-      }.mkString(", ")
+      list.elems
+        .map { e =>
+          genConstant(e, listElemType).toData
+        }
+        .mkString(", ")
     v(s"Seq($code)")
   }
 
@@ -101,9 +134,11 @@ class ScalaGenerator(
     fieldType: Option[FieldType] = None
   ): CodeFragment = {
     val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
-    val code = set.elems.map { e =>
-      genConstant(e, setElemType).toData
-    }.mkString(", ")
+    val code = set.elems
+      .map { e =>
+        genConstant(e, setElemType).toData
+      }
+      .mkString(", ")
     v(s"Set($code)")
   }
 
@@ -112,11 +147,14 @@ class ScalaGenerator(
     fieldType: Option[FieldType] = None
   ): CodeFragment = {
     val mapType = fieldType.map(_.asInstanceOf[MapType])
-    val code = map.elems.map { case (k, v) =>
-      val key = genConstant(k, mapType.map(_.keyType)).toData
-      val value = genConstant(v, mapType.map(_.valueType)).toData
-      s"$key -> $value"
-    }.mkString(", ")
+    val code = map.elems
+      .map {
+        case (k, v) =>
+          val key = genConstant(k, mapType.map(_.keyType)).toData
+          val value = genConstant(v, mapType.map(_.valueType)).toData
+          s"$key -> $value"
+      }
+      .mkString(", ")
 
     v(s"Map($code)")
   }
@@ -124,16 +162,17 @@ class ScalaGenerator(
   def genEnum(enum: EnumRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     def getTypeId: Identifier = fieldType.getOrElse(Void) match {
       case n: NamedType => qualifyNamedType(n)
-      case _ =>  enum.enum.sid
+      case _ => enum.enum.sid
     }
     genID(enum.value.sid.toTitleCase.addScope(getTypeId.toTitleCase))
   }
 
   def genStruct(struct: StructRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val values = struct.elems
-    val fields = values.map { case (f, value) =>
-      val v = genConstant(value, Some(f.fieldType))
-      genID(f.sid.toCamelCase) + " = " + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
+    val fields = values.map {
+      case (f, value) =>
+        val v = genConstant(value, Some(f.fieldType))
+        genID(f.sid.toCamelCase) + " = " + (if (f.requiredness.isOptional) "Some(" + v + ")" else v)
     }
 
     val gid = fieldType match {
@@ -216,23 +255,28 @@ class ScalaGenerator(
   }
 
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = {
-    val code = fields.map { f =>
-      val valPrefix = if (asVal) "val " else ""
-      val nameAndType = genID(f.sid).toData + ": " + genFieldType(f).toData
-      val defaultValue =
-        genDefaultFieldValue(f).map { d =>
-          " = " + d.toData
-        }.getOrElse {
-          if (f.requiredness.isOptional) " = None"
-          else ""
-        }
+    val code = fields
+      .map { f =>
+        val valPrefix = if (asVal) "val " else ""
+        val nameAndType = genID(f.sid).toData + ": " + genFieldType(f).toData
+        val defaultValue =
+          genDefaultFieldValue(f)
+            .map { d =>
+              " = " + d.toData
+            }
+            .getOrElse {
+              if (f.requiredness.isOptional) " = None"
+              else ""
+            }
 
-      valPrefix + nameAndType + defaultValue
-    }.mkString(", ")
+        valPrefix + nameAndType + defaultValue
+      }
+      .mkString(", ")
     v(code)
   }
 
-  def genBaseFinagleService: CodeFragment = v("com.twitter.finagle.Service[Array[Byte], Array[Byte]]")
+  def genBaseFinagleService: CodeFragment =
+    v("com.twitter.finagle.Service[Array[Byte], Array[Byte]]")
 
   def getParentFinagleService(p: ServiceParent): CodeFragment =
     genID(Identifier(getServiceParentID(p).fullName + "$FinagleService"))
@@ -242,8 +286,8 @@ class ScalaGenerator(
 
   override def finagleClientFile(
     packageDir: File,
-    service: Service, options:
-    Set[ServiceOption]
+    service: Service,
+    options: Set[ServiceOption]
   ): Option[File] =
     options.find(_ == WithFinagle) map { _ =>
       new File(packageDir, service.sid.toTitleCase.name + "$FinagleClient" + fileExtension)
@@ -251,8 +295,8 @@ class ScalaGenerator(
 
   override def finagleServiceFile(
     packageDir: File,
-    service: Service, options:
-    Set[ServiceOption]
+    service: Service,
+    options: Set[ServiceOption]
   ): Option[File] =
     options.find(_ == WithFinagle) map { _ =>
       new File(packageDir, service.sid.toTitleCase.name + "$FinagleService" + fileExtension)

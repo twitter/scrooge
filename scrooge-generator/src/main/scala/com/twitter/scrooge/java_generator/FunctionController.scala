@@ -5,8 +5,11 @@ import com.twitter.scrooge.ast.Field
 import com.twitter.scrooge.ast.SimpleID
 import com.twitter.scrooge.ast.Struct
 
-class FunctionController(function: TFunction, generator: ApacheJavaGenerator, ns: Option[Identifier])
-  extends BaseController(generator, ns) {
+class FunctionController(
+  function: TFunction,
+  generator: ApacheJavaGenerator,
+  ns: Option[Identifier]
+) extends BaseController(generator, ns) {
   val return_type = new FieldTypeController(function.funcType, generator)
   val name = function.funcName.name
   val argument_list = function.args map { a =>
@@ -33,9 +36,10 @@ class FunctionController(function: TFunction, generator: ApacheJavaGenerator, ns
   }
 
   val exceptions = function.throws.zipWithIndex map {
-    case (e, i) => new FieldController(e, generator, ns) {
-      val first = i == 0
-    }
+    case (e, i) =>
+      new FieldController(e, generator, ns) {
+        val first = i == 0
+      }
   }
 
   val has_exceptions = exceptions.size > 0
@@ -49,7 +53,8 @@ class FunctionController(function: TFunction, generator: ApacheJavaGenerator, ns
 
   def arg_struct = {
     val args = function.args map { a =>
-      val requiredness = if (a.requiredness.isRequired) Requiredness.Required else Requiredness.Default
+      val requiredness =
+        if (a.requiredness.isRequired) Requiredness.Required else Requiredness.Default
       Field(a.index, a.sid, a.originalName, a.fieldType, a.default, requiredness)
     }
     val structName = function.funcName.name + "_args"
@@ -60,12 +65,27 @@ class FunctionController(function: TFunction, generator: ApacheJavaGenerator, ns
 
   def result_struct = {
     val fields = (if (function.funcType == Void) {
-      Seq()
-    } else {
-      val fieldType = function.funcType.asInstanceOf[FieldType]
-      Seq(Field(0, SimpleID("success"), "success", fieldType, None, Requiredness.Default))
-    }) ++ function.throws
-    val struct = Struct(SimpleID(function.funcName.name + "_result"), function.originalName + "_result", fields, None, Map.empty)
+                    Seq()
+                  } else {
+                    val fieldType = function.funcType.asInstanceOf[FieldType]
+                    Seq(
+                      Field(
+                        0,
+                        SimpleID("success"),
+                        "success",
+                        fieldType,
+                        None,
+                        Requiredness.Default
+                      )
+                    )
+                  }) ++ function.throws
+    val struct = Struct(
+      SimpleID(function.funcName.name + "_result"),
+      function.originalName + "_result",
+      fields,
+      None,
+      Map.empty
+    )
     val controller = new StructController(struct, true, generator, ns, is_result = true)
     generator.renderMustache("struct_inner.mustache", controller)
   }

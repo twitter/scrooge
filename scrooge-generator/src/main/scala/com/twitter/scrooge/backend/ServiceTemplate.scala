@@ -15,7 +15,6 @@ package com.twitter.scrooge.backend
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.ResolvedService
 import com.twitter.scrooge.mustache.Dictionary
@@ -28,15 +27,15 @@ trait ServiceTemplate { self: TemplateGenerator =>
     val throwsDictionaries =
       if (hasThrows) {
         function.throws map { ex =>
-          Dictionary(
-            "throwType" -> genType(ex.fieldType),
-            "throwName" -> genID(ex.sid))
+          Dictionary("throwType" -> genType(ex.fieldType), "throwName" -> genID(ex.sid))
         }
       } else {
         Nil
       }
 
-    val argNames = function.args.map { field => genID(field.sid).toData }
+    val argNames = function.args.map { field =>
+      genID(field.sid).toData
+    }
 
     Dictionary(
       "generic" -> v(generic.map(v)),
@@ -50,7 +49,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "fieldParams" -> genFieldParams(function.args), // A list of parameters with types: (a: A, b: B...)
       "argNames" -> v(argNames.mkString(", ")),
       "argsFieldNames" -> {
-        val code = argNames.map { field => s"args.$field" }.mkString(", ")
+        val code = argNames
+          .map { field =>
+            s"args.$field"
+          }
+          .mkString(", ")
         v(code)
       },
       "argTypes" -> {
@@ -58,7 +61,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
           case Nil => v("Unit")
           case singleArg :: Nil => genType(singleArg.fieldType)
           case args =>
-            val typesString = args.map { arg => genType(arg.fieldType) }.mkString(", ")
+            val typesString = args
+              .map { arg =>
+                genType(arg.fieldType)
+              }
+              .mkString(", ")
             v(s"($typesString)")
         }
       },
@@ -76,16 +83,14 @@ trait ServiceTemplate { self: TemplateGenerator =>
     )
   }
 
-  def functionArgsStruct(f:Function): FunctionArgs = {
-    FunctionArgs(SimpleID("Args"),
-      internalArgsStructNameForWire(f),
-      f.args)
+  def functionArgsStruct(f: Function): FunctionArgs = {
+    FunctionArgs(SimpleID("Args"), internalArgsStructNameForWire(f), f.args)
   }
 
   /**
    * Thrift Result struct that includes success or exceptions returned.
    */
-  def resultStruct(f:Function): FunctionResult = {
+  def resultStruct(f: Function): FunctionResult = {
     val throws = f.throws map {
       _.copy(requiredness = Requiredness.Optional)
     }
@@ -98,7 +103,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
     FunctionResult(
       SimpleID("Result"),
       resultStructNameForWire(f),
-      success, throws
+      success,
+      throws
     )
   }
 
@@ -130,20 +136,23 @@ trait ServiceTemplate { self: TemplateGenerator =>
       }),
       "finagleClientParent" ->
         service.parent.map(getParentFinagleClient).getOrElse(v("")),
-      "functions" -> v(service.functions.map {
-        f =>
-          Dictionary(
-            "function" -> v(templates("function")),
-            "functionInfo" -> v(functionDictionary(f, Some("Future"))),
-            "clientFuncNameForWire" -> v(f.originalName),
-            "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
-            "type" -> genType(f.funcType),
-            "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
-            "argNames" -> {
-              val code = f.args.map { field => genID(field.sid).toData }.mkString(", ")
-              v(code)
-            }
-          )
+      "functions" -> v(service.functions.map { f =>
+        Dictionary(
+          "function" -> v(templates("function")),
+          "functionInfo" -> v(functionDictionary(f, Some("Future"))),
+          "clientFuncNameForWire" -> v(f.originalName),
+          "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
+          "type" -> genType(f.funcType),
+          "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
+          "argNames" -> {
+            val code = f.args
+              .map { field =>
+                genID(field.sid).toData
+              }
+              .mkString(", ")
+            v(code)
+          }
+        )
       }),
       "finagleClientFunction" -> v(templates("finagleClientFunction"))
     )
@@ -160,29 +169,31 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "finagleServiceParent" ->
         service.parent.map(getParentFinagleService).getOrElse(genBaseFinagleService),
       "function" -> v(templates("finagleServiceFunction")),
-      "functions" -> v(service.functions map {
-        f =>
-          Dictionary(
-            "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
-            "serviceFuncNameForWire" -> v(f.originalName),
-            "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
-            "funcObjectName" -> genID(functionObjectName(f)),
-            "argNames" ->
-              v(f.args.map { field =>
-                "args." + genID(field.sid).toData
-              }.mkString(", ")),
-            "typeName" -> genType(f.funcType),
-            "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
-            "resultNamedArg" ->
-              v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(value)" else ""),
-            "exceptions" -> v(f.throws map {
-              t =>
-                Dictionary(
-                  "exceptionType" -> genType(t.fieldType),
-                  "fieldName" -> genID(t.sid)
-                )
-            })
-          )
+      "functions" -> v(service.functions map { f =>
+        Dictionary(
+          "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
+          "serviceFuncNameForWire" -> v(f.originalName),
+          "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
+          "funcObjectName" -> genID(functionObjectName(f)),
+          "argNames" ->
+            v(
+              f.args
+                .map { field =>
+                  "args." + genID(field.sid).toData
+                }
+                .mkString(", ")
+            ),
+          "typeName" -> genType(f.funcType),
+          "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
+          "resultNamedArg" ->
+            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(value)" else ""),
+          "exceptions" -> v(f.throws map { t =>
+            Dictionary(
+              "exceptionType" -> genType(t.fieldType),
+              "fieldName" -> genID(t.sid)
+            )
+          })
+        )
       })
     )
 
@@ -191,9 +202,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
       case 0 => ""
       case 1 => "args"
       case _ =>
-        (1 to arity).map { i =>
-          s"args._$i"
-        }.mkString(", ")
+        (1 to arity)
+          .map { i =>
+            s"args._$i"
+          }
+          .mkString(", ")
     }
 
   def serviceDict(
@@ -218,41 +231,34 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "futureIfaceParent" -> v(service.parent.map { p =>
         genQualifiedID(getServiceParentID(p), namespace).append(".FutureIface")
       }),
-      "genericParent" -> service.parent.map { p =>
-        genID(getServiceParentID(p)).append("[MM]")
-      }.getOrElse(v("ThriftService")),
-      "syncFunctions" -> v(service.functions.map {
-        f => functionDictionary(f, None)
+      "genericParent" -> service.parent
+        .map { p =>
+          genID(getServiceParentID(p)).append("[MM]")
+        }
+        .getOrElse(v("ThriftService")),
+      "syncFunctions" -> v(service.functions.map { f =>
+        functionDictionary(f, None)
       }),
-      "asyncFunctions" -> v(service.functions.map {
-        f => functionDictionary(f, Some("Future"))
+      "asyncFunctions" -> v(service.functions.map { f =>
+        functionDictionary(f, Some("Future"))
       }),
-      "genericFunctions" -> v(service.functions.map {
-        f => functionDictionary(f, Some("MM"))
+      "genericFunctions" -> v(service.functions.map { f =>
+        functionDictionary(f, Some("MM"))
       }),
       "struct" -> v(templates("struct")),
       "thriftFunctions" -> v(service.functions.map { f =>
         Dictionary(
           "functionArgsStruct" ->
-            v(structDict(
-              functionArgsStruct(f),
-              Some(namespace),
-              includes,
-              options,
-              genAdapt)),
+            v(structDict(functionArgsStruct(f), Some(namespace), includes, options, genAdapt)),
           "internalResultStruct" -> {
             val functionResult = resultStruct(f)
-            v(structDict(
-              functionResult,
-              Some(namespace),
-              includes,
-              options,
-              genAdapt) +
-              Dictionary(
-                "successFieldType" -> getSuccessType(functionResult),
-                "successFieldValue" -> getSuccessValue(functionResult),
-                "exceptionValues" -> getExceptionFields(functionResult)
-              )
+            v(
+              structDict(functionResult, Some(namespace), includes, options, genAdapt) +
+                Dictionary(
+                  "successFieldType" -> getSuccessType(functionResult),
+                  "successFieldValue" -> getSuccessValue(functionResult),
+                  "exceptionValues" -> getExceptionFields(functionResult)
+                )
             )
           },
           "annotations" -> TemplateGenerator.renderPairs(f.annotations),
@@ -270,14 +276,16 @@ trait ServiceTemplate { self: TemplateGenerator =>
       // due to https://issues.scala-lang.org/browse/SI-7324
       // We skip generation of ServiceIfaces for thrift services with 255+ methods.
       "generateServiceIface" -> {
-        val numParentFunctions = resolvedDoc.collectParentServices(service).map {
-          case (_, service) => service.functions.length
-        }.sum
+        val numParentFunctions = resolvedDoc
+          .collectParentServices(service)
+          .map {
+            case (_, service) => service.functions.length
+          }
+          .sum
         val totalFunctions = service.functions.length + numParentFunctions
         v(totalFunctions <= 254)
       },
       "withFinagle" -> v(withFinagle),
-
       "inheritedFunctions" -> {
         // For service-per-endpoint, we generate a class with a value for each method, so
         // method names must be unique.
@@ -285,8 +293,10 @@ trait ServiceTemplate { self: TemplateGenerator =>
         val inheritedFunctions: Seq[Dictionary] =
           // Note: inherited functions must be deduped first, so we walk the parent chain
           // from the topmost parent down (hence the reverse).
-          resolvedDoc.resolveParentServices(service, namespaceLanguage, defaultNamespace).reverse.flatMap {
-            result: ResolvedService =>
+          resolvedDoc
+            .resolveParentServices(service, namespaceLanguage, defaultNamespace)
+            .reverse
+            .flatMap { result: ResolvedService =>
               result.service.functions.map { function =>
                 Dictionary(
                   "ParentServiceName" -> genID(result.serviceID),
@@ -294,9 +304,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
                   "funcObjectName" -> genID(functionObjectName(function))
                 )
               }
-          }
-        val ownFunctions: Seq[Dictionary] = service.functions.map {
-          function => Dictionary(
+            }
+        val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
+          Dictionary(
             "ParentServiceName" -> v("self"),
             "funcName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
             "funcObjectName" -> genID(functionObjectName(function))
@@ -304,15 +314,15 @@ trait ServiceTemplate { self: TemplateGenerator =>
         }
         v(ownFunctions ++ inheritedFunctions)
       },
-
       "dedupedOwnFunctions" -> {
         val deduper = new NameDeduplicator()
         // We only generate own functions, but need to dedupe them from the inherited functions,
         // so fill those in first.
-        resolvedDoc.collectParentServices(service).foreach { case (_, service) =>
-          service.functions.foreach { function =>
-            deduper.dedupe(function.funcName.toCamelCase)
-          }
+        resolvedDoc.collectParentServices(service).foreach {
+          case (_, service) =>
+            service.functions.foreach { function =>
+              deduper.dedupe(function.funcName.toCamelCase)
+            }
         }
         val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
           functionDictionary(function, Some("Future")) ++=
@@ -320,7 +330,6 @@ trait ServiceTemplate { self: TemplateGenerator =>
         }
         v(ownFunctions)
       },
-
       "annotations" -> TemplateGenerator.renderPairs(service.annotations)
     )
   }

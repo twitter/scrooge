@@ -5,21 +5,27 @@ object ApacheCompatibilityHelpers {
   val randomWhitespace = """[ ]*\{""".r
 
   def cleanWhitespace(actual: String, cleanEmptySemicolons: Boolean): Array[String] = {
-    val values = actual.split("\n").map { s: String =>
-      s.trim
-    }.filter { s =>
-      !s.isEmpty
-    }.filter { s =>
-      !s.startsWith("/**") && !s.startsWith("*")
-    }.filter { s =>
-      !cleanEmptySemicolons || !s.equals(";")
-    }.map { s =>
-      val clean1 = cleanTypedefMetadata.findFirstMatchIn(s) match {
-        case Some(m) => m.group(1) + ")));"
-        case None => s
+    val values = actual
+      .split("\n")
+      .map { s: String =>
+        s.trim
       }
-      randomWhitespace.replaceAllIn(clean1, " {")
-    }
+      .filter { s =>
+        !s.isEmpty
+      }
+      .filter { s =>
+        !s.startsWith("/**") && !s.startsWith("*")
+      }
+      .filter { s =>
+        !cleanEmptySemicolons || !s.equals(";")
+      }
+      .map { s =>
+        val clean1 = cleanTypedefMetadata.findFirstMatchIn(s) match {
+          case Some(m) => m.group(1) + ")));"
+          case None => s
+        }
+        randomWhitespace.replaceAllIn(clean1, " {")
+      }
     values
   }
 

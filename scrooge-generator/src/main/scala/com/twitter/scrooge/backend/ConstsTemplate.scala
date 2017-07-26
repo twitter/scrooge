@@ -10,14 +10,13 @@ trait ConstsTemplate { self: TemplateGenerator =>
     consts: Seq[ConstDefinition]
   ): Dictionary = Dictionary(
     "package" -> genID(namespace),
-    "constants" -> v(consts map {
-      c =>
-        Dictionary(
-          "name" -> genID(c.sid),
-          "fieldType" -> genType(c.fieldType),
-          "value" -> genConstant(c.value, Some(c.fieldType)),
-          "docstring" -> v(c.docstring.getOrElse(""))
-        )
+    "constants" -> v(consts map { c =>
+      Dictionary(
+        "name" -> genID(c.sid),
+        "fieldType" -> genType(c.fieldType),
+        "value" -> genConstant(c.value, Some(c.fieldType)),
+        "docstring" -> v(c.docstring.getOrElse(""))
+      )
     })
   )
 }

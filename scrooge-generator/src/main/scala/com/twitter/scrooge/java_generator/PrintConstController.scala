@@ -7,25 +7,30 @@ import com.twitter.scrooge.frontend.ScroogeInternalException
 class ConstValue(val rendered: String, val value: String)
 
 class PrintConstController(
-    val name: String,
-    fieldType: FieldType,
-    value: RHS,
-    generator: ApacheJavaGenerator,
-    ns: Option[Identifier],
-    val in_static: Boolean = false,
-    val defval: Boolean = false)
-  extends BaseController(generator, ns) {
+  val name: String,
+  fieldType: FieldType,
+  value: RHS,
+  generator: ApacheJavaGenerator,
+  ns: Option[Identifier],
+  val in_static: Boolean = false,
+  val defval: Boolean = false
+) extends BaseController(generator, ns) {
   val field_type = new FieldTypeController(fieldType, generator)
   def rendered_value = renderConstValue(value, fieldType).value
 
   def map_values = {
     val values = value.asInstanceOf[MapRHS]
     val mapType = fieldType.asInstanceOf[MapType]
-    values.elems map { case (k, v) =>
-      val renderedKey = renderConstValue(k, mapType.keyType)
-      val renderedValue = renderConstValue(v, mapType.valueType)
-      Map("key" -> renderedKey.value, "value" -> renderedValue.value, "rendered_key" -> renderedKey.rendered,
-        "rendered_value" -> renderedValue.rendered)
+    values.elems map {
+      case (k, v) =>
+        val renderedKey = renderConstValue(k, mapType.keyType)
+        val renderedValue = renderConstValue(v, mapType.valueType)
+        Map(
+          "key" -> renderedKey.value,
+          "value" -> renderedValue.value,
+          "rendered_key" -> renderedKey.rendered,
+          "rendered_value" -> renderedValue.rendered
+        )
     }
   }
 
@@ -62,14 +67,18 @@ class PrintConstController(
           Map(
             "key" -> f.sid.name,
             "value" -> renderedValue.value,
-            "rendered_value" -> renderedValue.rendered)
+            "rendered_value" -> renderedValue.rendered
+          )
         }
       case union: UnionRHS =>
         val renderedValue = renderConstValue(union.initializer, union.field.fieldType)
-        Seq(Map(
-          "key" -> union.field.sid.name,
-          "value" -> renderedValue.value,
-          "rendered_value" -> renderedValue.rendered))
+        Seq(
+          Map(
+            "key" -> union.field.sid.name,
+            "value" -> renderedValue.value,
+            "rendered_value" -> renderedValue.rendered
+          )
+        )
       case _ => throw new ScroogeInternalException(s"Invalid state PrintConstController '$value'")
     }
   }
@@ -126,7 +135,10 @@ class PrintConstController(
       }
       case _ => {
         val tmpVal = generator.tmp()
-        new ConstValue(generator.printConstValue(tmpVal, fieldType, constant, ns, in_static = true), tmpVal)
+        new ConstValue(
+          generator.printConstValue(tmpVal, fieldType, constant, ns, in_static = true),
+          tmpVal
+        )
       }
     }
   }

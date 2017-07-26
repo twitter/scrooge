@@ -24,13 +24,20 @@ object MustacheAST {
   sealed trait Segment
   case class Data(data: String) extends Segment
   case class Interpolation(name: String) extends Segment
-  case class Section(name: String, document: Template, reversed: Boolean, joiner: Option[String] = None) extends Segment
+  case class Section(
+    name: String,
+    document: Template,
+    reversed: Boolean,
+    joiner: Option[String] = None
+  ) extends Segment
   case class Partial(name: String) extends Segment
 }
 
 class ParserPool(size: Int = 10) {
   private[this] val queue = new java.util.concurrent.LinkedBlockingQueue[MustacheParser]()
-  (0 until size) foreach { _ => queue.offer(new MustacheParser) }
+  (0 until size) foreach { _ =>
+    queue.offer(new MustacheParser)
+  }
 
   def apply[T](f: MustacheParser => T) = {
     val parser = queue.take()
@@ -53,28 +60,38 @@ class MustacheParser extends RegexParsers {
 
   override def skipWhitespace = false
 
-  def document: Parser[Template] = rep(directive | data) ^^ { x => Template(x.flatten) }
+  def document: Parser[Template] = rep(directive | data) ^^ { x =>
+    Template(x.flatten)
+  }
 
   def directive: Parser[Option[Segment]] = interpolation | section | comment | partial
 
-  def interpolation = "{{" ~> id <~ "}}" ^^ { x => Some(Interpolation(x)) }
+  def interpolation = "{{" ~> id <~ "}}" ^^ { x =>
+    Some(Interpolation(x))
+  }
 
-  def startSection = "{{" ~> """#|\^""".r ~ id <~ "}}" ^^ { case prefix ~ id =>
-    (prefix == "^", id)
+  def startSection = "{{" ~> """#|\^""".r ~ id <~ "}}" ^^ {
+    case prefix ~ id =>
+      (prefix == "^", id)
   }
 
   def endSection = "{{/" ~> id ~ opt("|" ~> """([^}]|}(?!}))+""".r) <~ "}}"
 
-  def section = startSection ~ document ~ endSection ^^ { case (reversed, id1) ~ doc ~ (id2 ~ joiner) =>
-    if (id1 != id2) err("Expected " + id1 + ", got " + id2)
-    Some(Section(id1, doc, reversed, joiner))
+  def section = startSection ~ document ~ endSection ^^ {
+    case (reversed, id1) ~ doc ~ (id2 ~ joiner) =>
+      if (id1 != id2) err("Expected " + id1 + ", got " + id2)
+      Some(Section(id1, doc, reversed, joiner))
   }
 
   def comment = """\{\{!(.*?)}}""".r ^^^ None
 
-  def partial = "{{>" ~> id <~ "}}" ^^ { x => Some(Partial(x)) }
+  def partial = "{{>" ~> id <~ "}}" ^^ { x =>
+    Some(Partial(x))
+  }
 
-  def data: Parser[Option[Segment]] = """([^{]+|\{(?!\{)|\{(?=\{\{))+""".r ^^ { x => Some(Data(x)) }
+  def data: Parser[Option[Segment]] = """([^{]+|\{(?!\{)|\{(?=\{\{))+""".r ^^ { x =>
+    Some(Data(x))
+  }
 
   def id = """[A-Za-z0-9_\.]+""".r
 
@@ -126,4 +143,3 @@ object CleanupWhitespace extends (MustacheAST.Template => MustacheAST.Template) 
     }
   }
 }
-

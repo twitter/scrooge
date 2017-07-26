@@ -23,7 +23,6 @@ import java.io.{File, FileWriter}
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 
-
 object CompilerDefaults {
   var language: String = "scala"
   var defaultNamespace: String = "thrift"
@@ -81,11 +80,7 @@ class Compiler {
 
         if (verbose) println("+ Compiling %s".format(inputFile))
         val resolvedDoc = TypeResolver()(doc)
-        val generator = GeneratorFactory(
-          language,
-          resolvedDoc,
-          defaultNamespace,
-          experimentFlags)
+        val generator = GeneratorFactory(language, resolvedDoc, defaultNamespace, experimentFlags)
 
         generator match {
           case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback

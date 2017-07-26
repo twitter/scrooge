@@ -5,12 +5,12 @@ import com.twitter.scrooge.ast.SetType
 import com.twitter.scrooge.ast.MapType
 
 class SerializeFieldController(
-    fieldType: FieldType,
-    fieldName: String,
-    prefix: String,
-    generator: ApacheJavaGenerator,
-    ns: Option[Identifier])
-  extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
+  fieldType: FieldType,
+  fieldName: String,
+  prefix: String,
+  generator: ApacheJavaGenerator,
+  ns: Option[Identifier]
+) extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
   val tmp_iter = if (field_type.is_container) generator.tmp("_iter") else false
 
   def deserialize_map_element = {

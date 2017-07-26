@@ -22,17 +22,18 @@ import java.util.Properties
 import scala.collection.concurrent.TrieMap
 import scala.io.Source
 
-
 class HandlebarLoader(
-    prefix: String,
-    suffix: String = ".scala",
-    commentFct: (CommentStyle => String) = scalaJavaCommentFunction) {
+  prefix: String,
+  suffix: String = ".scala",
+  commentFct: (CommentStyle => String) = scalaJavaCommentFunction
+) {
 
   private[this] val cache = new TrieMap[String, Handlebar]
 
   def apply(name: String): Handlebar = {
     val fullName = prefix + name + suffix
-    cache.getOrElseUpdate(name,
+    cache.getOrElseUpdate(
+      name,
       getClass.getResourceAsStream(fullName) match {
         case null =>
           throw new NoSuchElementException("template not found: " + fullName)
@@ -52,7 +53,9 @@ class HandlebarLoader(
     val p = new Properties
     val resource = getClass.getResource("/com/twitter/scrooge-generator/build.properties")
     if (resource == null)
-      Logger.getLogger("scrooge-generator").log(Level.WARNING, "Scrooge's build.properties not found")
+      Logger
+        .getLogger("scrooge-generator")
+        .log(Level.WARNING, "Scrooge's build.properties not found")
     else
       p.load(resource.openStream())
 

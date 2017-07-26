@@ -29,7 +29,11 @@ object Handlebar {
   def generate(document: Template, dictionary: Dictionary): String =
     generate(0, document, dictionary)
 
-  private[this] def generate(indentLevel0: Int, document: Template, dictionary: Dictionary): String = {
+  private[this] def generate(
+    indentLevel0: Int,
+    document: Template,
+    dictionary: Dictionary
+  ): String = {
     var indentLevel = indentLevel0
     document.segments.map { segment =>
       val (nextIndentLevel, processed) = process(indentLevel, segment, dictionary)
@@ -44,14 +48,18 @@ object Handlebar {
       // line, instead of onto its own line.
       val rv = x map { item =>
         if (item endsWith "\n") item.substring(0, item.length - 1) else item
-      } mkString(joiner + "\n")
+      } mkString (joiner + "\n")
       rv + "\n"
     } else {
       x.mkString(joiner)
     }
   }
 
-  private[this] def process(indentLevel: Int, segment: Segment, dictionary: Dictionary): (Int, String) = {
+  private[this] def process(
+    indentLevel: Int,
+    segment: Segment,
+    dictionary: Dictionary
+  ): (Int, String) = {
     var nextIndentLevel = 0
     val processed = segment match {
       case Data(data) =>
@@ -71,8 +79,10 @@ object Handlebar {
             if (reversed) {
               ""
             } else {
-              val contents = items.map { d => generate(indentLevel, document, d) }
-              joiner map {join(contents, _)} getOrElse (contents.mkString)
+              val contents = items.map { d =>
+                generate(indentLevel, document, d)
+              }
+              joiner map { join(contents, _) } getOrElse (contents.mkString)
             }
           case other =>
             val expose = if (reversed) !other.toBoolean else other.toBoolean
@@ -89,13 +99,14 @@ object Handlebar {
             if (indentLevel > 0) {
               val indentation = Space * indentLevel
               val indented =
-                generated.split("\n").zipWithIndex.map { case (line, i) =>
-                  if (i > 0 && !brittspace(line)) {
-                    indentation + line
-                  } else {
-                    line
-                  }
-                } mkString("\n")
+                generated.split("\n").zipWithIndex.map {
+                  case (line, i) =>
+                    if (i > 0 && !brittspace(line)) {
+                      indentation + line
+                    } else {
+                      line
+                    }
+                } mkString ("\n")
               indented
             } else
               generated
@@ -135,4 +146,3 @@ case class Handlebar(document: MustacheAST.Template) {
     def apply(t1: T1, t2: T2, t3: T3) = Handlebar.generate(document, unpacker(t1, t2, t3))
   }
 }
-

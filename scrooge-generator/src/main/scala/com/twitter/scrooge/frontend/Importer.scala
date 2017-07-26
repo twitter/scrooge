@@ -28,6 +28,7 @@ trait Importer extends (String => Option[FileContents]) {
   private[scrooge] def canonicalPaths: Seq[String] // for tests
   def lastModified(filename: String): Option[Long]
   def +:(head: Importer): Importer = MultiImporter(Seq(head, this))
+
   /**
    * @param filename a filename to resolve.
    * @return the absolute path used to resolve it. Used to cache importer results.
@@ -36,6 +37,7 @@ trait Importer extends (String => Option[FileContents]) {
 }
 
 object Importer {
+
   /**
    * @param path Path of a directory or a zip/jar file
    * @return the importer that will look into the directory or zip/jar
@@ -54,7 +56,7 @@ object Importer {
       DirImporter(file)
     else if (file.isFile &&
       (file.getName.toLowerCase.endsWith(".jar") ||
-        file.getName.toLowerCase.endsWith(".zip")))
+      file.getName.toLowerCase.endsWith(".zip")))
       // A more accurate way to determine whether it's a zip file is to call
       //     new ZipFile(file)
       // and see if there is an exception. But we decide to use the filename
@@ -94,8 +96,9 @@ case class DirImporter(dir: File) extends Importer {
     resolve(filename) map { case (file, _) => file.lastModified }
 
   def apply(filename: String): Option[FileContents] =
-    resolve(filename) map { case (file, importer) =>
-      FileContents(importer, Source.fromFile(file, "UTF-8").mkString, Some(file.getName))
+    resolve(filename) map {
+      case (file, importer) =>
+        FileContents(importer, Source.fromFile(file, "UTF-8").mkString, Some(file.getName))
     }
 
   override private[scrooge] def getResolvedPath(filename: String): Option[String] = {
@@ -114,11 +117,17 @@ case class ZipImporter(file: File) extends Importer {
 
   // uses the lastModified time of the zip/jar file
   def lastModified(filename: String): Option[Long] =
-    resolve(filename) map { _ => file.lastModified }
+    resolve(filename) map { _ =>
+      file.lastModified
+    }
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename) map { entry =>
-      FileContents(this, Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString, Some(entry.getName))
+      FileContents(
+        this,
+        Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString,
+        Some(entry.getName)
+      )
     }
 
   private[this] def canResolve(filename: String): Boolean = resolve(filename).isDefined
@@ -135,7 +144,9 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
   lazy val canonicalPaths = importers flatMap { _.canonicalPaths }
 
   private def first[A](f: Importer => Option[A]): Option[A] =
-    importers.foldLeft[Option[A]](None) { (accum, next) => accum orElse f(next) }
+    importers.foldLeft[Option[A]](None) { (accum, next) =>
+      accum orElse f(next)
+    }
 
   def lastModified(filename: String): Option[Long] =
     first[Long] { _.lastModified(filename) }

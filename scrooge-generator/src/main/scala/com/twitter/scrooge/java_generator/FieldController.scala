@@ -3,7 +3,7 @@ package com.twitter.scrooge.java_generator
 import com.twitter.scrooge.ast.{Requiredness, Identifier, Field}
 
 class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Identifier])
-  extends BaseController(generator, ns) {
+    extends BaseController(generator, ns) {
   val name = f.sid.name
   val requirement = getRequirement(f)
   val default = !f.default.isEmpty
