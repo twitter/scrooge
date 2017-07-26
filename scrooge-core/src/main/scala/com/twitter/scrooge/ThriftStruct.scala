@@ -6,21 +6,21 @@ object ThriftStruct {
   def ttypeToString(byte: Byte): String = {
     // from https://github.com/apache/thrift/blob/master/lib/java/src/org/apache/thrift/protocol/TType.java
     byte match {
-      case TType.STOP   => "STOP"
-      case TType.VOID   => "VOID"
-      case TType.BOOL   => "BOOL"
-      case TType.BYTE   => "BYTE"
+      case TType.STOP => "STOP"
+      case TType.VOID => "VOID"
+      case TType.BOOL => "BOOL"
+      case TType.BYTE => "BYTE"
       case TType.DOUBLE => "DOUBLE"
-      case TType.I16    => "I16"
-      case TType.I32    => "I32"
-      case TType.I64    => "I64"
+      case TType.I16 => "I16"
+      case TType.I32 => "I32"
+      case TType.I64 => "I64"
       case TType.STRING => "STRING"
       case TType.STRUCT => "STRUCT"
-      case TType.MAP    => "MAP"
-      case TType.SET    => "SET"
-      case TType.LIST   => "LIST"
-      case TType.ENUM   => "ENUM"
-      case _            => "UNKNOWN"
+      case TType.MAP => "MAP"
+      case TType.SET => "SET"
+      case TType.LIST => "LIST"
+      case TType.ENUM => "ENUM"
+      case _ => "UNKNOWN"
     }
   }
 }
@@ -37,6 +37,7 @@ trait HasThriftStructCodec3[T <: ThriftStruct] {
 trait ThriftResponse[Result] {
   def successField: Option[Result]
   def exceptionFields: Iterable[Option[ThriftException]]
+
   /**
    * Return the first nonempty exception field.
    */
@@ -54,6 +55,7 @@ object ThriftResponse {
  * Unions are tagged with this trait as well as with [[ThriftStruct]].
  */
 trait ThriftUnion {
+
   /**
    * The type of the value contained in the union field.
    *
@@ -116,6 +118,7 @@ abstract class ThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec[T
  * }}}
  */
 trait ThriftMethod {
+
   /**
    * A struct wrapping method arguments
    *
@@ -208,6 +211,7 @@ trait ThriftMethod {
 
   /** Thrift annotations (user-defined key-value metadata) on the method */
   def annotations: Map[String, String]
+
   /** Thrift method name */
   def name: String
 
@@ -223,4 +227,3 @@ trait ThriftMethod {
   /** True for oneway thrift methods */
   def oneway: Boolean
 }
-

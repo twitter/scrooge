@@ -7,7 +7,8 @@ import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
 
 object TFieldBlob {
 
-  def apply(field: TField, data: Array[Byte]): TFieldBlob = TFieldBlob(field, Buf.ByteArray.Owned(data))
+  def apply(field: TField, data: Array[Byte]): TFieldBlob =
+    TFieldBlob(field, Buf.ByteArray.Owned(data))
 
   def read(field: TField, iprot: TProtocol): TFieldBlob = {
     capture(field) { ThriftUtil.transfer(_, iprot, field.`type`) }
@@ -32,15 +33,20 @@ case class TFieldBlob(field: TField, content: Buf) {
 
   def id = field.id
 
-  @deprecated("TFieldBlob now uses `c.t.io.Buf` to represent the data, call `content` instead", "2017-05-10")
-  lazy val data: Array[Byte] = Arrays.copyOfRange(Buf.ByteArray.Owned.extract(content), 0, content.length)
+  @deprecated(
+    "TFieldBlob now uses `c.t.io.Buf` to represent the data, call `content` instead",
+    "2017-05-10"
+  )
+  lazy val data: Array[Byte] =
+    Arrays.copyOfRange(Buf.ByteArray.Owned.extract(content), 0, content.length)
 
   /**
    * Creates a TCompactProtocol to read the encoded data.
    */
   def read: TCompactProtocol = {
     Buf.ByteArray.coerce(content) match {
-      case Buf.ByteArray.Owned(bytes, off, len) => new TCompactProtocol(new TMemoryInputTransport(bytes, off, len))
+      case Buf.ByteArray.Owned(bytes, off, len) =>
+        new TCompactProtocol(new TMemoryInputTransport(bytes, off, len))
       case b => throw new IllegalArgumentException(s"Not a valid Buf for TFieldBlob: $b")
     }
   }

@@ -9,15 +9,18 @@ import scala.reflect.ClassTag
  */
 final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec[T]) {
   private[this] def toCamelCase(str: String): String = {
-    str.takeWhile(_ == '_') + str.
-      split('_').
-      filterNot(_.isEmpty).
-      zipWithIndex.map { case (part, ind) =>
-        val first = if (ind == 0) part.charAt(0).toLower else part.charAt(0).toUpper
-        val isAllUpperCase = part.forall(_.isUpper)
-        val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
-        new StringBuilder(part.length).append(first).append(rest)
-      }.mkString
+    str.takeWhile(_ == '_') + str
+      .split('_')
+      .filterNot(_.isEmpty)
+      .zipWithIndex
+      .map {
+        case (part, ind) =>
+          val first = if (ind == 0) part.charAt(0).toLower else part.charAt(0).toUpper
+          val isAllUpperCase = part.forall(_.isUpper)
+          val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
+          new StringBuilder(part.length).append(first).append(rest)
+      }
+      .mkString
   }
 
   /**
@@ -55,21 +58,23 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
     if (isUnion) {
       Nil
     } else {
-      codecClass.getMethods.toList.filter { m =>
-        m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
-      }.map { m =>
-        val tfield = m.invoke(codec).asInstanceOf[TField]
-        val manifest: scala.Option[Manifest[_]] = try {
-          Some {
-            codecClass
-              .getMethod(m.getName + "Manifest")
-              .invoke(codec)
-              .asInstanceOf[Manifest[_]]
-          }
-        } catch { case _: Throwable => None }
-        val method = structClass.getMethod(toCamelCase(tfield.name))
-        new ThriftStructField[T](tfield, method, manifest)
-      }
+      codecClass.getMethods.toList
+        .filter { m =>
+          m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
+        }
+        .map { m =>
+          val tfield = m.invoke(codec).asInstanceOf[TField]
+          val manifest: scala.Option[Manifest[_]] = try {
+            Some {
+              codecClass
+                .getMethod(m.getName + "Manifest")
+                .invoke(codec)
+                .asInstanceOf[Manifest[_]]
+            }
+          } catch { case _: Throwable => None }
+          val method = structClass.getMethod(toCamelCase(tfield.name))
+          new ThriftStructField[T](tfield, method, manifest)
+        }
     }
   }
 
@@ -82,7 +87,8 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
     if (isUnion) {
       Nil
     } else {
-      codecClass.getMethod("fieldInfos")
+      codecClass
+        .getMethod("fieldInfos")
         .invoke(codec)
         .asInstanceOf[Seq[ThriftStructFieldInfo]]
     }
@@ -97,7 +103,8 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
     if (!isUnion) {
       Nil
     } else {
-      codecClass.getMethod("fieldInfos")
+      codecClass
+        .getMethod("fieldInfos")
         .invoke(codec)
         .asInstanceOf[Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]]
     }
@@ -106,9 +113,10 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
 }
 
 final class ThriftStructField[T <: ThriftStruct](
-    val tfield: TField,
-    val method: Method,
-    val manifest: scala.Option[Manifest[_]]) {
+  val tfield: TField,
+  val method: Method,
+  val manifest: scala.Option[Manifest[_]]
+) {
 
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
@@ -143,10 +151,12 @@ final class ThriftStructField[T <: ThriftStruct](
  *                       class
  */
 final class ThriftUnionFieldInfo[
-    UnionFieldType <: ThriftUnion with ThriftStruct : ClassTag,
-    ContainedType: ClassTag](
-    val structFieldInfo: ThriftStructFieldInfo,
-    fieldUnapply: UnionFieldType => scala.Option[ContainedType]) {
+  UnionFieldType <: ThriftUnion with ThriftStruct: ClassTag,
+  ContainedType: ClassTag
+](
+  val structFieldInfo: ThriftStructFieldInfo,
+  fieldUnapply: UnionFieldType => scala.Option[ContainedType]
+) {
 
   /**
    * Class tag for the class representing this union field; useful for reflection-related tasks
@@ -163,7 +173,8 @@ final class ThriftUnionFieldInfo[
   def fieldValue(field: ThriftStruct with ThriftUnion): ContainedType = {
     fieldUnapply(field.asInstanceOf[UnionFieldType]).getOrElse {
       throw new IllegalStateException(
-        s"Mismatch between UnionFieldType $fieldClassTag and ContainedType $containedClassTag")
+        s"Mismatch between UnionFieldType $fieldClassTag and ContainedType $containedClassTag"
+      )
     }
   }
 }
@@ -183,6 +194,7 @@ final class ThriftStructFieldInfo(
   val fieldAnnotations: Map[String, String],
   val defaultValue: Option[Any]
 ) {
+
   /**
    * Provide backwards compatibility for older scrooge-generator that does not generate the defaultValue field
    */
@@ -195,16 +207,18 @@ final class ThriftStructFieldInfo(
     valueManifest: scala.Option[Manifest[_]],
     typeAnnotations: Map[String, String],
     fieldAnnotations: Map[String, String]
-  ) = this(
-    tfield,
-    isOptional,
-    isRequired,
-    manifest,
-    keyManifest,
-    valueManifest,
-    typeAnnotations,
-    fieldAnnotations,
-    None)
+  ) =
+    this(
+      tfield,
+      isOptional,
+      isRequired,
+      manifest,
+      keyManifest,
+      valueManifest,
+      typeAnnotations,
+      fieldAnnotations,
+      None
+    )
 
   /**
    * Provide backwards compatibility for older scrooge-generator that does not generate the isRequired flag
@@ -252,4 +266,3 @@ final class ThriftStructFieldInfo(
       None
     )
 }
-

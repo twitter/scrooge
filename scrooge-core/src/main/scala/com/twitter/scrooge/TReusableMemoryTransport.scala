@@ -15,10 +15,7 @@ object TReusableMemoryTransport {
  * A version of TMemoryTransport that allows for reuse in order to minimize
  * object allocations.
  */
-class TReusableMemoryTransport(
-    baos: TByteArrayOutputStream)
-  extends TTransport
-{
+class TReusableMemoryTransport(baos: TByteArrayOutputStream) extends TTransport {
 
   private[this] var readPos = 0
 
@@ -47,9 +44,9 @@ class TReusableMemoryTransport(
 
   override def isOpen: Boolean = true
 
-  override def close() { }
+  override def close() {}
 
-  override def open() { }
+  override def open() {}
 
   override def write(from: Array[Byte], off: Int, len: Int) {
     baos.write(from, off, len)

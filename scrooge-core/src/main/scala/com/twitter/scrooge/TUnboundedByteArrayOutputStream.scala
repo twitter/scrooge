@@ -7,7 +7,8 @@ import org.apache.thrift.TByteArrayOutputStream
  * It's used to replace TByteArrayOutputStream so that the internal buffer won't be reallocated
  * on reset.
  */
-private[scrooge] class TUnboundedByteArrayOutputStream(size: Int) extends TByteArrayOutputStream(size) {
+private[scrooge] class TUnboundedByteArrayOutputStream(size: Int)
+    extends TByteArrayOutputStream(size) {
   override def reset(): Unit = {
     count = 0
   }

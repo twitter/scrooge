@@ -23,7 +23,6 @@ final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTran
   private[this] var readbufferSiz_ = 0
   private[this] var srcBuf_ : Array[Byte] = null
 
-
   // Write state variables
   private[this] var writeBuffers: List[(Array[Byte], Int)] = Nil
   private[this] var totalSize = 0
@@ -33,7 +32,6 @@ final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTran
   private[this] var currentOffset: Int = 0
 
   @inline private[this] def remainingSpaceInBuffer: Int = (currentBuffer.length - currentOffset)
-
 
   private[this] var writerOffset_ : Int = 0
 
@@ -85,7 +83,6 @@ final class TArrayByteTransport(initialWriteBufferSize: Int = 512) extends TTran
       currentBuffer
     }
   }
-
 
   override def write(buf: Array[Byte], off: Int, len: Int): Unit = {
     val dest = getBuffer(len)

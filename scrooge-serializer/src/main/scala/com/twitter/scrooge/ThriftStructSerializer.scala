@@ -7,11 +7,11 @@ import java.util.concurrent.atomic.AtomicLong
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TIOStreamTransport
 
-
-object maxReusableBufferSize extends GlobalFlag[Int](
-  16 * 1024,
-  "Max bytes for ThriftStructSerializers reusable transport buffer")
-{
+object maxReusableBufferSize
+    extends GlobalFlag[Int](
+      16 * 1024,
+      "Max bytes for ThriftStructSerializers reusable transport buffer"
+    ) {
   override val name = "com.twitter.scrooge.ThriftStructSerializer.maxReusableBufferSize"
 }
 
@@ -72,7 +72,6 @@ trait ThriftStructSerializer[T <: ThriftStruct] {
 trait BinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
   val protocolFactory = new TBinaryProtocol.Factory
 
-
   override def fromBytes(bytes: Array[Byte]): T = {
     val stream = new ByteArrayInputStream(bytes)
     val proto = protocolFactory.getProtocol(new TIOStreamTransport(stream))
@@ -93,13 +92,14 @@ object BinaryThriftStructSerializer {
 }
 
 object LazyBinaryThriftStructSerializer {
-  private val reusuableProtocolAndTransport = new ThreadLocal[(TArrayByteTransport, TLazyBinaryProtocol)] {
-    override def initialValue(): (TArrayByteTransport, TLazyBinaryProtocol) = {
-      val transport = new TArrayByteTransport
-      val proto = new TLazyBinaryProtocol(transport)
-      (transport, proto)
+  private val reusuableProtocolAndTransport =
+    new ThreadLocal[(TArrayByteTransport, TLazyBinaryProtocol)] {
+      override def initialValue(): (TArrayByteTransport, TLazyBinaryProtocol) = {
+        val transport = new TArrayByteTransport
+        val proto = new TLazyBinaryProtocol(transport)
+        (transport, proto)
+      }
     }
-  }
 
   def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): LazyBinaryThriftStructSerializer[T] =
     new LazyBinaryThriftStructSerializer[T] {

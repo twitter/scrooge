@@ -16,6 +16,7 @@ trait Decoder[T <: ThriftStruct] {
  * learn more.
  */
 trait AdaptContext {
+
   /**
    * Build a decoder. This method is called by the scrooge generated code and
    * typically not by user written code.
@@ -77,7 +78,8 @@ object AdaptTProtocol {
     val actual = ThriftStruct.ttypeToString(actualType)
     new TProtocolException(
       s"Received wrong type for field '$fieldName' " +
-        s"(expected=$expected, actual=$actual).")
+        s"(expected=$expected, actual=$actual)."
+    )
   }
 }
 
@@ -90,6 +92,7 @@ object AdaptTProtocol {
  * we just deserialized if unchanged.
  */
 trait AdaptTProtocol extends LazyTProtocol {
+
   /**
    * Skip a struct. This still involves parsing but no objects are created.
    * @return The offset at which the struct can be read.

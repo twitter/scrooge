@@ -20,7 +20,9 @@ object TLazyBinaryProtocol {
   private val utf8Charset = Charset.forName("UTF-8")
 }
 
-class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtocol(transport) with LazyTProtocol {
+class TLazyBinaryProtocol(transport: TArrayByteTransport)
+    extends TBinaryProtocol(transport)
+    with LazyTProtocol {
   import TLazyBinaryProtocol._
 
   @inline
@@ -272,7 +274,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport) extends TBinaryProtoco
       case e: StringIndexOutOfBoundsException =>
         throw new TException(
           s"Data is corrupt, string size reported as ${decodeI32(buf, off)}, array size is : ${buf.size} , with offset as $off"
-          )
+        )
       case e: UnsupportedEncodingException =>
         throw new TException("JVM DOES NOT SUPPORT UTF-8")
     }
