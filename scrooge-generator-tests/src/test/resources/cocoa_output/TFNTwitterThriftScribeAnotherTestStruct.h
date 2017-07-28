@@ -4,11 +4,10 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
+#import <TFNTwitterThriftScribe/TFNTwitterThriftScribeTestEnum.h>
+#import <TFNTwitterThriftScribe/TFNTwitterThriftScribeTestStruct.h>
 
-#import "ApacheThrift/TBase.h"
-#import "TFNTwitterThriftScribeTestEnum.h"
-#import "TFNTwitterThriftScribeTestStruct.h"
+@import ApacheThrift.TBase;
 
 @interface TFNTwitterThriftScribeAnotherTestStruct : NSObject <TBase, NSCoding>
 
@@ -39,8 +38,14 @@
 @property (nonatomic) TFNTwitterThriftScribeTestEnum anEnum;
 @property (nonatomic, readonly) BOOL anEnumIsSet;
 
+@property (nonatomic) int16_t shortNum;
+@property (nonatomic, readonly) BOOL shortNumIsSet;
 
-- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum;
+@property (nonatomic) int64_t longLongNum;
+@property (nonatomic, readonly) BOOL longLongNumIsSet;
+
+
+- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

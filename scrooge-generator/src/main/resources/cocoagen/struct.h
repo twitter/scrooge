@@ -1,7 +1,6 @@
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TBase.h"
 {{headers}}
+
+@import ApacheThrift.TBase;
 
 @interface {{StructName}} : NSObject <TBase, NSCoding>
 

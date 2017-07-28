@@ -4,16 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TApplicationException.h"
-#import "ApacheThrift/TBase.h"
-#import "ApacheThrift/TObjective-C.h"
-#import "ApacheThrift/TProcessor.h"
-#import "ApacheThrift/TProtocol.h"
-#import "ApacheThrift/TProtocolException.h"
-#import "ApacheThrift/TProtocolUtil.h"
 #import "TFNTwitterThriftGoldRequest.h"
+
+@import ApacheThrift;
 
 @implementation TFNTwitterThriftGoldRequest
 
@@ -69,37 +62,37 @@
 {
     if (self = [super init]) {
         if ([decoder containsValueForKey:@"1"]) {
-            [self setAList:[decoder decodeObjectForKey:@"1"]];
+            [self setAList:(NSArray *)[decoder decodeObjectForKey:@"1"]];
         }
         if ([decoder containsValueForKey:@"2"]) {
-            [self setASet:[decoder decodeObjectForKey:@"2"]];
+            [self setASet:(NSSet *)[decoder decodeObjectForKey:@"2"]];
         }
         if ([decoder containsValueForKey:@"3"]) {
-            [self setAMap:[decoder decodeObjectForKey:@"3"]];
+            [self setAMap:(NSDictionary *)[decoder decodeObjectForKey:@"3"]];
         }
         if ([decoder containsValueForKey:@"4"]) {
-            [self setARequest:[decoder decodeObjectForKey:@"4"]];
+            [self setARequest:(TFNTwitterThriftGoldRequest*)[decoder decodeObjectForKey:@"4"]];
         }
         if ([decoder containsValueForKey:@"5"]) {
-            [self setSubRequests:[decoder decodeObjectForKey:@"5"]];
+            [self setSubRequests:(NSArray *)[decoder decodeObjectForKey:@"5"]];
         }
         if ([decoder containsValueForKey:@"6"]) {
-            [self setHasDefault:[decoder decodeObjectForKey:@"6"]];
+            [self setHasDefault:(NSString *)[decoder decodeObjectForKey:@"6"]];
         }
         if ([decoder containsValueForKey:@"7"]) {
-            [self setNoComment:[decoder decodeInt64ForKey:@"7"]];
+            [self setNoComment:(int64_t)[decoder decodeInt64ForKey:@"7"]];
         }
         if ([decoder containsValueForKey:@"8"]) {
-            [self setDoubleSlashComment:[decoder decodeInt64ForKey:@"8"]];
+            [self setDoubleSlashComment:(int64_t)[decoder decodeInt64ForKey:@"8"]];
         }
         if ([decoder containsValueForKey:@"9"]) {
-            [self setHashtagComment:[decoder decodeInt64ForKey:@"9"]];
+            [self setHashtagComment:(int64_t)[decoder decodeInt64ForKey:@"9"]];
         }
         if ([decoder containsValueForKey:@"10"]) {
-            [self setSingleAsteriskComment:[decoder decodeInt64ForKey:@"10"]];
+            [self setSingleAsteriskComment:(int64_t)[decoder decodeInt64ForKey:@"10"]];
         }
         if ([decoder containsValueForKey:@"11"]) {
-            [self setDocStringComment:[decoder decodeInt64ForKey:@"11"]];
+            [self setDocStringComment:(int64_t)[decoder decodeInt64ForKey:@"11"]];
         }
     }
     return self;
@@ -226,7 +219,8 @@
                     NSArray * aList_item;
                     int _aList_item_size;
                     [inProtocol readListBeginReturningElementType:NULL size:&_aList_item_size];
-                    NSMutableArray *aList_item_mutable = [[NSMutableArray alloc] initWithCapacity:_aList_item_size];
+                    NSUInteger _aList_item_capacity = _aList_item_size < 0 ? 0 : (NSUInteger)_aList_item_size;
+                    NSMutableArray *aList_item_mutable = [[NSMutableArray alloc] initWithCapacity:_aList_item_capacity];
                     for (int _aList_item_i = 0; _aList_item_i < _aList_item_size; ++_aList_item_i) {
                         NSString * aList_item_element;
                         aList_item_element = [inProtocol readString];
@@ -245,7 +239,8 @@
                     NSSet * aSet_item;
                     int _aSet_item_size;
                     [inProtocol readSetBeginReturningElementType: NULL size: &_aSet_item_size];
-                    NSMutableSet *aSet_item_mutable = [[NSMutableSet alloc] initWithCapacity:_aSet_item_size];
+                    NSUInteger _aSet_item_capacity= _aSet_item_size < 0 ? 0 : (NSUInteger)_aSet_item_size;
+                    NSMutableSet *aSet_item_mutable = [[NSMutableSet alloc] initWithCapacity:_aSet_item_capacity];
                     for (int _aSet_item_i = 0; _aSet_item_i < _aSet_item_size; ++_aSet_item_i) {
                         int32_t aSet_item_element;
                         aSet_item_element = [inProtocol readI32];
@@ -264,7 +259,8 @@
                     NSDictionary * aMap_item;
                     int _aMap_item_size;
                     [inProtocol readMapBeginReturningKeyType: NULL valueType: NULL size: &_aMap_item_size];
-                    NSMutableDictionary *aMap_item_mutable = [[NSMutableDictionary alloc] initWithCapacity: _aMap_item_size];
+                    NSUInteger _aMap_item_capacity= _aMap_item_size < 0 ? 0 : (NSUInteger)_aMap_item_size;
+                    NSMutableDictionary *aMap_item_mutable = [[NSMutableDictionary alloc] initWithCapacity: _aMap_item_capacity];
                     for (int _aMap_item_i = 0; _aMap_item_i < _aMap_item_size; ++_aMap_item_i) {
                         int64_t aMap_item_key;
                         int64_t aMap_item_value;
@@ -296,7 +292,8 @@
                     NSArray * subRequests_item;
                     int _subRequests_item_size;
                     [inProtocol readListBeginReturningElementType:NULL size:&_subRequests_item_size];
-                    NSMutableArray *subRequests_item_mutable = [[NSMutableArray alloc] initWithCapacity:_subRequests_item_size];
+                    NSUInteger _subRequests_item_capacity = _subRequests_item_size < 0 ? 0 : (NSUInteger)_subRequests_item_size;
+                    NSMutableArray *subRequests_item_mutable = [[NSMutableArray alloc] initWithCapacity:_subRequests_item_capacity];
                     for (int _subRequests_item_i = 0; _subRequests_item_i < _subRequests_item_size; ++_subRequests_item_i) {
                         TFNTwitterThriftGoldRequest * subRequests_item_element;
                         subRequests_item_element = [[TFNTwitterThriftGoldRequest alloc] init];
@@ -390,7 +387,7 @@
         [outProtocol writeFieldBeginWithName:@"aList" type:TType_LIST fieldID:1];
         NSArray * aList_item = _aList;
         [outProtocol writeListBeginWithElementType:TType_STRING size:(int)[aList_item count]];
-        for (int _aList_item_i = 0; _aList_item_i < [aList_item count]; _aList_item_i++) {
+        for (NSUInteger _aList_item_i = 0; _aList_item_i < [aList_item count]; _aList_item_i++) {
             NSString * aList_item_element = aList_item[_aList_item_i];
             [outProtocol writeString:aList_item_element];
         }
@@ -433,7 +430,7 @@
         [outProtocol writeFieldBeginWithName:@"subRequests" type:TType_LIST fieldID:5];
         NSArray * subRequests_item = _subRequests;
         [outProtocol writeListBeginWithElementType:TType_STRUCT size:(int)[subRequests_item count]];
-        for (int _subRequests_item_i = 0; _subRequests_item_i < [subRequests_item count]; _subRequests_item_i++) {
+        for (NSUInteger _subRequests_item_i = 0; _subRequests_item_i < [subRequests_item count]; _subRequests_item_i++) {
             TFNTwitterThriftGoldRequest * subRequests_item_element = subRequests_item[_subRequests_item_i];
             [subRequests_item_element write: outProtocol];
         }

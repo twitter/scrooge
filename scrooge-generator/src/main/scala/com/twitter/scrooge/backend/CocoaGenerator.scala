@@ -110,7 +110,7 @@ class CocoaGenerator(
 
   def getDependentHeaders(struct: StructLike): String = {
     getDependentTypes(struct)
-      .map(t => s"""#import \"${genType(t).toString}.h\"""")
+      .map(t => s"""#import <${currentNamespace}/${genType(t).toString}.h>""")
       .toList
       .sorted
       .mkString("\n")

@@ -4,10 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
+#import <TFNTwitterThriftGold/TFNTwitterThriftGoldRequest.h>
 
-#import "ApacheThrift/TBase.h"
-#import "TFNTwitterThriftGoldRequest.h"
+@import ApacheThrift.TBase;
 
 @interface TFNTwitterThriftGoldRequest : NSObject <TBase, NSCoding>
 

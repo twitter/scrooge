@@ -4,16 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TApplicationException.h"
-#import "ApacheThrift/TBase.h"
-#import "ApacheThrift/TObjective-C.h"
-#import "ApacheThrift/TProcessor.h"
-#import "ApacheThrift/TProtocol.h"
-#import "ApacheThrift/TProtocolException.h"
-#import "ApacheThrift/TProtocolUtil.h"
 #import "TFNTwitterThriftScribeAnotherTestStruct.h"
+
+@import ApacheThrift;
 
 @implementation TFNTwitterThriftScribeAnotherTestStruct
 
@@ -38,11 +31,15 @@
     [ms appendFormat:@"%@ ", @(_notACamel)];
     [ms appendString:@"anEnum:"];
     [ms appendFormat:@"%@ ", @(_anEnum)];
+    [ms appendString:@"shortNum:"];
+    [ms appendFormat:@"%@ ", @(_shortNum)];
+    [ms appendString:@"longLongNum:"];
+    [ms appendFormat:@"%@ ", @(_longLongNum)];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum
+- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum
 {
     if (self = [super init]) {
         [self setStructs:structs];
@@ -54,6 +51,8 @@
         [self setSel_:sel_];
         [self setNotACamel:notACamel];
         [self setAnEnum:anEnum];
+        [self setShortNum:shortNum];
+        [self setLongLongNum:longLongNum];
     }
 
     return self;
@@ -63,31 +62,37 @@
 {
     if (self = [super init]) {
         if ([decoder containsValueForKey:@"1"]) {
-            [self setStructs:[decoder decodeObjectForKey:@"1"]];
+            [self setStructs:(NSArray *)[decoder decodeObjectForKey:@"1"]];
         }
         if ([decoder containsValueForKey:@"2"]) {
-            [self setStringStructs:[decoder decodeObjectForKey:@"2"]];
+            [self setStringStructs:(NSArray *)[decoder decodeObjectForKey:@"2"]];
         }
         if ([decoder containsValueForKey:@"3"]) {
-            [self setASet:[decoder decodeObjectForKey:@"3"]];
+            [self setASet:(NSSet *)[decoder decodeObjectForKey:@"3"]];
         }
         if ([decoder containsValueForKey:@"4"]) {
-            [self setAMap:[decoder decodeObjectForKey:@"4"]];
+            [self setAMap:(NSDictionary *)[decoder decodeObjectForKey:@"4"]];
         }
         if ([decoder containsValueForKey:@"5"]) {
-            [self setId_:[decoder decodeInt32ForKey:@"5"]];
+            [self setId_:(int32_t)[decoder decodeInt32ForKey:@"5"]];
         }
         if ([decoder containsValueForKey:@"6"]) {
-            [self setProtocol_:[decoder decodeObjectForKey:@"6"]];
+            [self setProtocol_:(NSString *)[decoder decodeObjectForKey:@"6"]];
         }
         if ([decoder containsValueForKey:@"7"]) {
-            [self setSel_:[decoder decodeObjectForKey:@"7"]];
+            [self setSel_:(TFNTwitterThriftScribeTestStruct*)[decoder decodeObjectForKey:@"7"]];
         }
         if ([decoder containsValueForKey:@"8"]) {
-            [self setNotACamel:[decoder decodeInt32ForKey:@"8"]];
+            [self setNotACamel:(int32_t)[decoder decodeInt32ForKey:@"8"]];
         }
         if ([decoder containsValueForKey:@"9"]) {
-            [self setAnEnum:[decoder decodeInt32ForKey:@"9"]];
+            [self setAnEnum:(TFNTwitterThriftScribeTestEnum)[decoder decodeInt32ForKey:@"9"]];
+        }
+        if ([decoder containsValueForKey:@"10"]) {
+            [self setShortNum:(int16_t)[decoder decodeInt32ForKey:@"10"]];
+        }
+        if ([decoder containsValueForKey:@"11"]) {
+            [self setLongLongNum:(int64_t)[decoder decodeInt64ForKey:@"11"]];
         }
     }
     return self;
@@ -121,6 +126,12 @@
     }
     if (_anEnumIsSet) {
         [encoder encodeInt32:_anEnum forKey:@"9"];
+    }
+    if (_shortNumIsSet) {
+        [encoder encodeInt32:_shortNum forKey:@"10"];
+    }
+    if (_longLongNumIsSet) {
+        [encoder encodeInt64:_longLongNum forKey:@"11"];
     }
 }
 
@@ -178,6 +189,18 @@
     _anEnumIsSet = YES;
 }
 
+- (void)setShortNum:(int16_t)shortNum
+{
+    _shortNum = shortNum;
+    _shortNumIsSet = YES;
+}
+
+- (void)setLongLongNum:(int64_t)longLongNum
+{
+    _longLongNum = longLongNum;
+    _longLongNumIsSet = YES;
+}
+
 - (void)read:(id <TProtocol>)inProtocol
 {
     NSString* fieldName;
@@ -196,7 +219,8 @@
                     NSArray * structs_item;
                     int _structs_item_size;
                     [inProtocol readListBeginReturningElementType:NULL size:&_structs_item_size];
-                    NSMutableArray *structs_item_mutable = [[NSMutableArray alloc] initWithCapacity:_structs_item_size];
+                    NSUInteger _structs_item_capacity = _structs_item_size < 0 ? 0 : (NSUInteger)_structs_item_size;
+                    NSMutableArray *structs_item_mutable = [[NSMutableArray alloc] initWithCapacity:_structs_item_capacity];
                     for (int _structs_item_i = 0; _structs_item_i < _structs_item_size; ++_structs_item_i) {
                         TFNTwitterThriftScribeTestStruct * structs_item_element;
                         structs_item_element = [[TFNTwitterThriftScribeTestStruct alloc] init];
@@ -216,7 +240,8 @@
                     NSArray * stringStructs_item;
                     int _stringStructs_item_size;
                     [inProtocol readListBeginReturningElementType:NULL size:&_stringStructs_item_size];
-                    NSMutableArray *stringStructs_item_mutable = [[NSMutableArray alloc] initWithCapacity:_stringStructs_item_size];
+                    NSUInteger _stringStructs_item_capacity = _stringStructs_item_size < 0 ? 0 : (NSUInteger)_stringStructs_item_size;
+                    NSMutableArray *stringStructs_item_mutable = [[NSMutableArray alloc] initWithCapacity:_stringStructs_item_capacity];
                     for (int _stringStructs_item_i = 0; _stringStructs_item_i < _stringStructs_item_size; ++_stringStructs_item_i) {
                         NSString * stringStructs_item_element;
                         stringStructs_item_element = [inProtocol readString];
@@ -235,7 +260,8 @@
                     NSSet * aSet_item;
                     int _aSet_item_size;
                     [inProtocol readSetBeginReturningElementType: NULL size: &_aSet_item_size];
-                    NSMutableSet *aSet_item_mutable = [[NSMutableSet alloc] initWithCapacity:_aSet_item_size];
+                    NSUInteger _aSet_item_capacity= _aSet_item_size < 0 ? 0 : (NSUInteger)_aSet_item_size;
+                    NSMutableSet *aSet_item_mutable = [[NSMutableSet alloc] initWithCapacity:_aSet_item_capacity];
                     for (int _aSet_item_i = 0; _aSet_item_i < _aSet_item_size; ++_aSet_item_i) {
                         TFNTwitterThriftScribeTestStruct * aSet_item_element;
                         aSet_item_element = [[TFNTwitterThriftScribeTestStruct alloc] init];
@@ -255,7 +281,8 @@
                     NSDictionary * aMap_item;
                     int _aMap_item_size;
                     [inProtocol readMapBeginReturningKeyType: NULL valueType: NULL size: &_aMap_item_size];
-                    NSMutableDictionary *aMap_item_mutable = [[NSMutableDictionary alloc] initWithCapacity: _aMap_item_size];
+                    NSUInteger _aMap_item_capacity= _aMap_item_size < 0 ? 0 : (NSUInteger)_aMap_item_size;
+                    NSMutableDictionary *aMap_item_mutable = [[NSMutableDictionary alloc] initWithCapacity: _aMap_item_capacity];
                     for (int _aMap_item_i = 0; _aMap_item_i < _aMap_item_size; ++_aMap_item_i) {
                         NSString * aMap_item_key;
                         TFNTwitterThriftScribeTestStruct * aMap_item_value;
@@ -323,6 +350,26 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 10:
+                if (fieldType == TType_I16) {
+                    int16_t shortNum_item;
+                    shortNum_item = [inProtocol readI16];
+                    [self setShortNum:shortNum_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 11:
+                if (fieldType == TType_I64) {
+                    int64_t longLongNum_item;
+                    longLongNum_item = [inProtocol readI64];
+                    [self setLongLongNum:longLongNum_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -342,7 +389,7 @@
         [outProtocol writeFieldBeginWithName:@"structs" type:TType_LIST fieldID:1];
         NSArray * structs_item = _structs;
         [outProtocol writeListBeginWithElementType:TType_STRUCT size:(int)[structs_item count]];
-        for (int _structs_item_i = 0; _structs_item_i < [structs_item count]; _structs_item_i++) {
+        for (NSUInteger _structs_item_i = 0; _structs_item_i < [structs_item count]; _structs_item_i++) {
             TFNTwitterThriftScribeTestStruct * structs_item_element = structs_item[_structs_item_i];
             [structs_item_element write: outProtocol];
         }
@@ -353,7 +400,7 @@
         [outProtocol writeFieldBeginWithName:@"stringStructs" type:TType_LIST fieldID:2];
         NSArray * stringStructs_item = _stringStructs;
         [outProtocol writeListBeginWithElementType:TType_STRING size:(int)[stringStructs_item count]];
-        for (int _stringStructs_item_i = 0; _stringStructs_item_i < [stringStructs_item count]; _stringStructs_item_i++) {
+        for (NSUInteger _stringStructs_item_i = 0; _stringStructs_item_i < [stringStructs_item count]; _stringStructs_item_i++) {
             NSString * stringStructs_item_element = stringStructs_item[_stringStructs_item_i];
             [outProtocol writeString:stringStructs_item_element];
         }
@@ -414,6 +461,18 @@
         [outProtocol writeFieldBeginWithName:@"anEnum" type:TType_I32 fieldID:9];
         TFNTwitterThriftScribeTestEnum anEnum_item = _anEnum;
         [outProtocol writeI32:anEnum_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_shortNumIsSet) {
+        [outProtocol writeFieldBeginWithName:@"shortNum" type:TType_I16 fieldID:10];
+        int16_t shortNum_item = _shortNum;
+        [outProtocol writeI16:shortNum_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_longLongNumIsSet) {
+        [outProtocol writeFieldBeginWithName:@"longLongNum" type:TType_I64 fieldID:11];
+        int64_t longLongNum_item = _longLongNum;
+        [outProtocol writeI64:longLongNum_item];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

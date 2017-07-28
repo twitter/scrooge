@@ -4,16 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TApplicationException.h"
-#import "ApacheThrift/TBase.h"
-#import "ApacheThrift/TObjective-C.h"
-#import "ApacheThrift/TProcessor.h"
-#import "ApacheThrift/TProtocol.h"
-#import "ApacheThrift/TProtocolException.h"
-#import "ApacheThrift/TProtocolUtil.h"
 #import "TFNTwitterThriftGoldCollectionId.h"
+
+@import ApacheThrift;
 
 @implementation TFNTwitterThriftGoldCollectionId
 
@@ -39,7 +32,7 @@
 {
     if (self = [super init]) {
         if ([decoder containsValueForKey:@"1"]) {
-            [self setCollectionLongId:[decoder decodeInt64ForKey:@"1"]];
+            [self setCollectionLongId:(int64_t)[decoder decodeInt64ForKey:@"1"]];
         }
     }
     return self;

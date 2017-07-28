@@ -1,13 +1,6 @@
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TApplicationException.h"
-#import "ApacheThrift/TBase.h"
-#import "ApacheThrift/TObjective-C.h"
-#import "ApacheThrift/TProcessor.h"
-#import "ApacheThrift/TProtocol.h"
-#import "ApacheThrift/TProtocolException.h"
-#import "ApacheThrift/TProtocolUtil.h"
 #import "{{StructName}}.h"
+
+@import ApacheThrift;
 
 @implementation {{StructName}}
 
@@ -38,7 +31,7 @@
     if (self = [super init]) {
 {{#fields}}
         if ([decoder containsValueForKey:@"{{id}}"]) {
-            [self set{{FieldName}}:[decoder {{decodeMethod}}:@"{{id}}"]];
+            [self set{{FieldName}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}})[decoder {{decodeMethod}}:@"{{id}}"]];
         }
 {{/fields}}
     }

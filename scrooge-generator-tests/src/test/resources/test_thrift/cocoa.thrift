@@ -21,4 +21,6 @@ struct AnotherTestStruct {
   7: TestStruct SEL                 // struct upper-base reserved keyword
   8: i32 not_a_camel                // ensure correct field names
   9: TestEnum anEnum                // ensure correct enum references
+  10: i16 shortNum                  // ensure can handle 16-bit ints
+  11: i64 longLongNum               // ensure can handle 64-bit ints
 }

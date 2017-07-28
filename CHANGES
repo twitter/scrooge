@@ -15,6 +15,8 @@
   `FutureIface`. It already "was" that type in practice but did not implement
   that trait. ``PHAB_ID=D67289``
 
+- scrooge-generator: Generated Cocoa code now supports modular frameworks and 
+  removes some compiler warnings about implicit casts. ``PHAB_ID=D74200``
 
 4.18.0
 ------

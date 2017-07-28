@@ -4,10 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
 
-#import "ApacheThrift/TBase.h"
 
+@import ApacheThrift.TBase;
 
 @interface TFNTwitterThriftGoldOverCapacityException : NSObject <TBase, NSCoding>
 

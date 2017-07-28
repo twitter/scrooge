@@ -4,16 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TApplicationException.h"
-#import "ApacheThrift/TBase.h"
-#import "ApacheThrift/TObjective-C.h"
-#import "ApacheThrift/TProcessor.h"
-#import "ApacheThrift/TProtocol.h"
-#import "ApacheThrift/TProtocolException.h"
-#import "ApacheThrift/TProtocolUtil.h"
 #import "TFNTwitterThriftGoldResponseUnion.h"
+
+@import ApacheThrift;
 
 @implementation TFNTwitterThriftGoldResponseUnion
 
@@ -42,10 +35,10 @@
 {
     if (self = [super init]) {
         if ([decoder containsValueForKey:@"1"]) {
-            [self setId_:[decoder decodeInt64ForKey:@"1"]];
+            [self setId_:(int64_t)[decoder decodeInt64ForKey:@"1"]];
         }
         if ([decoder containsValueForKey:@"2"]) {
-            [self setDetails:[decoder decodeObjectForKey:@"2"]];
+            [self setDetails:(NSString *)[decoder decodeObjectForKey:@"2"]];
         }
     }
     return self;

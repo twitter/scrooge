@@ -4,16 +4,9 @@
  *   rev: ?
  *   built at: ?
  */
-#import <Foundation/Foundation.h>
-
-#import "ApacheThrift/TApplicationException.h"
-#import "ApacheThrift/TBase.h"
-#import "ApacheThrift/TObjective-C.h"
-#import "ApacheThrift/TProcessor.h"
-#import "ApacheThrift/TProtocol.h"
-#import "ApacheThrift/TProtocolException.h"
-#import "ApacheThrift/TProtocolUtil.h"
 #import "TFNTwitterThriftScribeTestStruct.h"
+
+@import ApacheThrift;
 
 @implementation TFNTwitterThriftScribeTestStruct
 
@@ -45,13 +38,13 @@
 {
     if (self = [super init]) {
         if ([decoder containsValueForKey:@"1"]) {
-            [self setName:[decoder decodeObjectForKey:@"1"]];
+            [self setName:(NSString *)[decoder decodeObjectForKey:@"1"]];
         }
         if ([decoder containsValueForKey:@"2"]) {
-            [self setValues:[decoder decodeObjectForKey:@"2"]];
+            [self setValues:(NSSet *)[decoder decodeObjectForKey:@"2"]];
         }
         if ([decoder containsValueForKey:@"3"]) {
-            [self setPrice:[decoder decodeInt32ForKey:@"3"]];
+            [self setPrice:(int32_t)[decoder decodeInt32ForKey:@"3"]];
         }
     }
     return self;
@@ -116,7 +109,8 @@
                     NSSet * values_item;
                     int _values_item_size;
                     [inProtocol readSetBeginReturningElementType: NULL size: &_values_item_size];
-                    NSMutableSet *values_item_mutable = [[NSMutableSet alloc] initWithCapacity:_values_item_size];
+                    NSUInteger _values_item_capacity= _values_item_size < 0 ? 0 : (NSUInteger)_values_item_size;
+                    NSMutableSet *values_item_mutable = [[NSMutableSet alloc] initWithCapacity:_values_item_capacity];
                     for (int _values_item_i = 0; _values_item_i < _values_item_size; ++_values_item_i) {
                         NSString * values_item_element;
                         values_item_element = [inProtocol readString];
