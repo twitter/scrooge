@@ -1,10 +1,16 @@
 package com.twitter.scrooge.adapt.testutil
 
 import com.twitter.scrooge.adapt.{AdaptSettings, TAdaptBinaryProtocol, TrackingAdaptContext}
-import com.twitter.scrooge.{TArrayByteTransport, ThriftStruct, ThriftStructCodec, ThriftStructSerializer}
+import com.twitter.scrooge.{
+  TArrayByteTransport,
+  ThriftStruct,
+  ThriftStructCodec,
+  ThriftStructSerializer
+}
 import org.apache.thrift.protocol.{TBinaryProtocol, TProtocolFactory}
 
 object ReloadOnceAdaptBinarySerializer {
+
   /**
    * Build an Adaptive binary thrift serializer that triggers decoder reload the
    * first time it's used.
@@ -13,17 +19,16 @@ object ReloadOnceAdaptBinarySerializer {
    */
   def apply[T <: ThriftStruct](
     codec: ThriftStructCodec[T],
-    settings: AdaptSettings = AdaptSettings(1,1)
+    settings: AdaptSettings = AdaptSettings(1, 1)
   ): ThriftStructSerializer[T] =
     new ReloadOnceAdaptBinarySerializer[T](codec, settings)
 
   private[this] class ReloadOnceAdaptBinarySerializer[T <: ThriftStruct](
-      val codec: ThriftStructCodec[T],
-      settings: AdaptSettings)
-    extends ThriftStructSerializer[T] {
+    val codec: ThriftStructCodec[T],
+    settings: AdaptSettings
+  ) extends ThriftStructSerializer[T] {
 
-    private[this] val adaptContext = new ReloadOnceAdaptContext(
-      new TrackingAdaptContext(settings))
+    private[this] val adaptContext = new ReloadOnceAdaptContext(new TrackingAdaptContext(settings))
 
     val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory
 
@@ -43,5 +48,3 @@ object ReloadOnceAdaptBinarySerializer {
     }
   }
 }
-
-

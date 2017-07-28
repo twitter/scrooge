@@ -29,7 +29,9 @@ class BinaryThriftFieldRemoverTest extends PropSpec with Checkers {
     }
   }
 
-  property("Field remove should remove optional field with default value correctly, so it's set to default value") {
+  property(
+    "Field remove should remove optional field with default value correctly, so it's set to default value"
+  ) {
     check {
       forAll { t: TestStruct =>
         val before = t.copy(optionalFieldWithDefaultValue = "test")
@@ -51,4 +53,3 @@ class BinaryThriftFieldRemoverTest extends PropSpec with Checkers {
   }
 
 }
-

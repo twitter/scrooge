@@ -22,11 +22,11 @@ class TrackingAdaptContext(settings: AdaptSettings) extends AdaptContext {
       fallbackDecoder,
       accessRecordingDecoderBuilder,
       settings,
-      adaptClassLoader)
+      adaptClassLoader
+    )
   }
 
   def shouldReloadDecoder: Boolean = false
 
   def initCopy(): AdaptContext = new TrackingAdaptContext(settings)
 }
-

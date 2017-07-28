@@ -41,7 +41,6 @@ case class ThreadUnsafeLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStruct
   }
 }
 
-
 object LazyTProtocolBenchmark {
   // Pass in a seed and fixed number of airports.
   // Will be initialized with this object so separate from the benchmarks.
@@ -87,11 +86,35 @@ object LazyTProtocolBenchmark {
 
     @Setup(Level.Trial)
     def setup(): Unit = {
-      require(airportBytes.forall { b => binaryThriftStructSerializer.fromBytes(b) == statelessLazySerializer.fromBytes(b) } , "Deserializers do not agree, benchmarks pointless")
-      require(airports.forall { b => ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(statelessLazySerializer.toBytes(b)) } , "Stateful vs normal Serializers do not agree, benchmarks pointless")
+      require(
+        airportBytes.forall { b =>
+          binaryThriftStructSerializer.fromBytes(b) == statelessLazySerializer.fromBytes(b)
+        },
+        "Deserializers do not agree, benchmarks pointless"
+      )
+      require(
+        airports.forall { b =>
+          ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(
+            statelessLazySerializer.toBytes(b)
+          )
+        },
+        "Stateful vs normal Serializers do not agree, benchmarks pointless"
+      )
 
-      require(airportBytes.forall { b => binaryThriftStructSerializer.fromBytes(b) == statefulLazySerializer.fromBytes(b) } , "Stateful Deserializers do not agree, benchmarks pointless")
-      require(airports.forall { b => ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(statefulLazySerializer.toBytes(b)) } , "Stateful Serializers do not agree, benchmarks pointless")
+      require(
+        airportBytes.forall { b =>
+          binaryThriftStructSerializer.fromBytes(b) == statefulLazySerializer.fromBytes(b)
+        },
+        "Stateful Deserializers do not agree, benchmarks pointless"
+      )
+      require(
+        airports.forall { b =>
+          ByteBuffer.wrap(binaryThriftStructSerializer.toBytes(b)) == ByteBuffer.wrap(
+            statefulLazySerializer.toBytes(b)
+          )
+        },
+        "Stateful Serializers do not agree, benchmarks pointless"
+      )
     }
 
   }
@@ -122,13 +145,18 @@ class LazyTProtocolBenchmark {
 
   @Benchmark
   def timeReferenceFromBytesReadAllFields(state: AirportState, bh: Blackhole): Blackhole = {
-    airportBytes.map(state.binaryThriftStructSerializer.fromBytes).foreach(a => readAllFields(bh, a))
+    airportBytes
+      .map(state.binaryThriftStructSerializer.fromBytes)
+      .foreach(a => readAllFields(bh, a))
     bh
   }
 
   @Benchmark
   def timeReferenceRTBytes(state: AirportState): Seq[Array[Byte]] = {
-    airportBytes.map(b => state.binaryThriftStructSerializer.toBytes(state.binaryThriftStructSerializer.fromBytes(b)))
+    airportBytes.map(
+      b =>
+        state.binaryThriftStructSerializer.toBytes(state.binaryThriftStructSerializer.fromBytes(b))
+    )
   }
 
   // ========= Stateless benchmarks =========
@@ -137,8 +165,6 @@ class LazyTProtocolBenchmark {
   def timeStatelessToBytes(state: AirportState): Seq[Array[Byte]] = {
     airports.map(state.statelessLazySerializer.toBytes)
   }
-
-
   @Benchmark
   def timeStatelessFromBytes(state: AirportState): Seq[Airport] = {
     airportBytes.map(state.statelessLazySerializer.fromBytes)
@@ -158,7 +184,9 @@ class LazyTProtocolBenchmark {
 
   @Benchmark
   def timeStatelessRTBytes(state: AirportState): Seq[Array[Byte]] = {
-    airportBytes.map(b => state.statelessLazySerializer.toBytes(state.statelessLazySerializer.fromBytes(b)))
+    airportBytes.map(
+      b => state.statelessLazySerializer.toBytes(state.statelessLazySerializer.fromBytes(b))
+    )
   }
 
   // ========= Stateful benchmarks =========
@@ -167,8 +195,6 @@ class LazyTProtocolBenchmark {
   def timeStatefulToBytes(state: AirportState): Seq[Array[Byte]] = {
     airports.map(state.statefulLazySerializer.toBytes)
   }
-
-
   @Benchmark
   def timeStatefulFromBytes(state: AirportState): Seq[Airport] = {
     airportBytes.map(state.statefulLazySerializer.fromBytes)
@@ -180,7 +206,7 @@ class LazyTProtocolBenchmark {
     bh
   }
 
-    @Benchmark
+  @Benchmark
   def timeStatefulFromBytesReadlAllFields(state: AirportState, bh: Blackhole): Blackhole = {
     airportBytes.map(state.statefulLazySerializer.fromBytes).foreach(a => readAllFields(bh, a))
     bh
@@ -188,37 +214,62 @@ class LazyTProtocolBenchmark {
 
   @Benchmark
   def timeStatefulRTBytes(state: AirportState): Seq[Array[Byte]] = {
-    airportBytes.map(b => state.statefulLazySerializer.toBytes(state.statefulLazySerializer.fromBytes(b)))
+    airportBytes.map(
+      b => state.statefulLazySerializer.toBytes(state.statefulLazySerializer.fromBytes(b))
+    )
   }
 
- // ========= Using the thread state, no built in thread safety =========
+  // ========= Using the thread state, no built in thread safety =========
 
   @Benchmark
-  def timeThreadUnsafeToBytes(state: AirportState, threadState: AirportThreadState): Seq[Array[Byte]] = {
+  def timeThreadUnsafeToBytes(
+    state: AirportState,
+    threadState: AirportThreadState
+  ): Seq[Array[Byte]] = {
     airports.map(threadState.threadUnsafeLazySerializer.toBytes)
   }
-
-
   @Benchmark
-  def timeThreadUnsafeFromBytes(state: AirportState, threadState: AirportThreadState): Seq[Airport] = {
+  def timeThreadUnsafeFromBytes(
+    state: AirportState,
+    threadState: AirportThreadState
+  ): Seq[Airport] = {
     airportBytes.map(threadState.threadUnsafeLazySerializer.fromBytes)
   }
 
   @Benchmark
-  def timeThreadUnsafeFromBytesRead3Fields(state: AirportState, threadState: AirportThreadState, bh: Blackhole): Blackhole = {
-    airportBytes.map(threadState.threadUnsafeLazySerializer.fromBytes).foreach(a => read3Fields(bh, a))
-    bh
-  }
-
-    @Benchmark
-  def timeThreadUnsafeFromBytesReadlAllFields(state: AirportState, threadState: AirportThreadState, bh: Blackhole): Blackhole = {
-    airportBytes.map(threadState.threadUnsafeLazySerializer.fromBytes).foreach(a => readAllFields(bh, a))
+  def timeThreadUnsafeFromBytesRead3Fields(
+    state: AirportState,
+    threadState: AirportThreadState,
+    bh: Blackhole
+  ): Blackhole = {
+    airportBytes
+      .map(threadState.threadUnsafeLazySerializer.fromBytes)
+      .foreach(a => read3Fields(bh, a))
     bh
   }
 
   @Benchmark
-  def timeThreadUnsafeRTBytes(state: AirportState, threadState: AirportThreadState): Seq[Array[Byte]] = {
-    airportBytes.map(b => threadState.threadUnsafeLazySerializer.toBytes(threadState.threadUnsafeLazySerializer.fromBytes(b)))
+  def timeThreadUnsafeFromBytesReadlAllFields(
+    state: AirportState,
+    threadState: AirportThreadState,
+    bh: Blackhole
+  ): Blackhole = {
+    airportBytes
+      .map(threadState.threadUnsafeLazySerializer.fromBytes)
+      .foreach(a => readAllFields(bh, a))
+    bh
+  }
+
+  @Benchmark
+  def timeThreadUnsafeRTBytes(
+    state: AirportState,
+    threadState: AirportThreadState
+  ): Seq[Array[Byte]] = {
+    airportBytes.map(
+      b =>
+        threadState.threadUnsafeLazySerializer
+          .toBytes(threadState.threadUnsafeLazySerializer.fromBytes(b))
+    )
   }
 
 }

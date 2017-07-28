@@ -55,7 +55,7 @@ private[adapt] object AdaptAsmPruner {
     def isUnusedField(fieldName: String): Boolean =
       useMap.get(fieldName) match {
         case Some(used) => !used
-        case None       => false
+        case None => false
       }
 
     // Get rid of unused field members
@@ -139,7 +139,7 @@ private[adapt] object AdaptAsmPruner {
     insn match {
       case f: FieldInsnNode =>
         f.owner == "com/twitter/scrooge/adapt/AdaptTProtocol$" &&
-        f.name == "MODULE$"
+          f.name == "MODULE$"
       case _ => false
     }
 
@@ -217,16 +217,20 @@ private[adapt] object AdaptAsmPruner {
           case Opcodes.ICONST_4 => 4
           case Opcodes.ICONST_5 => 5
           case Opcodes.ICONST_M1 => -1
-          case _ => throw new IllegalStateException(
-            s"Unexpected opcode ${i.getOpcode} while trying to read fieldId")
+          case _ =>
+            throw new IllegalStateException(
+              s"Unexpected opcode ${i.getOpcode} while trying to read fieldId"
+            )
         }
       case i: IntInsnNode =>
         i.getOpcode match {
           case Opcodes.BIPUSH => i.operand.toShort
           case Opcodes.SIPUSH => i.operand.toShort
         }
-      case _ => throw new IllegalStateException(
-        s"Unexpected instruction $insn while trying to read fieldId")
+      case _ =>
+        throw new IllegalStateException(
+          s"Unexpected instruction $insn while trying to read fieldId"
+        )
     }
 
   /**
@@ -277,6 +281,7 @@ private[adapt] object AdaptAsmPruner {
   ): Unit = {
     val iter = di.iterator
     while (iter.hasNext) {
+
       /**
        * Each field has sections in the template for when it is used or unused.
        * Based on whether the field is used we keep corresponding section and
@@ -287,8 +292,8 @@ private[adapt] object AdaptAsmPruner {
         case Some(fieldId) =>
           deleteMarkedSection(iter, UsedEnd, !useMap(fieldId))
         case _ =>
-          // Note we don't move the iterator forward here to check below
-          // if this is an unused marker.
+        // Note we don't move the iterator forward here to check below
+        // if this is an unused marker.
       }
       // Read the marker for unused section
       readMarker(iter, UnusedStart) match {
@@ -349,4 +354,3 @@ private[adapt] object AdaptAsmPruner {
     classWriter.toByteArray
   }
 }
-

@@ -71,7 +71,9 @@ class ImporterSpec extends Spec {
 
       val importer = Importer(Seq(folder1.getAbsolutePath, folder2.getAbsolutePath))
 
-      importer.getResolvedPath("a.thrift") must be(Some(new File(testFolder, "f2/a.thrift").getCanonicalPath))
+      importer.getResolvedPath("a.thrift") must be(
+        Some(new File(testFolder, "f2/a.thrift").getCanonicalPath)
+      )
       importer.getResolvedPath("b.thrift") must be(None)
       importer.getResolvedPath("f2/a.thrift") must be(None)
     }

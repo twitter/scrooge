@@ -39,12 +39,16 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       includes.b.thriftscala.Constants.name1.last must be("l1")
       includes.b.thriftscala.Constants.name1.address.street must be("some street")
       includes.b.thriftscala.Constants.name1.address.city match {
-        case includes.a.thriftscala.City.CityState(includes.a.thriftscala.CityState(city, state)) => {
+        case includes.a.thriftscala.City
+              .CityState(includes.a.thriftscala.CityState(city, state)) => {
           city must be("San Francisco")
           state must be("CA")
         }
-        case _ => fail("City not specified as city_state " +
-          includes.b.thriftscala.Constants.name1.address.city)
+        case _ =>
+          fail(
+            "City not specified as city_state " +
+              includes.b.thriftscala.Constants.name1.address.city
+          )
       }
     }
 
@@ -255,7 +259,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         val eStruct = EnumCollections(
           aMap = Map(NumberID.One -> NumberID.Two),
           aList = List(NumberID.One),
-          aSet = Set(NumberID.One))
+          aSet = Set(NumberID.One)
+        )
 
         EnumCollections.encode(eStruct, prot)
         EnumCollections.decode(prot) must be(eStruct)
@@ -298,10 +303,12 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       thrift.test.Constants.emptyList must be(List())
       thrift.test.Constants.someMap must be(Map("foo" -> "bar"))
       thrift.test.Constants.someSimpleSet must be(Set("foo", "bar"))
-      thrift.test.Constants.someSet must be(Set(
-        List("piggy"),
-        List("kitty")
-      ))
+      thrift.test.Constants.someSet must be(
+        Set(
+          List("piggy"),
+          List("kitty")
+        )
+      )
       thrift.test.Constants.long_key_long_value_map(2147483648L) must be(2147483648L)
       thrift.test.Constants.long_set.contains(2147483648L) must be(true)
       thrift.test.Constants.long_list.contains(2147483648L) must be(true)
@@ -312,9 +319,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "basic structs" should {
       "ints" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("baby", TType.I16, 1))
             one(protocol).readI16(); will(returnValue((16: Short)))
             nextRead(e, protocol, new TField("mama", TType.I32, 2))
@@ -329,9 +338,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("baby", TType.I16, 1))
             one(protocol).writeI16(`with`(Expectations.equal(16: Short)))
             nextWrite(e, protocol, new TField("mama", TType.I32, 2))
@@ -348,9 +359,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "bytes" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("x", TType.BYTE, 1))
             one(protocol).readByte(); will(returnValue(3.toByte))
             nextRead(e, protocol, new TField("y", TType.STRING, 2))
@@ -365,9 +378,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("x", TType.BYTE, 1))
             one(protocol).writeByte(`with`(Expectations.equal(16.toByte)))
             nextWrite(e, protocol, new TField("y", TType.STRING, 2))
@@ -382,9 +397,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "bool, double, string" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("alive", TType.BOOL, 1))
             one(protocol).readBool(); will(returnValue(true))
             nextRead(e, protocol, new TField("pi", TType.DOUBLE, 2))
@@ -399,9 +416,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("alive", TType.BOOL, 1))
             one(protocol).writeBool(`with`(Expectations.equal(false)))
             nextWrite(e, protocol, new TField("pi", TType.DOUBLE, 2))
@@ -422,11 +441,14 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           intlist = List(10, 20),
           intset = Set(44, 55),
           namemap = Map("wendy" -> 500),
-          nested = List(Set(9)))
+          nested = List(Set(9))
+        )
 
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("intlist", TType.LIST, 1))
             one(protocol).readListBegin(); will(returnValue(new TList(TType.I32, 2)))
             one(protocol).readI32(); will(returnValue(10))
@@ -456,9 +478,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("intlist", TType.LIST, 1))
             one(protocol).writeListBegin(`with`(listEqual(new TList(TType.I32, 2))))
             one(protocol).writeI32(`with`(Expectations.equal(10)))
@@ -492,9 +516,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "complicated structs" should {
       "with required fields" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("string", TType.STRING, 1))
             one(protocol).readString(); will(returnValue("yo"))
             endRead(e, protocol)
@@ -506,7 +532,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
 
         "missing required value throws exception during deserialization" should {
-          "with no default value" in { cycle => import cycle._
+          "with no default value" in { cycle =>
+            import cycle._
             val protocol = mock[TProtocol]
             expecting { e =>
               emptyRead(e, protocol)
@@ -519,7 +546,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             }
           }
 
-          "with default value" in { cycle => import cycle._
+          "with default value" in { cycle =>
+            import cycle._
             val protocol = mock[TProtocol]
             expecting { e =>
               emptyRead(e, protocol)
@@ -534,7 +562,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
 
         "null required value throws exception during serialization" should {
-          "with no default value" in { cycle => import cycle._
+          "with no default value" in { cycle =>
+            import cycle._
             val protocol = mock[TProtocol]
 
             whenExecuting {
@@ -544,7 +573,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             }
           }
 
-          "with default value" in { cycle => import cycle._
+          "with default value" in { cycle =>
+            import cycle._
             val protocol = mock[TProtocol]
 
             whenExecuting {
@@ -578,9 +608,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "with optional fields" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).readString(); will(returnValue("Commie"))
             nextRead(e, protocol, new TField("age", TType.I32, 2))
@@ -593,9 +625,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "read with missing field" in { cycle => import cycle._
+        "read with missing field" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).readString(); will(returnValue("Commie"))
             endRead(e, protocol)
@@ -606,9 +640,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).writeString(`with`(Expectations.equal("Commie")))
             nextWrite(e, protocol, new TField("age", TType.I32, 2))
@@ -621,9 +657,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write with missing field" in { cycle => import cycle._
+        "write with missing field" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).writeString(`with`(Expectations.equal("Commie")))
             endWrite(e, protocol)
@@ -636,9 +674,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "with default values" should {
-        "read with value missing, using default" in { cycle => import cycle._
+        "read with value missing, using default" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             one(protocol).readStructBegin()
             one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
             one(protocol).readStructEnd()
@@ -649,9 +689,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "read with value present" in { cycle => import cycle._
+        "read with value present" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             one(protocol).readStructBegin()
             nextRead(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).readString(); will(returnValue("delilah"))
@@ -666,9 +708,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "nested" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).readString(); will(returnValue("United States of America"))
             nextRead(e, protocol, new TField("provinces", TType.LIST, 2))
@@ -684,22 +728,27 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             nextRead(e, protocol, new TField("age", TType.I32, 2))
             one(protocol).readI32(); will(returnValue(42))
             endRead(e, protocol)
-            /** End of Emperor struct **/
 
+            /** End of Emperor struct **/
             endRead(e, protocol)
           }
 
           whenExecuting {
-            Empire.decode(protocol) must be(Empire(
-              "United States of America",
-              List("connecticut", "california"),
-              Emperor("Bush", 42)))
+            Empire.decode(protocol) must be(
+              Empire(
+                "United States of America",
+                List("connecticut", "california"),
+                Emperor("Bush", 42)
+              )
+            )
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
             one(protocol).writeString(`with`(Expectations.equal("Canada")))
             nextWrite(e, protocol, new TField("provinces", TType.LIST, 2))
@@ -761,7 +810,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
 
         "hashCode is different for two different objects" in { _ =>
-          Biggie(num10 = -5).hashCode must not be(Biggie().hashCode)
+          Biggie(num10 = -5).hashCode must not be (Biggie().hashCode)
         }
 
         "toString" in { _ =>
@@ -799,7 +848,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "zero fields" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
           expecting { e =>
             emptyRead(e, protocol)
@@ -812,7 +862,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
           whenExecuting {
             intercept[TProtocolException] {
@@ -823,9 +874,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "one field" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("hummingbird", TType.STRING, 2))
             one(protocol).readString(); will(returnValue("Ruby-Throated"))
             endRead(e, protocol)
@@ -836,9 +889,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
             one(protocol).writeString(`with`(Expectations.equal("foo")))
             endWrite(e, protocol)
@@ -851,9 +906,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "more than one field" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("hummingbird", TType.STRING, 2))
             one(protocol).readString(); will(returnValue("Anna's Hummingbird"))
             nextRead(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
@@ -872,9 +929,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "nested struct" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("raptor", TType.STRUCT, 1))
             startRead(e, protocol, new TField("isOwl", TType.BOOL, 1))
             one(protocol).readBool(); will(returnValue(false))
@@ -889,9 +948,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("raptor", TType.STRUCT, 1))
             startWrite(e, protocol, new TField("isOwl", TType.BOOL, 1))
             one(protocol).writeBool(`with`(Expectations.equal(true)))
@@ -908,9 +969,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "collection" should {
-        "read" in { cycle => import cycle._
+        "read" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startRead(e, protocol, new TField("flock", TType.LIST, 4))
             one(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 3)))
             one(protocol).readString(); will(returnValue("starling"))
@@ -925,9 +988,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           }
         }
 
-        "write" in { cycle => import cycle._
+        "write" in { cycle =>
+          import cycle._
           val protocol = mock[TProtocol]
-          expecting { e => import e._
+          expecting { e =>
+            import e._
             startWrite(e, protocol, new TField("flock", TType.LIST, 4))
             one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 3))))
             one(protocol).writeString(`with`(Expectations.equal("starling")))
@@ -1087,7 +1152,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         checkInside(PassThrough6.withoutPassthroughFields(pt6)) must be(true)
       }
 
-      "be able to add more" in {  _ =>
+      "be able to add more" in { _ =>
         val pt1 = PassThrough(1)
         val pt2 = PassThrough2(1, PassThroughStruct(), null)
         val f2 = pt2.getFieldBlob(PassThrough2.F2Field.id).get
@@ -1102,7 +1167,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         pt2roundTripped must be(pt2)
       }
 
-      "be proxy-able" in {  _ =>
+      "be proxy-able" in { _ =>
         val pt2 = PassThrough2(1, PassThroughStruct(), PassThroughStruct())
 
         val pt1 = {
@@ -1153,7 +1218,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "generate with special scala namespace syntax" in { _ =>
-      scrooge.test.thriftscala.Thingymabob().isInstanceOf[scrooge.test.thriftscala.Thingymabob] must be(true)
+      scrooge.test.thriftscala
+        .Thingymabob()
+        .isInstanceOf[scrooge.test.thriftscala.Thingymabob] must be(true)
     }
 
     "generate productElement correctly" in { _ =>
@@ -1187,8 +1254,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           def apply(args: Bbb.GetInt.Args) = Future.value(5)
         },
         getBox = new Service[Aaa.GetBox.Args, Aaa.GetBox.SuccessType] {
-          def apply(args: Aaa.GetBox.Args) = Future.value(Box(4,6))
-        })
+          def apply(args: Aaa.GetBox.Args) = Future.value(Box(4, 6))
+        }
+      )
 
       Await.result(dddService.getInt(Bbb.GetInt.Args()), 5.seconds) must be(5)
     }

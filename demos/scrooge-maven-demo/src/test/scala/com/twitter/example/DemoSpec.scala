@@ -9,7 +9,7 @@ import org.scalatest.{MustMatchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class DemoSpec extends WordSpec with MustMatchers {
-  def printUser(user: User) {println("User %s, id %d".format(user.name, user.id))}
+  def printUser(user: User) { println("User %s, id %d".format(user.name, user.id)) }
 
   def await[A](f: Future[A]): A = Await.result(f, 5.seconds)
 
@@ -22,4 +22,3 @@ class DemoSpec extends WordSpec with MustMatchers {
     }
   }
 }
-

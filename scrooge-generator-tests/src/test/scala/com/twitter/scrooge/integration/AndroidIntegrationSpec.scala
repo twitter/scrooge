@@ -12,7 +12,8 @@ class AndroidIntegrationSpec extends Spec {
     "transfer struct to Scrooge" in {
       val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
       val builder = new androidGen.Bonk_struct.Builder
-      val androidStruct = builder.set(Bonk_struct.INT_THING, 123)
+      val androidStruct = builder
+        .set(Bonk_struct.INT_THING, 123)
         .set(Bonk_struct.MESSAGE, "howdy world")
         .build()
       androidStruct.write(protocol)
@@ -22,32 +23,32 @@ class AndroidIntegrationSpec extends Spec {
       scroogeStruct.message must be("howdy world")
       scroogeStruct.intThing must be(123)
       // test transferred names
-      scroogeGen.BonkStruct.MessageField.name must be(
-        androidStruct.fieldForId(1).getFieldName) // == "message"
-      scroogeGen.BonkStruct.IntThingField.name must be(
-        androidStruct.fieldForId(2).getFieldName) // == "int_thing"
+      scroogeGen.BonkStruct.MessageField.name must be(androidStruct.fieldForId(1).getFieldName) // == "message"
+      scroogeGen.BonkStruct.IntThingField.name must be(androidStruct.fieldForId(2).getFieldName) // == "int_thing"
     }
     "transfer union to Scrooge" in {
       val protocol = new TBinaryProtocol(new TMemoryBuffer(10000))
       val builder = new androidGen.Bonk_struct.Builder
-      val androidStruct = builder.set(Bonk_struct.INT_THING, 123)
+      val androidStruct = builder
+        .set(Bonk_struct.INT_THING, 123)
         .set(Bonk_struct.MESSAGE, "howdy world")
         .build()
-      val androidUnion = new androidGen.bonk_or_bool_union(androidGen.bonk_or_bool_union.BONK, androidStruct)
+      val androidUnion =
+        new androidGen.bonk_or_bool_union(androidGen.bonk_or_bool_union.BONK, androidStruct)
       androidUnion.write(protocol)
       val scroogeUnion = scroogeGen.BonkOrBoolUnion.decode(protocol)
 
       // test transferred values
       val scroogeStruct = scroogeUnion.asInstanceOf[scroogeGen.BonkOrBoolUnion.Bonk]
-      scroogeStruct.bonk must not be(null)
+      scroogeStruct.bonk must not be (null)
       scroogeStruct.bonk.message must be("howdy world")
       scroogeStruct.bonk.intThing must be(123)
       // test transferred names
       scroogeGen.BonkOrBoolUnion.Union.name must be("bonk_or_bool_union")
-      scroogeGen.BonkOrBoolUnion.BonkField.name must be(
-        androidUnion.fieldForId(1).getFieldName) // == "bonk"
+      scroogeGen.BonkOrBoolUnion.BonkField.name must be(androidUnion.fieldForId(1).getFieldName) // == "bonk"
       scroogeGen.BonkOrBoolUnion.BoolThingField.name must be(
-        androidUnion.fieldForId(2).getFieldName) // == "bool_thing"
+        androidUnion.fieldForId(2).getFieldName
+      ) // == "bool_thing"
     }
   }
 
@@ -58,9 +59,9 @@ class AndroidIntegrationSpec extends Spec {
       scroogeGen.BonkStruct.encode(scroogeStruct, protocol)
       val androidStruct = new androidGen.Bonk_struct()
       androidStruct.read(protocol)
-      val int_thing:Integer = androidStruct.get(androidGen.Bonk_struct.INT_THING)
+      val int_thing: Integer = androidStruct.get(androidGen.Bonk_struct.INT_THING)
       int_thing must be(123)
-      val message:String= androidStruct.get(androidGen.Bonk_struct.MESSAGE)
+      val message: String = androidStruct.get(androidGen.Bonk_struct.MESSAGE)
       message must be("howdy world")
     }
 
@@ -75,12 +76,12 @@ class AndroidIntegrationSpec extends Spec {
       val setField = androidUnion.getSetField()
 
       val value = androidUnion.getFieldValue(setField)
-      androidUnion.getFieldValue(setField).isInstanceOf[androidGen.Bonk_struct] must be (true)
+      androidUnion.getFieldValue(setField).isInstanceOf[androidGen.Bonk_struct] must be(true)
 
       val value2 = value.asInstanceOf[androidGen.Bonk_struct]
-      val int_thing:Integer = value2.get(androidGen.Bonk_struct.INT_THING)
+      val int_thing: Integer = value2.get(androidGen.Bonk_struct.INT_THING)
       int_thing must be(123)
-      val message:String= value2.get(androidGen.Bonk_struct.MESSAGE)
+      val message: String = value2.get(androidGen.Bonk_struct.MESSAGE)
       message must be("howdy world")
     }
   }

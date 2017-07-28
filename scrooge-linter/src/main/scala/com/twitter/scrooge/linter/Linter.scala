@@ -41,7 +41,9 @@ object LintRule {
   def all(rules: Seq[LintRule]): LintRule =
     new LintRule {
       def apply(doc: Document): Seq[LintMessage] =
-        rules flatMap { r => r(doc) }
+        rules flatMap { r =>
+          r(doc)
+        }
     }
 
   val DefaultRules = Seq(
@@ -54,7 +56,7 @@ object LintRule {
     TransitivePersistence,
     FieldIndexGreaterThanZeroRule,
     MalformedDocstring
- )
+  )
 
   val Rules = DefaultRules ++ Seq(
     // Add any optional rules here.
@@ -86,23 +88,30 @@ object LintRule {
 
       def findUnpersistedStructsFromFields(fieldTypes: Seq[FieldType]): Seq[String] = {
         fieldTypes.flatMap {
-          case StructType(s, scopePrefix) => findUnpersistedStructs(s, scopePrefix) // includes Unions
+          case StructType(s, scopePrefix) =>
+            findUnpersistedStructs(s, scopePrefix) // includes Unions
           case EnumType(enum: Enum, _) => Seq.empty // enums don't have annotations
-          case MapType(keyType, valueType, _) => findUnpersistedStructsFromFields(Seq(keyType, valueType))
+          case MapType(keyType, valueType, _) =>
+            findUnpersistedStructsFromFields(Seq(keyType, valueType))
           case SetType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
           case ListType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
-          case _:BaseType => Seq.empty // primitive types
-          case _:ReferenceType => // ReferenceTypes have been resolved, this can not happen
-            throw new UnsupportedOperationException("There should be no ReferenceType anymore after type resolution")
+          case _: BaseType => Seq.empty // primitive types
+          case _: ReferenceType => // ReferenceTypes have been resolved, this can not happen
+            throw new UnsupportedOperationException(
+              "There should be no ReferenceType anymore after type resolution"
+            )
         }
       }
 
       for {
-        struct <- doc.structs if isPersisted(struct) // structs contains all StructLikes including Structs and Unions
+        struct <- doc.structs
+        if isPersisted(struct) // structs contains all StructLikes including Structs and Unions
         structChild <- findUnpersistedStructs(struct)
-      } yield LintMessage(
+      } yield
+        LintMessage(
           s"struct ${struct.originalName} with persisted annotation refers to struct ${structChild} that is not annotated persisted.",
-          Error)
+          Error
+        )
     }
   }
 
@@ -115,10 +124,16 @@ object LintRule {
       val fieldsErrors = for {
         s <- persistedStructs
         field <- s.fields if field.docstring.isEmpty
-      } yield LintMessage(s"Missing documentation on field ${field.originalName} in struct ${s.originalName} annotated (persisted = 'true').")
+      } yield
+        LintMessage(
+          s"Missing documentation on field ${field.originalName} in struct ${s.originalName} annotated (persisted = 'true')."
+        )
       val structErrors = for {
         s <- persistedStructs if s.docstring.isEmpty
-      } yield LintMessage(s"Missing documentation on struct ${s.originalName} annotated (persisted = 'true').")
+      } yield
+        LintMessage(
+          s"Missing documentation on struct ${s.originalName} annotated (persisted = 'true')."
+        )
       structErrors ++ fieldsErrors
     }
   }
@@ -175,7 +190,7 @@ object LintRule {
 
       // service function fields are generated as a function
       val serviceFnParams = doc.defs.collect {
-        case service@Service(id, _, _, _, _) =>
+        case service @ Service(id, _, _, _, _) =>
           service.functions.collect {
             case Function(fnId, _, _, args, _, _, _) if args.length >= optimalLimit =>
               lintMessage("thrift service method parameters", s"${id.name}.${fnId.name} function")
@@ -185,7 +200,7 @@ object LintRule {
       // service function exceptions fields generate thrift response struct
       // constructors and an unapply function
       val serviceFnExceptions = doc.defs.collect {
-        case service@Service(id, _, _, _, _) =>
+        case service @ Service(id, _, _, _, _) =>
           service.functions.collect {
             case Function(fnId, _, _, _, throws, _, _) if throws.length >= optimalLimit =>
               lintMessage("thrift service method exceptions", s"${id.name}.${fnId.name} function")
@@ -194,7 +209,7 @@ object LintRule {
 
       // service functions are generated as constructor parameters for the service
       val serviceFns = doc.defs.collect {
-        case service@Service(id, _, fns, _, _) if fns.length >= optimalLimit =>
+        case service @ Service(id, _, fns, _, _) if fns.length >= optimalLimit =>
           lintMessage("thrift service methods", s"${id.name} struct")
       }
 
@@ -211,14 +226,18 @@ object LintRule {
         case struct: StructLike =>
           if (!isTitleCase(struct.originalName)) {
             val correctName = Identifier.toTitleCase(struct.originalName)
-            messages += LintMessage(s"Struct name ${struct.originalName} is not UpperCamelCase. " +
-              s"Should be: ${correctName}. \n${struct.pos.longString}")
+            messages += LintMessage(
+              s"Struct name ${struct.originalName} is not UpperCamelCase. " +
+                s"Should be: ${correctName}. \n${struct.pos.longString}"
+            )
           }
 
           struct.fields.foreach { f =>
             if (!isCamelCase(f.originalName)) {
-              messages += LintMessage(s"Field name ${f.originalName} is not lowerCamelCase. " +
-                s"Should be: ${Identifier.toCamelCase(f.originalName)}. \n${f.pos.longString}")
+              messages += LintMessage(
+                s"Field name ${f.originalName} is not lowerCamelCase. " +
+                  s"Should be: ${Identifier.toCamelCase(f.originalName)}. \n${f.pos.longString}"
+              )
             }
           }
         case _ =>
@@ -241,8 +260,10 @@ object LintRule {
         case struct: StructLike =>
           struct.fields.collect {
             case f if f.requiredness == Requiredness.Required && f.default.nonEmpty =>
-              LintMessage(s"Required field ${f.originalName} has a default value. " +
-                s"Make it optional or remove the default.\n${f.pos.longString}")
+              LintMessage(
+                s"Required field ${f.originalName} has a default value. " +
+                  s"Make it optional or remove the default.\n${f.pos.longString}"
+              )
           }
       }.flatten
     }
@@ -254,68 +275,277 @@ object LintRule {
       val messages = new ArrayBuffer[LintMessage]
       val identifiers = doc.defs.collect {
         case struct: StructLike =>
-          languageKeywords.foreach { case (lang, keywords) =>
-            if (keywords.contains(struct.originalName)) {
-              messages += LintMessage(
-                s"Struct name ${struct.originalName}} is a $lang keyword. Avoid using keywords as identifiers.\n" +
-                s"${struct.pos.longString}")
+          languageKeywords.foreach {
+            case (lang, keywords) =>
+              if (keywords.contains(struct.originalName)) {
+                messages += LintMessage(
+                  s"Struct name ${struct.originalName}} is a $lang keyword. Avoid using keywords as identifiers.\n" +
+                    s"${struct.pos.longString}"
+                )
               }
           }
           val fieldNames = struct.fields.map(_.originalName).toSet
           for {
             (lang, keywords) <- languageKeywords
-            fields = struct.fields.filter { f => keywords.contains(f.originalName) } if fields.nonEmpty
+            fields = struct.fields.filter { f =>
+              keywords.contains(f.originalName)
+            } if fields.nonEmpty
             fieldNames = fields.map(_.originalName)
-          } messages += LintMessage(s"Found field names that are $lang keywords: ${fieldNames.mkString(", ")}. " +
-            s"Avoid using keywords as identifiers.\n${fields.head.pos.longString}")
+          } messages += LintMessage(
+            s"Found field names that are $lang keywords: ${fieldNames.mkString(", ")}. " +
+              s"Avoid using keywords as identifiers.\n${fields.head.pos.longString}"
+          )
       }
       messages
     }
 
     private[this] val languageKeywords: Map[String, Set[String]] = Map(
-      "scala" -> Set("abstract", "case", "catch", "class", "def", "do", "else",
-        "extends", "false", "final", "finally", "for", "forSome", "if",
-        "implicit", "import", "lazy", "match", "new", "null", "object",
-        "override", "package", "private", "protected", "return", "sealed",
-        "super", "this", "throw", "trait", "try", "true",
-        "type", "val", "var", "while", "with", "yield"),
-
-      "java" -> Set("abstract",
-        "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
-        "const", "continue", "default", "do", "double", "else", "enum", "extends",
-        "final", "finally", "float", "for", "goto", "if", "implements", "import",
-        "instanceof", "int", "interface", "long", "native", "new", "package",
-        "private", "protected", "public", "return", "short", "static", "strictfp",
-        "super", "switch", "synchronized", "this", "throw", "throws", "transient",
-        "try", "void", "volatile", "while"),
-
-      "ruby" -> Set("BEGIN", "END", "__ENCODING__", "__END__", "__FILE__", "__LINE__",
-        "alias", "and", "begin", "break", "case", "class", "def", "defined?",
-        "do", "else", "elsif", "end", "ensure", "false", "for", "if",
-        "in", "module", "next", "nil", "not", "or", "redo", "rescue", "retry",
-        "return", "self", "super", "then", "true", "undef", "unless", "until",
-        "when", "while", "yield"),
-
-      "php" -> Set("__halt_compiler", "abstract", "and", "array", "as", "break", "callable",
-        "case", "catch", "class", "clone", "const", "continue", "declare", "default",
-        "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor",
-        "endforeach", "endif", "endswitch", "endwhile", "eval", "exit", "extends",
-        "final", "finally", "for", "foreach", "function", "global", "goto", "if",
-        "implements", "include", "include_once", "instanceof", "insteadof", "interface",
-        "isset", "list", "namespace", "new", "or", "print", "private", "protected",
-        "public", "require", "require_once", "return", "static", "switch", "throw",
-        "trait", "try", "unset", "use", "var", "while", "xor", "yield"),
-
-      "python" -> Set("and", "as", "assert", "break", "class", "continue", "def",
-        "del", "elif", "else", "except", "exec", "finally", "for", "from", "global",
-        "if", "import", "in", "is", "lambda", "not", "or", "pass",
-        "print", "raise", "return", "try", "while", "with", "yield")
+      "scala" -> Set(
+        "abstract",
+        "case",
+        "catch",
+        "class",
+        "def",
+        "do",
+        "else",
+        "extends",
+        "false",
+        "final",
+        "finally",
+        "for",
+        "forSome",
+        "if",
+        "implicit",
+        "import",
+        "lazy",
+        "match",
+        "new",
+        "null",
+        "object",
+        "override",
+        "package",
+        "private",
+        "protected",
+        "return",
+        "sealed",
+        "super",
+        "this",
+        "throw",
+        "trait",
+        "try",
+        "true",
+        "type",
+        "val",
+        "var",
+        "while",
+        "with",
+        "yield"
+      ),
+      "java" -> Set(
+        "abstract",
+        "assert",
+        "boolean",
+        "break",
+        "byte",
+        "case",
+        "catch",
+        "char",
+        "class",
+        "const",
+        "continue",
+        "default",
+        "do",
+        "double",
+        "else",
+        "enum",
+        "extends",
+        "final",
+        "finally",
+        "float",
+        "for",
+        "goto",
+        "if",
+        "implements",
+        "import",
+        "instanceof",
+        "int",
+        "interface",
+        "long",
+        "native",
+        "new",
+        "package",
+        "private",
+        "protected",
+        "public",
+        "return",
+        "short",
+        "static",
+        "strictfp",
+        "super",
+        "switch",
+        "synchronized",
+        "this",
+        "throw",
+        "throws",
+        "transient",
+        "try",
+        "void",
+        "volatile",
+        "while"
+      ),
+      "ruby" -> Set(
+        "BEGIN",
+        "END",
+        "__ENCODING__",
+        "__END__",
+        "__FILE__",
+        "__LINE__",
+        "alias",
+        "and",
+        "begin",
+        "break",
+        "case",
+        "class",
+        "def",
+        "defined?",
+        "do",
+        "else",
+        "elsif",
+        "end",
+        "ensure",
+        "false",
+        "for",
+        "if",
+        "in",
+        "module",
+        "next",
+        "nil",
+        "not",
+        "or",
+        "redo",
+        "rescue",
+        "retry",
+        "return",
+        "self",
+        "super",
+        "then",
+        "true",
+        "undef",
+        "unless",
+        "until",
+        "when",
+        "while",
+        "yield"
+      ),
+      "php" -> Set(
+        "__halt_compiler",
+        "abstract",
+        "and",
+        "array",
+        "as",
+        "break",
+        "callable",
+        "case",
+        "catch",
+        "class",
+        "clone",
+        "const",
+        "continue",
+        "declare",
+        "default",
+        "die",
+        "do",
+        "echo",
+        "else",
+        "elseif",
+        "empty",
+        "enddeclare",
+        "endfor",
+        "endforeach",
+        "endif",
+        "endswitch",
+        "endwhile",
+        "eval",
+        "exit",
+        "extends",
+        "final",
+        "finally",
+        "for",
+        "foreach",
+        "function",
+        "global",
+        "goto",
+        "if",
+        "implements",
+        "include",
+        "include_once",
+        "instanceof",
+        "insteadof",
+        "interface",
+        "isset",
+        "list",
+        "namespace",
+        "new",
+        "or",
+        "print",
+        "private",
+        "protected",
+        "public",
+        "require",
+        "require_once",
+        "return",
+        "static",
+        "switch",
+        "throw",
+        "trait",
+        "try",
+        "unset",
+        "use",
+        "var",
+        "while",
+        "xor",
+        "yield"
+      ),
+      "python" -> Set(
+        "and",
+        "as",
+        "assert",
+        "break",
+        "class",
+        "continue",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "exec",
+        "finally",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "not",
+        "or",
+        "pass",
+        "print",
+        "raise",
+        "return",
+        "try",
+        "while",
+        "with",
+        "yield"
+      )
     )
 
     // Returns a list of languages in which id is a keyword.
     private[this] def checkKeyword(id: String): Iterable[String] = {
-      languageKeywords.collect { case (lang, keywords) if keywords.contains(id) =>
-        lang
+      languageKeywords.collect {
+        case (lang, keywords) if keywords.contains(id) =>
+          lang
       }
     }
   }
@@ -325,12 +555,15 @@ object LintRule {
    */
   object FieldIndexGreaterThanZeroRule extends LintRule {
     def apply(doc: Document) = {
-     doc.defs.collect {
+      doc.defs.collect {
         case struct: StructLike =>
           struct.fields.collect {
             case f if f.index <= 0 =>
-              LintMessage(s"Non positive field id of ${f.originalName}. Field id should be supplied and must be " +
-                s" greater than zero in struct \n${struct.originalName}", Warning)
+              LintMessage(
+                s"Non positive field id of ${f.originalName}. Field id should be supplied and must be " +
+                  s" greater than zero in struct \n${struct.originalName}",
+                Warning
+              )
           }
       }.flatten
     }
@@ -340,23 +573,21 @@ object LintRule {
     // Thrift docstring is invalid
     def apply(doc: Document): Seq[LintMessage] = {
       val docStrings: Seq[String] =
-        doc.defs
-          .flatMap {
-            case enumField: EnumField =>
-              Seq(enumField.docstring)
-            case enum: Enum =>
-              Seq(enum.docstring)
-            case const: ConstDefinition =>
-              Seq(const.docstring)
-            case struct: StructLike =>
-              Seq(struct.docstring) ++
-                struct.fields.map(_.docstring)
-            case service: Service =>
-              Seq(service.docstring) ++
-                service.functions.map(_.docstring)
-            case _ => Seq.empty
-          }
-          .flatten
+        doc.defs.flatMap {
+          case enumField: EnumField =>
+            Seq(enumField.docstring)
+          case enum: Enum =>
+            Seq(enum.docstring)
+          case const: ConstDefinition =>
+            Seq(const.docstring)
+          case struct: StructLike =>
+            Seq(struct.docstring) ++
+              struct.fields.map(_.docstring)
+          case service: Service =>
+            Seq(service.docstring) ++
+              service.functions.map(_.docstring)
+          case _ => Seq.empty
+        }.flatten
 
       verifyDocstring(docStrings)
     }
@@ -415,7 +646,7 @@ class Linter(cfg: Config) {
     val errorCount = messages.count(_.level == Error)
     val warnCount = messages.count(_.level == Warning)
 
-    if (errorCount + warnCount > 0 ) {
+    if (errorCount + warnCount > 0) {
       warning("%d warnings and %d errors found".format(messages.size - errorCount, errorCount))
     }
     errorCount
@@ -425,7 +656,12 @@ class Linter(cfg: Config) {
   def lint(): Int = {
     val requiresIncludes = rules.exists { _.requiresIncludes }
     val importer = Importer(new File(".")) +: Importer(cfg.includePaths)
-    val parser = new ThriftParser(importer, cfg.strict, defaultOptional = false, skipIncludes = !requiresIncludes)
+    val parser = new ThriftParser(
+      importer,
+      cfg.strict,
+      defaultOptional = false,
+      skipIncludes = !requiresIncludes
+    )
 
     val errorCounts = cfg.files.map { inputFile =>
       if (cfg.verbose)

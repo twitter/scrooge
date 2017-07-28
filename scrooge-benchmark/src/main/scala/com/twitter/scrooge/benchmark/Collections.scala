@@ -4,7 +4,7 @@ import com.twitter.scrooge.ThriftStructCodec
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 import java.util.Random
-import org.apache.thrift.protocol.{ TProtocol, TBinaryProtocol }
+import org.apache.thrift.protocol.{TProtocol, TBinaryProtocol}
 import org.apache.thrift.transport.TTransport
 import org.openjdk.jmh.annotations._
 import thrift.benchmark._

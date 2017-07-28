@@ -4,7 +4,6 @@ import com.twitter.scrooge.adapt.{AccessRecorder, AdaptContext, Decoder}
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import java.util.concurrent.atomic.AtomicBoolean
 
-
 /**
  * Wraps an adapt context to provide reload once behavior i.e. it when
  * shouldReloadDecoder is called the first time then and only then true is
@@ -18,10 +17,7 @@ class ReloadOnceAdaptContext(underlying: AdaptContext) extends AdaptContext {
     codec: ThriftStructCodec[T],
     fallbackDecoder: Decoder[T],
     accessRecordingDecoderBuilder: AccessRecorder => Decoder[T]
-  ): Decoder[T] = underlying.buildDecoder(
-    codec,
-    fallbackDecoder,
-    accessRecordingDecoderBuilder)
+  ): Decoder[T] = underlying.buildDecoder(codec, fallbackDecoder, accessRecordingDecoderBuilder)
 
   def shouldReloadDecoder: Boolean =
     if (reloaded.get()) false

@@ -24,7 +24,8 @@ class ThriftUtilSpec extends FunSuite with Checkers {
       TType.STRUCT,
       TType.MAP,
       TType.SET,
-      TType.LIST)
+      TType.LIST
+    )
 
   val unrecognizedTypeCodes = arbitrary[Byte].suchThat(b => !recognizedTypeCodes.contains(b))
 
@@ -32,7 +33,7 @@ class ThriftUtilSpec extends FunSuite with Checkers {
     check {
       val inProt = new TBinaryProtocol(new TMemoryBuffer(8))
       val outProt = new TBinaryProtocol(new TMemoryBuffer(8))
-      forAll (unrecognizedTypeCodes) { typ =>
+      forAll(unrecognizedTypeCodes) { typ =>
         val e = intercept[TProtocolException] { ThriftUtil.transfer(outProt, inProt, typ) }
         e.getMessage.contains(typ.toString)
       }

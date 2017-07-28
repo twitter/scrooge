@@ -34,7 +34,8 @@ class HandlebarSpec extends Spec {
     "simple interpolation" in {
       val template = "Hello {{name}}!\nYou're looking {{how}} today."
       Handlebar.generate(template, Dictionary("name" -> v("Mary"), "how" -> v("sad"))) must be(
-        "Hello Mary!\nYou're looking sad today.")
+        "Hello Mary!\nYou're looking sad today."
+      )
     }
 
     "optional blocks" in {
@@ -55,13 +56,15 @@ class HandlebarSpec extends Spec {
       "normally" in {
         val template = "The cats are named: {{#cats}}'{{name}}' {{/cats}}."
         Handlebar.generate(template, Dictionary("cats" -> v(cats))) must be(
-          "The cats are named: 'Commie' 'Lola' 'Lexi' .")
+          "The cats are named: 'Commie' 'Lola' 'Lexi' ."
+        )
       }
 
       "with a joiner" in {
         val template = "The cats are named: {{#cats}}{{name}}{{/cats|, }}."
         Handlebar.generate(template, Dictionary("cats" -> v(cats))) must be(
-          "The cats are named: Commie, Lola, Lexi.")
+          "The cats are named: Commie, Lola, Lexi."
+        )
       }
     }
 
@@ -76,24 +79,29 @@ class HandlebarSpec extends Spec {
       "works" in {
         val template = "We have these cities:\n{{#cities}}\n{{>description}}\n{{/cities}}\n"
         Handlebar.generate(template, dictionary) must be(
-          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n")
+          "We have these cities:\nNew York,\nNY\nAtlanta,\nGA\n"
+        )
       }
 
       "indents" in {
         val template = "We have these cities:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n"
         Handlebar.generate(template, dictionary) must be(
-          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n")
+          "We have these cities:\n  New York,\n  NY\n  Atlanta,\n  GA\n"
+        )
       }
 
       "indents nestedly" in {
         val template = "We have these cities:\n  {{>header}}\n"
-        val headerTemplate = new Handlebar("Header:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n")
+        val headerTemplate =
+          new Handlebar("Header:\n{{#cities}}\n  {{>description}}\n{{/cities}}\n")
         val dictionary = Dictionary(
           "cities" -> v(cities),
           "header" -> v(headerTemplate),
-          "description" -> v(cityTemplate))
+          "description" -> v(cityTemplate)
+        )
         Handlebar.generate(template, dictionary) must be(
-          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n")
+          "We have these cities:\n  Header:\n    New York,\n    NY\n    Atlanta,\n    GA\n"
+        )
       }
     }
 
@@ -102,18 +110,28 @@ class HandlebarSpec extends Spec {
         Dictionary(
           "cats" -> v(
             Dictionary(
-              "info" -> v(Seq(
-                Dictionary("city" -> v("Anchorage")),
-                Dictionary("city" -> v("Seattle")),
-                Dictionary("city" -> v("Lihu'a")))))),
-          "name" -> v("Taro")), // NOTE: "name" must be AFTER "cats->info" to exhibit nesting bug
+              "info" -> v(
+                Seq(
+                  Dictionary("city" -> v("Anchorage")),
+                  Dictionary("city" -> v("Seattle")),
+                  Dictionary("city" -> v("Lihu'a"))
+                )
+              )
+            )
+          ),
+          "name" -> v("Taro")
+        ), // NOTE: "name" must be AFTER "cats->info" to exhibit nesting bug
         Dictionary(
           "cats" -> v(
             Dictionary(
-              "info" -> v(Seq(
-                Dictionary("city" -> v("Chicago")),
-                Dictionary("city" -> v("Knoxville")))))),
-          "name" -> v("Mira")))
+              "info" -> v(
+                Seq(Dictionary("city" -> v("Chicago")), Dictionary("city" -> v("Knoxville")))
+              )
+            )
+          ),
+          "name" -> v("Mira")
+        )
+      )
       // this also (accidentally) tests whitespace cleanup.
       val template = """My book report:
 {{#students}}

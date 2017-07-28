@@ -26,7 +26,8 @@ class GeneratorFactorySpec extends Spec {
         "test",
         ResolvedDocument(new Document(Seq(), Seq()), TypeResolver()),
         "",
-        Seq.empty[String])
+        Seq.empty[String]
+      )
 
       generator.isInstanceOf[ScalaGenerator] must be(true)
     }

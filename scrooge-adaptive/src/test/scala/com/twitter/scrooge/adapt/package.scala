@@ -32,7 +32,7 @@ package object adapt {
       setField <- arbitrary[Set[Boolean]]
       mapField <- arbitrary[Map[Boolean, Boolean]]
       annotatedId <- arbitrary[Long]
-      tpe <-  arbitrary[String]
+      tpe <- arbitrary[String]
       klass <- arbitrary[Option[String]]
       optionalField2 <- arbitrary[Option[String]]
       optionalFieldWithDefaultValue <- arbitrary[String]
@@ -61,7 +61,7 @@ package object adapt {
         negativeField,
         snakeCase,
         endOffset
-       )
+      )
   }
 
   implicit val testNestedStructArbitrary: Arbitrary[TestNestedStruct] = Arbitrary {
@@ -97,12 +97,13 @@ package object adapt {
     } yield TestDefaultsStruct(boolField, shortField, intField)
   }
 
-  implicit val testOptionalFieldNoDefaultArbitrary: Arbitrary[TestOptionalFieldNoDefault] = Arbitrary {
-    for {
-      boolField <- arbitrary[Boolean]
-      intField <- arbitrary[Option[Int]]
-    } yield TestOptionalFieldNoDefault(boolField, intField)
-  }
+  implicit val testOptionalFieldNoDefaultArbitrary: Arbitrary[TestOptionalFieldNoDefault] =
+    Arbitrary {
+      for {
+        boolField <- arbitrary[Boolean]
+        intField <- arbitrary[Option[Int]]
+      } yield TestOptionalFieldNoDefault(boolField, intField)
+    }
 
   implicit val testRequiredFieldArbitrary: Arbitrary[TestRequiredField] = Arbitrary {
     for {
@@ -117,12 +118,13 @@ package object adapt {
     } yield TestPassthroughFields(field)
   }
 
-  implicit val testRequiredDefaultsStructArbitrary: Arbitrary[TestRequiredDefaultsStruct] = Arbitrary {
-    for {
-      stringField <- arbitrary[String]
-      listField <- arbitrary[Seq[String]]
-    } yield TestRequiredDefaultsStruct(stringField, listField)
-  }
+  implicit val testRequiredDefaultsStructArbitrary: Arbitrary[TestRequiredDefaultsStruct] =
+    Arbitrary {
+      for {
+        stringField <- arbitrary[String]
+        listField <- arbitrary[Seq[String]]
+      } yield TestRequiredDefaultsStruct(stringField, listField)
+    }
 
   implicit val testStructUnionArbitrary: Arbitrary[TestStructUnion] = Arbitrary {
     for {
@@ -132,4 +134,3 @@ package object adapt {
     } yield union
   }
 }
-

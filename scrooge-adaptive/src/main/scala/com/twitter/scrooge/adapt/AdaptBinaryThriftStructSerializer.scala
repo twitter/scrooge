@@ -1,6 +1,11 @@
 package com.twitter.scrooge.adapt
 
-import com.twitter.scrooge.{TArrayByteTransport, ThriftStruct, ThriftStructCodec, ThriftStructSerializer}
+import com.twitter.scrooge.{
+  TArrayByteTransport,
+  ThriftStruct,
+  ThriftStructCodec,
+  ThriftStructSerializer
+}
 import java.util
 import org.apache.thrift.protocol.{TBinaryProtocol, TProtocolFactory}
 
@@ -30,6 +35,7 @@ object AdaptBinaryThriftStructSerializer {
    * Thread local cache protocol for a setting.
    */
   private def cachedProtocol(settings: AdaptSettings): ProtocolAndTransport = {
+
     /**
      * The protocol is mutable but this is threadsafe because we have a
      * separate copy for each thread. This way we reuse the underlying
@@ -61,9 +67,9 @@ object AdaptBinaryThriftStructSerializer {
    * @see [[AdaptTProtocol]]
    */
   private[this] class AdaptBinaryThriftStructSerializer[T <: ThriftStruct](
-      val codec: ThriftStructCodec[T],
-      settings: AdaptSettings)
-    extends ThriftStructSerializer[T] {
+    val codec: ThriftStructCodec[T],
+    settings: AdaptSettings
+  ) extends ThriftStructSerializer[T] {
 
     // Since we only support the fast path reading from the TArrayByteTransport
     // we provide the default if someone hits it to be the TBinaryProtocol
@@ -84,5 +90,3 @@ object AdaptBinaryThriftStructSerializer {
     }
   }
 }
-
-

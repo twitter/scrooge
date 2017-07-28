@@ -7,26 +7,27 @@ import com.google.common.io.CharStreams
 import com.twitter.scrooge.testutil.{Spec, TempDirectory}
 import com.twitter.scrooge.testutil.Utils.verify
 
-
 class CocoaGeneratorSpec extends Spec {
 
-  val templateFiles = List("cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.h",
-        "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.m",
-        "cocoa_output/TFNTwitterThriftScribeTestEnum.h",
-        "cocoa_output/TFNTwitterThriftScribeTestStruct.h",
-        "cocoa_output/TFNTwitterThriftScribeTestStruct.m").map{new File(_)}
+  val templateFiles = List(
+    "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.h",
+    "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.m",
+    "cocoa_output/TFNTwitterThriftScribeTestEnum.h",
+    "cocoa_output/TFNTwitterThriftScribeTestStruct.h",
+    "cocoa_output/TFNTwitterThriftScribeTestStruct.m"
+  ).map { new File(_) }
 
   def getFileContents(resource: String): String = {
     val ccl = Thread.currentThread().getContextClassLoader
     val is = ccl.getResourceAsStream(resource) match {
-        case null => new FileInputStream(resource)
-        case input: InputStream => input
+      case null => new FileInputStream(resource)
+      case input: InputStream => input
     }
     val br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))
     CharStreams.toString(br)
   }
 
-  def getListOfFiles(d: File):List[File] = {
+  def getListOfFiles(d: File): List[File] = {
     if (d.exists && d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
     } else {
@@ -40,17 +41,17 @@ class CocoaGeneratorSpec extends Spec {
     val ccl = Thread.currentThread().getContextClassLoader
     val inputThrift = ccl.getResource("test_thrift/cocoa.thrift").getPath()
 
-    val args = Array[String](
-      "-l", "cocoa",
-      "-d", tempDir.getPath,
-      inputThrift)
+    val args = Array[String]("-l", "cocoa", "-d", tempDir.getPath, inputThrift)
     Main.main(args)
 
     val generated_flist = getListOfFiles(tempDir)
 
     "generate some .m .h files" in {
-      assert(templateFiles.size == generated_flist.size, "missing file, generated files are:"
-        + generated_flist.toString())
+      assert(
+        templateFiles.size == generated_flist.size,
+        "missing file, generated files are:"
+          + generated_flist.toString()
+      )
     }
 
     "generate proper content inside files" in {

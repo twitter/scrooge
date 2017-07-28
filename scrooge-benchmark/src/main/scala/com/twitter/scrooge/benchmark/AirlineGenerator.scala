@@ -21,11 +21,14 @@ object AirlineGenerator {
   }
 
   def buildFlights(rng: Random, num: Int): Set[Flight] =
-    (0 until num).map{ _ => buildFlight(rng) }.toSet
+    (0 until num).map { _ =>
+      buildFlight(rng)
+    }.toSet
 
   def buildRoutes(rng: Random, num: Int): Map[Airport, Airport] =
-    (0 until num).map{ _ => (buildAirport(rng), buildAirport(rng)) }.toMap
-
+    (0 until num).map { _ =>
+      (buildAirport(rng), buildAirport(rng))
+    }.toMap
 
   def buildAirline(rng: Random): Airline = {
     val name = rng.nextString(AvgStringSize)
@@ -34,17 +37,13 @@ object AirlineGenerator {
     val airports = buildAirports(rng, NumAirports).toSet
     val routes = buildRoutes(rng, NumRoutes)
     val flights = buildFlights(rng, NumFlights)
-    Airline(
-      name,
-      Some(headQuarter),
-      Some(owner),
-      Some(airports),
-      Some(routes),
-      Some(flights))
+    Airline(name, Some(headQuarter), Some(owner), Some(airports), Some(routes), Some(flights))
   }
 
   private[this] def buildAirlines(rng: Random, num: Int): Array[Airline] =
-    (0 until num).map{ _ => buildAirline(rng) }.toArray
+    (0 until num).map { _ =>
+      buildAirline(rng)
+    }.toArray
 
   def buildAirlinesAndBytes(
     seed: Long,

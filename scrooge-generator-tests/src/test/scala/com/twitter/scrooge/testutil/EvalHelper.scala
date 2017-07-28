@@ -127,4 +127,3 @@ trait EvalHelper {
     Arrays.copyOfRange(buf.getArray, 0, buf.length)
   }
 }
-

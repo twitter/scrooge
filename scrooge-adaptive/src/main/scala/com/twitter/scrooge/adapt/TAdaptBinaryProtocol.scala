@@ -28,9 +28,10 @@ object TAdaptBinaryProtocol {
  * trait to learn more.
  */
 class TAdaptBinaryProtocol(
-    transport: TArrayByteTransport,
-    context: AdaptContext
-) extends TLazyBinaryProtocol(transport) with AdaptTProtocol {
+  transport: TArrayByteTransport,
+  context: AdaptContext
+) extends TLazyBinaryProtocol(transport)
+    with AdaptTProtocol {
   import TAdaptBinaryProtocol._
 
   def adaptContext: AdaptContext = context

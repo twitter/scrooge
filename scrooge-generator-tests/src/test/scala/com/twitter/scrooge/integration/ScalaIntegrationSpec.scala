@@ -21,10 +21,8 @@ class ScalaIntegrationSpec extends Spec {
       scroogeStruct.message must be("howdy world")
       scroogeStruct.intThing must be(123)
       // test transferred names
-      scroogeGen.BonkStruct.MessageField.name must be(
-        apacheStruct.fieldForId(1).getFieldName) // == "message"
-      scroogeGen.BonkStruct.IntThingField.name must be(
-        apacheStruct.fieldForId(2).getFieldName) // == "int_thing"
+      scroogeGen.BonkStruct.MessageField.name must be(apacheStruct.fieldForId(1).getFieldName) // == "message"
+      scroogeGen.BonkStruct.IntThingField.name must be(apacheStruct.fieldForId(2).getFieldName) // == "int_thing"
     }
 
     "transfer union to Scrooge" in {
@@ -36,15 +34,13 @@ class ScalaIntegrationSpec extends Spec {
 
       // test transferred values
       val scroogeStruct = scroogeUnion.asInstanceOf[scroogeGen.BonkOrBoolUnion.Bonk]
-      scroogeStruct.bonk must not be(null)
+      scroogeStruct.bonk must not be (null)
       scroogeStruct.bonk.message must be("howdy world")
       scroogeStruct.bonk.intThing must be(123)
       // test transferred names
       scroogeGen.BonkOrBoolUnion.Union.name must be("bonk_or_bool_union")
-      scroogeGen.BonkOrBoolUnion.BonkField.name must be(
-        apacheUnion.fieldForId(1).getFieldName) // == "bonk"
-      scroogeGen.BonkOrBoolUnion.BoolThingField.name must be(
-        apacheUnion.fieldForId(2).getFieldName) // == "bool_thing"
+      scroogeGen.BonkOrBoolUnion.BonkField.name must be(apacheUnion.fieldForId(1).getFieldName) // == "bonk"
+      scroogeGen.BonkOrBoolUnion.BoolThingField.name must be(apacheUnion.fieldForId(2).getFieldName) // == "bool_thing"
 
     }
   }
@@ -60,10 +56,12 @@ class ScalaIntegrationSpec extends Spec {
       apacheStruct.getInt_thing must be(123)
       apacheStruct.getMessage must be("howdy world")
       // test transferred names
-      apacheStruct.fieldForId(1).getFieldName must be(
-        scroogeGen.BonkStruct.MessageField.name) // == "message"
-      apacheStruct.fieldForId(2).getFieldName must be(
-        scroogeGen.BonkStruct.IntThingField.name) // == "int_thing"
+      apacheStruct
+        .fieldForId(1)
+        .getFieldName must be(scroogeGen.BonkStruct.MessageField.name) // == "message"
+      apacheStruct
+        .fieldForId(2)
+        .getFieldName must be(scroogeGen.BonkStruct.IntThingField.name) // == "int_thing"
     }
 
     "transfer union to Apache" in {
@@ -81,10 +79,12 @@ class ScalaIntegrationSpec extends Spec {
         apacheUnion.getBool_thing
       }
       // test transferred names
-      apacheUnion.fieldForId(1).getFieldName must be(
-        scroogeGen.BonkOrBoolUnion.BonkField.name) // == "bonk"
-      apacheUnion.fieldForId(2).getFieldName must be(
-        scroogeGen.BonkOrBoolUnion.BoolThingField.name) // == "bonk"
+      apacheUnion
+        .fieldForId(1)
+        .getFieldName must be(scroogeGen.BonkOrBoolUnion.BonkField.name) // == "bonk"
+      apacheUnion
+        .fieldForId(2)
+        .getFieldName must be(scroogeGen.BonkOrBoolUnion.BoolThingField.name) // == "bonk"
     }
 
     "can encode with lazy TBinaryProtocol and decode with TBinaryProtocol" in {
@@ -96,7 +96,7 @@ class ScalaIntegrationSpec extends Spec {
 
       val tbinary = new TBinaryProtocol(TArrayByteTransport(byteArray))
 
-      scroogeGen.BonkStruct.decode(tbinary) must be (scroogeStruct)
+      scroogeGen.BonkStruct.decode(tbinary) must be(scroogeStruct)
     }
 
     "can decode with lazy TBinaryProtocol and compare with original" in {
@@ -111,8 +111,7 @@ class ScalaIntegrationSpec extends Spec {
 
       val lazyReaderTransport = TArrayByteTransport(byteArray)
       val lazyReaderProtocol = new TLazyBinaryProtocol(lazyReaderTransport)
-      scroogeGen.BonkStruct.decode(lazyReaderProtocol) must be (scroogeStruct)
+      scroogeGen.BonkStruct.decode(lazyReaderProtocol) must be(scroogeStruct)
     }
   }
 }
-

@@ -31,7 +31,6 @@ case class Config(
   verbose: Boolean = false
 )
 
-
 object Main {
   def main(args: Array[String]) {
     val cfg = parseOptions(args)
@@ -61,48 +60,59 @@ object Main {
 
       opt[Unit]('v', "verbose") action { (_, c) =>
         c.copy(verbose = true)
-      } text("log verbose messages about progress")
+      } text ("log verbose messages about progress")
 
-      opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action { (_, c) =>
-        c.copy(ignoreErrors = true)
+      opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action {
+        (_, c) =>
+          c.copy(ignoreErrors = true)
       }
 
-      opt[String]('n', "include-path") unbounded() valueName("<path>") action { (path, c) =>
+      opt[String]('n', "include-path") unbounded () valueName ("<path>") action { (path, c) =>
         c.copy(includePaths = c.includePaths ++ path.split(File.pathSeparator))
-      } text("path(s) to search for included thrift files (may be used multiple times)")
+      } text ("path(s) to search for included thrift files (may be used multiple times)")
 
-      def findRule(ruleName: String) = LintRule.Rules.find((r) => r.name == ruleName).getOrElse({
-            println(s"Unknown rule ${ruleName}. Available: ${LintRule.Rules.map(_.name).mkString(", ")}")
+      def findRule(ruleName: String) =
+        LintRule.Rules
+          .find((r) => r.name == ruleName)
+          .getOrElse({
+            println(
+              s"Unknown rule ${ruleName}. Available: ${LintRule.Rules.map(_.name).mkString(", ")}"
+            )
             sys.exit(1)
           })
 
       def ruleList(rules: Seq[LintRule]) = rules.map(_.name).mkString(", ")
 
-      opt[String]('e', "enable-rule") unbounded() valueName("<rule-name>") action { (ruleName, c) => {
-          val rule = findRule(ruleName);
-          if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
-        }
-      } text(s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(LintRule.DefaultRules)}")
+      opt[String]('e', "enable-rule") unbounded () valueName ("<rule-name>") action {
+        (ruleName, c) =>
+          {
+            val rule = findRule(ruleName);
+            if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
+          }
+      } text (s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(LintRule.DefaultRules)}")
 
-      opt[String]('d', "disable-rule") unbounded() valueName("<rule-name>") action { (ruleName, c) => {
-          c.copy(enabledRules = c.enabledRules.filter(_ != findRule(ruleName)))
-        }
-      } text("rules to be disabled.")
+      opt[String]('d', "disable-rule") unbounded () valueName ("<rule-name>") action {
+        (ruleName, c) =>
+          {
+            c.copy(enabledRules = c.enabledRules.filter(_ != findRule(ruleName)))
+          }
+      } text ("rules to be disabled.")
 
-
-      opt[Unit]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action { (_, c) =>
-        c.copy(ignoreParseErrors = true)
+      opt[Unit]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action {
+        (_, c) =>
+          c.copy(ignoreParseErrors = true)
       }
 
       opt[Unit]('w', "warnings") text ("show linter warnings (default = False)") action { (_, c) =>
         c.copy(showWarnings = true)
       }
 
-      opt[Unit]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action { (_, c) =>
-        c.copy(strict = false)
+      opt[Unit]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action {
+        (_, c) =>
+          c.copy(strict = false)
       }
 
-      arg[String]("<files...>") unbounded() text ("thrift files to compile") action { (input, c) =>
+      arg[String]("<files...>") unbounded () text ("thrift files to compile") action { (input, c) =>
         c.copy(files = c.files :+ input)
       }
     }

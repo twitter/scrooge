@@ -28,22 +28,30 @@ class ParserSpec extends Spec {
 
     "interpolates" in {
       val text = "say hello to {{friend}}, {{name}}"
-      MustacheParser(text) must be(Template(Seq(
-        Data("say hello to "),
-        Interpolation("friend"),
-        Data(", "),
-        Interpolation("name")
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("say hello to "),
+            Interpolation("friend"),
+            Data(", "),
+            Interpolation("name")
+          )
+        )
+      )
     }
 
     "doesn't get confused by other {" in {
       val text = "say { to {{friend}}, {{name}}"
-      MustacheParser(text) must be(Template(Seq(
-        Data("say { to "),
-        Interpolation("friend"),
-        Data(", "),
-        Interpolation("name")
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("say { to "),
+            Interpolation("friend"),
+            Data(", "),
+            Interpolation("name")
+          )
+        )
+      )
     }
 
     "errors on impossible ids" in {
@@ -55,28 +63,54 @@ class ParserSpec extends Spec {
 
     "section" in {
       val text = "Classmates: {{#students}}Name: {{name}}{{/students}}"
-      MustacheParser(text) must be(Template(Seq(
-        Data("Classmates: "),
-        Section("students", Template(Seq(
-          Data("Name: "),
-          Interpolation("name")
-        )), false)
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("Classmates: "),
+            Section(
+              "students",
+              Template(
+                Seq(
+                  Data("Name: "),
+                  Interpolation("name")
+                )
+              ),
+              false
+            )
+          )
+        )
+      )
     }
 
     "nested section" in {
       val text = "Planets: {{#planets}}{{name}} Moons: {{#moons}}{{name}}{{/moons}} :) {{/planets}}"
-      MustacheParser(text) must be(Template(Seq(
-        Data("Planets: "),
-        Section("planets", Template(Seq(
-          Interpolation("name"),
-          Data(" Moons: "),
-          Section("moons", Template(Seq(
-            Interpolation("name")
-          )), false),
-          Data(" :) ")
-        )), false)
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("Planets: "),
+            Section(
+              "planets",
+              Template(
+                Seq(
+                  Interpolation("name"),
+                  Data(" Moons: "),
+                  Section(
+                    "moons",
+                    Template(
+                      Seq(
+                        Interpolation("name")
+                      )
+                    ),
+                    false
+                  ),
+                  Data(" :) ")
+                )
+              ),
+              false
+            )
+          )
+        )
+      )
     }
 
     "complains about mismatched section headers" in {
@@ -88,48 +122,87 @@ class ParserSpec extends Spec {
 
     "inverted section" in {
       val text = "{{^space}}no space{{/space}}"
-      MustacheParser(text) must be(Template(Seq(
-        Section("space", Template(Seq(
-          Data("no space")
-        )), true)
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Section(
+              "space",
+              Template(
+                Seq(
+                  Data("no space")
+                )
+              ),
+              true
+            )
+          )
+        )
+      )
     }
 
     "comments" in {
       val text = "remember {{! these comments look stupid, like xml}} nothing."
-      MustacheParser(text) must be(Template(Seq(
-        Data("remember "),
-        Data(" nothing.")
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("remember "),
+            Data(" nothing.")
+          )
+        )
+      )
     }
 
     "partial" in {
       val text = "{{#foo}}ok {{>other}}{{/foo}}"
-      MustacheParser(text) must be(Template(Seq(
-        Section("foo", Template(Seq(
-          Data("ok "),
-          Partial("other")
-        )), false)
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Section(
+              "foo",
+              Template(
+                Seq(
+                  Data("ok "),
+                  Partial("other")
+                )
+              ),
+              false
+            )
+          )
+        )
+      )
     }
 
     "triple braces is fine" in {
       val text = "Hello, {{{foo}}}."
-      MustacheParser(text) must be(Template(Seq(
-        Data("Hello, {"),
-        Interpolation("foo"),
-        Data("}.")
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("Hello, {"),
+            Interpolation("foo"),
+            Data("}.")
+          )
+        )
+      )
     }
 
     "section with joiner" in {
       val text = "Students: {{#students}}{{name}}{{/students|, }}"
-      MustacheParser(text) must be(Template(Seq(
-        Data("Students: "),
-        Section("students", Template(Seq(
-          Interpolation("name")
-        )), false, Some(", "))
-      )))
+      MustacheParser(text) must be(
+        Template(
+          Seq(
+            Data("Students: "),
+            Section(
+              "students",
+              Template(
+                Seq(
+                  Interpolation("name")
+                )
+              ),
+              false,
+              Some(", ")
+            )
+          )
+        )
+      )
     }
   }
 }

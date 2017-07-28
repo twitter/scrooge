@@ -85,7 +85,7 @@ object BinaryThriftFieldRemover {
     pos + size + I32Bytes
   }
 
-  private[this] def skipValue(tpe: Byte, ba:Array[Byte], pos: Int): Int =
+  private[this] def skipValue(tpe: Byte, ba: Array[Byte], pos: Int): Int =
     tpe match {
       case TType.STRUCT => skipStruct(ba, pos)
       case TType.I64 => pos + I64Bytes

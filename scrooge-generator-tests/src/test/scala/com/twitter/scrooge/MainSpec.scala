@@ -23,7 +23,7 @@ class MainSpec extends Spec {
 
   private def buildPath(segments: String*) = segments.mkString(File.separator)
 
-  private def test(inDir:File, outDir: File, manifestDir: File){
+  private def test(inDir: File, outDir: File, manifestDir: File) {
     val input = new File(inDir, "input.thrift")
     val fw = new FileWriter(input)
     fw.write("""
@@ -39,17 +39,14 @@ struct Point {
              """)
     fw.close()
     val fileMap = new File(manifestDir, "map.txt")
-    val args = Array[String](
-      "-d", outDir.getPath,
-      "--gen-file-map", fileMap.getPath,
-      input.getPath)
+    val args = Array[String]("-d", outDir.getPath, "--gen-file-map", fileMap.getPath, input.getPath)
 
     Main.main(args)
     val manifestString = Source.fromFile(fileMap).mkString
     val expected =
       input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Constants.scala") + "\n" +
         input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Direction.scala") + "\n" +
-        input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala")+ "\n"
+        input.getPath + " -> " + buildPath(outDir.getPath, "MyTest", "Point.scala") + "\n"
     manifestString must be(expected)
   }
 }

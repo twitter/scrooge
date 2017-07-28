@@ -16,7 +16,7 @@ class NonFinagleSpec extends Spec {
             Seq(chicago, nyc)
               .filter { airport =>
                 inRegion(airport.loc, nw, se)
-            }
+              }
           }
         def hasWifi(a: Airport) =
           Try {
@@ -30,9 +30,9 @@ class NonFinagleSpec extends Spec {
 
         private[this] def inRegion(loc: Location, nw: Location, se: Location) =
           loc.latitude < nw.latitude &&
-          loc.latitude > se.latitude &&
-          loc.longitude > nw.longitude &&
-          loc.longitude < se.longitude
+            loc.latitude > se.latitude &&
+            loc.longitude > nw.longitude &&
+            loc.longitude < se.longitude
       }
       service.hasWifi(chicago).get() must be(true)
       service.hasWifi(nyc).get() must be(false)
@@ -40,7 +40,7 @@ class NonFinagleSpec extends Spec {
       intercept[AirportException] {
         service.hasWifi(sfo).get()
       }
-      service.fetchAirportsInBounds(Location(500,0), Location(0, 500))() must be(Seq(chicago))
+      service.fetchAirportsInBounds(Location(500, 0), Location(0, 500))() must be(Seq(chicago))
     }
   }
 }

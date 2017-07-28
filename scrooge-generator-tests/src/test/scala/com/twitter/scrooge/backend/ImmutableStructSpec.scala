@@ -29,7 +29,9 @@ class ImmutableStructSpec extends Spec {
         xtruct,
         321
       )
-      val nested = NestedXtruct(xtruct, xtruct2,
+      val nested = NestedXtruct(
+        xtruct,
+        xtruct2,
         Xtruct3(
           "string_thing",
           456,
@@ -50,8 +52,8 @@ class ImmutableStructSpec extends Spec {
         )
       )
       copied.x1 must be(nested.x1)
-      copied.x2.structThing must not be(nested.x2.structThing) //swapped
-      copied.x2 must not be(nested.x2)
+      copied.x2.structThing must not be (nested.x2.structThing) //swapped
+      copied.x2 must not be (nested.x2)
       copied.x3 must be(nested.x3)
     }
 

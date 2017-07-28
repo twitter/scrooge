@@ -28,17 +28,20 @@ private[adapt] object AdaptTrackingDecoder {
  *                        at runtime.
  */
 private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
-    codec: ThriftStructCodec[T],
-    fallbackDecoder: Decoder[T],
-    accessRecordingDecoderBuilder: AccessRecorder => Decoder[T],
-    settings: AdaptSettings,
-    classLoader: AdaptClassLoader)
-  extends AccessRecorder with Decoder[T] {
+  codec: ThriftStructCodec[T],
+  fallbackDecoder: Decoder[T],
+  accessRecordingDecoderBuilder: AccessRecorder => Decoder[T],
+  settings: AdaptSettings,
+  classLoader: AdaptClassLoader
+) extends AccessRecorder
+    with Decoder[T] {
   import AdaptTrackingDecoder._
 
   private[this] val trackedCount = new AtomicInteger()
   private[this] val fieldAccessCounts: Map[Short, AtomicInteger] =
-    codec.metaData.fields.map { f => (f.id, new AtomicInteger(0)) }.toMap
+    codec.metaData.fields.map { f =>
+      (f.id, new AtomicInteger(0))
+    }.toMap
 
   def fieldAccessed(fieldId: Short): Unit =
     fieldAccessCounts(fieldId).getAndIncrement()
@@ -53,9 +56,10 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
       (f, fieldAccessCounts(f.id).get >= settings.useThreshold)
     }.toMap
 
-    val useMapByName = useMapByField.map { case (f, v) =>
-      val normalizedName = CaseConverter.toCamelCase(f.name)
-      (normalizedName, v)
+    val useMapByName = useMapByField.map {
+      case (f, v) =>
+        val normalizedName = CaseConverter.toCamelCase(f.name)
+        (normalizedName, v)
     }
 
     val useMapById = useMapByField.map { case (f, v) => (f.id, v) }
@@ -83,12 +87,10 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
     val adaptDecoderClassBytes =
       AdaptAsmPruner.pruneAdaptDecoder(adaptDecoderFqdn, useMapById)
 
-    val decoderClass = classLoader.defineClass(
-      adaptDecoderFqdn, adaptDecoderClassBytes)
+    val decoderClass = classLoader.defineClass(adaptDecoderFqdn, adaptDecoderClassBytes)
     val prunedDecoder = decoderClass.newInstance()
 
-    val decodeMethod = decoderClass.getMethod(DecodeMethodName,
-        classOf[AdaptTProtocol])
+    val decodeMethod = decoderClass.getMethod(DecodeMethodName, classOf[AdaptTProtocol])
 
     new Decoder[T] {
       def apply(prot: AdaptTProtocol): T = {
@@ -107,6 +109,7 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
     if (adaptiveDecoder != null) {
       adaptiveDecoder(prot)
     } else {
+
       /**
        * Note that we only block one event, one that makes trackedCount
        * reach settings.trackedReads, to build the decoder. Subsequent
@@ -123,4 +126,3 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
     }
   }
 }
-

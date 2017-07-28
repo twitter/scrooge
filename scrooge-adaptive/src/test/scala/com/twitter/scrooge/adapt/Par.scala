@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray
 import scala.reflect.ClassTag
 
 object Par {
+
   /**
    * Run f in parallel, on many threads.
    * All threads are blocked until just before running f and let go

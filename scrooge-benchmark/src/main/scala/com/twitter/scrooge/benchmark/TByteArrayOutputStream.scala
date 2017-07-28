@@ -54,6 +54,9 @@ class TByteArrayOutputStreamBenchmark {
     run(in.buf, out.stream)
 
   @Benchmark
-  def timeTUnboundedByteArrayOutputStream(in: InputState, out: TUnboundedByteArrayOutputStreamState) =
+  def timeTUnboundedByteArrayOutputStream(
+    in: InputState,
+    out: TUnboundedByteArrayOutputStreamState
+  ) =
     run(in.buf, out.stream)
 }

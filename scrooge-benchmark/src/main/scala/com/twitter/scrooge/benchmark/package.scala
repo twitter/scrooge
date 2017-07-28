@@ -11,4 +11,3 @@ package object benchmark {
       if (rng.nextBoolean) Some(fn(rng)) else None
   }
 }
-

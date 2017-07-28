@@ -129,18 +129,24 @@ class ThriftStructMetaDataSpec extends Spec {
   "reports single annotations in Struct.fieldInfos" in {
     val info = AnnoStruct.fieldInfos(0)
     info.tfield.name must be("structField")
-    info.typeAnnotations must be(Map(
-      "structTypeKey" -> "structTypeValue"
-    ))
-    info.fieldAnnotations must be(Map(
-      "structFieldKey" -> "structFieldValue"
-    ))
+    info.typeAnnotations must be(
+      Map(
+        "structTypeKey" -> "structTypeValue"
+      )
+    )
+    info.fieldAnnotations must be(
+      Map(
+        "structFieldKey" -> "structFieldValue"
+      )
+    )
   }
 
   "reports single struct annotations" in {
-    AnnoStruct.structAnnotations must be(Map(
-      "structKey" -> "structValue"
-    ))
+    AnnoStruct.structAnnotations must be(
+      Map(
+        "structKey" -> "structValue"
+      )
+    )
   }
 
   // MultiAnnoStruct has two annotations in each position:
@@ -148,21 +154,27 @@ class ThriftStructMetaDataSpec extends Spec {
   "reports multiple annotations in Struct.fieldInfos" in {
     val info = MultiAnnoStruct.fieldInfos(0)
     info.tfield.name must be("multiStructField")
-    info.typeAnnotations must be(Map(
-      "structTypeKey1" -> "structTypeValue1",
-      "structTypeKey2" -> "structTypeValue2"
-    ))
-    info.fieldAnnotations must be(Map(
-      "structFieldKey1" -> "structFieldValue1",
-      "structFieldKey2" -> "structFieldValue2"
-    ))
+    info.typeAnnotations must be(
+      Map(
+        "structTypeKey1" -> "structTypeValue1",
+        "structTypeKey2" -> "structTypeValue2"
+      )
+    )
+    info.fieldAnnotations must be(
+      Map(
+        "structFieldKey1" -> "structFieldValue1",
+        "structFieldKey2" -> "structFieldValue2"
+      )
+    )
   }
 
   "reports multiple struct annotations" in {
-    MultiAnnoStruct.structAnnotations must be(Map(
-      "structKey1" -> "structValue1",
-      "structKey2" -> "structValue2"
-    ))
+    MultiAnnoStruct.structAnnotations must be(
+      Map(
+        "structKey1" -> "structValue1",
+        "structKey2" -> "structValue2"
+      )
+    )
   }
 
   "populates metaData for unions" in {
@@ -214,9 +226,11 @@ class ThriftStructMetaDataSpec extends Spec {
   // Announion has one annotation in each position - EXCEPT for type annotations.
   // For some reason, the thrift code generator doesn't allow that.
   "reports single union annotations" in {
-    AnnoUnion.structAnnotations must be(Map(
-      "unionKey" -> "unionValue"
-    ))
+    AnnoUnion.structAnnotations must be(
+      Map(
+        "unionKey" -> "unionValue"
+      )
+    )
   }
 
   "contains union field annotations" in {
@@ -225,9 +239,11 @@ class ThriftStructMetaDataSpec extends Spec {
     info.tfield.name must be("unionField")
     info.tfield.id must be(1: Short)
     info.typeAnnotations must be(Map.empty[String, String])
-    info.fieldAnnotations must be(Map(
-      "unionFieldKey" -> "unionFieldValue"
-    ))
+    info.fieldAnnotations must be(
+      Map(
+        "unionFieldKey" -> "unionFieldValue"
+      )
+    )
     info.manifest must be(manifest[AnnoStruct])
     info.isOptional must be(false)
     info.keyManifest must be(None)
@@ -237,7 +253,8 @@ class ThriftStructMetaDataSpec extends Spec {
   "contains union manifest info with field types" {
     {
       MatchingFieldAndStruct.MatchingStructFieldFieldManifest must be(
-        manifest[MatchingFieldAndStruct.MatchingStructField])
+        manifest[MatchingFieldAndStruct.MatchingStructField]
+      )
       val info = MatchingFieldAndStruct.MatchingStructField.fieldInfo
       info.tfield.name must be("matchingStructField")
       info.tfield.id must be(1: Short)
@@ -250,7 +267,8 @@ class ThriftStructMetaDataSpec extends Spec {
     }
     {
       MatchingFieldAndStruct.MatchingStructListFieldManifest must be(
-        manifest[MatchingFieldAndStruct.MatchingStructList])
+        manifest[MatchingFieldAndStruct.MatchingStructList]
+      )
       val info = MatchingFieldAndStruct.MatchingStructList.fieldInfo
       info.tfield.name must be("matchingStructList")
       info.tfield.id must be(2: Short)
@@ -263,7 +281,8 @@ class ThriftStructMetaDataSpec extends Spec {
     }
     {
       MatchingFieldAndStruct.MatchingStructSetFieldManifest must be(
-        manifest[MatchingFieldAndStruct.MatchingStructSet])
+        manifest[MatchingFieldAndStruct.MatchingStructSet]
+      )
       val info = MatchingFieldAndStruct.MatchingStructSet.fieldInfo
       info.tfield.name must be("matchingStructSet")
       info.tfield.id must be(3: Short)
@@ -276,7 +295,8 @@ class ThriftStructMetaDataSpec extends Spec {
     }
     {
       MatchingFieldAndStruct.MatchingStructMapFieldManifest must be(
-        manifest[MatchingFieldAndStruct.MatchingStructMap])
+        manifest[MatchingFieldAndStruct.MatchingStructMap]
+      )
       val info = MatchingFieldAndStruct.MatchingStructMap.fieldInfo
       info.tfield.name must be("matchingStructMap")
       info.tfield.id must be(4: Short)

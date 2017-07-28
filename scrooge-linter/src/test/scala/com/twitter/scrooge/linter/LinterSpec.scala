@@ -20,8 +20,6 @@ import com.twitter.scrooge.ast._
 import org.junit.runner.RunWith
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
-
-
 @RunWith(classOf[JUnitRunner])
 class LinterSpec extends WordSpec with MustMatchers {
 
@@ -35,21 +33,28 @@ class LinterSpec extends WordSpec with MustMatchers {
       s"val$i",
       TString,
       default = Some(StringLiteral(s"val-$i")),
-      requiredness = Requiredness.Required)
+      requiredness = Requiredness.Required
+    )
   }
 
   "Linter" should {
     "pass Namespaces" in {
       mustPass(
-        LintRule.Namespaces(Document(Seq(
-          Namespace("java", Identifier("com.twitter.oatmeal")),
-          Namespace("scala", Identifier("com.twitter.oatmeal"))
-        ), Nil))
+        LintRule.Namespaces(
+          Document(
+            Seq(
+              Namespace("java", Identifier("com.twitter.oatmeal")),
+              Namespace("scala", Identifier("com.twitter.oatmeal"))
+            ),
+            Nil
+          )
+        )
       )
     }
 
     "fail Namespaces" in {
-      val errors = LintRule.Namespaces(Document(Seq(Namespace("java", SimpleID("asdf"))), Nil)).toSeq
+      val errors =
+        LintRule.Namespaces(Document(Seq(Namespace("java", SimpleID("asdf"))), Nil)).toSeq
       errors.length must be(1)
       assert(errors(0).msg contains ("Missing namespace"))
     }
@@ -60,51 +65,67 @@ class LinterSpec extends WordSpec with MustMatchers {
           Document(
             Seq(
               Namespace("java", SimpleID("asdf")),
-              Include("com.twitter.oatmeal", Document(Seq(), Seq()))),
-            Nil))
+              Include("com.twitter.oatmeal", Document(Seq(), Seq()))
+            ),
+            Nil
+          )
+        )
       )
     }
 
     "fail RelativeIncludes" in {
-      val errors = LintRule.RelativeIncludes(Document(
-        Seq(
-          Namespace("java", SimpleID("asdf")),
-          Include("./dir1/../dir1/include1.thrift", Document(Seq(), Seq()))),
-        Nil)).toSeq
+      val errors = LintRule
+        .RelativeIncludes(
+          Document(
+            Seq(
+              Namespace("java", SimpleID("asdf")),
+              Include("./dir1/../dir1/include1.thrift", Document(Seq(), Seq()))
+            ),
+            Nil
+          )
+        )
+        .toSeq
       errors.size must be(1)
       assert(errors(0).msg contains ("Relative include path found"))
     }
 
     "pass CamelCase" in {
       mustPass(
-        LintRule.CamelCase(Document(
-          Seq(),
-          Seq(Struct(
-            SimpleID("SomeType"),
-            "SomeType",
-            Seq(Field(1,
-              SimpleID("camelCaseFieldName"),
-              "camelCaseFieldName",
-              TString)),
-            None))))
+        LintRule.CamelCase(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(Field(1, SimpleID("camelCaseFieldName"), "camelCaseFieldName", TString)),
+                None
+              )
+            )
+          )
+        )
       )
     }
 
     "fail CamelCase" in {
-      val errors = LintRule.CamelCase(Document(
-        Seq(),
-        Seq(Struct(
-          SimpleID("SomeType"),
-          "SomeType",
-          Seq(Field(1,
-            SimpleID("non_camel_case"),
-            "non_camel_case",
-            TString)),
-          None)))).toSeq
+      val errors = LintRule
+        .CamelCase(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(Field(1, SimpleID("non_camel_case"), "non_camel_case", TString)),
+                None
+              )
+            )
+          )
+        )
+        .toSeq
       errors.length must be(1)
       assert(errors(0).msg contains ("lowerCamelCase"))
     }
-
 
     def struct(name: String, fields: Map[String, FieldType], persisted: Boolean = false) =
       Struct(
@@ -117,22 +138,24 @@ class LinterSpec extends WordSpec with MustMatchers {
         if (persisted) Map("persisted" -> "true") else Map.empty
       )
 
-
     "fail TransitivePersistence" in {
-      val errors = LintRule.TransitivePersistence(
-        Document(
-          Seq(),
-          Seq(
-            struct(
-              "SomeType",
-              Map(
-                "foo" -> TString,
-                "bar" -> StructType(struct("SomeOtherType", Map.empty))
-              ),
-              true
+      val errors = LintRule
+        .TransitivePersistence(
+          Document(
+            Seq(),
+            Seq(
+              struct(
+                "SomeType",
+                Map(
+                  "foo" -> TString,
+                  "bar" -> StructType(struct("SomeOtherType", Map.empty))
+                ),
+                true
+              )
             )
           )
-        )).toSeq
+        )
+        .toSeq
       errors.length must be(1)
       val error = errors(0).msg
       assert(error.contains("persisted"))
@@ -141,36 +164,42 @@ class LinterSpec extends WordSpec with MustMatchers {
     }
 
     "pass TransitivePersistence" in {
-      mustPass(LintRule.TransitivePersistence(
-        Document(
-          Seq(),
-          Seq(
-            struct(
-              "SomeType",
-              Map(
-                "foo" -> TString,
-                "bar" -> StructType(struct("SomeOtherType", Map.empty, true))
-              ),
-              true
+      mustPass(
+        LintRule.TransitivePersistence(
+          Document(
+            Seq(),
+            Seq(
+              struct(
+                "SomeType",
+                Map(
+                  "foo" -> TString,
+                  "bar" -> StructType(struct("SomeOtherType", Map.empty, true))
+                ),
+                true
+              )
             )
           )
-        )))
+        )
+      )
     }
 
     "fail DocumentedPersisted" in {
-      val errors = LintRule.DocumentedPersisted(
-        Document(
-          Seq(),
-          Seq(
-            struct(
-              "SomeType",
-              Map(
-                "foo" -> TString
-              ),
-              true
+      val errors = LintRule
+        .DocumentedPersisted(
+          Document(
+            Seq(),
+            Seq(
+              struct(
+                "SomeType",
+                Map(
+                  "foo" -> TString
+                ),
+                true
+              )
             )
           )
-        )).toSeq
+        )
+        .toSeq
       errors.length must be(2)
       assert(errors.forall(_.level == LintLevel.Warning))
       val structError = errors.head.msg
@@ -181,205 +210,274 @@ class LinterSpec extends WordSpec with MustMatchers {
     }
 
     "pass DocumentedPersisted" in {
-      mustPass(LintRule.DocumentedPersisted(
-        Document(
-          Seq(),
-          Seq(
-            Struct(
-              SimpleID("SomeType"),
-              "SomeType",
-              Seq(Field(1,
-                SimpleID("foo"),
-                "foo",
-                TString,
-                docstring = Some("blah blah"))),
-              docstring = Some("documented struct is documented"),
-              Map("persisted" -> "true"))
+      mustPass(
+        LintRule.DocumentedPersisted(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(Field(1, SimpleID("foo"), "foo", TString, docstring = Some("blah blah"))),
+                docstring = Some("documented struct is documented"),
+                Map("persisted" -> "true")
+              )
+            )
           )
-        )))
+        )
+      )
     }
 
     "pass RequiredFieldDefault" in {
       mustPass(
-        LintRule.RequiredFieldDefault(Document(
-          Seq(),
-          Seq(Struct(
-            SimpleID("SomeType"),
-            "SomeType",
+        LintRule.RequiredFieldDefault(
+          Document(
+            Seq(),
             Seq(
-              Field(
-                1,
-                SimpleID("f1"),
-                "f1",
-                TString,
-                default = Some(StringLiteral("v1")),
-                requiredness = Requiredness.Optional),
-              Field(
-                2,
-                SimpleID("f2"),
-                "f2",
-                TString,
-                default = None,
-                requiredness = Requiredness.Required)),
-            None))))
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    1,
+                    SimpleID("f1"),
+                    "f1",
+                    TString,
+                    default = Some(StringLiteral("v1")),
+                    requiredness = Requiredness.Optional
+                  ),
+                  Field(
+                    2,
+                    SimpleID("f2"),
+                    "f2",
+                    TString,
+                    default = None,
+                    requiredness = Requiredness.Required
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
       )
     }
 
     "fail RequiredFieldDefault" in {
-      val errors = LintRule.RequiredFieldDefault(Document(
-        Seq(),
-        Seq(Struct(
-          SimpleID("SomeType"),
-          "SomeType",
-          Seq(
-            Field(
-              1,
-              SimpleID("f1"),
-              "f1",
-              TString,
-              default = Some(StringLiteral("v1")),
-              requiredness = Requiredness.Required)),
-          None)))).toSeq
+      val errors = LintRule
+        .RequiredFieldDefault(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    1,
+                    SimpleID("f1"),
+                    "f1",
+                    TString,
+                    default = Some(StringLiteral("v1")),
+                    requiredness = Requiredness.Required
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
+        .toSeq
       errors.length must be(1)
       assert(errors(0).msg contains ("Required field"))
     }
 
     "pass Keywords" in {
       mustPass(
-        LintRule.Keywords(Document(
-          Seq(),
-          Seq(Struct(
-            SimpleID("SomeType"),
-            "SomeType",
+        LintRule.Keywords(
+          Document(
+            Seq(),
             Seq(
-              Field(
-                1,
-                SimpleID("klass"),
-                "klass",
-                TString,
-                default = Some(StringLiteral("v1")),
-                requiredness = Requiredness.Optional),
-              Field(
-                2,
-                SimpleID("notAKeyWord"),
-                "notAKeyWord",
-                TString,
-                default = None,
-                requiredness = Requiredness.Required)),
-            None))))
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    1,
+                    SimpleID("klass"),
+                    "klass",
+                    TString,
+                    default = Some(StringLiteral("v1")),
+                    requiredness = Requiredness.Optional
+                  ),
+                  Field(
+                    2,
+                    SimpleID("notAKeyWord"),
+                    "notAKeyWord",
+                    TString,
+                    default = None,
+                    requiredness = Requiredness.Required
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
       )
     }
 
     "fail Keywords" in {
-      val errors = LintRule.Keywords(Document(
-        Seq(),
-        Seq(Struct(
-          SimpleID("SomeType"),
-          "SomeType",
-          Seq(
-            Field(
-              1,
-              SimpleID("val"),
-              "val",
-              TString,
-              default = Some(StringLiteral("v1")),
-              requiredness = Requiredness.Optional)),
-          None)))).toSeq
+      val errors = LintRule
+        .Keywords(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    1,
+                    SimpleID("val"),
+                    "val",
+                    TString,
+                    default = Some(StringLiteral("v1")),
+                    requiredness = Requiredness.Optional
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
+        .toSeq
       errors.length must be(1)
       assert(errors(0).msg contains ("Avoid using keywords"))
     }
 
     "pass non negative index" in {
       mustPass(
-        LintRule.FieldIndexGreaterThanZeroRule(Document(
-          Seq(),
-          Seq(Struct(
-            SimpleID("SomeType"),
-            "SomeType",
+        LintRule.FieldIndexGreaterThanZeroRule(
+          Document(
+            Seq(),
             Seq(
-              Field(
-                1,
-                SimpleID("val"),
-                "val",
-                TString,
-                default = Some(StringLiteral("v1")),
-                requiredness = Requiredness.Optional)
-            ),
-            None))))
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    1,
+                    SimpleID("val"),
+                    "val",
+                    TString,
+                    default = Some(StringLiteral("v1")),
+                    requiredness = Requiredness.Optional
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
       )
     }
 
     "warn non negative index" in {
-      val errors = LintRule.FieldIndexGreaterThanZeroRule(Document(
-        Seq(),
-        Seq(Struct(
-          SimpleID("SomeType"),
-          "SomeType",
-          Seq(
-            Field(
-              -1,
-              SimpleID("val"),
-              "val",
-              TString,
-              default = Some(StringLiteral("v1")),
-              requiredness = Requiredness.Optional)
-          ),
-          None)))).toSeq
+      val errors = LintRule
+        .FieldIndexGreaterThanZeroRule(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    -1,
+                    SimpleID("val"),
+                    "val",
+                    TString,
+                    default = Some(StringLiteral("v1")),
+                    requiredness = Requiredness.Optional
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
+        .toSeq
       errors.length must be(1)
       assert(errors(0).msg contains ("Field id should be supplied"))
     }
 
     "warn on max struct fields" in {
-      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
-        Seq(),
-        Seq(FunctionArgs(
-          SimpleID("SomeType"),
-          "SomeType",
-          genFields(100))))).toSeq
+      val warnings = LintRule
+        .CompilerOptimizedMethodParamLimit(
+          Document(Seq(), Seq(FunctionArgs(SimpleID("SomeType"), "SomeType", genFields(100))))
+        )
+        .toSeq
       warnings.size must be(1)
       assert(warnings(0).msg contains ("fields for thrift struct"))
       assert(warnings(0).msg contains ("SomeType"))
     }
 
     "warn on max service function fields" in {
-      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
-        Seq(),
-        Seq(Service(
-          SimpleID("SomeType"),
-          parent = None,
-          functions = Seq(
-            Function(
-              SimpleID("someFunc"),
-              "someFunc",
-              TString,
-              genFields(100),
-              throws = Seq(),
-              docstring = None
+      val warnings = LintRule
+        .CompilerOptimizedMethodParamLimit(
+          Document(
+            Seq(),
+            Seq(
+              Service(
+                SimpleID("SomeType"),
+                parent = None,
+                functions = Seq(
+                  Function(
+                    SimpleID("someFunc"),
+                    "someFunc",
+                    TString,
+                    genFields(100),
+                    throws = Seq(),
+                    docstring = None
+                  )
+                ),
+                Some("SomeType")
+              )
             )
-          ),
-          Some("SomeType"))))).toSeq
+          )
+        )
+        .toSeq
       warnings.size must be(1)
       assert(warnings(0).msg contains ("thrift service method parameters"))
       assert(warnings(0).msg contains ("SomeType.someFunc"))
     }
 
     "warn on max service function exception fields" in {
-      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
-        Seq(),
-        Seq(Service(
-          SimpleID("SomeType"),
-          parent = None,
-          functions = Seq(
-            Function(
-              SimpleID("someFunc"),
-              "someFunc",
-              TString,
-              args =  Seq(),
-              throws = genFields(100),
-              docstring = None
+      val warnings = LintRule
+        .CompilerOptimizedMethodParamLimit(
+          Document(
+            Seq(),
+            Seq(
+              Service(
+                SimpleID("SomeType"),
+                parent = None,
+                functions = Seq(
+                  Function(
+                    SimpleID("someFunc"),
+                    "someFunc",
+                    TString,
+                    args = Seq(),
+                    throws = genFields(100),
+                    docstring = None
+                  )
+                ),
+                Some("SomeType")
+              )
             )
-          ),
-          Some("SomeType"))))).toSeq
+          )
+        )
+        .toSeq
       warnings.size must be(1)
       assert(warnings(0).msg contains ("thrift service method exceptions"))
       assert(warnings(0).msg contains ("SomeType.someFunc"))
@@ -387,22 +485,17 @@ class LinterSpec extends WordSpec with MustMatchers {
 
     "warn on max service functions " in {
       val funcs = (0 until 100) map { i =>
-        Function(
-          SimpleID(s"val$i"),
-          s"val$i",
-          TString,
-          Seq(),
-          Seq(),
-          None)
+        Function(SimpleID(s"val$i"), s"val$i", TString, Seq(), Seq(), None)
       }
 
-      val warnings = LintRule.CompilerOptimizedMethodParamLimit(Document(
-        Seq(),
-        Seq(Service(
-          SimpleID("SomeType"),
-          parent = None,
-          functions = funcs,
-          Some("SomeType"))))).toSeq
+      val warnings = LintRule
+        .CompilerOptimizedMethodParamLimit(
+          Document(
+            Seq(),
+            Seq(Service(SimpleID("SomeType"), parent = None, functions = funcs, Some("SomeType")))
+          )
+        )
+        .toSeq
       warnings.size must be(1)
       assert(warnings(0).msg contains ("thrift service methods"))
       assert(warnings(0).msg contains ("SomeType"))
@@ -413,64 +506,103 @@ class LinterSpec extends WordSpec with MustMatchers {
 
       val invalidCommentStrings = Seq("/** /* */")
       invalidCommentStrings.foreach { docString: String =>
-
-        val funcField = LintRule.MalformedDocstring(Document(
-          Seq(),
-          Seq(FunctionArgs(
-            SimpleID("SomeType"),
-            "SomeType",
-            genFields().map(_.copy(docstring = Some(docString))))))).toSeq
+        val funcField = LintRule
+          .MalformedDocstring(
+            Document(
+              Seq(),
+              Seq(
+                FunctionArgs(
+                  SimpleID("SomeType"),
+                  "SomeType",
+                  genFields().map(_.copy(docstring = Some(docString)))
+                )
+              )
+            )
+          )
+          .toSeq
         funcField.size must be(1)
         assert(funcField(0).msg contains (expectedMessage))
 
-        val structLike = LintRule.MalformedDocstring(Document(
-          Seq(),
-          Seq(Struct(
-            SimpleID("SomeType"),
-            "SomeType",
-            genFields(),
-            Some(docString))))).toSeq
+        val structLike = LintRule
+          .MalformedDocstring(
+            Document(
+              Seq(),
+              Seq(Struct(SimpleID("SomeType"), "SomeType", genFields(), Some(docString)))
+            )
+          )
+          .toSeq
         structLike.size must be(1)
         assert(structLike(0).msg contains (expectedMessage))
 
-        val structLikeField = LintRule.MalformedDocstring(Document(
-          Seq(),
-          Seq(Struct(
-            SimpleID("SomeType"),
-            "SomeType",
-            Seq(Field(1,
-              SimpleID("someField"),
-              "someField",
-              TString, docstring = Some(docString))),
-            None)))).toSeq
+        val structLikeField = LintRule
+          .MalformedDocstring(
+            Document(
+              Seq(),
+              Seq(
+                Struct(
+                  SimpleID("SomeType"),
+                  "SomeType",
+                  Seq(
+                    Field(
+                      1,
+                      SimpleID("someField"),
+                      "someField",
+                      TString,
+                      docstring = Some(docString)
+                    )
+                  ),
+                  None
+                )
+              )
+            )
+          )
+          .toSeq
         structLikeField.size must be(1)
         assert(structLikeField(0).msg contains (expectedMessage))
 
-        val const = LintRule.MalformedDocstring(Document(
-          Seq(),
-          Seq(ConstDefinition(
-            SimpleID("SomeType"),
-            TString,
-            StringLiteral("test"),
-            Some(docString)))
-            )).toSeq
+        val const = LintRule
+          .MalformedDocstring(
+            Document(
+              Seq(),
+              Seq(
+                ConstDefinition(
+                  SimpleID("SomeType"),
+                  TString,
+                  StringLiteral("test"),
+                  Some(docString)
+                )
+              )
+            )
+          )
+          .toSeq
         const.size must be(1)
         assert(const(0).msg contains (expectedMessage))
 
-        val enum = LintRule.MalformedDocstring(Document(
-          Seq(),
-          Seq(Enum(
-            SimpleID("SomeType"),
-            Seq(EnumField(SimpleID("enumField"), 0, None)),
-            Some(docString)))
-        )).toSeq
+        val enum = LintRule
+          .MalformedDocstring(
+            Document(
+              Seq(),
+              Seq(
+                Enum(
+                  SimpleID("SomeType"),
+                  Seq(EnumField(SimpleID("enumField"), 0, None)),
+                  Some(docString)
+                )
+              )
+            )
+          )
+          .toSeq
         enum.size must be(1)
         assert(enum(0).msg contains (expectedMessage))
 
-        val enumField = LintRule.MalformedDocstring(Document(
-          Seq(),
-          Seq(EnumField(SimpleID("enumField"), 0, Some(docString)))
-        )).toSeq
+        val enumField = LintRule
+          .MalformedDocstring(
+            Document(
+              Seq(),
+              Seq(EnumField(SimpleID("enumField"), 0, Some(docString)))
+            )
+          )
+          .toSeq
         enumField.size must be(1)
         assert(enumField(0).msg contains (expectedMessage))
       }

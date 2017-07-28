@@ -1,7 +1,16 @@
 package com.twitter.scrooge.adapt
 
-import com.twitter.scrooge.{BinaryThriftStructSerializer, LazyBinaryThriftStructSerializer, ThriftStruct, ThriftStructCodec, ThriftStructSerializer}
-import com.twitter.scrooge.adapt.testutil.{BinaryThriftFieldRemover, ReloadOnceAdaptBinarySerializer}
+import com.twitter.scrooge.{
+  BinaryThriftStructSerializer,
+  LazyBinaryThriftStructSerializer,
+  ThriftStruct,
+  ThriftStructCodec,
+  ThriftStructSerializer
+}
+import com.twitter.scrooge.adapt.testutil.{
+  BinaryThriftFieldRemover,
+  ReloadOnceAdaptBinarySerializer
+}
 import com.twitter.scrooge.adapt.thrift._
 import org.apache.thrift.protocol.{TProtocolException, TType}
 import org.junit.runner.RunWith
@@ -32,11 +41,15 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
    */
   val BlankStructBytes = Array[Byte](TType.STOP)
 
-  val NoAccess: Accessor[Any] = Accessor("No access") { _ => () }
+  val NoAccess: Accessor[Any] = Accessor("No access") { _ =>
+    ()
+  }
 
   object TestStructAccessors {
     val RequiredFieldAccess: Accessor[TestStruct] =
-      Accessor("Required field") { t => t.boolField }
+      Accessor("Required field") { t =>
+        t.boolField
+      }
 
     val RequiredFieldsAccess: Accessor[TestStruct] =
       Accessor("Required fields") { t =>
@@ -83,7 +96,8 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       OptionalReservedWordFieldAccess,
       OptionalWithDefaultFieldAccess,
       NegativeFieldAccess,
-      UnderscoreFieldsAccess)
+      UnderscoreFieldsAccess
+    )
   }
 
   object TestNestedStructAccessors {
@@ -103,16 +117,15 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       RequiredFieldAccess,
       OptionalFieldAccess,
       ReservedWordFieldAccess,
-      OptionalReservedWordFieldAccess)
+      OptionalReservedWordFieldAccess
+    )
   }
 
-  def useAccessPropTestStruct(
-    use: TestStruct => Any)(
+  def useAccessPropTestStruct(use: TestStruct => Any)(
     access: TestStruct => Any
   ) = useAccessProp(TestStruct, use)(access)
 
-  def useAccessPropTestNestedStruct(
-    use: TestNestedStruct => Any)(
+  def useAccessPropTestNestedStruct(use: TestNestedStruct => Any)(
     access: TestNestedStruct => Any
   ) = useAccessProp(TestNestedStruct, use)(access)
 
@@ -125,9 +138,8 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       // Make sure materialization happens
       val trackedReads = 1
       val useThreshold = 1
-      val adaptSer = ReloadOnceAdaptBinarySerializer(
-        thriftCodec,
-        AdaptSettings(trackedReads, useThreshold))
+      val adaptSer =
+        ReloadOnceAdaptBinarySerializer(thriftCodec, AdaptSettings(trackedReads, useThreshold))
 
       val bytes = eagerSer.toBytes(orig)
       for (_ <- 0 until trackedReads) {
@@ -200,13 +212,13 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     t: T,
     codec: ThriftStructCodec[T]
   ): Seq[String] =
-      getFieldsWithMethodPrefix(t, codec, AdaptAsmPruner.SetterPrefix)
+    getFieldsWithMethodPrefix(t, codec, AdaptAsmPruner.SetterPrefix)
 
   def getFieldsWithDelegates[T <: ThriftStruct](
     t: T,
     codec: ThriftStructCodec[T]
   ): Seq[String] =
-      getFieldsWithMethodPrefix(t, codec, AdaptAsmPruner.DelegatePrefix)
+    getFieldsWithMethodPrefix(t, codec, AdaptAsmPruner.DelegatePrefix)
 
   def encodeDecode[T <: ThriftStruct](
     t: T,
@@ -232,12 +244,13 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     def adaptSer: ThriftStructSerializer[T]
     def bytes: Array[Byte]
     def recorder: T
-    def adapted : T
+    def adapted: T
   }
 
   def fixture[T <: ThriftStruct](
     t: T,
-    codec: ThriftStructCodec[T], train: T => Any = NoAccess
+    codec: ThriftStructCodec[T],
+    train: T => Any = NoAccess
   ) = new Fixture[T] {
     val eagerSer = BinaryThriftStructSerializer(codec)
     val bytes = eagerSer.toBytes(t)
@@ -286,8 +299,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Parsing required field not set should throw exception even when " +
-    "required field is unused") {
+  property(
+    "Parsing required field not set should throw exception even when " +
+      "required field is unused"
+  ) {
     check {
       forAll { t: TestRequiredField =>
         val f = fixture(t, TestRequiredField)
@@ -298,8 +313,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Parsing required field not set should throw exception even when " +
-    "required field is used") {
+  property(
+    "Parsing required field not set should throw exception even when " +
+      "required field is used"
+  ) {
     check {
       forAll { t: TestRequiredField =>
         val f = fixture[TestRequiredField](t, TestRequiredField, _.requiredField)
@@ -310,8 +327,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property(s"$RemainUnchangedSerDe when trained with optional field used but " +
-    s"not set in incoming event") {
+  property(
+    s"$RemainUnchangedSerDe when trained with optional field used but " +
+      s"not set in incoming event"
+  ) {
     check {
       forAll { (t: TestStruct) =>
         val f = testStructFixture(t, _.optionalField)
@@ -320,8 +339,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Adapt generated object should be able to write using other " +
-    "protocols when no field in adapt materialized") {
+  property(
+    "Adapt generated object should be able to write using other " +
+      "protocols when no field in adapt materialized"
+  ) {
     check {
       forAll { t: TestStruct =>
         protocolDecodeTest(t, NoAccess)
@@ -329,8 +350,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Adapt generated object should be able to write using other " +
-    "protocols when some fields in adapt materialized") {
+  property(
+    "Adapt generated object should be able to write using other " +
+      "protocols when some fields in adapt materialized"
+  ) {
     check {
       forAll { t: TestStruct =>
         protocolDecodeTest(t, TestStructAccessors.RequiredFieldsAccess)
@@ -347,8 +370,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Calling write on the struct should not result in fields being " +
-    "considered accessed") {
+  property(
+    "Calling write on the struct should not result in fields being " +
+      "considered accessed"
+  ) {
     check {
       forAll { t: TestRequiredField =>
         val f = fixture[TestRequiredField](t, TestRequiredField)
@@ -418,8 +443,7 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       }
     }
   }
-  */
-
+   */
 
   property("Eager scrooge nested in Adaptive scrooge should encode decode fine") {
     check {
@@ -480,8 +504,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Adapt serializer should pick up the default value when present " +
-    "for optional values, when optional field is used") {
+  property(
+    "Adapt serializer should pick up the default value when present " +
+      "for optional values, when optional field is used"
+  ) {
     check {
       forAll { t: TestStruct =>
         val before = t.copy(optionalFieldWithDefaultValue = "test")
@@ -498,8 +524,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Adapt serializer should pick up the default value when present " +
-    "for optional values, when optional field is not used") {
+  property(
+    "Adapt serializer should pick up the default value when present " +
+      "for optional values, when optional field is not used"
+  ) {
     check {
       forAll { t: TestStruct =>
         val before = t.copy(optionalFieldWithDefaultValue = "test")
@@ -514,9 +542,11 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  property("Adapt serializer should throw TProtocolException when required " +
-    "field not present, even if default value is specified for it in the " +
-    "thrift definition") {
+  property(
+    "Adapt serializer should throw TProtocolException when required " +
+      "field not present, even if default value is specified for it in the " +
+      "thrift definition"
+  ) {
     check {
       forAll { t: TestRequiredDefaultsStruct =>
         val before = t.copy(stringField = "test")
@@ -541,4 +571,3 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 }
-

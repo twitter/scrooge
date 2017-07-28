@@ -22,8 +22,7 @@ class ASTSpec extends Spec {
       val rbOatmealNs = Namespace("rb", Identifier("Oatmeal"))
       val doc = Document(Seq(javaOatmealNs, rbOatmealNs), Nil)
       val namespaceMap = Map(javaOatmealNs.id.fullName -> javaGranolaNs.id.fullName)
-      doc.mapNamespaces(namespaceMap) must be(
-        Document(Seq(javaGranolaNs, rbOatmealNs), Nil))
+      doc.mapNamespaces(namespaceMap) must be(Document(Seq(javaGranolaNs, rbOatmealNs), Nil))
     }
 
     "map namespaces recursively" in {

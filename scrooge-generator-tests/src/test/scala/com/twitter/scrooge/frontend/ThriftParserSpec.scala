@@ -26,7 +26,7 @@ class ThriftParserSpec extends Spec {
     }
 
     "comments with Windows-style carriage return" in {
-      commentTestSources.map(_.replace("\n","\r\n")).foreach(verifyCommentParsing)
+      commentTestSources.map(_.replace("\n", "\r\n")).foreach(verifyCommentParsing)
     }
 
     "comments with parens" in {
@@ -35,8 +35,8 @@ class ThriftParserSpec extends Spec {
 struct MyStruct {}
 """
       parser.parse(source, parser.document) match {
-        case Document(List(),List(Struct(SimpleID("MyStruct", None), "MyStruct", List(),
-          None, m))) if m.isEmpty =>
+        case Document(List(), List(Struct(SimpleID("MyStruct", None), "MyStruct", List(), None, m)))
+            if m.isEmpty =>
         case x => fail(s"Failed to match $x")
       }
     }
@@ -44,7 +44,9 @@ struct MyStruct {}
     "double-quoted strings" in {
       parser.parse(""" "hello!" """, parser.rhs) must be(StringLiteral("hello!"))
       parser.parse(""" "hello\nthere!" """, parser.rhs) must be(StringLiteral("""hello\nthere!"""))
-      parser.parse(""" "hello\\nthere!" """, parser.rhs) must be(StringLiteral("""hello\\nthere!"""))
+      parser.parse(""" "hello\\nthere!" """, parser.rhs) must be(
+        StringLiteral("""hello\\nthere!""")
+      )
       parser.parse(""" "hello//there!" """, parser.rhs) must be(StringLiteral("""hello//there!"""))
       parser.parse(""" "hello'there!" """, parser.rhs) must be(StringLiteral("""hello'there!"""))
       parser.parse(""" "hello\'there!" """, parser.rhs) must be(StringLiteral("""hello\'there!"""))
@@ -55,7 +57,9 @@ struct MyStruct {}
     "single-quoted strings" in {
       parser.parse(""" 'hello!' """, parser.rhs) must be(StringLiteral("hello!"))
       parser.parse(""" 'hello\nthere!' """, parser.rhs) must be(StringLiteral("""hello\nthere!"""))
-      parser.parse(""" 'hello\\nthere!' """, parser.rhs) must be(StringLiteral("""hello\\nthere!"""))
+      parser.parse(""" 'hello\\nthere!' """, parser.rhs) must be(
+        StringLiteral("""hello\\nthere!""")
+      )
       parser.parse(""" 'hello//there!' """, parser.rhs) must be(StringLiteral("""hello//there!"""))
       parser.parse(""" 'hello"there!' """, parser.rhs) must be(StringLiteral("""hello"there!"""))
       parser.parse(""" 'hello\"there!' """, parser.rhs) must be(StringLiteral("""hello\"there!"""))
@@ -69,9 +73,14 @@ struct MyStruct {}
       val list = parser.parse("[ 4, 5, ]", parser.rhs)
       list.isInstanceOf[ListRHS] must be(true)
       list.asInstanceOf[ListRHS].elems.toList must be(List(IntLiteral(4), IntLiteral(5)))
-      parser.parse("{ 'name': 'Commie', 'home': 'San Francisco', }",
-        parser.rhs) must be(MapRHS(Seq(StringLiteral("name") -> StringLiteral
-        ("Commie"), StringLiteral("home") -> StringLiteral("San Francisco"))))
+      parser.parse("{ 'name': 'Commie', 'home': 'San Francisco', }", parser.rhs) must be(
+        MapRHS(
+          Seq(
+            StringLiteral("name") -> StringLiteral("Commie"),
+            StringLiteral("home") -> StringLiteral("San Francisco")
+          )
+        )
+      )
     }
 
     "base types" in {
@@ -87,30 +96,61 @@ struct MyStruct {}
 
     "compound types" in {
       parser.parse("list<i64>", parser.fieldType) must be(ListType(TI64, None))
-      parser.parse("list<list<string>>", parser.fieldType) must be(ListType(ListType(TString,
-        None), None))
-      parser.parse("map<string, list<bool>>", parser.fieldType) must be(MapType(TString,
-        ListType(TBool, None), None))
-      parser.parse("set<Monster>", parser.fieldType) must be(SetType(ReferenceType(Identifier("Monster")),
-        None))
+      parser.parse("list<list<string>>", parser.fieldType) must be(
+        ListType(ListType(TString, None), None)
+      )
+      parser.parse("map<string, list<bool>>", parser.fieldType) must be(
+        MapType(TString, ListType(TBool, None), None)
+      )
+      parser.parse("set<Monster>", parser.fieldType) must be(
+        SetType(ReferenceType(Identifier("Monster")), None)
+      )
       parser.parse("Monster", parser.fieldType) must be(ReferenceType(Identifier("Monster")))
     }
 
     "functions" in {
       parser.parse("/**doc!*/ void go()", parser.function) must be(
-        Function(SimpleID("go"), "go", Void, Seq(), Seq(), Some("/**doc!*/")))
+        Function(SimpleID("go"), "go", Void, Seq(), Seq(), Some("/**doc!*/"))
+      )
       parser.parse(
         "list<string> get_tables(optional i32 id, /**DOC*/3: required string name='cat') throws (1: Exception ex);",
-        parser.function) must be(
-        Function(SimpleID("get_tables"), "get_tables", ListType(TString, None), Seq(
-          Field(-1, SimpleID("id"), "id", TI32, None, Requiredness.Optional),
-          Field(3, SimpleID("name"), "name", TString, Some(StringLiteral("cat")), Requiredness.Required, docstring = Some("/**DOC*/"))
-        ), Seq(Field(1, SimpleID("ex"), "ex", ReferenceType(Identifier("Exception")), None, Requiredness.Default)), None))
+        parser.function
+      ) must be(
+        Function(
+          SimpleID("get_tables"),
+          "get_tables",
+          ListType(TString, None),
+          Seq(
+            Field(-1, SimpleID("id"), "id", TI32, None, Requiredness.Optional),
+            Field(
+              3,
+              SimpleID("name"),
+              "name",
+              TString,
+              Some(StringLiteral("cat")),
+              Requiredness.Required,
+              docstring = Some("/**DOC*/")
+            )
+          ),
+          Seq(
+            Field(
+              1,
+              SimpleID("ex"),
+              "ex",
+              ReferenceType(Identifier("Exception")),
+              None,
+              Requiredness.Default
+            )
+          ),
+          None
+        )
+      )
     }
 
     "const" in {
-      parser.parse("/** COMMENT */ const string name = \"Columbo\"", parser.definition) must be(ConstDefinition(SimpleID("name"),
-        TString, StringLiteral("Columbo"), Some("/** COMMENT */")))
+      parser.parse("/** COMMENT */ const string name = \"Columbo\"", parser.definition) must be(
+        ConstDefinition(SimpleID("name"), TString, StringLiteral("Columbo"), Some("/** COMMENT */"))
+      )
     }
 
     "more than one docstring" in {
@@ -119,8 +159,14 @@ struct MyStruct {}
 /** and another */
 const string tyrion = "lannister"
 """
-      parser.parse(code, parser.definition) must be(ConstDefinition(SimpleID("tyrion"),
-        TString, StringLiteral("lannister"), Some("/** comment */\n/** and another */")))
+      parser.parse(code, parser.definition) must be(
+        ConstDefinition(
+          SimpleID("tyrion"),
+          TString,
+          StringLiteral("lannister"),
+          Some("/** comment */\n/** and another */")
+        )
+      )
     }
 
     "comment before docstring" in {
@@ -129,8 +175,14 @@ const string tyrion = "lannister"
 /** docstring */
 const string tyrion = "lannister"
 """
-      parser.parse(code, parser.definition) must be(ConstDefinition(SimpleID("tyrion"),
-        TString, StringLiteral("lannister"), Some("/** docstring */")))
+      parser.parse(code, parser.definition) must be(
+        ConstDefinition(
+          SimpleID("tyrion"),
+          TString,
+          StringLiteral("lannister"),
+          Some("/** docstring */")
+        )
+      )
     }
 
     "typedef" in {
@@ -142,7 +194,8 @@ const string tyrion = "lannister"
           SimpleID("Ladder"),
           ListType(TI32, None),
           Map("information" -> "important", "more" -> "better")
-        ))
+        )
+      )
     }
 
     "enum" in {
@@ -151,14 +204,20 @@ const string tyrion = "lannister"
           NORTH, SOUTH, EAST=90, WEST, UP, DOWN=5
         }
         """
-      parser.parse(code, parser.definition) must be(Enum(SimpleID("Direction"), Seq(
-        EnumField(SimpleID("NORTH"), 0, None),
-        EnumField(SimpleID("SOUTH"), 1, None),
-        EnumField(SimpleID("EAST"), 90, None),
-        EnumField(SimpleID("WEST"), 91, None),
-        EnumField(SimpleID("UP"), 92, None),
-        EnumField(SimpleID("DOWN"), 5, None)
-      ), None))
+      parser.parse(code, parser.definition) must be(
+        Enum(
+          SimpleID("Direction"),
+          Seq(
+            EnumField(SimpleID("NORTH"), 0, None),
+            EnumField(SimpleID("SOUTH"), 1, None),
+            EnumField(SimpleID("EAST"), 90, None),
+            EnumField(SimpleID("WEST"), 91, None),
+            EnumField(SimpleID("UP"), 92, None),
+            EnumField(SimpleID("DOWN"), 5, None)
+          ),
+          None
+        )
+      )
 
       val withComment = """
 /**
@@ -172,19 +231,23 @@ enum Foo
   // I am a comment.
   Y = 2
 }"""
-      parser.parse(withComment, parser.enum) must be(Enum(SimpleID("Foo"),
-        Seq(
-          EnumField(SimpleID("X"), 1, Some("/** I am a doc. */")),
-          EnumField(SimpleID("Y"), 2, None)),
-        Some("/**\n * Docstring!\n */")
-      ))
+      parser.parse(withComment, parser.enum) must be(
+        Enum(
+          SimpleID("Foo"),
+          Seq(
+            EnumField(SimpleID("X"), 1, Some("/** I am a doc. */")),
+            EnumField(SimpleID("Y"), 2, None)
+          ),
+          Some("/**\n * Docstring!\n */")
+        )
+      )
     }
-
 
     "senum" in {
       // wtf is senum?!
       parser.parse("senum Cities { 'Milpitas', 'Mayfield' }", parser.definition) must be(
-        Senum(SimpleID("Cities"), Seq("Milpitas", "Mayfield")))
+        Senum(SimpleID("Cities"), Seq("Milpitas", "Mayfield"))
+      )
     }
 
     "struct" in {
@@ -200,11 +263,34 @@ enum Foo
           multiline="also supported",
         )
                  """
-      parser.parse(code, parser.definition) must be(Struct(SimpleID("Point"), "Point", Seq(
-        Field(1, SimpleID("x"), "x", TDouble, None, Requiredness.Default),
-        Field(2, SimpleID("y"), "y", TDouble, None, Requiredness.Default, docstring = Some("/** comments*/")),
-        Field(3, SimpleID("color"), "color", ReferenceType(Identifier("Color")), Some(IdRHS(SimpleID("BLUE"))), Requiredness.Default)
-      ), Some("/** docs up here */"), Map("annotation" -> "supported", "multiline" -> "also supported")))
+      parser.parse(code, parser.definition) must be(
+        Struct(
+          SimpleID("Point"),
+          "Point",
+          Seq(
+            Field(1, SimpleID("x"), "x", TDouble, None, Requiredness.Default),
+            Field(
+              2,
+              SimpleID("y"),
+              "y",
+              TDouble,
+              None,
+              Requiredness.Default,
+              docstring = Some("/** comments*/")
+            ),
+            Field(
+              3,
+              SimpleID("color"),
+              "color",
+              ReferenceType(Identifier("Color")),
+              Some(IdRHS(SimpleID("BLUE"))),
+              Requiredness.Default
+            )
+          ),
+          Some("/** docs up here */"),
+          Map("annotation" -> "supported", "multiline" -> "also supported")
+        )
+      )
     }
 
     "union" should {
@@ -219,12 +305,49 @@ enum Foo
             4: LighterThanAir lta
           } (maxTypes="4")
                    """
-        parser.parse(code, parser.definition) must be(Union(SimpleID("Aircraft"), "Aircraft", Seq(
-          Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
-          Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default, docstring = Some("/** comments*/")),
-          Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default),
-          Field(4, SimpleID("lta"), "lta", ReferenceType(Identifier("LighterThanAir")), None, Requiredness.Default)
-        ), Some("/** docs up here */"), Map("maxTypes" -> "4")))
+        parser.parse(code, parser.definition) must be(
+          Union(
+            SimpleID("Aircraft"),
+            "Aircraft",
+            Seq(
+              Field(
+                1,
+                SimpleID("a"),
+                "a",
+                ReferenceType(Identifier("Airplane")),
+                None,
+                Requiredness.Default
+              ),
+              Field(
+                2,
+                SimpleID("r"),
+                "r",
+                ReferenceType(Identifier("Rotorcraft")),
+                None,
+                Requiredness.Default,
+                docstring = Some("/** comments*/")
+              ),
+              Field(
+                3,
+                SimpleID("g"),
+                "g",
+                ReferenceType(Identifier("Glider")),
+                None,
+                Requiredness.Default
+              ),
+              Field(
+                4,
+                SimpleID("lta"),
+                "lta",
+                ReferenceType(Identifier("LighterThanAir")),
+                None,
+                Requiredness.Default
+              )
+            ),
+            Some("/** docs up here */"),
+            Map("maxTypes" -> "4")
+          )
+        )
       }
 
       "requiredness" in {
@@ -244,44 +367,103 @@ enum Foo
           }
                    """
 
-        laxParser.parse(code, laxParser.definition) must be(Union(SimpleID("Aircraft"), "Aircraft", Seq(
-          Field(1, SimpleID("a"), "a", ReferenceType(Identifier("Airplane")), None, Requiredness.Default),
-          Field(2, SimpleID("r"), "r", ReferenceType(Identifier("Rotorcraft")), None, Requiredness.Default),
-          Field(3, SimpleID("g"), "g", ReferenceType(Identifier("Glider")), None, Requiredness.Default)
-        ), None, Map.empty))
+        laxParser.parse(code, laxParser.definition) must be(
+          Union(
+            SimpleID("Aircraft"),
+            "Aircraft",
+            Seq(
+              Field(
+                1,
+                SimpleID("a"),
+                "a",
+                ReferenceType(Identifier("Airplane")),
+                None,
+                Requiredness.Default
+              ),
+              Field(
+                2,
+                SimpleID("r"),
+                "r",
+                ReferenceType(Identifier("Rotorcraft")),
+                None,
+                Requiredness.Default
+              ),
+              Field(
+                3,
+                SimpleID("g"),
+                "g",
+                ReferenceType(Identifier("Glider")),
+                None,
+                Requiredness.Default
+              )
+            ),
+            None,
+            Map.empty
+          )
+        )
       }
 
       "invalid field name" in {
         intercept[UnionFieldInvalidNameException] {
-          parser.parse("""
+          parser.parse(
+            """
             union Fruit {
               1: Apple apple
               2: Banana banana
               3: UnknownFruit unknown_union_field
             }
-          """, parser.definition)
+          """,
+            parser.definition
+          )
         }
       }
     }
 
     "exception" in {
       parser.parse("exception BadError { 1: string message }", parser.definition) must be(
-        Exception_(SimpleID("BadError"), "BadError",
-          Seq(Field(1, SimpleID("message"), "message", TString, None, Requiredness.Default)), None))
+        Exception_(
+          SimpleID("BadError"),
+          "BadError",
+          Seq(Field(1, SimpleID("message"), "message", TString, None, Requiredness.Default)),
+          None
+        )
+      )
       parser.parse("exception E { string message, string reason }", parser.definition) must be(
-        Exception_(SimpleID("E"), "E", Seq(
-          Field(-1, SimpleID("message"), "message", TString, None, Requiredness.Default),
-          Field(-2, SimpleID("reason"), "reason", TString, None, Requiredness.Default)
-        ), None))
+        Exception_(
+          SimpleID("E"),
+          "E",
+          Seq(
+            Field(-1, SimpleID("message"), "message", TString, None, Requiredness.Default),
+            Field(-2, SimpleID("reason"), "reason", TString, None, Requiredness.Default)
+          ),
+          None
+        )
+      )
       parser.parse("exception NoParams { }", parser.definition) must be(
-        Exception_(SimpleID("NoParams"), "NoParams", Seq(), None))
+        Exception_(SimpleID("NoParams"), "NoParams", Seq(), None)
+      )
       parser.parse("/** doc rivers */ exception wellDocumentedException { }", parser.definition) must be(
-        Exception_(SimpleID("wellDocumentedException"), "wellDocumentedException", Seq(), Some("/** doc rivers */")))
+        Exception_(
+          SimpleID("wellDocumentedException"),
+          "wellDocumentedException",
+          Seq(),
+          Some("/** doc rivers */")
+        )
+      )
 
       val annotations = Map("persisted" -> "true")
-      parser.parse("exception BadError { 1: string message } (persisted = \"true\")", parser.definition) must be(
-        Exception_(SimpleID("BadError"), "BadError",
-          Seq(Field(1, SimpleID("message"), "message", TString, None, Requiredness.Default)), None, annotations))
+      parser.parse(
+        "exception BadError { 1: string message } (persisted = \"true\")",
+        parser.definition
+      ) must be(
+        Exception_(
+          SimpleID("BadError"),
+          "BadError",
+          Seq(Field(1, SimpleID("message"), "message", TString, None, Requiredness.Default)),
+          None,
+          annotations
+        )
+      )
     }
 
     "service" in {
@@ -292,22 +474,49 @@ enum Foo
           binary get(1: string name) throws (1: NotFoundException ex);
         }
                  """
-      parser.parse(code, parser.definition) must be(Service(SimpleID("Cache"), None, Seq(
-        Function(SimpleID("put"), "put", Void, Seq(
-          Field(1, SimpleID("name"), "name", TString, None, Requiredness.Default),
-          Field(2, SimpleID("value"), "value", TBinary, None, Requiredness.Default)
-        ), Seq(), None),
-        Function(SimpleID("get"), "get", TBinary, Seq(
-          Field(1, SimpleID("name"), "name", TString, None, Requiredness.Default)
-        ), Seq(Field(1, SimpleID("ex"), "ex", ReferenceType(Identifier("NotFoundException")), None, Requiredness.Default)), None)
-      ), Some("/** cold hard cache */")))
+      parser.parse(code, parser.definition) must be(
+        Service(
+          SimpleID("Cache"),
+          None,
+          Seq(
+            Function(
+              SimpleID("put"),
+              "put",
+              Void,
+              Seq(
+                Field(1, SimpleID("name"), "name", TString, None, Requiredness.Default),
+                Field(2, SimpleID("value"), "value", TBinary, None, Requiredness.Default)
+              ),
+              Seq(),
+              None
+            ),
+            Function(
+              SimpleID("get"),
+              "get",
+              TBinary,
+              Seq(
+                Field(1, SimpleID("name"), "name", TString, None, Requiredness.Default)
+              ),
+              Seq(
+                Field(
+                  1,
+                  SimpleID("ex"),
+                  "ex",
+                  ReferenceType(Identifier("NotFoundException")),
+                  None,
+                  Requiredness.Default
+                )
+              ),
+              None
+            )
+          ),
+          Some("/** cold hard cache */")
+        )
+      )
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) must be(
-        Service(
-          SimpleID("LeechCache"),
-          Some(ServiceParent(SimpleID("Cache"), None)),
-          Seq(),
-          None))
+        Service(SimpleID("LeechCache"), Some(ServiceParent(SimpleID("Cache"), None)), Seq(), None)
+      )
     }
 
     "document" in {
@@ -321,12 +530,21 @@ enum Foo
           void doNothing();
         }
                  """
-      parser.parse(code, parser.document) must be(Document(
-        Seq(Namespace("java", Identifier("com.example")), Namespace("*", Identifier("example"))),
-        Seq(Service(SimpleID("NullService"), None, Seq(
-          Function(SimpleID("doNothing"), "doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
-        ), Some("/** what up doc */")))
-      ))
+      parser.parse(code, parser.document) must be(
+        Document(
+          Seq(Namespace("java", Identifier("com.example")), Namespace("*", Identifier("example"))),
+          Seq(
+            Service(
+              SimpleID("NullService"),
+              None,
+              Seq(
+                Function(SimpleID("doNothing"), "doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
+              ),
+              Some("/** what up doc */")
+            )
+          )
+        )
+      )
     }
 
     // reject syntax
@@ -383,7 +601,8 @@ enum Foo
           SimpleID("AirportCode"),
           TString,
           Map("dbtype" -> "fixedchar(4)", "nullable" -> "false")
-        ))
+        )
+      )
 
       val idTypeAnnotations = Map("autoincrement" -> "true")
       val idFieldAnnotations = Map("initialValue" -> "0")
@@ -409,13 +628,41 @@ enum Foo
           SimpleID("Airport"),
           "Airport",
           Seq(
-            Field(1, SimpleID("id"), "id", TI64, Some(IntLiteral(0)), Requiredness.Default, idTypeAnnotations, idFieldAnnotations),
-            Field(2, SimpleID("code"), "code", TString, None, Requiredness.Optional, codeTypeAnnotations, Map.empty),
-            Field(3, SimpleID("name"), "name", TString, None, Requiredness.Optional, Map.empty, nameFieldAnnotations)
+            Field(
+              1,
+              SimpleID("id"),
+              "id",
+              TI64,
+              Some(IntLiteral(0)),
+              Requiredness.Default,
+              idTypeAnnotations,
+              idFieldAnnotations
+            ),
+            Field(
+              2,
+              SimpleID("code"),
+              "code",
+              TString,
+              None,
+              Requiredness.Optional,
+              codeTypeAnnotations,
+              Map.empty
+            ),
+            Field(
+              3,
+              SimpleID("name"),
+              "name",
+              TString,
+              None,
+              Requiredness.Optional,
+              Map.empty,
+              nameFieldAnnotations
+            )
           ),
           None,
           structAnnotations
-        ))
+        )
+      )
     }
 
     "handle illegal filenames" in {
@@ -453,57 +700,91 @@ enum Foo
 
     "boolean default values" in {
       var field = parser.parse("bool x = 0", parser.field)
-      field.default must be (Some(BoolLiteral(false)))
+      field.default must be(Some(BoolLiteral(false)))
 
       field = parser.parse("bool x = 1", parser.field)
-      field.default must be (Some(BoolLiteral(true)))
+      field.default must be(Some(BoolLiteral(true)))
 
       intercept[TypeMismatchException] {
         parser.parse("bool x = 2", parser.field)
       }
 
       field = parser.parse("bool x = false", parser.field)
-      field.default must be (Some(BoolLiteral(false)))
+      field.default must be(Some(BoolLiteral(false)))
 
       field = parser.parse("bool x = true", parser.field)
-      field.default must be (Some(BoolLiteral(true)))
+      field.default must be(Some(BoolLiteral(true)))
 
       field = parser.parse("bool x = False", parser.field)
-      field.default must be (Some(BoolLiteral(false)))
+      field.default must be(Some(BoolLiteral(false)))
 
       field = parser.parse("bool x = True", parser.field)
-      field.default must be (Some(BoolLiteral(true)))
+      field.default must be(Some(BoolLiteral(true)))
 
       intercept[TypeMismatchException] {
         parser.parse("bool x = WhatIsThis", parser.field)
       }
 
-      parser.parse("const bool z = false", parser.const) must be (
-        ConstDefinition(SimpleID("z", None), TBool, BoolLiteral(false), None))
+      parser.parse("const bool z = false", parser.const) must be(
+        ConstDefinition(SimpleID("z", None), TBool, BoolLiteral(false), None)
+      )
 
-      parser.parse("const bool z = True", parser.const) must be (
-        ConstDefinition(SimpleID("z", None), TBool, BoolLiteral(true), None))
+      parser.parse("const bool z = True", parser.const) must be(
+        ConstDefinition(SimpleID("z", None), TBool, BoolLiteral(true), None)
+      )
 
       intercept[TypeMismatchException] {
         parser.parse("const bool z = IDontEven", parser.const)
       }
 
       intercept[TypeMismatchException] {
-        parser.parse("service theService { i32 getValue(1: bool arg = SomethingElse) }",
-          parser.service)
+        parser.parse(
+          "service theService { i32 getValue(1: bool arg = SomethingElse) }",
+          parser.service
+        )
       }
 
-      parser.parse("struct asdf { bool x = false }", parser.struct) must be (
-        Struct(SimpleID("asdf", None), "asdf",
-          List(Field(-1, SimpleID("x", None), "x", TBool, Some(BoolLiteral(false)),
-            Requiredness.Default, Map(), Map())),
-          None,Map()))
+      parser.parse("struct asdf { bool x = false }", parser.struct) must be(
+        Struct(
+          SimpleID("asdf", None),
+          "asdf",
+          List(
+            Field(
+              -1,
+              SimpleID("x", None),
+              "x",
+              TBool,
+              Some(BoolLiteral(false)),
+              Requiredness.Default,
+              Map(),
+              Map()
+            )
+          ),
+          None,
+          Map()
+        )
+      )
 
-      parser.parse("struct asdf { bool x = 1 }", parser.struct) must be (
-        Struct(SimpleID("asdf", None), "asdf",
-          List(Field(-1, SimpleID("x", None), "x", TBool, Some(BoolLiteral(true)),
-            Requiredness.Default, Map(), Map())),
-          None,Map()))
+      parser.parse("struct asdf { bool x = 1 }", parser.struct) must be(
+        Struct(
+          SimpleID("asdf", None),
+          "asdf",
+          List(
+            Field(
+              -1,
+              SimpleID("x", None),
+              "x",
+              TBool,
+              Some(BoolLiteral(true)),
+              Requiredness.Default,
+              Map(),
+              Map()
+            )
+          ),
+          None,
+          Map()
+        )
+      )
 
       intercept[TypeMismatchException] {
         parser.parse("struct S { 1: bool B = 15 }", parser.struct)
@@ -513,12 +794,27 @@ enum Foo
     "Apache-compatible annotations" in {
       // see http://svn.apache.org/viewvc/thrift/trunk/test/AnnotationTest.thrift?view=markup&pathrev=1386848
 
-      parser.parse("""typedef list<i32> ( cpp.template = "std::list" ) int_linked_list""", parser.typedef) must be(
-        Typedef(SimpleID("int_linked_list", None), ListType(TI32, None), Map("cpp.template" -> "std::list"))
+      parser.parse(
+        """typedef list<i32> ( cpp.template = "std::list" ) int_linked_list""",
+        parser.typedef
+      ) must be(
+        Typedef(
+          SimpleID("int_linked_list", None),
+          ListType(TI32, None),
+          Map("cpp.template" -> "std::list")
+        )
       )
 
-      parser.parse("""typedef string ( unicode.encoding = "UTF-16" ) non_latin_string (foo="bar")""", parser.typedef) must be(
-        Typedef(SimpleID("non_latin_string", None), TString, Map("unicode.encoding" -> "UTF-16"), Map("foo" -> "bar"))
+      parser.parse(
+        """typedef string ( unicode.encoding = "UTF-16" ) non_latin_string (foo="bar")""",
+        parser.typedef
+      ) must be(
+        Typedef(
+          SimpleID("non_latin_string", None),
+          TString,
+          Map("unicode.encoding" -> "UTF-16"),
+          Map("foo" -> "bar")
+        )
       )
 
       // TODO(CSL-4127): support annotations on nested types
@@ -536,30 +832,87 @@ enum Foo
           |  python.type = "DenseFoo",
           |  java.final = "",
           |)
-        """.stripMargin, parser.struct) must be(
-        Struct(SimpleID("foo", None), "foo", Seq(
-          Field(1, SimpleID("bar", None), "bar", TI32, None, Default, Map(), Map("presence" -> "required"), None),
-          Field(2, SimpleID("baz", None), "baz", TI32, None, Default, Map(), Map("presence" -> "manual",  "cpp.use_pointer" -> ""), None),
-          Field(3, SimpleID("qux", None), "qux", TI32, None, Default, Map(), Map(), None),
-          Field(4, SimpleID("bop", None), "bop", TI32, None, Default, Map(), Map(), None)), None, Map("cpp.type" -> "DenseFoo",  "python.type" -> "DenseFoo",  "java.final" -> ""))
+        """.stripMargin,
+        parser.struct
+      ) must be(
+        Struct(
+          SimpleID("foo", None),
+          "foo",
+          Seq(
+            Field(
+              1,
+              SimpleID("bar", None),
+              "bar",
+              TI32,
+              None,
+              Default,
+              Map(),
+              Map("presence" -> "required"),
+              None
+            ),
+            Field(
+              2,
+              SimpleID("baz", None),
+              "baz",
+              TI32,
+              None,
+              Default,
+              Map(),
+              Map("presence" -> "manual", "cpp.use_pointer" -> ""),
+              None
+            ),
+            Field(3, SimpleID("qux", None), "qux", TI32, None, Default, Map(), Map(), None),
+            Field(4, SimpleID("bop", None), "bop", TI32, None, Default, Map(), Map(), None)
+          ),
+          None,
+          Map("cpp.type" -> "DenseFoo", "python.type" -> "DenseFoo", "java.final" -> "")
+        )
       )
 
       parser.parse(
-      """
+        """
         |exception foo_error {
         |  1: i32 error_code ( foo="bar" )
         |  2: string error_msg
         |} (foo = "bar")
         |
-      """.stripMargin, parser.exception) must be(
-        Exception_(SimpleID("foo_error", None), "foo_error", Seq(
-          Field(1, SimpleID("error_code", None), "error_code", TI32, None, Default, Map(), Map("foo" -> "bar"), None),
-          Field(2, SimpleID("error_msg", None), "error_msg", TString, None, Default, Map(), Map(), None)),
-          None, Map("foo" -> "bar"))
+      """.stripMargin,
+        parser.exception
+      ) must be(
+        Exception_(
+          SimpleID("foo_error", None),
+          "foo_error",
+          Seq(
+            Field(
+              1,
+              SimpleID("error_code", None),
+              "error_code",
+              TI32,
+              None,
+              Default,
+              Map(),
+              Map("foo" -> "bar"),
+              None
+            ),
+            Field(
+              2,
+              SimpleID("error_msg", None),
+              "error_msg",
+              TString,
+              None,
+              Default,
+              Map(),
+              Map(),
+              None
+            )
+          ),
+          None,
+          Map("foo" -> "bar")
+        )
       )
 
       parser.parse(
-      """
+        """
         |enum weekdays {
         |  SUNDAY ( weekend = "yes" ),
         |  MONDAY,
@@ -570,8 +923,12 @@ enum Foo
         |  SATURDAY ( weekend = "yes" )
         |} (foo.bar="baz")
         |
-      """.stripMargin, parser.enum) must be (
-          Enum(SimpleID("weekdays", None), Seq(
+      """.stripMargin,
+        parser.enum
+      ) must be(
+        Enum(
+          SimpleID("weekdays", None),
+          Seq(
             EnumField(SimpleID("SUNDAY", None), 0, None, Map("weekend" -> "yes")),
             EnumField(SimpleID("MONDAY", None), 1, None, Map()),
             EnumField(SimpleID("TUESDAY", None), 2, None, Map()),
@@ -579,12 +936,15 @@ enum Foo
             EnumField(SimpleID("THURSDAY", None), 4, None, Map()),
             EnumField(SimpleID("FRIDAY", None), 5, None, Map()),
             EnumField(SimpleID("SATURDAY", None), 6, None, Map("weekend" -> "yes"))
-          ), None, Map("foo.bar" -> "baz"))
+          ),
+          None,
+          Map("foo.bar" -> "baz")
+        )
       )
 
       // Annotations on senum values are not supported
       parser.parse(
-      """
+        """
         |senum seasons {
         |  "Spring",
         |  "Summer",
@@ -592,29 +952,34 @@ enum Foo
         |  "Winter"
         |} ( foo = "bar" )
         |
-      """.stripMargin, parser.senum) must be (
+      """.stripMargin,
+        parser.senum
+      ) must be(
         Senum(
           SimpleID("seasons", None),
-          Seq("Spring",  "Summer",  "Fall",  "Winter"),
-          Map("foo" -> "bar"))
+          Seq("Spring", "Summer", "Fall", "Winter"),
+          Map("foo" -> "bar")
+        )
       )
 
-      parser.parse(
-      """
+      parser.parse("""
         |service foo_service {
         |  void foo() ( foo = "bar" )
         |} (a.b="c")
         |
-      """.stripMargin, parser.service) must be (
-        Service(SimpleID("foo_service", None), None, Seq(
-          Function(SimpleID("foo", None), "foo", Void, Seq(), Seq(), None, Map("foo" -> "bar"))
-        ),
-        None,
-        Map("a.b" -> "c"))
+      """.stripMargin, parser.service) must be(
+        Service(
+          SimpleID("foo_service", None),
+          None,
+          Seq(
+            Function(SimpleID("foo", None), "foo", Void, Seq(), Seq(), None, Map("foo" -> "bar"))
+          ),
+          None,
+          Map("a.b" -> "c")
+        )
       )
     }
   }
-
 
   private def getParserForFilenameTest(thriftFilename: String): ThriftParser = {
     val importer = new Importer {
@@ -622,7 +987,8 @@ enum Foo
         scala.Some(FileContents(NullImporter, "", scala.Some(thriftFilename)))
       override private[scrooge] def canonicalPaths: Seq[String] = Nil
       override def lastModified(filename: String): scala.Option[Long] = None
-      override private[scrooge] def getResolvedPath(filename: String): scala.Option[String] = Some(filename)
+      override private[scrooge] def getResolvedPath(filename: String): scala.Option[String] =
+        Some(filename)
     }
     new ThriftParser(importer, true)
   }
