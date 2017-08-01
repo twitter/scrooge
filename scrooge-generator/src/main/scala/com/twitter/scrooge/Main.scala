@@ -116,6 +116,11 @@ object Main {
       }.text("name of language to generate code in (currently supported languages: " +
                  GeneratorFactory.languages.toList.mkString(", ")  + ")")
 
+      opt[Unit]("java-ser-enum-type").action { (_, c) =>
+        compiler.javaSerEnumType = true
+        c
+      }.text("Encode a thrift enum as o.a.t.p.TType.ENUM instead of TType.I32")
+
       opt[String]("experiment-flag").valueName("<flag>").unbounded().action { (flag, c) =>
         c.experimentFlags += flag
         c

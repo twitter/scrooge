@@ -344,7 +344,12 @@ this.{{name}} != that.{{name}}
       switch (field.id) {
         {{#fields}}
         case {{key}}: // {{#constant_name}}{{name}}{{/constant_name}}
+          {{#field_type.is_enum}}
+          if (field.type == {{field_type.to_enum}} || field.type == TType.ENUM) {
+          {{/field_type.is_enum}}
+          {{^field_type.is_enum}}
           if (field.type == {{field_type.to_enum}}) {
+          {{/field_type.is_enum}}
             {{#consolidate_newlines}}
             {{{deserialize_field}}}
             {{>generate_isset_set}}

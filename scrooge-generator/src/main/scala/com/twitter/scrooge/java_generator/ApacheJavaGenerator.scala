@@ -27,6 +27,12 @@ class ApacheJavaGenerator(
     val genHashcode: Boolean = true) // Defaulting to true for pants.
   extends Generator(resolvedDoc) {
   val namespaceLanguage = "java"
+
+  // true == serialize the enum type using TType.ENUM, false == use TType.I32
+  // default false for backward compatibility with generated code from older
+  // Scrooge versions (that expect TType.I32 to mean an enum type)
+  var serEnumType: Boolean = false  
+
   var counter = 0
 
   def printConstValue(
@@ -200,6 +206,16 @@ class ApacheJavaGenerator(
       case TBinary => "TType.STRING"
       case _ =>
         throw new ScroogeInternalException("INVALID TYPE IN getTypeString: " + fieldType)
+    }
+  }
+
+  def getTypeStringWithEnumMapping(fieldType: FunctionType): String = {
+    fieldType match {
+      case EnumType(enumValue, scope) => {
+        if (serEnumType) "TType.ENUM"
+        else getTypeString(fieldType)
+      }
+      case _ => getTypeString(fieldType)
     }
   }
 

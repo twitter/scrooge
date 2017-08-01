@@ -6,6 +6,7 @@ import com.twitter.scrooge.frontend.ScroogeInternalException
 
 class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerator) {
   def to_enum = generator.getTypeString(fieldType)
+  def to_enum_compat = generator.getTypeStringWithEnumMapping(fieldType)
   val type_name = generator.typeName(fieldType)
   val type_name_in_container = generator.typeName(fieldType, inContainer = true)
   val type_name_in_container_skip_generic = generator.typeName(fieldType, inContainer = true, skipGeneric = true)
