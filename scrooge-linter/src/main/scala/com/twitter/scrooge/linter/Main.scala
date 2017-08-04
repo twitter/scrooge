@@ -28,7 +28,8 @@ case class Config(
   ignoreParseErrors: Boolean = false,
   includePaths: Seq[String] = Seq.empty,
   enabledRules: Seq[LintRule] = LintRule.DefaultRules,
-  verbose: Boolean = false
+  verbose: Boolean = false,
+  fatalWarnings: Boolean = false
 )
 
 object Main {
@@ -110,6 +111,10 @@ object Main {
       opt[Unit]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action {
         (_, c) =>
           c.copy(strict = false)
+      }
+
+      opt[Unit]("fatal-warnings") text ("convert warnings to errors") action { (_, c) =>
+        c.copy(fatalWarnings = true)
       }
 
       arg[String]("<files...>") unbounded () text ("thrift files to compile") action { (input, c) =>
