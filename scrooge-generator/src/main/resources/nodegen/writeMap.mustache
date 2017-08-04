@@ -1,4 +1,4 @@
-output.writeMapBegin(Thrift.Type.{{keyWireConstType}}, Thrift.Type.{{valueWireConstType}}, {{name}}.length)
+output.writeMapBegin(Thrift.Type.{{keyWireConstType}}, Thrift.Type.{{valueWireConstType}}, {{name}}.size)
 for (let [{{keyName}}, {{valueName}}] of {{name}}) {
 {{#keyReadWriteInfo}}
     {{>writeValue}}

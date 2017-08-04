@@ -1,4 +1,4 @@
-output.writeSetBegin(Thrift.Type.{{eltWireConstType}}, {{name}}.length)
+output.writeSetBegin(Thrift.Type.{{eltWireConstType}}, {{name}}.size)
 for (let {{eltName}} of {{name}}) {
 {{#eltReadWriteInfo}}
     {{>writeValue}}
