@@ -161,6 +161,13 @@ object Main {
             GeneratorFactory.languages.toList.mkString(", ") + ")"
         )
 
+      opt[Unit]("java-ser-enum-type")
+        .action { (_, c) =>
+          compiler.javaSerEnumType = true
+          c
+        }
+        .text("Encode a thrift enum as o.a.t.p.TType.ENUM instead of TType.I32")
+
       opt[String]("experiment-flag")
         .valueName("<flag>")
         .unbounded()

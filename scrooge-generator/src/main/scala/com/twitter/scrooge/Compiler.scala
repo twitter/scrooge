@@ -19,6 +19,7 @@ package com.twitter.scrooge
 import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator, ServiceOption}
 import com.twitter.scrooge.frontend.{FileParseException, TypeResolver, ThriftParser, Importer}
+import com.twitter.scrooge.java_generator.ApacheJavaGenerator
 import java.io.{File, FileWriter}
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
@@ -46,6 +47,7 @@ class Compiler {
   var language: String = CompilerDefaults.language
   var defaultNamespace: String = CompilerDefaults.defaultNamespace
   var scalaWarnOnJavaNSFallback: Boolean = false
+  var javaSerEnumType: Boolean = false
 
   def run() {
     // if --gen-file-map is specified, prepare the map file.
@@ -84,6 +86,7 @@ class Compiler {
 
         generator match {
           case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback
+          case g: ApacheJavaGenerator => g.serEnumType = javaSerEnumType
           case _ => ()
         }
 

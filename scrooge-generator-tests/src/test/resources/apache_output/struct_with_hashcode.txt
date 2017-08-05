@@ -1374,7 +1374,7 @@ public class Work implements TBase<Work, Work._Fields>, java.io.Serializable, Cl
           }
           break;
         case 9: // DAY
-          if (field.type == TType.I32) {
+          if (field.type == TType.I32 || field.type == TType.ENUM) {
             this.day = Day.findByValue(iprot.readI32());
           } else { 
             TProtocolUtil.skip(iprot, field.type);
