@@ -1,5 +1,5 @@
-import AssemblyKeys._
 import bintray.Keys._
+import bintray.Keys.AssemblyKeys._
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import scoverage.ScoverageKeys
 
