@@ -91,7 +91,7 @@ public class {{name}} {
       oprot_.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, ++seqid_));
       {{name}}_args __args__ = new {{name}}_args();
       {{#fields}}
-      __args__.set{{#cap}}{{name}}{{/cap}}({{name}});
+      __args__.set{{#cap}}{{field_name}}{{/cap}}({{field_name}});
       {{/fields}}
       __args__.write(oprot_);
       oprot_.writeMessageEnd();
@@ -119,8 +119,8 @@ public class {{name}} {
       }
       {{/return_type.is_void}}
       {{#exceptions}}
-      if (result.{{name}} != null) {
-        throw result.{{name}};
+      if (result.{{field_name}} != null) {
+        throw result.{{field_name}};
       }
       {{/exceptions}}
       {{#return_type.is_void}}
@@ -160,13 +160,13 @@ public class {{name}} {
 
     public static class {{name}}_call extends TAsyncMethodCall<{{name}}_call> {
       {{#fields}}
-      private {{{field_type.type_name}}} {{name}};
+      private {{{field_type.type_name}}} {{field_name}};
       {{/fields}}
 
       public {{name}}_call({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{name}}_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
         {{#fields}}
-        this.{{name}} = {{name}};
+        this.{{field_name}} = {{field_name}};
         {{/fields}}
       }
 
@@ -174,7 +174,7 @@ public class {{name}} {
         __prot__.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, 0));
         {{name}}_args __args__ = new {{name}}_args();
         {{#fields}}
-        __args__.set{{#cap}}{{name}}{{/cap}}({{name}});
+        __args__.set{{#cap}}{{field_name}}{{/cap}}({{field_name}});
         {{/fields}}
         __args__.write(__prot__);
         __prot__.writeMessageEnd();
@@ -225,7 +225,7 @@ public class {{name}} {
         __prot__.writeMessageBegin(new TMessage("{{name}}", TMessageType.CALL, 0));
         {{name}}_args __args__ = new {{name}}_args();
         {{#fields}}
-        __args__.set{{#cap}}{{name}}{{/cap}}({{name}});
+        __args__.set{{#cap}}{{field_name}}{{/cap}}({{field_name}});
         {{/fields}}
         __args__.write(__prot__);
         __prot__.writeMessageEnd();
@@ -383,9 +383,9 @@ public class {{name}} {
         {{^is_oneway}}{{^return_type.is_void}}{{^return_type.nullable}}result.setSuccessIsSet(true);{{/return_type.nullable}}{{/return_type.is_void}}{{/is_oneway}}
         {{/i_if_has_exceptions}}
         {{^is_oneway}}{{#exceptions}}
-        } catch ({{{field_type.type_name}}} {{name}}) {
+        } catch ({{{field_type.type_name}}} {{field_name}}) {
           {{^is_oneway}}
-          result.{{name}} = {{name}};
+          result.{{field_name}} = {{field_name}};
           {{/is_oneway}}
         {{/exceptions}}
         {{#has_exceptions}}
@@ -418,7 +418,8 @@ public class {{name}} {
     private final TProtocolFactory protocolFactory;
     private final TReusableBuffer tlReusableBuffer = new TReusableBuffer(512, 16 * 1024);
     {{^extends_iface}}
-    protected HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>> functionMap = new HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>>();
+    protected HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>> serviceMap =
+      new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
     {{/extends_iface}}
     public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
       {{#extends_iface}}
@@ -427,101 +428,75 @@ public class {{name}} {
       this.iface = iface;
       this.protocolFactory = protocolFactory;
       {{#functions}}
-      functionMap.put("{{name}}", new Function2<TProtocol, Integer, Future<byte[]>>() {
-        public Future<byte[]> apply(final TProtocol iprot, final Integer seqid) {
-          {{name}}_args args = new {{name}}_args();
-          try {
-            args.read(iprot);
-          } catch (TProtocolException e) {
-            try {
-              iprot.readMessageEnd();
-              TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-              TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-              TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
-              oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.EXCEPTION, seqid));
-              x.write(oprot);
-              oprot.writeMessageEnd();
-              oprot.getTransport().flush();
-              byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
-              return Future.value(buffer);
-            } catch (Exception e1) {
-              return Future.exception(e1);
-            } finally {
-              tlReusableBuffer.reset();
-            }
-          } catch (Exception e) {
-            return Future.exception(e);
-          }
-
-          try {
-            iprot.readMessageEnd();
-          } catch (Exception e) {
-            return Future.exception(e);
-          }
-          Future<{{{return_type.type_name_in_container}}}> future;
-          try {
-            future = iface.{{name}}({{{argument_list_with_args}}});
-          } catch (Exception e) {
-            future = Future.exception(e);
-          }
-
-          {{#is_oneway}}
-          return future.map(new Function<{{{return_type.type_name_in_container}}}, byte[]>() {
-            public byte[] apply({{{return_type.type_name_in_container}}} value) {
-              return new byte[0];
-            }
-          });
-          {{/is_oneway}}
-          {{^is_oneway}}
-          try {
-            return future.flatMap(new Function<{{{return_type.type_name_in_container}}}, Future<byte[]>>() {
-              public Future<byte[]> apply({{{return_type.type_name_in_container}}} value) {
-                {{name}}_result result = new {{name}}_result();
-                {{^is_oneway}}{{^return_type.is_void}}
-                result.success = value;
-                result.setSuccessIsSet(true);
-                {{/return_type.is_void}}{{/is_oneway}}
-
-                try {
-                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-
-                  oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.REPLY, seqid));
-                  result.write(oprot);
-                  oprot.writeMessageEnd();
-
-                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
-                } catch (Exception e) {
+      class {{name}}Service {
+        private final com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]> protocolExnFilter = new com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> service) {
+            return service.apply(request).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable e) {
+                TProtocol iprot = request._1();
+                Integer seqid = request._2();
+                if (e instanceof TProtocolException) {
+                  try {
+                    iprot.readMessageEnd();
+                    return exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
+                  } catch (Exception e1) {
+                    return Future.exception(e1);
+                  }
+                } else {
                   return Future.exception(e);
-                } finally {
-                  tlReusableBuffer.reset();
                 }
               }
+            });
+          }
+        };
+
+        private final com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], {{name}}_args, {{{return_type.type_name_in_container}}}> serdeFilter = new com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], {{name}}_args, {{{return_type.type_name_in_container}}}>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}> service) {
+            TProtocol iprot = request._1();
+            Integer seqid = request._2();
+            {{name}}_args args = new {{name}}_args();
+            try {
+              args.read(iprot);
+              iprot.readMessageEnd();
+            } catch (Exception e) {
+              return Future.exception(e);
+            }
+
+            Future<{{{return_type.type_name_in_container}}}> res = service.apply(args);
+            {{#is_oneway}}
+            return res.map(new Function<{{{return_type.type_name_in_container}}}, byte[]>() {
+              public byte[] apply({{{return_type.type_name_in_container}}} value) {
+                return new byte[0];
+              }
+            });
+            {{/is_oneway}}
+            {{^is_oneway}}
+            {{name}}_result result = new {{name}}_result();
+            return res.flatMap(new Function<{{{return_type.type_name_in_container}}}, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply({{{return_type.type_name_in_container}}} value) {
+              {{^is_oneway}}{{^return_type.is_void}}
+                result.success = value;
+                result.setSuccessIsSet(true);
+              {{/return_type.is_void}}{{/is_oneway}}
+                return reply("{{name}}", seqid, result);
+              }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
               public Future<byte[]> apply(Throwable t) {
                 {{^is_oneway}}{{#has_exceptions}}
-                try {
-                  {{name}}_result result = new {{name}}_result();
-                  {{#exceptions}}
-                  {{^first}}else {{/first}}if (t instanceof {{{field_type.type_name}}}) {
-                    result.{{name}} = ({{{field_type.type_name}}})t;
-                  }
-                  {{/exceptions}}
-                  else {
-                    return Future.exception(t);
-                  }
-                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-                  oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.REPLY, seqid));
-                  result.write(oprot);
-                  oprot.writeMessageEnd();
-                  oprot.getTransport().flush();
-                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
-                } catch (Exception e) {
-                  return Future.exception(e);
-                } finally {
-                  tlReusableBuffer.reset();
+                {{#exceptions}}
+                {{^first}}else {{/first}}if (t instanceof {{{field_type.type_name}}}) {
+                  result.{{field_name}} = ({{{field_type.type_name}}})t;
+                  return reply("{{name}}", seqid, result);
+                }
+                {{/exceptions}}
+                else {
+                  return Future.exception(t);
                 }
                 {{/has_exceptions}}
                 {{^has_exceptions}}
@@ -533,12 +508,28 @@ public class {{name}} {
                 {{/is_oneway}}
               }
             });
-          } catch (Exception e) {
-            return Future.exception(e);
+            {{/is_oneway}}
           }
-          {{/is_oneway}}
-        }
-      });
+        };
+
+        private final com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}> methodService = new com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}>() {
+          @Override
+          public Future<{{{return_type.type_name_in_container}}}> apply({{name}}_args args) {
+            Future<{{{return_type.type_name_in_container}}}> future;
+            try {
+              future = iface.{{name}}({{{argument_list_with_args}}});
+            } catch (Exception e) {
+              future = Future.exception(e);
+            }
+            return future;
+          }
+        };
+
+        private final com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> getService =
+          protocolExnFilter.andThen(serdeFilter).andThen(methodService);
+      }
+
+      serviceMap.put("{{name}}", (new {{name}}Service()).getService);
       {{/functions}}
     }
 
@@ -553,8 +544,8 @@ public class {{name}} {
         return Future.exception(e);
       }
 
-      Function2<TProtocol, Integer, Future<byte[]>> fn = functionMap.get(msg.name);
-      if (fn == null) {
+      com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> svc = serviceMap.get(msg.name);
+      if (svc == null) {
         try {
           TProtocolUtil.skip(iprot, TType.STRUCT);
           iprot.readMessageEnd();
@@ -573,7 +564,43 @@ public class {{name}} {
         }
       }
 
-      return fn.apply(iprot, msg.seqid);
+      return svc.apply(new scala.Tuple2(iprot, msg.seqid));
+    }
+
+    private Future<byte[]> reply(String name, Integer seqid, TBase result) {
+      try {
+        TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
+        TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+
+        return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+      } catch (Exception e) {
+        return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
+      }
+    }
+
+    private Future<byte[]> exception(String name, Integer seqid, Integer code, String message) {
+      try {
+        TApplicationException x = new TApplicationException(code, message);
+        TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
+        TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid));
+        x.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+        byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+        return Future.value(buffer);
+      } catch (Exception e1) {
+        return Future.exception(e1);
+      } finally {
+        tlReusableBuffer.reset();
+      }
     }
   }
 

@@ -178,6 +178,17 @@ object ScroogeRunner {
 
     }
 
+    section("finagle_integration/") {
+      val files = filesInDir(s"$base/src/test/thrift/finagle_integration") mkString " "
+      run(language = Scala,
+        namespace = s"${Scala.defaultNamespace} -n thrift.test=com.twitter.scrooge.finagle_integration.thriftscala",
+        args = s"--disable-strict $files")
+      run(language = ApacheJava,
+        namespace = s"${ApacheJava.defaultNamespace} -n thrift.test=com.twitter.scrooge.finagle_integration.thriftjava",
+        args = s"--disable-strict $files")
+
+    }
+
     section("standalone/") {
       val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
       runScrooge(Seq(Scala), files)

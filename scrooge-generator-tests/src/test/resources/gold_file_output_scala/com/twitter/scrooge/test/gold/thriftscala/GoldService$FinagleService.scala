@@ -6,9 +6,9 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.finagle.Thrift
-import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.scrooge.{TReusableBuffer, ThriftStruct}
+import com.twitter.finagle.{SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
+import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
+import com.twitter.scrooge.{TReusableBuffer, ThriftMethod, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -46,10 +46,10 @@ class GoldService$FinagleService(
 
   private[this] val tlReusableBuffer = TReusableBuffer()
 
-  protected val functionMap = new mutable$HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
+  protected val serviceMap = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
 
-  protected def addFunction(name: String, f: (TProtocol, Int) => Future[Array[Byte]]): Unit = {
-    functionMap(name) = f
+  protected def addService(name: String, service: finagle$Service[(TProtocol, Int), Array[Byte]]): Unit = {
+    serviceMap(name) = service
   }
 
   protected def exception(name: String, seqid: Int, code: Int, message: String): Future[Array[Byte]] = {
@@ -97,10 +97,10 @@ class GoldService$FinagleService(
 
     try {
       val msg = iprot.readMessageBegin()
-      val func = functionMap.get(msg.name)
-      func match {
-        case _root_.scala.Some(fn) =>
-          fn(iprot, msg.seqid)
+      val service = serviceMap.get(msg.name)
+      service match {
+        case _root_.scala.Some(svc) =>
+          svc(iprot, msg.seqid)
         case _ =>
           TProtocolUtil.skip(iprot, TType.STRUCT)
           exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD,
@@ -111,44 +111,91 @@ class GoldService$FinagleService(
     }
   }
 
+  private object ThriftMethodStats {
+    def apply(stats: StatsReceiver): ThriftMethodStats =
+      ThriftMethodStats(
+        stats.counter("requests"),
+        stats.counter("success"),
+        stats.counter("failures"),
+        stats.scope("failures")
+      )
+  }
+
+  private case class ThriftMethodStats(
+    requestsCounter: Counter,
+    successCounter: Counter,
+    failuresCounter: Counter,
+    failuresScope: StatsReceiver
+  )
+
+  protected def perMethodStatsFilter(
+    method: ThriftMethod,
+    stats: StatsReceiver
+  ): SimpleFilter[method.Args, method.SuccessType] = {
+    val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+    new SimpleFilter[method.Args, method.SuccessType] {
+      def apply(
+        args: method.Args,
+        service: finagle$Service[method.Args, method.SuccessType]
+      ): Future[method.SuccessType] = {
+        methodStats.requestsCounter.incr()
+        service(args).respond {
+          case Return(_) =>
+            methodStats.successCounter.incr()
+          case Throw(ex) =>
+            methodStats.failuresCounter.incr()
+            methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
+        }
+      }
+    }
+  }
   // ---- end boilerplate.
 
-  private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
-  private[this] object __stats_doGreatThings {
-    val RequestsCounter = scopedStats.scope("doGreatThings").counter("requests")
-    val SuccessCounter = scopedStats.scope("doGreatThings").counter("success")
-    val FailuresCounter = scopedStats.scope("doGreatThings").counter("failures")
-    val FailuresScope = scopedStats.scope("doGreatThings").scope("failures")
-  }
-  addFunction("doGreatThings", { (iprot: TProtocol, seqid: Int) =>
-    try {
-      __stats_doGreatThings.RequestsCounter.incr()
-      val args = DoGreatThings.Args.decode(iprot)
-      iprot.readMessageEnd()
-      (try {
+  addService("doGreatThings", {
+    val statsFilter = perMethodStatsFilter(DoGreatThings, stats)
+
+    val methodService = new finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
+      def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
         iface.doGreatThings(args.request)
-      } catch {
-        case e: Exception => Future.exception(e)
-      }).flatMap { value: com.twitter.scrooge.test.gold.thriftscala.Response =>
-        reply("doGreatThings", seqid, DoGreatThings.Result(success = Some(value)))
-      }.rescue {
-        case e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException => {
-          reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(e)))
-        }
-        case e => Future.exception(e)
-      }.respond {
-        case Return(_) =>
-          __stats_doGreatThings.SuccessCounter.incr()
-        case Throw(ex) =>
-          __stats_doGreatThings.FailuresCounter.incr()
-          __stats_doGreatThings.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
       }
-    } catch {
-      case e: TProtocolException => {
-        iprot.readMessageEnd()
-        exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage)
-      }
-      case e: Exception => Future.exception(e)
     }
+
+    val protocolExnFilter = new SimpleFilter[(TProtocol, Int), Array[Byte]] {
+      def apply(
+        request: (TProtocol, Int),
+        service: finagle$Service[(TProtocol, Int), Array[Byte]]
+      ): Future[Array[Byte]] = {
+        val (iprot, seqid) = request
+        service(request).rescue {
+          case e: TProtocolException => {
+            iprot.readMessageEnd()
+            exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage)
+          }
+          case e: Exception => Future.exception(e)
+        }
+      }
+    }
+
+    val serdeFilter = new finagle$Filter[(TProtocol, Int), Array[Byte], DoGreatThings.Args, DoGreatThings.SuccessType] {
+      override def apply(
+        request: (TProtocol, Int),
+        service: finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType]
+      ): Future[Array[Byte]] = {
+        val (iprot, seqid) = request
+        val args = DoGreatThings.Args.decode(iprot)
+        iprot.readMessageEnd()
+        val res = service(args)
+        res.flatMap { value =>
+          reply("doGreatThings", seqid, DoGreatThings.Result(success = Some(value)))
+        }.rescue {
+          case e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException => {
+            reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(e)))
+          }
+          case e => Future.exception(e)
+        }
+      }
+    }
+
+    protocolExnFilter.andThen(serdeFilter).andThen(statsFilter).andThen(methodService)
   })
 }

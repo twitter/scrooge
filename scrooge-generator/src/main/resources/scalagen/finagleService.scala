@@ -1,8 +1,8 @@
 package {{package}}
 
-import com.twitter.finagle.Thrift
-import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.scrooge.{TReusableBuffer, ThriftStruct}
+import com.twitter.finagle.{SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
+import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
+import com.twitter.scrooge.{TReusableBuffer, ThriftMethod, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -41,10 +41,10 @@ class {{ServiceName}}$FinagleService(
 
   private[this] val tlReusableBuffer = TReusableBuffer()
 
-  protected val functionMap = new mutable$HashMap[String, (TProtocol, Int) => Future[Array[Byte]]]()
+  protected val serviceMap = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
 
-  protected def addFunction(name: String, f: (TProtocol, Int) => Future[Array[Byte]]): Unit = {
-    functionMap(name) = f
+  protected def addService(name: String, service: finagle$Service[(TProtocol, Int), Array[Byte]]): Unit = {
+    serviceMap(name) = service
   }
 
   protected def exception(name: String, seqid: Int, code: Int, message: String): Future[Array[Byte]] = {
@@ -92,10 +92,10 @@ class {{ServiceName}}$FinagleService(
 
     try {
       val msg = iprot.readMessageBegin()
-      val func = functionMap.get(msg.name)
-      func match {
-        case _root_.scala.Some(fn) =>
-          fn(iprot, msg.seqid)
+      val service = serviceMap.get(msg.name)
+      service match {
+        case _root_.scala.Some(svc) =>
+          svc(iprot, msg.seqid)
         case _ =>
           TProtocolUtil.skip(iprot, TType.STRUCT)
           exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD,
@@ -106,12 +106,49 @@ class {{ServiceName}}$FinagleService(
     }
   }
 
+  private object ThriftMethodStats {
+    def apply(stats: StatsReceiver): ThriftMethodStats =
+      ThriftMethodStats(
+        stats.counter("requests"),
+        stats.counter("success"),
+        stats.counter("failures"),
+        stats.scope("failures")
+      )
+  }
+
+  private case class ThriftMethodStats(
+    requestsCounter: Counter,
+    successCounter: Counter,
+    failuresCounter: Counter,
+    failuresScope: StatsReceiver
+  )
+
+  protected def perMethodStatsFilter(
+    method: ThriftMethod,
+    stats: StatsReceiver
+  ): SimpleFilter[method.Args, method.SuccessType] = {
+    val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+    new SimpleFilter[method.Args, method.SuccessType] {
+      def apply(
+        args: method.Args,
+        service: finagle$Service[method.Args, method.SuccessType]
+      ): Future[method.SuccessType] = {
+        methodStats.requestsCounter.incr()
+        service(args).respond {
+          case Return(_) =>
+            methodStats.successCounter.incr()
+          case Throw(ex) =>
+            methodStats.failuresCounter.incr()
+            methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
+        }
+      }
+    }
+  }
   // ---- end boilerplate.
 
 {{/hasParent}}
-  private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
-{{#functions}}
-  {{>function}}
-{{/function}}
+{{#methodServices}}
+  {{>methodService}}
+{{/methodService}}
 }
 

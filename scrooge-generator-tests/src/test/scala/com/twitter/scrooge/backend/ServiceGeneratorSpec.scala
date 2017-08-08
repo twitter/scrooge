@@ -409,7 +409,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
     "camelize names only in the scala bindings" in { _ =>
       val service = new Capsly$FinagleService(null, null) {
-        def getFunction2(name: String) = functionMap(name)
+        def getFunction2(name: String) = serviceMap(name)
       }
       service.getFunction2("Bad_Name") must not be (None)
     }

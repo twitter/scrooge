@@ -319,99 +319,90 @@ public class PlatinumService {
       super(iface, protocolFactory);
       this.iface = iface;
       this.protocolFactory = protocolFactory;
-      functionMap.put("moreCoolThings", new Function2<TProtocol, Integer, Future<byte[]>>() {
-        public Future<byte[]> apply(final TProtocol iprot, final Integer seqid) {
-          moreCoolThings_args args = new moreCoolThings_args();
-          try {
-            args.read(iprot);
-          } catch (TProtocolException e) {
-            try {
-              iprot.readMessageEnd();
-              TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-              TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-              TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
-              oprot.writeMessageBegin(new TMessage("moreCoolThings", TMessageType.EXCEPTION, seqid));
-              x.write(oprot);
-              oprot.writeMessageEnd();
-              oprot.getTransport().flush();
-              byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
-              return Future.value(buffer);
-            } catch (Exception e1) {
-              return Future.exception(e1);
-            } finally {
-              tlReusableBuffer.reset();
-            }
-          } catch (Exception e) {
-            return Future.exception(e);
-          }
-
-          try {
-            iprot.readMessageEnd();
-          } catch (Exception e) {
-            return Future.exception(e);
-          }
-          Future<Integer> future;
-          try {
-            future = iface.moreCoolThings(args.request);
-          } catch (Exception e) {
-            future = Future.exception(e);
-          }
-
-          try {
-            return future.flatMap(new Function<Integer, Future<byte[]>>() {
-              public Future<byte[]> apply(Integer value) {
-                moreCoolThings_result result = new moreCoolThings_result();
-                result.success = value;
-                result.setSuccessIsSet(true);
-
-                try {
-                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-
-                  oprot.writeMessageBegin(new TMessage("moreCoolThings", TMessageType.REPLY, seqid));
-                  result.write(oprot);
-                  oprot.writeMessageEnd();
-
-                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
-                } catch (Exception e) {
+      class moreCoolThingsService {
+        private final com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]> protocolExnFilter = new com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> service) {
+            return service.apply(request).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable e) {
+                TProtocol iprot = request._1();
+                Integer seqid = request._2();
+                if (e instanceof TProtocolException) {
+                  try {
+                    iprot.readMessageEnd();
+                    return exception("moreCoolThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
+                  } catch (Exception e1) {
+                    return Future.exception(e1);
+                  }
+                } else {
                   return Future.exception(e);
-                } finally {
-                  tlReusableBuffer.reset();
-                }
-              }
-            }).rescue(new Function<Throwable, Future<byte[]>>() {
-              public Future<byte[]> apply(Throwable t) {
-                try {
-                  moreCoolThings_result result = new moreCoolThings_result();
-                  if (t instanceof AnotherException) {
-                    result.ax = (AnotherException)t;
-                  }
-                  else if (t instanceof OverCapacityException) {
-                    result.oce = (OverCapacityException)t;
-                  }
-                  else {
-                    return Future.exception(t);
-                  }
-                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-                  oprot.writeMessageBegin(new TMessage("moreCoolThings", TMessageType.REPLY, seqid));
-                  result.write(oprot);
-                  oprot.writeMessageEnd();
-                  oprot.getTransport().flush();
-                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
-                } catch (Exception e) {
-                  return Future.exception(e);
-                } finally {
-                  tlReusableBuffer.reset();
                 }
               }
             });
-          } catch (Exception e) {
-            return Future.exception(e);
           }
-        }
-      });
+        };
+
+        private final com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], moreCoolThings_args, Integer> serdeFilter = new com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], moreCoolThings_args, Integer>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<moreCoolThings_args, Integer> service) {
+            TProtocol iprot = request._1();
+            Integer seqid = request._2();
+            moreCoolThings_args args = new moreCoolThings_args();
+            try {
+              args.read(iprot);
+              iprot.readMessageEnd();
+            } catch (Exception e) {
+              return Future.exception(e);
+            }
+
+            Future<Integer> res = service.apply(args);
+            moreCoolThings_result result = new moreCoolThings_result();
+            return res.flatMap(new Function<Integer, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Integer value) {
+                result.success = value;
+                result.setSuccessIsSet(true);
+                return reply("moreCoolThings", seqid, result);
+              }
+            }).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable t) {
+                if (t instanceof AnotherException) {
+                  result.ax = (AnotherException)t;
+                  return reply("moreCoolThings", seqid, result);
+                }
+                else if (t instanceof OverCapacityException) {
+                  result.oce = (OverCapacityException)t;
+                  return reply("moreCoolThings", seqid, result);
+                }
+                else {
+                  return Future.exception(t);
+                }
+              }
+            });
+          }
+        };
+
+        private final com.twitter.finagle.Service<moreCoolThings_args, Integer> methodService = new com.twitter.finagle.Service<moreCoolThings_args, Integer>() {
+          @Override
+          public Future<Integer> apply(moreCoolThings_args args) {
+            Future<Integer> future;
+            try {
+              future = iface.moreCoolThings(args.request);
+            } catch (Exception e) {
+              future = Future.exception(e);
+            }
+            return future;
+          }
+        };
+
+        private final com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> getService =
+          protocolExnFilter.andThen(serdeFilter).andThen(methodService);
+      }
+
+      serviceMap.put("moreCoolThings", (new moreCoolThingsService()).getService);
     }
 
     public Future<byte[]> apply(byte[] request) {
@@ -425,8 +416,8 @@ public class PlatinumService {
         return Future.exception(e);
       }
 
-      Function2<TProtocol, Integer, Future<byte[]>> fn = functionMap.get(msg.name);
-      if (fn == null) {
+      com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> svc = serviceMap.get(msg.name);
+      if (svc == null) {
         try {
           TProtocolUtil.skip(iprot, TType.STRUCT);
           iprot.readMessageEnd();
@@ -445,7 +436,43 @@ public class PlatinumService {
         }
       }
 
-      return fn.apply(iprot, msg.seqid);
+      return svc.apply(new scala.Tuple2(iprot, msg.seqid));
+    }
+
+    private Future<byte[]> reply(String name, Integer seqid, TBase result) {
+      try {
+        TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
+        TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+
+        return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+      } catch (Exception e) {
+        return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
+      }
+    }
+
+    private Future<byte[]> exception(String name, Integer seqid, Integer code, String message) {
+      try {
+        TApplicationException x = new TApplicationException(code, message);
+        TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
+        TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid));
+        x.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+        byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+        return Future.value(buffer);
+      } catch (Exception e1) {
+        return Future.exception(e1);
+      } finally {
+        tlReusableBuffer.reset();
+      }
     }
   }
 

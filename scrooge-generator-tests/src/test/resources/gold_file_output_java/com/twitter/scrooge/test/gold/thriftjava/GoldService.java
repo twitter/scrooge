@@ -331,100 +331,91 @@ public class GoldService {
     private final ServiceIface iface;
     private final TProtocolFactory protocolFactory;
     private final TReusableBuffer tlReusableBuffer = new TReusableBuffer(512, 16 * 1024);
-    protected HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>> functionMap = new HashMap<String, Function2<TProtocol, Integer, Future<byte[]>>>();
+    protected HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>> serviceMap =
+      new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
     public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
       this.iface = iface;
       this.protocolFactory = protocolFactory;
-      functionMap.put("doGreatThings", new Function2<TProtocol, Integer, Future<byte[]>>() {
-        public Future<byte[]> apply(final TProtocol iprot, final Integer seqid) {
-          doGreatThings_args args = new doGreatThings_args();
-          try {
-            args.read(iprot);
-          } catch (TProtocolException e) {
-            try {
-              iprot.readMessageEnd();
-              TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-              TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-              TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
-              oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.EXCEPTION, seqid));
-              x.write(oprot);
-              oprot.writeMessageEnd();
-              oprot.getTransport().flush();
-              byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
-              return Future.value(buffer);
-            } catch (Exception e1) {
-              return Future.exception(e1);
-            } finally {
-              tlReusableBuffer.reset();
-            }
-          } catch (Exception e) {
-            return Future.exception(e);
-          }
-
-          try {
-            iprot.readMessageEnd();
-          } catch (Exception e) {
-            return Future.exception(e);
-          }
-          Future<Response> future;
-          try {
-            future = iface.doGreatThings(args.request);
-          } catch (Exception e) {
-            future = Future.exception(e);
-          }
-
-          try {
-            return future.flatMap(new Function<Response, Future<byte[]>>() {
-              public Future<byte[]> apply(Response value) {
-                doGreatThings_result result = new doGreatThings_result();
-                result.success = value;
-                result.setSuccessIsSet(true);
-
-                try {
-                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-
-                  oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.REPLY, seqid));
-                  result.write(oprot);
-                  oprot.writeMessageEnd();
-
-                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
-                } catch (Exception e) {
-                  return Future.exception(e);
-                } finally {
-                  tlReusableBuffer.reset();
-                }
-              }
-            }).rescue(new Function<Throwable, Future<byte[]>>() {
-              public Future<byte[]> apply(Throwable t) {
-                try {
-                  doGreatThings_result result = new doGreatThings_result();
-                  if (t instanceof OverCapacityException) {
-                    result.ex = (OverCapacityException)t;
+      class doGreatThingsService {
+        private final com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]> protocolExnFilter = new com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> service) {
+            return service.apply(request).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable e) {
+                TProtocol iprot = request._1();
+                Integer seqid = request._2();
+                if (e instanceof TProtocolException) {
+                  try {
+                    iprot.readMessageEnd();
+                    return exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
+                  } catch (Exception e1) {
+                    return Future.exception(e1);
                   }
-                  else {
-                    return Future.exception(t);
-                  }
-                  TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
-                  TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
-                  oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.REPLY, seqid));
-                  result.write(oprot);
-                  oprot.writeMessageEnd();
-                  oprot.getTransport().flush();
-                  return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
-                } catch (Exception e) {
+                } else {
                   return Future.exception(e);
-                } finally {
-                  tlReusableBuffer.reset();
                 }
               }
             });
-          } catch (Exception e) {
-            return Future.exception(e);
           }
-        }
-      });
+        };
+
+        private final com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], doGreatThings_args, Response> serdeFilter = new com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], doGreatThings_args, Response>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<doGreatThings_args, Response> service) {
+            TProtocol iprot = request._1();
+            Integer seqid = request._2();
+            doGreatThings_args args = new doGreatThings_args();
+            try {
+              args.read(iprot);
+              iprot.readMessageEnd();
+            } catch (Exception e) {
+              return Future.exception(e);
+            }
+
+            Future<Response> res = service.apply(args);
+            doGreatThings_result result = new doGreatThings_result();
+            return res.flatMap(new Function<Response, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Response value) {
+                result.success = value;
+                result.setSuccessIsSet(true);
+                return reply("doGreatThings", seqid, result);
+              }
+            }).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable t) {
+                if (t instanceof OverCapacityException) {
+                  result.ex = (OverCapacityException)t;
+                  return reply("doGreatThings", seqid, result);
+                }
+                else {
+                  return Future.exception(t);
+                }
+              }
+            });
+          }
+        };
+
+        private final com.twitter.finagle.Service<doGreatThings_args, Response> methodService = new com.twitter.finagle.Service<doGreatThings_args, Response>() {
+          @Override
+          public Future<Response> apply(doGreatThings_args args) {
+            Future<Response> future;
+            try {
+              future = iface.doGreatThings(args.request);
+            } catch (Exception e) {
+              future = Future.exception(e);
+            }
+            return future;
+          }
+        };
+
+        private final com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> getService =
+          protocolExnFilter.andThen(serdeFilter).andThen(methodService);
+      }
+
+      serviceMap.put("doGreatThings", (new doGreatThingsService()).getService);
     }
 
     public Future<byte[]> apply(byte[] request) {
@@ -438,8 +429,8 @@ public class GoldService {
         return Future.exception(e);
       }
 
-      Function2<TProtocol, Integer, Future<byte[]>> fn = functionMap.get(msg.name);
-      if (fn == null) {
+      com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> svc = serviceMap.get(msg.name);
+      if (svc == null) {
         try {
           TProtocolUtil.skip(iprot, TType.STRUCT);
           iprot.readMessageEnd();
@@ -458,7 +449,43 @@ public class GoldService {
         }
       }
 
-      return fn.apply(iprot, msg.seqid);
+      return svc.apply(new scala.Tuple2(iprot, msg.seqid));
+    }
+
+    private Future<byte[]> reply(String name, Integer seqid, TBase result) {
+      try {
+        TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
+        TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+
+        return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+      } catch (Exception e) {
+        return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
+      }
+    }
+
+    private Future<byte[]> exception(String name, Integer seqid, Integer code, String message) {
+      try {
+        TApplicationException x = new TApplicationException(code, message);
+        TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
+        TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid));
+        x.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+        byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+        return Future.value(buffer);
+      } catch (Exception e1) {
+        return Future.exception(e1);
+      } finally {
+        tlReusableBuffer.reset();
+      }
     }
   }
 

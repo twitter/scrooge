@@ -168,11 +168,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "hasParent" -> v(service.parent.isDefined),
       "finagleServiceParent" ->
         service.parent.map(getParentFinagleService).getOrElse(genBaseFinagleService),
-      "function" -> v(templates("finagleServiceFunction")),
-      "functions" -> v(service.functions map { f =>
+      "methodService" -> v(templates("methodService")),
+      "methodServices" -> v(service.functions map { f =>
         Dictionary(
-          "serviceFuncNameForCompile" -> genID(f.funcName.toCamelCase),
-          "serviceFuncNameForWire" -> v(f.originalName),
+          "methodSvcNameForCompile" -> genID(f.funcName.toCamelCase),
+          "methodSvcNameForWire" -> v(f.originalName),
           "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
           "funcObjectName" -> genID(functionObjectName(f)),
           "argNames" ->

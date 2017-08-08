@@ -4,6 +4,10 @@
 
 4.x
 -----
+- scrooge-generator: Generated scala/java code now is using `serviceMap` instead of `functionMap`
+  for Finagle services' method implementation. ``PHAB_ID=D73619`` for scala and
+  ``PHAB_ID=D76129`` for java
+
 - scrooge-generator: Generated Java code now is using `c.t.s.TReusableBuffer` to reduce
   object allocations. This in turn adds `scrooge-core` as dependency for generated
   java code. ``PHAB_ID=D60406``

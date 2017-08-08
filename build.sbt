@@ -1,5 +1,5 @@
 import bintray.Keys._
-import bintray.Keys.AssemblyKeys._
+import AssemblyKeys._
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import scoverage.ScoverageKeys
 
@@ -230,7 +230,8 @@ lazy val scroogeGeneratorTests = Project(
   libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
     "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test", // used in thrift transports
-    finagle("thrift") % "test"
+    finagle("thrift") % "test",
+    finagle("thriftmux") % "test"
   ),
   test in assembly := {},  // Skip tests when running assembly.
   publishArtifact := false
