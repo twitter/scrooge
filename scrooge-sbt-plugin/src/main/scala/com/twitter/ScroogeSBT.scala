@@ -2,6 +2,7 @@ package com.twitter.scrooge
 
 import sbt._
 import Keys._
+import Path.relativeTo
 import com.twitter.scrooge.backend.{ServiceOption, WithFinagle}
 import java.io.File
 
@@ -194,10 +195,11 @@ object ScroogeSBT extends AutoPlugin {
         Classpaths.managedJars(thriftConfig, classpathTypes.value, update.value) ++
         filter(Classpaths.managedJars(configuration.value, classpathTypes.value, update.value), whitelist)
 
+      val sourceFolder = scroogeThriftExternalSourceFolder.value
       val paths = dependencies.map { dep =>
         val module = dep.get(AttributeKey[ModuleID]("module-id"))
         module.flatMap { m =>
-          val dest = new File(scroogeThriftExternalSourceFolder.value, m.name)
+          val dest = new File(sourceFolder, m.name)
           IO.createDirectory(dest)
           val thriftFiles = IO.unzip(dep.data, dest, "*.thrift").toSeq
           if (thriftFiles.isEmpty) {
@@ -224,10 +226,12 @@ object ScroogeSBT extends AutoPlugin {
         } else {
           Long.MaxValue
         }
-      val outputsLastModified: Seq[Long] =
+      val outputsLastModified: Seq[Long] = {
+        val outputFolder = scroogeThriftOutputFolder.value
         scroogeLanguages.value.flatMap { language =>
-          (scroogeThriftOutputFolder.value ** generatedExtensionPattern(language)).get.map(_.lastModified)
+          (outputFolder ** generatedExtensionPattern(language)).get.map(_.lastModified)
         }
+      }
       val oldestOutput: Long =
         if (outputsLastModified.nonEmpty) {
           outputsLastModified.min
@@ -239,34 +243,46 @@ object ScroogeSBT extends AutoPlugin {
 
     // actually run scrooge
     scroogeGen := {
+      val streamValue = streams.value
+      val thriftSources = scroogeThriftSources.value
+      val scroogeLangs = scroogeLanguages.value
+      val outputFolder = scroogeThriftOutputFolder.value
+      val thriftIncludes = scroogeThriftIncludes.value
+      val namespaceMap = scroogeThriftNamespaceMap.value
+      val buildOptions = scroogeBuildOptions.value
+      val disableStrict = scroogeDisableStrict.value
+      val warnOnFallBack = scroogeScalaWarnOnJavaNSFallback.value
+      val javaNamespace = scroogeDefaultJavaNamespace.value
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
-      if (scroogeIsDirty.value && scroogeThriftSources.value.nonEmpty) {
-        streams.value.log.info("Generating scrooge thrift for %s ...".format(scroogeThriftSources.value.mkString(", ")))
-        scroogeLanguages.value.foreach { language =>
+      if (scroogeIsDirty.value && thriftSources.nonEmpty) {
+        streamValue.log.info(s"Generating scrooge thrift for ${thriftSources.mkString(", ")} ...")
+        scroogeLangs.foreach { language =>
           compile(
-            streams.value.log,
-            scroogeThriftOutputFolder.value,
-            scroogeThriftSources.value.toSet,
-            scroogeThriftIncludes.value.toSet,
-            scroogeThriftNamespaceMap.value,
+            streamValue.log,
+            outputFolder,
+            thriftSources.toSet,
+            thriftIncludes.toSet,
+            namespaceMap,
             language,
-            scroogeBuildOptions.value.toSet,
-            scroogeDisableStrict.value,
-            scroogeScalaWarnOnJavaNSFallback.value,
-            scroogeDefaultJavaNamespace.value
+            buildOptions.toSet,
+            disableStrict,
+            warnOnFallBack,
+            javaNamespace
           )
         }
       }
       scroogeLanguages.value.flatMap { language =>
-        (scroogeThriftOutputFolder.value ** generatedExtensionPattern(language)).get
+        (outputFolder ** generatedExtensionPattern(language)).get
       }
     },
     sourceGenerators += scroogeGen
   )
 
   val packageThrift = mappings in (Compile, packageBin) ++= {
-    (if ((scroogePublishThrift in Compile).value) (scroogeThriftSources in Compile).value else Nil).map { file =>
-      file -> s"${name.value}/${file.name}"
+    val thriftSources = (scroogeThriftSources in Compile).value
+    val nameValue = name.value
+    (if ((scroogePublishThrift in Compile).value) thriftSources else Nil).map { file =>
+      file -> s"$nameValue/${file.name}"
     }
   }
 
