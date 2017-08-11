@@ -71,8 +71,8 @@ class NodeGenerator (
   def genType(t: FunctionType): CodeFragment = t match {
     case bt: BaseType => genPrimitiveType(bt)
     case Void => v("void")
-    case StructType(st, _) => v(s"${genID(st.sid.toTitleCase)}")
-    case EnumType(st, _) => v(s"${genID(st.sid.toTitleCase)}")
+    case StructType(st, _) => v(s"${genID(st.sid)}")
+    case EnumType(st, _) => v(s"${genID(st.sid)}")
     case MapType(k, vv, _) =>
       v("Map<" + genType(k).toData + ", " + genType(vv).toData + ">")
     case SetType(x, _) =>
@@ -152,6 +152,13 @@ class NodeGenerator (
       .getOrElse(SimpleID(defaultNamespace))
   }
 
+  override def qualifyNamedType(t: NamedType, namespace: Option[Identifier] = None): Identifier =
+    t.scopePrefix match {
+      case Some(scope) => t.sid.toTitleCase.addScope(getIncludeNamespace(scope.name))
+      case None if namespace.isDefined => t.sid.toTitleCase.addScope(namespace.get)
+      case None => t.sid.toTitleCase
+    }
+
   private[this] def findRequireableStructTypes(ft: FieldType, excludeSelfType: SimpleID): Seq[NamedType] = {
     ft match {
       case t: NamedType if (excludeSelfType == t.sid) => Nil
@@ -165,7 +172,7 @@ class NodeGenerator (
   }
 
   private[this] def genRequireStatement(t: NamedType, namespace: Option[Identifier]): String = {
-    val typeName = t.sid.toTitleCase.fullName
+    val typeName = t.sid.fullName
 
     val modulePath = {
       val qualifiedName = qualifyNamedType(t, namespace).fullName
