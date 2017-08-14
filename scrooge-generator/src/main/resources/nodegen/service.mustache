@@ -92,10 +92,10 @@ export class Processor {
         this._handler = handler
     }
 
-    public process(input: TProtocol, output: TProtocol) {
+    public process(input: TProtocol, output: TProtocol, context?: any) {
         const r = input.readMessageBegin()
         if (this["process_" + r.fname]) {
-            return this["process_" + r.fname].call(this, r.rseqid, input, output)
+            return this["process_" + r.fname].call(this, r.rseqid, input, output, context)
         } else {
             input.skip(Thrift.Type.STRUCT)
             input.readMessageEnd()
@@ -108,65 +108,45 @@ export class Processor {
         }
     }
 
-    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol) {
+    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol, context?: any) {
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
         args.read(input)
         input.readMessageEnd()
-        if (this._handler.{{name}}.length === {{argsLength}}) {
-            // TODO: Im a bit iffy on this
-            new Promise<{{typeName}}>((resolve, reject) => {
-                try {
-                    resolve(
-                        this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}})
-                    )
-                } catch (e) {
-                    reject(e)
-                }
-            }).then((data: {{typeName}}) => {
-                const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
+
+        new Promise<{{typeName}}>((resolve, reject) => {
+            try {
+                resolve(
+                    this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}context)
+                )
+            } catch (e) {
+                reject(e)
+            }
+        }).then((data: {{typeName}}) => {
+            const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
+            output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
+            result.write(output)
+            output.writeMessageEnd()
+            output.flush()
+        }).catch((err: Error) => {
+            let result
+            {{#hasThrows}}{{#throws}}if (err instanceof {{throwType}}) {
+                result = new {{ServiceName}}{{nameTitleCase}}Result()
+                result.populate({{{throwName}}: err as {{throwType}}})
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
-                result.write(output)
-                output.writeMessageEnd()
-                output.flush()
-            }).catch((err: Error) => {
-                let result
-                {{#hasThrows}}{{#throws}}if (err instanceof {{throwType}}) {
-                    result = new {{ServiceName}}{{nameTitleCase}}Result()
-                    result.populate({{{throwName}}: err as {{throwType}}})
-                    output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
-                } else {{/throws}}{
-                    result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-                    output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
-                }
-                {{/hasThrows}}
-                {{^hasThrows}}
+            } else {{/throws}}{
                 result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
-                {{/hasThrows}}
-                result.write(output)
-                output.writeMessageEnd()
-                output.flush()
-            })
-        } else {
-            this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}(err?: Error, data?: {{typeName}}) => {
-                let result
-                if (err == null) {
-                    result = new {{ServiceName}}{{nameTitleCase}}Result()
-                    result.populate((err != null ? err : {success: data}))
-                    output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
-                {{#throws}}} else if (err instanceof {{throwType}}) {
-                    result = new {{ServiceName}}{{nameTitleCase}}Result()
-                    result.populate({{{throwName}}: err as {{throwType}}})
-                    output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
-                {{/throws}}} else {
-                    result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-                    output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
-                }
-                result.write(output)
-                output.writeMessageEnd()
-                output.flush()
-            })
-        }
+            }
+            {{/hasThrows}}
+            {{^hasThrows}}
+            result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+            output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
+            {{/hasThrows}}
+            result.write(output)
+            output.writeMessageEnd()
+            output.flush()
+        })
+
     }
     {{/syncFunctions}}
 }
