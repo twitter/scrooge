@@ -1,6 +1,3 @@
-import bintray.Keys._
-import AssemblyKeys._
-import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import scoverage.ScoverageKeys
 
 val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
@@ -18,6 +15,9 @@ val libthriftVersion = "0.5.0-7"
 
 def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
 def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
+
+def excludeBintrayProject(id: String, base: File): Project =
+  Project(id = id, base = base).disablePlugins(BintrayPlugin)
 
 val compileThrift = TaskKey[Seq[File]](
   "compile-thrift", "generate thrift needed for tests")
@@ -168,7 +168,7 @@ lazy val publishedProjects = Seq[sbt.ProjectReference](
   scroogeLinter,
   scroogeSerializer)
 
-lazy val scrooge = Project(
+lazy val scrooge = excludeBintrayProject(
   id = "scrooge",
   base = file(".")
 ).settings(
@@ -182,7 +182,7 @@ lazy val scrooge = Project(
 // (*) Unfortunately, sbt plugins are currently only supported
 // with Scala 2.10 and as such we cannot include that project
 // here and it should be published separately to Scala 2.10.
-lazy val scroogePublishLocal = Project(
+lazy val scroogePublishLocal = excludeBintrayProject(
   id = "scrooge-publish-local",
   // use a different target so that we don't have conflicting output paths
   // between this and the `scrooge` target.
@@ -193,12 +193,11 @@ lazy val scroogePublishLocal = Project(
 
 // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
 // has a dependency on this.
-lazy val scroogeGenerator = Project(
+lazy val scroogeGenerator = excludeBintrayProject(
   id = "scrooge-generator",
   base = file("scrooge-generator")
 ).settings(
-  settingsCrossCompiledWithTwoTen,
-  assemblySettings
+  settingsCrossCompiledWithTwoTen
 ).settings(
   name := "scrooge-generator",
   libraryDependencies ++= Seq(
@@ -217,13 +216,12 @@ lazy val scroogeGenerator = Project(
   mainClass in assembly := Some("com.twitter.scrooge.Main")
 )
 
-lazy val scroogeGeneratorTests = Project(
+lazy val scroogeGeneratorTests = excludeBintrayProject(
   id = "scrooge-generator-tests",
   base = file("scrooge-generator-tests")
 ).settings(
   inConfig(Test)(testThriftSettings),
   sharedSettings,
-  assemblySettings,
   jmockSettings
 ).settings(
   name := "scrooge-generator-tests",
@@ -237,7 +235,7 @@ lazy val scroogeGeneratorTests = Project(
   publishArtifact := false
 ).dependsOn(scroogeCore, scroogeGenerator)
 
-lazy val scroogeCore = Project(
+lazy val scroogeCore = excludeBintrayProject(
   id = "scrooge-core",
   base = file("scrooge-core")
 ).settings(
@@ -255,7 +253,7 @@ val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
   ScroogeRunner.genSerializerTestThriftTask
 )
 
-lazy val scroogeSerializer = Project(
+lazy val scroogeSerializer = excludeBintrayProject(
   id = "scrooge-serializer",
   base = file("scrooge-serializer")
 ).settings(
@@ -271,7 +269,7 @@ lazy val scroogeSerializer = Project(
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
-lazy val scroogeAdaptive = Project(
+lazy val scroogeAdaptive = excludeBintrayProject(
   id = "scrooge-adaptive",
   base = file("scrooge-adaptive")
 ).settings(
@@ -287,31 +285,29 @@ lazy val scroogeAdaptive = Project(
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
-lazy val scroogeSbtPlugin = Project(
+lazy val scroogeSbtPlugin = excludeBintrayProject(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
+).enablePlugins(
+  BuildInfoPlugin
 ).settings(
-  settingsWithTwoTen,
-  bintrayPublishSettings,
-  buildInfoSettings
+  settingsWithTwoTen
 ).settings(
   scalaVersion := "2.10.6",
-  sourceGenerators in Compile += buildInfo,
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
   publishMavenStyle := false,
-  repository in bintray := "sbt-plugins",
+  bintrayRepository := "sbt-plugins",
   licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
   bintrayOrganization in bintray := Some("twittercsl")
 ).dependsOn(scroogeGenerator)
 
-lazy val scroogeLinter = Project(
+lazy val scroogeLinter = excludeBintrayProject(
   id = "scrooge-linter",
   base = file("scrooge-linter")
 ).settings(
-  sharedSettings,
-  assemblySettings
+  sharedSettings
 ).settings(
   name := "scrooge-linter",
   libraryDependencies += util("logging")
@@ -322,7 +318,7 @@ val benchThriftSettings: Seq[Setting[_]] = Seq(
   ScroogeRunner.genBenchmarkThriftTask
 )
 
-lazy val scroogeBenchmark = Project(
+lazy val scroogeBenchmark = excludeBintrayProject(
   id = "scrooge-benchmark",
   base = file("scrooge-benchmark")
 ).settings(
@@ -342,13 +338,13 @@ lazy val scroogeBenchmark = Project(
   scroogeSerializer
 )
 
-lazy val scroogeDoc = Project(
+lazy val scroogeDoc = excludeBintrayProject(
   id = "scrooge-doc",
   base = file("doc")
+).enablePlugins(
+  SphinxPlugin
 ).settings(
   sharedSettings,
-  site.settings,
-  site.sphinxSupport(),
   Seq(
     scalacOptions in doc ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
     includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
