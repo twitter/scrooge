@@ -25,25 +25,18 @@ export class Client {
     }
 
 {{#syncFunctions}}
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback: (e?: Error|object, r?: {{typeName}}) => void): void
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): Promise<{{typeName}}>
-    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}callback?: (e?: Error|object, r?: {{typeName}}) => void): Promise<{{typeName}}>|void {
+    public {{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): Promise<{{typeName}}> {
         this._seqid = this.new_seqid()
-        if (callback instanceof Function) {
-            this._reqs[this.seqid()] = callback
-            this.send_{{name}}({{#args}}{{fieldName}}, {{/args}})
-        } else {
-            return new Promise<{{typeName}}>((resolve, reject) => {
-                this._reqs[this.seqid()] = function(error, result) {
-                    if (error) {
-                        reject(error)
-                    } else {
-                        resolve(result)
-                    }
+        return new Promise<{{typeName}}>((resolve, reject) => {
+            this._reqs[this.seqid()] = function(error, result) {
+                if (error) {
+                    reject(error)
+                } else {
+                    resolve(result)
                 }
-                this.send_{{name}}({{#args}}{{fieldName}}, {{/args}})
-            })
-        }
+            }
+            this.send_{{name}}({{#args}}{{fieldName}}, {{/args}})
+        })
     }
 
     public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): void {
