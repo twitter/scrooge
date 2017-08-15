@@ -78,14 +78,12 @@ export class Client {
     {{/syncFunctions}}
 }
 
-export class Processor {
-    private _handler
+export class Processor<Context> {
 
-    constructor(handler) {
-        this._handler = handler
+    constructor(private _handler) {
     }
 
-    public process(input: TProtocol, output: TProtocol, context?: any) {
+    public process(input: TProtocol, output: TProtocol, context?: Context) {
         const r = input.readMessageBegin()
         if (this["process_" + r.fname]) {
             return this["process_" + r.fname].call(this, r.rseqid, input, output, context)
@@ -101,7 +99,7 @@ export class Processor {
         }
     }
 
-    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol, context?: any) {
+    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol, context?: Context) {
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
         args.read(input)
         input.readMessageEnd()
