@@ -4,6 +4,9 @@
 
 4.x
 -----
+
+4.19.0
+------
 - scrooge-generator: Generated scala/java code now is using `serviceMap` instead of `functionMap`
   for Finagle services' method implementation. ``PHAB_ID=D73619`` for scala and
   ``PHAB_ID=D76129`` for java
