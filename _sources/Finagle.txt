@@ -1,12 +1,12 @@
 Finagle Integration
 ===================
 
-You can generate `finagle <https://github.com/twitter/finagle>`_ binding code
-by passing the `--finagle` option to scrooge. For each thrift service, Scrooge
-will generate a wrapper class that builds Finagle services both on the server
-and client sides.
+You can generate `Finagle <https://github.com/twitter/finagle>`_ binding code
+by passing the `--finagle` option to scrooge. For each Thrift service, Scrooge
+will generate classes that build Finagle Services for both client and server.
 
-Here's an example, assuming your thrift service is
+The following examples are for Scala generated code and use the
+following Thrift IDL:
 
 ::
 
@@ -14,138 +14,144 @@ Here's an example, assuming your thrift service is
       binary fetchBlob(1: i64 id)
     }
 
-Scrooge generates the following wrapper classes:
-
-::
-
-    import com.twitter.finagle.Service
-    import com.twitter.finagle.thrift.ThriftClientRequest
-    import com.twitter.util.Future
-
-    /*
-     The server side service wrapper takes a thrift protocol factory (to
-     specify which wire protocol to use) and an implementation of
-     BinaryService[Future]
-    */
-    class BinaryService$FinagleService(
-      iface: BinaryService[Future],
-      val protocolFactory: TProtocolFactory
-    ) extends Service[Array[Byte], Array[Byte]]
-
-    /*
-     The client wrapper implements BinaryService[Future].
-    */
-    class BinaryService$FinagleClient(
-      val service: Service[ThriftClientRequest, Array[Byte]],
-      val protocolFactory: TProtocolFactory = new TBinaryProtocol.Factory,
-      override val serviceName: String = "",
-      stats: StatsReceiver = NullStatsReceiver
-    ) extends BinaryService[Future] {
-      /*
-        The method call encodes method name along with arguments in
-        ThriftClientRequest and sends to the server, then decodes server
-        response to reconstruct the return value.
-      */
-      def fetchBlob(id: Long): Future[ByteBuffer]
-    }
+For both clients and servers you have two API choices to pick from —
+``ServiceIface`` and ``MethodIface``. The ``ServiceIface`` is a
+collection of Finagle ``Services``. By their nature of being ``Services``,
+these play well with Finagle's standard ``Filter`` composition.
+The ``MethodIface`` is a collection of methods returning ``Futures``
+and is the primary implementation of a ``FutureIface``.
 
 Creating a Server
 -----------------
 
-To create a server, you need to provide an implementation of the service
-interface and use it with Finagle's ``Thrift`` object.
+To create a server, you need to provide an implementation of the ``FutureIface``
+interface and use it with Finagle's ``com.twitter.finagle.Thrift.Server``
+or ``com.twitter.finagle.ThriftMux.Server`` class.
 
 ::
 
-    // provide an implementation of the future-base service interface
-    class MyImpl extends BinaryService[Future] {
-      ...
+    class MyImpl extends BinaryService.FutureIface {
+      def fetchBlob(id: Long): Future[ByteBuffer] = {
+        ??? // your implementation here
+      }
     }
     val service = Thrift.server.serveIface("host:port", new MyImpl)
 
 Additionally, Scrooge generates a ``ServiceIface`` which is a case class
-containing a ``Service`` for each thrift method.
+containing a ``Service`` for each Thrift method.
 
 ::
 
     case class ServiceIface(
-      fetchBlob: Service[FetchBlob.Args, FetchBlob.SuccessType]
-    )
+        fetchBlob: Service[BinaryService.FetchBlob.Args, BinaryService.FetchBlob.SuccessType])
 
 Note that every method in the IDL becomes a ``Service`` for the corresponding
 ``Args`` and ``SuccessType`` structures. The wrappers are needed to wrap multiple
-method arguments into one type.  Instead of implementing the service interface
+method arguments into one type. Instead of implementing the ``FutureIface`` interface
 directly, you can provide an instance of the ``ServiceIface`` and convert it to
-the service interface.
+the ``FutureIface`` interface using the ``MethodBuilder`` constructor.
 
 ::
 
-    val fetchBlobService: Service[FetchBlob.Args, FetchBlob.SuccessType] = // ...
-    val serviceImpl = BinaryService.ServiceIface(
+    val fetchBlobService: Service[BinaryService.FetchBlob.Args, BinaryService.FetchBlob.SuccessType] = ???
+    val serviceIface: BinaryService.ServiceIface = BinaryService.ServiceIface(
       fetchBlob = fetchBlobService
     )
-    val service = Thrift.server.serve("host:port", Thrift.client.newMethodIface(serviceImpl))
+    val futureIface: BinaryService.FutureIface =
+      new BinaryService.MethodIface(serviceIface)
+    val service = Thrift.server.serve("host:port", futureIface)
 
 The advantage of this approach is that the ``Services`` can be decorated with
 ``Filters``.
 
 ::
 
-    val serviceImpl = BinaryService.ServiceIface(
-      fetchBlob = loggingFilter andThen fetchBlobService
+    val loggingFilter: Filter[BinaryService.FetchBlob.Args, BinaryService.FetchBlob.SuccessType] = ???
+    val serviceImpl: BinaryService.ServiceIface = BinaryService.ServiceIface(
+      fetchBlob = loggingFilter.andThen(fetchBlobService)
     )
 
 Creating a Client
 -----------------
 
-Creating a client is easy, you just provide Finagle's ``Thrift.client`` object the
-iface.
+Creating a client works similarly; you provide Finagle's ``Thrift.Client``
+or ``ThriftMux.Client`` object the ``FutureIface``.
 
 ::
 
-    val client = Thrift.client.newIface[BinaryService[Future]]("host:port")
+    val futureIface: BinaryService.FutureIface =
+      Thrift.client.newIface[BinaryService.FutureIface]("host:port")
+
+    val result: Future[ByteBuffer] = futureIface.fetchBlob(12525L)
 
 Alternatively, you can request a ``ServiceIface`` instead.
 
 ::
 
-    val clientServiceIface =
-      Thrift.client.newIface[BinaryService.ServiceIface]("host:port")
+    val serviceIface: BinaryService.ServiceIface =
+      Thrift.client.newServiceIface[BinaryService.ServiceIface]("host:port")
 
-As in the server case, this allows you to decorate your client with ``Filters``.
+    val result: Future[ByteBuffer] =
+      serviceIface.fetchBlob(BinaryService.FetchBlob.Args(12525L))
+
+As in the server case, this allows you to decorate your client with ``Filters``
+and convert to the ``FutureIface``.
 
 ::
 
-    val filteredClient = clientServiceIface.copy(
-      fetchBlob = timeoutFilter andThen clientServiceIface.fetchBlob
+    val timeoutFilter: Filter[BinaryService.FetchBlob.Args, BinaryService.FetchBlob.SuccessType] = ???
+    val filteredServiceIface: BinaryService.ServiceIface = serviceIface.copy(
+      fetchBlob = timeoutFilter.andThen(serviceIface.fetchBlob)
     )
+    val futureIface: BinaryService.FutureIface =
+      new BinaryService.MethodIface(filteredServiceIface)
+
+Configuration
+-------------
 
 In both the server and client cases, you probably want to pass more
-configuration parameters to finagle, so check the finagle documentation for
-tweaks once you get things to compile.
+configuration parameters to the Finagle client (e.g. ``Thrift.client.withXXX``),
+please check the `Finagle documentation <https://twitter.github.io/finagle/guide/Configuration.html>`_
+for tweaks once you get things to compile.
+
+A common configuration is the Thrift ``TProtocolFactory`` which can
+be set with ``com.twitter.finagle.Thrift.Server.withProtocolFactory``
+and ``com.twitter.finagle.Thrift.Client.withProtocolFactory``
+along with the same methods available for ThriftMux.
 
 Converting Between Function and Service
 ---------------------------------------
 
-As we saw above, a ``ServiceIface`` can be converted into the service interface.
-This allows you to use the more ergonomic service interface while still being
+As we saw above, a ``ServiceIface`` can be converted into the ``FutureIface`` interface.
+This allows you to use a method-based interface while still being
 able to apply ``Filters`` to your client.
 
 ::
 
-    val clientMethodIface = Thrift.client.newMethodIface(filteredClient)
-    val result = clientMethodIface.fetchBlob(1L) // respects the timeoutFilter
+    val timeoutFilter: Filter[BinaryService.FetchBlob.Args, BinaryService.FetchBlob.SuccessType] = ???
+    val serviceIface: BinaryService.ServiceIface =
+      Thrift.client.newServiceIface[BinaryService.ServiceIface]("host:port")
+    val filteredServiceIface: BinaryService.ServiceIface = serviceIface.copy(
+      fetchBlob = timeoutFilter.andThen(serviceIface.fetchBlob)
+    )
+    val methodIface: BinaryService.MethodIface =
+      new BinaryService.MethodIface(filteredServiceIface)
+
+    // respects the timeoutFilter
+    val result: Future[ByteBuffer] = methodIface.fetchBlob(1L)
 
 You can also use the ``functionToService`` and ``serviceToFunction`` methods on
-``ThriftMethod`` to convert between function and Service implementations of a
-thrift method.
+``ThriftMethod`` to convert between function and ``Service`` implementations of a
+Thrift method.
 
 ::
 
-    val serviceImpl = BinaryService.ServiceIface(
-      fetchBlob = FetchBlob.functionToService { id: Long =>
-        // ...
+    val serviceIface: BinaryService.ServiceIface = BinaryService.ServiceIface(
+      fetchBlob = BinaryService.FetchBlob.functionToService { id: Long =>
+        ??? // implementation returning a Future[ByteBuffer]
       }
     )
 
-    val result = FetchBlob.serviceToFunction(serviceImpl.fetchBlob)(1L)
+    val fetchBlobFn: Function[Long, Future[ByteBuffer]] =
+      BinaryService.FetchBlob.serviceToFunction(serviceIface.fetchBlob)
+    val result: Future[ByteBuffer] = fetchBlobFn(1L)

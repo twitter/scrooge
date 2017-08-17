@@ -3,20 +3,20 @@ Command Line
 
 To get command line help:
 
-::
+.. code-block:: bash
 
     $ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main --help'
 
 To generate source with content written to the current directory:
 
-::
+.. code-block:: bash
 
     $ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main <thrift-file1> [<thrift-file2> ...]'
 
 To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:
 
-::
+.. code-block:: bash
 
     $ ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main \
       -d <target-dir>   \
@@ -26,7 +26,7 @@ extra include paths, rebuilding only those files that have changed:
 
 A complete command line help menu:
 
-::
+.. code-block:: none
 
     Usage: ./sbt 'scrooge-generator/run-main com.twitter.scrooge.Main [options] <files...>'
 
