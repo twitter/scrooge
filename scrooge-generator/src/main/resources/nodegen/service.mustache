@@ -7,6 +7,12 @@ import {Thrift, TProtocol, TTransport, Int64} from 'thrift'
 {{#resultStruct}}{{>struct}}{{/resultStruct}}
 {{/syncFunctionStructs}}
 
+export interface IService<Context> {
+    {{#syncFunctions}}
+        {{name}}: ({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}context: Context): Promise<{{typeName}} | {{typeName}}
+    {{/syncFunctions}}
+}
+
 export class Client {
     private _seqid: number
     public _reqs: {[key: string]: (e?: Error|object, r?: any) => void}
@@ -80,10 +86,10 @@ export class Client {
 
 export class Processor<Context> {
 
-    constructor(private _handler) {
+    constructor(private _handler: IService<Context>) {
     }
 
-    public process(input: TProtocol, output: TProtocol, context?: Context) {
+    public process(input: TProtocol, output: TProtocol, context: Context) {
         const r = input.readMessageBegin()
         if (this["process_" + r.fname]) {
             return this["process_" + r.fname].call(this, r.rseqid, input, output, context)
@@ -99,7 +105,7 @@ export class Processor<Context> {
         }
     }
 
-    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol, context?: Context) {
+    {{#syncFunctions}}public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol, context: Context) {
         const args = new {{ServiceName}}{{nameTitleCase}}Args()
         args.read(input)
         input.readMessageEnd()
