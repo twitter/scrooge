@@ -7,12 +7,6 @@ import {Thrift, TProtocol, TTransport, Int64} from 'thrift'
 {{#resultStruct}}{{>struct}}{{/resultStruct}}
 {{/syncFunctionStructs}}
 
-export interface IService<Context> {
-    {{#syncFunctions}}
-        {{name}}: ({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}context: Context): Promise<{{typeName}} | {{typeName}}
-    {{/syncFunctions}}
-}
-
 export class Client {
     private _seqid: number
     public _reqs: {[key: string]: (e?: Error|object, r?: any) => void}
@@ -86,7 +80,7 @@ export class Client {
 
 export class Processor<Context> {
 
-    constructor(private _handler: IService<Context>) {
+    constructor(private _handler) {
     }
 
     public process(input: TProtocol, output: TProtocol, context: Context) {
