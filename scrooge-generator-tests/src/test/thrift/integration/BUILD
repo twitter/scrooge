@@ -25,6 +25,7 @@ java_thrift_library(name='thrift-android',
     'thrift.test': 'com.twitter.scrooge.integration_android',
     'com.twitter.scrooge.integration_scala': 'com.twitter.scrooge.integration_android',
   },
+  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-java',

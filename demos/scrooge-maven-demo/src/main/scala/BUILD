@@ -1,7 +1,8 @@
 scala_library(name='scala',
   dependencies=[
-    'scrooge/scrooge-core',
     'scrooge/demos/scrooge-maven-demo/src/main/thrift',
+    'scrooge/scrooge-core',
   ],
   sources=globs('com/twitter/example/Demo.scala'),
+  strict_deps=True,
 )

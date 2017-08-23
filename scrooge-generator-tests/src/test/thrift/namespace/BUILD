@@ -21,4 +21,5 @@ java_thrift_library(name='thrift-android',
     'com.fake': 'com.android_fake',
   },
   default_java_namespace='android_bar',
+  strict_deps=True,
 )

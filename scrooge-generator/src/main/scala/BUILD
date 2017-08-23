@@ -9,13 +9,17 @@ scala_library(
     '3rdparty/jvm/com/github/spullara/mustache/java',
     '3rdparty/jvm/com/google/code/findbugs:jsr305',
     '3rdparty/jvm/com/google/guava',
-    'scrooge/scrooge-generator/src/main/resources:resources',
     '3rdparty/jvm/commons-cli',
     '3rdparty/jvm/org/codehaus/plexus:plexus-utils',
     '3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators',
     '3rdparty/jvm/org/scala-lang:scala-library',
+    'scrooge/scrooge-generator/src/main/resources:resources',
   ],
   fatal_warnings=True,
   strict_deps=True,
-  sources=rglobs('*.scala')
+  sources=rglobs('*.scala'),
+  exports=[
+    '3rdparty/jvm/com/github/scopt:scopt',
+  ]
+
 )

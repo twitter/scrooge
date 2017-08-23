@@ -6,10 +6,14 @@ scala_library(
   ),
   dependencies=[
     '3rdparty/jvm/com/github/scopt',
+    '3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators',
     'scrooge/scrooge-generator',
     'util/util-logging',
-    '3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators',
   ],
   fatal_warnings=True,
   sources=globs('*.scala'),
+  strict_deps=True,
+  exports=[
+    '3rdparty/jvm/com/github/scopt:scopt',
+  ],
 )

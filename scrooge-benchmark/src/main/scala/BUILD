@@ -9,7 +9,12 @@ scala_library(
     'scrooge/scrooge-serializer',
   ],
   fatal_warnings=True,
-  sources=rglobs('*.scala')
+  sources=rglobs('*.scala'),
+  strict_deps=True,
+  exports=[
+    '3rdparty/jvm/org/openjdk/jmh:jmh-core',
+  ]
+
 )
 
 jvm_binary(name='jmh',

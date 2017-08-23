@@ -28,4 +28,5 @@ java_thrift_library(name='thrift-android',
     'scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3',
   ],
   default_java_namespace='android_thrift_default_namespace',
+  strict_deps=True,
 )

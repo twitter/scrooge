@@ -6,9 +6,9 @@ scala_library(
   ),
   dependencies=[
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
+    'scrooge/scrooge-core',
     'util/util-app',
     'util/util-codec',
-    'scrooge/scrooge-core',
   ],
   strict_deps=True,
   exports=[

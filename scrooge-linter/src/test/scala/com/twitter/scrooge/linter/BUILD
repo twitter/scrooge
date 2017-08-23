@@ -1,11 +1,13 @@
 junit_tests(name='scala',
   dependencies=[
     '3rdparty/jvm/junit',
-    '3rdparty/jvm/org/scalatest',
     '3rdparty/jvm/org/mockito:mockito-all',
+    '3rdparty/jvm/org/scalatest',
     'scrooge/scrooge-generator/src/main/scala:scala',
     'scrooge/scrooge-linter/src/main/scala/com/twitter/scrooge/linter',
   ],
   fatal_warnings=True,
   sources=rglobs('*.scala'),
+  strict_deps=True,
+
 )

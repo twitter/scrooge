@@ -24,7 +24,8 @@ java_library(
       'scrooge/scrooge-core',
       'scrooge/scrooge-generator',
   ],
-  sources = LIB_SOURCES
+  sources = LIB_SOURCES,
+  strict_deps = True,
 )
 
 junit_tests(
@@ -32,6 +33,8 @@ junit_tests(
     ':lib',
     '3rdparty/jvm/asm',
     '3rdparty/jvm/cglib',
+    '3rdparty/jvm/com/github/spullara/mustache/java:java',
+    '3rdparty/jvm/com/google/guava:guava',
     '3rdparty/jvm/junit',
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     '3rdparty/jvm/org/hamcrest:hamcrest-core',
@@ -41,8 +44,9 @@ junit_tests(
     '3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators',
     '3rdparty/jvm/org/scalatest',
     'finagle/finagle-core/src/main/scala:scala',
-    'finagle/finagle-thriftmux',
     'finagle/finagle-thrift/src/main/java:java',
+    'finagle/finagle-thrift/src/main/scala:scala',
+    'finagle/finagle-thriftmux',
     'scrooge/scrooge-core',
     'scrooge/scrooge-generator',
     'scrooge/scrooge-generator-tests/src/test/resources:resources',
@@ -71,11 +75,11 @@ junit_tests(
     'scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-scala',
     'scrooge/scrooge-generator-tests/src/test/thrift:thrift',
     'util/util-core/src/main/scala:scala',
-
   ],
   fatal_warnings=True,
-
+    
   # see comments above, we need to avoid 'owning' the LIB_SOURCES files
   # and instead 'depend' on them
   sources=rglobs('*.scala', exclude = LIB_SOURCES),
+  strict_deps=True,
 )

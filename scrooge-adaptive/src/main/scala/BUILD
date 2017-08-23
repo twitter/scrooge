@@ -11,8 +11,13 @@ scala_library(
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
     'scrooge/scrooge-core',
     'scrooge/scrooge-serializer',
+    'util/util-codec/src/main/scala:scala',
+  ],
+  exports=[
+    '3rdparty/jvm/asm',
   ],
   fatal_warnings=True,
   sources=rglobs('*.scala'),
+  strict_deps=True,
 )
 

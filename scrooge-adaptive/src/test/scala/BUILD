@@ -11,8 +11,10 @@ junit_tests(
     'scrooge/scrooge-adaptive/src/test/thrift:thrift-scala',
     'scrooge/scrooge-core/src/main/scala',
     'scrooge/scrooge-serializer',
+    'util/util-codec/src/main/scala:scala',
   ],
   sources=rglobs('*.scala'),
-  fatal_warnings=True
+  fatal_warnings=True,
+  strict_deps=True,
 )
 
