@@ -285,15 +285,18 @@ lazy val scroogeAdaptive = excludeBintrayProject(
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
-lazy val scroogeSbtPlugin = excludeBintrayProject(
+lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(
   BuildInfoPlugin
 ).settings(
-  settingsWithTwoTen
+  settingsWithTwoTen,
+  bintrayPublishSettings,
+  buildInfoSettings
 ).settings(
   scalaVersion := "2.10.6",
+  sourceGenerators in Compile += buildInfo,
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
