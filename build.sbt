@@ -62,6 +62,11 @@ val sharedSettingsWithoutScalaVersion = Seq(
 
   resolvers += "twitter-repo" at "https://maven.twttr.com",
 
+  fork in Test := true,
+  javaOptions in Test := Seq("-DSKIP_FLAKY=true"),
+
+  parallelExecution in Test := false,
+
   // Sonatype publishing
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },

@@ -1,15 +1,22 @@
-# This is necessary until https://github.com/travis-ci/travis-ci/issues/3120 is
-# fixed
-sudo: required
+# container-based build
+sudo: false
 
 language: scala
+
+env:
+  - JAVA_OPTS="-DSKIP_FLAKY=true -Dsbt.log.noformat=true"
 
 # These directories are cached to S3 at the end of the build
 cache:
   directories:
-   - $HOME/.ivy2/cache
+   - $HOME/.ivy2
    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
    - $HOME/.dodo
+
+before_cache:
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
 
 scala:
   - 2.11.11
@@ -24,14 +31,15 @@ notifications:
       secure: olqJQz/4oPk0IYPAWLyOGwzDxNwGCjY0ZGXUnfd1MHzReWsb3opPwF9QUSGbpHHBhyLi8DLxrPXuBPhg/9TC1leIvTBAOKDPilV4XVZCNjH/VQ7JdiAREJC2o3M2pr6iwovEHO/k6a1TORXUf9Q2vX09FvFpiIcq+hpjR9BciVM=
 
 before_script:
+  # default $SBT_OPTS is irrelevant to sbt launcher
   - unset SBT_OPTS
   - curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
-  - travis_retry ./sbt --error -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION update
+  - travis_retry ./sbt --error ++$TRAVIS_SCALA_VERSION update
 
 script:
-  - travis_retry ./sbt -DSKIP_FLAKY=true -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - travis_retry ./sbt -DSKIP_FLAKY=true -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
-  - ./sbt -Dsbt.log.noformat=true ++$TRAVIS_SCALA_VERSION coverageAggregate
+  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
+  - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
