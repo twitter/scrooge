@@ -1,10 +1,13 @@
 package com.twitter.scrooge.adapt
 
+import com.twitter.logging.Logger
 import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.atomic.AtomicInteger
 
 private[adapt] object AdaptTrackingDecoder {
+  val logger = Logger(this.getClass)
+
   val AdaptSuffix = "$Adapt"
   val AdaptDecoderSuffix = "$AdaptDecoder"
   val DecodeMethodName = "decode"
@@ -65,8 +68,22 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
     val useMapById = useMapByField.map { case (f, v) => (f.id, v) }
 
     if (allFieldsUsed(useMapById)) {
+      logger.ifDebug(s"Adaptive scrooge is using all fields for ${codec.metaData.structName} struct.")
       fallbackDecoder
     } else {
+      val namesToUse = useMapByName.collect {
+        case (name, true) => name
+      }
+
+      if (namesToUse.isEmpty) {
+        logger.ifDebug(
+          s"Adaptive scrooge isn't using fields for ${codec.metaData.structName} struct with settings: $settings"
+        )
+      } else {
+        logger.ifDebug(
+          s"Adaptive scrooge is using fields: ${namesToUse.mkString(",")} for ${codec.metaData.structName} struct with settings: $settings"
+        )
+      }
       buildAdaptiveDecoder(useMapByName, useMapById)
     }
   }

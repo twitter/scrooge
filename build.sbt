@@ -284,7 +284,8 @@ lazy val scroogeAdaptive = Project(
     "asm" % "asm" % "3.3.1",
     "asm" % "asm-commons" % "3.3.1",
     "asm" % "asm-util" % "3.3.1",
-    "com.twitter" % "libthrift" % libthriftVersion % "provided"
+    "com.twitter" % "libthrift" % libthriftVersion % "provided",
+    util("logging")
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 

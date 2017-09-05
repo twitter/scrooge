@@ -12,6 +12,7 @@ scala_library(
     'scrooge/scrooge-core',
     'scrooge/scrooge-serializer',
     'util/util-codec/src/main/scala:scala',
+    'util/util-logging/src/main/scala:scala',
   ],
   exports=[
     '3rdparty/jvm/asm',
