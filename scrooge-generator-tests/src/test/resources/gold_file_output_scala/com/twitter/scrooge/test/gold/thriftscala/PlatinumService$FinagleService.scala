@@ -6,7 +6,7 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.finagle.{SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
+import com.twitter.finagle.{RichServerParam, SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
 import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
 import com.twitter.scrooge.{TReusableBuffer, ThriftMethod, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
@@ -25,13 +25,20 @@ import scala.language.higherKinds
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class PlatinumService$FinagleService(
   iface: PlatinumService[Future],
-  protocolFactory: TProtocolFactory,
-  stats: StatsReceiver,
-  maxThriftBufferSize: Int,
-  serviceName: String
-) extends GoldService$FinagleService(iface, protocolFactory, stats, maxThriftBufferSize) {
+  serverParam: RichServerParam
+) extends GoldService$FinagleService(iface, serverParam) {
   import PlatinumService._
 
+  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+  def this(
+    iface: PlatinumService[Future],
+    protocolFactory: TProtocolFactory,
+    stats: StatsReceiver = NullStatsReceiver,
+    maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
+    serviceName: String = "PlatinumService"
+  ) = this(iface, RichServerParam(protocolFactory, serviceName, maxThriftBufferSize, stats))
+
+  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
   def this(
     iface: PlatinumService[Future],
     protocolFactory: TProtocolFactory,
@@ -39,12 +46,15 @@ class PlatinumService$FinagleService(
     maxThriftBufferSize: Int
   ) = this(iface, protocolFactory, stats, maxThriftBufferSize, "PlatinumService")
 
+  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
   def this(
     iface: PlatinumService[Future],
     protocolFactory: TProtocolFactory
-  ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.maxThriftBufferSize)
+  ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
+
+  override def serviceName: String = serverParam.serviceName
   addService("moreCoolThings", {
-    val statsFilter = perMethodStatsFilter(MoreCoolThings, stats)
+    val statsFilter = perMethodStatsFilter(MoreCoolThings)
 
     val methodService = new finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {

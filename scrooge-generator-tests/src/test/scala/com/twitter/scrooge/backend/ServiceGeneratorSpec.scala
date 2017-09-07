@@ -3,18 +3,10 @@ package com.twitter.scrooge.backend
 import com.twitter.conversions.time._
 import com.twitter.finagle
 import com.twitter.finagle.param.Stats
-import com.twitter.finagle.service.{ResponseClass, ResponseClassifier, ReqRep}
-import com.twitter.finagle.{
-  Address,
-  ListeningServer,
-  Name,
-  Thrift,
-  Service,
-  SimpleFilter,
-  SourcedException
-}
+import com.twitter.finagle.service.{ReqRep, ResponseClass, ResponseClassifier}
 import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.finagle.{Service => finagleService, _}
 import com.twitter.scrooge.ThriftException
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.util.{Await, Future, Return}
@@ -25,8 +17,8 @@ import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import org.scalatest.concurrent.Eventually
 import scala.language.reflectiveCalls
-import thrift.test._
-import thrift.test.ExceptionalService._
+import _root_.thrift.test.ExceptionalService._
+import _root_.thrift.test._
 
 class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
@@ -397,10 +389,10 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       "finagle" in { _ =>
-        val service = new ReadWriteService$FinagleService(null, null)
+        val service = new ReadWriteService$FinagleService(null, RichServerParam())
         service.isInstanceOf[ReadOnlyService$FinagleService] must be(true)
 
-        val client = new ReadWriteService$FinagleClient(null, null)
+        val client = new ReadWriteService$FinagleClient(null, RichClientParam())
         client.isInstanceOf[ReadOnlyService$FinagleClient] must be(true)
         client.isInstanceOf[ReadOnlyService[Future]] must be(true)
         client.isInstanceOf[ReadWriteService[Future]] must be(true)
@@ -408,7 +400,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
     }
 
     "camelize names only in the scala bindings" in { _ =>
-      val service = new Capsly$FinagleService(null, null) {
+      val service = new Capsly$FinagleService(null, RichServerParam()) {
         def getFunction2(name: String) = serviceMap(name)
       }
       service.getFunction2("Bad_Name") must not be (None)
@@ -526,7 +518,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           )
 
         val doubleFilter = new SimpleFilter[Deliver.Args, Deliver.SuccessType] {
-          def apply(args: Deliver.Args, service: Service[Deliver.Args, Deliver.SuccessType]) =
+          def apply(args: Deliver.Args, service: finagleService[Deliver.Args, Deliver.SuccessType]) =
             service(args.copy(where = args.where + args.where))
         }
 
@@ -540,7 +532,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       "work with retrying filters" in { _ =>
         import com.twitter.finagle.service.{RetryExceptionsFilter, RetryPolicy}
-        import com.twitter.util.{JavaTimer, Try, Throw}
+        import com.twitter.util.{JavaTimer, Throw, Try}
 
         val service = serveExceptionalService()
         val clientService = Thrift.client.newServiceIface[ExceptionalService.ServiceIface](
@@ -751,16 +743,16 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
-      val impl = context.mock(classOf[thrift.test.Service[Future]])
-      val service = new thrift.test.Service$FinagleService(impl, new TBinaryProtocol.Factory)
+      val impl = context.mock(classOf[_root_.thrift.test.Service[Future]])
+      val service = new _root_.thrift.test.Service$FinagleService(impl, new TBinaryProtocol.Factory)
 
       "allow generation and calls to eponymous FinagledService" in { _ =>
         context.checking(new Expectations {
           one(impl).test(); will(returnValue(Future.value(())))
         })
 
-        val request = encodeRequest("test", thrift.test.Service.Test.Args()).message
-        val response = encodeResponse("test", thrift.test.Service.Test.Result())
+        val request = encodeRequest("test", _root_.thrift.test.Service.Test.Args()).message
+        val response = encodeResponse("test", _root_.thrift.test.Service.Test.Result())
 
         Await.result(service(request)) mustBe response
 
@@ -772,7 +764,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           def apply(req: ThriftClientRequest) = service(req.message)
         }
 
-        val client = new thrift.test.Service$FinagleClient(clientService, serviceName = "Service")
+        val client = new _root_.thrift.test.Service$FinagleClient(clientService, serviceName = "Service")
 
         context.checking(new Expectations {
           one(impl).test(); will(returnValue(Future.Done))

@@ -14,7 +14,7 @@ import com.twitter.scrooge.{
   ToThriftService
 }
 {{#withFinagle}}
-import com.twitter.finagle.{service => ctfs}
+import com.twitter.finagle.{RichClientParam, RichServerParam, service => ctfs}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
 {{/withFinagle}}
@@ -88,13 +88,11 @@ object {{ServiceName}} { self =>
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-        pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
-        stats: com.twitter.finagle.stats.StatsReceiver,
-        responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
+        clientParam: RichClientParam
       ): ServiceIface =
         ServiceIface(
 {{#inheritedFunctions}}
-          {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, pf, stats, responseClassifier)
+          {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, clientParam)
 {{/inheritedFunctions|,}}
         )
   }
@@ -203,31 +201,54 @@ object {{ServiceName}} { self =>
 
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+      clientParam: RichClientParam)
+    extends {{ServiceName}}$FinagleClient(service, clientParam)
+    with FutureIface {
+
+    @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+    def this(
+      service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "{{ServiceName}}",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver,
-      responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default)
-    extends {{ServiceName}}$FinagleClient(
+      responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
+    ) = this(
       service,
-      protocolFactory,
-      serviceName,
-      stats,
-      responseClassifier)
-    with FutureIface {
+      RichClientParam(
+        protocolFactory,
+        serviceName,
+        clientStats = stats,
+        responseClassifier = responseClassifier
+      )
+    )
 
+    @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
     def this(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-      protocolFactory: TProtocolFactory,
+      protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String,
       stats: com.twitter.finagle.stats.StatsReceiver
-    ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
+    ) = this(
+      service,
+      RichClientParam(
+        protocolFactory,
+        serviceName,
+        clientStats = stats
+      )
+    )
   }
 
   class FinagledService(
       iface: FutureIface,
-      protocolFactory: org.apache.thrift.protocol.TProtocolFactory)
-    extends {{ServiceName}}$FinagleService(
-      iface,
-      protocolFactory)
+      serverParam: RichServerParam)
+    extends {{ServiceName}}$FinagleService(iface, serverParam) {
+
+    @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+    def this(
+      iface: FutureIface,
+      protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
+      serviceName: String = "{{ServiceName}}"
+    ) = this(iface, RichServerParam(protocolFactory, serviceName))
+  }
 {{/withFinagle}}
 }

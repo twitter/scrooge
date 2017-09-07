@@ -1,7 +1,7 @@
 package {{package}}
 
 import com.twitter.finagle.SourcedException
-import com.twitter.finagle.{service => ctfs}
+import com.twitter.finagle.{RichClientParam, service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
@@ -18,29 +18,43 @@ import scala.language.higherKinds
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleClient(
     {{#hasParent}}override {{/hasParent}}val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-    {{#hasParent}}override {{/hasParent}}val protocolFactory: TProtocolFactory,
-    {{#hasParent}}override {{/hasParent}}val serviceName: String,
-    stats: StatsReceiver,
-    responseClassifier: ctfs.ResponseClassifier)
-  extends {{#hasParent}}{{finagleClientParent}}(service, protocolFactory, serviceName, stats, responseClassifier) with {{/hasParent}}{{ServiceName}}[Future] {
+    {{#hasParent}}override {{/hasParent}}val clientParam: RichClientParam)
+  extends {{#hasParent}}{{finagleClientParent}}(service, clientParam) with {{/hasParent}}{{ServiceName}}[Future] {
 
+  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
   def this(
     service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
     serviceName: String = "{{ServiceName}}",
-    stats: StatsReceiver = NullStatsReceiver
+    stats: StatsReceiver = NullStatsReceiver,
+    responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
   ) = this(
     service,
-    protocolFactory,
-    serviceName,
-    stats,
-    ctfs.ResponseClassifier.Default
+    RichClientParam(
+      protocolFactory,
+      serviceName,
+      clientStats = stats,
+      responseClassifier = responseClassifier
+    )
   )
 
+  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+  def this(
+    service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+    protocolFactory: TProtocolFactory,
+    serviceName: String,
+    stats: StatsReceiver
+  ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
+
   import {{ServiceName}}._
+
+  {{#hasParent}}override {{/hasParent}}def serviceName: String = clientParam.serviceName
 {{^hasParent}}
 
-  private[this] val tlReusableBuffer = TReusableBuffer()
+  private[this] def protocolFactory: TProtocolFactory = clientParam.protocolFactory
+  private[this] def maxReusableBufferSize: Int = clientParam.maxThriftBufferSize
+
+  private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
 
   protected def encodeRequest(name: String, args: ThriftStruct) = {
     val memoryBuffer = tlReusableBuffer.get()
@@ -99,6 +113,9 @@ class {{ServiceName}}$FinagleClient(
   // ----- end boilerplate.
 
 {{/hasParent}}
+  private[this] def stats: StatsReceiver = clientParam.clientStats
+  private[this] def responseClassifier: ctfs.ResponseClassifier = clientParam.responseClassifier
+
   private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
 {{#functions}}
   {{>finagleClientFunction}}

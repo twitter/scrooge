@@ -5,6 +5,10 @@
 4.x
 -----
 
+- scrooge-generator: Generated scala $FinagleClient takes a `RichClientParam` for all
+  configuration params, such as `TProtocolFactory`, `ResponseClassifier`, `maxReusableBufferSize`,
+  and `StatsReceiver`, $FinagleService takes a `RichServerParam`. ``PHAB_ID=D83190``
+
 4.20.0
 ------
 

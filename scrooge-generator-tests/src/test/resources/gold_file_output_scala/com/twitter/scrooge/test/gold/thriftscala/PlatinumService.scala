@@ -19,7 +19,7 @@ import com.twitter.scrooge.{
   ThriftUtil,
   ToThriftService
 }
-import com.twitter.finagle.{service => ctfs}
+import com.twitter.finagle.{RichClientParam, RichServerParam, service => ctfs}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
@@ -76,13 +76,11 @@ object PlatinumService { self =>
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-        pf: TProtocolFactory = com.twitter.finagle.thrift.Protocols.binaryFactory(),
-        stats: com.twitter.finagle.stats.StatsReceiver,
-        responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
+        clientParam: RichClientParam
       ): ServiceIface =
         ServiceIface(
-          moreCoolThings = ThriftServiceIface(self.MoreCoolThings, binaryService, pf, stats, responseClassifier),
-          doGreatThings = ThriftServiceIface(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, binaryService, pf, stats, responseClassifier)
+          moreCoolThings = ThriftServiceIface(self.MoreCoolThings, binaryService, clientParam),
+          doGreatThings = ThriftServiceIface(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, binaryService, clientParam)
         )
   }
 
@@ -650,30 +648,53 @@ object PlatinumService { self =>
 
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+      clientParam: RichClientParam)
+    extends PlatinumService$FinagleClient(service, clientParam)
+    with FutureIface {
+
+    @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+    def this(
+      service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory = Protocols.binaryFactory(),
       serviceName: String = "PlatinumService",
       stats: com.twitter.finagle.stats.StatsReceiver = com.twitter.finagle.stats.NullStatsReceiver,
-      responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default)
-    extends PlatinumService$FinagleClient(
+      responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
+    ) = this(
       service,
-      protocolFactory,
-      serviceName,
-      stats,
-      responseClassifier)
-    with FutureIface {
+      RichClientParam(
+        protocolFactory,
+        serviceName,
+        clientStats = stats,
+        responseClassifier = responseClassifier
+      )
+    )
 
+    @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
     def this(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-      protocolFactory: TProtocolFactory,
+      protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String,
       stats: com.twitter.finagle.stats.StatsReceiver
-    ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
+    ) = this(
+      service,
+      RichClientParam(
+        protocolFactory,
+        serviceName,
+        clientStats = stats
+      )
+    )
   }
 
   class FinagledService(
       iface: FutureIface,
-      protocolFactory: org.apache.thrift.protocol.TProtocolFactory)
-    extends PlatinumService$FinagleService(
-      iface,
-      protocolFactory)
+      serverParam: RichServerParam)
+    extends PlatinumService$FinagleService(iface, serverParam) {
+
+    @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+    def this(
+      iface: FutureIface,
+      protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
+      serviceName: String = "PlatinumService"
+    ) = this(iface, RichServerParam(protocolFactory, serviceName))
+  }
 }

@@ -1,5 +1,5 @@
 addService("{{methodSvcNameForWire}}", {
-  val statsFilter = perMethodStatsFilter({{funcObjectName}}, stats)
+  val statsFilter = perMethodStatsFilter({{funcObjectName}})
 
   val methodService = new finagle$Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType] {
     def apply(args: {{funcObjectName}}.Args): Future[{{funcObjectName}}.SuccessType] = {

@@ -7,7 +7,7 @@
 package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.SourcedException
-import com.twitter.finagle.{service => ctfs}
+import com.twitter.finagle.{RichClientParam, service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
 import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
@@ -24,26 +24,40 @@ import scala.language.higherKinds
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class PlatinumService$FinagleClient(
     override val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-    override val protocolFactory: TProtocolFactory,
-    override val serviceName: String,
-    stats: StatsReceiver,
-    responseClassifier: ctfs.ResponseClassifier)
-  extends GoldService$FinagleClient(service, protocolFactory, serviceName, stats, responseClassifier) with PlatinumService[Future] {
+    override val clientParam: RichClientParam)
+  extends GoldService$FinagleClient(service, clientParam) with PlatinumService[Future] {
 
+  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
   def this(
     service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
     serviceName: String = "PlatinumService",
-    stats: StatsReceiver = NullStatsReceiver
+    stats: StatsReceiver = NullStatsReceiver,
+    responseClassifier: ctfs.ResponseClassifier = ctfs.ResponseClassifier.Default
   ) = this(
     service,
-    protocolFactory,
-    serviceName,
-    stats,
-    ctfs.ResponseClassifier.Default
+    RichClientParam(
+      protocolFactory,
+      serviceName,
+      clientStats = stats,
+      responseClassifier = responseClassifier
+    )
   )
 
+  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+  def this(
+    service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+    protocolFactory: TProtocolFactory,
+    serviceName: String,
+    stats: StatsReceiver
+  ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
+
   import PlatinumService._
+
+  override def serviceName: String = clientParam.serviceName
+  private[this] def stats: StatsReceiver = clientParam.clientStats
+  private[this] def responseClassifier: ctfs.ResponseClassifier = clientParam.responseClassifier
+
   private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
   private[this] object __stats_moreCoolThings {
     val RequestsCounter = scopedStats.scope("moreCoolThings").counter("requests")

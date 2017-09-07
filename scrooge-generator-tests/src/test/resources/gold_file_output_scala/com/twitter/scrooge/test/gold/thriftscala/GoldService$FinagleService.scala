@@ -6,7 +6,7 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.finagle.{SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
+import com.twitter.finagle.{RichServerParam, SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
 import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
 import com.twitter.scrooge.{TReusableBuffer, ThriftMethod, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
@@ -25,13 +25,20 @@ import scala.language.higherKinds
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class GoldService$FinagleService(
   iface: GoldService[Future],
-  protocolFactory: TProtocolFactory,
-  stats: StatsReceiver,
-  maxThriftBufferSize: Int,
-  serviceName: String
+  serverParam: RichServerParam
 ) extends com.twitter.finagle.Service[Array[Byte], Array[Byte]] {
   import GoldService._
 
+  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+  def this(
+    iface: GoldService[Future],
+    protocolFactory: TProtocolFactory,
+    stats: StatsReceiver = NullStatsReceiver,
+    maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
+    serviceName: String = "GoldService"
+  ) = this(iface, RichServerParam(protocolFactory, serviceName, maxThriftBufferSize, stats))
+
+  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
   def this(
     iface: GoldService[Future],
     protocolFactory: TProtocolFactory,
@@ -39,12 +46,19 @@ class GoldService$FinagleService(
     maxThriftBufferSize: Int
   ) = this(iface, protocolFactory, stats, maxThriftBufferSize, "GoldService")
 
+  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
   def this(
     iface: GoldService[Future],
     protocolFactory: TProtocolFactory
-  ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.maxThriftBufferSize)
+  ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
-  private[this] val tlReusableBuffer = TReusableBuffer()
+  def serviceName: String = serverParam.serviceName
+
+  private[this] def protocolFactory: TProtocolFactory = serverParam.protocolFactory
+  private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
+  private[this] def stats: StatsReceiver = serverParam.serverStats
+
+  private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
 
   protected val serviceMap = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
 
@@ -129,8 +143,7 @@ class GoldService$FinagleService(
   )
 
   protected def perMethodStatsFilter(
-    method: ThriftMethod,
-    stats: StatsReceiver
+    method: ThriftMethod
   ): SimpleFilter[method.Args, method.SuccessType] = {
     val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
     new SimpleFilter[method.Args, method.SuccessType] {
@@ -152,7 +165,7 @@ class GoldService$FinagleService(
   // ---- end boilerplate.
 
   addService("doGreatThings", {
-    val statsFilter = perMethodStatsFilter(DoGreatThings, stats)
+    val statsFilter = perMethodStatsFilter(DoGreatThings)
 
     val methodService = new finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
