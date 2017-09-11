@@ -64,6 +64,7 @@ class ScalaGenerator(
       "implicit",
       "import",
       "lazy",
+      "macro",
       "match",
       "new",
       "null",
