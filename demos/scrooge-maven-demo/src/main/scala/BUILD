@@ -4,5 +4,4 @@ scala_library(name='scala',
     'scrooge/scrooge-core',
   ],
   sources=globs('com/twitter/example/Demo.scala'),
-  strict_deps=True,
 )

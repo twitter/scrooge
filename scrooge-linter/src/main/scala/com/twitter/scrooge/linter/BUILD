@@ -12,7 +12,6 @@ scala_library(
   ],
   fatal_warnings=True,
   sources=globs('*.scala'),
-  strict_deps=True,
   exports=[
     '3rdparty/jvm/com/github/scopt:scopt',
   ],

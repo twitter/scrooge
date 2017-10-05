@@ -13,5 +13,4 @@ scala_library(
     'util/util-core/src/main/scala:scala',
   ],
   sources=rglobs('*.scala'),
-  strict_deps=True,
 )

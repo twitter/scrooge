@@ -16,7 +16,6 @@ scala_library(
     'scrooge/scrooge-generator/src/main/resources:resources',
   ],
   fatal_warnings=True,
-  strict_deps=True,
   sources=rglobs('*.scala'),
   exports=[
     '3rdparty/jvm/com/github/scopt:scopt',

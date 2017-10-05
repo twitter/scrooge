@@ -7,6 +7,4 @@ junit_tests(
     'util/util-core/src/main/scala:scala',
   ],
   sources=globs('com/twitter/example/DemoSpec.scala'),
-  strict_deps=True,
-
 )

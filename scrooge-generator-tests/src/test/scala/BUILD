@@ -25,7 +25,6 @@ java_library(
       'scrooge/scrooge-generator',
   ],
   sources = LIB_SOURCES,
-  strict_deps = True,
 )
 
 junit_tests(
@@ -81,5 +80,4 @@ junit_tests(
   # see comments above, we need to avoid 'owning' the LIB_SOURCES files
   # and instead 'depend' on them
   sources=rglobs('*.scala', exclude = LIB_SOURCES),
-  strict_deps=True,
 )

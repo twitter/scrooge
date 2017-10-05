@@ -10,7 +10,6 @@ scala_library(
     'util/util-app',
     'util/util-codec',
   ],
-  strict_deps=True,
   exports=[
     'scrooge/scrooge-core',
   ],
