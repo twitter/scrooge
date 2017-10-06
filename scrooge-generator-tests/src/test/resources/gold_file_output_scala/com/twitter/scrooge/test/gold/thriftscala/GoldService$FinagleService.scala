@@ -6,8 +6,9 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.finagle.{RichServerParam, SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
+import com.twitter.finagle.{SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
 import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
+import com.twitter.finagle.thrift.RichServerParam
 import com.twitter.scrooge.{TReusableBuffer, ThriftMethod, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
@@ -29,7 +30,7 @@ class GoldService$FinagleService(
 ) extends com.twitter.finagle.Service[Array[Byte], Array[Byte]] {
   import GoldService._
 
-  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
     iface: GoldService[Future],
     protocolFactory: TProtocolFactory,
@@ -38,7 +39,7 @@ class GoldService$FinagleService(
     serviceName: String = "GoldService"
   ) = this(iface, RichServerParam(protocolFactory, serviceName, maxThriftBufferSize, stats))
 
-  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
     iface: GoldService[Future],
     protocolFactory: TProtocolFactory,
@@ -46,7 +47,7 @@ class GoldService$FinagleService(
     maxThriftBufferSize: Int
   ) = this(iface, protocolFactory, stats, maxThriftBufferSize, "GoldService")
 
-  @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
     iface: GoldService[Future],
     protocolFactory: TProtocolFactory

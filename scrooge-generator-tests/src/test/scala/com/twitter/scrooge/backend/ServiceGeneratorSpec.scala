@@ -5,7 +5,7 @@ import com.twitter.finagle
 import com.twitter.finagle.param.Stats
 import com.twitter.finagle.service.{ReqRep, ResponseClass, ResponseClassifier}
 import com.twitter.finagle.stats.InMemoryStatsReceiver
-import com.twitter.finagle.thrift.ThriftClientRequest
+import com.twitter.finagle.thrift.{RichClientParam, RichServerParam, ThriftClientRequest}
 import com.twitter.finagle.{Service => finagleService, _}
 import com.twitter.scrooge.ThriftException
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}

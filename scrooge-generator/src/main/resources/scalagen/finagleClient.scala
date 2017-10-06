@@ -1,9 +1,9 @@
 package {{package}}
 
 import com.twitter.finagle.SourcedException
-import com.twitter.finagle.{RichClientParam, service => ctfs}
+import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
+import com.twitter.finagle.thrift.{Protocols,RichClientParam, ThriftClientRequest}
 import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
@@ -21,7 +21,7 @@ class {{ServiceName}}$FinagleClient(
     {{#hasParent}}override {{/hasParent}}val clientParam: RichClientParam)
   extends {{#hasParent}}{{finagleClientParent}}(service, clientParam) with {{/hasParent}}{{ServiceName}}[Future] {
 
-  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(
     service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
@@ -38,7 +38,7 @@ class {{ServiceName}}$FinagleClient(
     )
   )
 
-  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(
     service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     protocolFactory: TProtocolFactory,

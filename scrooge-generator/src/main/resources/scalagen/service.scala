@@ -14,8 +14,14 @@ import com.twitter.scrooge.{
   ToThriftService
 }
 {{#withFinagle}}
-import com.twitter.finagle.{RichClientParam, RichServerParam, service => ctfs}
-import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest, ThriftServiceIface}
+import com.twitter.finagle.{service => ctfs}
+import com.twitter.finagle.thrift.{
+  Protocols,
+  RichClientParam,
+  RichServerParam,
+  ThriftClientRequest,
+  ThriftServiceIface
+}
 import com.twitter.util.Future
 {{/withFinagle}}
 import java.nio.ByteBuffer
@@ -205,7 +211,7 @@ object {{ServiceName}} { self =>
     extends {{ServiceName}}$FinagleClient(service, clientParam)
     with FutureIface {
 
-    @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+    @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
     def this(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory = Protocols.binaryFactory(),
@@ -222,7 +228,7 @@ object {{ServiceName}} { self =>
       )
     )
 
-    @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+    @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
     def this(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
@@ -243,7 +249,7 @@ object {{ServiceName}} { self =>
       serverParam: RichServerParam)
     extends {{ServiceName}}$FinagleService(iface, serverParam) {
 
-    @deprecated("Use com.twitter.finagle.RichServerParam", "2017-08-16")
+    @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
       iface: FutureIface,
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,

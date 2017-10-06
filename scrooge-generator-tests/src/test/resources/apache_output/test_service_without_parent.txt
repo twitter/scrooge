@@ -251,14 +251,14 @@ public class TestService {
     private final scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier;
 
     /**
-     * @deprecated use {@link com.twitter.finagle.RichClientParam} instead
+     * @deprecated use {@link com.twitter.finagle.thrift.RichClientParam} instead
      */
     @Deprecated
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory, scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier) {
-      this(service, new com.twitter.finagle.RichClientParam(protocolFactory, responseClassifier));
+      this(service, new com.twitter.finagle.thrift.RichClientParam(protocolFactory, responseClassifier));
     }
 
-    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.RichClientParam clientParam) {
+    public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.thrift.RichClientParam clientParam) {
 
       this.service = service;
       this.protocolFactory = clientParam.protocolFactory();
@@ -267,15 +267,15 @@ public class TestService {
     }
 
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service) {
-      this(service, new com.twitter.finagle.RichClientParam());
+      this(service, new com.twitter.finagle.thrift.RichClientParam());
     }
 
     /**
-     * @deprecated use {@link com.twitter.finagle.RichClientParam} instead
+     * @deprecated use {@link com.twitter.finagle.thrift.RichClientParam} instead
      */
     @Deprecated
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
-      this(service, new com.twitter.finagle.RichClientParam(protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default()));
+      this(service, new com.twitter.finagle.thrift.RichClientParam(protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default()));
     }
 
     public Future<Void> test_void_endpoint(TestRequest request) {
@@ -490,7 +490,7 @@ public class TestService {
     private final TReusableBuffer tlReusableBuffer;
     protected HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>> serviceMap =
       new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
-    public Service(final ServiceIface iface, final com.twitter.finagle.RichServerParam serverParam) {
+    public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
       this.iface = iface;
       this.protocolFactory = serverParam.protocolFactory();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
@@ -498,15 +498,15 @@ public class TestService {
     }
 
     public Service(final ServiceIface iface) {
-      this(iface, new com.twitter.finagle.RichServerParam());
+      this(iface, new com.twitter.finagle.thrift.RichServerParam());
     }
 
     /**
-     * @deprecated use {@link com.twitter.finagle.RichServerParam} instead
+     * @deprecated use {@link com.twitter.finagle.thrift.RichServerParam} instead
      */
     @Deprecated
     public Service(final ServiceIface iface, final TProtocolFactory protocolFactory) {
-      this(iface, new com.twitter.finagle.RichServerParam(protocolFactory));
+      this(iface, new com.twitter.finagle.thrift.RichServerParam(protocolFactory));
     }
 
     private void createMethods() {

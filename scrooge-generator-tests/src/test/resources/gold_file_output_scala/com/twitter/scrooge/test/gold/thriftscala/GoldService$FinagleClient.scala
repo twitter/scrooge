@@ -7,9 +7,9 @@
 package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.SourcedException
-import com.twitter.finagle.{RichClientParam, service => ctfs}
+import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{Protocols, ThriftClientRequest}
+import com.twitter.finagle.thrift.{Protocols,RichClientParam, ThriftClientRequest}
 import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
@@ -27,7 +27,7 @@ class GoldService$FinagleClient(
     val clientParam: RichClientParam)
   extends GoldService[Future] {
 
-  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(
     service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     protocolFactory: TProtocolFactory = Protocols.binaryFactory(),
@@ -44,7 +44,7 @@ class GoldService$FinagleClient(
     )
   )
 
-  @deprecated("Use com.twitter.finagle.RichClientParam", "2017-08-16")
+  @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(
     service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     protocolFactory: TProtocolFactory,
