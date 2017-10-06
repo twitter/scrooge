@@ -2,7 +2,6 @@ java_thrift_library(name='thrift-scala',
   sources=rglobs('*.thrift'),
   compiler='scrooge',
   language='scala',
-  strict_deps=True,
 )
 
 java_thrift_library(name='thrift-java',
@@ -20,5 +19,4 @@ java_thrift_library(name='thrift-android',
     '3rdparty/jvm/org/apache/thrift:libthrift-0.5.0',
   ],
   default_java_namespace='apache_java_thrift',
-  strict_deps=True,
 )
