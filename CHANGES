@@ -5,6 +5,10 @@
 4.x
 -----
 
+- scrooge-generator: For generated scala $FinagleService, moved per-endpoint statsFilter to the
+  outermost of filter chain so it can capture all exceptions, added per-endpoint response
+  classification in statsFilter. ``PHAB_ID=D92065``
+
 - scrooge-generator: Generated scala $FinagleClient takes a `RichClientParam` for all
   configuration params, such as `TProtocolFactory`, `ResponseClassifier`, `maxReusableBufferSize`,
   and `StatsReceiver`, $FinagleService takes a `RichServerParam`. ``PHAB_ID=D83190``
