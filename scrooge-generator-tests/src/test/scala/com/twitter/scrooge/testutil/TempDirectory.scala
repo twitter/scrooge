@@ -12,8 +12,8 @@ object TempDirectory {
    */
   def create(dir: Option[File], deleteAtExit: Boolean = true): File = {
     val file = dir match {
-      case Some(d) => File.createTempFile("temp", "dir", d)
-      case None => File.createTempFile("temp", "dir")
+      case Some(d) => File.createTempFile("scrooge", "temp", d)
+      case None => File.createTempFile("scrooge", "temp")
     }
     file.delete()
     file.mkdir()

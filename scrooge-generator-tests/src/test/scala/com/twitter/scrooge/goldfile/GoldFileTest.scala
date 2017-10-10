@@ -46,6 +46,13 @@ abstract class GoldFileTest extends FunSuite
     generatedFiles = generatedFiles(tempDir)
   }
 
+  final def relativePath(f: File): String = {
+    val root = tempDir.getAbsolutePath
+    val b = f.getAbsolutePath
+    assert(b.startsWith(root), s"Cannot relativize $b, not under root $root")
+    b.substring(root.length+1, b.length)
+  }
+
   override protected def afterAll(): Unit = {
     if (deleteTempFiles) {
       if (!Files.delete(tempDir))
