@@ -6,17 +6,10 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.finagle.{
-  service => ctfs,
-  Filter => finagle$Filter,
-  Service => finagle$Service,
-  thrift => _,
-  _
-}
+import com.twitter.finagle.{SimpleFilter, Thrift, Filter => finagle$Filter, Service => finagle$Service}
 import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.RichServerParam
-import com.twitter.io.Buf
-import com.twitter.scrooge._
+import com.twitter.scrooge.{TReusableBuffer, ThriftMethod, ThriftStruct}
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -61,11 +54,8 @@ class PlatinumService$FinagleService(
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
   override def serviceName: String = serverParam.serviceName
-  private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
-  private[this] def stats: StatsReceiver = serverParam.serverStats
-
   addService("moreCoolThings", {
-    val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = perMethodStatsFilter(MoreCoolThings)
+    val statsFilter = perMethodStatsFilter(MoreCoolThings)
 
     val methodService = new finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
@@ -73,61 +63,45 @@ class PlatinumService$FinagleService(
       }
     }
 
-    val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] {
+    val protocolExnFilter = new SimpleFilter[(TProtocol, Int), Array[Byte]] {
       def apply(
         request: (TProtocol, Int),
-        service: finagle$Service[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]]
-      ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
+        service: finagle$Service[(TProtocol, Int), Array[Byte]]
+      ): Future[Array[Byte]] = {
         val (iprot, seqid) = request
         service(request).rescue {
           case e: TProtocolException => {
             iprot.readMessageEnd()
-            Future.value(
-              ProtocolException(
-                null,
-                exception("moreCoolThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
-                new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
+            exception("moreCoolThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage)
           }
           case e: Exception => Future.exception(e)
         }
       }
     }
 
-    val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result], MoreCoolThings.Args, MoreCoolThings.SuccessType] {
+    val serdeFilter = new finagle$Filter[(TProtocol, Int), Array[Byte], MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       override def apply(
         request: (TProtocol, Int),
         service: finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType]
-      ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
+      ): Future[Array[Byte]] = {
         val (iprot, seqid) = request
         val args = MoreCoolThings.Args.decode(iprot)
         iprot.readMessageEnd()
         val res = service(args)
         res.flatMap { value =>
-          Future.value(
-            SuccessfulResult(
-              args,
-              reply("moreCoolThings", seqid, MoreCoolThings.Result(success = Some(value))),
-              MoreCoolThings.Result(success = Some(value))))
+          reply("moreCoolThings", seqid, MoreCoolThings.Result(success = Some(value)))
         }.rescue {
           case e: com.twitter.scrooge.test.gold.thriftscala.AnotherException => {
-            Future.value(
-              ThriftExceptionResult(
-                args,
-                reply("moreCoolThings", seqid, MoreCoolThings.Result(ax = Some(e))),
-                MoreCoolThings.Result(ax = Some(e))))
+            reply("moreCoolThings", seqid, MoreCoolThings.Result(ax = Some(e)))
           }
           case e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException => {
-            Future.value(
-              ThriftExceptionResult(
-                args,
-                reply("moreCoolThings", seqid, MoreCoolThings.Result(oce = Some(e))),
-                MoreCoolThings.Result(oce = Some(e))))
+            reply("moreCoolThings", seqid, MoreCoolThings.Result(oce = Some(e)))
           }
           case e => Future.exception(e)
         }
       }
     }
 
-    statsFilter.andThen(protocolExnFilter).andThen(serdeFilter).andThen(methodService)
+    protocolExnFilter.andThen(serdeFilter).andThen(statsFilter).andThen(methodService)
   })
 }
