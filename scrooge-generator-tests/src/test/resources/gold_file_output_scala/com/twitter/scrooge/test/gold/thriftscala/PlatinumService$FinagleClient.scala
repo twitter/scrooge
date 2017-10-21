@@ -65,32 +65,25 @@ class PlatinumService$FinagleClient(
     val FailuresCounter = scopedStats.scope("moreCoolThings").counter("failures")
     val FailuresScope = scopedStats.scope("moreCoolThings").scope("failures")
   }
+  val moreCoolThingsPlatinumServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[Int] = {
+    response: Array[Byte] => {
+      val result = decodeResponse(response, MoreCoolThings.Result)
+
+      result.firstException() match {
+        case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
+        case _ => result.successField match {
+          case Some(success) => _root_.com.twitter.util.Return(success)
+          case _ => _root_.com.twitter.util.Throw(missingResult("moreCoolThings"))
+        }
+      }
+    }
+  }
 
   def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] = {
     __stats_moreCoolThings.RequestsCounter.incr()
     val inputArgs = MoreCoolThings.Args(request)
-    val replyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[Int] =
-      response => {
-        val result = decodeResponse(response, MoreCoolThings.Result)
-        val exception: Throwable =
-        if (false)
-          null // can never happen, but needed to open a block
-        else if (result.ax.isDefined)
-          setServiceName(result.ax.get)
-        else if (result.oce.isDefined)
-          setServiceName(result.oce.get)
-        else
-          null
 
-        if (result.success.isDefined)
-          _root_.com.twitter.util.Return(result.success.get)
-        else if (exception != null)
-          _root_.com.twitter.util.Throw(exception)
-        else
-          _root_.com.twitter.util.Throw(missingResult("moreCoolThings"))
-      }
-
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[Int](inputArgs, replyDeserializer)
+    val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[Int](inputArgs, moreCoolThingsPlatinumServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
       _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
       serdeCtx

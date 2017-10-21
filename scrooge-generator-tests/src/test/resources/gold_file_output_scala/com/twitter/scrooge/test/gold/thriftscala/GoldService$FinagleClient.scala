@@ -127,30 +127,25 @@ class GoldService$FinagleClient(
     val FailuresCounter = scopedStats.scope("doGreatThings").counter("failures")
     val FailuresScope = scopedStats.scope("doGreatThings").scope("failures")
   }
+  val doGreatThingsGoldServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+    response: Array[Byte] => {
+      val result = decodeResponse(response, DoGreatThings.Result)
+
+      result.firstException() match {
+        case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
+        case _ => result.successField match {
+          case Some(success) => _root_.com.twitter.util.Return(success)
+          case _ => _root_.com.twitter.util.Throw(missingResult("doGreatThings"))
+        }
+      }
+    }
+  }
   /** Hello, I'm a comment. */
   def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
     __stats_doGreatThings.RequestsCounter.incr()
     val inputArgs = DoGreatThings.Args(request)
-    val replyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] =
-      response => {
-        val result = decodeResponse(response, DoGreatThings.Result)
-        val exception: Throwable =
-        if (false)
-          null // can never happen, but needed to open a block
-        else if (result.ex.isDefined)
-          setServiceName(result.ex.get)
-        else
-          null
 
-        if (result.success.isDefined)
-          _root_.com.twitter.util.Return(result.success.get)
-        else if (exception != null)
-          _root_.com.twitter.util.Throw(exception)
-        else
-          _root_.com.twitter.util.Throw(missingResult("doGreatThings"))
-      }
-
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, replyDeserializer)
+    val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, doGreatThingsGoldServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
       _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
       serdeCtx

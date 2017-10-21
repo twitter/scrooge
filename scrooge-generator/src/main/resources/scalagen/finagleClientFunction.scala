@@ -5,41 +5,24 @@ private[this] object {{__stats_name}} {
   val FailuresScope = scopedStats.scope("{{clientFuncNameForWire}}").scope("failures")
 }
 {{#functionInfo}}
+val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[{{typeName}}] = {
+  response: Array[Byte] => {
+    val result = decodeResponse(response, {{funcObjectName}}.Result)
+
+    result.firstException() match {
+      case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
+      case _ => result.successField match {
+        case Some(success) => _root_.com.twitter.util.Return(success)
+        case _ => _root_.com.twitter.util.Throw(missingResult("{{clientFuncNameForWire}}"))
+      }
+    }
+  }
+}
 {{>function}} = {
   {{__stats_name}}.RequestsCounter.incr()
   val inputArgs = {{funcObjectName}}.Args({{argNames}})
-  val replyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[{{typeName}}] =
-    response => {
-      val result = decodeResponse(response, {{funcObjectName}}.Result)
-      val exception: Throwable =
-{{#hasThrows}}
-      if (false)
-        null // can never happen, but needed to open a block
-{{#throws}}
-      else if (result.{{throwName}}.isDefined)
-        setServiceName(result.{{throwName}}.get)
-{{/throws}}
-      else
-        null
-{{/hasThrows}}
-{{^hasThrows}}
-      null
-{{/hasThrows}}
 
-{{#isVoid}}
-      if (exception != null) _root_.com.twitter.util.Throw(exception) else Return.Unit
-{{/isVoid}}
-{{^isVoid}}
-      if (result.success.isDefined)
-        _root_.com.twitter.util.Return(result.success.get)
-      else if (exception != null)
-        _root_.com.twitter.util.Throw(exception)
-      else
-        _root_.com.twitter.util.Throw(missingResult("{{clientFuncNameForWire}}"))
-{{/isVoid}}
-    }
-
-  val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[{{typeName}}](inputArgs, replyDeserializer)
+  val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[{{typeName}}](inputArgs, {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer)
   _root_.com.twitter.finagle.context.Contexts.local.let(
     _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
     serdeCtx
