@@ -298,6 +298,7 @@ lazy val scroogeSbtPlugin = Project(
   bintrayPublishSettings
 ).settings(
   scalaVersion := "2.10.6",
+  crossSbtVersions := Seq("0.13.16", "1.0.2"),
   sourceGenerators in Compile += buildInfo,
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",

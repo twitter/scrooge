@@ -156,7 +156,7 @@ object ScroogeSBT extends AutoPlugin {
 
   // Dependencies included in the `thrift` configuration will be used
   // in both compile and test.
-  val thriftConfig = config("thrift")
+  val ThriftConfig = config("thrift")
 
   /**
    * these settings will go into both the compile and test configurations.
@@ -192,7 +192,7 @@ object ScroogeSBT extends AutoPlugin {
       IO.createDirectory(scroogeThriftExternalSourceFolder.value)
       val whitelist = scroogeThriftDependencies.value.toSet
       val dependencies =
-        Classpaths.managedJars(thriftConfig, classpathTypes.value, update.value) ++
+        Classpaths.managedJars(ThriftConfig, classpathTypes.value, update.value) ++
         filter(Classpaths.managedJars(configuration.value, classpathTypes.value, update.value), whitelist)
 
       val sourceFolder = scroogeThriftExternalSourceFolder.value
@@ -292,7 +292,7 @@ object ScroogeSBT extends AutoPlugin {
   }
 
   override lazy val projectSettings =
-    Seq(ivyConfigurations += thriftConfig) ++
+    Seq(ivyConfigurations += ThriftConfig) ++
     inConfig(Test)(genThriftSettings) ++
     inConfig(Compile)(genThriftSettings) :+ packageThrift :+ generatedSources
 
