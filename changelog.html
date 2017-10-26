@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Scrooge Changelog &#8212; Scrooge 4.20.0 documentation</title>
+    <title>Scrooge Changelog &#8212; Scrooge 17.10.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.20.0',
+        VERSION:     '17.10.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Scrooge 4.20.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 17.10.0 documentation" href="index.html" />
     <link rel="next" title="License" href="license.html" />
     <link rel="prev" title="Scrooge thrift linter" href="Linter.html" />
    
@@ -61,15 +61,28 @@
   <div class="section" id="scrooge-changelog">
 <h1>Scrooge Changelog<a class="headerlink" href="#scrooge-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Below is a list of changes for each Scrooge release</p>
-<div class="section" id="x">
-<h2>4.x<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="id1">
-<h2>4.20.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>No Changes</p>
+<h2>17.10.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>From now on, release versions will be based on release date in the format of
+YY.MM.x where x is a patch number. <code class="docutils literal"><span class="pre">PHAB_ID=D101244</span></code></li>
+<li>scrooge-generator: For generated scala $FinagleService, moved per-endpoint statsFilter to the
+outermost of filter chain so it can capture all exceptions, added per-endpoint response
+classification in statsFilter. <code class="docutils literal"><span class="pre">PHAB_ID=D100649</span></code></li>
+<li>scrooge-generator: Generated scala $FinagleClient takes a <cite>RichClientParam</cite> for all
+configuration params, such as <cite>TProtocolFactory</cite>, <cite>ResponseClassifier</cite>, <cite>maxReusableBufferSize</cite>,
+and <cite>StatsReceiver</cite>, $FinagleService takes a <cite>RichServerParam</cite>. <code class="docutils literal"><span class="pre">PHAB_ID=D83190</span></code></li>
+</ul>
 </div>
 <div class="section" id="id2">
-<h2>4.19.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>4.20.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>No Changes</p>
+</div>
+<div class="section" id="id3">
+<h2>4.19.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-generator: Generated scala/java code now is using <cite>serviceMap</cite> instead of <cite>functionMap</cite>
 for Finagle services&#8217; method implementation. <code class="docutils literal"><span class="pre">PHAB_ID=D73619</span></code> for scala and
@@ -86,8 +99,8 @@ that trait. <code class="docutils literal"><span class="pre">PHAB_ID=D67289</spa
 removes some compiler warnings about implicit casts. <code class="docutils literal"><span class="pre">PHAB_ID=D74200</span></code></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>4.18.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>4.18.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-generator: Expose some methods of TemplateGenerator as static methods <code class="docutils literal"><span class="pre">PHAB_ID=D60494</span></code></li>
 <li>scrooge-generator-tests: Add ability for langauge implementations outside of scrooge directory
@@ -99,20 +112,20 @@ skip over unused fields. <code class="docutils literal"><span class="pre">RB_ID=
 <li>scrooge-generator: Scala code generation support for annotations on enums <code class="docutils literal"><span class="pre">RB_ID=917467</span></code></li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>4.17.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>4.17.0<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-core: To reduce object allocations, <cite>c.t.s.TFieldBlob</cite> now uses <cite>c.t.io.Buf</cite>,
 and add <cite>c.t.s.TReusableBuffer</cite> for providing thread-safe reusable buffer. <code class="docutils literal"><span class="pre">RB_ID=914874</span></code></li>
 <li>scrooge-core: Add dependency on util-core. <code class="docutils literal"><span class="pre">RB_ID=914874</span></code></li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>4.16.0<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>4.16.0<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <p>No Changes</p>
 </div>
-<div class="section" id="id6">
-<h2>4.15.0<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>4.15.0<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-core: <cite>c.t.s.ThriftUnion</cite> adds methods <cite>containedValue</cite> and
 <cite>unionStructFieldInfo</cite>. These were already a part of the generated Scala
@@ -134,20 +147,20 @@ to <cite>ThriftMethod.Result</cite>. This is a breaking API change though it sho
 be easy to adapt existing code to it. <code class="docutils literal"><span class="pre">RB_ID=908846</span></code></li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h2>4.14.0<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>4.14.0<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <p>No Changes</p>
 </div>
-<div class="section" id="id8">
-<h2>4.13.0<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>4.13.0<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-linter: Add thrift definition linter warnings if generated
 thrift will exceed JVM HotSpot ClipInlining check.
 <code class="docutils literal"><span class="pre">RB_ID=896379</span></code></li>
 </ul>
 </div>
-<div class="section" id="id9">
-<h2>4.12.0<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h2>4.12.0<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-generator: Remove check for 22 args when generating scala
 ServiceIface. Now that we no longer support Scala 2.10 we can always
@@ -161,8 +174,8 @@ makes it difficult to properly support self-referencing types.
 types with Java generation. <code class="docutils literal"><span class="pre">RB_ID=880813</span></code></li>
 </ul>
 </div>
-<div class="section" id="id10">
-<h2>4.11.0<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id11">
+<h2>4.11.0<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-generator: Add support for self-referencing types from
 <cite>pinsri</cite> via <a class="reference external" href="https://github.com/twitter/scrooge/pull/244">https://github.com/twitter/scrooge/pull/244</a>
@@ -170,20 +183,20 @@ types with Java generation. <code class="docutils literal"><span class="pre">RB_
 <li>scrooge: Remove unmaintained bin/ directory. <code class="docutils literal"><span class="pre">RB_ID=873411</span></code></li>
 </ul>
 </div>
-<div class="section" id="id11">
-<h2>4.10.0<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id12">
+<h2>4.10.0<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <p>No Changes</p>
 </div>
-<div class="section" id="id12">
-<h2>4.9.0<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id13">
+<h2>4.9.0<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
 <p>No Changes</p>
 <ul class="simple">
 <li>scrooge-core: <cite>c.t.scrooge.TReusableMemoryTransport</cite> now uses TUnboundedByteArrayOutputStream
 instead of TByteArrayOutputStream to avoid buffer reallocation on reset.</li>
 </ul>
 </div>
-<div class="section" id="id13">
-<h2>4.8.0<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id14">
+<h2>4.8.0<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="breaking-api-changes">
 <h3>Breaking API Changes<a class="headerlink" href="#breaking-api-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
@@ -198,61 +211,61 @@ for details. <code class="docutils literal"><span class="pre">RB_ID=828898</span
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="id14">
-<h2>4.7.0<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id15">
+<h2>4.7.0<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-core, scrooge-generator: <cite>c.t.scrooge.ThriftEnum</cite> now includes an
 <cite>originalName</cite> method which represents the name as defined in the Thrift
 IDL file. <code class="docutils literal"><span class="pre">RB_ID=820075</span></code></li>
 </ul>
 </div>
-<div class="section" id="id15">
-<h2>4.6.0<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id16">
+<h2>4.6.0<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge-ostrich: Removed scrooge-ostrich module</li>
 <li>scrooge-runtime: Deleted unnecessary scrooge-runtime module</li>
 <li>scrooge-generator: Remove broken experimental-java generator.</li>
 </ul>
 </div>
-<div class="section" id="id16">
-<h2>4.5.0<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id17">
+<h2>4.5.0<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge: Improve implementation of service#FunctionType</li>
 </ul>
 </div>
-<div class="section" id="id17">
-<h2>4.4.0<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id18">
+<h2>4.4.0<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>NOT RELEASED</li>
 </ul>
 </div>
-<div class="section" id="id18">
-<h2>4.3.0<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id19">
+<h2>4.3.0<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge: Rename __ServiceIface to BaseServiceIface</li>
 <li>scrooge: Add methods for converting between function and service implementations of ThriftMethods.</li>
 </ul>
 </div>
-<div class="section" id="id19">
-<h2>4.2.0<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id20">
+<h2>4.2.0<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>bump finagle version to 6.30</li>
 </ul>
 </div>
-<div class="section" id="id20">
-<h2>4.1.0<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id21">
+<h2>4.1.0<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>bump finagle version to 6.29</li>
 </ul>
 </div>
-<div class="section" id="id21">
-<h2>4.0.0<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id22">
+<h2>4.0.0<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>scrooge: Scrooge 4.0.0 includes backward compatibility patches for Finagle service per endpoint generation. This allows using Thrift endpoints as Finagle Services and combining them with Filters.</li>
 </ul>
 </div>
-<div class="section" id="id22">
-<h2>3.x<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="x">
+<h2>3.x<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="id23">
 <h2>3.20.0<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h2>
@@ -1054,32 +1067,33 @@ thrift files were not resolved properly.</li>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Scrooge Changelog</a><ul>
-<li><a class="reference internal" href="#x">4.x</a></li>
-<li><a class="reference internal" href="#id1">4.20.0</a></li>
-<li><a class="reference internal" href="#id2">4.19.0</a></li>
-<li><a class="reference internal" href="#id3">4.18.0</a></li>
-<li><a class="reference internal" href="#id4">4.17.0</a></li>
-<li><a class="reference internal" href="#id5">4.16.0</a></li>
-<li><a class="reference internal" href="#id6">4.15.0</a></li>
-<li><a class="reference internal" href="#id7">4.14.0</a></li>
-<li><a class="reference internal" href="#id8">4.13.0</a></li>
-<li><a class="reference internal" href="#id9">4.12.0</a></li>
-<li><a class="reference internal" href="#id10">4.11.0</a></li>
-<li><a class="reference internal" href="#id11">4.10.0</a></li>
-<li><a class="reference internal" href="#id12">4.9.0</a></li>
-<li><a class="reference internal" href="#id13">4.8.0</a><ul>
+<li><a class="reference internal" href="#unreleased">Unreleased</a></li>
+<li><a class="reference internal" href="#id1">17.10.0</a></li>
+<li><a class="reference internal" href="#id2">4.20.0</a></li>
+<li><a class="reference internal" href="#id3">4.19.0</a></li>
+<li><a class="reference internal" href="#id4">4.18.0</a></li>
+<li><a class="reference internal" href="#id5">4.17.0</a></li>
+<li><a class="reference internal" href="#id6">4.16.0</a></li>
+<li><a class="reference internal" href="#id7">4.15.0</a></li>
+<li><a class="reference internal" href="#id8">4.14.0</a></li>
+<li><a class="reference internal" href="#id9">4.13.0</a></li>
+<li><a class="reference internal" href="#id10">4.12.0</a></li>
+<li><a class="reference internal" href="#id11">4.11.0</a></li>
+<li><a class="reference internal" href="#id12">4.10.0</a></li>
+<li><a class="reference internal" href="#id13">4.9.0</a></li>
+<li><a class="reference internal" href="#id14">4.8.0</a><ul>
 <li><a class="reference internal" href="#breaking-api-changes">Breaking API Changes</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id14">4.7.0</a></li>
-<li><a class="reference internal" href="#id15">4.6.0</a></li>
-<li><a class="reference internal" href="#id16">4.5.0</a></li>
-<li><a class="reference internal" href="#id17">4.4.0</a></li>
-<li><a class="reference internal" href="#id18">4.3.0</a></li>
-<li><a class="reference internal" href="#id19">4.2.0</a></li>
-<li><a class="reference internal" href="#id20">4.1.0</a></li>
-<li><a class="reference internal" href="#id21">4.0.0</a></li>
-<li><a class="reference internal" href="#id22">3.x</a></li>
+<li><a class="reference internal" href="#id15">4.7.0</a></li>
+<li><a class="reference internal" href="#id16">4.6.0</a></li>
+<li><a class="reference internal" href="#id17">4.5.0</a></li>
+<li><a class="reference internal" href="#id18">4.4.0</a></li>
+<li><a class="reference internal" href="#id19">4.3.0</a></li>
+<li><a class="reference internal" href="#id20">4.2.0</a></li>
+<li><a class="reference internal" href="#id21">4.1.0</a></li>
+<li><a class="reference internal" href="#id22">4.0.0</a></li>
+<li><a class="reference internal" href="#x">3.x</a></li>
 <li><a class="reference internal" href="#id23">3.20.0</a></li>
 <li><a class="reference internal" href="#id24">3.19.0</a></li>
 <li><a class="reference internal" href="#id25">3.18.1</a></li>
