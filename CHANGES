@@ -2,8 +2,11 @@
   (http://docutils.sourceforge.net/docs/user/rst/quickstart.html)
   as it is included in Scrooge's user's guide.
 
-4.x
------
+Unreleased
+----------
+
+- From now on, release versions will be based on release date in the format of
+  YY.MM.x where x is a patch number. ``PHAB_ID=D101244``
 
 - scrooge-generator: For generated scala $FinagleService, moved per-endpoint statsFilter to the
   outermost of filter chain so it can capture all exceptions, added per-endpoint response
@@ -35,7 +38,7 @@ No Changes
   `FutureIface`. It already "was" that type in practice but did not implement
   that trait. ``PHAB_ID=D67289``
 
-- scrooge-generator: Generated Cocoa code now supports modular frameworks and 
+- scrooge-generator: Generated Cocoa code now supports modular frameworks and
   removes some compiler warnings about implicit casts. ``PHAB_ID=D74200``
 
 4.18.0

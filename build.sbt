@@ -1,21 +1,17 @@
 import bintray.Keys._
 import scoverage.ScoverageKeys
 
-val branch = Process("git" :: "rev-parse" :: "--abbrev-ref" :: "HEAD" :: Nil).!!.trim
-val suffix = if (branch == "master") "" else "-SNAPSHOT"
-
-val libVersion = "4.20.0" + suffix
-
 // Please use dodo to build the dependencies for the scrooge develop branch.  If
 // you would like to instead do it manually, you need to publish util, and finagle locally:
 // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
-val utilVersion = "7.1.0" + suffix
-val finagleVersion = "7.1.0" + suffix
+
+// All Twitter library releases are date versioned as YY.MM.patch
+val releaseVersion = "0.0.0-SNAPSHOT"
 
 val libthriftVersion = "0.5.0-7"
 
-def util(which: String) = "com.twitter" %% ("util-"+which) % utilVersion
-def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % finagleVersion
+def util(which: String) = "com.twitter" %% ("util-"+which) % releaseVersion
+def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % releaseVersion
 
 val compileThrift = TaskKey[Seq[File]](
   "compile-thrift", "generate thrift needed for tests")
@@ -45,7 +41,7 @@ val adaptiveScroogeTestThriftSettings = Seq(
 )
 
 val sharedSettingsWithoutScalaVersion = Seq(
-  version := libVersion,
+  version := releaseVersion,
   organization := "com.twitter",
 
   resolvers ++= Seq(
