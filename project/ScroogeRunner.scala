@@ -58,7 +58,7 @@ object ScroogeRunner {
         s"java -cp ${cp.files.absString} com.twitter.scrooge.Main --verbose $finagleArg $adaptArg " +
           s" -d ${outputDir.getAbsolutePath} -l ${language.scroogeName} $namespace $args"
 
-      val result: Int = command ! out.log
+      val result: Int = scala.sys.process.Process(command) ! out.log
 
       if(result != 0) {
         out.log.error("Scrooge run failed. Tried to run:")

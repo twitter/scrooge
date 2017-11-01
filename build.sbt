@@ -1,4 +1,3 @@
-import bintray.Keys._
 import scoverage.ScoverageKeys
 
 // Please use dodo to build the dependencies for the scrooge develop branch.  If
@@ -97,7 +96,7 @@ val sharedSettingsWithoutScalaVersion = Seq(
   resourceGenerators in Compile += Def.task {
     val dir = (resourceManaged in Compile).value
     val file = dir / "com" / "twitter" / name.value / "build.properties"
-    val buildRev = Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
+    val buildRev = scala.sys.process.Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
     val buildName = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date)
     val contents = s"name=${name.value}\nversion=${version.value}\nbuild_revision=$buildRev\nbuild_name=$buildName"
     IO.write(file, contents)
@@ -170,6 +169,8 @@ lazy val publishedProjects = Seq[sbt.ProjectReference](
 lazy val scrooge = Project(
   id = "scrooge",
   base = file(".")
+).enablePlugins(
+  ScalaUnidocPlugin
 ).settings(
   sharedSettings
 ).aggregate(publishedProjects: _*)
@@ -288,20 +289,18 @@ lazy val scroogeAdaptive = Project(
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
+).enablePlugins(BuildInfoPlugin
 ).settings(
-  settingsWithTwoTen,
-  buildInfoSettings,
-  bintrayPublishSettings
+  settingsWithTwoTen
 ).settings(
   scalaVersion := "2.10.6",
-  sourceGenerators in Compile += buildInfo,
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
   publishMavenStyle := false,
-  repository in bintray := "sbt-plugins",
+  bintrayRepository := "sbt-plugins",
   licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
-  bintrayOrganization in bintray := Some("twittercsl")
+  bintrayOrganization := Some("twittercsl")
 ).dependsOn(scroogeGenerator)
 
 lazy val scroogeLinter = Project(

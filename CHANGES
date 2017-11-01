@@ -19,6 +19,9 @@ Unreleased
   configuration params, such as `TProtocolFactory`, `ResponseClassifier`, `maxReusableBufferSize`,
   and `StatsReceiver`, $FinagleService takes a `RichServerParam`. ``PHAB_ID=D83190``
 
+- scrooge-sbt-plugin: Renamed ScroogeSBT.thriftConfig to ScroogeSBT.ThriftConfig for
+  sbt 1.0.0.  ``PHAB_ID=D101910``
+
 4.20.0
 ------
 
