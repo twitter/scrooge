@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.thrift.*;
 import org.apache.thrift.async.*;
@@ -270,7 +268,6 @@ public class GoldService {
   }
 
   public static class Processor implements TProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(Iface iface)
     {
       iface_ = iface;
@@ -325,7 +322,6 @@ public class GoldService {
         } catch (OverCapacityException ex) {
           result.ex = ex;
         } catch (Throwable th) {
-          LOGGER.error("Internal error processing doGreatThings", th);
           TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing doGreatThings");
           oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.EXCEPTION, seqid));
           x.write(oprot);

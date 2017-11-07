@@ -5,6 +5,11 @@
 Unreleased
 ----------
 
+- scrooge-generator: (BREAKING API CHANGE) Change the java generator to no longer
+  generate files with `org.slf4j` imports and remove limited usage of `org.slf4j`
+  Logger in generated services. ``PHAB_ID=``
+
+
 17.10.0
 -------
 

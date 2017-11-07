@@ -328,7 +328,6 @@ public class {{name}} {
   }
 
   public static class Processor{{#extends_iface}} extends {{parent_name}}.Processor{{/extends_iface}} implements TProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(Iface iface)
     {
       {{#extends_iface}}
@@ -404,7 +403,6 @@ public class {{name}} {
         {{/exceptions}}
         {{#has_exceptions}}
         } catch (Throwable th) {
-          LOGGER.error("Internal error processing {{name}}", th);
           TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing {{name}}");
           oprot.writeMessageBegin(new TMessage("{{name}}", TMessageType.EXCEPTION, seqid));
           x.write(oprot);

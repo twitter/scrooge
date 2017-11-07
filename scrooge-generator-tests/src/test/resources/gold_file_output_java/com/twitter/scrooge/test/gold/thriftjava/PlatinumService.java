@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.thrift.*;
 import org.apache.thrift.async.*;
@@ -256,7 +254,6 @@ public class PlatinumService {
   }
 
   public static class Processor extends GoldService.Processor implements TProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(Iface iface)
     {
       super(iface);
@@ -309,7 +306,6 @@ public class PlatinumService {
         } catch (OverCapacityException oce) {
           result.oce = oce;
         } catch (Throwable th) {
-          LOGGER.error("Internal error processing moreCoolThings", th);
           TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing moreCoolThings");
           oprot.writeMessageBegin(new TMessage("moreCoolThings", TMessageType.EXCEPTION, seqid));
           x.write(oprot);
