@@ -291,9 +291,9 @@ lazy val scroogeSbtPlugin = Project(
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin
 ).settings(
-  settingsWithTwoTen
+  sharedSettingsWithoutScalaVersion
 ).settings(
-  scalaVersion := "2.10.6",
+  scalaVersion := "2.12.4",
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
