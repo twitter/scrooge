@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+17.11.0
+-------
+
 - scrooge-generator: Deprecated some scala generated classes and use new ones
     `FutureIface`         -> `MethodPerEndpoint`,
     `MethodIface`         -> `MethodPerEndpoint.apply()`,
