@@ -217,6 +217,39 @@ trait ServiceTemplate { self: TemplateGenerator =>
     genAdapt: Boolean
   ) = {
     val withFinagle = options.contains(WithFinagle)
+    lazy val computeInheritedFunctions: Service => (Seq[Dictionary], Seq[Dictionary]) = {
+      service => {
+        // For service-per-endpoint, we generate a class with a value for each method, so
+        // method names must be unique.
+        val deduper = new NameDeduplicator()
+        val inheritedFunctions: Seq[Dictionary] =
+        // Note: inherited functions must be deduped first, so we walk the parent chain
+        // from the topmost parent down (hence the reverse).
+          resolvedDoc
+            .resolveParentServices(service, namespaceLanguage, defaultNamespace)
+            .reverse
+            .flatMap { result: ResolvedService =>
+              result.service.functions.map { function =>
+                Dictionary(
+                  "ParentServiceName" -> genID(result.serviceID),
+                  "funcName" -> genID(function.funcName.toCamelCase),
+                  "dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
+                  "funcObjectName" -> genID(functionObjectName(function)),
+                  "withFuncName" -> genID(deduper.dedupe(function.funcName.toTitleCase))
+                )
+              }
+            }
+        val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
+          functionDictionary(function, Some("Future")) ++= (
+            "ParentServiceName" -> v("self"),
+            "dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
+            "withFuncName" -> genID(deduper.dedupe(function.funcName.toTitleCase))
+          )
+        }
+        (inheritedFunctions, ownFunctions)
+      }
+    }
+
     Dictionary(
       "function" -> v(templates("function")),
       "package" -> genID(namespace),
@@ -227,6 +260,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
       }),
       "parent" -> v(service.parent.map { p =>
         genQualifiedID(getServiceParentID(p), namespace)
+      }),
+      "methodPerEndpointParent" -> v(service.parent.map { p =>
+        genQualifiedID(getServiceParentID(p), namespace).append(".MethodPerEndpoint")
       }),
       "futureIfaceParent" -> v(service.parent.map { p =>
         genQualifiedID(getServiceParentID(p), namespace).append(".FutureIface")
@@ -287,47 +323,15 @@ trait ServiceTemplate { self: TemplateGenerator =>
       },
       "withFinagle" -> v(withFinagle),
       "inheritedFunctions" -> {
-        // For service-per-endpoint, we generate a class with a value for each method, so
-        // method names must be unique.
-        val deduper = new NameDeduplicator()
-        val inheritedFunctions: Seq[Dictionary] =
-          // Note: inherited functions must be deduped first, so we walk the parent chain
-          // from the topmost parent down (hence the reverse).
-          resolvedDoc
-            .resolveParentServices(service, namespaceLanguage, defaultNamespace)
-            .reverse
-            .flatMap { result: ResolvedService =>
-              result.service.functions.map { function =>
-                Dictionary(
-                  "ParentServiceName" -> genID(result.serviceID),
-                  "funcName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
-                  "funcObjectName" -> genID(functionObjectName(function))
-                )
-              }
-            }
-        val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
-          Dictionary(
-            "ParentServiceName" -> v("self"),
-            "funcName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
-            "funcObjectName" -> genID(functionObjectName(function))
-          )
-        }
-        v(ownFunctions ++ inheritedFunctions)
+        val (inheritedParentFunctions, ownFunctions) = computeInheritedFunctions(service)
+        v(ownFunctions ++ inheritedParentFunctions)
       },
-      "dedupedOwnFunctions" -> {
-        val deduper = new NameDeduplicator()
-        // We only generate own functions, but need to dedupe them from the inherited functions,
-        // so fill those in first.
-        resolvedDoc.collectParentServices(service).foreach {
-          case (_, service) =>
-            service.functions.foreach { function =>
-              deduper.dedupe(function.funcName.toCamelCase)
-            }
-        }
-        val ownFunctions: Seq[Dictionary] = service.functions.map { function =>
-          functionDictionary(function, Some("Future")) ++=
-            ("dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)))
-        }
+      "inheritedParentFunctions" -> {
+        val (inheritedParentFunctions, _) = computeInheritedFunctions(service)
+        v(inheritedParentFunctions)
+      },
+      "ownFunctions" -> {
+        val (_, ownFunctions) = computeInheritedFunctions(service)
         v(ownFunctions)
       },
       "annotations" -> TemplateGenerator.renderPairs(service.annotations)

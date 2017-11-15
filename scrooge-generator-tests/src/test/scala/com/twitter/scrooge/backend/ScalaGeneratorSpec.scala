@@ -1260,5 +1260,27 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
       Await.result(dddService.getInt(Bbb.GetInt.Args()), 5.seconds) must be(5)
     }
+
+    "generate inherited services with ServicePerEndpoint correctly" in { _ =>
+      val dddService = Ddd.ServicePerEndpoint(
+        delete = new Service[Ddd.Delete.Args, Ddd.Delete.SuccessType] {
+          def apply(args: Ddd.Delete.Args) = Future.value(args.input)
+        },
+        iiii = new Service[CccExtended.Iiii.Args, CccExtended.Iiii.SuccessType] {
+          def apply(args: CccExtended.Iiii.Args) = Future.value(345)
+        },
+        setInt = new Service[Ccc.SetInt.Args, Ccc.SetInt.SuccessType] {
+          def apply(args: Ccc.SetInt.Args) = Future.value(args.input)
+        },
+        getInt = new Service[Bbb.GetInt.Args, Bbb.GetInt.SuccessType] {
+          def apply(args: Bbb.GetInt.Args) = Future.value(5)
+        },
+        getBox = new Service[Aaa.GetBox.Args, Aaa.GetBox.SuccessType] {
+          def apply(args: Aaa.GetBox.Args) = Future.value(Box(4, 6))
+        }
+      )
+
+      Await.result(dddService.getInt(Bbb.GetInt.Args()), 5.seconds) must be(5)
+    }
   }
 }

@@ -62,17 +62,74 @@ object {{ServiceName}} { self =>
 
 {{#withFinagle}}
 {{#generateServiceIface}}
+  trait ServicePerEndpoint
+    extends {{#parent}}{{parent}}.ServicePerEndpoint{{/parent}}{{^parent}}ToThriftService{{/parent}}
+    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServicePerEndpoint] {
+{{#ownFunctions}}
+    def {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
+{{/ownFunctions}}
+
+{{#ownFunctions}}
+    def with{{withFuncName}}({{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]): ServicePerEndpoint = this
+
+{{/ownFunctions}}
+{{#inheritedParentFunctions}}
+    {{#parent}}override {{/parent}}def with{{withFuncName}}({{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]): ServicePerEndpoint = this
+
+{{/inheritedParentFunctions}}
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServicePerEndpoint` now including the filter.
+     */
+    {{#parent}}override {{/parent}}def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
+
+    {{#parent}}override {{/parent}}def toThriftService: ThriftService = MethodPerEndpoint(this)
+  }
+
+  object ServicePerEndpoint {
+
+    private final class ServicePerEndpointImpl(
+{{#inheritedFunctions}}
+      override val {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+{{/inheritedFunctions|,}}
+    ) extends ServicePerEndpoint {
+
+{{#inheritedFunctions}}
+      override def with{{withFuncName}}(
+        {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+      ): ServicePerEndpoint =
+        new ServicePerEndpointImpl({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
+
+{{/inheritedFunctions}}
+      override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
+        new ServicePerEndpointImpl(
+{{#inheritedFunctions}}
+          {{dedupedFuncName}} = filter.toFilter.andThen({{dedupedFuncName}})
+{{/inheritedFunctions|,}}
+        )
+    }
+
+    def apply(
+{{#inheritedFunctions}}
+      {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+{{/inheritedFunctions|,}}
+    ): ServicePerEndpoint = new ServicePerEndpointImpl({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
+
+  }
+
+  @deprecated("Use ServicePerEndpoint", "2017-11-07")
   trait BaseServiceIface extends {{#parent}}{{parent}}.BaseServiceIface{{/parent}}{{^parent}}ToThriftService{{/parent}} {
-{{#dedupedOwnFunctions}}
+{{#ownFunctions}}
     def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
-{{/dedupedOwnFunctions}}
+{{/ownFunctions}}
 
     {{#parent}}override {{/parent}}def toThriftService: ThriftService = new MethodIface(this)
   }
 
+  @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
 {{#inheritedFunctions}}
-      {{funcName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+    {{dedupedFuncName}} : com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.BaseServiceIface
     with {{/parent}}BaseServiceIface
@@ -85,11 +142,25 @@ object {{ServiceName}} { self =>
     def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ServiceIface =
       copy(
 {{#inheritedFunctions}}
-        {{funcName}} = filter.toFilter.andThen({{funcName}})
+        {{dedupedFuncName}} = filter.toFilter.andThen({{dedupedFuncName}})
 {{/inheritedFunctions|,}}
       )
   }
 
+  implicit object ServicePerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ServicePerEndpointBuilder[ServicePerEndpoint] {
+      def servicePerEndpoint(
+        thriftService: _root_.com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+        clientParam: RichClientParam
+      ): ServicePerEndpoint =
+        ServicePerEndpoint(
+{{#inheritedFunctions}}
+          {{dedupedFuncName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, thriftService, clientParam)
+{{/inheritedFunctions|,}}
+        )
+  }
+
+  @deprecated("Use ServicePerEndpointBuilder", "2017-11-07")
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
       def newServiceIface(
@@ -98,20 +169,28 @@ object {{ServiceName}} { self =>
       ): ServiceIface =
         ServiceIface(
 {{#inheritedFunctions}}
-          {{funcName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, clientParam)
+          {{dedupedFuncName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, clientParam)
 {{/inheritedFunctions|,}}
         )
   }
 
+  @deprecated("Use MethodPerEndpoint", "2017-11-07")
   class MethodIface(serviceIface: BaseServiceIface)
     extends {{#parent}}{{parent}}.MethodIface(serviceIface)
     with {{/parent}}FutureIface {
-{{#dedupedOwnFunctions}}
+{{#ownFunctions}}
     def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
       serviceIface.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
-{{/dedupedOwnFunctions}}
+{{/ownFunctions}}
   }
 
+  implicit object MethodPerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, {{ServiceName}}[Future]] {
+    def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
+      MethodPerEndpoint(servicePerEndpoint)
+  }
+
+  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
   implicit object MethodIfaceBuilder
     extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
     def newMethodIface(serviceIface: ServiceIface): MethodIface =
@@ -197,6 +276,36 @@ object {{ServiceName}} { self =>
 {{/thriftFunctions}}
 
 {{#withFinagle}}
+  trait MethodPerEndpoint
+    extends {{#methodPerEndpointParent}}{{methodPerEndpointParent}}
+    with {{/methodPerEndpointParent}}{{ServiceName}}[Future] {
+{{#asyncFunctions}}
+    {{>function}}
+{{/asyncFunctions}}
+  }
+{{#generateServiceIface}}
+
+  object MethodPerEndpoint {
+
+    def apply(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint = {
+      new MethodPerEndpointImpl(servicePerEndpoint) {}
+    }
+
+    /**
+     * Use `MethodPerEndpoint.apply()` instead of this constructor.
+     */
+    class MethodPerEndpointImpl protected (servicePerEndpoint: ServicePerEndpoint)
+      extends {{#methodPerEndpointParent}}{{methodPerEndpointParent}}.MethodPerEndpointImpl(servicePerEndpoint)
+      with {{/methodPerEndpointParent}}MethodPerEndpoint {
+{{#ownFunctions}}
+        def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
+          servicePerEndpoint.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+{{/ownFunctions}}
+    }
+  }
+{{/generateServiceIface}}
+
+  @deprecated("Use MethodPerEndpoint", "2017-11-07")
   trait FutureIface
     extends {{#futureIfaceParent}}{{futureIfaceParent}}
     with {{/futureIfaceParent}}{{ServiceName}}[Future] {
@@ -209,7 +318,8 @@ object {{ServiceName}} { self =>
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       clientParam: RichClientParam)
     extends {{ServiceName}}$FinagleClient(service, clientParam)
-    with FutureIface {
+    with FutureIface
+    with MethodPerEndpoint {
 
     @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
     def this(
@@ -258,3 +368,4 @@ object {{ServiceName}} { self =>
   }
 {{/withFinagle}}
 }
+

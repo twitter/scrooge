@@ -54,15 +54,66 @@ object PlatinumService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map.empty
 
+  trait ServicePerEndpoint
+    extends com.twitter.scrooge.test.gold.thriftscala.GoldService.ServicePerEndpoint
+    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServicePerEndpoint] {
+    def moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]
+
+    def withMoreCoolThings(moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]): ServicePerEndpoint = this
+
+    override def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]): ServicePerEndpoint = this
+
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServicePerEndpoint` now including the filter.
+     */
+    override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
+
+    override def toThriftService: ThriftService = MethodPerEndpoint(this)
+  }
+
+  object ServicePerEndpoint {
+
+    private final class ServicePerEndpointImpl(
+      override val moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
+      override val doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
+    ) extends ServicePerEndpoint {
+
+      override def withMoreCoolThings(
+        moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]
+      ): ServicePerEndpoint =
+        new ServicePerEndpointImpl(moreCoolThings, doGreatThings)
+
+      override def withDoGreatThings(
+        doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
+      ): ServicePerEndpoint =
+        new ServicePerEndpointImpl(moreCoolThings, doGreatThings)
+
+      override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
+        new ServicePerEndpointImpl(
+          moreCoolThings = filter.toFilter.andThen(moreCoolThings),
+          doGreatThings = filter.toFilter.andThen(doGreatThings)
+        )
+    }
+
+    def apply(
+      moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
+      doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
+    ): ServicePerEndpoint = new ServicePerEndpointImpl(moreCoolThings, doGreatThings)
+
+  }
+
+  @deprecated("Use ServicePerEndpoint", "2017-11-07")
   trait BaseServiceIface extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface {
     def moreCoolThings : com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]
 
     override def toThriftService: ThriftService = new MethodIface(this)
   }
 
+  @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
-      moreCoolThings : com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
-      doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
+    moreCoolThings : com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
+    doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
   ) extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface
     with BaseServiceIface
     with com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
@@ -78,6 +129,19 @@ object PlatinumService { self =>
       )
   }
 
+  implicit object ServicePerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ServicePerEndpointBuilder[ServicePerEndpoint] {
+      def servicePerEndpoint(
+        thriftService: _root_.com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+        clientParam: RichClientParam
+      ): ServicePerEndpoint =
+        ServicePerEndpoint(
+          moreCoolThings = ThriftServiceIface(self.MoreCoolThings, thriftService, clientParam),
+          doGreatThings = ThriftServiceIface(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, thriftService, clientParam)
+        )
+  }
+
+  @deprecated("Use ServicePerEndpointBuilder", "2017-11-07")
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
       def newServiceIface(
@@ -90,6 +154,7 @@ object PlatinumService { self =>
         )
   }
 
+  @deprecated("Use MethodPerEndpoint", "2017-11-07")
   class MethodIface(serviceIface: BaseServiceIface)
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodIface(serviceIface)
     with FutureIface {
@@ -97,6 +162,13 @@ object PlatinumService { self =>
       serviceIface.moreCoolThings(self.MoreCoolThings.Args(request))
   }
 
+  implicit object MethodPerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, PlatinumService[Future]] {
+    def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
+      MethodPerEndpoint(servicePerEndpoint)
+  }
+
+  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
   implicit object MethodIfaceBuilder
     extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, PlatinumService[Future]] {
     def newMethodIface(serviceIface: ServiceIface): MethodIface =
@@ -645,6 +717,31 @@ object PlatinumService { self =>
   type moreCoolThings$result = MoreCoolThings.Result
 
 
+  trait MethodPerEndpoint
+    extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodPerEndpoint
+    with PlatinumService[Future] {
+
+    def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int]
+  }
+
+  object MethodPerEndpoint {
+
+    def apply(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint = {
+      new MethodPerEndpointImpl(servicePerEndpoint) {}
+    }
+
+    /**
+     * Use `MethodPerEndpoint.apply()` instead of this constructor.
+     */
+    class MethodPerEndpointImpl protected (servicePerEndpoint: ServicePerEndpoint)
+      extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodPerEndpoint.MethodPerEndpointImpl(servicePerEndpoint)
+      with MethodPerEndpoint {
+        def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] =
+          servicePerEndpoint.moreCoolThings(self.MoreCoolThings.Args(request))
+    }
+  }
+
+  @deprecated("Use MethodPerEndpoint", "2017-11-07")
   trait FutureIface
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.FutureIface
     with PlatinumService[Future] {
@@ -656,7 +753,8 @@ object PlatinumService { self =>
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       clientParam: RichClientParam)
     extends PlatinumService$FinagleClient(service, clientParam)
-    with FutureIface {
+    with FutureIface
+    with MethodPerEndpoint {
 
     @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
     def this(

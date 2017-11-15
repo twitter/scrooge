@@ -5,6 +5,17 @@
 Unreleased
 ----------
 
+- scrooge-generator: Deprecated some scala generated classes and use new ones
+    `FutureIface`         -> `MethodPerEndpoint`,
+    `MethodIface`         -> `MethodPerEndpoint.apply()`,
+    `MethodIfaceBuilder`  -> `MethodPerEndpointBuilder`,
+    `BaseServiceIface`    -> `ServicePerEndpoint`,
+    `ServiceIface`        -> `ServicePerEndpoint`,
+    `ServiceIfaceBuilder` -> `ServicePerEndpointBuilder`.
+  To construct a client use `c.t.f.ThriftRichClient.servicePerEndpoint` instead of
+  `newServiceIface`, to convert `ServicePerEndpoint` to `MethodPerEndpoint` use
+  `c.t.f.ThriftRichClient.methodPerEndpoint` instead of `newMethodIface`. ``PHAB_ID=D105791``
+
 - scrooge-generator: (BREAKING API CHANGE) Change the java generator to no longer
   generate files with `org.slf4j` imports and remove limited usage of `org.slf4j`
   Logger in generated services. ``PHAB_ID=D108113``

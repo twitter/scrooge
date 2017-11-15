@@ -18,3 +18,9 @@ service BarService {
 
   void setDuck(1: i64 key, 2: string value)
 }
+
+service ExtendedBarService extends BarService {
+  string triple(1: string z) throws (
+    1: InvalidQueryException eeex
+  )
+}

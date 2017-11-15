@@ -20,7 +20,7 @@ import scala.language.reflectiveCalls
 import _root_.thrift.test.ExceptionalService._
 import _root_.thrift.test._
 
-class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
+class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
     "generate a service interface" in { _ =>
       val service: SimpleService[Some] = new SimpleService[Some] {
@@ -31,7 +31,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
     }
 
     "generate a future-based service interface" in { _ =>
-      val service: SimpleService.MethodPerEndpoint = new SimpleService.MethodPerEndpoint {
+      val service: SimpleService.FutureIface = new SimpleService.FutureIface {
         def deliver(where: String) = Future(3)
       }
 
@@ -39,7 +39,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
     }
 
     "generate correct defaults" in { _ =>
-      val service = new Defaults.MethodPerEndpoint {
+      val service = new Defaults.FutureIface {
         def defaultParams(
           arg1: Int,
           arg2: Option[Int],
@@ -261,7 +261,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
       val impl = context.mock(classOf[ExceptionalService[Future]])
-      val service = new ExceptionalService$FinagleService(impl, RichServerParam())
+      val service = new ExceptionalService$FinagleService(impl, new TBinaryProtocol.Factory)
 
       "success" in { _ =>
         val request = encodeRequest("deliver", ExceptionalService.Deliver.Args("Boston")).message
@@ -294,12 +294,12 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
       val impl = context.mock(classOf[ExceptionalService[Future]])
-      val service = new ExceptionalService$FinagleService(impl, RichServerParam())
+      val service = new ExceptionalService$FinagleService(impl, new TBinaryProtocol.Factory)
       val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
         def apply(req: ThriftClientRequest) = service(req.message)
       }
       val client =
-        new ExceptionalService$FinagleClient(clientService, RichClientParam(serviceName = "ExceptionalService"))
+        new ExceptionalService$FinagleClient(clientService, serviceName = "ExceptionalService")
 
       "set service name" in { _ =>
         client.serviceName must be("ExceptionalService")
@@ -379,13 +379,13 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       "future-based" in { _ =>
-        class FutureImpl extends ReadWriteService.MethodPerEndpoint {
+        class FutureImpl extends ReadWriteService.FutureIface {
           def getName() = Future("Rus")
           def setName(name: String) = Future.Unit
         }
 
-        new FutureImpl().isInstanceOf[ReadOnlyService.MethodPerEndpoint] must be(true)
-        new FutureImpl().isInstanceOf[ReadWriteService.MethodPerEndpoint] must be(true)
+        new FutureImpl().isInstanceOf[ReadOnlyService.FutureIface] must be(true)
+        new FutureImpl().isInstanceOf[ReadWriteService.FutureIface] must be(true)
       }
 
       "finagle" in { _ =>
@@ -417,8 +417,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           }
         )
 
-        val simpleService: SimpleService.ServicePerEndpoint =
-          Thrift.client.servicePerEndpoint[SimpleService.ServicePerEndpoint](
+        val simpleService: SimpleService.ServiceIface =
+          Thrift.client.newServiceIface[SimpleService.ServiceIface](
             Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
             "simple"
           )
@@ -443,7 +443,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           }
         )
 
-        val readOnlyClientService = Thrift.client.servicePerEndpoint[ReadOnlyService.ServicePerEndpoint](
+        val readOnlyClientService = Thrift.client.newServiceIface[ReadOnlyService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "read-only"
         )
@@ -451,7 +451,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           "Initial name"
         )
 
-        val readWriteClientService = Thrift.client.servicePerEndpoint[ReadWriteService.ServicePerEndpoint](
+        val readWriteClientService = Thrift.client.newServiceIface[ReadWriteService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "read-write"
         )
@@ -490,7 +490,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "work with exceptions" in { _ =>
         val server = serveExceptionalService()
 
-        val clientService = Thrift.client.servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
+        val clientService = Thrift.client.newServiceIface[ExceptionalService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
@@ -503,17 +503,16 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       "work with filters on args" in { _ =>
-        import ExceptionalService._
+        import SimpleService._
         val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new ExceptionalService[Future] {
+          new SimpleService[Future] {
             def deliver(input: String) = Future.value(input.length)
-            def remove(id: Int): Future[Unit] = Future.Done
           }
         )
 
-        val exceptionalServiceIface: ExceptionalService.ServicePerEndpoint =
-          Thrift.client.servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
+        val simpleServiceIface: SimpleService.ServiceIface =
+          Thrift.client.newServiceIface[SimpleService.ServiceIface](
             Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
             "simple"
           )
@@ -524,8 +523,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         }
 
         val filteredServiceIface =
-          exceptionalServiceIface.withDeliver(deliver = doubleFilter.andThen(exceptionalServiceIface.deliver))
-        val methodIface = Thrift.client.methodPerEndpoint(filteredServiceIface)
+          simpleServiceIface.copy(deliver = doubleFilter andThen simpleServiceIface.deliver)
+        val methodIface = Thrift.client.newMethodIface(filteredServiceIface)
         Await.result(methodIface.deliver("123")) must be(6)
 
         Await.result(server.close(), 2.seconds)
@@ -536,7 +535,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import com.twitter.util.{JavaTimer, Throw, Try}
 
         val service = serveExceptionalService()
-        val clientService = Thrift.client.servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
+        val clientService = Thrift.client.newServiceIface[ExceptionalService.ServiceIface](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
@@ -557,12 +556,12 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       "work with a newMethodIface" in { _ =>
         val service = serveExceptionalService()
-        val clientService = Thrift.client.servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
+        val clientService = Thrift.client.newServiceIface[ExceptionalService.ServiceIface](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
 
-        val futureIface = Thrift.client.methodPerEndpoint(clientService)
+        val futureIface = Thrift.client.newMethodIface(clientService)
 
         intercept[EmptyXception] {
           Await.result(futureIface.deliver(""))
@@ -583,11 +582,11 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           }
         )
 
-        val client = Thrift.client.servicePerEndpoint[CamelCaseSnakeCaseService.ServicePerEndpoint](
+        val client = Thrift.client.newServiceIface[CamelCaseSnakeCaseService.ServiceIface](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
-        val richClient = Thrift.client.methodPerEndpoint(client)
+        val richClient = Thrift.client.newMethodIface(client)
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
         Await.result(richClient.bazQux("baz")) mustBe "baz"
@@ -601,9 +600,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val clientService = Thrift.client
           .configured(Stats(statsReceiver))
           .newServiceIface[ExceptionalService.ServiceIface](
-            Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
-            "customServiceName"
-          )
+          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
+          "customServiceName"
+        )
 
         val futureIface = Thrift.client.newMethodIface(clientService)
 
@@ -720,9 +719,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val clientService = Thrift.client
           .configured(Stats(statsReceiver))
           .newServiceIface[ExceptionalService.ServiceIface](
-            Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
-            "client"
-          )
+          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
+          "client"
+        )
 
         val futureIface = Thrift.client.newMethodIface(clientService)
 
@@ -745,7 +744,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
       val impl = context.mock(classOf[_root_.thrift.test.Service[Future]])
-      val service = new _root_.thrift.test.Service$FinagleService(impl, RichServerParam())
+      val service = new _root_.thrift.test.Service$FinagleService(impl, new TBinaryProtocol.Factory)
 
       "allow generation and calls to eponymous FinagledService" in { _ =>
         context.checking(new Expectations {
@@ -765,7 +764,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           def apply(req: ThriftClientRequest) = service(req.message)
         }
 
-        val client = new _root_.thrift.test.Service$FinagleClient(clientService, RichClientParam(serviceName = "Service"))
+        val client = new _root_.thrift.test.Service$FinagleClient(clientService, serviceName = "Service")
 
         context.checking(new Expectations {
           one(impl).test(); will(returnValue(Future.Done))
