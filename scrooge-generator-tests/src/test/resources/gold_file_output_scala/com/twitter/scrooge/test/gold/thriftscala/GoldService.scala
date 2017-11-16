@@ -69,10 +69,45 @@ object GoldService { self =>
      */
     def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
 
+    /**
+     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * @see _root_.com.twitter.scrooge.ToThriftService
+     */
     def toThriftService: ThriftService = MethodPerEndpoint(this)
   }
 
+  trait ReqRepServicePerEndpoint
+    extends ToThriftService
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ReqRepServicePerEndpoint] {
+    def doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+
+    def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]): ReqRepServicePerEndpoint = this
+
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServicePerEndpoint` now including the filter.
+     */
+    def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
+
+    /**
+     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * @see _root_.com.twitter.scrooge.ToThriftService
+     */
+    def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+  }
+
+  @deprecated("Use ServicePerEndpoint", "2017-11-07")
+  trait BaseServiceIface extends ToThriftService {
+    def doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+
+    def toThriftService: ThriftService = new MethodIface(this)
+  }
+
   object ServicePerEndpoint {
+
+    def apply(
+      doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+    ): ServicePerEndpoint = new ServicePerEndpointImpl(doGreatThings)
 
     private final class ServicePerEndpointImpl(
       override val doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
@@ -88,18 +123,29 @@ object GoldService { self =>
           doGreatThings = filter.toFilter.andThen(doGreatThings)
         )
     }
-
-    def apply(
-      doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
-    ): ServicePerEndpoint = new ServicePerEndpointImpl(doGreatThings)
-
   }
 
-  @deprecated("Use ServicePerEndpoint", "2017-11-07")
-  trait BaseServiceIface extends ToThriftService {
-    def doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+  object ReqRepServicePerEndpoint {
 
-    def toThriftService: ThriftService = new MethodIface(this)
+    def apply(
+      doGreatThings :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+    ): ReqRepServicePerEndpoint =
+      new ReqRepServicePerEndpointImpl(doGreatThings)
+
+    private final class ReqRepServicePerEndpointImpl(
+      override val doGreatThings : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+    ) extends ReqRepServicePerEndpoint {
+
+      override def withDoGreatThings(
+        doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+      ): ReqRepServicePerEndpoint =
+        new ReqRepServicePerEndpointImpl(doGreatThings)
+
+      override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
+        new ReqRepServicePerEndpointImpl(
+          doGreatThings = filter.toFilter.andThen(doGreatThings)
+        )
+    }
   }
 
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
@@ -129,6 +175,17 @@ object GoldService { self =>
         )
   }
 
+  implicit object ReqRepServicePerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ReqRepServicePerEndpointBuilder[ReqRepServicePerEndpoint] {
+      def servicePerEndpoint(
+        thriftService: _root_.com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+        clientParam: RichClientParam
+      ): ReqRepServicePerEndpoint =
+        ReqRepServicePerEndpoint(
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(self.DoGreatThings, thriftService, clientParam)
+        )
+  }
+
   @deprecated("Use ServicePerEndpointBuilder", "2017-11-07")
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
@@ -139,26 +196,6 @@ object GoldService { self =>
         ServiceIface(
           doGreatThings = ThriftServiceIface(self.DoGreatThings, binaryService, clientParam)
         )
-  }
-
-  @deprecated("Use MethodPerEndpoint", "2017-11-07")
-  class MethodIface(serviceIface: BaseServiceIface)
-    extends FutureIface {
-    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
-      serviceIface.doGreatThings(self.DoGreatThings.Args(request))
-  }
-
-  implicit object MethodPerEndpointBuilder
-    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, GoldService[Future]] {
-    def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
-      MethodPerEndpoint(servicePerEndpoint)
-  }
-
-  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
-  implicit object MethodIfaceBuilder
-    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, GoldService[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): MethodIface =
-      new MethodIface(serviceIface)
   }
 
   object DoGreatThings extends com.twitter.scrooge.ThriftMethod {
@@ -665,6 +702,51 @@ object GoldService { self =>
         def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
           servicePerEndpoint.doGreatThings(self.DoGreatThings.Args(request))
     }
+  }
+
+  object ReqRepMethodPerEndpoint {
+
+    def apply(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
+      new ReqRepMethodPerEndpointImpl(servicePerEndpoint) { }
+
+    /**
+     * Use `ReqRepMethodPerEndpoint.apply()` instead of this constructor.
+     */
+    class ReqRepMethodPerEndpointImpl protected (servicePerEndpoint: ReqRepServicePerEndpoint)
+      extends MethodPerEndpoint {
+
+        def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.empty)
+          val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.DoGreatThings.Args(request))
+          servicePerEndpoint.doGreatThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
+        }
+    }
+  }
+
+  @deprecated("Use MethodPerEndpoint", "2017-11-07")
+  class MethodIface(serviceIface: BaseServiceIface)
+    extends FutureIface {
+    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+      serviceIface.doGreatThings(self.DoGreatThings.Args(request))
+  }
+
+  implicit object MethodPerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, GoldService[Future]] {
+    def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
+      MethodPerEndpoint(servicePerEndpoint)
+  }
+
+  implicit object ReqRepMethodPerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, GoldService[Future]] {
+    def methodPerEndpoint(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
+      ReqRepMethodPerEndpoint(servicePerEndpoint)
+  }
+
+  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
+  implicit object MethodIfaceBuilder
+    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, GoldService[Future]] {
+    def newMethodIface(serviceIface: ServiceIface): MethodIface =
+      new MethodIface(serviceIface)
   }
 
   @deprecated("Use MethodPerEndpoint", "2017-11-07")

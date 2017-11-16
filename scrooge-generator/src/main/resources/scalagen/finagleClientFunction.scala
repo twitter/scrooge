@@ -25,7 +25,9 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
   val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[{{typeName}}](inputArgs, {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer)
   _root_.com.twitter.finagle.context.Contexts.local.let(
     _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
-    serdeCtx
+    serdeCtx,
+    _root_.com.twitter.finagle.thrift.Headers.Request.Key,
+    _root_.com.twitter.finagle.thrift.Headers.Request.empty
   ) {
     val serialized = encodeRequest("{{clientFuncNameForWire}}", inputArgs)
     this.service(serialized).flatMap { response =>

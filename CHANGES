@@ -5,6 +5,53 @@
 Unreleased
 ----------
 
+- scrooge: Introduce `scrooge.Request` and `scrooge.Response` envelopes which
+  are used in `ReqRepServicePerEndpoint` interfaces and associated code. The
+  scrooge `Request` and `Response` allow for passing "header" information (via
+  ThriftMux Message contexts) between clients and servers. For instance, a
+  server can implement a `ReqRepServicePerEndpoint`, and set response headers
+  along with a method response, e.g.,
+
+  ```
+  class MyService extends MyService.ReqRepServicePerEndpoint {
+
+    def foo: Service[Request[Foo.Args], Response[Foo.SuccessType]] = {
+      Service.mk[Request[Foo.Args], Response[Foo.SuccessType]] { request: Request[Foo.Args] =>
+        val result = ... // computations
+        Future
+          .value(
+            Response(
+              headers = Map("myservice.foo.header" -> Seq(Buf.Utf8("value1"))),
+              result)
+      }
+    }
+  }
+  ```
+
+  This `ServicePerEndpoint` can then be served using `ThriftMux`:
+
+  ```
+  ThriftMux.server.serveIface(":9999", new MyService().toThriftService)
+  ```
+
+  These response headers will be transported as `Mux#contexts` to the client. If
+  the client is using the client-side `ReqRepServicePerEndpoint` it will be able
+  to read the headers from the returned `Response` directly. E.g.,
+
+  ```
+  val client = ThriftMux.client.reqRepServicePerEndpoint[MyService.ReqRepServicePerEndpoint]
+
+  val response: Response[Foo.SuccessType] = Await.result(client.foo(..))
+
+  if (response.headers.contains("myservice.foo.header")) {
+    ...
+  ```
+
+  Users can also choose to wrap the `ReqRepServicePerEndpoint` with a `MethodPerEndpoint`
+  via `ThriftMux.client.reqRepMethodPerEndpoint(reqRepServicePerEndpoint)` in order to
+  deal with methods instead of services. See the scrooge documentation for more information.
+  ``PHAB_ID=D107397``
+
 17.11.0
 -------
 

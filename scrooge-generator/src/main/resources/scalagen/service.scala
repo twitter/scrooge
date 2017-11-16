@@ -83,10 +83,57 @@ object {{ServiceName}} { self =>
      */
     {{#parent}}override {{/parent}}def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
 
+    /**
+     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * @see _root_.com.twitter.scrooge.ToThriftService
+     */
     {{#parent}}override {{/parent}}def toThriftService: ThriftService = MethodPerEndpoint(this)
   }
 
+  trait ReqRepServicePerEndpoint
+    extends {{#parent}}{{parent}}.ReqRepServicePerEndpoint{{/parent}}{{^parent}}ToThriftService{{/parent}}
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ReqRepServicePerEndpoint] {
+{{#ownFunctions}}
+    def {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.{{funcObjectName}}.Args], _root_.com.twitter.scrooge.Response[self.{{funcObjectName}}.SuccessType]]
+{{/ownFunctions}}
+
+{{#ownFunctions}}
+    def with{{withFuncName}}({{dedupedFuncName}} : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[{{ParentServiceName}}.{{funcObjectName}}.Args], _root_.com.twitter.scrooge.Response[{{ParentServiceName}}.{{funcObjectName}}.SuccessType]]): ReqRepServicePerEndpoint = this
+
+{{/ownFunctions}}
+{{#inheritedParentFunctions}}
+    {{#parent}}override {{/parent}}def with{{withFuncName}}({{dedupedFuncName}} : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[{{ParentServiceName}}.{{funcObjectName}}.Args], _root_.com.twitter.scrooge.Response[{{ParentServiceName}}.{{funcObjectName}}.SuccessType]]): ReqRepServicePerEndpoint = this
+
+{{/inheritedParentFunctions}}
+    /**
+     * Prepends the given type-agnostic `Filter` to all of the `Services`
+     * and returns a copy of the `ServicePerEndpoint` now including the filter.
+     */
+    {{#parent}}override {{/parent}}def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
+
+    /**
+     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * @see _root_.com.twitter.scrooge.ToThriftService
+     */
+    {{#parent}}override {{/parent}}def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+  }
+
+  @deprecated("Use ServicePerEndpoint", "2017-11-07")
+  trait BaseServiceIface extends {{#parent}}{{parent}}.BaseServiceIface{{/parent}}{{^parent}}ToThriftService{{/parent}} {
+{{#ownFunctions}}
+    def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
+{{/ownFunctions}}
+
+    {{#parent}}override {{/parent}}def toThriftService: ThriftService = new MethodIface(this)
+  }
+
   object ServicePerEndpoint {
+
+    def apply(
+{{#inheritedFunctions}}
+      {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+{{/inheritedFunctions|,}}
+    ): ServicePerEndpoint = new ServicePerEndpointImpl({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
 
     private final class ServicePerEndpointImpl(
 {{#inheritedFunctions}}
@@ -108,22 +155,37 @@ object {{ServiceName}} { self =>
 {{/inheritedFunctions|,}}
         )
     }
+  }
+
+  object ReqRepServicePerEndpoint {
 
     def apply(
 {{#inheritedFunctions}}
-      {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[{{ParentServiceName}}.{{funcObjectName}}.Args, {{ParentServiceName}}.{{funcObjectName}}.SuccessType]
+      {{dedupedFuncName}} :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[{{ParentServiceName}}.{{funcObjectName}}.Args], _root_.com.twitter.scrooge.Response[{{ParentServiceName}}.{{funcObjectName}}.SuccessType]]
 {{/inheritedFunctions|,}}
-    ): ServicePerEndpoint = new ServicePerEndpointImpl({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
+    ): ReqRepServicePerEndpoint =
+      new ReqRepServicePerEndpointImpl({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
 
-  }
+    private final class ReqRepServicePerEndpointImpl(
+{{#inheritedFunctions}}
+      override val {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[{{ParentServiceName}}.{{funcObjectName}}.Args], _root_.com.twitter.scrooge.Response[{{ParentServiceName}}.{{funcObjectName}}.SuccessType]]
+{{/inheritedFunctions|,}}
+    ) extends ReqRepServicePerEndpoint {
 
-  @deprecated("Use ServicePerEndpoint", "2017-11-07")
-  trait BaseServiceIface extends {{#parent}}{{parent}}.BaseServiceIface{{/parent}}{{^parent}}ToThriftService{{/parent}} {
-{{#ownFunctions}}
-    def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
-{{/ownFunctions}}
+{{#inheritedFunctions}}
+      override def with{{withFuncName}}(
+        {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[{{ParentServiceName}}.{{funcObjectName}}.Args], _root_.com.twitter.scrooge.Response[{{ParentServiceName}}.{{funcObjectName}}.SuccessType]]
+      ): ReqRepServicePerEndpoint =
+        new ReqRepServicePerEndpointImpl({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
+{{/inheritedFunctions}}
 
-    {{#parent}}override {{/parent}}def toThriftService: ThriftService = new MethodIface(this)
+      override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
+        new ReqRepServicePerEndpointImpl(
+{{#inheritedFunctions}}
+          {{dedupedFuncName}} = filter.toFilter.andThen({{dedupedFuncName}})
+{{/inheritedFunctions|,}}
+        )
+    }
   }
 
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
@@ -160,6 +222,19 @@ object {{ServiceName}} { self =>
         )
   }
 
+  implicit object ReqRepServicePerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ReqRepServicePerEndpointBuilder[ReqRepServicePerEndpoint] {
+      def servicePerEndpoint(
+        thriftService: _root_.com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
+        clientParam: RichClientParam
+      ): ReqRepServicePerEndpoint =
+        ReqRepServicePerEndpoint(
+{{#inheritedFunctions}}
+          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint({{ParentServiceName}}.{{funcObjectName}}, thriftService, clientParam)
+{{/inheritedFunctions|,}}
+        )
+  }
+
   @deprecated("Use ServicePerEndpointBuilder", "2017-11-07")
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
@@ -172,29 +247,6 @@ object {{ServiceName}} { self =>
           {{dedupedFuncName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, clientParam)
 {{/inheritedFunctions|,}}
         )
-  }
-
-  @deprecated("Use MethodPerEndpoint", "2017-11-07")
-  class MethodIface(serviceIface: BaseServiceIface)
-    extends {{#parent}}{{parent}}.MethodIface(serviceIface)
-    with {{/parent}}FutureIface {
-{{#ownFunctions}}
-    def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
-      serviceIface.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
-{{/ownFunctions}}
-  }
-
-  implicit object MethodPerEndpointBuilder
-    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, {{ServiceName}}[Future]] {
-    def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
-      MethodPerEndpoint(servicePerEndpoint)
-  }
-
-  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
-  implicit object MethodIfaceBuilder
-    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): MethodIface =
-      new MethodIface(serviceIface)
   }
 {{/generateServiceIface}}
 {{^generateServiceIface}}
@@ -302,6 +354,57 @@ object {{ServiceName}} { self =>
           servicePerEndpoint.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
 {{/ownFunctions}}
     }
+  }
+
+  object ReqRepMethodPerEndpoint {
+
+    def apply(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
+      new ReqRepMethodPerEndpointImpl(servicePerEndpoint) { }
+
+    /**
+     * Use `ReqRepMethodPerEndpoint.apply()` instead of this constructor.
+     */
+    class ReqRepMethodPerEndpointImpl protected (servicePerEndpoint: ReqRepServicePerEndpoint)
+      extends {{#parent}}{{parent}}.ReqRepMethodPerEndpoint.ReqRepMethodPerEndpointImpl(servicePerEndpoint)
+      with {{/parent}}MethodPerEndpoint {
+
+{{#ownFunctions}}
+        def {{funcName}}({{fieldParams}}): Future[{{typeName}}] = {
+          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.empty)
+          val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.{{funcObjectName}}.Args({{argNames}}))
+          servicePerEndpoint.{{dedupedFuncName}}(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_)){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+        }
+{{/ownFunctions}}
+    }
+  }
+
+  @deprecated("Use MethodPerEndpoint", "2017-11-07")
+  class MethodIface(serviceIface: BaseServiceIface)
+    extends {{#parent}}{{parent}}.MethodIface(serviceIface)
+    with {{/parent}}FutureIface {
+{{#ownFunctions}}
+    def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
+      serviceIface.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+{{/ownFunctions}}
+  }
+
+  implicit object MethodPerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, {{ServiceName}}[Future]] {
+    def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
+      MethodPerEndpoint(servicePerEndpoint)
+  }
+
+  implicit object ReqRepMethodPerEndpointBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, {{ServiceName}}[Future]] {
+    def methodPerEndpoint(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
+      ReqRepMethodPerEndpoint(servicePerEndpoint)
+  }
+
+  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
+  implicit object MethodIfaceBuilder
+    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
+    def newMethodIface(serviceIface: ServiceIface): MethodIface =
+      new MethodIface(serviceIface)
   }
 {{/generateServiceIface}}
 

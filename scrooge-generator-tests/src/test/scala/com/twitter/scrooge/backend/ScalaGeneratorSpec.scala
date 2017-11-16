@@ -2,6 +2,7 @@ package com.twitter.scrooge.backend
 
 import com.twitter.conversions.time._
 import com.twitter.finagle.{Service, SourcedException}
+import com.twitter.scrooge.{Request, Response}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.scrooge.{ThriftException, ThriftStruct}
 import com.twitter.util.{Await, Future}
@@ -1281,6 +1282,28 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       )
 
       Await.result(dddService.getInt(Bbb.GetInt.Args()), 5.seconds) must be(5)
+    }
+
+    "generate inherited services with ReqRepServicePerEndpoint correctly" in { _ =>
+      val dddService = Ddd.ReqRepServicePerEndpoint(
+        delete = new Service[Request[Ddd.Delete.Args], Response[Ddd.Delete.SuccessType]] {
+          def apply(request: Request[Ddd.Delete.Args]) = Future.value(Response(request.args.input))
+        },
+        iiii = new Service[Request[CccExtended.Iiii.Args], Response[CccExtended.Iiii.SuccessType]] {
+          def apply(request: Request[CccExtended.Iiii.Args]) = Future.value(Response(345))
+        },
+        setInt = new Service[Request[Ccc.SetInt.Args], Response[Ccc.SetInt.SuccessType]] {
+          def apply(request: Request[Ccc.SetInt.Args]) = Future.value(Response(request.args.input))
+        },
+        getInt = new Service[Request[Bbb.GetInt.Args], Response[Bbb.GetInt.SuccessType]] {
+          def apply(request: Request[Bbb.GetInt.Args]) = Future.value(Response(5))
+        },
+        getBox = new Service[Request[Aaa.GetBox.Args], Response[Aaa.GetBox.SuccessType]] {
+          def apply(request: Request[Aaa.GetBox.Args]) = Future.value(Response(Box(4, 6)))
+        }
+      )
+
+      Await.result(dddService.getInt(Request(Bbb.GetInt.Args())), 5.seconds).value must be(5)
     }
   }
 }

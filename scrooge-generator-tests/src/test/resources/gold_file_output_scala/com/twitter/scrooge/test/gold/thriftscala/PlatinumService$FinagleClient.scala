@@ -86,7 +86,9 @@ class PlatinumService$FinagleClient(
     val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[Int](inputArgs, moreCoolThingsPlatinumServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
       _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
-      serdeCtx
+      serdeCtx,
+      _root_.com.twitter.finagle.thrift.Headers.Request.Key,
+      _root_.com.twitter.finagle.thrift.Headers.Request.empty
     ) {
       val serialized = encodeRequest("moreCoolThings", inputArgs)
       this.service(serialized).flatMap { response =>
