@@ -370,7 +370,7 @@ object {{ServiceName}} { self =>
 
 {{#ownFunctions}}
         def {{funcName}}({{fieldParams}}): Future[{{typeName}}] = {
-          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.empty)
+          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.{{funcObjectName}}.Args({{argNames}}))
           servicePerEndpoint.{{dedupedFuncName}}(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_)){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
         }

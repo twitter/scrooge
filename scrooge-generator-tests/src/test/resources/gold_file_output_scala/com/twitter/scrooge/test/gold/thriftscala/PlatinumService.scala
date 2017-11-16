@@ -800,7 +800,7 @@ object PlatinumService { self =>
       with MethodPerEndpoint {
 
         def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] = {
-          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.empty)
+          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.MoreCoolThings.Args(request))
           servicePerEndpoint.moreCoolThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
         }
