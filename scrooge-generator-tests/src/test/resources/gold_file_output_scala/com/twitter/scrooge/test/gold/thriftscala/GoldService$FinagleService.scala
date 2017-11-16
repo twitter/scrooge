@@ -229,45 +229,51 @@ class GoldService$FinagleService(
         request: (TProtocol, Int),
         service: finagle$Service[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result]]
       ): Future[RichResponse[DoGreatThings.Args, DoGreatThings.Result]] = {
-        val (iprot, seqid) = request
-        service(request).rescue {
-          case e: TProtocolException => {
+        val iprot = request._1
+        val seqid = request._2
+        val res = service(request)
+        res.transform {
+          case _root_.com.twitter.util.Throw(e: TProtocolException) =>
             iprot.readMessageEnd()
             Future.value(
               ProtocolException(
                 null,
                 exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
                 new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
-          }
-          case e: Exception => Future.exception(e)
+          case _ =>
+            res
         }
       }
     }
 
     val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result], DoGreatThings.Args, DoGreatThings.SuccessType] {
-      override def apply(
+      def apply(
         request: (TProtocol, Int),
         service: finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType]
       ): Future[RichResponse[DoGreatThings.Args, DoGreatThings.Result]] = {
-        val (iprot, seqid) = request
+        val iprot = request._1
+        val seqid = request._2
         val args = DoGreatThings.Args.decode(iprot)
         iprot.readMessageEnd()
         val res = service(args)
-        res.flatMap { value =>
-          Future.value(
-            SuccessfulResult(
-              args,
-              reply("doGreatThings", seqid, DoGreatThings.Result(success = Some(value))),
-              DoGreatThings.Result(success = Some(value))))
-        }.rescue {
-          case e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException => {
+        res.transform {
+          case _root_.com.twitter.util.Return(value) =>
+            val methodResult = DoGreatThings.Result(success = Some(value))
+            Future.value(
+              SuccessfulResult(
+                args,
+                reply("doGreatThings", seqid, methodResult),
+                methodResult))
+          case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException) => {
+            val methodResult = DoGreatThings.Result(ex = Some(e))
             Future.value(
               ThriftExceptionResult(
                 args,
-                reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(e))),
-                DoGreatThings.Result(ex = Some(e))))
+                reply("doGreatThings", seqid, methodResult),
+                methodResult))
           }
-          case e => Future.exception(e)
+          case t @ _root_.com.twitter.util.Throw(_) =>
+            Future.const(t.cast[RichResponse[DoGreatThings.Args, DoGreatThings.Result]])
         }
       }
     }
