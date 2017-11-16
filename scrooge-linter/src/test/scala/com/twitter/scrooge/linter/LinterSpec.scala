@@ -608,5 +608,91 @@ class LinterSpec extends WordSpec with MustMatchers {
       }
 
     }
+
+    "pass basic key types for maps" in {
+      mustPass(
+        LintRule.MapKeyType(
+          Document(
+            Seq(),
+            Seq(
+              Struct(
+                SimpleID("SomeType"),
+                "SomeType",
+                Seq(
+                  Field(
+                    1,
+                    SimpleID("val"),
+                    "val",
+                    MapType(TString, TString, None)
+                  )
+                ),
+                None
+              ),
+              ConstDefinition(
+                SimpleID("SomeConst"),
+                MapType(TString, TString, None),
+                MapRHS(Seq()),
+                None
+              ),
+              Typedef(
+                SimpleID("SomeTypeDef"),
+                MapType(TString, TString, None)
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "warn on maps with complex key types" in {
+      val complexType = StructType(
+                          Struct(
+                            SimpleID("SomeStruct"),
+                            "SomeStruct",
+                            Seq(
+                              Field(
+                                1,
+                                SimpleID("val"),
+                                "val",
+                                TString
+                              )
+                            ),
+                            None
+                          )
+                        )
+
+      val warnings = LintRule.MapKeyType(
+        Document(
+          Seq(),
+          Seq(
+            Struct(
+              SimpleID("SomeType"),
+              "SomeType",
+              Seq(
+                Field(
+                  1,
+                  SimpleID("val"),
+                  "val",
+                  MapType(complexType, TString, None)
+                )
+              ),
+              None
+            ),
+            ConstDefinition(
+              SimpleID("SomeConst"),
+              MapType(complexType, TString, None),
+              MapRHS(Seq()),
+              None
+            ),
+            Typedef(
+              SimpleID("SomeTypeDef"),
+              MapType(complexType, TString, None)
+            )
+          )
+        )
+      )
+
+      warnings.size must be(3)
+    }
   }
 }
