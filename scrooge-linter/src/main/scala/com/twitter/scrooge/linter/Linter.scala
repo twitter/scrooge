@@ -55,7 +55,8 @@ object LintRule {
     Keywords,
     TransitivePersistence,
     FieldIndexGreaterThanZeroRule,
-    MalformedDocstring
+    MalformedDocstring,
+    MapKeyType
   )
 
   val Rules = DefaultRules ++ Seq(
@@ -605,6 +606,30 @@ object LintRule {
             None
           }
         }
+    }
+  }
+
+  object MapKeyType extends LintRule {
+    // keys in maps should be of the base types rather than structs or containers (https://thrift.apache.org/docs/types)
+    def apply(doc: Document): Seq[LintMessage] = {
+      doc.defs.flatMap {
+        case const: ConstDefinition => checkForMapKeyType(const.sid, const.fieldType).toSeq
+        case typedef: Typedef => checkForMapKeyType(typedef.sid, typedef.fieldType).toSeq
+        case struct: StructLike => struct.fields.flatMap { field => checkForMapKeyType(field.sid, field.fieldType) }
+        case _ => Seq.empty
+      }
+    }
+
+    private def checkForMapKeyType(sid: SimpleID, fieldType: FieldType): Option[LintMessage] = {
+      fieldType match {
+        case m: MapType => {
+          m.keyType match {
+            case _: BaseType => None
+            case _ => Some(LintMessage(s"${sid.name} is a map with a complex key type. Only base types should be used."))
+          }
+        }
+        case _ => None
+      }
     }
   }
 }
