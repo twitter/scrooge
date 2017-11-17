@@ -291,7 +291,9 @@ lazy val scroogeSbtPlugin = Project(
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin
 ).settings(
-  settingsWithTwoTen
+  // we remove the publishTo key because bintray already sets it, and setting
+  // it again breaks the bintray plugin.
+  settingsWithTwoTen.filter(_.key.key.label != "publishTo")
 ).settings(
   scalaVersion := "2.10.6",
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
