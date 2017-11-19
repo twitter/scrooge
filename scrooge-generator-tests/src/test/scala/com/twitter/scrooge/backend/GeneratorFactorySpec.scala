@@ -15,7 +15,7 @@ class TestGeneratorFactory extends GeneratorFactory {
     doc,
     defaultNamespace,
     experimentFlags,
-    new HandlebarLoader("/scalagen/", ".scala")
+    new HandlebarLoader("/scalagen/", ".mustache")
   )
 }
 

@@ -148,7 +148,9 @@ class GoldService$FinagleClient(
     val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, doGreatThingsGoldServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
       _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
-      serdeCtx
+      serdeCtx,
+      _root_.com.twitter.finagle.thrift.Headers.Request.Key,
+      _root_.com.twitter.finagle.thrift.Headers.Request.newValues
     ) {
       val serialized = encodeRequest("doGreatThings", inputArgs)
       this.service(serialized).flatMap { response =>

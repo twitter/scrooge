@@ -5,7 +5,7 @@ import scoverage.ScoverageKeys
 // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
 
 // All Twitter library releases are date versioned as YY.MM.patch
-val releaseVersion = "17.11.0-SNAPSHOT"
+val releaseVersion = "17.12.0-SNAPSHOT"
 
 val libthriftVersion = "0.5.0-7"
 
@@ -291,7 +291,9 @@ lazy val scroogeSbtPlugin = Project(
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin
 ).settings(
-  sharedSettingsWithoutScalaVersion
+  // we remove the publishTo key because bintray already sets it, and setting
+  // it again breaks the bintray plugin.
+  sharedSettingsWithoutScalaVersion.filter(_.key.key.label != "publishTo")
 ).settings(
   scalaVersion := "2.12.4",
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),

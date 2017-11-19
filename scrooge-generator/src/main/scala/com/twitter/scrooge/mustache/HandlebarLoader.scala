@@ -24,7 +24,7 @@ import scala.io.Source
 
 class HandlebarLoader(
   prefix: String,
-  suffix: String = ".scala",
+  suffix: String = ".mustache",
   commentFct: (CommentStyle => String) = scalaJavaCommentFunction
 ) {
 
