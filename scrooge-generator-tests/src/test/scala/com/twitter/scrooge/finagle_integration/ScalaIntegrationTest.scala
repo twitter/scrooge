@@ -40,12 +40,12 @@ class ScalaIntegrationTest extends FunSuite {
     await(muxServer.close())
   }
 
-  def thriftBarClient(server: ListeningServer) = Thrift.client.newIface[BarService.MethodPerEndpoint] (
+  def thriftBarClient(server: ListeningServer) = Thrift.client.build[BarService.MethodPerEndpoint] (
     Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
     "thriftBarClient"
   )
 
-  def thriftExtendedBarClient(server: ListeningServer) = Thrift.client.newIface[ExtendedBarService.MethodPerEndpoint] (
+  def thriftExtendedBarClient(server: ListeningServer) = Thrift.client.build[ExtendedBarService.MethodPerEndpoint] (
     Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
     "thriftExtendedBarClient"
   )
@@ -78,7 +78,7 @@ class ScalaIntegrationTest extends FunSuite {
     }
   )
 
-  test("construct Thrift server with FutureIface") {
+  test("construct Thrift server with FutureIface -- backward compatible") {
     val futureIfaceBarServer = Thrift.server.serveIface(
       new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
       new BarService.FutureIface {
@@ -149,13 +149,13 @@ class ScalaIntegrationTest extends FunSuite {
     assert(await(thriftExtendedBarClient(thriftExtendedBarServer).triple("3")) == "333")
   }
 
-  test("construct Thrift client with newface[FutureIface]") {
-    val futureIfaceBarClient = Thrift.client.newIface[BarService.MethodPerEndpoint] (
+  test("construct Thrift client with newIface[FutureIface] -- backward compatible") {
+    val futureIfaceBarClient = Thrift.client.newIface[BarService.FutureIface] (
       Name.bound(Address(thriftBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "futureIfaceBarClient"
     )
 
-    val futureIfaceExtendedBarClient = Thrift.client.newIface[ExtendedBarService.MethodPerEndpoint] (
+    val futureIfaceExtendedBarClient = Thrift.client.newIface[ExtendedBarService.FutureIface] (
       Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "futureIfaceExtendedBarClient"
     )
@@ -166,12 +166,12 @@ class ScalaIntegrationTest extends FunSuite {
   }
 
   test("construct Thrift client with Service[Future]]") {
-    val serviceBarClient = Thrift.client.newIface[BarService[Future]] (
+    val serviceBarClient = Thrift.client.build[BarService[Future]] (
       Name.bound(Address(thriftBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "serviceBarClient"
     )
 
-    val serviceExtendedBarClient = Thrift.client.newIface[ExtendedBarService[Future]] (
+    val serviceExtendedBarClient = Thrift.client.build[ExtendedBarService[Future]] (
       Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "serviceExtendedBarClient"
     )
@@ -190,7 +190,7 @@ class ScalaIntegrationTest extends FunSuite {
       service(args.copy(x = args.x + args.x))
   }
 
-  test("construct Thrift client with newServiceIface[ServiceIface]") {
+  test("construct Thrift client with newServiceIface[ServiceIface] -- backward compatible") {
     val clientExtendedBarService = Thrift.client.newServiceIface[ExtendedBarService.ServiceIface](
       Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "clientExtendedBarService"
@@ -206,7 +206,7 @@ class ScalaIntegrationTest extends FunSuite {
     assert(await(barMethodPerEndpointCopy.triple("3")) == "3.3.3.")
   }
 
-  test("construct Thrift client with newServiceIface[ServicePerEndpoint]") {
+  test("construct Thrift client with servicePerEndpoint[ServicePerEndpoint]") {
     val clientExtendedBarService = Thrift.client.servicePerEndpoint[ExtendedBarService.ServicePerEndpoint](
       Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "clientExtendedBarService"
@@ -220,55 +220,5 @@ class ScalaIntegrationTest extends FunSuite {
 
     assert(await(barMethodPerEndpointWith.echo("echo")) == "echoecho")
     assert(await(barMethodPerEndpointWith.triple("3")) == "3.3.3.")
-  }
-
-  test("serve multiple services") {
-    import scala.language.reflectiveCalls
-
-    class BarMethodPerEndpoint extends BarService.MethodPerEndpoint {
-      override def echo(x: String): Future[String] = Future.value(x)
-
-      override def duplicate(y: String): Future[String] = Future.value(y + y)
-
-      override def getDuck(key: Long): Future[String] = Future.value("Scrooge")
-
-      override def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
-    }
-
-    class ExtendedBarMethodPerEndpoint extends ExtendedBarService.MethodPerEndpoint {
-      override def echo(x: String): Future[String] = Future.value(x)
-
-      override def duplicate(y: String): Future[String] = Future.value(y + y)
-
-      override def getDuck(key: Long): Future[String] =  Future.value("Scrooge")
-
-      override def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
-
-      override def triple(z: String): Future[String] = Future.value(z + z + z)
-    }
-
-    val serviceMap = Map(
-      "bar" -> new BarMethodPerEndpoint(),
-      "extendedBar" -> new ExtendedBarMethodPerEndpoint()
-    )
-
-    val address = new InetSocketAddress(InetAddress.getLoopbackAddress, 0)
-    val server = Thrift.server.serveIfaces(address, serviceMap, Some("extendedBar"))
-
-    val name = Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress]))
-    val client = Thrift.client.multiplex(name, "client") { client =>
-      new {
-        val bar = client.newIface[BarService.MethodPerEndpoint]("bar")
-        val extendedBar = client.servicePerEndpoint[ExtendedBarService.ServicePerEndpoint]("extendedBar")
-      }
-    }
-
-    assert(await(client.bar.echo("hello")) == "hello")
-
-    val triple = await(client.extendedBar.triple(ExtendedBarService.Triple.Args("3")))
-    assert(triple == "333")
-
-    val classicClient = Thrift.client.newIface[ExtendedBarService.MethodPerEndpoint](name, "classic-client")
-    assert(await(classicClient.triple("3")) == "333")
   }
 }
