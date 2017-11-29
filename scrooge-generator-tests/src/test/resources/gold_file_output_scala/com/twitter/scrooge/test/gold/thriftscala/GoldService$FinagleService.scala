@@ -220,6 +220,9 @@ class GoldService$FinagleService(
 
     val methodService = new finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
+        if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
+          _root_.com.twitter.finagle.tracing.Trace.recordRpc("doGreatThings")
+        }
         iface.doGreatThings(args.request)
       }
     }

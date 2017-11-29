@@ -69,6 +69,9 @@ class PlatinumService$FinagleService(
 
     val methodService = new finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
+        if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
+          _root_.com.twitter.finagle.tracing.Trace.recordRpc("moreCoolThings")
+        }
         iface.moreCoolThings(args.request)
       }
     }
