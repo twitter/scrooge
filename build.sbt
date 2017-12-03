@@ -289,13 +289,14 @@ lazy val scroogeAdaptive = Project(
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
-).enablePlugins(BuildInfoPlugin
+).enablePlugins(
+  BuildInfoPlugin
 ).settings(
   // we remove the publishTo key because bintray already sets it, and setting
   // it again breaks the bintray plugin.
   settingsWithTwoTen.filter(_.key.key.label != "publishTo")
 ).settings(
-  scalaVersion := "2.10.6",
+  scalaVersion := "2.12.4",
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
