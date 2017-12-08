@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+17.12.0
+-------
+
 - scrooge: Introduce `scrooge.Request` and `scrooge.Response` envelopes which
   are used in `ReqRepServicePerEndpoint` interfaces and associated code. The
   scrooge `Request` and `Response` allow for passing "header" information (via
