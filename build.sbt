@@ -286,23 +286,33 @@ lazy val scroogeAdaptive = Project(
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
+// Remove the `publishTo` SettingsKey when not publishing a snapshot because the sbt-bintray plugin
+// already sets it, and setting it again breaks the plugin.
+def scroogeSbtPluginSettings = {
+  if (!releaseVersion.trim.endsWith("SNAPSHOT")) {
+    settingsWithTwoTen
+      .filter(_.key.key.label != "publishTo") ++
+      Seq(
+        bintrayRepository := "sbt-plugins",
+        bintrayOrganization := Some("twittercsl")
+      )
+  } else {
+    settingsWithTwoTen
+  }
+}
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin
 ).settings(
-  // we remove the publishTo key because bintray already sets it, and setting
-  // it again breaks the bintray plugin.
-  settingsWithTwoTen.filter(_.key.key.label != "publishTo")
+  scroogeSbtPluginSettings: _*
 ).settings(
   scalaVersion := "2.10.6",
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
   publishMavenStyle := false,
-  bintrayRepository := "sbt-plugins",
-  licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))),
-  bintrayOrganization := Some("twittercsl")
+  licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")))
 ).dependsOn(scroogeGenerator)
 
 lazy val scroogeLinter = Project(
