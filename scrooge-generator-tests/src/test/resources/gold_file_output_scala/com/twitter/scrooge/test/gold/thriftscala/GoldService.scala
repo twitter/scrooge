@@ -647,24 +647,39 @@ object GoldService { self =>
     )
 
     type FunctionType = Function1[Args,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
-    type ServiceType = com.twitter.finagle.Service[Args, Result]
+    type ReqRepFunctionType = Function1[_root_.com.twitter.scrooge.Request[Args],Future[_root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.Response]]]
 
-    type ServiceIfaceServiceType = com.twitter.finagle.Service[Args, SuccessType]
+    type ServiceType = _root_.com.twitter.finagle.Service[Args, Result]
+    type ReqRepServiceType = _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[Args], _root_.com.twitter.scrooge.Response[Result]]
+
+    type ServiceIfaceServiceType = _root_.com.twitter.finagle.Service[Args, SuccessType]
+    type ServicePerEndpointServiceType = _root_.com.twitter.finagle.Service[Args, SuccessType]
+    type ReqRepServicePerEndpointServiceType = _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[Args], _root_.com.twitter.scrooge.Response[SuccessType]]
 
     def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType =
-      com.twitter.finagle.Service.mk { args: Args =>
+      _root_.com.twitter.finagle.Service.mk { args: Args =>
         f(args)
+      }
+
+    def toServicePerEndpointService(f: FunctionType): ServicePerEndpointServiceType =
+      _root_.com.twitter.finagle.Service.mk { args: Args =>
+        f(args)
+      }
+
+    def toReqRepServicePerEndpointService(f: ReqRepFunctionType): ReqRepServicePerEndpointServiceType =
+      _root_.com.twitter.finagle.Service.mk[_root_.com.twitter.scrooge.Request[Args], _root_.com.twitter.scrooge.Response[SuccessType]] { request: _root_.com.twitter.scrooge.Request[Args] =>
+        f(request)
       }
 
     private[this] val toResult = (res: SuccessType) => Result(Some(res))
 
     def functionToService(f: FunctionType): ServiceType =
-      com.twitter.finagle.Service.mk { args: Args =>
+      _root_.com.twitter.finagle.Service.mk { args: Args =>
         f(args).map(toResult)
       }
 
     def serviceToFunction(svc: ServiceType): FunctionType = { args: Args =>
-      com.twitter.finagle.thrift.ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
+      _root_.com.twitter.finagle.thrift.ThriftServiceIface.resultFilter(this).andThen(svc).apply(args)
     }
 
     val name: String = "doGreatThings"

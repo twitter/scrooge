@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+- scrooge: Add support for `scrooge.Request` and `scrooge.Response`
+  types in generated `ThriftMethod` code. ``PHAB_ID=D122767``
+
 17.12.0
 -------
 

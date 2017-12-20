@@ -79,6 +79,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
         val types = s"[Args,$returnType]"
         v(s"Function1$types")
       },
+      "reqRepFunctionType" -> {
+        val returnType = s"Future[_root_.com.twitter.scrooge.Response[${genType(function.funcType)}]]"
+        val types = s"[_root_.com.twitter.scrooge.Request[Args],$returnType]"
+        v(s"Function1$types")
+      },
       "moreThan22Args" -> v(function.args.size > 22)
     )
   }

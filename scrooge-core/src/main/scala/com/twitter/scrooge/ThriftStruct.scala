@@ -155,12 +155,24 @@ trait ThriftMethod {
    *
    * For Scala generated code with Finagle bindings this will be roughly:
    * {{{
-   * Function2[Int, String, Future[Int]]
+   * Function1[Args, Future[Int]]
    * }}}
    *
    * For Scala generated code without Finagle bindings, this will be `Nothing`.
    */
   type FunctionType
+
+  /**
+   * The type of this method, as a function.
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * {{{
+   * Function1[scrooge.Request[Args], Future[scrooge.Response[Int]]]
+   * }}}
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
+   */
+  type ReqRepFunctionType
 
   /**
    * The type of this method, as a Finagle `Service` from `Args` to
@@ -171,9 +183,22 @@ trait ThriftMethod {
    *
    * For Scala generated code without Finagle bindings, this will be `Nothing`.
    *
-   * @see [[ServiceIfaceServiceType]] for a more ergonomic API.
+   * @see [[ServicePerEndpointServiceType]] for a more ergonomic API.
    */
   type ServiceType
+
+  /**
+   * The type of this method, as a Finagle `Service` from `scrooge.Request[Args]` to
+   * `scrooge.Response[Result]`.
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * `Service[scrooge.Request[Args], scrooge.Response[Result]]`.
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
+   *
+   * @see [[ReqRepServicePerEndpointServiceType]] for a more ergonomic API.
+   */
+  type ReqRepServiceType
 
   /**
    * The type of this method, as a Finagle `Service` from `Args` to
@@ -184,7 +209,30 @@ trait ThriftMethod {
    *
    * For Scala generated code without Finagle bindings, this will be `Nothing`.
    */
+  @deprecated("Use ServicePerEndpointServiceType", "2017-12-18")
   type ServiceIfaceServiceType
+
+  /**
+   * The type of this method, as a Finagle `Service` from `Args` to
+   * `SuccessType`.
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * `Service[Args, SuccessType]`.
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
+   */
+  type ServicePerEndpointServiceType
+
+  /**
+   * The type of this method, as a Finagle `Service` from `scrooge.Request[Args]` to
+   * `scrooge.Response[SuccessType]`.
+   *
+   * For Scala generated code with Finagle bindings this will be roughly:
+   * `Service[scrooge.Request[Args], scrooge.Response[SuccessType]]`.
+   *
+   * For Scala generated code without Finagle bindings, this will be `Nothing`.
+   */
+  type ReqRepServicePerEndpointServiceType
 
   /**
    * Convert a function implementation of this method into a
@@ -192,7 +240,25 @@ trait ThriftMethod {
    *
    * For Scala generated code without Finagle bindings, this will not implemented.
    */
+  @deprecated("Use toServicePerEndpointService(f: FunctionType", "2017-12-18")
   def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType
+
+  /**
+   * Convert a function implementation of this method into a
+   * ServicePerEndpoint Finagle `Service` implementation returning `SuccessType`.
+   *
+   * For Scala generated code without Finagle bindings, this will not implemented.
+   */
+  def toServicePerEndpointService(f: FunctionType): ServicePerEndpointServiceType
+
+  /**
+   * Convert a function implementation of this method into a
+   * ReqRepServicePerEndpoint Finagle `Service` implementation returning
+   * `scrooge.Response[SuccessType]`.
+   *
+   * For Scala generated code without Finagle bindings, this will not implemented.
+   */
+  def toReqRepServicePerEndpointService(f: ReqRepFunctionType): ReqRepServicePerEndpointServiceType
 
   /**
    * Convert a function implementation of this method into a
