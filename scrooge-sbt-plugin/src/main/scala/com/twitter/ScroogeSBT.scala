@@ -52,7 +52,8 @@ object ScroogeSBT extends AutoPlugin {
 
   def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
     dependencies.filter { dep =>
-      val module = dep.get(AttributeKey[ModuleID]("module-id"))
+      // NOTE: module-id supports SBT pre-1.x while moduleID supports SBT 1.0 and later.
+      val module = dep.get(AttributeKey[ModuleID]("module-id")).orElse(dep.get(AttributeKey[ModuleID]("moduleID")))
       module.exists { m =>
         whitelist.contains(m.name)
       }
@@ -197,7 +198,8 @@ object ScroogeSBT extends AutoPlugin {
 
       val sourceFolder = scroogeThriftExternalSourceFolder.value
       val paths = dependencies.map { dep =>
-        val module = dep.get(AttributeKey[ModuleID]("module-id"))
+        // NOTE: module-id supports SBT pre-1.x while moduleID supports SBT 1.0 and later.
+        val module = dep.get(AttributeKey[ModuleID]("module-id")).orElse(dep.get(AttributeKey[ModuleID]("moduleID")))
         module.flatMap { m =>
           val dest = new File(sourceFolder, m.name)
           IO.createDirectory(dest)
