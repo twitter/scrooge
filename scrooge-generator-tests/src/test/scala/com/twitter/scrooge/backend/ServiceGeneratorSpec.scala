@@ -752,7 +752,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         )
 
         val simpleService: SimpleService.ReqRepServicePerEndpoint =
-          ThriftMux.client.reqRepServicePerEndpoint[SimpleService.ReqRepServicePerEndpoint](
+          ThriftMux.client.servicePerEndpoint[SimpleService.ReqRepServicePerEndpoint](
             Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
             "simple"
           )
@@ -777,7 +777,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           }
         )
 
-        val readOnlyClientService = ThriftMux.client.reqRepServicePerEndpoint[ReadOnlyService.ReqRepServicePerEndpoint](
+        val readOnlyClientService = ThriftMux.client.servicePerEndpoint[ReadOnlyService.ReqRepServicePerEndpoint](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "read-only"
         )
@@ -785,7 +785,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           "Initial name"
         )
 
-        val readWriteClientService = ThriftMux.client.reqRepServicePerEndpoint[ReadWriteService.ReqRepServicePerEndpoint](
+        val readWriteClientService = ThriftMux.client.servicePerEndpoint[ReadWriteService.ReqRepServicePerEndpoint](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "read-write"
         )
@@ -824,7 +824,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "work with exceptions" in { _ =>
         val server = serveExceptionalService()
 
-        val clientService = ThriftMux.client.reqRepServicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
+        val clientService = ThriftMux.client.servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
@@ -847,7 +847,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         )
 
         val exceptionalServiceIface: ExceptionalService.ReqRepServicePerEndpoint =
-          ThriftMux.client.reqRepServicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
+          ThriftMux.client.servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
             Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
             "simple"
           )
@@ -859,7 +859,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val filteredServiceIface =
           exceptionalServiceIface.withDeliver(deliver = doubleFilter.andThen(exceptionalServiceIface.deliver))
-        val methodIface = ThriftMux.client.reqRepMethodPerEndpoint(filteredServiceIface)
+        val methodIface = ThriftMux.client.methodPerEndpoint(filteredServiceIface)
         Await.result(methodIface.deliver("123")) must be(6)
 
         Await.result(server.close(), 2.seconds)
@@ -870,7 +870,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import com.twitter.util.{JavaTimer, Throw, Try}
 
         val service = serveExceptionalService()
-        val clientService = ThriftMux.client.reqRepServicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
+        val clientService = ThriftMux.client.servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
@@ -889,14 +889,14 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         Await.result(service.close(), 2.seconds)
       }
 
-      "work with a reqRepMethodPerEndpoint" in { _ =>
+      "work with a methodPerEndpoint" in { _ =>
         val service = serveExceptionalService()
-        val clientService = ThriftMux.client.reqRepServicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
+        val clientService = ThriftMux.client.servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
 
-        val futureIface = ThriftMux.client.reqRepMethodPerEndpoint(clientService)
+        val futureIface = ThriftMux.client.methodPerEndpoint(clientService)
 
         intercept[EmptyXception] {
           Await.result(futureIface.deliver(""))
@@ -917,11 +917,11 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           }
         )
 
-        val client = ThriftMux.client.reqRepServicePerEndpoint[CamelCaseSnakeCaseService.ReqRepServicePerEndpoint](
+        val client = ThriftMux.client.servicePerEndpoint[CamelCaseSnakeCaseService.ReqRepServicePerEndpoint](
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
-        val richClient = ThriftMux.client.reqRepMethodPerEndpoint(client)
+        val richClient = ThriftMux.client.methodPerEndpoint(client)
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
         Await.result(richClient.bazQux("baz")) mustBe "baz"
@@ -934,12 +934,12 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = ThriftMux.client
           .configured(Stats(statsReceiver))
-          .reqRepServicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
+          .servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "customServiceName"
         )
 
-        val futureIface = ThriftMux.client.reqRepMethodPerEndpoint(clientService)
+        val futureIface = ThriftMux.client.methodPerEndpoint(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
@@ -1009,12 +1009,12 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = ThriftMux.client
           .configured(Stats(statsReceiver))
-          .reqRepServicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
+          .servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
 
-        val futureIface = ThriftMux.client.reqRepMethodPerEndpoint(clientService)
+        val futureIface = ThriftMux.client.methodPerEndpoint(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
