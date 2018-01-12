@@ -1,0 +1,23 @@
+/**
+ * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+ * See structAnnotations for the annotations attached to this struct's declaration.
+ */
+public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+static {
+  {{#has_field_annotations}}
+  Map<_Fields, Map<String, String>> tmpMap = new EnumMap<_Fields, Map<String, String>>(_Fields.class);
+  {{#field_annotations}}
+    {
+      Map<String, String> tmpFieldMap = new HashMap<String, String>();
+      {{#value}}
+      tmpFieldMap.put("{{key}}", "{{value}}");
+      {{/value}}
+      tmpMap.put(_Fields.{{#constant_name}}{{key.originalName}}{{/constant_name}}, Collections.unmodifiableMap(tmpFieldMap));
+    }
+  {{/field_annotations}}
+  fieldAnnotations = Collections.unmodifiableMap(tmpMap);
+  {{/has_field_annotations}}
+  {{^has_field_annotations}}
+  fieldAnnotations = Collections.emptyMap();
+  {{/has_field_annotations}}
+}

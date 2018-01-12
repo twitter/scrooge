@@ -1,0 +1,13 @@
+/**
+ * Returns the set of fields that have a configured default value.
+ * The default values for these fields can be obtained by
+ * instantiating this class with the default constructor.
+ */
+public static final Set<_Fields> hasDefaultValue;
+static {
+  Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+  {{#has_default_value}}
+  tmp.add(_Fields.{{#constant_name}}{{originalName}}{{/constant_name}});
+  {{/has_default_value}}
+  hasDefaultValue = Collections.unmodifiableSet(tmp);
+}

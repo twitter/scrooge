@@ -1,0 +1,18 @@
+/**
+ * Returns a map of the annotations and their values for this struct declaration.
+ * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+ * or enum values.
+ */
+public static final Map<String, String> structAnnotations;
+static {
+  {{#has_struct_annotations}}
+  Map<String, String> tmpMap = new HashMap<String, String>();
+  {{#struct_annotations}}
+  tmpMap.put("{{key}}", "{{value}}");
+  {{/struct_annotations}}
+  structAnnotations = Collections.unmodifiableMap(tmpMap);
+  {{/has_struct_annotations}}
+  {{^has_struct_annotations}}
+  structAnnotations = Collections.emptyMap();
+  {{/has_struct_annotations}}
+}

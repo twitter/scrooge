@@ -161,7 +161,9 @@ object Request extends ThriftStructCodec3[Request] {
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String],
+      immutable$Map(
+        "a.b.c" -> "ignored"
+      ),
       None
     ),
     new ThriftStructFieldInfo(
@@ -172,7 +174,10 @@ object Request extends ThriftStructCodec3[Request] {
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String],
+      immutable$Map(
+        "s.field.annotation.one" -> "a",
+        "two" -> "b"
+      ),
       None
     ),
     new ThriftStructFieldInfo(
@@ -189,7 +194,10 @@ object Request extends ThriftStructCodec3[Request] {
   )
 
   lazy val structAnnotations: immutable$Map[String, String] =
-    immutable$Map.empty[String, String]
+    immutable$Map[String, String](
+        "s.annotation.one" -> "something",
+        "s.annotation.two" -> "other"
+    )
 
   /**
    * Checks that all required fields are non-null.

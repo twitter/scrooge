@@ -5,6 +5,12 @@
 Unreleased
 ----------
 
+- scrooge-generator: Add more metadata to generated java objects ``PHAB_ID=D122997``
+  Includes: 
+    * struct and field annotations from the idl files
+    * which fields have default values
+    * which field values of TType.STRING are actually binary fields
+
 - scrooge: Add support for `scrooge.Request` and `scrooge.Response`
   types in generated `ThriftMethod` code. ``PHAB_ID=D122767``
 

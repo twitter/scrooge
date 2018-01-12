@@ -3,6 +3,8 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   {{#i_2}}{{>generate_field_descs}}{{/i_2}}
   {{#i_2}}{{>generate_field_name_constants}}{{/i_2}}
   {{#i_2}}{{>generate_java_meta_data_map}}{{/i_2}}
+  {{#i_2}}{{>generate_java_struct_annotations}}{{/i_2}}
+  {{#i_2}}{{>generate_java_field_annotations}}{{/i_2}}
 
   public {{name}}() {
     super();

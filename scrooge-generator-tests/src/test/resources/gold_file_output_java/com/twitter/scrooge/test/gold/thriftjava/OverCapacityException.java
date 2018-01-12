@@ -38,15 +38,15 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     CHILL_TIME_SECONDS((short)1, "chillTimeSeconds");
-
+  
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
+  
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -58,7 +58,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
           return null;
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -68,26 +68,26 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-
+  
     /**
      * Find the _Fields constant that matches name, or null if its not found.
      */
     public static _Fields findByName(String name) {
       return byName.get(name);
     }
-
+  
     private final short _thriftId;
     private final String _fieldName;
-
+  
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-
+  
     public short getThriftFieldId() {
       return _thriftId;
     }
-
+  
     public String getFieldName() {
       return _fieldName;
     }
@@ -99,12 +99,65 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
   private BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
     tmpMap.put(_Fields.CHILL_TIME_SECONDS, new FieldMetaData("chillTimeSeconds", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(OverCapacityException.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    Map<String, String> tmpMap = new HashMap<String, String>();
+    tmpMap.put("e.annotation", "true");
+    structAnnotations = Collections.unmodifiableMap(tmpMap);
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    Map<_Fields, Map<String, String>> tmpMap = new EnumMap<_Fields, Map<String, String>>(_Fields.class);
+      {
+        Map<String, String> tmpFieldMap = new HashMap<String, String>();
+        tmpFieldMap.put("e.field.annotation", "false");
+        tmpMap.put(_Fields.CHILL_TIME_SECONDS, Collections.unmodifiableMap(tmpFieldMap));
+      }
+    fieldAnnotations = Collections.unmodifiableMap(tmpMap);
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 
 
@@ -287,7 +340,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
 
   public void write(TProtocol oprot) throws TException {
     validate();
-
+    
     oprot.writeStructBegin(STRUCT_DESC);
     oprot.writeFieldBegin(CHILL_TIME_SECONDS_FIELD_DESC);
     oprot.writeI32(this.chillTimeSeconds);

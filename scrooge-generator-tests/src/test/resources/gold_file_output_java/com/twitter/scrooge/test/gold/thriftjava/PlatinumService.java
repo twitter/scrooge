@@ -514,15 +514,15 @@ public class PlatinumService {
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     REQUEST((short)1, "request");
-
+  
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
+  
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -534,7 +534,7 @@ public class PlatinumService {
           return null;
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -544,26 +544,26 @@ public class PlatinumService {
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-
+  
     /**
      * Find the _Fields constant that matches name, or null if its not found.
      */
     public static _Fields findByName(String name) {
       return byName.get(name);
     }
-
+  
     private final short _thriftId;
     private final String _fieldName;
-
+  
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-
+  
     public short getThriftFieldId() {
       return _thriftId;
     }
-
+  
     public String getFieldName() {
       return _fieldName;
     }
@@ -573,12 +573,57 @@ public class PlatinumService {
   // isset id assignments
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
     tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT,
       new StructMetaData(TType.STRUCT, Request.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(moreCoolThings_args.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    structAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    fieldAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 
 
@@ -616,7 +661,7 @@ public class PlatinumService {
 
   public moreCoolThings_args setRequest(Request request) {
     this.request = request;
-
+    
     return this;
   }
 
@@ -760,7 +805,7 @@ public class PlatinumService {
 
   public void write(TProtocol oprot) throws TException {
     validate();
-
+    
     oprot.writeStructBegin(STRUCT_DESC);
     if (this.request != null) {
       oprot.writeFieldBegin(REQUEST_FIELD_DESC);
@@ -809,15 +854,15 @@ public class PlatinumService {
     SUCCESS((short)0, "success"),
     AX((short)1, "ax"),
     OCE((short)2, "oce");
-
+  
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
+  
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -833,7 +878,7 @@ public class PlatinumService {
           return null;
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -843,26 +888,26 @@ public class PlatinumService {
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-
+  
     /**
      * Find the _Fields constant that matches name, or null if its not found.
      */
     public static _Fields findByName(String name) {
       return byName.get(name);
     }
-
+  
     private final short _thriftId;
     private final String _fieldName;
-
+  
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-
+  
     public short getThriftFieldId() {
       return _thriftId;
     }
-
+  
     public String getFieldName() {
       return _fieldName;
     }
@@ -874,8 +919,22 @@ public class PlatinumService {
   private BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
     tmpMap.put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.I32)));
     tmpMap.put(_Fields.AX, new FieldMetaData("ax", TFieldRequirementType.DEFAULT,
@@ -883,7 +942,38 @@ public class PlatinumService {
     tmpMap.put(_Fields.OCE, new FieldMetaData("oce", TFieldRequirementType.DEFAULT,
       new StructMetaData(TType.STRUCT, OverCapacityException.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(moreCoolThings_result.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    structAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    fieldAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 
 
@@ -959,7 +1049,7 @@ public class PlatinumService {
 
   public moreCoolThings_result setAx(AnotherException ax) {
     this.ax = ax;
-
+    
     return this;
   }
 
@@ -984,7 +1074,7 @@ public class PlatinumService {
 
   public moreCoolThings_result setOce(OverCapacityException oce) {
     this.oce = oce;
-
+    
     return this;
   }
 

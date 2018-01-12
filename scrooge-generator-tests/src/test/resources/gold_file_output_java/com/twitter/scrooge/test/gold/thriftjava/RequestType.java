@@ -8,6 +8,8 @@ package com.twitter.scrooge.test.gold.thriftjava;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumMap;
 import org.apache.thrift.TEnum;
 
 public enum RequestType implements TEnum {
@@ -41,4 +43,32 @@ public enum RequestType implements TEnum {
         return null;
     }
   }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    Map<String, String> tmpMap = new HashMap<String, String>();
+    tmpMap.put("enum.annotation", "false");
+    structAnnotations = Collections.unmodifiableMap(tmpMap);
+  }
+
+  /**
+   * Returns a map of the annotations for each of this enum's values, keyed by the enum
+   * value. See structAnnotations for the annotations attached to this enum's declaration.
+   */
+  public static final Map<RequestType, Map<String, String>> valueAnnotations;
+  static {
+    Map<RequestType, Map<String, String>> tmpMap = new EnumMap<RequestType, Map<String, String>>(RequestType.class);
+      {
+        Map<String, String> tmpFieldMap = new HashMap<String, String>();
+        tmpFieldMap.put("some.annotation", "true");
+        tmpMap.put(Create, Collections.unmodifiableMap(tmpFieldMap));
+      }
+    valueAnnotations = Collections.unmodifiableMap(tmpMap);
+  }
+
 }

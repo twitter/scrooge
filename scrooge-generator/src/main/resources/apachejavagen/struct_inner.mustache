@@ -21,6 +21,9 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   {{/consolidate_newlines}}
 
   {{#i_2}}{{>generate_java_meta_data_map}}{{/i_2}}
+  {{#i_2}}{{>generate_java_struct_annotations}}{{/i_2}}
+  {{#i_2}}{{>generate_java_field_annotations}}{{/i_2}}
+  {{#i_2}}{{>generate_java_default_values_set}}{{/i_2}}
 
   public {{name}}() {
     {{#consolidate_newlines}}

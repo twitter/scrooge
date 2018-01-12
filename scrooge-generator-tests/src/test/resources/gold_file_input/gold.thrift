@@ -6,8 +6,8 @@ namespace java com.twitter.scrooge.test.gold.thriftjava
 typedef i64 CollectionLongId
 
 exception OverCapacityException {
-  1: i32 chillTimeSeconds
-}
+  1: i32 chillTimeSeconds (e.field.annotation = "false")
+  }(e.annotation = "true")
 
 exception AnotherException {
   1: i32 errorCode
@@ -20,8 +20,8 @@ enum RequestType {
 
 union ResponseUnion {
   1: i64 id
-  2: string details
-}
+  2: string details (u.field.annotation = "x")
+} (u.annotation = "y")
 
 struct CollectionId {
   1: required CollectionLongId collectionLongId;
@@ -44,19 +44,19 @@ struct Request {
   8: optional i64 doubleSlashComment
 
   # ignored hashtag comment
-  9: optional i64 hashtagComment
+  9: optional i64 hashtagComment (a.b.c = "ignored")
 
   /*
    * ignored single asterisk comment
    */
-  10: optional i64 singleAsteriskComment
+  10: optional i64 singleAsteriskComment (s.field.annotation.one = "a", two = "b")
 
   /**
    * docstring comment
    */
   11: optional i64 docStringComment
 
-}
+} (s.annotation.one = "something", s.annotation.two = "other")
 
 struct Response {
   1: i32 statusCode,

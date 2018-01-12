@@ -51,13 +51,17 @@ object OverCapacityException extends ThriftStructCodec3[OverCapacityException] {
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String],
+      immutable$Map(
+        "e.field.annotation" -> "false"
+      ),
       None
     )
   )
 
   lazy val structAnnotations: immutable$Map[String, String] =
-    immutable$Map.empty[String, String]
+    immutable$Map[String, String](
+        "e.annotation" -> "true"
+    )
 
   /**
    * Checks that all required fields are non-null.

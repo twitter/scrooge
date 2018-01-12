@@ -68,15 +68,15 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     HASHTAG_COMMENT((short)9, "hashtagComment"),
     SINGLE_ASTERISK_COMMENT((short)10, "singleAsteriskComment"),
     DOC_STRING_COMMENT((short)11, "docStringComment");
-
+  
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
+  
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -108,7 +108,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return null;
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -118,26 +118,26 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-
+  
     /**
      * Find the _Fields constant that matches name, or null if its not found.
      */
     public static _Fields findByName(String name) {
       return byName.get(name);
     }
-
+  
     private final short _thriftId;
     private final String _fieldName;
-
+  
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-
+  
     public short getThriftFieldId() {
       return _thriftId;
     }
-
+  
     public String getFieldName() {
       return _fieldName;
     }
@@ -153,8 +153,22 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private BitSet __isset_bit_vector = new BitSet(5);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
     tmpMap.put(_Fields.A_LIST, new FieldMetaData("aList", TFieldRequirementType.DEFAULT,
       new ListMetaData(TType.LIST,
                 new FieldValueMetaData(TType.STRING))));
@@ -183,7 +197,54 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     tmpMap.put(_Fields.DOC_STRING_COMMENT, new FieldMetaData("docStringComment", TFieldRequirementType.OPTIONAL,
       new FieldValueMetaData(TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    Map<String, String> tmpMap = new HashMap<String, String>();
+    tmpMap.put("s.annotation.one", "something");
+    tmpMap.put("s.annotation.two", "other");
+    structAnnotations = Collections.unmodifiableMap(tmpMap);
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    Map<_Fields, Map<String, String>> tmpMap = new EnumMap<_Fields, Map<String, String>>(_Fields.class);
+      {
+        Map<String, String> tmpFieldMap = new HashMap<String, String>();
+        tmpFieldMap.put("a.b.c", "ignored");
+        tmpMap.put(_Fields.HASHTAG_COMMENT, Collections.unmodifiableMap(tmpFieldMap));
+      }
+      {
+        Map<String, String> tmpFieldMap = new HashMap<String, String>();
+        tmpFieldMap.put("s.field.annotation.one", "a");
+        tmpFieldMap.put("two", "b");
+        tmpMap.put(_Fields.SINGLE_ASTERISK_COMMENT, Collections.unmodifiableMap(tmpFieldMap));
+      }
+    fieldAnnotations = Collections.unmodifiableMap(tmpMap);
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    tmp.add(_Fields.HAS_DEFAULT);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 
 
@@ -302,7 +363,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public Request setAList(List<String> aList) {
     this.aList = aList;
-
+    
     return this;
   }
 
@@ -342,7 +403,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public Request setASet(Set<Integer> aSet) {
     this.aSet = aSet;
-
+    
     return this;
   }
 
@@ -378,7 +439,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public Request setAMap(Map<Long,Long> aMap) {
     this.aMap = aMap;
-
+    
     return this;
   }
 
@@ -403,7 +464,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public Request setARequest(Request aRequest) {
     this.aRequest = aRequest;
-
+    
     return this;
   }
 
@@ -443,7 +504,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public Request setSubRequests(List<Request> subRequests) {
     this.subRequests = subRequests;
-
+    
     return this;
   }
 
@@ -468,7 +529,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public Request setHasDefault(String hasDefault) {
     this.hasDefault = hasDefault;
-
+    
     return this;
   }
 
@@ -1180,7 +1241,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   public void write(TProtocol oprot) throws TException {
     validate();
-
+    
     oprot.writeStructBegin(STRUCT_DESC);
     if (this.aList != null) {
       oprot.writeFieldBegin(A_LIST_FIELD_DESC);

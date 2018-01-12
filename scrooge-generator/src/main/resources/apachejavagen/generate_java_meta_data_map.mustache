@@ -1,10 +1,25 @@
 public static final Map<_Fields, FieldMetaData> metaDataMap;
+
+/**
+ * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+ * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+ * declared as binary in the idl file.
+ */
+public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+
+private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+  binaryFieldValues.add(f);
+  return f;
+}
+
 static {
   Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+  Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
   {{#fields}}
   tmpMap.put(_Fields.{{#constant_name}}{{name}}{{/constant_name}}, new FieldMetaData("{{name}}", {{field.requirement}},
     {{{field_metadata}}}));
   {{/fields}}
   metaDataMap = Collections.unmodifiableMap(tmpMap);
+  binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
   FieldMetaData.addStructMetaDataMap({{name}}.class, metaDataMap);
 }

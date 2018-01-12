@@ -3,9 +3,9 @@ package com.twitter.scrooge.java_generator
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
-import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
+import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.Utils.verify
 import com.twitter.util.Try
@@ -71,19 +71,6 @@ class ApacheJavaGeneratorSpec extends Spec {
       controller.namespace must be("com.twitter.thrift")
     }
 
-    "generate enum code" in {
-      val controller = mock[EnumController]
-      when(controller.name) thenReturn "test"
-      when(controller.constants) thenReturn Seq(
-        new EnumConstant("foo", 1, false),
-        new EnumConstant("bar", 2, true)
-      )
-      when(controller.namespace) thenReturn "com.twitter.thrift"
-      when(controller.has_namespace) thenReturn true
-      val sw = renderMustache("enum.mustache", controller)
-      verify(sw, getFileContents("apache_output/enum.txt"))
-    }
-
     "use an EnumSet for a set of enums" in {
       val obj = new StructWithEnumSet()
       obj.getCodes must be(null)
@@ -122,52 +109,12 @@ class ApacheJavaGeneratorSpec extends Spec {
       verify(sw, getFileContents("apache_output/constant_map.txt"))
     }
 
-    "generate struct" in {
-      val doc = generateDoc(getFileContents("test_thrift/struct.thrift"))
-      val controller =
-        new StructController(doc.structs(1), false, getGenerator(doc), doc.namespace("java"))
-      val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/struct.txt"))
-    }
-
-    "generate struct with hashcode" in {
-      val doc = generateDoc(getFileContents("test_thrift/struct.thrift"))
-      val generator = getGenerator(doc, genHashcode = true)
-      val controller = new StructController(doc.structs(1), false, generator, doc.namespace("java"))
-      val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/struct_with_hashcode.txt"))
-    }
-
     "generate empty struct" in {
       val doc = generateDoc(getFileContents("test_thrift/empty_struct.thrift"))
       val controller =
         new StructController(doc.structs(0), false, getGenerator(doc), doc.namespace("java"))
       val sw = renderMustache("struct.mustache", controller)
       verify(sw, getFileContents("apache_output/empty_struct.txt"), false)
-    }
-
-    "generate exception" in {
-      val doc = generateDoc(getFileContents("test_thrift/service.thrift"))
-      val controller =
-        new StructController(doc.structs(1), false, getGenerator(doc), doc.namespace("java"))
-      val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/test_exception.txt"))
-    }
-
-    "generate union" in {
-      val doc = generateDoc(getFileContents("test_thrift/union.thrift"))
-      val controller =
-        new StructController(doc.structs(0), false, getGenerator(doc), doc.namespace("java"))
-      val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/union.txt"))
-    }
-
-    "generate union with hashcode" in {
-      val doc = generateDoc(getFileContents("test_thrift/union.thrift"))
-      val generator = getGenerator(doc, genHashcode = true)
-      val controller = new StructController(doc.structs(0), false, generator, doc.namespace("java"))
-      val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/union_with_hashcode.txt"))
     }
 
     "generate service that extends parent" in {

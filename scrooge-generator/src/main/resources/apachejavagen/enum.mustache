@@ -3,6 +3,8 @@
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumMap;
 import org.apache.thrift.TEnum;
 
 public enum {{name}} implements TEnum {
@@ -37,4 +39,7 @@ public enum {{name}} implements TEnum {
         return null;
     }
   }
+
+  {{#i_2}}{{>generate_java_struct_annotations}}{{/i_2}}
+  {{#i_2}}{{>generate_java_enum_value_annotations}}{{/i_2}}
 }

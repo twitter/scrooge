@@ -1,0 +1,23 @@
+/**
+ * Returns a map of the annotations for each of this enum's values, keyed by the enum
+ * value. See structAnnotations for the annotations attached to this enum's declaration.
+ */
+public static final Map<{{name}}, Map<String, String>> valueAnnotations;
+static {
+  {{#has_value_annotations}}
+  Map<{{name}}, Map<String, String>> tmpMap = new EnumMap<{{name}}, Map<String, String>>({{name}}.class);
+  {{#value_annotations}}
+    {
+      Map<String, String> tmpFieldMap = new HashMap<String, String>();
+      {{#value.annotations}}
+      tmpFieldMap.put("{{key}}", "{{value}}");
+      {{/value.annotations}}
+      tmpMap.put({{value.name}}, Collections.unmodifiableMap(tmpFieldMap));
+    }
+  {{/value_annotations}}
+  valueAnnotations = Collections.unmodifiableMap(tmpMap);
+  {{/has_value_annotations}}
+  {{^has_value_annotations}}
+  valueAnnotations = Collections.emptyMap();
+  {{/has_value_annotations}}
+}

@@ -119,7 +119,9 @@ object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
   val DetailsFieldManifest = implicitly[Manifest[Details]]
 
   lazy val structAnnotations: immutable$Map[String, String] =
-    immutable$Map.empty[String, String]
+    immutable$Map[String, String](
+        "u.annotation" -> "y"
+    )
 
   /**
    * Field information in declaration order.
@@ -207,7 +209,9 @@ object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
         DetailsKeyTypeManifest,
         DetailsValueTypeManifest,
         immutable$Map.empty[String, String],
-        immutable$Map.empty[String, String]
+        immutable$Map(
+          "u.field.annotation" -> "x"
+        )
       )
   }
 

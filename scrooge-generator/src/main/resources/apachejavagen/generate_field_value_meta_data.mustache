@@ -20,7 +20,12 @@ new {{{field_type.get_type}}}MetaData({{field_type.to_enum}},
 
 {{^field_type.is_struct_or_enum}}
 {{^field_type.is_container}}
+{{#field_type.is_binary}}
+registerBinaryFieldValueMetaData(new FieldValueMetaData({{field_type.to_enum}}), tmpSet)
+{{/field_type.is_binary}}
+{{^field_type.is_binary}}
 new FieldValueMetaData({{field_type.to_enum}})
+{{/field_type.is_binary}}
 {{/field_type.is_container}}
 {{/field_type.is_struct_or_enum}}
 {{/consolidate_newlines}}

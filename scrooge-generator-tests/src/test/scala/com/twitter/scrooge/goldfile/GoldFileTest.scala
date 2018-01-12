@@ -93,7 +93,7 @@ abstract class GoldFileTest extends FunSuite
 
   protected def diff(gold: InputStream, gen: InputStream, genFileName: String, genRelPath: String): Unit = {
     val genStr = generatedDataFor(gen)
-    val expected = inputStreamToString(gold)
+    val expected = expectedDataFor(gold)
     if (genStr != expected) {
       val diff = {
         var i = 0
@@ -136,6 +136,11 @@ abstract class GoldFileTest extends FunSuite
     val headersNormalized = headerRegEx.replaceAllIn(gen, headerNormalizedReplacement)
 
     trailingSpaces.matcher(headersNormalized).replaceAll("")
+  }
+
+  private def expectedDataFor(is: InputStream): String = {
+    val str = inputStreamToString(is)
+    trailingSpaces.matcher(str).replaceAll("")
   }
 
   private def inputStreamToString(is: InputStream): String = {
