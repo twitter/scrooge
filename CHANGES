@@ -5,8 +5,13 @@
 Unreleased
 ----------
 
+- scrooge-generator: Update `c.t.fingale.thrit.service.MethodPerEndpointBuilder`
+  to build `MethodPerEndpoint` types. Add new `ThriftServiceBuilder` for
+  building the higher-kinded form from a `ServicePerEndpoint`. Users should
+  prefer using the `MethodPerEndpointBuilder`. ``PHAB_ID=D127538``
+
 - scrooge-generator: Add more metadata to generated java objects ``PHAB_ID=D122997``
-  Includes: 
+  Includes:
     * struct and field annotations from the idl files
     * which fields have default values
     * which field values of TType.STRING are actually binary fields

@@ -831,14 +831,28 @@ object PlatinumService { self =>
   }
 
   implicit object MethodPerEndpointBuilder
-    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, PlatinumService[Future]] {
+    extends _root_.com.twitter.finagle.thrift.service.MethodPerEndpointBuilder[ServicePerEndpoint, MethodPerEndpoint] {
     def methodPerEndpoint(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
       MethodPerEndpoint(servicePerEndpoint)
   }
 
+  @deprecated("Use MethodPerEndpointBuilder", "2018-01-12")
+  implicit object ThriftServiceBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ThriftServiceBuilder[ServicePerEndpoint, PlatinumService[Future]] {
+    def build(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
+      MethodPerEndpoint(servicePerEndpoint)
+  }
+
   implicit object ReqRepMethodPerEndpointBuilder
-    extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, PlatinumService[Future]] {
+    extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, MethodPerEndpoint] {
     def methodPerEndpoint(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
+      ReqRepMethodPerEndpoint(servicePerEndpoint)
+  }
+
+  @deprecated("Use ReqRepMethodPerEndpointBuilder", "2018-01-12")
+  implicit object ReqRepThriftServiceBuilder
+    extends _root_.com.twitter.finagle.thrift.service.ReqRepThriftServiceBuilder[ReqRepServicePerEndpoint, PlatinumService[Future]] {
+    def build(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
       ReqRepMethodPerEndpoint(servicePerEndpoint)
   }
 
