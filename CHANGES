@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+18.1.0
+-------
+
 - scrooge-generator: Update `c.t.fingale.thrit.service.MethodPerEndpointBuilder`
   to build `MethodPerEndpoint` types. Add new `ThriftServiceBuilder` for
   building the higher-kinded form from a `ServicePerEndpoint`. Users should
