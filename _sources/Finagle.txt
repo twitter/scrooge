@@ -277,7 +277,7 @@ Lastly, you can request a ``ReqRepServicePerEndpoint``.
 ::
 
    val reqRepServicePerEndpoint: BinaryService.ReqRepServicePerEndpoint =
-      ThriftMux.client.reqRepServicePerEndpoint[BinaryService.ReqRepServicePerEndpoint]("host:port")
+      ThriftMux.client.servicePerEndpoint[BinaryService.ReqRepServicePerEndpoint]("host:port")
 
     val result: Future[ByteBuffer] =
       reqRepServicePerEndpoint.fetchBlob(
@@ -297,7 +297,7 @@ and convert to the ``MethodPerEndpoint``.
         )
 
     val methodPerEndpoint: BinaryService.MethodPerEndpoint =
-      ThriftMux.client.reqRepMethodPerEndpoint(filteredReqRepServicePerEndpoint)
+      ThriftMux.client.methodPerEndpoint(filteredReqRepServicePerEndpoint)
 
 Creating a Client (deprecated API)
 ----------------------------------
