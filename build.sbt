@@ -294,7 +294,8 @@ def scroogeSbtPluginSettings = {
       .filter(_.key.key.label != "publishTo") ++
       Seq(
         bintrayRepository := "sbt-plugins",
-        bintrayOrganization := Some("twittercsl")
+        bintrayOrganization := Some("twittercsl"),
+        publishMavenStyle := false
       )
   } else {
     settingsWithTwoTen
@@ -311,7 +312,6 @@ lazy val scroogeSbtPlugin = Project(
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
-  publishMavenStyle := false,
   licenses += (("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")))
 ).dependsOn(scroogeGenerator)
 
