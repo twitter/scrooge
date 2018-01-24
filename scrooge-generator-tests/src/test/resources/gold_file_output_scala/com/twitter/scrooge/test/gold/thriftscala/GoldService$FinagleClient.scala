@@ -56,6 +56,8 @@ class GoldService$FinagleClient(
 
   def serviceName: String = clientParam.serviceName
 
+  override def asClosable: _root_.com.twitter.util.Closable = service
+
   private[this] def protocolFactory: TProtocolFactory = clientParam.protocolFactory
   private[this] def maxReusableBufferSize: Int = clientParam.maxThriftBufferSize
 

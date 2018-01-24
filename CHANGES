@@ -5,6 +5,10 @@
 Unreleased
 ----------
 
+- scrooge-generator: Scala generated client now has a asClosable method returns c.t.u.Closable,
+  client now can be closed by calling `client.asClosable.close`. Note that `asClosable` won't be
+  generated if it is also defined by the user. ``PHAB_ID=D129645``
+
 18.1.0
 -------
 

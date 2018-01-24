@@ -1,5 +1,7 @@
 package com.twitter.scrooge.backend
 
+import _root_.thrift.test.ExceptionalService._
+import _root_.thrift.test._
 import com.twitter.conversions.time._
 import com.twitter.finagle
 import com.twitter.finagle.param.Stats
@@ -7,18 +9,17 @@ import com.twitter.finagle.service.{ReqRep, ResponseClass, ResponseClassifier}
 import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.finagle.thrift.{RichClientParam, RichServerParam, ThriftClientRequest}
 import com.twitter.finagle.{Service => finagleService, _}
-import com.twitter.scrooge.{Request, Response, ThriftException}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
-import com.twitter.util.{Await, Future, Return}
+import com.twitter.scrooge.{Request, Response, ThriftException}
+import com.twitter.util.{Await, Future, Return, Time}
 import java.net.{InetAddress, InetSocketAddress}
+import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.thrift.protocol._
 import org.jmock.Expectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import org.scalatest.concurrent.Eventually
 import scala.language.reflectiveCalls
-import _root_.thrift.test.ExceptionalService._
-import _root_.thrift.test._
 
 class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
@@ -364,6 +365,67 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         }
         e must be(ex)
         context.assertIsSatisfied()
+      }
+
+      "be closable" in { _ =>
+        val closableService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
+          val testService = new ExceptionalService$FinagleService(impl, RichServerParam())
+          val isOpen = new AtomicBoolean(true)
+
+          def apply(req: ThriftClientRequest) = testService(req.message)
+
+          override def status: Status = if (isOpen.get()) Status.Open else Status.Closed
+
+          override def close(deadline: Time): Future[Unit] = {
+            isOpen.set(false)
+            Future.Unit
+          }
+        }
+
+        val testClient = new ExceptionalService$FinagleClient(closableService, RichClientParam())
+
+        closableService.status mustBe Status.Open
+        Await.result(testClient.asClosable.close(), 2.seconds)
+        closableService.status mustBe Status.Closed
+      }
+
+      "be closable MethodPerEndpoint" in { _ =>
+        val service = Thrift.server.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new SimpleService[Future] {
+            def deliver(input: String) = Future.value(input.length)
+          })
+
+        val clientService = Thrift.client.servicePerEndpoint[SimpleService.ServicePerEndpoint](
+          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])), "simple")
+
+        val clientMethod = Thrift.client.methodPerEndpoint(clientService)
+
+        Await.result(clientMethod.deliver("pass"), 2.seconds)
+        Await.result(clientMethod.asClosable.close(), 2.seconds)
+
+        intercept[ServiceClosedException](
+          Await.result(clientMethod.deliver("pass"), 2.seconds)
+        )
+      }
+
+      // close is not a reserved method, closable is reserved
+      // when users define their own asClosable, scrooge doesn't generate it
+      "user can define close method and their own asClosable method" in { _ =>
+        val closableService = Thrift.server.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new ClosableService[Future] {
+            def close() = Future.value("close")
+            def asClosable() = Future.value("asClosable")
+          })
+
+        val closableClient = Thrift.client.build[ClosableService.MethodPerEndpoint](
+          Name.bound(Address(closableService.boundAddress.asInstanceOf[InetSocketAddress])),
+          "closableClient"
+        )
+
+        assert(Await.result(closableClient.close(), 5.seconds) == "close")
+        assert(Await.result(closableClient.asClosable(), 5.seconds) == "asClosable")
       }
     }
 

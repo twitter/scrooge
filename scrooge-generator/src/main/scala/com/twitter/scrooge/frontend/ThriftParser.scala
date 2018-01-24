@@ -18,6 +18,7 @@ package com.twitter.scrooge.frontend
 
 import java.util.logging.Logger
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.backend.{ServiceOption, WithAsClosable}
 import java.io.FileNotFoundException
 import scala.collection.concurrent.{Map, TrieMap}
 import scala.collection.mutable
@@ -392,8 +393,16 @@ class ThriftParser(
     function
   ) <~
     "}") ~ defaultedAnnotations ^^ {
-    case comment ~ sid ~ extend ~ functions ~ annotations =>
-      Service(sid, extend, functions, comment, annotations)
+    case comment ~ sid ~ extend ~ functions ~ annotations => {
+      val hasFuncNamedAsClosable = functions.exists(_.funcName.name.equalsIgnoreCase(WithAsClosable.AsClosableMethodName))
+      val options: Set[ServiceOption] = if (hasFuncNamedAsClosable) {
+        logger.warning(s"Generating user defined asClosable instead of default one for ${sid.fullName}")
+        Set.empty
+      } else {
+        Set(WithAsClosable)
+      }
+      Service(sid, extend, functions, comment, annotations, options)
+    }
   }
 
   // This is a simpleID without the keyword check. Filenames that are thrift keywords are allowed.

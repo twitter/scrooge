@@ -129,8 +129,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
 
   def finagleClient(
     service: Service,
-    namespace: Identifier
-  ) =
+    namespace: Identifier,
+    withAsClosable: Boolean
+  ): Dictionary =
     Dictionary(
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
@@ -159,13 +160,14 @@ trait ServiceTemplate { self: TemplateGenerator =>
           }
         )
       }),
-      "finagleClientFunction" -> v(templates("finagleClientFunction"))
+      "finagleClientFunction" -> v(templates("finagleClientFunction")),
+      "withAsClosable" -> v(withAsClosable)
     )
 
   def finagleService(
     service: Service,
     namespace: Identifier
-  ) =
+  ): Dictionary =
     Dictionary(
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
@@ -220,8 +222,9 @@ trait ServiceTemplate { self: TemplateGenerator =>
     includes: Seq[Include],
     options: Set[ServiceOption],
     genAdapt: Boolean
-  ) = {
+  ): Dictionary = {
     val withFinagle = options.contains(WithFinagle)
+    val withAsClosable = options.contains(WithAsClosable)
     lazy val computeInheritedFunctions: Service => (Seq[Dictionary], Seq[Dictionary]) = {
       service => {
         // For service-per-endpoint, we generate a class with a value for each method, so
@@ -308,7 +311,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
         ) + functionDictionary(f, Some("Future"))
       }),
       "finagleClients" -> v(
-        if (withFinagle) Seq(finagleClient(service, namespace)) else Seq()
+        if (withFinagle) Seq(finagleClient(service, namespace, withAsClosable)) else Seq()
       ),
       "finagleServices" -> v(
         if (withFinagle) Seq(finagleService(service, namespace)) else Seq()
@@ -339,7 +342,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
         val (_, ownFunctions) = computeInheritedFunctions(service)
         v(ownFunctions)
       },
-      "annotations" -> TemplateGenerator.renderPairs(service.annotations)
+      "annotations" -> TemplateGenerator.renderPairs(service.annotations),
+      "withAsClosable" -> v(withAsClosable)
     )
   }
 

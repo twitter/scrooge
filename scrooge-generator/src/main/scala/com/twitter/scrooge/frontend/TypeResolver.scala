@@ -244,7 +244,7 @@ case class TypeResolver(
         val fieldType = apply(t)
         val resolved = c.copy(fieldType = fieldType, value = apply(v, fieldType))
         ResolvedDefinition(resolved, withConst(resolved))
-      case s @ Service(sid, parent, fs, _, _) =>
+      case s @ Service(sid, parent, fs, _, _, _) =>
         // No need to modify Service, but check that we can resolve parent.
         parent.foreach { serviceParent =>
           resolveServiceParent(serviceParent)

@@ -30,6 +30,9 @@ import scala.collection.mutable
 abstract sealed class ServiceOption
 
 case object WithFinagle extends ServiceOption
+case object WithAsClosable extends ServiceOption {
+  val AsClosableMethodName: String = "asClosable"
+}
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 abstract class Generator(doc: ResolvedDocument) {
@@ -507,16 +510,17 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     }
 
     doc.services.foreach { service =>
+      val allOptions = serviceOptions ++ service.options
       val interfaceFile = new File(packageDir, service.sid.toTitleCase.name + fileExtension)
-      val finagleClientFileOpt = finagleClientFile(packageDir, service, serviceOptions)
-      val finagleServiceFileOpt = finagleServiceFile(packageDir, service, serviceOptions)
+      val finagleClientFileOpt = finagleClientFile(packageDir, service, allOptions)
+      val finagleServiceFileOpt = finagleServiceFile(packageDir, service, allOptions)
 
       if (!dryRun) {
-        val dict = serviceDict(service, namespace, includes, serviceOptions, genAdapt)
+        val dict = serviceDict(service, namespace, includes, allOptions, genAdapt)
         writeFile(interfaceFile, templates.header, templates("service").generate(dict))
 
         finagleClientFileOpt foreach { file =>
-          val dict = finagleClient(service, namespace)
+          val dict = finagleClient(service, namespace, allOptions.contains(WithAsClosable))
           writeFile(file, templates.header, templates("finagleClient").generate(dict))
         }
 

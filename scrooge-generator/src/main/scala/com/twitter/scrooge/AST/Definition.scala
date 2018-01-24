@@ -1,5 +1,7 @@
 package com.twitter.scrooge.ast
 
+import com.twitter.scrooge.backend.ServiceOption
+
 sealed abstract class Definition extends DefinitionNode {
   val sid: SimpleID
 }
@@ -94,7 +96,8 @@ case class Service(
   parent: Option[ServiceParent],
   functions: Seq[Function],
   docstring: Option[String],
-  annotations: Map[String, String] = Map.empty
+  annotations: Map[String, String] = Map.empty,
+  options: Set[ServiceOption] = Set.empty
 ) extends Definition
 
 /**

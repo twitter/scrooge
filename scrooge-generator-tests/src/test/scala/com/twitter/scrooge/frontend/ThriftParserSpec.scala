@@ -2,6 +2,7 @@ package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast.Requiredness.Default
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.backend.WithAsClosable
 import com.twitter.scrooge.testutil.Spec
 
 class ThriftParserSpec extends Spec {
@@ -510,12 +511,14 @@ enum Foo
               None
             )
           ),
-          Some("/** cold hard cache */")
+          Some("/** cold hard cache */"),
+          Map(),
+          Set(WithAsClosable)
         )
       )
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) must be(
-        Service(SimpleID("LeechCache"), Some(ServiceParent(SimpleID("Cache"), None)), Seq(), None)
+        Service(SimpleID("LeechCache"), Some(ServiceParent(SimpleID("Cache"), None)), Seq(), None, Map(),  Set(WithAsClosable))
       )
     }
 
@@ -540,7 +543,9 @@ enum Foo
               Seq(
                 Function(SimpleID("doNothing"), "doNothing", Void, Seq(), Seq(), Some("/** DoC */"))
               ),
-              Some("/** what up doc */")
+              Some("/** what up doc */"),
+              Map(),
+              Set(WithAsClosable)
             )
           )
         )
@@ -975,7 +980,8 @@ enum Foo
             Function(SimpleID("foo", None), "foo", Void, Seq(), Seq(), None, Map("foo" -> "bar"))
           ),
           None,
-          Map("a.b" -> "c")
+          Map("a.b" -> "c"),
+          Set(WithAsClosable)
         )
       )
     }

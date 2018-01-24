@@ -44,6 +44,14 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 {{#genericFunctions}}
   {{>function}}
 {{/genericFunctions}}
+
+{{#withAsClosable}}
+  /**
+   * Used to close the underlying `Service`.
+   * Not a user-defined API.
+   */
+  {{#parent}}override {{/parent}}def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
+{{/withAsClosable}}
 }
 
 {{docstring}}
@@ -374,6 +382,15 @@ object {{ServiceName}} { self =>
         def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
           servicePerEndpoint.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
 {{/ownFunctions}}
+
+{{#withAsClosable}}
+        override def asClosable: _root_.com.twitter.util.Closable =
+          _root_.com.twitter.util.Closable.all(
+{{#inheritedFunctions}}
+            servicePerEndpoint.{{dedupedFuncName}}
+{{/inheritedFunctions|,}}
+          )
+{{/withAsClosable}}
     }
   }
 
@@ -396,6 +413,15 @@ object {{ServiceName}} { self =>
           servicePerEndpoint.{{dedupedFuncName}}(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_)){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
         }
 {{/ownFunctions}}
+
+{{#withAsClosable}}
+        override def asClosable: _root_.com.twitter.util.Closable =
+          _root_.com.twitter.util.Closable.all(
+{{#inheritedFunctions}}
+            servicePerEndpoint.{{dedupedFuncName}}
+{{/inheritedFunctions|,}}
+          )
+{{/withAsClosable}}
     }
   }
 

@@ -47,6 +47,12 @@ import scala.language.higherKinds
 trait PlatinumService[+MM[_]] extends GoldService[MM] {
 
   def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[Int]
+
+  /**
+   * Used to close the underlying `Service`.
+   * Not a user-defined API.
+   */
+  override def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
 }
 
 
@@ -799,6 +805,12 @@ object PlatinumService { self =>
       with MethodPerEndpoint {
         def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] =
           servicePerEndpoint.moreCoolThings(self.MoreCoolThings.Args(request))
+
+        override def asClosable: _root_.com.twitter.util.Closable =
+          _root_.com.twitter.util.Closable.all(
+            servicePerEndpoint.moreCoolThings,
+            servicePerEndpoint.doGreatThings
+          )
     }
   }
 
@@ -819,6 +831,12 @@ object PlatinumService { self =>
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.MoreCoolThings.Args(request))
           servicePerEndpoint.moreCoolThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
         }
+
+        override def asClosable: _root_.com.twitter.util.Closable =
+          _root_.com.twitter.util.Closable.all(
+            servicePerEndpoint.moreCoolThings,
+            servicePerEndpoint.doGreatThings
+          )
     }
   }
 

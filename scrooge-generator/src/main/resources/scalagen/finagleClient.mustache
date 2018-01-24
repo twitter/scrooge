@@ -50,6 +50,10 @@ class {{ServiceName}}$FinagleClient(
 
   {{#hasParent}}override {{/hasParent}}def serviceName: String = clientParam.serviceName
 {{^hasParent}}
+{{#withAsClosable}}
+
+  override def asClosable: _root_.com.twitter.util.Closable = service
+{{/withAsClosable}}
 
   private[this] def protocolFactory: TProtocolFactory = clientParam.protocolFactory
   private[this] def maxReusableBufferSize: Int = clientParam.maxThriftBufferSize
