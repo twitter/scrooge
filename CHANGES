@@ -5,6 +5,13 @@
 Unreleased
 ----------
 
+- scrooge-generator: Remove unused `functionToService` and `serviceToFunction` 
+  methods along with `ServiceType` and `ReqRepServiceType` type aliases in 
+  order to simplify code generation. 
+
+  NOTE: This functionality can be manually replicated by users if/when needed
+  to convert between a Function1 and a Finagle `Service`. ``PHAB_ID=D132171``
+
 - scrooge-generator: Scala generated client now has a asClosable method returns c.t.u.Closable,
   client now can be closed by calling `client.asClosable.close`. Note that `asClosable` won't be
   generated if it is also defined by the user. ``PHAB_ID=D129645``

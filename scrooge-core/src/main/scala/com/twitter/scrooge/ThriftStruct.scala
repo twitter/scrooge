@@ -144,11 +144,11 @@ trait ThriftMethod {
   /** Contains success or thrift application exceptions */
   type Result <: ThriftResponse[SuccessType] with ThriftStruct
 
-  // Note there is some indirection here for `FunctionType`, `ServiceType`
-  // and `ServiceIfaceServiceType`. This is because for Scala generated with
-  // Finagle bindings, these add dependencies on Twitter util and Finagle.
-  // This indirection allows us to sidestep that and keep scrooge-core
-  // free of those dependencies.
+  // Note there is some indirection here for `FunctionType`, `ServiceIfaceServiceType`,
+  // ServicePerEndpointServiceType, and ReqRepServicePerEndpointServiceType. This is 
+  // because for Scala generated with Finagle bindings, these add dependencies on 
+  // Twitter Util and Finagle. This indirection allows us to sidestep that and keep 
+  // scrooge-core free of those dependencies.
 
   /**
    * The type of this method, as a function.
@@ -173,32 +173,6 @@ trait ThriftMethod {
    * For Scala generated code without Finagle bindings, this will be `Nothing`.
    */
   type ReqRepFunctionType
-
-  /**
-   * The type of this method, as a Finagle `Service` from `Args` to
-   * `Result`.
-   *
-   * For Scala generated code with Finagle bindings this will be roughly:
-   * `Service[Args, Result]`.
-   *
-   * For Scala generated code without Finagle bindings, this will be `Nothing`.
-   *
-   * @see [[ServicePerEndpointServiceType]] for a more ergonomic API.
-   */
-  type ServiceType
-
-  /**
-   * The type of this method, as a Finagle `Service` from `scrooge.Request[Args]` to
-   * `scrooge.Response[Result]`.
-   *
-   * For Scala generated code with Finagle bindings this will be roughly:
-   * `Service[scrooge.Request[Args], scrooge.Response[Result]]`.
-   *
-   * For Scala generated code without Finagle bindings, this will be `Nothing`.
-   *
-   * @see [[ReqRepServicePerEndpointServiceType]] for a more ergonomic API.
-   */
-  type ReqRepServiceType
 
   /**
    * The type of this method, as a Finagle `Service` from `Args` to
@@ -259,21 +233,6 @@ trait ThriftMethod {
    * For Scala generated code without Finagle bindings, this will not implemented.
    */
   def toReqRepServicePerEndpointService(f: ReqRepFunctionType): ReqRepServicePerEndpointServiceType
-
-  /**
-   * Convert a function implementation of this method into a
-   * `Service` implementation returning `Result`.
-   *
-   * For Scala generated code without Finagle bindings, this will not implemented.
-   */
-  def functionToService(f: FunctionType): ServiceType
-
-  /**
-   * Convert a service implementation of this method into a function implementation
-   *
-   * For Scala generated code without Finagle bindings, this will not implemented.
-   */
-  def serviceToFunction(svc: ServiceType): FunctionType
 
   /** Thrift annotations (user-defined key-value metadata) on the method */
   def annotations: Map[String, String]
