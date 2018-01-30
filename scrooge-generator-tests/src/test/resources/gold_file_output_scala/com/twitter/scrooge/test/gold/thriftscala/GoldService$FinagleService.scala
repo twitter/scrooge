@@ -194,14 +194,14 @@ class GoldService$FinagleService(
         service(req).transform {
           case Return(value) =>
             value match {
-              case SuccessfulResult(req, _, result) =>
+              case SuccessfulResponse(req, _, result) =>
                 recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Return(result.successField.get)), methodStats)
-              case ProtocolException(req, _, exp) =>
+              case ProtocolExceptionResponse(req, _, exp) =>
                 recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(exp)), methodStats)
-              case ThriftExceptionResult(req, _, result) =>
-                val rep = result.firstException match {
-                  case Some(exp) => setServiceName(exp)
-                  case None => missingResult(serviceName)
+              case ThriftExceptionResponse(req, _, ex) =>
+                val rep = ex match {
+                  case exp: ThriftException => setServiceName(exp)
+                  case _ => missingResult(serviceName)
                 }
                 recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(rep)), methodStats)
             }
@@ -239,7 +239,7 @@ class GoldService$FinagleService(
           case _root_.com.twitter.util.Throw(e: TProtocolException) =>
             iprot.readMessageEnd()
             Future.value(
-              ProtocolException(
+              ProtocolExceptionResponse(
                 null,
                 exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
                 new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
@@ -263,17 +263,16 @@ class GoldService$FinagleService(
           case _root_.com.twitter.util.Return(value) =>
             val methodResult = DoGreatThings.Result(success = Some(value))
             Future.value(
-              SuccessfulResult(
+              SuccessfulResponse(
                 args,
                 reply("doGreatThings", seqid, methodResult),
                 methodResult))
           case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException) => {
-            val methodResult = DoGreatThings.Result(ex = Some(e))
             Future.value(
-              ThriftExceptionResult(
+              ThriftExceptionResponse(
                 args,
-                reply("doGreatThings", seqid, methodResult),
-                methodResult))
+                reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(e))),
+                e))
           }
           case t @ _root_.com.twitter.util.Throw(_) =>
             Future.const(t.cast[RichResponse[DoGreatThings.Args, DoGreatThings.Result]])

@@ -16,6 +16,11 @@ Unreleased
   client now can be closed by calling `client.asClosable.close`. Note that `asClosable` won't be
   generated if it is also defined by the user. ``PHAB_ID=D129645``
 
+- scrooge-generator: Renamed subclasses of `com.twitter.scrooge.RichResponse`:
+  `ProtocolExceptionResponse`, `SuccessfulResponse`, and `ThriftExceptionResponse`.
+  These case classes are for representing different response types and should be only
+  used by the generated code. ``PHAB_ID=D132202``
+
 18.1.0
 -------
 

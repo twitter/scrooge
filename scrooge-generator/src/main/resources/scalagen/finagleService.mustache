@@ -189,14 +189,14 @@ class {{ServiceName}}$FinagleService(
         service(req).transform {
           case Return(value) =>
             value match {
-              case SuccessfulResult(req, _, result) =>
+              case SuccessfulResponse(req, _, result) =>
                 recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Return(result.successField.get)), methodStats)
-              case ProtocolException(req, _, exp) =>
+              case ProtocolExceptionResponse(req, _, exp) =>
                 recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(exp)), methodStats)
-              case ThriftExceptionResult(req, _, result) =>
-                val rep = result.firstException match {
-                  case Some(exp) => setServiceName(exp)
-                  case None => missingResult(serviceName)
+              case ThriftExceptionResponse(req, _, ex) =>
+                val rep = ex match {
+                  case exp: ThriftException => setServiceName(exp)
+                  case _ => missingResult(serviceName)
                 }
                 recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(rep)), methodStats)
             }

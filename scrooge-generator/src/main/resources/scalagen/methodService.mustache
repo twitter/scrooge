@@ -22,7 +22,7 @@ addService("{{methodSvcNameForWire}}", {
         case _root_.com.twitter.util.Throw(e: TProtocolException) =>
           iprot.readMessageEnd()
           Future.value(
-            ProtocolException(
+            ProtocolExceptionResponse(
               null,
               exception("{{methodSvcNameForWire}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
               new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
@@ -46,18 +46,17 @@ addService("{{methodSvcNameForWire}}", {
         case _root_.com.twitter.util.Return(value) =>
           val methodResult = {{funcObjectName}}.Result({{resultNamedArg}})
           Future.value(
-            SuccessfulResult(
+            SuccessfulResponse(
               args,
               reply("{{methodSvcNameForWire}}", seqid, methodResult),
               methodResult))
 {{#exceptions}}
         case _root_.com.twitter.util.Throw(e: {{exceptionType}}) => {
-          val methodResult = {{funcObjectName}}.Result({{fieldName}} = Some(e))
           Future.value(
-            ThriftExceptionResult(
+            ThriftExceptionResponse(
               args,
-              reply("{{methodSvcNameForWire}}", seqid, methodResult),
-              methodResult))
+              reply("{{methodSvcNameForWire}}", seqid, {{funcObjectName}}.Result({{fieldName}} = Some(e))),
+              e))
         }
 {{/exceptions}}
         case t @ _root_.com.twitter.util.Throw(_) =>

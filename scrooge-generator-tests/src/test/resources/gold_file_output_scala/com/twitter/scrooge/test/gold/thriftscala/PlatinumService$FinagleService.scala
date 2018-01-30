@@ -88,7 +88,7 @@ class PlatinumService$FinagleService(
           case _root_.com.twitter.util.Throw(e: TProtocolException) =>
             iprot.readMessageEnd()
             Future.value(
-              ProtocolException(
+              ProtocolExceptionResponse(
                 null,
                 exception("moreCoolThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
                 new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
@@ -112,25 +112,23 @@ class PlatinumService$FinagleService(
           case _root_.com.twitter.util.Return(value) =>
             val methodResult = MoreCoolThings.Result(success = Some(value))
             Future.value(
-              SuccessfulResult(
+              SuccessfulResponse(
                 args,
                 reply("moreCoolThings", seqid, methodResult),
                 methodResult))
           case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.AnotherException) => {
-            val methodResult = MoreCoolThings.Result(ax = Some(e))
             Future.value(
-              ThriftExceptionResult(
+              ThriftExceptionResponse(
                 args,
-                reply("moreCoolThings", seqid, methodResult),
-                methodResult))
+                reply("moreCoolThings", seqid, MoreCoolThings.Result(ax = Some(e))),
+                e))
           }
           case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException) => {
-            val methodResult = MoreCoolThings.Result(oce = Some(e))
             Future.value(
-              ThriftExceptionResult(
+              ThriftExceptionResponse(
                 args,
-                reply("moreCoolThings", seqid, methodResult),
-                methodResult))
+                reply("moreCoolThings", seqid, MoreCoolThings.Result(oce = Some(e))),
+                e))
           }
           case t @ _root_.com.twitter.util.Throw(_) =>
             Future.const(t.cast[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]])
