@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+- scrooge-generator: Add `asClosable` method to `ServicePerEndpoint` and
+  `ReqRepServicePerEndpoint` interfaces as well. ``PHAB_ID=D134171``
+
 - scrooge-generator: Remove unused `functionToService` and `serviceToFunction` 
   methods along with `ServiceType` and `ReqRepServiceType` type aliases in 
   order to simplify code generation. 

@@ -409,6 +409,44 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         )
       }
 
+      "be closable ServicePerEndpoint" in { _ =>
+        val service = Thrift.server.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new SimpleService[Future] {
+            def deliver(input: String) = Future.value(input.length)
+          })
+
+        val clientService = Thrift.client.servicePerEndpoint[SimpleService.ServicePerEndpoint](
+          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])), "simple")
+
+        Await.result(clientService.deliver(SimpleService.Deliver.Args("pass")), 2.seconds)
+        Await.result(clientService.asClosable.close(), 2.seconds)
+
+        intercept[ServiceClosedException](
+          Await.result(clientService.deliver(SimpleService.Deliver.Args("pass")), 2.seconds)
+        )
+      }
+
+      "be closable ReqRepServicePerEndpoint" in { _ =>
+        import com.twitter.scrooge
+
+        val service = Thrift.server.serveIface(
+          new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+          new SimpleService[Future] {
+            def deliver(input: String) = Future.value(input.length)
+          })
+
+        val clientService = Thrift.client.servicePerEndpoint[SimpleService.ReqRepServicePerEndpoint](
+          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])), "simple")
+
+        Await.result(clientService.deliver(scrooge.Request(SimpleService.Deliver.Args("pass"))), 2.seconds)
+        Await.result(clientService.asClosable.close(), 2.seconds)
+
+        intercept[ServiceClosedException](
+          Await.result(clientService.deliver(scrooge.Request(SimpleService.Deliver.Args("pass"))), 2.seconds)
+        )
+      }
+
       // close is not a reserved method, closable is reserved
       // when users define their own asClosable, scrooge doesn't generate it
       "user can define close method and their own asClosable method" in { _ =>

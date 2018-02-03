@@ -80,6 +80,12 @@ object PlatinumService { self =>
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
     override def toThriftService: ThriftService = MethodPerEndpoint(this)
+
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    override def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
   }
 
   trait ReqRepServicePerEndpoint
@@ -102,6 +108,12 @@ object PlatinumService { self =>
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
     override def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    override def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
   }
 
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
@@ -138,6 +150,12 @@ object PlatinumService { self =>
           moreCoolThings = filter.toFilter.andThen(moreCoolThings),
           doGreatThings = filter.toFilter.andThen(doGreatThings)
         )
+
+      override def asClosable: _root_.com.twitter.util.Closable =
+        _root_.com.twitter.util.Closable.all(
+          this.moreCoolThings,
+          this.doGreatThings
+        )
     }
   }
 
@@ -167,6 +185,12 @@ object PlatinumService { self =>
         new ReqRepServicePerEndpointImpl(
           moreCoolThings = filter.toFilter.andThen(moreCoolThings),
           doGreatThings = filter.toFilter.andThen(doGreatThings)
+        )
+
+      override def asClosable: _root_.com.twitter.util.Closable =
+        _root_.com.twitter.util.Closable.all(
+          this.moreCoolThings,
+          this.doGreatThings
         )
     }
   }
@@ -795,10 +819,7 @@ object PlatinumService { self =>
           servicePerEndpoint.moreCoolThings(self.MoreCoolThings.Args(request))
 
         override def asClosable: _root_.com.twitter.util.Closable =
-          _root_.com.twitter.util.Closable.all(
-            servicePerEndpoint.moreCoolThings,
-            servicePerEndpoint.doGreatThings
-          )
+          servicePerEndpoint.asClosable
     }
   }
 
@@ -821,10 +842,7 @@ object PlatinumService { self =>
         }
 
         override def asClosable: _root_.com.twitter.util.Closable =
-          _root_.com.twitter.util.Closable.all(
-            servicePerEndpoint.moreCoolThings,
-            servicePerEndpoint.doGreatThings
-          )
+          servicePerEndpoint.asClosable
     }
   }
 

@@ -96,6 +96,14 @@ object {{ServiceName}} { self =>
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
     {{#parent}}override {{/parent}}def toThriftService: ThriftService = MethodPerEndpoint(this)
+
+{{#withAsClosable}}
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    {{#parent}}override {{/parent}}def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
+{{/withAsClosable}}
   }
 
   trait ReqRepServicePerEndpoint
@@ -124,6 +132,14 @@ object {{ServiceName}} { self =>
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
     {{#parent}}override {{/parent}}def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+
+{{#withAsClosable}}
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    {{#parent}}override {{/parent}}def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
+{{/withAsClosable}}
   }
 
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
@@ -162,6 +178,15 @@ object {{ServiceName}} { self =>
           {{dedupedFuncName}} = filter.toFilter.andThen({{dedupedFuncName}})
 {{/inheritedFunctions|,}}
         )
+
+{{#withAsClosable}}
+      override def asClosable: _root_.com.twitter.util.Closable =
+        _root_.com.twitter.util.Closable.all(
+{{#inheritedFunctions}}
+          this.{{dedupedFuncName}}
+{{/inheritedFunctions|,}}
+        )
+{{/withAsClosable}}
     }
   }
 
@@ -193,6 +218,15 @@ object {{ServiceName}} { self =>
           {{dedupedFuncName}} = filter.toFilter.andThen({{dedupedFuncName}})
 {{/inheritedFunctions|,}}
         )
+
+{{#withAsClosable}}
+      override def asClosable: _root_.com.twitter.util.Closable =
+        _root_.com.twitter.util.Closable.all(
+{{#inheritedFunctions}}
+          this.{{dedupedFuncName}}
+{{/inheritedFunctions|,}}
+        )
+{{/withAsClosable}}
     }
   }
 
@@ -371,11 +405,7 @@ object {{ServiceName}} { self =>
 
 {{#withAsClosable}}
         override def asClosable: _root_.com.twitter.util.Closable =
-          _root_.com.twitter.util.Closable.all(
-{{#inheritedFunctions}}
-            servicePerEndpoint.{{dedupedFuncName}}
-{{/inheritedFunctions|,}}
-          )
+          servicePerEndpoint.asClosable
 {{/withAsClosable}}
     }
   }
@@ -402,11 +432,7 @@ object {{ServiceName}} { self =>
 
 {{#withAsClosable}}
         override def asClosable: _root_.com.twitter.util.Closable =
-          _root_.com.twitter.util.Closable.all(
-{{#inheritedFunctions}}
-            servicePerEndpoint.{{dedupedFuncName}}
-{{/inheritedFunctions|,}}
-          )
+          servicePerEndpoint.asClosable
 {{/withAsClosable}}
     }
   }
