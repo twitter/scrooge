@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+18.2.0
+-------
+
 - scrooge-generator: Add `asClosable` method to `ServicePerEndpoint` and
   `ReqRepServicePerEndpoint` interfaces as well. ``PHAB_ID=D134171``
 
