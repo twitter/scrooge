@@ -368,22 +368,6 @@ able to apply ``Filters`` to your client.
     // respects the timeoutFilter
     val result: Future[ByteBuffer] = methodIface.fetchBlob(1L)
 
-You can also use the ``functionToService`` and ``serviceToFunction`` methods on
-``ThriftMethod`` to convert between function and ``Service`` implementations of a
-Thrift method.
-
-::
-
-    val serviceIface: BinaryService.ServiceIface = BinaryService.ServiceIface(
-      fetchBlob = BinaryService.FetchBlob.functionToService { id: Long =>
-        ??? // implementation returning a Future[ByteBuffer]
-      }
-    )
-
-    val fetchBlobFn: Function[Long, Future[ByteBuffer]] =
-      BinaryService.FetchBlob.serviceToFunction(serviceIface.fetchBlob)
-    val result: Future[ByteBuffer] = fetchBlobFn(1L)
-
 .. |c.t.scrooge.Request| replace:: `c.t.scrooge.Request`
 .. _c.t.scrooge.Request: https://github.com/twitter/scrooge/blob/develop/scrooge-core/src/main/scala/com/twitter/scrooge/Request.scala
 
