@@ -213,16 +213,16 @@ case class TypeResolver(
    */
   def apply(definition: Definition, scopePrefix: Option[SimpleID]): ResolvedDefinition = {
     definition match {
-      case d @ Typedef(sid, t, _, _) =>
-        val resolved = apply(t)
-        ResolvedDefinition(d.copy(fieldType = resolved), withType(sid.name, resolved))
-      case s @ Struct(sid, _, fs, _, _) =>
+      case d: Typedef =>
+        val resolved = apply(d.fieldType)
+        ResolvedDefinition(d.copy(fieldType = resolved), withType(d.sid.name, resolved))
+      case s: Struct =>
         // Do not allow Structs with the same name as a Typedef
-        val resolver = if (typeMap.contains(sid.name)) {
-          val fieldType: FieldType = typeMap(sid.name)
+        val resolver = if (typeMap.contains(s.sid.name)) {
+          val fieldType: FieldType = typeMap(s.sid.name)
           if (fieldType != StructType(s, scopePrefix))
             throw new DuplicatedIdentifierException(
-              s"Detected a duplicated identifier [${sid.name}] for differing types: Struct, ${typeMap(sid.name)}",
+              s"Detected a duplicated identifier [${s.sid.name}] for differing types: Struct, ${typeMap(s.sid.name)}",
               s
             )
           else this // return the current TypeResolver as we've already resolved this type
@@ -230,31 +230,31 @@ case class TypeResolver(
           // Add the current struct name to the scope to allow self referencing types
           // TODO: Enforce optional with self referenced field.
           // For now, we'll depend on the language compiler to error out in those cases.
-          withType(sid.name, StructType(s, scopePrefix))
+          withType(s.sid.name, StructType(s, scopePrefix))
         }
-        val resolved = s.copy(fields = fs.map(resolver.apply))
-        ResolvedDefinition(resolved, withType(sid.name, StructType(resolved, scopePrefix)))
-      case u @ Union(sid, _, fs, _, _) =>
-        val resolved = u.copy(fields = fs.map(apply))
-        ResolvedDefinition(resolved, withType(sid.name, StructType(resolved, scopePrefix)))
-      case e @ Exception_(sid, _, fs, _, _) =>
-        val resolved = e.copy(fields = fs.map(apply))
-        ResolvedDefinition(resolved, withType(sid.name, StructType(resolved, scopePrefix)))
-      case c @ ConstDefinition(_, t, v, _) =>
-        val fieldType = apply(t)
-        val resolved = c.copy(fieldType = fieldType, value = apply(v, fieldType))
+        val resolved = s.copy(fields = s.fields.map(resolver.apply))
+        ResolvedDefinition(resolved, withType(s.sid.name, StructType(resolved, scopePrefix)))
+      case u: Union =>
+        val resolved = u.copy(fields = u.fields.map(apply))
+        ResolvedDefinition(resolved, withType(u.sid.name, StructType(resolved, scopePrefix)))
+      case e: Exception_ =>
+        val resolved = e.copy(fields = e.fields.map(apply))
+        ResolvedDefinition(resolved, withType(e.sid.name, StructType(resolved, scopePrefix)))
+      case c: ConstDefinition =>
+        val fieldType = apply(c.fieldType)
+        val resolved = c.copy(fieldType = fieldType, value = apply(c.value, fieldType))
         ResolvedDefinition(resolved, withConst(resolved))
-      case s @ Service(sid, parent, fs, _, _, _) =>
+      case s: Service =>
         // No need to modify Service, but check that we can resolve parent.
-        parent.foreach { serviceParent =>
+        s.parent.foreach { serviceParent =>
           resolveServiceParent(serviceParent)
         }
-        val resolved = s.copy(functions = fs.map(apply))
+        val resolved = s.copy(functions = s.functions.map(apply))
         ResolvedDefinition(resolved, withService(resolved))
-      case e @ Enum(sid, _, _, _) =>
-        ResolvedDefinition(e, withType(sid.name, EnumType(e, scopePrefix)))
-      case s @ Senum(sid, _, _) =>
-        ResolvedDefinition(s, withType(sid.name, TString))
+      case e: Enum =>
+        ResolvedDefinition(e, withType(e.sid.name, EnumType(e, scopePrefix)))
+      case s: Senum =>
+        ResolvedDefinition(s, withType(s.sid.name, TString))
       case d: EnumField => ResolvedDefinition(d, this)
       case d: FunctionArgs => ResolvedDefinition(d, this)
       case d: FunctionResult => ResolvedDefinition(d, this)

@@ -340,8 +340,8 @@ class TypeResolverSpec extends Spec {
 
       val resolvedDoc = TypeResolver()(doc2).document
       resolvedDoc.defs(0) match {
-        case Struct(_, _, fields, _, annotations) => {
-          fields(0) match {
+        case struct: Struct => {
+          struct.fields(0) match {
             case Field(
                 1,
                 _,
@@ -355,7 +355,7 @@ class TypeResolverSpec extends Spec {
                 ) => // pass
             case _ => fail()
           }
-          fields(1) match {
+          struct.fields(1) match {
             case Field(
                 2,
                 _,
@@ -369,7 +369,7 @@ class TypeResolverSpec extends Spec {
                 ) => // pass
             case _ => fail()
           }
-          annotations must be(Map("foo" -> "bar"))
+          struct.annotations must be(Map("foo" -> "bar"))
         }
         case _ =>
           fail()

@@ -191,27 +191,27 @@ object LintRule {
 
       // service function fields are generated as a function
       val serviceFnParams = doc.defs.collect {
-        case service @ Service(id, _, _, _, _, _) =>
+        case service: Service =>
           service.functions.collect {
-            case Function(fnId, _, _, args, _, _, _) if args.length >= optimalLimit =>
-              lintMessage("thrift service method parameters", s"${id.name}.${fnId.name} function")
+            case fn: Function if fn.args.length >= optimalLimit =>
+              lintMessage("thrift service method parameters", s"${service.sid.name}.${fn.funcName.name} function")
           }
       }.flatten
 
       // service function exceptions fields generate thrift response struct
       // constructors and an unapply function
       val serviceFnExceptions = doc.defs.collect {
-        case service @ Service(id, _, _, _, _, _) =>
+        case service: Service=>
           service.functions.collect {
-            case Function(fnId, _, _, _, throws, _, _) if throws.length >= optimalLimit =>
-              lintMessage("thrift service method exceptions", s"${id.name}.${fnId.name} function")
+            case fn: Function if fn.throws.length >= optimalLimit =>
+              lintMessage("thrift service method exceptions", s"${service.sid.name}.${fn.funcName.name} function")
           }
       }.flatten
 
       // service functions are generated as constructor parameters for the service
       val serviceFns = doc.defs.collect {
-        case service @ Service(id, _, fns, _, _, _) if fns.length >= optimalLimit =>
-          lintMessage("thrift service methods", s"${id.name} struct")
+        case service: Service if service.functions.length >= optimalLimit =>
+          lintMessage("thrift service methods", s"${service.sid.name} struct")
       }
 
       structs ++ serviceFns ++ serviceFnParams ++ serviceFnExceptions
