@@ -35,11 +35,13 @@
     [ms appendFormat:@"%@ ", @(_singleAsteriskComment)];
     [ms appendString:@"docStringComment:"];
     [ms appendFormat:@"%@ ", @(_docStringComment)];
+    [ms appendString:@"recRequest:"];
+    [ms appendFormat:@"%@ ", _recRequest];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest
 {
     if (self = [super init]) {
         [self setAList:aList];
@@ -53,6 +55,7 @@
         [self setHashtagComment:hashtagComment];
         [self setSingleAsteriskComment:singleAsteriskComment];
         [self setDocStringComment:docStringComment];
+        [self setRecRequest:recRequest];
     }
 
     return self;
@@ -94,6 +97,9 @@
         if ([decoder containsValueForKey:@"11"]) {
             [self setDocStringComment:(int64_t)[decoder decodeInt64ForKey:@"11"]];
         }
+        if ([decoder containsValueForKey:@"12"]) {
+            [self setRecRequest:(TFNTwitterThriftGoldRecursive*)[decoder decodeObjectForKey:@"12"]];
+        }
     }
     return self;
 }
@@ -132,6 +138,9 @@
     }
     if (_docStringCommentIsSet) {
         [encoder encodeInt64:_docStringComment forKey:@"11"];
+    }
+    if (_recRequestIsSet) {
+        [encoder encodeObject:_recRequest forKey:@"12"];
     }
 }
 
@@ -199,6 +208,12 @@
 {
     _docStringComment = docStringComment;
     _docStringCommentIsSet = YES;
+}
+
+- (void)setRecRequest:(TFNTwitterThriftGoldRecursive *)recRequest
+{
+    _recRequest = recRequest;
+    _recRequestIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -368,6 +383,17 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 12:
+                if (fieldType == TType_STRUCT) {
+                    TFNTwitterThriftGoldRecursive* recRequest_item;
+                    recRequest_item = [[TFNTwitterThriftGoldRecursive alloc] init];
+                    [recRequest_item read:inProtocol];
+                    [self setRecRequest:recRequest_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -471,6 +497,12 @@
         [outProtocol writeFieldBeginWithName:@"docStringComment" type:TType_I64 fieldID:11];
         int64_t docStringComment_item = _docStringComment;
         [outProtocol writeI64:docStringComment_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_recRequestIsSet) {
+        [outProtocol writeFieldBeginWithName:@"recRequest" type:TType_STRUCT fieldID:12];
+        TFNTwitterThriftGoldRecursive* recRequest_item = _recRequest;
+        [recRequest_item write: outProtocol];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

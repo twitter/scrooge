@@ -14,7 +14,7 @@
 --   require 'com.twitter.scrooge.test.gold.thriftlua.Request'
 -- Note: This file depends on libthrift!
 
-
+local Recursive = require 'com.twitter.scrooge.test.gold.thriftlua.Recursive'
 
 local Request = {
   ttype = 'struct',
@@ -33,6 +33,7 @@ Request.fields[8] = { name = 'doubleSlashComment', ttype = 'i64', }
 Request.fields[9] = { name = 'hashtagComment', ttype = 'i64', }
 Request.fields[10] = { name = 'singleAsteriskComment', ttype = 'i64', }
 Request.fields[11] = { name = 'docStringComment', ttype = 'i64', }
+Request.fields[12] = { name = 'recRequest', ttype = 'struct', fields = Recursive.fields, }
 
 local binaryCodec = require 'libthrift'
 

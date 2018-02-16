@@ -116,7 +116,8 @@ case class TypeResolver(
   typeMap: Map[String, FieldType] = Map.empty,
   constMap: Map[String, ConstDefinition] = Map.empty,
   serviceMap: Map[String, Service] = Map.empty,
-  includeMap: Map[String, ResolvedDocument] = Map.empty
+  includeMap: Map[String, ResolvedDocument] = Map.empty,
+  structsMap: Map[String, StructType] = Map.empty
 ) {
 
   protected def getResolver(includePath: String, pos: Positional = new Positional {
@@ -128,7 +129,20 @@ case class TypeResolver(
   }
 
   def resolveFieldType(id: Identifier): FieldType = id match {
-    case SimpleID(name, _) => typeMap.getOrElse(name, throw new TypeNotFoundException(name, id))
+    case sid: SimpleID =>
+      val resolvedType = typeMap.get(sid.name) match {
+        case Some(fieldType) => Some(fieldType)
+        case None =>
+          // Here we recurse so we can first resolve the types that are depended on by this type,
+          // like an ersatz topological sort. However, this gets messy when we run into cycles,
+          // like when two structs depend on each other. In order to avoid this, we add the entry
+          // itself to the list of already resolved types when we recurse down, so that we don't
+          // loop infinitely.
+          structsMap.get(sid.name).flatMap { struct =>
+            withType(sid.name, struct).typeMap.get(sid.name)
+          }
+      }
+      resolvedType.getOrElse(throw new TypeNotFoundException(sid.name, id))
     case qid: QualifiedID => getResolver(qid.names.head, qid).resolveFieldType(qid.tail)
   }
 
@@ -178,6 +192,15 @@ case class TypeResolver(
     copy(serviceMap = serviceMap + (service.sid.name -> service))
   }
 
+  def withStructsFrom(doc: Document, scopePrefix: Option[SimpleID]): TypeResolver = {
+    val toAdd = doc.defs.flatMap {
+      case s: Struct => Some(s.sid.name -> StructType(s, scopePrefix))
+      case _ => None
+    }.toMap
+
+    copy(structsMap = structsMap ++ toAdd)
+  }
+
   /**
    * Resolves all types in the given document.
    *
@@ -196,6 +219,8 @@ case class TypeResolver(
           throw new FileParseException(filename = i.filePath, cause = ex)
       }
     }
+
+    resolver = resolver.withStructsFrom(doc, scopePrefix)
 
     for (d <- doc.defs) {
       val ResolvedDefinition(d2, r2) = resolver(d, scopePrefix)

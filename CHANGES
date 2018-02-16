@@ -5,6 +5,8 @@
 Unreleased
 ----------
 
+- scrooge-generator: Add support for mutually recursive structs. ``PHAB_ID=D134470``
+
 18.2.0
 -------
 

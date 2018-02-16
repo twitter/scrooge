@@ -60,6 +60,8 @@ object Request extends ThriftStructCodec3[Request] {
   val SingleAsteriskCommentFieldManifest = implicitly[Manifest[Long]]
   val DocStringCommentField = new TField("docStringComment", TType.I64, 11)
   val DocStringCommentFieldManifest = implicitly[Manifest[Long]]
+  val RecRequestField = new TField("recRequest", TType.STRUCT, 12)
+  val RecRequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
 
   /**
    * Field information in declaration order.
@@ -190,6 +192,17 @@ object Request extends ThriftStructCodec3[Request] {
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
+    ),
+    new ThriftStructFieldInfo(
+      RecRequestField,
+      true,
+      false,
+      RecRequestFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
     )
   )
 
@@ -229,14 +242,14 @@ object Request extends ThriftStructCodec3[Request] {
               val field = key
               field
             }
-
-
+  
+          
               val newValue = {
               val field = value
               field
             }
-
-
+  
+          
             newKey -> newValue
           }
         },
@@ -292,6 +305,13 @@ object Request extends ThriftStructCodec3[Request] {
           val field = original.docStringComment
           field.map { field =>
             field
+          }
+        },
+      recRequest =
+        {
+          val field = original.recRequest
+          field.map { field =>
+            com.twitter.scrooge.test.gold.thriftscala.Recursive.withoutPassthroughFields(field)
           }
         }
     )
@@ -370,6 +390,10 @@ object Request extends ThriftStructCodec3[Request] {
       accessRecorder.fieldAccessed(11)
       underlying.docStringComment
     }
+    override def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = {
+      accessRecorder.fieldAccessed(12)
+      underlying.recRequest
+    }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
     override def _passthroughFields = underlying._passthroughFields
@@ -388,6 +412,7 @@ object Request extends ThriftStructCodec3[Request] {
     var hashtagCommentOffset: Int = -1
     var singleAsteriskCommentOffset: Int = -1
     var docStringCommentOffset: Int = -1
+    var recRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = None
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -403,7 +428,7 @@ object Request extends ThriftStructCodec3[Request] {
           case 1 =>
             _field.`type` match {
               case TType.LIST =>
-
+    
                 aList = readAListValue(_iprot)
               case _actualType =>
                 val _expectedType = TType.LIST
@@ -417,7 +442,7 @@ object Request extends ThriftStructCodec3[Request] {
           case 2 =>
             _field.`type` match {
               case TType.SET =>
-
+    
                 aSet = readASetValue(_iprot)
               case _actualType =>
                 val _expectedType = TType.SET
@@ -431,7 +456,7 @@ object Request extends ThriftStructCodec3[Request] {
           case 3 =>
             _field.`type` match {
               case TType.MAP =>
-
+    
                 aMap = readAMapValue(_iprot)
               case _actualType =>
                 val _expectedType = TType.MAP
@@ -445,7 +470,7 @@ object Request extends ThriftStructCodec3[Request] {
           case 4 =>
             _field.`type` match {
               case TType.STRUCT =>
-
+    
                 aRequest = Some(readARequestValue(_iprot))
               case _actualType =>
                 val _expectedType = TType.STRUCT
@@ -459,7 +484,7 @@ object Request extends ThriftStructCodec3[Request] {
           case 5 =>
             _field.`type` match {
               case TType.LIST =>
-
+    
                 subRequests = readSubRequestsValue(_iprot)
               case _actualType =>
                 val _expectedType = TType.LIST
@@ -474,7 +499,7 @@ object Request extends ThriftStructCodec3[Request] {
             _field.`type` match {
               case TType.STRING =>
                 hasDefaultOffset = _iprot.offsetSkipString
-
+    
               case _actualType =>
                 val _expectedType = TType.STRING
                 throw new TProtocolException(
@@ -488,7 +513,7 @@ object Request extends ThriftStructCodec3[Request] {
             _field.`type` match {
               case TType.I64 =>
                 noCommentOffset = _iprot.offsetSkipI64
-
+    
               case _actualType =>
                 val _expectedType = TType.I64
                 throw new TProtocolException(
@@ -502,7 +527,7 @@ object Request extends ThriftStructCodec3[Request] {
             _field.`type` match {
               case TType.I64 =>
                 doubleSlashCommentOffset = _iprot.offsetSkipI64
-
+    
               case _actualType =>
                 val _expectedType = TType.I64
                 throw new TProtocolException(
@@ -516,7 +541,7 @@ object Request extends ThriftStructCodec3[Request] {
             _field.`type` match {
               case TType.I64 =>
                 hashtagCommentOffset = _iprot.offsetSkipI64
-
+    
               case _actualType =>
                 val _expectedType = TType.I64
                 throw new TProtocolException(
@@ -530,7 +555,7 @@ object Request extends ThriftStructCodec3[Request] {
             _field.`type` match {
               case TType.I64 =>
                 singleAsteriskCommentOffset = _iprot.offsetSkipI64
-
+    
               case _actualType =>
                 val _expectedType = TType.I64
                 throw new TProtocolException(
@@ -544,11 +569,25 @@ object Request extends ThriftStructCodec3[Request] {
             _field.`type` match {
               case TType.I64 =>
                 docStringCommentOffset = _iprot.offsetSkipI64
-
+    
               case _actualType =>
                 val _expectedType = TType.I64
                 throw new TProtocolException(
                   "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 12 =>
+            _field.`type` match {
+              case TType.STRUCT =>
+    
+                recRequest = Some(readRecRequestValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw new TProtocolException(
+                  "Received wrong type for field 'recRequest' (expected=%s, actual=%s).".format(
                     ttypeToString(_expectedType),
                     ttypeToString(_actualType)
                   )
@@ -580,6 +619,7 @@ object Request extends ThriftStructCodec3[Request] {
       hashtagCommentOffset,
       singleAsteriskCommentOffset,
       docStringCommentOffset,
+      recRequest,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -606,6 +646,7 @@ object Request extends ThriftStructCodec3[Request] {
     var hashtagComment: _root_.scala.Option[Long] = _root_.scala.None
     var singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None
     var docStringComment: _root_.scala.Option[Long] = _root_.scala.None
+    var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -759,6 +800,19 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 12 =>
+            _field.`type` match {
+              case TType.STRUCT =>
+                recRequest = _root_.scala.Some(readRecRequestValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw new TProtocolException(
+                  "Received wrong type for field 'recRequest' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -781,6 +835,7 @@ object Request extends ThriftStructCodec3[Request] {
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
+      recRequest,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -799,7 +854,8 @@ object Request extends ThriftStructCodec3[Request] {
     doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
     hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
     singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
-    docStringComment: _root_.scala.Option[Long] = _root_.scala.None
+    docStringComment: _root_.scala.Option[Long] = _root_.scala.None,
+    recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
   ): Request =
     new Immutable(
       aList,
@@ -812,10 +868,11 @@ object Request extends ThriftStructCodec3[Request] {
       doubleSlashComment,
       hashtagComment,
       singleAsteriskComment,
-      docStringComment
+      docStringComment,
+      recRequest
     )
 
-  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple11[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long]]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple12[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]]] = _root_.scala.Some(_item.toTuple)
 
 
   @inline private[thriftscala] def readAListValue(_iprot: TProtocol): Seq[String] = {
@@ -1075,6 +1132,20 @@ object Request extends ThriftStructCodec3[Request] {
     _oprot.writeI64(docStringComment_item)
   }
 
+  @inline private[thriftscala] def readRecRequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Recursive = {
+    com.twitter.scrooge.test.gold.thriftscala.Recursive.decode(_iprot)
+  }
+
+  @inline private def writeRecRequestField(recRequest_item: com.twitter.scrooge.test.gold.thriftscala.Recursive, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(RecRequestField)
+    writeRecRequestValue(recRequest_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeRecRequestValue(recRequest_item: com.twitter.scrooge.test.gold.thriftscala.Recursive, _oprot: TProtocol): Unit = {
+    recRequest_item.write(_oprot)
+  }
+
 
   object Immutable extends ThriftStructCodec3[Request] {
     override def encode(_item: Request, _oproto: TProtocol): Unit = { _item.write(_oproto) }
@@ -1099,6 +1170,7 @@ object Request extends ThriftStructCodec3[Request] {
       val hashtagComment: _root_.scala.Option[Long],
       val singleAsteriskComment: _root_.scala.Option[Long],
       val docStringComment: _root_.scala.Option[Long],
+      val recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
     def this(
@@ -1112,7 +1184,8 @@ object Request extends ThriftStructCodec3[Request] {
       doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
       hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
       singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
-      docStringComment: _root_.scala.Option[Long] = _root_.scala.None
+      docStringComment: _root_.scala.Option[Long] = _root_.scala.None,
+      recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
     ) = this(
       aList,
       aSet,
@@ -1125,6 +1198,7 @@ object Request extends ThriftStructCodec3[Request] {
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
+      recRequest,
       Map.empty
     )
   }
@@ -1149,6 +1223,7 @@ object Request extends ThriftStructCodec3[Request] {
       hashtagCommentOffset: Int,
       singleAsteriskCommentOffset: Int,
       docStringCommentOffset: Int,
+      val recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
 
@@ -1228,6 +1303,7 @@ object Request extends ThriftStructCodec3[Request] {
     override def hashtagComment: _root_.scala.Option[Long] = _underlying_Request.hashtagComment
     override def singleAsteriskComment: _root_.scala.Option[Long] = _underlying_Request.singleAsteriskComment
     override def docStringComment: _root_.scala.Option[Long] = _underlying_Request.docStringComment
+    override def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _underlying_Request.recRequest
     override def _passthroughFields = _underlying_Request._passthroughFields
   }
 }
@@ -1238,7 +1314,7 @@ object Request extends ThriftStructCodec3[Request] {
  */
 trait Request
   extends ThriftStruct
-  with _root_.scala.Product11[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long]]
+  with _root_.scala.Product12[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
   with HasThriftStructCodec3[Request]
   with java.io.Serializable
 {
@@ -1258,6 +1334,10 @@ trait Request
    * docstring comment
    */
   def docStringComment: _root_.scala.Option[Long]
+  /**
+   * recursive value
+   */
+  def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
@@ -1272,8 +1352,9 @@ trait Request
   def _9 = hashtagComment
   def _10 = singleAsteriskComment
   def _11 = docStringComment
+  def _12 = recRequest
 
-  def toTuple: _root_.scala.Tuple11[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long]] = {
+  def toTuple: _root_.scala.Tuple12[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]] = {
     (
       aList,
       aSet,
@@ -1285,7 +1366,8 @@ trait Request
       doubleSlashComment,
       hashtagComment,
       singleAsteriskComment,
-      docStringComment
+      docStringComment,
+      recRequest
     )
   }
 
@@ -1380,6 +1462,13 @@ trait Request
               } else {
                 _root_.scala.None
               }
+            case 12 =>
+              if (recRequest.isDefined) {
+                writeRecRequestValue(recRequest.get, _oprot)
+                _root_.scala.Some(Request.RecRequestField)
+              } else {
+                _root_.scala.None
+              }
             case _ => _root_.scala.None
           }
         _fieldOpt match {
@@ -1416,6 +1505,7 @@ trait Request
     var hashtagComment: _root_.scala.Option[Long] = this.hashtagComment
     var singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment
     var docStringComment: _root_.scala.Option[Long] = this.docStringComment
+    var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest
     var _passthroughFields = this._passthroughFields
     _blob.id match {
       case 1 =>
@@ -1440,6 +1530,8 @@ trait Request
         singleAsteriskComment = _root_.scala.Some(readSingleAsteriskCommentValue(_blob.read))
       case 11 =>
         docStringComment = _root_.scala.Some(readDocStringCommentValue(_blob.read))
+      case 12 =>
+        recRequest = _root_.scala.Some(readRecRequestValue(_blob.read))
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
     new Immutable(
@@ -1454,6 +1546,7 @@ trait Request
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
+      recRequest,
       _passthroughFields
     )
   }
@@ -1475,6 +1568,7 @@ trait Request
     var hashtagComment: _root_.scala.Option[Long] = this.hashtagComment
     var singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment
     var docStringComment: _root_.scala.Option[Long] = this.docStringComment
+    var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest
 
     _fieldId match {
       case 1 =>
@@ -1499,6 +1593,8 @@ trait Request
         singleAsteriskComment = _root_.scala.None
       case 11 =>
         docStringComment = _root_.scala.None
+      case 12 =>
+        recRequest = _root_.scala.None
       case _ =>
     }
     new Immutable(
@@ -1513,6 +1609,7 @@ trait Request
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
+      recRequest,
       _passthroughFields - _fieldId
     )
   }
@@ -1544,6 +1641,8 @@ trait Request
 
   def unsetDocStringComment: Request = unsetField(11)
 
+  def unsetRecRequest: Request = unsetField(12)
+
 
   override def write(_oprot: TProtocol): Unit = {
     Request.validate(this)
@@ -1559,6 +1658,7 @@ trait Request
     if (hashtagComment.isDefined) writeHashtagCommentField(hashtagComment.get, _oprot)
     if (singleAsteriskComment.isDefined) writeSingleAsteriskCommentField(singleAsteriskComment.get, _oprot)
     if (docStringComment.isDefined) writeDocStringCommentField(docStringComment.get, _oprot)
+    if (recRequest.isDefined) writeRecRequestField(recRequest.get, _oprot)
     if (_passthroughFields.nonEmpty) {
       _passthroughFields.values.foreach { _.write(_oprot) }
     }
@@ -1578,6 +1678,7 @@ trait Request
     hashtagComment: _root_.scala.Option[Long] = this.hashtagComment,
     singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment,
     docStringComment: _root_.scala.Option[Long] = this.docStringComment,
+    recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): Request =
     new Immutable(
@@ -1592,6 +1693,7 @@ trait Request
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
+      recRequest,
       _passthroughFields
     )
 
@@ -1611,7 +1713,7 @@ trait Request
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
 
-  override def productArity: Int = 11
+  override def productArity: Int = 12
 
   override def productElement(n: Int): Any = n match {
     case 0 => this.aList
@@ -1625,6 +1727,7 @@ trait Request
     case 8 => this.hashtagComment
     case 9 => this.singleAsteriskComment
     case 10 => this.docStringComment
+    case 11 => this.recRequest
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
@@ -1710,6 +1813,12 @@ private class Request$$AdaptDecoder {
 
     adapt.set_docStringComment(docStringComment)
     AdaptTProtocol.usedEndMarker(11)
+
+    AdaptTProtocol.usedStartMarker(12)
+    var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
+
+    adapt.set_recRequest(recRequest)
+    AdaptTProtocol.usedEndMarker(12)
 
     _iprot.readStructBegin()
     while (!_done) {
@@ -1905,6 +2014,23 @@ private class Request$$AdaptDecoder {
             adapt.set_docStringComment(docStringComment)
             AdaptTProtocol.usedEndMarker(11)
           }
+          case 12 => {
+            _field.`type` match {
+              case TType.STRUCT =>
+                AdaptTProtocol.usedStartMarker(12)
+                recRequest = _root_.scala.Some(Request.readRecRequestValue(_iprot))
+                AdaptTProtocol.usedEndMarker(12)
+                AdaptTProtocol.unusedStartMarker(12)
+                _iprot.offsetSkipStruct()
+                AdaptTProtocol.unusedEndMarker(12)
+              case _actualType =>
+                val _expectedType = TType.STRUCT
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "recRequest")
+            }
+            AdaptTProtocol.usedStartMarker(12)
+            adapt.set_recRequest(recRequest)
+            AdaptTProtocol.usedEndMarker(12)
+          }
 
           case _ =>
             if (_passthroughFields == null)
@@ -2018,6 +2144,13 @@ private class Request$$Adapt(
   def docStringComment: _root_.scala.Option[Long] = m_docStringComment
   // This will be removed by ASM if field is used otherwise renamed to docStringComment.
   def delegated_docStringComment: _root_.scala.Option[Long] = delegate.docStringComment
+
+  private[this] var m_recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _
+  def set_recRequest(recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]): Unit = m_recRequest = recRequest
+  // This will be removed by ASM if field is unused.
+  def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = m_recRequest
+  // This will be removed by ASM if field is used otherwise renamed to recRequest.
+  def delegated_recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = delegate.recRequest
 
 
   private[this] var _end_offset: Int = _

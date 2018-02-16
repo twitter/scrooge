@@ -4,6 +4,7 @@
  *   rev: ?
  *   built at: ?
  */
+#import <TFNTwitterThriftGold/TFNTwitterThriftGoldRecursive.h>
 #import <TFNTwitterThriftGold/TFNTwitterThriftGoldRequest.h>
 
 @import ApacheThrift.TBase;
@@ -43,8 +44,11 @@
 @property (nonatomic) int64_t docStringComment;
 @property (nonatomic, readonly) BOOL docStringCommentIsSet;
 
+@property (nonatomic) TFNTwitterThriftGoldRecursive* recRequest;
+@property (nonatomic, readonly) BOOL recRequestIsSet;
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment;
+
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

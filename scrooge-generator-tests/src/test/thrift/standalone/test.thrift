@@ -529,6 +529,19 @@ struct TreeNode {
     3: optional TreeNode parent
 }
 
+struct Decl {
+  1: optional Var variable
+  2: optional Expr expression
+}
+
+struct Var {
+  1: string name
+}
+
+struct Expr {
+  1: optional Decl declaration
+}
+
 service ReadOnlyService {
   string getName()
 }

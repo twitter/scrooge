@@ -83,20 +83,18 @@ class TypeResolverSpec extends Spec {
       resolve(input)
     }
 
-    "does not resolve non-self-referencing recursive types" in {
-      intercept[TypeNotFoundException] {
-        val input =
-          """struct Foo {
-            |  1: i32 a,
-            |  2: optional Bar b
-            |}
-            |
-            |struct Bar {
-            |  1: optional Foo f
-            |}
-          """.stripMargin
-        resolve(input)
-      }
+    "resolve non-self-referencing recursive types" in {
+      val input =
+        """struct Foo {
+          |  1: i32 a,
+          |  2: optional Bar b
+          |}
+          |
+          |struct Bar {
+          |  1: optional Foo f
+          |}
+        """.stripMargin
+      resolve(input)
     }
 
     "transform MapType" in {

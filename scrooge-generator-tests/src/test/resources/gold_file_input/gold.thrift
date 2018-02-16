@@ -27,6 +27,11 @@ struct CollectionId {
   1: required CollectionLongId collectionLongId;
 }
 
+struct Recursive {
+  1: i64 id
+  2: optional Request recRequest
+}
+
 /**
  * Request struct docstring
  */
@@ -55,6 +60,11 @@ struct Request {
    * docstring comment
    */
   11: optional i64 docStringComment
+
+  /**
+   * recursive value
+   */
+  12: optional Recursive recRequest
 
 } (s.annotation.one = "something", s.annotation.two = "other")
 

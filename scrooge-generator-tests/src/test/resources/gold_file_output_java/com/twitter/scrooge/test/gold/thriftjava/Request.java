@@ -41,6 +41,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField HASHTAG_COMMENT_FIELD_DESC = new TField("hashtagComment", TType.I64, (short)9);
   private static final TField SINGLE_ASTERISK_COMMENT_FIELD_DESC = new TField("singleAsteriskComment", TType.I64, (short)10);
   private static final TField DOC_STRING_COMMENT_FIELD_DESC = new TField("docStringComment", TType.I64, (short)11);
+  private static final TField REC_REQUEST_FIELD_DESC = new TField("recRequest", TType.STRUCT, (short)12);
 
 
   public List<String> aList;
@@ -54,6 +55,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public long hashtagComment;
   public long singleAsteriskComment;
   public long docStringComment;
+  public Recursive recRequest;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -67,7 +69,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     DOUBLE_SLASH_COMMENT((short)8, "doubleSlashComment"),
     HASHTAG_COMMENT((short)9, "hashtagComment"),
     SINGLE_ASTERISK_COMMENT((short)10, "singleAsteriskComment"),
-    DOC_STRING_COMMENT((short)11, "docStringComment");
+    DOC_STRING_COMMENT((short)11, "docStringComment"),
+    REC_REQUEST((short)12, "recRequest");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -104,6 +107,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return SINGLE_ASTERISK_COMMENT;
         case 11: // DOC_STRING_COMMENT
           return DOC_STRING_COMMENT;
+        case 12: // REC_REQUEST
+          return REC_REQUEST;
         default:
           return null;
       }
@@ -196,6 +201,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new FieldValueMetaData(TType.I64)));
     tmpMap.put(_Fields.DOC_STRING_COMMENT, new FieldMetaData("docStringComment", TFieldRequirementType.OPTIONAL,
       new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.REC_REQUEST, new FieldMetaData("recRequest", TFieldRequirementType.OPTIONAL,
+      new StructMetaData(TType.STRUCT, Recursive.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
@@ -316,6 +323,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.hashtagComment = other.hashtagComment;
     this.singleAsteriskComment = other.singleAsteriskComment;
     this.docStringComment = other.docStringComment;
+    if (other.isSetRecRequest()) {
+      this.recRequest = new Recursive(other.recRequest);
+    }
   }
 
   public Request deepCopy() {
@@ -340,6 +350,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.singleAsteriskComment = 0;
     setDocStringCommentIsSet(false);
     this.docStringComment = 0;
+    this.recRequest = null;
   }
 
   public int getAListSize() {
@@ -668,6 +679,31 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     __isset_bit_vector.set(__DOCSTRINGCOMMENT_ISSET_ID, value);
   }
 
+  public Recursive getRecRequest() {
+    return this.recRequest;
+  }
+
+  public Request setRecRequest(Recursive recRequest) {
+    this.recRequest = recRequest;
+    
+    return this;
+  }
+
+  public void unsetRecRequest() {
+    this.recRequest = null;
+  }
+
+  /** Returns true if field recRequest is set (has been asigned a value) and false otherwise */
+  public boolean isSetRecRequest() {
+    return this.recRequest != null;
+  }
+
+  public void setRecRequestIsSet(boolean value) {
+    if (!value) {
+      this.recRequest = null;
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
@@ -748,6 +784,13 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         setDocStringComment((Long)value);
       }
       break;
+    case REC_REQUEST:
+      if (value == null) {
+        unsetRecRequest();
+      } else {
+        setRecRequest((Recursive)value);
+      }
+      break;
     }
   }
 
@@ -775,6 +818,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return new Long(getSingleAsteriskComment());
     case DOC_STRING_COMMENT:
       return new Long(getDocStringComment());
+    case REC_REQUEST:
+      return getRecRequest();
     }
     throw new IllegalStateException();
   }
@@ -808,6 +853,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return isSetSingleAsteriskComment();
     case DOC_STRING_COMMENT:
       return isSetDocStringComment();
+    case REC_REQUEST:
+      return isSetRecRequest();
     }
     throw new IllegalStateException();
   }
@@ -912,6 +959,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (this.docStringComment != that.docStringComment)
         return false;
     }
+    boolean this_present_recRequest = true && this.isSetRecRequest();
+    boolean that_present_recRequest = true && that.isSetRecRequest();
+    if (this_present_recRequest || that_present_recRequest) {
+      if (!(this_present_recRequest && that_present_recRequest))
+        return false;
+      if (!this.recRequest.equals(that.recRequest))
+        return false;
+    }
 
     return true;
   }
@@ -963,6 +1018,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     builder.append(present_docStringComment);
     if (present_docStringComment)
       builder.append(docStringComment);
+    boolean present_recRequest = true && (isSetRecRequest());
+    builder.append(present_recRequest);
+    if (present_recRequest)
+      builder.append(recRequest);
     return builder.toHashCode();
   }
 
@@ -1080,6 +1139,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSetDocStringComment()) {
       lastComparison = TBaseHelper.compareTo(this.docStringComment, typedOther.docStringComment);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetRecRequest()).compareTo(typedOther.isSetRecRequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRecRequest()) {
+      lastComparison = TBaseHelper.compareTo(this.recRequest, typedOther.recRequest);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1228,6 +1297,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 12: // REC_REQUEST
+          if (field.type == TType.STRUCT) {
+            this.recRequest = new Recursive();
+            this.recRequest.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -1329,6 +1406,13 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeI64(this.docStringComment);
       oprot.writeFieldEnd();
     }
+    if (this.recRequest != null) {
+      if (isSetRecRequest()) {
+        oprot.writeFieldBegin(REC_REQUEST_FIELD_DESC);
+        this.recRequest.write(oprot);
+        oprot.writeFieldEnd();
+      }
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -1414,6 +1498,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!first) sb.append(", ");
       sb.append("docStringComment:");
       sb.append(this.docStringComment);
+      first = false;
+      }
+    if (isSetRecRequest()) {
+      if (!first) sb.append(", ");
+      sb.append("recRequest:");
+      if (this.recRequest == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.recRequest);
+      }
       first = false;
       }
     sb.append(")");
