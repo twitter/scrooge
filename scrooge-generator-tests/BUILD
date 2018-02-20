@@ -1,5 +1,6 @@
-target(name='tests',
-  dependencies=[
-    'scrooge/scrooge-generator-tests/src/test/scala'
-  ]
+target(
+    name = "tests",
+    dependencies = [
+        "scrooge/scrooge-generator-tests/src/test/scala",
+    ],
 )

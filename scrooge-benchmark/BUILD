@@ -1,5 +1,5 @@
 target(
-  dependencies=[
-    'scrooge/scrooge-benchmark/src/main/scala'
-  ]
+    dependencies = [
+        "scrooge/scrooge-benchmark/src/main/scala",
+    ],
 )
