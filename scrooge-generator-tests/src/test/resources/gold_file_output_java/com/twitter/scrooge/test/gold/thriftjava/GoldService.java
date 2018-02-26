@@ -222,7 +222,7 @@ public class GoldService {
         __prot__.writeMessageEnd();
 
 
-        byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
+        byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
         final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
 
         Function<byte[], com.twitter.util.Try<Response>> replyDeserializer =
@@ -428,12 +428,7 @@ public class GoldService {
         private final com.twitter.finagle.Service<doGreatThings_args, Response> methodService = new com.twitter.finagle.Service<doGreatThings_args, Response>() {
           @Override
           public Future<Response> apply(doGreatThings_args args) {
-            Future<Response> future;
-            try {
-              future = iface.doGreatThings(args.request);
-            } catch (Exception e) {
-              future = Future.exception(e);
-            }
+            Future<Response> future = iface.doGreatThings(args.request);
             return future;
           }
         };
@@ -468,7 +463,7 @@ public class GoldService {
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
-          return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+          return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
         } catch (Exception e) {
           return Future.exception(e);
         } finally {
@@ -488,7 +483,7 @@ public class GoldService {
         result.write(oprot);
         oprot.writeMessageEnd();
 
-        return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+        return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
       } catch (Exception e) {
         return Future.exception(e);
       } finally {
@@ -506,7 +501,7 @@ public class GoldService {
         x.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
-        byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+        byte[] buffer = Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length());
         return Future.value(buffer);
       } catch (Exception e1) {
         return Future.exception(e1);

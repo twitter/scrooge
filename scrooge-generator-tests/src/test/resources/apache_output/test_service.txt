@@ -251,7 +251,7 @@ public class TestService {
         __prot__.writeMessageEnd();
 
 
-        byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
+        byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
         final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
 
         Function<byte[], com.twitter.util.Try<Boolean>> replyDeserializer =
@@ -305,7 +305,7 @@ public class TestService {
         __prot__.writeMessageEnd();
 
 
-        byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
+        byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
         final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, true);
 
           Future<byte[]> __done__ = this.service.apply(__request__);
@@ -506,12 +506,7 @@ public class TestService {
         private final com.twitter.finagle.Service<test_endpoint_args, Boolean> methodService = new com.twitter.finagle.Service<test_endpoint_args, Boolean>() {
           @Override
           public Future<Boolean> apply(test_endpoint_args args) {
-            Future<Boolean> future;
-            try {
-              future = iface.test_endpoint(args.request);
-            } catch (Exception e) {
-              future = Future.exception(e);
-            }
+            Future<Boolean> future = iface.test_endpoint(args.request);
             return future;
           }
         };
@@ -571,12 +566,7 @@ public class TestService {
         private final com.twitter.finagle.Service<test_oneway_args, Void> methodService = new com.twitter.finagle.Service<test_oneway_args, Void>() {
           @Override
           public Future<Void> apply(test_oneway_args args) {
-            Future<Void> future;
-            try {
-              future = iface.test_oneway(args.request);
-            } catch (Exception e) {
-              future = Future.exception(e);
-            }
+            Future<Void> future = iface.test_oneway(args.request);
             return future;
           }
         };
@@ -611,7 +601,7 @@ public class TestService {
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
-          return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+          return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
         } catch (Exception e) {
           return Future.exception(e);
         } finally {
@@ -631,7 +621,7 @@ public class TestService {
         result.write(oprot);
         oprot.writeMessageEnd();
 
-        return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+        return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
       } catch (Exception e) {
         return Future.exception(e);
       } finally {
@@ -649,7 +639,7 @@ public class TestService {
         x.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
-        byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+        byte[] buffer = Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length());
         return Future.value(buffer);
       } catch (Exception e1) {
         return Future.exception(e1);

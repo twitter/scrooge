@@ -245,7 +245,7 @@ public class {{name}} {
         __prot__.writeMessageEnd();
 
 
-        byte[] __buffer__ = Arrays.copyOfRange(__memoryTransport__.getArray(), 0, __memoryTransport__.length());
+        byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
         final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
 
         {{^is_oneway}}
@@ -544,12 +544,7 @@ public class {{name}} {
         private final com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}> methodService = new com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}>() {
           @Override
           public Future<{{{return_type.type_name_in_container}}}> apply({{name}}_args args) {
-            Future<{{{return_type.type_name_in_container}}}> future;
-            try {
-              future = iface.{{name}}({{{argument_list_with_args}}});
-            } catch (Exception e) {
-              future = Future.exception(e);
-            }
+            Future<{{{return_type.type_name_in_container}}}> future = iface.{{name}}({{{argument_list_with_args}}});
             return future;
           }
         };
@@ -585,7 +580,7 @@ public class {{name}} {
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
-          return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+          return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
         } catch (Exception e) {
           return Future.exception(e);
         } finally {
@@ -605,7 +600,7 @@ public class {{name}} {
         result.write(oprot);
         oprot.writeMessageEnd();
 
-        return Future.value(Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length()));
+        return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
       } catch (Exception e) {
         return Future.exception(e);
       } finally {
@@ -623,7 +618,7 @@ public class {{name}} {
         x.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
-        byte[] buffer = Arrays.copyOfRange(memoryBuffer.getArray(), 0, memoryBuffer.length());
+        byte[] buffer = Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length());
         return Future.value(buffer);
       } catch (Exception e1) {
         return Future.exception(e1);
