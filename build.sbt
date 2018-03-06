@@ -5,7 +5,7 @@ import scoverage.ScoverageKeys
 // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
 
 // All Twitter library releases are date versioned as YY.MM.patch
-val releaseVersion = "18.3.0-SNAPSHOT"
+val releaseVersion = "18.3.0"
 
 val libthriftVersion = "0.5.0-7"
 
