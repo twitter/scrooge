@@ -123,7 +123,7 @@ object ScroogeSBT extends AutoPlugin {
 
     val scroogeThriftOutputFolder = SettingKey[File](
       "scrooge-thrift-output-folder",
-      "output folder for generated files (defaults to sourceManaged)"
+      "output folder for generated files (defaults to sourceManaged/thrift)"
     )
 
     val scroogeIsDirty = TaskKey[Boolean](
