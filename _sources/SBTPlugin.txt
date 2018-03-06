@@ -63,7 +63,7 @@ most likely to want to edit:
 - **scroogeThriftOutputFolder: File**
 
   where to put the generated scala files
-  (default: `target/<scala-ver>/src_managed`)
+  (default: `target/<scala-ver>/src_managed/thrift`)
 
 
 Migrating from 3.x.x to 3.18.0
