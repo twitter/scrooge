@@ -936,13 +936,13 @@ object PlatinumService { self =>
   }
 
   class FinagledService(
-      iface: FutureIface,
+      iface: PlatinumService[Future],
       serverParam: RichServerParam)
     extends PlatinumService$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: FutureIface,
+      iface: PlatinumService[Future],
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "PlatinumService"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))

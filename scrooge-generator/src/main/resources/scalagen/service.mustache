@@ -531,13 +531,13 @@ object {{ServiceName}} { self =>
   }
 
   class FinagledService(
-      iface: FutureIface,
+      iface: {{ServiceName}}[Future],
       serverParam: RichServerParam)
     extends {{ServiceName}}$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: FutureIface,
+      iface: {{ServiceName}}[Future],
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "{{ServiceName}}"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))
