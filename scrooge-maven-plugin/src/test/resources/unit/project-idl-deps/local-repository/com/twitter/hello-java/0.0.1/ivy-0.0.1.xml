@@ -33,7 +33,7 @@ Licensed under the Apache License, Version 2.0 (see LICENSE).
     <dependency org="commons-lang" name="commons-lang" rev="2.6">
       <conf name="default" mapped="default"/>
     </dependency>
-    <dependency org="com.twitter" name="libthrift" rev="0.5.0-7">
+    <dependency org="org.apache.thrift" name="libthrift" rev="0.10.0">
       <conf name="default" mapped="default"/>
     </dependency>
   </dependencies>
