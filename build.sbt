@@ -7,7 +7,7 @@ import scoverage.ScoverageKeys
 // All Twitter library releases are date versioned as YY.MM.patch
 val releaseVersion = "18.4.0-SNAPSHOT"
 
-val libthriftVersion = "0.5.0-7"
+val libthriftVersion = "0.10.0"
 
 def util(which: String) = "com.twitter" %% ("util-"+which) % releaseVersion
 def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % releaseVersion
@@ -201,7 +201,7 @@ lazy val scroogeGenerator = Project(
 ).settings(
   name := "scrooge-generator",
   libraryDependencies ++= Seq(
-    "com.twitter" % "libthrift" % libthriftVersion,
+    "org.apache.thrift" % "libthrift" % libthriftVersion,
     "com.github.scopt" %% "scopt" % "3.5.0",
     "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
     "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
@@ -243,7 +243,7 @@ lazy val scroogeCore = Project(
 ).settings(
   name := "scrooge-core",
   libraryDependencies ++= Seq(
-    "com.twitter" % "libthrift" % libthriftVersion % "provided",
+    "org.apache.thrift" % "libthrift" % libthriftVersion % "provided",
     util("core")
   )
 )
@@ -265,7 +265,7 @@ lazy val scroogeSerializer = Project(
     util("app"),
     util("codec"),
     "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test",
-    "com.twitter" % "libthrift" % libthriftVersion % "provided"
+    "org.apache.thrift" % "libthrift" % libthriftVersion % "provided"
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
@@ -281,7 +281,7 @@ lazy val scroogeAdaptive = Project(
     "asm" % "asm" % "3.3.1",
     "asm" % "asm-commons" % "3.3.1",
     "asm" % "asm-util" % "3.3.1",
-    "com.twitter" % "libthrift" % libthriftVersion % "provided",
+    "org.apache.thrift" % "libthrift" % libthriftVersion % "provided",
     util("logging")
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
@@ -342,7 +342,7 @@ lazy val scroogeBenchmark = Project(
 ).settings(
   libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
-    "com.twitter" % "libthrift" % libthriftVersion
+    "org.apache.thrift" % "libthrift" % libthriftVersion
   )
 ).dependsOn(
   scroogeAdaptive % "compile->test", // Need ReloadOnceAdaptBinarySerializer defined in test

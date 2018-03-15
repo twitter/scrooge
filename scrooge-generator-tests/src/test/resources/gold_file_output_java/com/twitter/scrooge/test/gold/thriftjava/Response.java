@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -324,16 +323,14 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_statusCode = true;
-    builder.append(present_statusCode);
-    if (present_statusCode)
-      builder.append(statusCode);
-    boolean present_responseUnion = true && (isSetResponseUnion());
-    builder.append(present_responseUnion);
-    if (present_responseUnion)
-      builder.append(responseUnion);
-    return builder.toHashCode();
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Integer)statusCode).hashCode();
+    }
+    if (isSetResponseUnion()) {
+      hashCode = 31 * hashCode + responseUnion.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(Response other) {

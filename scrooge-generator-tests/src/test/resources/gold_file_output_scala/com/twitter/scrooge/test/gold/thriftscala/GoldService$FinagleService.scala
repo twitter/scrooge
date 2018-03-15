@@ -64,7 +64,7 @@ class GoldService$FinagleService(
   private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
   private[this] def stats: StatsReceiver = serverParam.serverStats
 
-  private[this] def protocolFactory: TProtocolFactory = serverParam.protocolFactory
+  private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
   private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
 
   private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)

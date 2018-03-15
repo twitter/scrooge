@@ -23,7 +23,7 @@ public class {{name}} {
 
   public interface AsyncIface{{#extends_iface}} extends {{parent_name}}.AsyncIface{{/extends_iface}} {
     {{#functions}}
-    public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<AsyncClient.{{name}}_call> resultHandler) throws TException;
+    public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{{return_type.type_name_in_container}}}> resultHandler) throws TException;
     {{/functions}}
   }
 
@@ -33,7 +33,7 @@ public class {{name}} {
     {{/functions}}
   }
 
-  public static class Client{{#extends_iface}} extends {{parent_name}}.Client{{/extends_iface}} implements TServiceClient, Iface {
+  public static class Client extends {{#extends_iface}}{{parent_name}}.Client{{/extends_iface}}{{^extends_iface}}TServiceClient{{/extends_iface}} implements Iface {
     public static class Factory implements TServiceClientFactory<Client> {
       public Factory() {}
       public Client getClient(TProtocol prot) {
@@ -51,32 +51,9 @@ public class {{name}} {
 
     public Client(TProtocol iprot, TProtocol oprot)
     {
-      {{#extends_iface}}
       super(iprot, oprot);
-      {{/extends_iface}}
-      {{^extends_iface}}
-      iprot_ = iprot;
-      oprot_ = oprot;
-      {{/extends_iface}}
-    }
-    {{^extends_iface}}
-
-    protected TProtocol iprot_;
-    protected TProtocol oprot_;
-
-    protected int seqid_;
-
-    public TProtocol getInputProtocol()
-    {
-      return this.iprot_;
     }
 
-    public TProtocol getOutputProtocol()
-    {
-      return this.oprot_;
-    }
-
-    {{/extends_iface}}
     {{#functions}}
     public {{{return_type.type_name}}} {{name}}({{{argument_list_with_types}}}) throws {{exceptions_string}}TException
     {
@@ -103,7 +80,7 @@ public class {{name}} {
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+        TApplicationException x = TApplicationException.readFrom(iprot_);
         iprot_.readMessageEnd();
         throw x;
       }
@@ -147,23 +124,28 @@ public class {{name}} {
       }
     }
 
+    private final TNonblockingTransport transport;
+    private final TAsyncClientManager manager;
+
     public AsyncClient(TProtocolFactory protocolFactory, TAsyncClientManager clientManager, TNonblockingTransport transport) {
       super(protocolFactory, clientManager, transport);
+      this.manager = clientManager;
+      this.transport = transport;
     }
 
     {{#functions}}
-    public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{name}}_call> __resultHandler__) throws TException {
+    public void {{name}}({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{{return_type.type_name_in_container}}}> __resultHandler__) throws TException {
       checkReady();
-      {{name}}_call __method_call__ = new {{name}}_call({{{argument_list}}}{{#has_args}}, {{/has_args}}__resultHandler__, this, super.protocolFactory, super.transport);
-      manager.call(__method_call__);
+      {{name}}_call __method_call__ = new {{name}}_call({{{argument_list}}}{{#has_args}}, {{/has_args}}__resultHandler__, this, super.getProtocolFactory(), this.transport);
+      this.manager.call(__method_call__);
     }
 
-    public static class {{name}}_call extends TAsyncMethodCall<{{name}}_call> {
+    public static class {{name}}_call extends TAsyncMethodCall<{{{return_type.type_name_in_container}}}> {
       {{#fields}}
       private {{{field_type.type_name}}} {{field_name}};
       {{/fields}}
 
-      public {{name}}_call({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{name}}_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public {{name}}_call({{{argument_list_with_types}}}{{#has_args}}, {{/has_args}}AsyncMethodCallback<{{{return_type.type_name_in_container}}}> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
         {{#fields}}
         this.{{field_name}} = {{field_name}};
@@ -180,14 +162,23 @@ public class {{name}} {
         __prot__.writeMessageEnd();
       }
 
-      public {{{return_type.type_name}}} getResult() throws {{exceptions_string}}TException {
+      protected {{{return_type.type_name_in_container}}} getResult() throws {{exceptions_string}}TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
         TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
+        {{#is_oneway}}
+        return null;
+        {{/is_oneway}}
         {{^is_oneway}}
-        {{^return_type.is_void}}return {{/return_type.is_void}}(new Client(__prot__)).recv_{{name}}();
+        {{#return_type.is_void}}
+
+        return null;
+        {{/return_type.is_void}}
+        {{^return_type.is_void}}
+        return (new Client(__prot__)).recv_{{name}}();
+        {{/return_type.is_void}}
         {{/is_oneway}}
       }
      }
@@ -214,7 +205,7 @@ public class {{name}} {
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.thrift.RichClientParam clientParam) {
       {{#extends_iface}}super(service, clientParam);{{/extends_iface}}
       this.service = service;
-      this.protocolFactory = clientParam.protocolFactory();
+      this.protocolFactory = clientParam.restrictedProtocolFactory();
       {{^is_oneway}}this.responseClassifier = clientParam.responseClassifier();{{/is_oneway}}
       this.tlReusableBuffer = new TReusableBuffer(512, clientParam.maxThriftBufferSize());
     }
@@ -438,7 +429,7 @@ public class {{name}} {
       super(iface, serverParam);
       {{/extends_iface}}
       this.iface = iface;
-      this.protocolFactory = serverParam.protocolFactory();
+      this.protocolFactory = serverParam.restrictedProtocolFactory();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }

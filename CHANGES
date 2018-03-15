@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+- scrooge: Upgrade libthrift to 0.10.0. ``PHAB_ID=D124620``
+
+
 18.3.0
 -------
 

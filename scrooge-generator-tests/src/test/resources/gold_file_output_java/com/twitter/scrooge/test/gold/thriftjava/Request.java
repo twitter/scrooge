@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -973,56 +972,44 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_aList = true && (isSetAList());
-    builder.append(present_aList);
-    if (present_aList)
-      builder.append(aList);
-    boolean present_aSet = true && (isSetASet());
-    builder.append(present_aSet);
-    if (present_aSet)
-      builder.append(aSet);
-    boolean present_aMap = true && (isSetAMap());
-    builder.append(present_aMap);
-    if (present_aMap)
-      builder.append(aMap);
-    boolean present_aRequest = true && (isSetARequest());
-    builder.append(present_aRequest);
-    if (present_aRequest)
-      builder.append(aRequest);
-    boolean present_subRequests = true && (isSetSubRequests());
-    builder.append(present_subRequests);
-    if (present_subRequests)
-      builder.append(subRequests);
-    boolean present_hasDefault = true && (isSetHasDefault());
-    builder.append(present_hasDefault);
-    if (present_hasDefault)
-      builder.append(hasDefault);
-    boolean present_noComment = true && (isSetNoComment());
-    builder.append(present_noComment);
-    if (present_noComment)
-      builder.append(noComment);
-    boolean present_doubleSlashComment = true && (isSetDoubleSlashComment());
-    builder.append(present_doubleSlashComment);
-    if (present_doubleSlashComment)
-      builder.append(doubleSlashComment);
-    boolean present_hashtagComment = true && (isSetHashtagComment());
-    builder.append(present_hashtagComment);
-    if (present_hashtagComment)
-      builder.append(hashtagComment);
-    boolean present_singleAsteriskComment = true && (isSetSingleAsteriskComment());
-    builder.append(present_singleAsteriskComment);
-    if (present_singleAsteriskComment)
-      builder.append(singleAsteriskComment);
-    boolean present_docStringComment = true && (isSetDocStringComment());
-    builder.append(present_docStringComment);
-    if (present_docStringComment)
-      builder.append(docStringComment);
-    boolean present_recRequest = true && (isSetRecRequest());
-    builder.append(present_recRequest);
-    if (present_recRequest)
-      builder.append(recRequest);
-    return builder.toHashCode();
+    int hashCode = 1;
+    if (isSetAList()) {
+      hashCode = 31 * hashCode + aList.hashCode();
+    }
+    if (isSetASet()) {
+      hashCode = 31 * hashCode + aSet.hashCode();
+    }
+    if (isSetAMap()) {
+      hashCode = 31 * hashCode + aMap.hashCode();
+    }
+    if (isSetARequest()) {
+      hashCode = 31 * hashCode + aRequest.hashCode();
+    }
+    if (isSetSubRequests()) {
+      hashCode = 31 * hashCode + subRequests.hashCode();
+    }
+    if (isSetHasDefault()) {
+      hashCode = 31 * hashCode + hasDefault.hashCode();
+    }
+    if (isSetNoComment()) {
+      hashCode = 31 * hashCode + ((Long)noComment).hashCode();
+    }
+    if (isSetDoubleSlashComment()) {
+      hashCode = 31 * hashCode + ((Long)doubleSlashComment).hashCode();
+    }
+    if (isSetHashtagComment()) {
+      hashCode = 31 * hashCode + ((Long)hashtagComment).hashCode();
+    }
+    if (isSetSingleAsteriskComment()) {
+      hashCode = 31 * hashCode + ((Long)singleAsteriskComment).hashCode();
+    }
+    if (isSetDocStringComment()) {
+      hashCode = 31 * hashCode + ((Long)docStringComment).hashCode();
+    }
+    if (isSetRecRequest()) {
+      hashCode = 31 * hashCode + recRequest.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(Request other) {

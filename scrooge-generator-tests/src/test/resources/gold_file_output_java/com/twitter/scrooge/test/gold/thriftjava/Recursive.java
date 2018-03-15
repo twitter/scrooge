@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -322,16 +321,14 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_id = true;
-    builder.append(present_id);
-    if (present_id)
-      builder.append(id);
-    boolean present_recRequest = true && (isSetRecRequest());
-    builder.append(present_recRequest);
-    if (present_recRequest)
-      builder.append(recRequest);
-    return builder.toHashCode();
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Long)id).hashCode();
+    }
+    if (isSetRecRequest()) {
+      hashCode = 31 * hashCode + recRequest.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(Recursive other) {

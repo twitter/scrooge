@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,14 +41,14 @@ public class GoldService {
   }
 
   public interface AsyncIface {
-    public void doGreatThings(Request request, AsyncMethodCallback<AsyncClient.doGreatThings_call> resultHandler) throws TException;
+    public void doGreatThings(Request request, AsyncMethodCallback<Response> resultHandler) throws TException;
   }
 
   public interface ServiceIface {
     public Future<Response> doGreatThings(Request request);
   }
 
-  public static class Client implements TServiceClient, Iface {
+  public static class Client extends TServiceClient implements Iface {
     public static class Factory implements TServiceClientFactory<Client> {
       public Factory() {}
       public Client getClient(TProtocol prot) {
@@ -67,23 +66,7 @@ public class GoldService {
 
     public Client(TProtocol iprot, TProtocol oprot)
     {
-      iprot_ = iprot;
-      oprot_ = oprot;
-    }
-
-    protected TProtocol iprot_;
-    protected TProtocol oprot_;
-
-    protected int seqid_;
-
-    public TProtocol getInputProtocol()
-    {
-      return this.iprot_;
-    }
-
-    public TProtocol getOutputProtocol()
-    {
-      return this.oprot_;
+      super(iprot, oprot);
     }
 
     public Response doGreatThings(Request request) throws OverCapacityException, TException
@@ -106,7 +89,7 @@ public class GoldService {
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+        TApplicationException x = TApplicationException.readFrom(iprot_);
         iprot_.readMessageEnd();
         throw x;
       }
@@ -139,20 +122,25 @@ public class GoldService {
       }
     }
 
+    private final TNonblockingTransport transport;
+    private final TAsyncClientManager manager;
+
     public AsyncClient(TProtocolFactory protocolFactory, TAsyncClientManager clientManager, TNonblockingTransport transport) {
       super(protocolFactory, clientManager, transport);
+      this.manager = clientManager;
+      this.transport = transport;
     }
 
-    public void doGreatThings(Request request, AsyncMethodCallback<doGreatThings_call> __resultHandler__) throws TException {
+    public void doGreatThings(Request request, AsyncMethodCallback<Response> __resultHandler__) throws TException {
       checkReady();
-      doGreatThings_call __method_call__ = new doGreatThings_call(request, __resultHandler__, this, super.protocolFactory, super.transport);
-      manager.call(__method_call__);
+      doGreatThings_call __method_call__ = new doGreatThings_call(request, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      this.manager.call(__method_call__);
     }
 
-    public static class doGreatThings_call extends TAsyncMethodCall<doGreatThings_call> {
+    public static class doGreatThings_call extends TAsyncMethodCall<Response> {
       private Request request;
 
-      public doGreatThings_call(Request request, AsyncMethodCallback<doGreatThings_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public doGreatThings_call(Request request, AsyncMethodCallback<Response> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
       }
@@ -165,7 +153,7 @@ public class GoldService {
         __prot__.writeMessageEnd();
       }
 
-      public Response getResult() throws OverCapacityException, TException {
+      protected Response getResult() throws OverCapacityException, TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -194,7 +182,7 @@ public class GoldService {
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.thrift.RichClientParam clientParam) {
       
       this.service = service;
-      this.protocolFactory = clientParam.protocolFactory();
+      this.protocolFactory = clientParam.restrictedProtocolFactory();
       this.responseClassifier = clientParam.responseClassifier();
       this.tlReusableBuffer = new TReusableBuffer(512, clientParam.maxThriftBufferSize());
     }
@@ -345,7 +333,7 @@ public class GoldService {
       new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
     public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
       this.iface = iface;
-      this.protocolFactory = serverParam.protocolFactory();
+      this.protocolFactory = serverParam.restrictedProtocolFactory();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }
@@ -748,12 +736,11 @@ public class GoldService {
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_request = true && (isSetRequest());
-    builder.append(present_request);
-    if (present_request)
-      builder.append(request);
-    return builder.toHashCode();
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(doGreatThings_args other) {
@@ -1139,16 +1126,14 @@ public class GoldService {
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_success = true && (isSetSuccess());
-    builder.append(present_success);
-    if (present_success)
-      builder.append(success);
-    boolean present_ex = true && (isSetEx());
-    builder.append(present_ex);
-    if (present_ex)
-      builder.append(ex);
-    return builder.toHashCode();
+    int hashCode = 1;
+    if (isSetSuccess()) {
+      hashCode = 31 * hashCode + success.hashCode();
+    }
+    if (isSetEx()) {
+      hashCode = 31 * hashCode + ex.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(doGreatThings_result other) {

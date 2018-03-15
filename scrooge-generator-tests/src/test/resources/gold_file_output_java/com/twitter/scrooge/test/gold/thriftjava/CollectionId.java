@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -267,12 +266,11 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_collectionLongId = true;
-    builder.append(present_collectionLongId);
-    if (present_collectionLongId)
-      builder.append(collectionLongId);
-    return builder.toHashCode();
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Long)collectionLongId).hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(CollectionId other) {

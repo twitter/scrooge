@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -194,7 +193,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   }
 
   @java.lang.Override
-  protected Object readValue(TProtocol iprot, TField field) throws TException {
+  protected Object standardSchemeReadValue(TProtocol iprot, TField field) throws TException {
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
       switch (setField) {
@@ -228,7 +227,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   }
 
   @java.lang.Override
-  protected void writeValue(TProtocol oprot) throws TException {
+  protected void standardSchemeWriteValue(TProtocol oprot) throws TException {
     switch (setField_) {
       case ID:
         Long id = (Long)value_;
@@ -243,6 +242,16 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
+  }
+
+  @java.lang.Override
+  protected Object tupleSchemeReadValue(TProtocol iprot, short fieldID) throws TException {
+    throw new UnsupportedOperationException("tuple scheme not implemented");
+  }
+
+  @java.lang.Override
+  protected void tupleSchemeWriteValue(TProtocol oprot) throws TException {
+    throw new UnsupportedOperationException("tuple scheme not implemented");
   }
 
   @java.lang.Override
@@ -321,19 +330,22 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder hcb = new HashCodeBuilder();
-    hcb.append(this.getClass().getName());
+    int hashCode = this.getClass().getName().hashCode();
     TFieldIdEnum setField = getSetField();
+
     if (setField != null) {
-      hcb.append(setField.getThriftFieldId());
+      final short thriftFieldId = setField.getThriftFieldId();
+      hashCode = hashCode * 31 + thriftFieldId;
       Object value = getFieldValue();
-      if (value instanceof TEnum) {
-        hcb.append(((TEnum)getFieldValue()).getValue());
-      } else {
-        hcb.append(value);
+
+      if (1 == thriftFieldId) {
+        hashCode = 31 * hashCode + ((Long)value).hashCode();
+      }
+      if (2 == thriftFieldId && (isSet(_Fields.DETAILS))) {
+        hashCode = 31 * hashCode + ((String)value).hashCode();
       }
     }
-    return hcb.toHashCode();
+    return hashCode;
   }
 }
 

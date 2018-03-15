@@ -296,14 +296,18 @@ this.{{name}} != that.{{name}}
   @java.lang.Override
   public int hashCode() {
     {{#gen_hash_code}}
-    HashCodeBuilder builder = new HashCodeBuilder();
+    int hashCode = 1;
     {{#fields}}
-    boolean present_{{name}} = true{{#optional_or_nullable}} && ({{>generate_isset_check}}){{/optional_or_nullable}};
-    builder.append(present_{{name}});
-    if (present_{{name}})
-      builder.append({{name}}{{#field_type.is_enum}}.getValue(){{/field_type.is_enum}});
+    {{#optional_or_nullable}}if ({{>generate_isset_check}}) {{/optional_or_nullable}}{
+    {{#field_type.is_enum}}
+      hashCode = 31 * hashCode + ((Integer){{name}}.getValue()).hashCode();
+    {{/field_type.is_enum}}
+    {{^field_type.is_enum}}
+      hashCode = 31 * hashCode + {{#field_type.nullable}}{{name}}{{/field_type.nullable}}{{^field_type.nullable}}(({{{field_type.type_name_in_container}}}){{name}}){{/field_type.nullable}}.hashCode();
+    {{/field_type.is_enum}}
+    }
     {{/fields}}
-    return builder.toHashCode();
+    return hashCode;
     {{/gen_hash_code}}
     {{^gen_hash_code}}
     return 0;

@@ -20,6 +20,9 @@ object TFieldBlob {
     f(bprot)
     TFieldBlob(field, Buf.ByteArray.Owned(buff.getArray()))
   }
+
+  private val sysPropReadLength: Int =
+    System.getProperty("org.apache.thrift.readLength", "-1").toInt
 }
 
 /**
@@ -27,6 +30,7 @@ object TFieldBlob {
  * binary blob.
  */
 case class TFieldBlob(field: TField, content: Buf) {
+  import TFieldBlob._
 
   def this(field: TField, data: Array[Byte]) =
     this(field, Buf.ByteArray.Owned(data))
@@ -46,7 +50,7 @@ case class TFieldBlob(field: TField, content: Buf) {
   def read: TCompactProtocol = {
     Buf.ByteArray.coerce(content) match {
       case Buf.ByteArray.Owned(bytes, off, len) =>
-        new TCompactProtocol(new TMemoryInputTransport(bytes, off, len))
+        new TCompactProtocol(new TMemoryInputTransport(bytes, off, len), sysPropReadLength, -1)
       case b => throw new IllegalArgumentException(s"Not a valid Buf for TFieldBlob: $b")
     }
   }

@@ -136,7 +136,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
 
   @java.lang.Override
   @SuppressWarnings("unchecked")
-  protected Object readValue(TProtocol iprot, TField field) throws TException {
+  protected Object standardSchemeReadValue(TProtocol iprot, TField field) throws TException {
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
       switch (setField) {
@@ -171,7 +171,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
 
   @java.lang.Override
   @SuppressWarnings("unchecked")
-  protected void writeValue(TProtocol oprot) throws TException {
+  protected void standardSchemeWriteValue(TProtocol oprot) throws TException {
     switch (setField_) {
       case ID:
         Long id = (Long)value_;
@@ -186,6 +186,16 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
+  }
+
+  @java.lang.Override
+  protected Object tupleSchemeReadValue(TProtocol iprot, short fieldID) throws TException {
+    throw new UnsupportedOperationException("tuple scheme not implemented");
+  }
+
+  @java.lang.Override
+  protected void tupleSchemeWriteValue(TProtocol oprot) throws TException {
+    throw new UnsupportedOperationException("tuple scheme not implemented");
   }
 
   @java.lang.Override

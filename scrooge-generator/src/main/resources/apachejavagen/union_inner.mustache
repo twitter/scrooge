@@ -46,7 +46,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   @java.lang.Override
-  protected Object readValue(TProtocol iprot, TField field) throws TException {
+  protected Object standardSchemeReadValue(TProtocol iprot, TField field) throws TException {
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
       switch (setField) {
@@ -71,7 +71,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   @java.lang.Override
-  protected void writeValue(TProtocol oprot) throws TException {
+  protected void standardSchemeWriteValue(TProtocol oprot) throws TException {
     switch (setField_) {
       {{#fields}}
       case {{#constant_name}}{{name}}{{/constant_name}}:
@@ -82,6 +82,16 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
+  }
+
+  @java.lang.Override
+  protected Object tupleSchemeReadValue(TProtocol iprot, short fieldID) throws TException {
+    throw new UnsupportedOperationException("tuple scheme not implemented");
+  }
+
+  @java.lang.Override
+  protected void tupleSchemeWriteValue(TProtocol oprot) throws TException {
+    throw new UnsupportedOperationException("tuple scheme not implemented");
   }
 
   @java.lang.Override
@@ -148,29 +158,38 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   {{^gen_hash_code}}
-  /**
-   * If you'd like this to perform more respectably, use the hashcode generator option.
-   */
+    /**
+    * If you'd like this to perform more respectably, use the hashcode generator option.
+    */
   {{/gen_hash_code}}
   @java.lang.Override
   public int hashCode() {
-    {{#gen_hash_code}}
-    HashCodeBuilder hcb = new HashCodeBuilder();
-    hcb.append(this.getClass().getName());
+  {{#gen_hash_code}}
+    int hashCode = this.getClass().getName().hashCode();
     TFieldIdEnum setField = getSetField();
+
     if (setField != null) {
-      hcb.append(setField.getThriftFieldId());
+      final short thriftFieldId = setField.getThriftFieldId();
+      hashCode = hashCode * 31 + thriftFieldId;
       Object value = getFieldValue();
+
+      {{#fields}}
+      {{#field_type.is_enum}}
       if (value instanceof TEnum) {
-        hcb.append(((TEnum)getFieldValue()).getValue());
-      } else {
-        hcb.append(value);
+        hashCode = 31 * hashCode + ((Integer)((TEnum)value).getValue()).hashCode();
       }
+      {{/field_type.is_enum}}
+      {{^field_type.is_enum}}
+      if ({{key}} == thriftFieldId{{#optional_or_nullable}} && (isSet(_Fields.{{#constant_name}}{{name}}{{/constant_name}})){{/optional_or_nullable}}) {
+        hashCode = 31 * hashCode + (({{{field_type.type_name_in_container}}})value).hashCode();
+      }
+      {{/field_type.is_enum}}
+      {{/fields}}
     }
-    return hcb.toHashCode();
-    {{/gen_hash_code}}
-    {{^gen_hash_code}}
+    return hashCode;
+  {{/gen_hash_code}}
+  {{^gen_hash_code}}
     return 0;
-    {{/gen_hash_code}}
+  {{/gen_hash_code}}
   }
 }

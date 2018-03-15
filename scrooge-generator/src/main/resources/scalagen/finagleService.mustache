@@ -59,7 +59,7 @@ class {{ServiceName}}$FinagleService(
   private[this] def stats: StatsReceiver = serverParam.serverStats
 
 {{^hasParent}}
-  private[this] def protocolFactory: TProtocolFactory = serverParam.protocolFactory
+  private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
   private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
 
   private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)

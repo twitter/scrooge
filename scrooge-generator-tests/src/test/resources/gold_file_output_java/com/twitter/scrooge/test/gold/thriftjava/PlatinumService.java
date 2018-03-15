@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,14 +41,14 @@ public class PlatinumService {
   }
 
   public interface AsyncIface extends GoldService.AsyncIface {
-    public void moreCoolThings(Request request, AsyncMethodCallback<AsyncClient.moreCoolThings_call> resultHandler) throws TException;
+    public void moreCoolThings(Request request, AsyncMethodCallback<Integer> resultHandler) throws TException;
   }
 
   public interface ServiceIface extends GoldService.ServiceIface {
     public Future<Integer> moreCoolThings(Request request);
   }
 
-  public static class Client extends GoldService.Client implements TServiceClient, Iface {
+  public static class Client extends GoldService.Client implements Iface {
     public static class Factory implements TServiceClientFactory<Client> {
       public Factory() {}
       public Client getClient(TProtocol prot) {
@@ -69,6 +68,7 @@ public class PlatinumService {
     {
       super(iprot, oprot);
     }
+
     public int moreCoolThings(Request request) throws AnotherException, OverCapacityException, TException
     {
       send_moreCoolThings(request);
@@ -89,7 +89,7 @@ public class PlatinumService {
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+        TApplicationException x = TApplicationException.readFrom(iprot_);
         iprot_.readMessageEnd();
         throw x;
       }
@@ -125,20 +125,25 @@ public class PlatinumService {
       }
     }
 
+    private final TNonblockingTransport transport;
+    private final TAsyncClientManager manager;
+
     public AsyncClient(TProtocolFactory protocolFactory, TAsyncClientManager clientManager, TNonblockingTransport transport) {
       super(protocolFactory, clientManager, transport);
+      this.manager = clientManager;
+      this.transport = transport;
     }
 
-    public void moreCoolThings(Request request, AsyncMethodCallback<moreCoolThings_call> __resultHandler__) throws TException {
+    public void moreCoolThings(Request request, AsyncMethodCallback<Integer> __resultHandler__) throws TException {
       checkReady();
-      moreCoolThings_call __method_call__ = new moreCoolThings_call(request, __resultHandler__, this, super.protocolFactory, super.transport);
-      manager.call(__method_call__);
+      moreCoolThings_call __method_call__ = new moreCoolThings_call(request, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      this.manager.call(__method_call__);
     }
 
-    public static class moreCoolThings_call extends TAsyncMethodCall<moreCoolThings_call> {
+    public static class moreCoolThings_call extends TAsyncMethodCall<Integer> {
       private Request request;
 
-      public moreCoolThings_call(Request request, AsyncMethodCallback<moreCoolThings_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public moreCoolThings_call(Request request, AsyncMethodCallback<Integer> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
       }
@@ -151,7 +156,7 @@ public class PlatinumService {
         __prot__.writeMessageEnd();
       }
 
-      public int getResult() throws AnotherException, OverCapacityException, TException {
+      protected Integer getResult() throws AnotherException, OverCapacityException, TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -180,7 +185,7 @@ public class PlatinumService {
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.thrift.RichClientParam clientParam) {
       super(service, clientParam);
       this.service = service;
-      this.protocolFactory = clientParam.protocolFactory();
+      this.protocolFactory = clientParam.restrictedProtocolFactory();
       this.responseClassifier = clientParam.responseClassifier();
       this.tlReusableBuffer = new TReusableBuffer(512, clientParam.maxThriftBufferSize());
     }
@@ -328,7 +333,7 @@ public class PlatinumService {
     public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
       super(iface, serverParam);
       this.iface = iface;
-      this.protocolFactory = serverParam.protocolFactory();
+      this.protocolFactory = serverParam.restrictedProtocolFactory();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }
@@ -735,12 +740,11 @@ public class PlatinumService {
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_request = true && (isSetRequest());
-    builder.append(present_request);
-    if (present_request)
-      builder.append(request);
-    return builder.toHashCode();
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(moreCoolThings_args other) {
@@ -1186,20 +1190,17 @@ public class PlatinumService {
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_success = true;
-    builder.append(present_success);
-    if (present_success)
-      builder.append(success);
-    boolean present_ax = true && (isSetAx());
-    builder.append(present_ax);
-    if (present_ax)
-      builder.append(ax);
-    boolean present_oce = true && (isSetOce());
-    builder.append(present_oce);
-    if (present_oce)
-      builder.append(oce);
-    return builder.toHashCode();
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Integer)success).hashCode();
+    }
+    if (isSetAx()) {
+      hashCode = 31 * hashCode + ax.hashCode();
+    }
+    if (isSetOce()) {
+      hashCode = 31 * hashCode + oce.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(moreCoolThings_result other) {

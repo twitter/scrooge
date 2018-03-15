@@ -74,11 +74,9 @@ trait BinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSerial
 
   override def fromBytes(bytes: Array[Byte]): T = {
     val stream = new ByteArrayInputStream(bytes)
-    val proto = protocolFactory.getProtocol(new TIOStreamTransport(stream))
-    proto match {
-      case tbp: TBinaryProtocol => tbp.setReadLength(bytes.size)
-      case _ => ()
-    }
+    // create a new factory in order to limit the string/binary sizes
+    val factory = new TBinaryProtocol.Factory(bytes.length, -1)
+    val proto = factory.getProtocol(new TIOStreamTransport(stream))
     codec.decode(proto)
   }
 
@@ -87,7 +85,7 @@ trait BinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSerial
 object BinaryThriftStructSerializer {
   def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): BinaryThriftStructSerializer[T] =
     new BinaryThriftStructSerializer[T] {
-      def codec = _codec
+      def codec: ThriftStructCodec[T] = _codec
     }
 }
 
@@ -103,7 +101,7 @@ object LazyBinaryThriftStructSerializer {
 
   def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): LazyBinaryThriftStructSerializer[T] =
     new LazyBinaryThriftStructSerializer[T] {
-      def codec = _codec
+      def codec: ThriftStructCodec[T] = _codec
     }
 }
 
@@ -116,7 +114,7 @@ trait LazyBinaryThriftStructSerializer[T <: ThriftStruct] extends ThriftStructSe
 
   override def toBytes(obj: T): Array[Byte] = {
     val (transport, proto) = reusuableProtocolAndTransport.get()
-    transport.reset
+    transport.reset()
     codec.encode(obj, proto)
     transport.toByteArray
   }
@@ -136,7 +134,7 @@ trait CompactThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[
 object CompactThriftSerializer {
   def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): CompactThriftSerializer[T] =
     new CompactThriftSerializer[T] {
-      def codec = _codec
+      def codec: ThriftStructCodec[T] = _codec
     }
 }
 
@@ -147,7 +145,7 @@ object CompactThriftSerializer {
  *       to deserialize from json.
  */
 trait JsonThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
-  override def encoder = StringEncoder
+  override def encoder: StringEncoder = StringEncoder
   val protocolFactory = new TSimpleJSONProtocol.Factory
 }
 
@@ -163,13 +161,13 @@ object JsonThriftSerializer {
  * field ids (numbers), and does support deserialization of the resulting json.
  */
 trait TJSONProtocolThriftSerializer[T <: ThriftStruct] extends ThriftStructSerializer[T] {
-  override def encoder = StringEncoder
+  override def encoder: StringEncoder = StringEncoder
   val protocolFactory = new TJSONProtocol.Factory
 }
 
 object TJSONProtocolThriftSerializer {
   def apply[T <: ThriftStruct](_codec: ThriftStructCodec[T]): TJSONProtocolThriftSerializer[T] =
     new TJSONProtocolThriftSerializer[T] {
-      def codec = _codec
+      def codec: ThriftStructCodec[T] = _codec
     }
 }

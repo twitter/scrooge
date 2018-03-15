@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -275,12 +274,11 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_chillTimeSeconds = true;
-    builder.append(present_chillTimeSeconds);
-    if (present_chillTimeSeconds)
-      builder.append(chillTimeSeconds);
-    return builder.toHashCode();
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Integer)chillTimeSeconds).hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(OverCapacityException other) {

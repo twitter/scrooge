@@ -42,8 +42,8 @@ public class TestService {
   }
 
   public interface AsyncIface {
-    public void test_void_endpoint(TestRequest request, AsyncMethodCallback<AsyncClient.test_void_endpoint_call> resultHandler) throws TException;
-    public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<AsyncClient.test_endpoint_without_exception_call> resultHandler) throws TException;
+    public void test_void_endpoint(TestRequest request, AsyncMethodCallback<Void> resultHandler) throws TException;
+    public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<TestResult> resultHandler) throws TException;
   }
 
   public interface ServiceIface {
@@ -51,7 +51,7 @@ public class TestService {
     public Future<TestResult> test_endpoint_without_exception(TestRequest request);
   }
 
-  public static class Client implements TServiceClient, Iface {
+  public static class Client extends TServiceClient implements Iface {
     public static class Factory implements TServiceClientFactory<Client> {
       public Factory() {}
       public Client getClient(TProtocol prot) {
@@ -69,23 +69,7 @@ public class TestService {
 
     public Client(TProtocol iprot, TProtocol oprot)
     {
-      iprot_ = iprot;
-      oprot_ = oprot;
-    }
-
-    protected TProtocol iprot_;
-    protected TProtocol oprot_;
-
-    protected int seqid_;
-
-    public TProtocol getInputProtocol()
-    {
-      return this.iprot_;
-    }
-
-    public TProtocol getOutputProtocol()
-    {
-      return this.oprot_;
+      super(iprot, oprot);
     }
 
     public void test_void_endpoint(TestRequest request) throws TestException, TException
@@ -108,7 +92,7 @@ public class TestService {
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+        TApplicationException x = TApplicationException.readFrom(iprot_);
         iprot_.readMessageEnd();
         throw x;
       }
@@ -143,7 +127,7 @@ public class TestService {
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+        TApplicationException x = TApplicationException.readFrom(iprot_);
         iprot_.readMessageEnd();
         throw x;
       }
@@ -173,20 +157,25 @@ public class TestService {
       }
     }
 
+    private final TNonblockingTransport transport;
+    private final TAsyncClientManager manager;
+
     public AsyncClient(TProtocolFactory protocolFactory, TAsyncClientManager clientManager, TNonblockingTransport transport) {
       super(protocolFactory, clientManager, transport);
+      this.manager = clientManager;
+      this.transport = transport;
     }
 
-    public void test_void_endpoint(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> __resultHandler__) throws TException {
+    public void test_void_endpoint(TestRequest request, AsyncMethodCallback<Void> __resultHandler__) throws TException {
       checkReady();
-      test_void_endpoint_call __method_call__ = new test_void_endpoint_call(request, __resultHandler__, this, super.protocolFactory, super.transport);
-      manager.call(__method_call__);
+      test_void_endpoint_call __method_call__ = new test_void_endpoint_call(request, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      this.manager.call(__method_call__);
     }
 
-    public static class test_void_endpoint_call extends TAsyncMethodCall<test_void_endpoint_call> {
+    public static class test_void_endpoint_call extends TAsyncMethodCall<Void> {
       private TestRequest request;
 
-      public test_void_endpoint_call(TestRequest request, AsyncMethodCallback<test_void_endpoint_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public test_void_endpoint_call(TestRequest request, AsyncMethodCallback<Void> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
       }
@@ -199,25 +188,25 @@ public class TestService {
         __prot__.writeMessageEnd();
       }
 
-      public void getResult() throws TestException, TException {
+      protected Void getResult() throws TestException, TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
         TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
-        (new Client(__prot__)).recv_test_void_endpoint();
+        return null;
       }
      }
-    public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> __resultHandler__) throws TException {
+    public void test_endpoint_without_exception(TestRequest request, AsyncMethodCallback<TestResult> __resultHandler__) throws TException {
       checkReady();
-      test_endpoint_without_exception_call __method_call__ = new test_endpoint_without_exception_call(request, __resultHandler__, this, super.protocolFactory, super.transport);
-      manager.call(__method_call__);
+      test_endpoint_without_exception_call __method_call__ = new test_endpoint_without_exception_call(request, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      this.manager.call(__method_call__);
     }
 
-    public static class test_endpoint_without_exception_call extends TAsyncMethodCall<test_endpoint_without_exception_call> {
+    public static class test_endpoint_without_exception_call extends TAsyncMethodCall<TestResult> {
       private TestRequest request;
 
-      public test_endpoint_without_exception_call(TestRequest request, AsyncMethodCallback<test_endpoint_without_exception_call> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public test_endpoint_without_exception_call(TestRequest request, AsyncMethodCallback<TestResult> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
       }
@@ -230,7 +219,7 @@ public class TestService {
         __prot__.writeMessageEnd();
       }
 
-      public TestResult getResult() throws TException {
+      protected TestResult getResult() throws TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -259,7 +248,7 @@ public class TestService {
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.thrift.RichClientParam clientParam) {
       
       this.service = service;
-      this.protocolFactory = clientParam.protocolFactory();
+      this.protocolFactory = clientParam.restrictedProtocolFactory();
       this.responseClassifier = clientParam.responseClassifier();
       this.tlReusableBuffer = new TReusableBuffer(512, clientParam.maxThriftBufferSize());
     }
@@ -492,7 +481,7 @@ public class TestService {
       new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
     public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
       this.iface = iface;
-      this.protocolFactory = serverParam.protocolFactory();
+      this.protocolFactory = serverParam.restrictedProtocolFactory();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }

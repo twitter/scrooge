@@ -58,7 +58,7 @@ class GoldService$FinagleClient(
 
   override def asClosable: _root_.com.twitter.util.Closable = service
 
-  private[this] def protocolFactory: TProtocolFactory = clientParam.protocolFactory
+  private[this] def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
   private[this] def maxReusableBufferSize: Int = clientParam.maxThriftBufferSize
 
   private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
@@ -84,7 +84,7 @@ class GoldService$FinagleClient(
     val msg = iprot.readMessageBegin()
     try {
       if (msg.`type` == TMessageType.EXCEPTION) {
-        val exception = TApplicationException.read(iprot) match {
+        val exception = TApplicationException.readFrom(iprot) match {
           case sourced: SourcedException =>
             if (serviceName != "") sourced.serviceName = serviceName
             sourced

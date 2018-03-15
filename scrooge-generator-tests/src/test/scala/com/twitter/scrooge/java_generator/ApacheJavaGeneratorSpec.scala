@@ -117,6 +117,22 @@ class ApacheJavaGeneratorSpec extends Spec {
       verify(sw, getFileContents("apache_output/empty_struct.txt"), false)
     }
 
+    "generate struct with hashcode" in {
+      val doc = generateDoc(getFileContents("test_thrift/struct.thrift"))
+      val generator = getGenerator(doc, genHashcode = true)
+      val controller = new StructController(doc.structs(1), false, generator, doc.namespace("java"))
+      val sw = renderMustache("struct.mustache", controller)
+      verify(sw, getFileContents("apache_output/struct_with_hashcode.txt"))
+    }
+
+    "generate union with hashcode" in {
+      val doc = generateDoc(getFileContents("test_thrift/union_with_enum.thrift"))
+      val generator = getGenerator(doc, genHashcode = true)
+      val controller = new StructController(doc.structs(0), false, generator, doc.namespace("java"))
+      val sw = renderMustache("struct.mustache", controller)
+      verify(sw, getFileContents("apache_output/union_with_hashcode.txt"))
+    }
+
     "generate service that extends parent" in {
       val doc = generateDoc(getFileContents("test_thrift/service.thrift"))
       val controller =

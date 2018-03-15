@@ -5,7 +5,6 @@
  */
 package com.twitter.scrooge.test.gold.thriftjava;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -267,12 +266,11 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
 
   @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_errorCode = true;
-    builder.append(present_errorCode);
-    if (present_errorCode)
-      builder.append(errorCode);
-    return builder.toHashCode();
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Integer)errorCode).hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(AnotherException other) {
