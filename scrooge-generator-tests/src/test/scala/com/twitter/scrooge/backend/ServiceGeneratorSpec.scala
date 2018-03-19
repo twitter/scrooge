@@ -399,7 +399,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val clientService = Thrift.client.servicePerEndpoint[SimpleService.ServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])), "simple")
 
-        val clientMethod = Thrift.client.methodPerEndpoint(clientService)
+        val clientMethod = Thrift.Client.methodPerEndpoint(clientService)
 
         Await.result(clientMethod.deliver("pass"), 2.seconds)
         Await.result(clientMethod.asClosable.close(), 2.seconds)
@@ -625,7 +625,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val filteredServiceIface =
           exceptionalServiceIface.withDeliver(deliver = doubleFilter.andThen(exceptionalServiceIface.deliver))
-        val methodIface = Thrift.client.methodPerEndpoint(filteredServiceIface)
+        val methodIface = Thrift.Client.methodPerEndpoint(filteredServiceIface)
         Await.result(methodIface.deliver("123")) must be(6)
 
         Await.result(server.close(), 2.seconds)
@@ -662,7 +662,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           "client"
         )
 
-        val futureIface = Thrift.client.methodPerEndpoint(clientService)
+        val futureIface = Thrift.Client.methodPerEndpoint(clientService)
 
         intercept[EmptyXception] {
           Await.result(futureIface.deliver(""))
@@ -687,7 +687,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
-        val richClient = Thrift.client.methodPerEndpoint(client)
+        val richClient = Thrift.Client.methodPerEndpoint(client)
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
         Await.result(richClient.bazQux("baz")) mustBe "baz"
@@ -705,7 +705,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
             "customServiceName"
           )
 
-        val futureIface = Thrift.client.methodPerEndpoint(clientService)
+        val futureIface = Thrift.Client.methodPerEndpoint(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
@@ -824,7 +824,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
             "client"
           )
 
-        val futureIface = Thrift.client.methodPerEndpoint(clientService)
+        val futureIface = Thrift.Client.methodPerEndpoint(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
@@ -959,7 +959,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val filteredServiceIface =
           exceptionalServiceIface.withDeliver(deliver = doubleFilter.andThen(exceptionalServiceIface.deliver))
-        val methodIface = ThriftMux.client.methodPerEndpoint(filteredServiceIface)
+        val methodIface = ThriftMux.Client.methodPerEndpoint(filteredServiceIface)
         Await.result(methodIface.deliver("123")) must be(6)
 
         Await.result(server.close(), 2.seconds)
@@ -996,7 +996,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           "client"
         )
 
-        val futureIface = ThriftMux.client.methodPerEndpoint(clientService)
+        val futureIface = ThriftMux.Client.methodPerEndpoint(clientService)
 
         intercept[EmptyXception] {
           Await.result(futureIface.deliver(""))
@@ -1021,7 +1021,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
-        val richClient = ThriftMux.client.methodPerEndpoint(client)
+        val richClient = ThriftMux.Client.methodPerEndpoint(client)
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
         Await.result(richClient.bazQux("baz")) mustBe "baz"
@@ -1039,7 +1039,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           "customServiceName"
         )
 
-        val futureIface = ThriftMux.client.methodPerEndpoint(clientService)
+        val futureIface = ThriftMux.Client.methodPerEndpoint(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
@@ -1114,7 +1114,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           "client"
         )
 
-        val futureIface = ThriftMux.client.methodPerEndpoint(clientService)
+        val futureIface = ThriftMux.Client.methodPerEndpoint(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))

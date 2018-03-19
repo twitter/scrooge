@@ -170,7 +170,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
 
         val filteredServiceIface =
           simpleServiceIface.copy(deliver = doubleFilter andThen simpleServiceIface.deliver)
-        val methodIface = Thrift.client.newMethodIface(filteredServiceIface)
+        val methodIface = Thrift.Client.newMethodIface(filteredServiceIface)
         Await.result(methodIface.deliver("123")) must be(6)
 
         Await.result(server.close(), 2.seconds)
@@ -207,7 +207,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           "client"
         )
 
-        val futureIface = Thrift.client.newMethodIface(clientService)
+        val futureIface = Thrift.Client.newMethodIface(clientService)
 
         intercept[EmptyXception] {
           Await.result(futureIface.deliver(""))
@@ -232,7 +232,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
         )
-        val richClient = Thrift.client.newMethodIface(client)
+        val richClient = Thrift.Client.newMethodIface(client)
 
         Await.result(richClient.fooBar("foo")) mustBe "foo"
         Await.result(richClient.bazQux("baz")) mustBe "baz"
@@ -250,7 +250,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           "customServiceName"
         )
 
-        val futureIface = Thrift.client.newMethodIface(clientService)
+        val futureIface = Thrift.Client.newMethodIface(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))
@@ -325,7 +325,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           "client"
         )
 
-        val futureIface = Thrift.client.newMethodIface(clientService)
+        val futureIface = Thrift.Client.newMethodIface(clientService)
 
         intercept[Xception] {
           Await.result(futureIface.deliver(where = "abc"))

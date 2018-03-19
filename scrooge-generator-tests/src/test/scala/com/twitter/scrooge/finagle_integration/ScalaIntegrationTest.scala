@@ -200,7 +200,7 @@ class ScalaIntegrationTest extends FunSuite {
       .copy(echo = echoFilter.andThen(clientExtendedBarService.echo))
       .copy(triple = tripleFilter.andThen(clientExtendedBarService.triple))
 
-    val barMethodPerEndpointCopy = Thrift.client.newMethodIface(filteredServicePerEndpointCopy)
+    val barMethodPerEndpointCopy = Thrift.Client.newMethodIface(filteredServicePerEndpointCopy)
 
     assert(await(barMethodPerEndpointCopy.echo("echo")) == "echoecho")
     assert(await(barMethodPerEndpointCopy.triple("3")) == "3.3.3.")
@@ -216,7 +216,7 @@ class ScalaIntegrationTest extends FunSuite {
       .withEcho(echo = echoFilter.andThen(clientExtendedBarService.echo))
       .withTriple(triple = tripleFilter.andThen(clientExtendedBarService.triple))
 
-    val barMethodPerEndpointWith = Thrift.client.methodPerEndpoint(filteredServicePerEndpointWith)
+    val barMethodPerEndpointWith = Thrift.Client.methodPerEndpoint(filteredServicePerEndpointWith)
 
     assert(await(barMethodPerEndpointWith.echo("echo")) == "echoecho")
     assert(await(barMethodPerEndpointWith.triple("3")) == "3.3.3.")

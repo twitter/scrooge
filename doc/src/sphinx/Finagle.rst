@@ -263,7 +263,7 @@ and convert to the ``MethodPerEndpoint``.
         )
 
     val methodPerEndpoint: BinaryService.MethodPerEndpoint =
-      Thrift.client.methodPerEndpoint(filteredServicePerEndpoint)
+      Thrift.Client.methodPerEndpoint(filteredServicePerEndpoint)
 
 `ReqRepServicePerEndpoint`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -297,7 +297,7 @@ and convert to the ``MethodPerEndpoint``.
         )
 
     val methodPerEndpoint: BinaryService.MethodPerEndpoint =
-      ThriftMux.client.methodPerEndpoint(filteredReqRepServicePerEndpoint)
+      ThriftMux.Client.methodPerEndpoint(filteredReqRepServicePerEndpoint)
 
 Creating a Client (deprecated API)
 ----------------------------------
