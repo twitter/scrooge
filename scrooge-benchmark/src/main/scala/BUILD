@@ -2,7 +2,7 @@ scala_library(
     sources = rglobs("*.scala"),
     fatal_warnings = True,
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/openjdk/jmh:jmh-core",
         "scrooge/scrooge-adaptive",
         "scrooge/scrooge-adaptive/src/test/scala/com/twitter/scrooge/adapt/testutil",

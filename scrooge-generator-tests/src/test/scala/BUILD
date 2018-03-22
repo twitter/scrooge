@@ -46,7 +46,7 @@ junit_tests(
         "3rdparty/jvm/com/github/spullara/mustache/java",
         "3rdparty/jvm/com/google/guava",
         "3rdparty/jvm/junit",
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/hamcrest:hamcrest-core",
         "3rdparty/jvm/org/jmock",
         "3rdparty/jvm/org/mockito:mockito-all",

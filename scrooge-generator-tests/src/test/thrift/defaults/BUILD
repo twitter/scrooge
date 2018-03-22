@@ -19,6 +19,6 @@ java_thrift_library(
     default_java_namespace = "apache_java_thrift",
     language = "android",
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )

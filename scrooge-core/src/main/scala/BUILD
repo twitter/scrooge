@@ -6,11 +6,11 @@ scala_library(
         repo = artifactory,
     ),
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
         "util/util-core/src/main/scala",
     ],
     exports = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
         "util/util-core/src/main/scala",
     ],
 )

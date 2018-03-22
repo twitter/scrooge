@@ -11,7 +11,7 @@ java_thrift_library(
     compiler = "scrooge",
     language = "android",
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )
 
@@ -39,6 +39,6 @@ java_thrift_library(
         "androidthrift.test2": "vanilla_android.test2",
     },
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )

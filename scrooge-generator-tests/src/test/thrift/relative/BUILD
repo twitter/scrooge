@@ -8,7 +8,7 @@ java_thrift_library(
     ],
     language = "scala",
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2:include-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3:include-scala",
     ],
@@ -25,6 +25,6 @@ java_thrift_library(
     ],
     language = "android",
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )

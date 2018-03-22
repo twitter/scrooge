@@ -18,6 +18,6 @@ java_thrift_library(
         "com.fake": "com.android_fake",
     },
     dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift-0.5.0",
+        "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )
