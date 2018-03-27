@@ -1,11 +1,10 @@
 package com.twitter.scrooge
 
 import java.io.UnsupportedEncodingException
-import java.lang.StringIndexOutOfBoundsException
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import org.apache.thrift.protocol._
 import org.apache.thrift.TException
+import org.apache.thrift.protocol._
 
 /**
  * This is an implementation of the LazyTProtocol trait in scrooge-core
@@ -153,6 +152,20 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
   /*
    * Reading methods
    */
+  // Due to corruption some records try allocating huge amount of memory. Check for this condition
+  // where new memory allocation should not be larger than remaining buffer size. Throwing exception
+  // will skip this record.
+  private[this] def checkReadLength(length: Int): Unit = {
+    if (length < 0) {
+      throw new TException(s"Negative length: $length")
+    }
+    if (transport.getBytesRemainingInBuffer < length) {
+      throw new TException(
+        s"Requested length $length > Buffer length ${transport.getBytesRemainingInBuffer}. " +
+          "Possible data corruption")
+    }
+  }
+
   override def readMessageEnd: Unit = ()
 
   override def readStructBegin: TStruct = AnonymousStruct
@@ -167,15 +180,31 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
 
   override def readFieldEnd(): Unit = ()
 
-  override def readMapBegin(): TMap = new TMap(readByte(), readByte(), readI32())
+  override def readMapBegin(): TMap = {
+    val keyType = readByte()
+    val valueType = readByte()
+    val size = readI32()
+    checkReadLength(size)
+    new TMap(keyType, valueType, size)
+  }
 
   override def readMapEnd(): Unit = ()
 
-  override def readListBegin(): TList = new TList(readByte(), readI32())
+  override def readListBegin(): TList = {
+    val elemType = readByte()
+    val size = readI32()
+    checkReadLength(size)
+    new TList(elemType, size)
+  }
 
   override def readListEnd(): Unit = ()
 
-  override def readSetBegin(): TSet = new TSet(readByte(), readI32())
+  override def readSetBegin(): TSet = {
+    val elemType = readByte()
+    val size = readI32()
+    checkReadLength(size)
+    new TSet(elemType, size)
+  }
 
   override def readSetEnd(): Unit = ()
 
@@ -212,15 +241,6 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
   @inline
   override def readDouble(): Double =
     java.lang.Double.longBitsToDouble(readI64())
-
-  private[this] def checkReadLength(length: Int): Unit = {
-    if (length < 0) {
-      throw new TException(s"Negative length: $length")
-    }
-    if (transport.getBytesRemainingInBuffer < length) {
-      throw new TException(s"Message length exceeded: $length")
-    }
-  }
 
   override def readString(): String =
     try {
