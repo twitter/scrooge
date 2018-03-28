@@ -35,15 +35,15 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   public enum _Fields implements TFieldIdEnum {
     ID((short)1, "id"),
     DETAILS((short)2, "details");
-
+  
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
+  
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -57,7 +57,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
           return null;
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -67,19 +67,19 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-
+  
     private final short _thriftId;
     private final String _fieldName;
-
+  
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-
+  
     public short getThriftFieldId() {
       return _thriftId;
     }
-
+  
     public String getFieldName() {
       return _fieldName;
     }

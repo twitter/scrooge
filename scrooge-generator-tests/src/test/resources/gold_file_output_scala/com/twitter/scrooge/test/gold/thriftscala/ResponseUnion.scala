@@ -6,7 +6,7 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.scrooge.{HasThriftStructCodec3, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo}
+import com.twitter.scrooge.{HasThriftStructCodec3, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo, ValidatingThriftStruct, ValidatingThriftStructCodec3}
 import org.apache.thrift.protocol._
 import java.nio.ByteBuffer
 import java.util.Arrays
@@ -20,9 +20,9 @@ import scala.collection.{Map, Set}
 sealed trait ResponseUnion
   extends ThriftUnion
   with ThriftStruct
-  with HasThriftStructCodec3[ResponseUnion] {
+  with ValidatingThriftStruct[ResponseUnion] {
 
-  def _codec: ThriftStructCodec3[ResponseUnion] = ResponseUnion
+  def _codec: ValidatingThriftStructCodec3[ResponseUnion] = ResponseUnion
 }
 
 private object ResponseUnionDecoder {
@@ -111,7 +111,7 @@ object ResponseUnionAliases {
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
+object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
   val Union = new TStruct("ResponseUnion")
   val IdField = new TField("id", TType.I64, 1)
   val IdFieldManifest = implicitly[Manifest[Id]]
@@ -257,5 +257,15 @@ object ResponseUnion extends ThriftStructCodec3[ResponseUnion] {
       _oprot.writeFieldStop()
       _oprot.writeStructEnd()
     }
+  }
+
+ /**
+  * Checks that the struct is a valid as a new instance. If there are any missing required or
+  * construction required fields, return a non-empty list.
+  */
+  override def validateNewInstance(
+    item: ResponseUnion
+  ): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    validateField(item.containedValue())
   }
 }

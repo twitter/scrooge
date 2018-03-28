@@ -4,6 +4,8 @@
 
 Unreleased
 ----------
+- scrooge-generator: Add support for construction_required fields. Add a validateNewInstance method
+  to all generated scala companion objects. ``PHAB_ID=D148841``
 
 - scrooge-core: Check for corruption in size meta field of container and throw
   an exception if size is found corrupted. ``PHAB_ID=D150057``

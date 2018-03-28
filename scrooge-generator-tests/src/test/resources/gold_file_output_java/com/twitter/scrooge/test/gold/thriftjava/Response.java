@@ -210,7 +210,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
   __isset_bit_vector.clear(__STATUSCODE_ISSET_ID);
   }
 
-  /** Returns true if field statusCode is set (has been asigned a value) and false otherwise */
+  /** Returns true if field statusCode is set (has been assigned a value) and false otherwise */
   public boolean isSetStatusCode() {
     return __isset_bit_vector.get(__STATUSCODE_ISSET_ID);
   }
@@ -233,7 +233,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
     this.responseUnion = null;
   }
 
-  /** Returns true if field responseUnion is set (has been asigned a value) and false otherwise */
+  /** Returns true if field responseUnion is set (has been assigned a value) and false otherwise */
   public boolean isSetResponseUnion() {
     return this.responseUnion != null;
   }

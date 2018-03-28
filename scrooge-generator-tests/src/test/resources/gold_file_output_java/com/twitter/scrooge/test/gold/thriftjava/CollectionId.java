@@ -197,7 +197,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   __isset_bit_vector.clear(__COLLECTIONLONGID_ISSET_ID);
   }
 
-  /** Returns true if field collectionLongId is set (has been asigned a value) and false otherwise */
+  /** Returns true if field collectionLongId is set (has been assigned a value) and false otherwise */
   public boolean isSetCollectionLongId() {
     return __isset_bit_vector.get(__COLLECTIONLONGID_ISSET_ID);
   }

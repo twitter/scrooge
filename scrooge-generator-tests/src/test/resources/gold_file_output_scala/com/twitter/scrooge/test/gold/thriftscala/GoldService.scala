@@ -8,16 +8,16 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.scrooge.{
   LazyTProtocol,
-  HasThriftStructCodec3,
   TFieldBlob,
   ThriftService,
   ThriftStruct,
   ThriftStructCodec,
-  ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftResponse,
   ThriftUtil,
-  ToThriftService
+  ToThriftService,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.thrift.{
@@ -227,13 +227,13 @@ object GoldService { self =>
   }
 
   object DoGreatThings extends com.twitter.scrooge.ThriftMethod {
-
-    object Args extends ThriftStructCodec3[Args] {
+    
+    object Args extends ValidatingThriftStructCodec3[Args] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct = new TStruct("doGreatThings_args")
       val RequestField = new TField("request", TType.STRUCT, 1)
       val RequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
-
+    
       /**
        * Field information in declaration order.
        */
@@ -250,16 +250,27 @@ object GoldService { self =>
           None
         )
       )
-
+    
       lazy val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
-
+    
       /**
        * Checks that all required fields are non-null.
        */
       def validate(_item: Args): Unit = {
       }
-
+    
+      /**
+       * Checks that the struct is a valid as a new instance. If there are any missing required or
+       * construction required fields, return a non-empty list.
+       */
+      def validateNewInstance(item: Args): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+        val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+    
+        buf ++= validateField(item.request)
+        buf.toList
+      }
+    
       def withoutPassthroughFields(original: Args): Args =
         new Args(
           request =
@@ -268,17 +279,17 @@ object GoldService { self =>
               com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
             }
         )
-
+    
       override def encode(_item: Args, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
       }
-
-
+    
+    
       override def decode(_iprot: TProtocol): Args = {
         var request: com.twitter.scrooge.test.gold.thriftscala.Request = null
         var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
         var _done = false
-
+    
         _iprot.readStructBegin()
         while (!_done) {
           val _field = _iprot.readFieldBegin()
@@ -308,7 +319,7 @@ object GoldService { self =>
           }
         }
         _iprot.readStructEnd()
-
+    
         new Args(
           request,
           if (_passthroughFields == null)
@@ -317,40 +328,40 @@ object GoldService { self =>
             _passthroughFields.result()
         )
       }
-
+    
       def apply(
         request: com.twitter.scrooge.test.gold.thriftscala.Request
       ): Args =
         new Args(
           request
         )
-
+    
       def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
-
-
+    
+    
       @inline private[thriftscala] def readRequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
         com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
       }
-
+    
       @inline private def writeRequestField(request_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
         _oprot.writeFieldBegin(RequestField)
         writeRequestValue(request_item, _oprot)
         _oprot.writeFieldEnd()
       }
-
+    
       @inline private def writeRequestValue(request_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
         request_item.write(_oprot)
       }
-
-
+    
+    
     }
-
+    
     class Args(
         val request: com.twitter.scrooge.test.gold.thriftscala.Request,
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftStruct
       with _root_.scala.Product1[com.twitter.scrooge.test.gold.thriftscala.Request]
-      with HasThriftStructCodec3[Args]
+      with ValidatingThriftStruct[Args]
       with java.io.Serializable
     {
       import Args._
@@ -360,11 +371,11 @@ object GoldService { self =>
         request,
         Map.empty
       )
-
+    
       def _1 = request
-
-
-
+    
+    
+    
       override def write(_oprot: TProtocol): Unit = {
         Args.validate(this)
         _oprot.writeStructBegin(Struct)
@@ -375,7 +386,7 @@ object GoldService { self =>
         _oprot.writeFieldStop()
         _oprot.writeStructEnd()
       }
-
+    
       def copy(
         request: com.twitter.scrooge.test.gold.thriftscala.Request = this.request,
         _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
@@ -384,45 +395,45 @@ object GoldService { self =>
           request,
           _passthroughFields
         )
-
+    
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
-
+    
       private def _equals(x: Args, y: Args): Boolean =
           x.productArity == y.productArity &&
           x.productIterator.sameElements(y.productIterator)
-
+    
       override def equals(other: Any): Boolean =
         canEqual(other) &&
           _equals(this, other.asInstanceOf[Args]) &&
           _passthroughFields == other.asInstanceOf[Args]._passthroughFields
-
+    
       override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
-
+    
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
+    
+    
       override def productArity: Int = 1
-
+    
       override def productElement(n: Int): Any = n match {
         case 0 => this.request
         case _ => throw new IndexOutOfBoundsException(n.toString)
       }
-
+    
       override def productPrefix: String = "Args"
-
-      def _codec: ThriftStructCodec3[Args] = Args
+    
+      def _codec: ValidatingThriftStructCodec3[Args] = Args
     }
 
     type SuccessType = com.twitter.scrooge.test.gold.thriftscala.Response
-
-    object Result extends ThriftStructCodec3[Result] {
+    
+    object Result extends ValidatingThriftStructCodec3[Result] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct = new TStruct("doGreatThings_result")
       val SuccessField = new TField("success", TType.STRUCT, 0)
       val SuccessFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
       val ExField = new TField("ex", TType.STRUCT, 1)
       val ExFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
-
+    
       /**
        * Field information in declaration order.
        */
@@ -450,16 +461,28 @@ object GoldService { self =>
           None
         )
       )
-
+    
       lazy val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
-
+    
       /**
        * Checks that all required fields are non-null.
        */
       def validate(_item: Result): Unit = {
       }
-
+    
+      /**
+       * Checks that the struct is a valid as a new instance. If there are any missing required or
+       * construction required fields, return a non-empty list.
+       */
+      def validateNewInstance(item: Result): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+        val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+    
+        buf ++= validateField(item.success)
+        buf ++= validateField(item.ex)
+        buf.toList
+      }
+    
       def withoutPassthroughFields(original: Result): Result =
         new Result(
           success =
@@ -477,18 +500,18 @@ object GoldService { self =>
               }
             }
         )
-
+    
       override def encode(_item: Result, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
       }
-
-
+    
+    
       override def decode(_iprot: TProtocol): Result = {
         var success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
         var ex: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = _root_.scala.None
         var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
         var _done = false
-
+    
         _iprot.readStructBegin()
         while (!_done) {
           val _field = _iprot.readFieldBegin()
@@ -531,7 +554,7 @@ object GoldService { self =>
           }
         }
         _iprot.readStructEnd()
-
+    
         new Result(
           success,
           ex,
@@ -541,7 +564,7 @@ object GoldService { self =>
             _passthroughFields.result()
         )
       }
-
+    
       def apply(
         success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None,
         ex: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = _root_.scala.None
@@ -550,48 +573,48 @@ object GoldService { self =>
           success,
           ex
         )
-
+    
       def unapply(_item: Result): _root_.scala.Option[_root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
-
-
+    
+    
       @inline private[thriftscala] def readSuccessValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Response = {
         com.twitter.scrooge.test.gold.thriftscala.Response.decode(_iprot)
       }
-
+    
       @inline private def writeSuccessField(success_item: com.twitter.scrooge.test.gold.thriftscala.Response, _oprot: TProtocol): Unit = {
         _oprot.writeFieldBegin(SuccessField)
         writeSuccessValue(success_item, _oprot)
         _oprot.writeFieldEnd()
       }
-
+    
       @inline private def writeSuccessValue(success_item: com.twitter.scrooge.test.gold.thriftscala.Response, _oprot: TProtocol): Unit = {
         success_item.write(_oprot)
       }
-
+    
       @inline private[thriftscala] def readExValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.OverCapacityException = {
         com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.decode(_iprot)
       }
-
+    
       @inline private def writeExField(ex_item: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException, _oprot: TProtocol): Unit = {
         _oprot.writeFieldBegin(ExField)
         writeExValue(ex_item, _oprot)
         _oprot.writeFieldEnd()
       }
-
+    
       @inline private def writeExValue(ex_item: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException, _oprot: TProtocol): Unit = {
         ex_item.write(_oprot)
       }
-
-
+    
+    
     }
-
+    
     class Result(
         val success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response],
         val ex: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException],
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftResponse[com.twitter.scrooge.test.gold.thriftscala.Response] with ThriftStruct
       with _root_.scala.Product2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
-      with HasThriftStructCodec3[Result]
+      with ValidatingThriftStruct[Result]
       with java.io.Serializable
     {
       import Result._
@@ -603,21 +626,21 @@ object GoldService { self =>
         ex,
         Map.empty
       )
-
+    
       def _1 = success
       def _2 = ex
-
+    
       def toTuple: _root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]] = {
         (
           success,
           ex
         )
       }
-
+    
       def successField: Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
       def exceptionFields: Iterable[Option[com.twitter.scrooge.ThriftException]] = Seq(ex)
-
-
+    
+    
       override def write(_oprot: TProtocol): Unit = {
         Result.validate(this)
         _oprot.writeStructBegin(Struct)
@@ -629,7 +652,7 @@ object GoldService { self =>
         _oprot.writeFieldStop()
         _oprot.writeStructEnd()
       }
-
+    
       def copy(
         success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = this.success,
         ex: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = this.ex,
@@ -640,34 +663,34 @@ object GoldService { self =>
           ex,
           _passthroughFields
         )
-
+    
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
-
+    
       private def _equals(x: Result, y: Result): Boolean =
           x.productArity == y.productArity &&
           x.productIterator.sameElements(y.productIterator)
-
+    
       override def equals(other: Any): Boolean =
         canEqual(other) &&
           _equals(this, other.asInstanceOf[Result]) &&
           _passthroughFields == other.asInstanceOf[Result]._passthroughFields
-
+    
       override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
-
+    
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
+    
+    
       override def productArity: Int = 2
-
+    
       override def productElement(n: Int): Any = n match {
         case 0 => this.success
         case 1 => this.ex
         case _ => throw new IndexOutOfBoundsException(n.toString)
       }
-
+    
       override def productPrefix: String = "Result"
-
-      def _codec: ThriftStructCodec3[Result] = Result
+    
+      def _codec: ValidatingThriftStructCodec3[Result] = Result
     }
 
     val annotations: immutable$Map[String, String] = immutable$Map(

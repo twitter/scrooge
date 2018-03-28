@@ -39,15 +39,15 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
   public enum _Fields implements TFieldIdEnum {
     STATUS_CODE((short)1, "statusCode"),
     RESPONSE_UNION((short)2, "responseUnion");
-
+  
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
+  
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
         byName.put(field.getFieldName(), field);
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
@@ -61,7 +61,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
           return null;
       }
     }
-
+  
     /**
      * Find the _Fields constant that matches fieldId, throwing an exception
      * if it is not found.
@@ -71,19 +71,19 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
       if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
       return fields;
     }
-
+  
     private final short _thriftId;
     private final String _fieldName;
-
+  
     _Fields(short thriftId, String fieldName) {
       _thriftId = thriftId;
       _fieldName = fieldName;
     }
-
+  
     public short getThriftFieldId() {
       return _thriftId;
     }
-
+  
     public String getFieldName() {
       return _fieldName;
     }
@@ -326,7 +326,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
 
   public void write(TProtocol oprot) throws TException {
     validate();
-
+    
     oprot.writeStructBegin(STRUCT_DESC);
     oprot.writeFieldBegin(STATUS_CODE_FIELD_DESC);
     oprot.writeI32(this.statusCode);

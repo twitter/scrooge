@@ -669,7 +669,7 @@ public class PlatinumService {
     this.request = null;
   }
 
-  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
   public boolean isSetRequest() {
     return this.request != null;
   }
@@ -1033,7 +1033,7 @@ public class PlatinumService {
   __isset_bit_vector.clear(__SUCCESS_ISSET_ID);
   }
 
-  /** Returns true if field success is set (has been asigned a value) and false otherwise */
+  /** Returns true if field success is set (has been assigned a value) and false otherwise */
   public boolean isSetSuccess() {
     return __isset_bit_vector.get(__SUCCESS_ISSET_ID);
   }
@@ -1056,7 +1056,7 @@ public class PlatinumService {
     this.ax = null;
   }
 
-  /** Returns true if field ax is set (has been asigned a value) and false otherwise */
+  /** Returns true if field ax is set (has been assigned a value) and false otherwise */
   public boolean isSetAx() {
     return this.ax != null;
   }
@@ -1081,7 +1081,7 @@ public class PlatinumService {
     this.oce = null;
   }
 
-  /** Returns true if field oce is set (has been asigned a value) and false otherwise */
+  /** Returns true if field oce is set (has been assigned a value) and false otherwise */
   public boolean isSetOce() {
     return this.oce != null;
   }

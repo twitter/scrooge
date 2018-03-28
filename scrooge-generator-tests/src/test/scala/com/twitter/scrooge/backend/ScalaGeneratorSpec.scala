@@ -2,25 +2,26 @@ package com.twitter.scrooge.backend
 
 import com.twitter.conversions.time._
 import com.twitter.finagle.{Service, SourcedException}
-import com.twitter.scrooge.{Request, Response}
+import com.twitter.scrooge.backend.thriftscala.{ConstructorRequiredStruct, ConstructorRequiredStructPackageProtected, DeepValidationStruct, DeepValidationUnion}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
-import com.twitter.scrooge.{ThriftException, ThriftStruct}
+import com.twitter.scrooge._
+import com.twitter.scrooge.validation.{MissingConstructionRequiredField, MissingRequiredField}
 import com.twitter.util.{Await, Future}
+import inheritance.aaa.{Aaa, Box}
+import inheritance.bbb.Bbb
+import inheritance.ccc.{Ccc, CccExtended}
+import inheritance.ddd.Ddd
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.jmock.Expectations
 import org.jmock.Expectations.returnValue
+import scala.collection.Map
+import scrooge.test.annotations.thriftscala.AnnoEnum
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
-import inheritance.aaa.{Aaa, Box}
-import inheritance.bbb.Bbb
-import inheritance.ccc.Ccc
-import inheritance.ccc.CccExtended
-import inheritance.ddd.Ddd
-import scrooge.test.annotations.thriftscala.AnnoEnum
 
 class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
   def stringToBytes(string: String) = ByteBuffer.wrap(string.getBytes)
@@ -1304,6 +1305,287 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       )
 
       Await.result(dddService.getInt(Request(Bbb.GetInt.Args())), 5.seconds).value must be(5)
+    }
+
+    "constructor required fields" should {
+      "not be optional in the apply method" in { _ =>
+        val struct = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        struct.constructionRequiredField must be(Some(3))
+      }
+
+      "not be optional in the Immutable constructor" in { _ =>
+        val struct = new ConstructorRequiredStruct.Immutable(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        struct.constructionRequiredField must be(Some(3))
+      }
+
+      "not be optional in the Immutable constructor with _passthroughFields" in { _ =>
+        val struct = new ConstructorRequiredStruct.Immutable(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4,
+          validateNewInstance = None,
+          _passthroughFields = Map.empty[Short, TFieldBlob]
+        )
+        struct.constructionRequiredField must be(Some(3))
+      }
+
+      "only accept non-construction required field in the copy method" in { _ =>
+        val struct = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        val copiedStruct = struct.copy(
+          Some(5),
+          "test2",
+          7,
+          validateNewInstance = None,
+          Map.empty[Short, TFieldBlob]
+        )
+        val expected = ConstructorRequiredStruct(
+          optionalField = Some(5),
+          requiredField = "test2",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 7
+        )
+        copiedStruct must be(expected)
+      }
+
+      "change the constructionRequired field with copyChangingConstructionRequiredFields" in { _ =>
+        val struct = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        val copiedStruct = struct.copyChangingConstructionRequiredFields(
+          constructionRequiredField = Some(5)
+        )
+        val expected = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 5,
+          defaultRequirednessField = 4
+        )
+        copiedStruct must be(expected)
+      }
+
+      "leave constructionRequired field with copyChangingConstructionRequiredFields" in { _ =>
+        val struct = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        val copiedStruct = struct.copyChangingConstructionRequiredFields(
+        )
+        copiedStruct must be(struct)
+      }
+
+      "leave constructionRequired missing with copyChangingConstructionRequiredFields" in { _ =>
+        val struct = ConstructorRequiredStructPackageProtected(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = None,
+          defaultRequirednessField = 4,
+          _passthroughFields = Map.empty[Short, TFieldBlob]
+        )
+        val copiedStruct = struct.copyChangingConstructionRequiredFields(
+        )
+        copiedStruct must be(struct)
+      }
+
+      "replace missing constructionRequired with copyChangingConstructionRequiredFields" in { _ =>
+        val struct = ConstructorRequiredStructPackageProtected(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = None,
+          defaultRequirednessField = 4,
+          _passthroughFields = Map.empty[Short, TFieldBlob]
+        )
+        val copiedStruct = struct.copyChangingConstructionRequiredFields(
+          constructionRequiredField = Some(3)
+        )
+        val expected = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "test",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        copiedStruct must be(expected)
+      }
+    }
+
+    "validate" should {
+      "throw an exception when missing a field" in { _ =>
+        val struct = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = null,
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        val exception = intercept[TProtocolException](ConstructorRequiredStruct.validate(struct))
+        val expected = "Required field requiredField cannot be null"
+        exception.getMessage must be(expected)
+      }
+      "not throw when required fields are present" in { _ =>
+        val struct = ConstructorRequiredStruct(
+          optionalField = Some(1),
+          requiredField = "present",
+          constructionRequiredField = 3,
+          defaultRequirednessField = 4
+        )
+        ConstructorRequiredStruct.validate(struct)
+      }
+    }
+
+    "validateNewInstance" should {
+      val validInstance = ConstructorRequiredStruct(
+        optionalField = Some(1),
+        requiredField = "present",
+        constructionRequiredField = 3,
+        defaultRequirednessField = 4
+      )
+      val missingRequiredFieldInstance = ConstructorRequiredStruct(
+        optionalField = Some(1),
+        requiredField = null,
+        constructionRequiredField = 3,
+        defaultRequirednessField = 4
+      )
+      val missingConstructionRequiredFieldInstance = ConstructorRequiredStructPackageProtected(
+        optionalField = Some(1),
+        requiredField = "test",
+        constructionRequiredField = None,
+        defaultRequirednessField = 4,
+        _passthroughFields = Map.empty[Short, TFieldBlob]
+      )
+
+      val requiredField =
+        ConstructorRequiredStruct.fieldInfos(
+          ConstructorRequiredStruct.RequiredFieldField.id - 1
+        )
+
+      val constructionRequiredField =
+        ConstructorRequiredStruct.fieldInfos(
+          ConstructorRequiredStruct.ConstructionRequiredFieldField.id - 1
+        )
+
+      def validateMissingConstructionRequiredField(
+        struct: DeepValidationStruct,
+        number: Int = 1
+      ) = {
+        val result = DeepValidationStruct.validateNewInstance(struct)
+        val expected = Seq.fill(number)(MissingConstructionRequiredField(constructionRequiredField))
+        result must be(expected)
+      }
+      "return an empty list when required fields are present" in { _ =>
+        val result = ConstructorRequiredStruct.validateNewInstance(validInstance)
+        result must be(Seq.empty)
+      }
+      "return a MissingRequiredField when missing a required field" in { _ =>
+        val result = ConstructorRequiredStruct.validateNewInstance(missingRequiredFieldInstance)
+        result must be(Seq(MissingRequiredField(requiredField)))
+      }
+      "return a MissingConstructionRequiredField when missing a required field" in { _ =>
+        val result =
+          ConstructorRequiredStruct.validateNewInstance(missingConstructionRequiredFieldInstance)
+        result must be(Seq(MissingConstructionRequiredField(constructionRequiredField)))
+      }
+      "return an empty list when DeepValidationStruct is completely valid" in { _ =>
+        val struct = DeepValidationStruct(
+          Seq(validInstance),
+          Set(validInstance),
+          Some(validInstance),
+          validInstance,
+          Map(validInstance -> "value"),
+          Map("key" -> validInstance),
+          Map(
+            Set(Seq(validInstance)) ->
+              Set(Seq(validInstance))
+          )
+        )
+        val result = DeepValidationStruct.validateNewInstance(struct)
+        result must be(Seq.empty)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid requiredConstructorRequiredStruct" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = missingConstructionRequiredFieldInstance
+        )
+        validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid optionalConstructorRequiredStruct" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = validInstance,
+            optionalConstructorRequiredStruct = Some(missingConstructionRequiredFieldInstance)
+        )
+        validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inList" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = validInstance,
+          inList = List(missingConstructionRequiredFieldInstance)
+        )
+        validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inSet" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = validInstance,
+          inSet = Set(missingConstructionRequiredFieldInstance)
+        )
+        validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inMapKey" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = validInstance,
+          inMapKey = Map(missingConstructionRequiredFieldInstance -> "value")
+        )
+        validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inMapValue" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = validInstance,
+          inMapValue = Map("key" -> missingConstructionRequiredFieldInstance)
+        )
+        validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid crazyEmbedding" in { _ =>
+        val struct = DeepValidationStruct(
+          requiredConstructorRequiredStruct = validInstance,
+          crazyEmbedding = Map(
+            Set(Seq(missingConstructionRequiredFieldInstance)) ->
+              Set(Seq(missingConstructionRequiredFieldInstance))
+          )
+        )
+        validateMissingConstructionRequiredField(struct, 2)
+      }
+      "return an empty list when DeepValidationUnion has valid constructorRequiredStruct" in { _ =>
+        val struct = DeepValidationUnion.ConstructorRequiredStruct(validInstance)
+        val result = DeepValidationUnion.validateNewInstance(struct)
+        result must be(Seq.empty)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationUnion has invalid constructorRequiredStruct" in { _ =>
+        val struct =
+          DeepValidationUnion.ConstructorRequiredStruct(missingConstructionRequiredFieldInstance)
+        val result = DeepValidationUnion.validateNewInstance(struct)
+        result must be(Seq(MissingConstructionRequiredField(constructionRequiredField)))
+      }
+      "return an empty list when DeepValidationUnion has an unrelated field" in { _ =>
+        val struct = DeepValidationUnion.OtherField(1L)
+        val result = DeepValidationUnion.validateNewInstance(struct)
+        result must be(Seq.empty)
+      }
     }
   }
 }

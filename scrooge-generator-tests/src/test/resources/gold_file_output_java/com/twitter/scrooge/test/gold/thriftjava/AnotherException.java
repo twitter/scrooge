@@ -197,7 +197,7 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
   __isset_bit_vector.clear(__ERRORCODE_ISSET_ID);
   }
 
-  /** Returns true if field errorCode is set (has been asigned a value) and false otherwise */
+  /** Returns true if field errorCode is set (has been assigned a value) and false otherwise */
   public boolean isSetErrorCode() {
     return __isset_bit_vector.get(__ERRORCODE_ISSET_ID);
   }

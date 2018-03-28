@@ -34,6 +34,8 @@ Request.fields[9] = { name = 'hashtagComment', ttype = 'i64', }
 Request.fields[10] = { name = 'singleAsteriskComment', ttype = 'i64', }
 Request.fields[11] = { name = 'docStringComment', ttype = 'i64', }
 Request.fields[12] = { name = 'recRequest', ttype = 'struct', fields = Recursive.fields, }
+Request.fields[13] = { name = 'requiredField', required = true, ttype = 'string', }
+Request.fields[14] = { name = 'constructionRequiredField', ttype = 'i64', }
 
 local binaryCodec = require 'libthrift'
 

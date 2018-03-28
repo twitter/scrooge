@@ -205,7 +205,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
   __isset_bit_vector.clear(__CHILLTIMESECONDS_ISSET_ID);
   }
 
-  /** Returns true if field chillTimeSeconds is set (has been asigned a value) and false otherwise */
+  /** Returns true if field chillTimeSeconds is set (has been assigned a value) and false otherwise */
   public boolean isSetChillTimeSeconds() {
     return __isset_bit_vector.get(__CHILLTIMESECONDS_ISSET_ID);
   }

@@ -208,7 +208,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
   __isset_bit_vector.clear(__ID_ISSET_ID);
   }
 
-  /** Returns true if field id is set (has been asigned a value) and false otherwise */
+  /** Returns true if field id is set (has been assigned a value) and false otherwise */
   public boolean isSetId() {
     return __isset_bit_vector.get(__ID_ISSET_ID);
   }
@@ -231,7 +231,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
     this.recRequest = null;
   }
 
-  /** Returns true if field recRequest is set (has been asigned a value) and false otherwise */
+  /** Returns true if field recRequest is set (has been assigned a value) and false otherwise */
   public boolean isSetRecRequest() {
     return this.recRequest != null;
   }

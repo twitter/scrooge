@@ -66,6 +66,8 @@ struct Request {
    */
   12: optional Recursive recRequest
 
+  13: required string requiredField
+  14: optional i64 constructionRequiredField (construction_required = "true")
 } (s.annotation.one = "something", s.annotation.two = "other")
 
 struct Response {

@@ -182,7 +182,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   {{/field_type.nullable}}
   }
 
-  /** Returns true if field {{name}} is set (has been asigned a value) and false otherwise */
+  /** Returns true if field {{name}} is set (has been assigned a value) and false otherwise */
   public boolean isSet{{#cap}}{{name}}{{/cap}}() {
     {{#field_type.nullable}}
     return this.{{name}} != null;

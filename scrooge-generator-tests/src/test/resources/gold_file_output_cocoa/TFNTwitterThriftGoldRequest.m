@@ -37,11 +37,15 @@
     [ms appendFormat:@"%@ ", @(_docStringComment)];
     [ms appendString:@"recRequest:"];
     [ms appendFormat:@"%@ ", _recRequest];
+    [ms appendString:@"requiredField:"];
+    [ms appendFormat:@"%@ ", _requiredField];
+    [ms appendString:@"constructionRequiredField:"];
+    [ms appendFormat:@"%@ ", @(_constructionRequiredField)];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField
 {
     if (self = [super init]) {
         [self setAList:aList];
@@ -56,6 +60,8 @@
         [self setSingleAsteriskComment:singleAsteriskComment];
         [self setDocStringComment:docStringComment];
         [self setRecRequest:recRequest];
+        [self setRequiredField:requiredField];
+        [self setConstructionRequiredField:constructionRequiredField];
     }
 
     return self;
@@ -100,6 +106,12 @@
         if ([decoder containsValueForKey:@"12"]) {
             [self setRecRequest:(TFNTwitterThriftGoldRecursive*)[decoder decodeObjectForKey:@"12"]];
         }
+        if ([decoder containsValueForKey:@"13"]) {
+            [self setRequiredField:(NSString *)[decoder decodeObjectForKey:@"13"]];
+        }
+        if ([decoder containsValueForKey:@"14"]) {
+            [self setConstructionRequiredField:(int64_t)[decoder decodeInt64ForKey:@"14"]];
+        }
     }
     return self;
 }
@@ -141,6 +153,12 @@
     }
     if (_recRequestIsSet) {
         [encoder encodeObject:_recRequest forKey:@"12"];
+    }
+    if (_requiredFieldIsSet) {
+        [encoder encodeObject:_requiredField forKey:@"13"];
+    }
+    if (_constructionRequiredFieldIsSet) {
+        [encoder encodeInt64:_constructionRequiredField forKey:@"14"];
     }
 }
 
@@ -214,6 +232,18 @@
 {
     _recRequest = recRequest;
     _recRequestIsSet = YES;
+}
+
+- (void)setRequiredField:(NSString *)requiredField
+{
+    _requiredField = [requiredField copy];
+    _requiredFieldIsSet = YES;
+}
+
+- (void)setConstructionRequiredField:(int64_t)constructionRequiredField
+{
+    _constructionRequiredField = constructionRequiredField;
+    _constructionRequiredFieldIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -394,6 +424,26 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 13:
+                if (fieldType == TType_STRING) {
+                    NSString * requiredField_item;
+                    requiredField_item = [inProtocol readString];
+                    [self setRequiredField:requiredField_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
+            case 14:
+                if (fieldType == TType_I64) {
+                    int64_t constructionRequiredField_item;
+                    constructionRequiredField_item = [inProtocol readI64];
+                    [self setConstructionRequiredField:constructionRequiredField_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -505,12 +555,27 @@
         [recRequest_item write: outProtocol];
         [outProtocol writeFieldEnd];
     }
+    if (_requiredFieldIsSet) {
+        [outProtocol writeFieldBeginWithName:@"requiredField" type:TType_STRING fieldID:13];
+        NSString * requiredField_item = _requiredField;
+        [outProtocol writeString:requiredField_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_constructionRequiredFieldIsSet) {
+        [outProtocol writeFieldBeginWithName:@"constructionRequiredField" type:TType_I64 fieldID:14];
+        int64_t constructionRequiredField_item = _constructionRequiredField;
+        [outProtocol writeI64:constructionRequiredField_item];
+        [outProtocol writeFieldEnd];
+    }
     [outProtocol writeFieldStop];
     [outProtocol writeStructEnd];
 }
 
 - (void)validate
 {
+    if (!_requiredFieldIsSet) {
+        @throw [TProtocolException exceptionWithName:@"TProtocolException" reason:@"Required field 'requiredField' is not set."];
+    }
 }
 
 @end

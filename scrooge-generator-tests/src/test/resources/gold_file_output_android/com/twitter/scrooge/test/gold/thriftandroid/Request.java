@@ -40,6 +40,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField SINGLE_ASTERISK_COMMENT_FIELD_DESC = new TField("singleAsteriskComment", TType.I64, (short)10);
   private static final TField DOC_STRING_COMMENT_FIELD_DESC = new TField("docStringComment", TType.I64, (short)11);
   private static final TField REC_REQUEST_FIELD_DESC = new TField("recRequest", TType.STRUCT, (short)12);
+  private static final TField REQUIRED_FIELD_FIELD_DESC = new TField("requiredField", TType.STRING, (short)13);
+  private static final TField CONSTRUCTION_REQUIRED_FIELD_FIELD_DESC = new TField("constructionRequiredField", TType.I64, (short)14);
 
 
   private List<String> aList;
@@ -54,6 +56,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private long singleAsteriskComment;
   private long docStringComment;
   private Recursive recRequest;
+  private String requiredField;
+  private long constructionRequiredField;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -68,7 +72,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     HASHTAG_COMMENT((short)9, "hashtagComment"),
     SINGLE_ASTERISK_COMMENT((short)10, "singleAsteriskComment"),
     DOC_STRING_COMMENT((short)11, "docStringComment"),
-    REC_REQUEST((short)12, "recRequest");
+    REC_REQUEST((short)12, "recRequest"),
+    REQUIRED_FIELD((short)13, "requiredField"),
+    CONSTRUCTION_REQUIRED_FIELD((short)14, "constructionRequiredField");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -107,6 +113,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return DOC_STRING_COMMENT;
         case 12: // REC_REQUEST
           return REC_REQUEST;
+        case 13: // REQUIRED_FIELD
+          return REQUIRED_FIELD;
+        case 14: // CONSTRUCTION_REQUIRED_FIELD
+          return CONSTRUCTION_REQUIRED_FIELD;
         default:
           return null;
       }
@@ -146,7 +156,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final int __HASHTAGCOMMENT_ISSET_ID = 2;
   private static final int __SINGLEASTERISKCOMMENT_ISSET_ID = 3;
   private static final int __DOCSTRINGCOMMENT_ISSET_ID = 4;
-  private BitSet __isset_bit_vector = new BitSet(5);
+  private static final int __CONSTRUCTIONREQUIREDFIELD_ISSET_ID = 5;
+  private BitSet __isset_bit_vector = new BitSet(6);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   static {
@@ -180,6 +191,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new FieldValueMetaData(TType.I64)));
     tmpMap.put(_Fields.REC_REQUEST, new FieldMetaData("recRequest", TFieldRequirementType.OPTIONAL,
       new StructMetaData(TType.STRUCT, Recursive.class)));
+    tmpMap.put(_Fields.REQUIRED_FIELD, new FieldMetaData("requiredField", TFieldRequirementType.REQUIRED,
+      new FieldValueMetaData(TType.STRING)));
+    tmpMap.put(_Fields.CONSTRUCTION_REQUIRED_FIELD, new FieldMetaData("constructionRequiredField", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
   }
@@ -201,7 +216,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       Long hashtagComment,
       Long singleAsteriskComment,
       Long docStringComment,
-      Recursive recRequest
+      Recursive recRequest,
+      String requiredField,
+      Long constructionRequiredField
   ) {
     this();
     if(aList != null) {
@@ -249,6 +266,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if(recRequest != null) {
       this.recRequest = recRequest;
+    }
+    if(requiredField != null) {
+      this.requiredField = requiredField;
+    }
+    if(constructionRequiredField != null) {
+      this.constructionRequiredField = constructionRequiredField;
+      __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, true);
+
     }
   }
 
@@ -305,6 +330,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     if (other.isSet(_Fields.REC_REQUEST)) {
       this.recRequest = new Recursive(other.recRequest);
     }
+    if (other.isSet(_Fields.REQUIRED_FIELD)) {
+      this.requiredField = other.requiredField;
+    }
+    this.constructionRequiredField = other.constructionRequiredField;
   }
 
   public Request deepCopy() {
@@ -330,6 +359,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     __isset_bit_vector.set(__DOCSTRINGCOMMENT_ISSET_ID, false);
     this.docStringComment = 0;
     this.recRequest = null;
+    this.requiredField = null;
+    __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, false);
+    this.constructionRequiredField = 0;
   }
 
   @SuppressWarnings("unchecked")
@@ -480,6 +512,21 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         this.recRequest = (Recursive) value;
       }
       break;
+    case REQUIRED_FIELD:
+      if (value == null) {
+        this.requiredField = null;
+      } else {
+        this.requiredField = (String) value;
+      }
+      break;
+    case CONSTRUCTION_REQUIRED_FIELD:
+      if (value == null) {
+        __isset_bit_vector.clear(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID);
+      } else {
+        this.constructionRequiredField = (Long) value;
+        __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, true);
+      }
+      break;
     }
   }
 
@@ -509,6 +556,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return new Long(this.docStringComment);
     case REC_REQUEST:
       return this.recRequest;
+    case REQUIRED_FIELD:
+      return this.requiredField;
+    case CONSTRUCTION_REQUIRED_FIELD:
+      return new Long(this.constructionRequiredField);
     }
     throw new IllegalStateException();
   }
@@ -552,6 +603,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       case REC_REQUEST:
           Any rval_recRequest = (Any)((Recursive) getFieldValue(field));
           return rval_recRequest;
+      case REQUIRED_FIELD:
+          Any rval_requiredField = (Any)((String) getFieldValue(field));
+          return rval_requiredField;
+      case CONSTRUCTION_REQUIRED_FIELD:
+          Any rval_constructionRequiredField = (Any)((Long) getFieldValue(field));
+          return rval_constructionRequiredField;
       default:
         throw new IllegalStateException("Invalid field type");
     }
@@ -584,6 +641,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         return __isset_bit_vector.get(__DOCSTRINGCOMMENT_ISSET_ID);
     case REC_REQUEST:
         return recRequest != null;
+    case REQUIRED_FIELD:
+        return requiredField != null;
+    case CONSTRUCTION_REQUIRED_FIELD:
+        return __isset_bit_vector.get(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID);
     }
     throw new IllegalStateException();
   }
@@ -696,6 +757,22 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!this.recRequest.equals(that.recRequest))
         return false;
     }
+    boolean this_present_requiredField = true && this.isSet(_Fields.REQUIRED_FIELD);
+    boolean that_present_requiredField = true && that.isSet(_Fields.REQUIRED_FIELD);
+    if (this_present_requiredField || that_present_requiredField) {
+      if (!(this_present_requiredField && that_present_requiredField))
+        return false;
+      if (!this.requiredField.equals(that.requiredField))
+        return false;
+    }
+    boolean this_present_constructionRequiredField = true && this.isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD);
+    boolean that_present_constructionRequiredField = true && that.isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD);
+    if (this_present_constructionRequiredField || that_present_constructionRequiredField) {
+      if (!(this_present_constructionRequiredField && that_present_constructionRequiredField))
+        return false;
+      if (this.constructionRequiredField != that.constructionRequiredField)
+        return false;
+    }
 
     return true;
   }
@@ -739,6 +816,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (true && (isSet(_Fields.REC_REQUEST))) {
         hashCode = 31 * hashCode + recRequest.hashCode();
+    }
+    if (true && (isSet(_Fields.REQUIRED_FIELD))) {
+        hashCode = 31 * hashCode + requiredField.hashCode();
+    }
+    if (true && (isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD))) {
+        hashCode = 31 * hashCode + ((Long)constructionRequiredField).hashCode();
     }
     return hashCode;
   }
@@ -867,6 +950,26 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSet(_Fields.REC_REQUEST)) {
       lastComparison = TBaseHelper.compareTo(this.recRequest, typedOther.recRequest);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSet(_Fields.REQUIRED_FIELD)).compareTo(typedOther.isSet(_Fields.REQUIRED_FIELD));
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSet(_Fields.REQUIRED_FIELD)) {
+      lastComparison = TBaseHelper.compareTo(this.requiredField, typedOther.requiredField);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD)).compareTo(typedOther.isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD));
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD)) {
+      lastComparison = TBaseHelper.compareTo(this.constructionRequiredField, typedOther.constructionRequiredField);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1023,6 +1126,21 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 13: // REQUIRED_FIELD
+          if (field.type == TType.STRING) {
+            this.requiredField = iprot.readString();
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        case 14: // CONSTRUCTION_REQUIRED_FIELD
+          if (field.type == TType.I64) {
+            this.constructionRequiredField = iprot.readI64();
+            __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -1131,6 +1249,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         oprot.writeFieldEnd();
       }
     }
+    if (this.requiredField != null) {
+      oprot.writeFieldBegin(REQUIRED_FIELD_FIELD_DESC);
+      oprot.writeString(this.requiredField);
+      oprot.writeFieldEnd();
+    }
+    if (isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD)) {
+      oprot.writeFieldBegin(CONSTRUCTION_REQUIRED_FIELD_FIELD_DESC);
+      oprot.writeI64(this.constructionRequiredField);
+      oprot.writeFieldEnd();
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -1228,12 +1356,29 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       first = false;
       }
+    if (!first) sb.append(", ");
+    sb.append("requiredField:");
+    if (this.requiredField == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.requiredField);
+    }
+    first = false;
+    if (isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD)) {
+      if (!first) sb.append(", ");
+      sb.append("constructionRequiredField:");
+      sb.append(this.constructionRequiredField);
+      first = false;
+      }
     sb.append(")");
     return sb.toString();
   }
 
   public void validate() throws TException {
     // check for required fields
+    if (requiredField == null) {
+      throw new TProtocolException("Required field 'requiredField' was not present! Struct: " + toString());
+    }
   }
 
   public static final _Fields A_LIST = _Fields.A_LIST;
@@ -1248,6 +1393,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public static final _Fields SINGLE_ASTERISK_COMMENT = _Fields.SINGLE_ASTERISK_COMMENT;
   public static final _Fields DOC_STRING_COMMENT = _Fields.DOC_STRING_COMMENT;
   public static final _Fields REC_REQUEST = _Fields.REC_REQUEST;
+  public static final _Fields REQUIRED_FIELD = _Fields.REQUIRED_FIELD;
+  public static final _Fields CONSTRUCTION_REQUIRED_FIELD = _Fields.CONSTRUCTION_REQUIRED_FIELD;
 
   public static class Builder {
     private List<String> aList;
@@ -1262,6 +1409,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     private Long singleAsteriskComment;
     private Long docStringComment;
     private Recursive recRequest;
+    private String requiredField;
+    private Long constructionRequiredField;
   @SuppressWarnings("unchecked")
   public Builder set (_Fields field, Object value) {
     switch(field) {
@@ -1337,6 +1486,18 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         }
         break;
       }
+      case REQUIRED_FIELD: {
+        if (value != null) {
+          this.requiredField = (String) value;
+        }
+        break;
+      }
+      case CONSTRUCTION_REQUIRED_FIELD: {
+        if (value != null) {
+          this.constructionRequiredField = (Long) value;
+        }
+        break;
+      }
       default: {
         break;
       }
@@ -1401,7 +1562,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   }
   public Request build() {
     // check for required fields
-    return new Request(aList,aSet,aMap,aRequest,subRequests,hasDefault,noComment,doubleSlashComment,hashtagComment,singleAsteriskComment,docStringComment,recRequest);
+    if (this.requiredField == null) {
+      throw new IllegalArgumentException("Required field 'requiredField' was not present! Struct: " + toString());
+    }
+    return new Request(aList,aSet,aMap,aRequest,subRequests,hasDefault,noComment,doubleSlashComment,hashtagComment,singleAsteriskComment,docStringComment,recRequest,requiredField,constructionRequiredField);
     }
   }
 }

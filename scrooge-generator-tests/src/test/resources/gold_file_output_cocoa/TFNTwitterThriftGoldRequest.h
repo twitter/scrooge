@@ -47,8 +47,14 @@
 @property (nonatomic) TFNTwitterThriftGoldRecursive* recRequest;
 @property (nonatomic, readonly) BOOL recRequestIsSet;
 
+@property (nonatomic, copy) NSString * requiredField;
+@property (nonatomic, readonly) BOOL requiredFieldIsSet;
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest;
+@property (nonatomic) int64_t constructionRequiredField;
+@property (nonatomic, readonly) BOOL constructionRequiredFieldIsSet;
+
+
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

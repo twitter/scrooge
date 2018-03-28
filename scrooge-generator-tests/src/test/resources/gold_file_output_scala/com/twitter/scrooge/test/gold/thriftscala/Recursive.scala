@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
   TFieldBlob,
   ThriftException,
@@ -16,7 +15,9 @@ import com.twitter.scrooge.{
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil
+  ThriftUtil,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
@@ -33,7 +34,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 
-object Recursive extends ThriftStructCodec3[Recursive] {
+object Recursive extends ValidatingThriftStructCodec3[Recursive] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("Recursive")
   val IdField = new TField("id", TType.I64, 1)
@@ -76,6 +77,18 @@ object Recursive extends ThriftStructCodec3[Recursive] {
    * Checks that all required fields are non-null.
    */
   def validate(_item: Recursive): Unit = {
+  }
+
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty list.
+   */
+  def validateNewInstance(item: Recursive): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+
+    buf ++= validateField(item.id)
+    buf ++= validateField(item.recRequest)
+    buf.toList
   }
 
   def withoutPassthroughFields(original: Recursive): Recursive =
@@ -334,7 +347,7 @@ object Recursive extends ThriftStructCodec3[Recursive] {
     ) = this(
       id,
       recRequest,
-      Map.empty
+      Map.empty[Short, TFieldBlob]
     )
   }
 
@@ -394,7 +407,7 @@ object Recursive extends ThriftStructCodec3[Recursive] {
 trait Recursive
   extends ThriftStruct
   with _root_.scala.Product2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
-  with HasThriftStructCodec3[Recursive]
+  with ValidatingThriftStruct[Recursive]
   with java.io.Serializable
 {
   import Recursive._
@@ -566,7 +579,7 @@ trait Recursive
 
   override def productPrefix: String = "Recursive"
 
-  def _codec: ThriftStructCodec3[Recursive] = Recursive
+  def _codec: ValidatingThriftStructCodec3[Recursive] = Recursive
 }
 
 private class Recursive$$AdaptDecoder {

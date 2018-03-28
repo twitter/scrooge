@@ -3,7 +3,6 @@ package {{package}}
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
   TFieldBlob,
   ThriftException,
@@ -11,7 +10,9 @@ import com.twitter.scrooge.{
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil
+  ThriftUtil,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 {{#adapt}}
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
@@ -31,7 +32,7 @@ import scala.collection.{Map, Set}
 
 {{/public}}
 {{docstring}}
-object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
+object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
@@ -117,6 +118,31 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 {{/nullable}}
 {{/required}}
 {{/fields}}
+  }
+
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty list.
+   */
+  def validateNewInstance(item: {{StructName}}): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+
+{{#fields}}
+{{#constructionRequired}}
+    if (item.{{fieldName}}.isEmpty)
+      buf += com.twitter.scrooge.validation.MissingConstructionRequiredField(
+        fieldInfos.apply({{index}})
+      )
+{{/constructionRequired}}
+{{#required}}
+{{#nullable}}
+    if (item.{{fieldName}} == null)
+      buf += com.twitter.scrooge.validation.MissingRequiredField(fieldInfos.apply({{index}}))
+{{/nullable}}
+{{/required}}
+    buf ++= validateField(item.{{fieldName}})
+{{/fields}}
+    buf.toList
   }
 
   def withoutPassthroughFields(original: {{StructName}}): {{StructName}} =
@@ -307,7 +333,7 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
 
   def apply(
 {{#fields}}
-    {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
+    {{fieldName}}: {{>constructionOptionalType}}{{#hasAlternateDefaultValue}} = {{alternateDefaultFieldValue}}{{/hasAlternateDefaultValue}}{{#constructionOptional}} = _root_.scala.None{{/constructionOptional}}
 {{/fields|,}}
   ): {{StructName}} =
     new {{InstanceClassName}}(
@@ -361,23 +387,56 @@ object {{StructName}} extends ThriftStructCodec3[{{StructName}}] {
    * The default read-only implementation of {{StructName}}.  You typically should not need to
    * directly reference this class; instead, use the {{StructName}}.apply method to construct
    * new instances.
-   */
-  class Immutable(
+   */{{! Immutable should have 2 public constructors. If it hasConstructionRequiredFields we add two new constructors and make the ones that take Option for construction required fields package private.}}
+  class Immutable{{#hasConstructionRequiredFields}} private[{{packageName}}]{{/hasConstructionRequiredFields}}(
 {{#fields}}
       val {{fieldName}}: {{>optionalType}},
 {{/fields}}
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends {{StructName}} {
-    def this(
-{{#fields}}
-      {{fieldName}}: {{>optionalType}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}
+    {{#hasConstructionRequiredFields}}private[{{packageName}}] {{/hasConstructionRequiredFields}}def this(
+{{#fields}}{{! If we will generate a different public constructor that has default values, do not provide default values in this constructor.}}
+      {{fieldName}}: {{>optionalType}}{{^hasConstructionRequiredFields}}{{#hasDefaultValue}} = {{defaultFieldValue}}{{/hasDefaultValue}}{{#optional}} = _root_.scala.None{{/optional}}{{/hasConstructionRequiredFields}}
 {{/fields|,}}
     ) = this(
 {{#fields}}
       {{fieldName}},
 {{/fields}}
-      Map.empty
+      Map.empty[Short, TFieldBlob]
     )
+{{#hasConstructionRequiredFields}}
+  def this(
+{{#fields}}
+      {{fieldName}}: {{>constructionOptionalType}}{{#hasAlternateDefaultValue}} = {{alternateDefaultFieldValue}}{{/hasAlternateDefaultValue}}{{#constructionOptional}} = _root_.scala.None{{/constructionOptional}}
+{{/fields|,}}
+    ) = this(
+{{#fields}}
+{{#constructionRequired}}
+      Some({{fieldName}}),
+{{/constructionRequired}}
+{{^constructionRequired}}
+      {{fieldName}},
+{{/constructionRequired}}
+{{/fields}}
+      Map.empty[Short, TFieldBlob]
+    )
+  def this(
+{{#fields}}
+      {{fieldName}}: {{>constructionOptionalType}},
+{{/fields}}
+      _passthroughFields: immutable$Map[Short, TFieldBlob]
+  ) = this(
+{{#fields}}
+{{#constructionRequired}}
+      Some({{fieldName}}),
+{{/constructionRequired}}
+{{^constructionRequired}}
+      {{fieldName}},
+{{/constructionRequired}}
+{{/fields}}
+      _passthroughFields
+  )
+{{/hasConstructionRequiredFields}}
   }
 
   /**
@@ -473,7 +532,7 @@ class {{StructName}}(
 {{/withTrait}}
   extends {{parentType}}
   with {{product}}
-  with HasThriftStructCodec3[{{StructName}}]
+  with ValidatingThriftStruct[{{StructName}}]
   with java.io.Serializable
 {
   import {{StructName}}._
@@ -674,17 +733,51 @@ class {{StructName}}(
 
   def copy(
 {{#fields}}
+{{^constructionRequired}}
     {{fieldName}}: {{>optionalType}} = this.{{fieldName}},
+{{/constructionRequired}}
 {{/fields}}
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): {{StructName}} =
     new {{InstanceClassName}}(
 {{#fields}}
+{{#constructionRequired}}
+      this.{{fieldName}},
+{{/constructionRequired}}
+{{^constructionRequired}}
       {{fieldName}},
+{{/constructionRequired}}
 {{/fields}}
       _passthroughFields
     )
 
+{{#hasConstructionRequiredFields}}
+  /**
+   * Construction required fields need a different copy API than all the other fields. If a Some
+   * argument is provided, then that value will change. None arguments mean that there is no change
+   * to the field.
+   */
+  def copyChangingConstructionRequiredFields(
+{{#fields}}
+{{#constructionRequired}}
+    {{fieldName}}: {{>optionalType}} = None,
+{{/constructionRequired}}
+{{/fields}}
+    _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
+  ): {{StructName}} =
+    new {{InstanceClassName}}(
+{{#fields}}
+{{#constructionRequired}}
+      {{fieldName}}.orElse(this.{{fieldName}}),
+{{/constructionRequired}}
+{{^constructionRequired}}
+      this.{{fieldName}},
+{{/constructionRequired}}
+{{/fields}}
+      _passthroughFields
+    )
+
+{{/hasConstructionRequiredFields}}
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
   private def _equals(x: {{StructName}}, y: {{StructName}}): Boolean =
@@ -715,7 +808,7 @@ class {{StructName}}(
 
   override def productPrefix: String = "{{StructName}}"
 
-  def _codec: ThriftStructCodec3[{{StructName}}] = {{StructName}}
+  def _codec: ValidatingThriftStructCodec3[{{StructName}}] = {{StructName}}
 }
 
 {{#adapt}}

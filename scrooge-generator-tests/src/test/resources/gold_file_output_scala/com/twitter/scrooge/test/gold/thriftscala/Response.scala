@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
   TFieldBlob,
   ThriftException,
@@ -16,7 +15,9 @@ import com.twitter.scrooge.{
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil
+  ThriftUtil,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
@@ -33,7 +34,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 
-object Response extends ThriftStructCodec3[Response] {
+object Response extends ValidatingThriftStructCodec3[Response] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("Response")
   val StatusCodeField = new TField("statusCode", TType.I32, 1)
@@ -76,6 +77,18 @@ object Response extends ThriftStructCodec3[Response] {
    * Checks that all required fields are non-null.
    */
   def validate(_item: Response): Unit = {
+  }
+
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty list.
+   */
+  def validateNewInstance(item: Response): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+
+    buf ++= validateField(item.statusCode)
+    buf ++= validateField(item.responseUnion)
+    buf.toList
   }
 
   def withoutPassthroughFields(original: Response): Response =
@@ -154,7 +167,7 @@ object Response extends ThriftStructCodec3[Response] {
           case 1 =>
             _field.`type` match {
               case TType.I32 =>
-
+    
                 statusCode = readStatusCodeValue(_iprot)
               case _actualType =>
                 val _expectedType = TType.I32
@@ -168,7 +181,7 @@ object Response extends ThriftStructCodec3[Response] {
           case 2 =>
             _field.`type` match {
               case TType.STRUCT =>
-
+    
                 responseUnion = readResponseUnionValue(_iprot)
               case _actualType =>
                 val _expectedType = TType.STRUCT
@@ -332,7 +345,7 @@ object Response extends ThriftStructCodec3[Response] {
     ) = this(
       statusCode,
       responseUnion,
-      Map.empty
+      Map.empty[Short, TFieldBlob]
     )
   }
 
@@ -392,7 +405,7 @@ object Response extends ThriftStructCodec3[Response] {
 trait Response
   extends ThriftStruct
   with _root_.scala.Product2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
-  with HasThriftStructCodec3[Response]
+  with ValidatingThriftStruct[Response]
   with java.io.Serializable
 {
   import Response._
@@ -564,7 +577,7 @@ trait Response
 
   override def productPrefix: String = "Response"
 
-  def _codec: ThriftStructCodec3[Response] = Response
+  def _codec: ValidatingThriftStructCodec3[Response] = Response
 }
 
 private class Response$$AdaptDecoder {

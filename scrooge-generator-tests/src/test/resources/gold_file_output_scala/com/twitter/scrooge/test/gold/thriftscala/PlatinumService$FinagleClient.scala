@@ -68,7 +68,7 @@ class PlatinumService$FinagleClient(
   val moreCoolThingsPlatinumServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[Int] = {
     response: Array[Byte] => {
       val result = decodeResponse(response, MoreCoolThings.Result)
-
+  
       result.firstException() match {
         case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
         case _ => result.successField match {
@@ -78,11 +78,11 @@ class PlatinumService$FinagleClient(
       }
     }
   }
-
+  
   def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] = {
     __stats_moreCoolThings.RequestsCounter.incr()
     val inputArgs = MoreCoolThings.Args(request)
-
+  
     val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[Int](inputArgs, moreCoolThingsPlatinumServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
       _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,

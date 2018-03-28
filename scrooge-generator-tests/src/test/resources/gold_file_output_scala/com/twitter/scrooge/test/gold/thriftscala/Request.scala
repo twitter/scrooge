@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
   TFieldBlob,
   ThriftException,
@@ -16,7 +15,9 @@ import com.twitter.scrooge.{
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil
+  ThriftUtil,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
@@ -35,7 +36,7 @@ import scala.collection.{Map, Set}
 /**
  * Request struct docstring
  */
-object Request extends ThriftStructCodec3[Request] {
+object Request extends ValidatingThriftStructCodec3[Request] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("Request")
   val AListField = new TField("aList", TType.LIST, 1)
@@ -62,6 +63,10 @@ object Request extends ThriftStructCodec3[Request] {
   val DocStringCommentFieldManifest = implicitly[Manifest[Long]]
   val RecRequestField = new TField("recRequest", TType.STRUCT, 12)
   val RecRequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
+  val RequiredFieldField = new TField("requiredField", TType.STRING, 13)
+  val RequiredFieldFieldManifest = implicitly[Manifest[String]]
+  val ConstructionRequiredFieldField = new TField("constructionRequiredField", TType.I64, 14)
+  val ConstructionRequiredFieldFieldManifest = implicitly[Manifest[Long]]
 
   /**
    * Field information in declaration order.
@@ -203,6 +208,30 @@ object Request extends ThriftStructCodec3[Request] {
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
+    ),
+    new ThriftStructFieldInfo(
+      RequiredFieldField,
+      false,
+      true,
+      RequiredFieldFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None
+    ),
+    new ThriftStructFieldInfo(
+      ConstructionRequiredFieldField,
+      true,
+      false,
+      ConstructionRequiredFieldFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map(
+        "construction_required" -> "true"
+      ),
+      None
     )
   )
 
@@ -216,6 +245,37 @@ object Request extends ThriftStructCodec3[Request] {
    * Checks that all required fields are non-null.
    */
   def validate(_item: Request): Unit = {
+    if (_item.requiredField == null) throw new TProtocolException("Required field requiredField cannot be null")
+  }
+
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty list.
+   */
+  def validateNewInstance(item: Request): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+
+    buf ++= validateField(item.aList)
+    buf ++= validateField(item.aSet)
+    buf ++= validateField(item.aMap)
+    buf ++= validateField(item.aRequest)
+    buf ++= validateField(item.subRequests)
+    buf ++= validateField(item.hasDefault)
+    buf ++= validateField(item.noComment)
+    buf ++= validateField(item.doubleSlashComment)
+    buf ++= validateField(item.hashtagComment)
+    buf ++= validateField(item.singleAsteriskComment)
+    buf ++= validateField(item.docStringComment)
+    buf ++= validateField(item.recRequest)
+    if (item.requiredField == null)
+      buf += com.twitter.scrooge.validation.MissingRequiredField(fieldInfos.apply(12))
+    buf ++= validateField(item.requiredField)
+    if (item.constructionRequiredField.isEmpty)
+      buf += com.twitter.scrooge.validation.MissingConstructionRequiredField(
+        fieldInfos.apply(13)
+      )
+    buf ++= validateField(item.constructionRequiredField)
+    buf.toList
   }
 
   def withoutPassthroughFields(original: Request): Request =
@@ -313,6 +373,18 @@ object Request extends ThriftStructCodec3[Request] {
           field.map { field =>
             com.twitter.scrooge.test.gold.thriftscala.Recursive.withoutPassthroughFields(field)
           }
+        },
+      requiredField =
+        {
+          val field = original.requiredField
+          field
+        },
+      constructionRequiredField =
+        {
+          val field = original.constructionRequiredField
+          field.map { field =>
+            field
+          }
         }
     )
 
@@ -394,6 +466,14 @@ object Request extends ThriftStructCodec3[Request] {
       accessRecorder.fieldAccessed(12)
       underlying.recRequest
     }
+    override def requiredField: String = {
+      accessRecorder.fieldAccessed(13)
+      underlying.requiredField
+    }
+    override def constructionRequiredField: _root_.scala.Option[Long] = {
+      accessRecorder.fieldAccessed(14)
+      underlying.constructionRequiredField
+    }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
     override def _passthroughFields = underlying._passthroughFields
@@ -413,6 +493,9 @@ object Request extends ThriftStructCodec3[Request] {
     var singleAsteriskCommentOffset: Int = -1
     var docStringCommentOffset: Int = -1
     var recRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = None
+    var requiredFieldOffset: Int = -1
+    var _got_requiredField = false
+    var constructionRequiredFieldOffset: Int = -1
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -593,6 +676,35 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 13 =>
+            _field.`type` match {
+              case TType.STRING =>
+                requiredFieldOffset = _iprot.offsetSkipString
+    
+                _got_requiredField = true
+              case _actualType =>
+                val _expectedType = TType.STRING
+                throw new TProtocolException(
+                  "Received wrong type for field 'requiredField' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 14 =>
+            _field.`type` match {
+              case TType.I64 =>
+                constructionRequiredFieldOffset = _iprot.offsetSkipI64
+    
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'constructionRequiredField' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -603,6 +715,7 @@ object Request extends ThriftStructCodec3[Request] {
     }
     _iprot.readStructEnd()
 
+    if (!_got_requiredField) throw new TProtocolException("Required field 'requiredField' was not found in serialized data for struct Request")
     new LazyImmutable(
       _iprot,
       _iprot.buffer,
@@ -620,6 +733,8 @@ object Request extends ThriftStructCodec3[Request] {
       singleAsteriskCommentOffset,
       docStringCommentOffset,
       recRequest,
+      requiredFieldOffset,
+      constructionRequiredFieldOffset,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -647,6 +762,9 @@ object Request extends ThriftStructCodec3[Request] {
     var singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None
     var docStringComment: _root_.scala.Option[Long] = _root_.scala.None
     var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
+    var requiredField: String = null
+    var _got_requiredField = false
+    var constructionRequiredField: _root_.scala.Option[Long] = _root_.scala.None
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -813,6 +931,33 @@ object Request extends ThriftStructCodec3[Request] {
                   )
                 )
             }
+          case 13 =>
+            _field.`type` match {
+              case TType.STRING =>
+                requiredField = readRequiredFieldValue(_iprot)
+                _got_requiredField = true
+              case _actualType =>
+                val _expectedType = TType.STRING
+                throw new TProtocolException(
+                  "Received wrong type for field 'requiredField' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
+          case 14 =>
+            _field.`type` match {
+              case TType.I64 =>
+                constructionRequiredField = _root_.scala.Some(readConstructionRequiredFieldValue(_iprot))
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw new TProtocolException(
+                  "Received wrong type for field 'constructionRequiredField' (expected=%s, actual=%s).".format(
+                    ttypeToString(_expectedType),
+                    ttypeToString(_actualType)
+                  )
+                )
+            }
           case _ =>
             if (_passthroughFields == null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -823,6 +968,7 @@ object Request extends ThriftStructCodec3[Request] {
     }
     _iprot.readStructEnd()
 
+    if (!_got_requiredField) throw new TProtocolException("Required field 'requiredField' was not found in serialized data for struct Request")
     new Immutable(
       aList,
       aSet,
@@ -836,6 +982,8 @@ object Request extends ThriftStructCodec3[Request] {
       singleAsteriskComment,
       docStringComment,
       recRequest,
+      requiredField,
+      constructionRequiredField,
       if (_passthroughFields == null)
         NoPassthroughFields
       else
@@ -855,7 +1003,9 @@ object Request extends ThriftStructCodec3[Request] {
     hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
     singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
     docStringComment: _root_.scala.Option[Long] = _root_.scala.None,
-    recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
+    recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None,
+    requiredField: String,
+    constructionRequiredField: Long
   ): Request =
     new Immutable(
       aList,
@@ -869,10 +1019,12 @@ object Request extends ThriftStructCodec3[Request] {
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
-      recRequest
+      recRequest,
+      requiredField,
+      constructionRequiredField
     )
 
-  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple12[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple14[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long]]] = _root_.scala.Some(_item.toTuple)
 
 
   @inline private[thriftscala] def readAListValue(_iprot: TProtocol): Seq[String] = {
@@ -1146,6 +1298,34 @@ object Request extends ThriftStructCodec3[Request] {
     recRequest_item.write(_oprot)
   }
 
+  @inline private[thriftscala] def readRequiredFieldValue(_iprot: TProtocol): String = {
+    _iprot.readString()
+  }
+
+  @inline private def writeRequiredFieldField(requiredField_item: String, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(RequiredFieldField)
+    writeRequiredFieldValue(requiredField_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeRequiredFieldValue(requiredField_item: String, _oprot: TProtocol): Unit = {
+    _oprot.writeString(requiredField_item)
+  }
+
+  @inline private[thriftscala] def readConstructionRequiredFieldValue(_iprot: TProtocol): Long = {
+    _iprot.readI64()
+  }
+
+  @inline private def writeConstructionRequiredFieldField(constructionRequiredField_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeFieldBegin(ConstructionRequiredFieldField)
+    writeConstructionRequiredFieldValue(constructionRequiredField_item, _oprot)
+    _oprot.writeFieldEnd()
+  }
+
+  @inline private def writeConstructionRequiredFieldValue(constructionRequiredField_item: Long, _oprot: TProtocol): Unit = {
+    _oprot.writeI64(constructionRequiredField_item)
+  }
+
 
   object Immutable extends ThriftStructCodec3[Request] {
     override def encode(_item: Request, _oproto: TProtocol): Unit = { _item.write(_oproto) }
@@ -1158,7 +1338,7 @@ object Request extends ThriftStructCodec3[Request] {
    * directly reference this class; instead, use the Request.apply method to construct
    * new instances.
    */
-  class Immutable(
+  class Immutable private[thriftscala](
       val aList: Seq[String],
       val aSet: Set[Int],
       val aMap: Map[Long, Long],
@@ -1171,21 +1351,25 @@ object Request extends ThriftStructCodec3[Request] {
       val singleAsteriskComment: _root_.scala.Option[Long],
       val docStringComment: _root_.scala.Option[Long],
       val recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
+      val requiredField: String,
+      val constructionRequiredField: _root_.scala.Option[Long],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
-    def this(
-      aList: Seq[String] = Seq[String](),
-      aSet: Set[Int] = Set[Int](),
-      aMap: Map[Long, Long] = Map[Long, Long](),
-      aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
-      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
-      hasDefault: String = "the_default",
-      noComment: _root_.scala.Option[Long] = _root_.scala.None,
-      doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
-      hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
-      singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
-      docStringComment: _root_.scala.Option[Long] = _root_.scala.None,
-      recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
+    private[thriftscala] def this(
+      aList: Seq[String],
+      aSet: Set[Int],
+      aMap: Map[Long, Long],
+      aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
+      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
+      hasDefault: String,
+      noComment: _root_.scala.Option[Long],
+      doubleSlashComment: _root_.scala.Option[Long],
+      hashtagComment: _root_.scala.Option[Long],
+      singleAsteriskComment: _root_.scala.Option[Long],
+      docStringComment: _root_.scala.Option[Long],
+      recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
+      requiredField: String,
+      constructionRequiredField: _root_.scala.Option[Long]
     ) = this(
       aList,
       aSet,
@@ -1199,8 +1383,75 @@ object Request extends ThriftStructCodec3[Request] {
       singleAsteriskComment,
       docStringComment,
       recRequest,
-      Map.empty
+      requiredField,
+      constructionRequiredField,
+      Map.empty[Short, TFieldBlob]
     )
+  def this(
+      aList: Seq[String] = Seq[String](),
+      aSet: Set[Int] = Set[Int](),
+      aMap: Map[Long, Long] = Map[Long, Long](),
+      aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
+      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
+      hasDefault: String = "the_default",
+      noComment: _root_.scala.Option[Long] = _root_.scala.None,
+      doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
+      hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
+      singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None,
+      docStringComment: _root_.scala.Option[Long] = _root_.scala.None,
+      recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None,
+      requiredField: String,
+      constructionRequiredField: Long
+    ) = this(
+      aList,
+      aSet,
+      aMap,
+      aRequest,
+      subRequests,
+      hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
+      recRequest,
+      requiredField,
+      Some(constructionRequiredField),
+      Map.empty[Short, TFieldBlob]
+    )
+  def this(
+      aList: Seq[String],
+      aSet: Set[Int],
+      aMap: Map[Long, Long],
+      aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
+      subRequests: Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
+      hasDefault: String,
+      noComment: _root_.scala.Option[Long],
+      doubleSlashComment: _root_.scala.Option[Long],
+      hashtagComment: _root_.scala.Option[Long],
+      singleAsteriskComment: _root_.scala.Option[Long],
+      docStringComment: _root_.scala.Option[Long],
+      recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
+      requiredField: String,
+      constructionRequiredField: Long,
+      _passthroughFields: immutable$Map[Short, TFieldBlob]
+  ) = this(
+      aList,
+      aSet,
+      aMap,
+      aRequest,
+      subRequests,
+      hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
+      recRequest,
+      requiredField,
+      Some(constructionRequiredField),
+      _passthroughFields
+  )
   }
 
   /**
@@ -1224,6 +1475,8 @@ object Request extends ThriftStructCodec3[Request] {
       singleAsteriskCommentOffset: Int,
       docStringCommentOffset: Int,
       val recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
+      requiredFieldOffset: Int,
+      constructionRequiredFieldOffset: Int,
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
 
@@ -1270,6 +1523,18 @@ object Request extends ThriftStructCodec3[Request] {
       else {
         Some(_proto.decodeI64(_buf, docStringCommentOffset))
       }
+    lazy val requiredField: String =
+      if (requiredFieldOffset == -1)
+        null
+      else {
+        _proto.decodeString(_buf, requiredFieldOffset)
+      }
+    lazy val constructionRequiredField: _root_.scala.Option[Long] =
+      if (constructionRequiredFieldOffset == -1)
+        None
+      else {
+        Some(_proto.decodeI64(_buf, constructionRequiredFieldOffset))
+      }
 
     /**
      * Override the super hash code to make it a lazy val rather than def.
@@ -1304,6 +1569,8 @@ object Request extends ThriftStructCodec3[Request] {
     override def singleAsteriskComment: _root_.scala.Option[Long] = _underlying_Request.singleAsteriskComment
     override def docStringComment: _root_.scala.Option[Long] = _underlying_Request.docStringComment
     override def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _underlying_Request.recRequest
+    override def requiredField: String = _underlying_Request.requiredField
+    override def constructionRequiredField: _root_.scala.Option[Long] = _underlying_Request.constructionRequiredField
     override def _passthroughFields = _underlying_Request._passthroughFields
   }
 }
@@ -1314,8 +1581,8 @@ object Request extends ThriftStructCodec3[Request] {
  */
 trait Request
   extends ThriftStruct
-  with _root_.scala.Product12[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
-  with HasThriftStructCodec3[Request]
+  with _root_.scala.Product14[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long]]
+  with ValidatingThriftStruct[Request]
   with java.io.Serializable
 {
   import Request._
@@ -1338,6 +1605,8 @@ trait Request
    * recursive value
    */
   def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]
+  def requiredField: String
+  def constructionRequiredField: _root_.scala.Option[Long]
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
@@ -1353,8 +1622,10 @@ trait Request
   def _10 = singleAsteriskComment
   def _11 = docStringComment
   def _12 = recRequest
+  def _13 = requiredField
+  def _14 = constructionRequiredField
 
-  def toTuple: _root_.scala.Tuple12[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]] = {
+  def toTuple: _root_.scala.Tuple14[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long]] = {
     (
       aList,
       aSet,
@@ -1367,7 +1638,9 @@ trait Request
       hashtagComment,
       singleAsteriskComment,
       docStringComment,
-      recRequest
+      recRequest,
+      requiredField,
+      constructionRequiredField
     )
   }
 
@@ -1469,6 +1742,20 @@ trait Request
               } else {
                 _root_.scala.None
               }
+            case 13 =>
+              if (requiredField ne null) {
+                writeRequiredFieldValue(requiredField, _oprot)
+                _root_.scala.Some(Request.RequiredFieldField)
+              } else {
+                _root_.scala.None
+              }
+            case 14 =>
+              if (constructionRequiredField.isDefined) {
+                writeConstructionRequiredFieldValue(constructionRequiredField.get, _oprot)
+                _root_.scala.Some(Request.ConstructionRequiredFieldField)
+              } else {
+                _root_.scala.None
+              }
             case _ => _root_.scala.None
           }
         _fieldOpt match {
@@ -1506,6 +1793,8 @@ trait Request
     var singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment
     var docStringComment: _root_.scala.Option[Long] = this.docStringComment
     var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest
+    var requiredField: String = this.requiredField
+    var constructionRequiredField: _root_.scala.Option[Long] = this.constructionRequiredField
     var _passthroughFields = this._passthroughFields
     _blob.id match {
       case 1 =>
@@ -1532,6 +1821,10 @@ trait Request
         docStringComment = _root_.scala.Some(readDocStringCommentValue(_blob.read))
       case 12 =>
         recRequest = _root_.scala.Some(readRecRequestValue(_blob.read))
+      case 13 =>
+        requiredField = readRequiredFieldValue(_blob.read)
+      case 14 =>
+        constructionRequiredField = _root_.scala.Some(readConstructionRequiredFieldValue(_blob.read))
       case _ => _passthroughFields += (_blob.id -> _blob)
     }
     new Immutable(
@@ -1547,6 +1840,8 @@ trait Request
       singleAsteriskComment,
       docStringComment,
       recRequest,
+      requiredField,
+      constructionRequiredField,
       _passthroughFields
     )
   }
@@ -1569,6 +1864,8 @@ trait Request
     var singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment
     var docStringComment: _root_.scala.Option[Long] = this.docStringComment
     var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest
+    var requiredField: String = this.requiredField
+    var constructionRequiredField: _root_.scala.Option[Long] = this.constructionRequiredField
 
     _fieldId match {
       case 1 =>
@@ -1595,6 +1892,10 @@ trait Request
         docStringComment = _root_.scala.None
       case 12 =>
         recRequest = _root_.scala.None
+      case 13 =>
+        requiredField = null
+      case 14 =>
+        constructionRequiredField = _root_.scala.None
       case _ =>
     }
     new Immutable(
@@ -1610,6 +1911,8 @@ trait Request
       singleAsteriskComment,
       docStringComment,
       recRequest,
+      requiredField,
+      constructionRequiredField,
       _passthroughFields - _fieldId
     )
   }
@@ -1643,6 +1946,10 @@ trait Request
 
   def unsetRecRequest: Request = unsetField(12)
 
+  def unsetRequiredField: Request = unsetField(13)
+
+  def unsetConstructionRequiredField: Request = unsetField(14)
+
 
   override def write(_oprot: TProtocol): Unit = {
     Request.validate(this)
@@ -1659,6 +1966,8 @@ trait Request
     if (singleAsteriskComment.isDefined) writeSingleAsteriskCommentField(singleAsteriskComment.get, _oprot)
     if (docStringComment.isDefined) writeDocStringCommentField(docStringComment.get, _oprot)
     if (recRequest.isDefined) writeRecRequestField(recRequest.get, _oprot)
+    if (requiredField ne null) writeRequiredFieldField(requiredField, _oprot)
+    if (constructionRequiredField.isDefined) writeConstructionRequiredFieldField(constructionRequiredField.get, _oprot)
     if (_passthroughFields.nonEmpty) {
       _passthroughFields.values.foreach { _.write(_oprot) }
     }
@@ -1679,6 +1988,7 @@ trait Request
     singleAsteriskComment: _root_.scala.Option[Long] = this.singleAsteriskComment,
     docStringComment: _root_.scala.Option[Long] = this.docStringComment,
     recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest,
+    requiredField: String = this.requiredField,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): Request =
     new Immutable(
@@ -1694,6 +2004,35 @@ trait Request
       singleAsteriskComment,
       docStringComment,
       recRequest,
+      requiredField,
+      this.constructionRequiredField,
+      _passthroughFields
+    )
+
+  /**
+   * Construction required fields need a different copy API than all the other fields. If a Some
+   * argument is provided, then that value will change. None arguments mean that there is no change
+   * to the field.
+   */
+  def copyChangingConstructionRequiredFields(
+    constructionRequiredField: _root_.scala.Option[Long] = None,
+    _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
+  ): Request =
+    new Immutable(
+      this.aList,
+      this.aSet,
+      this.aMap,
+      this.aRequest,
+      this.subRequests,
+      this.hasDefault,
+      this.noComment,
+      this.doubleSlashComment,
+      this.hashtagComment,
+      this.singleAsteriskComment,
+      this.docStringComment,
+      this.recRequest,
+      this.requiredField,
+      constructionRequiredField.orElse(this.constructionRequiredField),
       _passthroughFields
     )
 
@@ -1713,7 +2052,7 @@ trait Request
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
 
-  override def productArity: Int = 12
+  override def productArity: Int = 14
 
   override def productElement(n: Int): Any = n match {
     case 0 => this.aList
@@ -1728,12 +2067,14 @@ trait Request
     case 9 => this.singleAsteriskComment
     case 10 => this.docStringComment
     case 11 => this.recRequest
+    case 12 => this.requiredField
+    case 13 => this.constructionRequiredField
     case _ => throw new IndexOutOfBoundsException(n.toString)
   }
 
   override def productPrefix: String = "Request"
 
-  def _codec: ThriftStructCodec3[Request] = Request
+  def _codec: ValidatingThriftStructCodec3[Request] = Request
 }
 
 private class Request$$AdaptDecoder {
@@ -1819,6 +2160,17 @@ private class Request$$AdaptDecoder {
 
     adapt.set_recRequest(recRequest)
     AdaptTProtocol.usedEndMarker(12)
+
+    var _got_requiredField = false
+    AdaptTProtocol.usedStartMarker(13)
+    var requiredField: String = null
+    AdaptTProtocol.usedEndMarker(13)
+
+    AdaptTProtocol.usedStartMarker(14)
+    var constructionRequiredField: _root_.scala.Option[Long] = _root_.scala.None
+
+    adapt.set_constructionRequiredField(constructionRequiredField)
+    AdaptTProtocol.usedEndMarker(14)
 
     _iprot.readStructBegin()
     while (!_done) {
@@ -2031,6 +2383,41 @@ private class Request$$AdaptDecoder {
             adapt.set_recRequest(recRequest)
             AdaptTProtocol.usedEndMarker(12)
           }
+          case 13 => {
+            _field.`type` match {
+              case TType.STRING =>
+                AdaptTProtocol.usedStartMarker(13)
+                requiredField = Request.readRequiredFieldValue(_iprot)
+                AdaptTProtocol.usedEndMarker(13)
+                AdaptTProtocol.unusedStartMarker(13)
+                _iprot.offsetSkipString()
+                AdaptTProtocol.unusedEndMarker(13)
+                _got_requiredField = true
+              case _actualType =>
+                val _expectedType = TType.STRING
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "requiredField")
+            }
+            AdaptTProtocol.usedStartMarker(13)
+            adapt.set_requiredField(requiredField)
+            AdaptTProtocol.usedEndMarker(13)
+          }
+          case 14 => {
+            _field.`type` match {
+              case TType.I64 =>
+                AdaptTProtocol.usedStartMarker(14)
+                constructionRequiredField = _root_.scala.Some(Request.readConstructionRequiredFieldValue(_iprot))
+                AdaptTProtocol.usedEndMarker(14)
+                AdaptTProtocol.unusedStartMarker(14)
+                _iprot.offsetSkipI64()
+                AdaptTProtocol.unusedEndMarker(14)
+              case _actualType =>
+                val _expectedType = TType.I64
+                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "constructionRequiredField")
+            }
+            AdaptTProtocol.usedStartMarker(14)
+            adapt.set_constructionRequiredField(constructionRequiredField)
+            AdaptTProtocol.usedEndMarker(14)
+          }
 
           case _ =>
             if (_passthroughFields == null)
@@ -2042,6 +2429,7 @@ private class Request$$AdaptDecoder {
     }
     _iprot.readStructEnd()
 
+    if (!_got_requiredField) throw new TProtocolException("Required field 'requiredField' was not found in serialized data for struct Request")
     adapt.set__endOffset(_iprot.offset)
     if (_passthroughFields != null) {
       adapt.set__passthroughFields(_passthroughFields.result())
@@ -2151,6 +2539,20 @@ private class Request$$Adapt(
   def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = m_recRequest
   // This will be removed by ASM if field is used otherwise renamed to recRequest.
   def delegated_recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = delegate.recRequest
+
+  private[this] var m_requiredField: String = _
+  def set_requiredField(requiredField: String): Unit = m_requiredField = requiredField
+  // This will be removed by ASM if field is unused.
+  def requiredField: String = m_requiredField
+  // This will be removed by ASM if field is used otherwise renamed to requiredField.
+  def delegated_requiredField: String = delegate.requiredField
+
+  private[this] var m_constructionRequiredField: _root_.scala.Option[Long] = _
+  def set_constructionRequiredField(constructionRequiredField: _root_.scala.Option[Long]): Unit = m_constructionRequiredField = constructionRequiredField
+  // This will be removed by ASM if field is unused.
+  def constructionRequiredField: _root_.scala.Option[Long] = m_constructionRequiredField
+  // This will be removed by ASM if field is used otherwise renamed to constructionRequiredField.
+  def delegated_constructionRequiredField: _root_.scala.Option[Long] = delegate.constructionRequiredField
 
 
   private[this] var _end_offset: Int = _

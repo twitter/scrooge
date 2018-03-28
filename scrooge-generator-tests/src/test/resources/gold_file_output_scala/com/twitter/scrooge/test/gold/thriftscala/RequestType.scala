@@ -17,7 +17,7 @@ case object RequestType {
     "enum.annotation" -> "false"
   )
 
-
+  
   case object Create extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val value: Int = 1
     val name: String = "Create"
@@ -28,7 +28,7 @@ case object RequestType {
   }
 
   private[this] val _SomeCreate = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Create)
-
+  
   case object Read extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
     val value: Int = 2
     val name: String = "Read"

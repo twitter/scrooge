@@ -217,7 +217,7 @@ class GoldService$FinagleService(
 
   addService("doGreatThings", {
     val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result]] = perMethodStatsFilter(DoGreatThings)
-
+  
     val methodService = new finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
         if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
@@ -226,7 +226,7 @@ class GoldService$FinagleService(
         iface.doGreatThings(args.request)
       }
     }
-
+  
     val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result]] {
       def apply(
         request: (TProtocol, Int),
@@ -248,7 +248,7 @@ class GoldService$FinagleService(
         }
       }
     }
-
+  
     val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result], DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(
         request: (TProtocol, Int),
@@ -279,7 +279,7 @@ class GoldService$FinagleService(
         }
       }
     }
-
+  
     statsFilter.andThen(protocolExnFilter).andThen(serdeFilter).andThen(methodService)
   })
 }

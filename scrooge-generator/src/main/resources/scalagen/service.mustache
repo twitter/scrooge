@@ -2,16 +2,16 @@ package {{package}}
 
 import com.twitter.scrooge.{
   LazyTProtocol,
-  HasThriftStructCodec3,
   TFieldBlob,
   ThriftService,
   ThriftStruct,
   ThriftStructCodec,
-  ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftResponse,
   ThriftUtil,
-  ToThriftService
+  ToThriftService,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 {{#withFinagle}}
 import com.twitter.finagle.{service => ctfs}

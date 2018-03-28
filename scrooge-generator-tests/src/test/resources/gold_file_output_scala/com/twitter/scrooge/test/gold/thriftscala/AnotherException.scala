@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
   TFieldBlob,
   ThriftException,
@@ -16,7 +15,9 @@ import com.twitter.scrooge.{
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil
+  ThriftUtil,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
@@ -33,7 +34,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 
-object AnotherException extends ThriftStructCodec3[AnotherException] {
+object AnotherException extends ValidatingThriftStructCodec3[AnotherException] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("AnotherException")
   val ErrorCodeField = new TField("errorCode", TType.I32, 1)
@@ -63,6 +64,17 @@ object AnotherException extends ThriftStructCodec3[AnotherException] {
    * Checks that all required fields are non-null.
    */
   def validate(_item: AnotherException): Unit = {
+  }
+
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty list.
+   */
+  def validateNewInstance(item: AnotherException): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+
+    buf ++= validateField(item.errorCode)
+    buf.toList
   }
 
   def withoutPassthroughFields(original: AnotherException): AnotherException =
@@ -159,7 +171,7 @@ class AnotherException(
     val _passthroughFields: immutable$Map[Short, TFieldBlob])
   extends ThriftException with com.twitter.finagle.SourcedException with ThriftStruct
   with _root_.scala.Product1[Int]
-  with HasThriftStructCodec3[AnotherException]
+  with ValidatingThriftStruct[AnotherException]
   with java.io.Serializable
 {
   import AnotherException._
@@ -303,6 +315,6 @@ class AnotherException(
 
   override def productPrefix: String = "AnotherException"
 
-  def _codec: ThriftStructCodec3[AnotherException] = AnotherException
+  def _codec: ValidatingThriftStructCodec3[AnotherException] = AnotherException
 }
 

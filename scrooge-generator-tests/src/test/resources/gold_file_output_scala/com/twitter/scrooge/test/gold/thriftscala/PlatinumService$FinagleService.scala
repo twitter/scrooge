@@ -66,7 +66,7 @@ class PlatinumService$FinagleService(
 
   addService("moreCoolThings", {
     val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = perMethodStatsFilter(MoreCoolThings)
-
+  
     val methodService = new finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
         if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
@@ -75,7 +75,7 @@ class PlatinumService$FinagleService(
         iface.moreCoolThings(args.request)
       }
     }
-
+  
     val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] {
       def apply(
         request: (TProtocol, Int),
@@ -97,7 +97,7 @@ class PlatinumService$FinagleService(
         }
       }
     }
-
+  
     val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result], MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(
         request: (TProtocol, Int),
@@ -135,7 +135,7 @@ class PlatinumService$FinagleService(
         }
       }
     }
-
+  
     statsFilter.andThen(protocolExnFilter).andThen(serdeFilter).andThen(methodService)
   })
 }

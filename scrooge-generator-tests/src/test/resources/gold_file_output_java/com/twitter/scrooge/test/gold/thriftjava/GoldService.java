@@ -665,7 +665,7 @@ public class GoldService {
     this.request = null;
   }
 
-  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
   public boolean isSetRequest() {
     return this.request != null;
   }
@@ -1011,7 +1011,7 @@ public class GoldService {
     this.success = null;
   }
 
-  /** Returns true if field success is set (has been asigned a value) and false otherwise */
+  /** Returns true if field success is set (has been assigned a value) and false otherwise */
   public boolean isSetSuccess() {
     return this.success != null;
   }
@@ -1036,7 +1036,7 @@ public class GoldService {
     this.ex = null;
   }
 
-  /** Returns true if field ex is set (has been asigned a value) and false otherwise */
+  /** Returns true if field ex is set (has been assigned a value) and false otherwise */
   public boolean isSetEx() {
     return this.ex != null;
   }

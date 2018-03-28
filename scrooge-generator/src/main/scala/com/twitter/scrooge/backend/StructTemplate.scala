@@ -21,6 +21,7 @@ import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.frontend.ScroogeInternalException
 
 trait StructTemplate { self: TemplateGenerator =>
+  import Generator._
 
   case class Binding[FT <: FieldType](name: String, fieldType: FT)
 
@@ -105,7 +106,7 @@ trait StructTemplate { self: TemplateGenerator =>
           )
         )
       case t: EnumType =>
-        TypeTemplate + Dictionary(
+       TypeTemplate + Dictionary(
           "isNamedType" -> v(true),
           "isImported" -> v(t.scopePrefix.isDefined),
           "fieldType" -> {
@@ -215,6 +216,10 @@ trait StructTemplate { self: TemplateGenerator =>
           "qualifiedFieldType" -> v(templates("qualifiedFieldType")),
           "hasDefaultValue" -> v(genDefaultFieldValue(field).isDefined),
           "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
+          // these two alternate default values are for constructors that do not accept Options for
+          // construction required fields.
+          "hasAlternateDefaultValue" -> v(genDefaultFieldValue(field, forAlternateConstructor = true).isDefined),
+          "alternateDefaultFieldValue" -> genDefaultFieldValue(field, forAlternateConstructor = true).getOrElse(NoValue),
           "hasDefaultFieldValueForFieldInfo" -> v(
             genDefaultFieldValueForFieldInfo(field).isDefined
           ),
@@ -230,6 +235,12 @@ trait StructTemplate { self: TemplateGenerator =>
           "required" -> v(field.requiredness.isRequired),
           "optional" -> v(field.requiredness.isOptional),
           "nullable" -> v(isNullableType(field.fieldType, field.requiredness.isOptional)),
+          "constructionOptional" -> v(
+            !isConstructionRequiredField(field) && field.requiredness.isOptional
+          ),
+          "constructionRequired" -> v(
+            isConstructionRequiredField(field)
+          ),
           "collection" -> v {
             (field.fieldType match {
               case ListType(eltType, _) => List(genType(eltType))
@@ -267,6 +278,7 @@ trait StructTemplate { self: TemplateGenerator =>
           "readEnum" -> v(templates("readEnum")),
           "readBase" -> v(templates("readBase")),
           "optionalType" -> v(templates("optionalType")),
+          "constructionOptionalType" -> v(templates("constructionOptionalType")),
           "withoutPassthrough" -> v(templates("withoutPassthrough")),
           "readWriteInfo" -> v(readWriteInfo(valueVariableID, field.fieldType)),
           "valueVariableName" -> genID(valueVariableID)
@@ -407,6 +419,9 @@ trait StructTemplate { self: TemplateGenerator =>
       "alternativeConstructor" -> v(
         struct.fields.exists(_.requiredness.isOptional)
           && struct.fields.exists(_.requiredness.isDefault)
+      ),
+      "hasConstructionRequiredFields" -> v(
+        struct.fields.exists(Generator.isConstructionRequiredField)
       ),
       "StructNameForWire" -> v(struct.originalName),
       "StructName" ->

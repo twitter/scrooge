@@ -1,6 +1,7 @@
 package com.twitter.scrooge
 
-import org.apache.thrift.protocol.{TType, TProtocol}
+import com.twitter.scrooge.validation.Issue
+import org.apache.thrift.protocol.{TProtocol, TType}
 
 object ThriftStruct {
   def ttypeToString(byte: Byte): String = {
@@ -93,6 +94,54 @@ trait ThriftStructCodec[T <: ThriftStruct] {
 
   lazy val metaData: ThriftStructMetaData[T] = new ThriftStructMetaData(this)
 }
+
+abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec3[T] {
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty Seq of Issues.
+   */
+  def validateNewInstance(item: T): Seq[Issue]
+
+  /**
+   * Method that should be called on every field of a struct to validate new instances of that
+   * struct. This should only called by the generated implementations of validateNewInstance.
+   */
+  final protected def validateField[U <: ValidatingThriftStruct[U]](
+    any: Any
+  ): Seq[Issue] = {
+    any match {
+      // U is unchecked since it is eliminated by erasure, but we know that validatingStruct extends
+      // from ValidatingThriftStruct. The code below should be safe for any ValidatingThriftStruct
+      case validatingStruct: U =>
+        validatingStruct._codec.validateNewInstance(validatingStruct)
+      case map: collection.Map[_, _] =>
+        map.flatMap { case (key, value) =>
+          Seq(
+            validateField(key),
+            validateField(value)
+          ).flatten
+        }.toList
+      case iterable: Iterable[_] => iterable.toList.flatMap(validateField)
+      case option: Option[_] => option.toList.flatMap(validateField)
+      case _ => Nil
+    }
+  }
+}
+
+/**
+ * This trait extends from HasThriftStructCodec3 and ThriftStruct.
+ * It should be safe to call "validatingStruct._codec.validateNewInstance(validatingStruct)"
+ * on any validatingStruct that implements ValidatingThriftStruct. We take advantage of this fact in
+ * the validateField method in ValidatingThriftStructCodec3.
+ *
+ * A method could be added to this trait that does this (with more type safety), but we want to
+ * avoid adding unnecessary methods to thrift structs.
+ */
+trait ValidatingThriftStruct[T <: ThriftStruct]
+  extends ThriftStruct with HasThriftStructCodec3[T] { self: T =>
+  override def _codec: ValidatingThriftStructCodec3[T]
+}
+
 
 /**
  * Introduced as a backwards compatible API bridge in Scrooge 3.

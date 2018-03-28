@@ -35,6 +35,29 @@ case object WithAsClosable extends ServiceOption {
 }
 case class JavaService(service: Service, options: Set[ServiceOption])
 
+object Generator {
+  /**
+   * Annotation used for fields which are required for new instances of a struct, but which are
+   * optional for the purpose of reading and serialization.
+   */
+  val ConstructionRequiredAnnotation = "construction_required"
+
+  def isConstructionRequiredField(field: Field): Boolean = {
+    val hasAnnotation =
+      field.fieldAnnotations.getOrElse(ConstructionRequiredAnnotation, "false").toBoolean
+    if (hasAnnotation) {
+      if (field.requiredness != Requiredness.Optional) {
+        throw new ConstructionRequiredAnnotationException(
+          field = field.sid.name
+        )
+      }
+      true
+    } else {
+      false
+    }
+  }
+}
+
 abstract class Generator(doc: ResolvedDocument) {
 
   /**
@@ -171,6 +194,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     with ConstsTemplate
     with EnumTemplate {
   import Dictionary._
+  import Generator._
 
   /**
    * Map from included file names to the namespaces defined in those files.
@@ -308,8 +332,17 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     }
   }
 
-  def genDefaultFieldValue(f: Field): Option[CodeFragment] = {
-    if (f.requiredness.isOptional) {
+  /**
+   * Creates a code fragment for the default value of the field.
+   * @param f field to generate the default value for.
+   * @param forAlternateConstructor Whether this is for the alternate Immutable constructor which
+   *                                does not take an Option for construction required fields.
+   */
+  def genDefaultFieldValue(
+    f: Field,
+    forAlternateConstructor: Boolean = false
+  ): Option[CodeFragment] = {
+    if (f.requiredness.isOptional || (forAlternateConstructor && isConstructionRequiredField(f))) {
       None
     } else {
       f.default.map(genConstant(_, Some(f.fieldType))).orElse {

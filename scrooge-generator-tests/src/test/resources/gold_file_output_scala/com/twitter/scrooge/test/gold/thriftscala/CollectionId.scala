@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  HasThriftStructCodec3,
   LazyTProtocol,
   TFieldBlob,
   ThriftException,
@@ -16,7 +15,9 @@ import com.twitter.scrooge.{
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil
+  ThriftUtil,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3
 }
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
@@ -33,7 +34,7 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 
-object CollectionId extends ThriftStructCodec3[CollectionId] {
+object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct = new TStruct("CollectionId")
   val CollectionLongIdField = new TField("collectionLongId", TType.I64, 1)
@@ -63,6 +64,17 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
    * Checks that all required fields are non-null.
    */
   def validate(_item: CollectionId): Unit = {
+  }
+
+  /**
+   * Checks that the struct is a valid as a new instance. If there are any missing required or
+   * construction required fields, return a non-empty list.
+   */
+  def validateNewInstance(item: CollectionId): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+    val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+
+    buf ++= validateField(item.collectionLongId)
+    buf.toList
   }
 
   def withoutPassthroughFields(original: CollectionId): CollectionId =
@@ -132,7 +144,7 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
           case 1 =>
             _field.`type` match {
               case TType.I64 =>
-
+    
                 collectionLongId = readCollectionLongIdValue(_iprot)
                 _got_collectionLongId = true
               case _actualType =>
@@ -266,7 +278,7 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
       collectionLongId: Long
     ) = this(
       collectionLongId,
-      Map.empty
+      Map.empty[Short, TFieldBlob]
     )
   }
 
@@ -324,7 +336,7 @@ object CollectionId extends ThriftStructCodec3[CollectionId] {
 trait CollectionId
   extends ThriftStruct
   with _root_.scala.Product1[Long]
-  with HasThriftStructCodec3[CollectionId]
+  with ValidatingThriftStruct[CollectionId]
   with java.io.Serializable
 {
   import CollectionId._
@@ -466,7 +478,7 @@ trait CollectionId
 
   override def productPrefix: String = "CollectionId"
 
-  def _codec: ThriftStructCodec3[CollectionId] = CollectionId
+  def _codec: ValidatingThriftStructCodec3[CollectionId] = CollectionId
 }
 
 private class CollectionId$$AdaptDecoder {
