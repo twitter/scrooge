@@ -29,9 +29,8 @@ object AndroidGeneratorFactory extends GeneratorFactory {
 class AndroidGenerator(
   resolvedDoc: ResolvedDocument,
   defaultNamespace: String,
-  templateCache: TrieMap[String, Mustache],
-  genHashcode: Boolean = true
-) extends ApacheJavaGenerator(resolvedDoc, defaultNamespace, templateCache, genHashcode) {
+  templateCache: TrieMap[String, Mustache]
+) extends ApacheJavaGenerator(resolvedDoc, defaultNamespace, templateCache) {
   override val namespaceLanguage = "android"
 
   override def renderMustache(template: String, controller: Any = this) = {

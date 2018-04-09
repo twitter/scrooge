@@ -3,6 +3,7 @@
  *
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  */
+package thrift;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -202,7 +203,8 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    return hashCode;
   }
 
   public int compareTo(FollowerTargetingDetails other) {

@@ -2,9 +2,8 @@ package com.twitter.scrooge.goldfile
 
 import com.twitter.io.Files
 import com.twitter.scrooge.Main
-import com.twitter.scrooge.testutil.TempDirectory
+import com.twitter.scrooge.testutil.{Utils, TempDirectory}
 import java.io.{ByteArrayInputStream, File, InputStream}
-import java.util.regex.Pattern
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.io.Source
 
@@ -63,16 +62,6 @@ abstract class GoldFileTest extends FunSuite
   protected def language: String
   protected def deleteTempFiles: Boolean = true
 
-  private val headerRegEx =
-    """ (\*)?   version: .*
-      | (\*)?   rev: .*
-      | (\*)?   built at: .*""".stripMargin.r
-  private val headerNormalizedReplacement =
-    """ $1   version: ?
-      | $2   rev: ?
-      | $3   built at: ?""".stripMargin
-  private val trailingSpaces = Pattern.compile("[ ]+$", Pattern.MULTILINE)
-
   private def generatedFiles(f: File): Seq[File] = {
     def accumulate(f: File, buf: Vector[File]): Vector[File] = {
       if (f.isFile) {
@@ -92,8 +81,8 @@ abstract class GoldFileTest extends FunSuite
   protected def goldFilesRoot: String = s"gold_file_output_$language"
 
   protected def diff(gold: InputStream, gen: InputStream, genFileName: String, genRelPath: String): Unit = {
-    val genStr = generatedDataFor(gen)
-    val expected = expectedDataFor(gold)
+    val genStr = Utils.normalizeHeaders(inputStreamToString(gen))
+    val expected = Utils.normalizeHeaders(inputStreamToString(gold))
     if (genStr != expected) {
       val diff = {
         var i = 0
@@ -122,25 +111,17 @@ abstract class GoldFileTest extends FunSuite
            |
            |Compare the output in stdout to the gold file and
            |either fix the generator or update the gold file to match.
+           |
+           |To regenerate file automatically first remove all the existing files:
+           |rm -r $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/*
+           |Then regenerate data by passing these arguments into scrooge
+           |--language $language --finagle --gen-adapt --dest $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/ $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
+           |
          """.stripMargin
       println(msg)
       println(s"Generated file $genRelPath:\n$genStr<<<EOF")
       fail(msg)
     }
-  }
-
-  private def generatedDataFor(is: InputStream): String = {
-    val gen = inputStreamToString(is)
-
-    // normalize the headers
-    val headersNormalized = headerRegEx.replaceAllIn(gen, headerNormalizedReplacement)
-
-    trailingSpaces.matcher(headersNormalized).replaceAll("")
-  }
-
-  private def expectedDataFor(is: InputStream): String = {
-    val str = inputStreamToString(is)
-    trailingSpaces.matcher(str).replaceAll("")
   }
 
   private def inputStreamToString(is: InputStream): String = {

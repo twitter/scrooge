@@ -822,7 +822,7 @@ public class TestService {
     this.request = null;
   }
 
-  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
   public boolean isSetRequest() {
     return this.request != null;
   }
@@ -893,7 +893,11 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_endpoint_args other) {
@@ -1169,7 +1173,7 @@ public class TestService {
   __isset_bit_vector.clear(__SUCCESS_ISSET_ID);
   }
 
-  /** Returns true if field success is set (has been asigned a value) and false otherwise */
+  /** Returns true if field success is set (has been assigned a value) and false otherwise */
   public boolean isSetSuccess() {
     return __isset_bit_vector.get(__SUCCESS_ISSET_ID);
   }
@@ -1192,7 +1196,7 @@ public class TestService {
     this.ex = null;
   }
 
-  /** Returns true if field ex is set (has been asigned a value) and false otherwise */
+  /** Returns true if field ex is set (has been assigned a value) and false otherwise */
   public boolean isSetEx() {
     return this.ex != null;
   }
@@ -1282,7 +1286,14 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Boolean)success).hashCode();
+    }
+    if (isSetEx()) {
+      hashCode = 31 * hashCode + ex.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_endpoint_result other) {
@@ -1565,7 +1576,7 @@ public class TestService {
     this.request = null;
   }
 
-  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
   public boolean isSetRequest() {
     return this.request != null;
   }
@@ -1636,7 +1647,11 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_oneway_args other) {

@@ -78,8 +78,8 @@ object Main {
   }
 
   def verify(actual: String, expected: String): Boolean = {
-    val actualItems = ApacheCompatibilityHelpers.cleanWhitespace(actual, true)
-    val expectedItems = ApacheCompatibilityHelpers.cleanWhitespace(expected, true)
+    val actualItems = actual.split("\n")
+    val expectedItems = expected.split("\n")
     for (i <- 0 until actualItems.size) {
       if (!actualItems(i).equals(expectedItems(i))) {
         println("Actual: " + actualItems(i))

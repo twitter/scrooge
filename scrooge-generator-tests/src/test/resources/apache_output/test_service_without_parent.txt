@@ -194,6 +194,7 @@ public class TestService {
         }
         TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
         TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
+
         return null;
       }
      }
@@ -880,7 +881,7 @@ public class TestService {
     this.request = null;
   }
 
-  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
   public boolean isSetRequest() {
     return this.request != null;
   }
@@ -951,7 +952,11 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_void_endpoint_args other) {
@@ -1209,7 +1214,7 @@ public class TestService {
     this.ex = null;
   }
 
-  /** Returns true if field ex is set (has been asigned a value) and false otherwise */
+  /** Returns true if field ex is set (has been assigned a value) and false otherwise */
   public boolean isSetEx() {
     return this.ex != null;
   }
@@ -1280,7 +1285,11 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    if (isSetEx()) {
+      hashCode = 31 * hashCode + ex.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_void_endpoint_result other) {
@@ -1537,7 +1546,7 @@ public class TestService {
     this.request = null;
   }
 
-  /** Returns true if field request is set (has been asigned a value) and false otherwise */
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
   public boolean isSetRequest() {
     return this.request != null;
   }
@@ -1608,7 +1617,11 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_endpoint_without_exception_args other) {
@@ -1866,7 +1879,7 @@ public class TestService {
     this.success = null;
   }
 
-  /** Returns true if field success is set (has been asigned a value) and false otherwise */
+  /** Returns true if field success is set (has been assigned a value) and false otherwise */
   public boolean isSetSuccess() {
     return this.success != null;
   }
@@ -1937,7 +1950,11 @@ public class TestService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    if (isSetSuccess()) {
+      hashCode = 31 * hashCode + success.hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_endpoint_without_exception_result other) {

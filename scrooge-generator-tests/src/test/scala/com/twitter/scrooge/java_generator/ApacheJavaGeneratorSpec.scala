@@ -1,13 +1,12 @@
 package com.twitter.scrooge.java_generator
 
 import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
-import com.google.common.base.Charsets
-import com.google.common.io.CharStreams
+import com.twitter.scrooge.CompilerDefaults
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
 import com.twitter.scrooge.mustache.ScalaObjectHandler
 import com.twitter.scrooge.testutil.Spec
-import com.twitter.scrooge.testutil.Utils.verify
+import com.twitter.scrooge.testutil.Utils.{verifyWithHint, getFileContents}
 import com.twitter.util.Try
 import java.io._
 import java.util.EnumSet
@@ -23,15 +22,6 @@ import thrift.apache_java_test._
  *     --gen java -o /tmp/thrift test_thrift/empty_struct.thrift
  */
 class ApacheJavaGeneratorSpec extends Spec {
-
-  def getFileContents(resource: String): String = {
-    val ccl = Thread.currentThread().getContextClassLoader
-    val is = ccl.getResourceAsStream(resource)
-    val br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))
-    try CharStreams.toString(br)
-    finally br.close()
-  }
-
   object TestThriftResourceImporter extends Importer {
     val canonicalPaths: Seq[String] = Nil
     def lastModified(filename: String): Option[Long] = None
@@ -50,12 +40,11 @@ class ApacheJavaGeneratorSpec extends Spec {
 
   val templateCache = new TrieMap[String, Mustache]
 
-  def getGenerator(doc0: Document, genHashcode: Boolean = false): ApacheJavaGenerator =
+  def getGenerator(doc0: Document): ApacheJavaGenerator =
     new ApacheJavaGenerator(
       ResolvedDocument(Document(Seq.empty, Seq.empty), TypeResolver()),
       "thrift",
-      templateCache,
-      genHashcode = genHashcode
+      templateCache
     )
 
   "Generator" should {
@@ -95,63 +84,71 @@ class ApacheJavaGeneratorSpec extends Spec {
     }
 
     "populate consts" in {
-      val doc = generateDoc(getFileContents("test_thrift/consts.thrift"))
-      val controller = new ConstController(doc.consts, getGenerator(doc), doc.namespace("java"))
+      val thriftSource = "test_thrift/consts.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
+      val controller = new ConstController(doc.consts, getGenerator(doc), getNamespace(doc))
       val sw = renderMustache("consts.mustache", controller)
-      verify(sw, getFileContents("apache_output/consts.txt"))
+      verifyWithHint(sw, "apache_output/consts.txt", thriftSource, "com/twitter/thrift/Constants.java", "java")
     }
 
     "populate const map" in {
-      val doc = generateDoc(getFileContents("test_thrift/constant_map.thrift"))
-      val generator = getGenerator(doc, genHashcode = true)
-      val controller = new ConstController(doc.consts, generator, doc.namespace("java"))
+      val thriftSource = "test_thrift/constant_map.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
+      val generator = getGenerator(doc)
+      val controller = new ConstController(doc.consts, generator, getNamespace(doc))
       val sw = renderMustache("consts.mustache", controller)
-      verify(sw, getFileContents("apache_output/constant_map.txt"))
+      verifyWithHint(sw, "apache_output/constant_map.txt", thriftSource, "com/twitter/adserver/Constants.java", "java")
     }
 
     "generate empty struct" in {
-      val doc = generateDoc(getFileContents("test_thrift/empty_struct.thrift"))
+      val thriftSource = "test_thrift/empty_struct.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
       val controller =
-        new StructController(doc.structs(0), false, getGenerator(doc), doc.namespace("java"))
+        new StructController(doc.structs(0), false, getGenerator(doc), getNamespace(doc))
       val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/empty_struct.txt"), false)
+      verifyWithHint(sw, "apache_output/empty_struct.txt", thriftSource, "thrift/FollowerTargetingDetails.java", "java")
     }
 
-    "generate struct with hashcode" in {
-      val doc = generateDoc(getFileContents("test_thrift/struct.thrift"))
-      val generator = getGenerator(doc, genHashcode = true)
-      val controller = new StructController(doc.structs(1), false, generator, doc.namespace("java"))
+    "generate struct" in {
+      val thriftSource = "test_thrift/struct.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
+      val generator = getGenerator(doc)
+      val controller = new StructController(doc.structs(1), false, generator, getNamespace(doc))
       val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/struct_with_hashcode.txt"))
+      verifyWithHint(sw, "apache_output/struct.txt", thriftSource, "thrift/Work.java", "java")
     }
 
-    "generate union with hashcode" in {
-      val doc = generateDoc(getFileContents("test_thrift/union_with_enum.thrift"))
-      val generator = getGenerator(doc, genHashcode = true)
-      val controller = new StructController(doc.structs(0), false, generator, doc.namespace("java"))
+    "generate union" in {
+      val thriftSource = "test_thrift/union_with_enum.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
+      val generator = getGenerator(doc)
+      val controller = new StructController(doc.structs(0), false, generator, getNamespace(doc))
       val sw = renderMustache("struct.mustache", controller)
-      verify(sw, getFileContents("apache_output/union_with_hashcode.txt"))
+      verifyWithHint(sw, "apache_output/union.txt", thriftSource, "thrift/TestUnion.java", "java")
     }
 
     "generate service that extends parent" in {
-      val doc = generateDoc(getFileContents("test_thrift/service.thrift"))
+      val thriftSource = "test_thrift/service.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
       val controller =
-        new ServiceController(doc.services(1), getGenerator(doc), doc.namespace("java"))
+        new ServiceController(doc.services(1), getGenerator(doc), getNamespace(doc))
       val sw = renderMustache("service.mustache", controller)
-      verify(sw, getFileContents("apache_output/test_service.txt"))
+      verifyWithHint(sw, "apache_output/test_service.txt", thriftSource, "com/twitter/thrift/TestService.java", "java")
     }
 
     "generate service that does not extend parent" in {
-      val doc = generateDoc(getFileContents("test_thrift/service_without_parent.thrift"))
+      val thriftSource = "test_thrift/service_without_parent.thrift"
+      val doc = generateDoc(getFileContents(thriftSource))
       val controller =
-        new ServiceController(doc.services(0), getGenerator(doc), doc.namespace("java"))
+        new ServiceController(doc.services(0), getGenerator(doc), getNamespace(doc))
       val sw = renderMustache("service.mustache", controller)
-      verify(sw, getFileContents("apache_output/test_service_without_parent.txt"))
+      verifyWithHint(sw, "apache_output/test_service_without_parent.txt", thriftSource, "com/twitter/thrift/TestService.java", "java")
     }
 
     "generate service with a parent from a different namespace" in {
+      val thriftSource = "test_thrift/service_with_parent_different_namespace.thrift"
       val doc =
-        generateDoc(getFileContents("test_thrift/service_with_parent_different_namespace.thrift"))
+        generateDoc(getFileContents(thriftSource))
       val baseDoc = mock[Document]
       val parentDoc = mock[ResolvedDocument]
       when(baseDoc.namespace("java")) thenReturn Some(QualifiedID(Seq("com", "twitter", "thrift")))
@@ -164,13 +161,16 @@ class ApacheJavaGeneratorSpec extends Spec {
           )
         ),
         "thrift",
-        templateCache,
-        false
+        templateCache
       )
-      val controller = new ServiceController(doc.services(0), generator, doc.namespace("java"))
+      val controller = new ServiceController(doc.services(0), generator, getNamespace(doc))
       val sw = renderMustache("service.mustache", controller)
-      verify(sw, getFileContents("apache_output/other_service.txt"))
+      verifyWithHint(sw, "apache_output/other_service.txt", thriftSource, "com/twitter/other/OtherService.java", "java")
     }
+  }
+
+  private[this] def getNamespace(doc: Document): Some[Identifier] = {
+    Some(doc.namespace("java").getOrElse(SimpleID(CompilerDefaults.defaultNamespace)))
   }
 
   def renderMustache(template: String, controller: Object): String = {

@@ -16,6 +16,7 @@
 
 LIB_SOURCES = [
     "com/twitter/scrooge/goldfile/GoldFileTest.scala",
+    "com/twitter/scrooge/testutil/Utils.scala",
     "com/twitter/scrooge/testutil/TempDirectory.scala",
 ]
 

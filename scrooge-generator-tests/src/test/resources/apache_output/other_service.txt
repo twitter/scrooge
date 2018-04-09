@@ -645,7 +645,7 @@ public class OtherService {
   __isset_bit_vector.clear(__REQ_ISSET_ID);
   }
 
-  /** Returns true if field req is set (has been asigned a value) and false otherwise */
+  /** Returns true if field req is set (has been assigned a value) and false otherwise */
   public boolean isSetReq() {
     return __isset_bit_vector.get(__REQ_ISSET_ID);
   }
@@ -714,7 +714,11 @@ public class OtherService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Integer)req).hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_endpoint_args other) {
@@ -971,7 +975,7 @@ public class OtherService {
   __isset_bit_vector.clear(__SUCCESS_ISSET_ID);
   }
 
-  /** Returns true if field success is set (has been asigned a value) and false otherwise */
+  /** Returns true if field success is set (has been assigned a value) and false otherwise */
   public boolean isSetSuccess() {
     return __isset_bit_vector.get(__SUCCESS_ISSET_ID);
   }
@@ -1040,7 +1044,11 @@ public class OtherService {
 
   @java.lang.Override
   public int hashCode() {
-    return 0;
+    int hashCode = 1;
+    {
+      hashCode = 31 * hashCode + ((Boolean)success).hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(test_endpoint_result other) {

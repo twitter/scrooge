@@ -22,8 +22,7 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
 class ApacheJavaGenerator(
   resolvedDoc: ResolvedDocument,
   defaultNamespace: String,
-  templateCache: TrieMap[String, Mustache],
-  val genHashcode: Boolean = true
+  templateCache: TrieMap[String, Mustache]
 ) // Defaulting to true for pants.
     extends Generator(resolvedDoc) {
   val namespaceLanguage = "java"

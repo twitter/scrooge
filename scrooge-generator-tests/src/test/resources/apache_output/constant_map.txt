@@ -5,6 +5,7 @@
  */
 package com.twitter.adserver;
 
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
 
 public class Constants {
 
@@ -34,7 +36,7 @@ public class Constants {
 
   public static final String REGION_REST_OF_WORLD = "REST_OF_WORLD";
 
-  public static final Map<String,String> COUNTRY_REGION_MAP = new HashMap<String,String>();
+  public static final Map<String,String> COUNTRY_REGION_MAP = new HashMap<String,String>(); 
   static {
     COUNTRY_REGION_MAP.put("EU", "EUROPE");
     COUNTRY_REGION_MAP.put("AD", "EUROPE");

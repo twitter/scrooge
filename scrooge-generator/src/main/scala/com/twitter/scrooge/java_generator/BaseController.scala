@@ -4,7 +4,7 @@ import com.twitter.scrooge.ast._
 import com.google.common.base.{Function => GFunction}
 
 class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
-  val gen_hash_code = generator.genHashcode
+  val gen_hash_code = true
   def has_namespace = !ns.isEmpty
   def namespace = ns.get.fullName
   val trim_regex = """\s+\n""".r
