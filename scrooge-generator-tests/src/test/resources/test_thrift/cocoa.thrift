@@ -24,3 +24,5 @@ struct AnotherTestStruct {
   10: i16 shortNum                  // ensure can handle 16-bit ints
   11: i64 longLongNum               // ensure can handle 64-bit ints
 }
+
+struct TestEmptyStruct {}

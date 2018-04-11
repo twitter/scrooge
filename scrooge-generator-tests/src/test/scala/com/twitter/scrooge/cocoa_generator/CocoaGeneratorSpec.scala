@@ -14,7 +14,9 @@ class CocoaGeneratorSpec extends Spec {
     "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.m",
     "cocoa_output/TFNTwitterThriftScribeTestEnum.h",
     "cocoa_output/TFNTwitterThriftScribeTestStruct.h",
-    "cocoa_output/TFNTwitterThriftScribeTestStruct.m"
+    "cocoa_output/TFNTwitterThriftScribeTestStruct.m",
+    "cocoa_output/TFNTwitterThriftScribeTestEmptyStruct.h",
+    "cocoa_output/TFNTwitterThriftScribeTestEmptyStruct.m"
   ).map { new File(_) }
 
   def getFileContents(resource: String): String = {
