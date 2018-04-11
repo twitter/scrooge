@@ -63,7 +63,7 @@
 - (void)setDetails:(NSString *)details
 {
     _details = [details copy];
-    _detailsIsSet = YES;
+    _detailsIsSet = details != nil;
 }
 
 - (void)read:(id <TProtocol>)inProtocol

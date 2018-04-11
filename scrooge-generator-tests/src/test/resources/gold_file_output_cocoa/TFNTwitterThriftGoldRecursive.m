@@ -63,7 +63,7 @@
 - (void)setRecRequest:(TFNTwitterThriftGoldRequest *)recRequest
 {
     _recRequest = recRequest;
-    _recRequestIsSet = YES;
+    _recRequestIsSet = recRequest != nil;
 }
 
 - (void)read:(id <TProtocol>)inProtocol

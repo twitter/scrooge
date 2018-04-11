@@ -63,7 +63,7 @@
 - (void)setResponseUnion:(TFNTwitterThriftGoldResponseUnion *)responseUnion
 {
     _responseUnion = responseUnion;
-    _responseUnionIsSet = YES;
+    _responseUnionIsSet = responseUnion != nil;
 }
 
 - (void)read:(id <TProtocol>)inProtocol

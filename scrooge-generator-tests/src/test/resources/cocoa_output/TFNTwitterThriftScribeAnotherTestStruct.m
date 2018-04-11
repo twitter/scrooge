@@ -138,25 +138,25 @@
 - (void)setStructs:(NSArray *)structs
 {
     _structs = [structs copy];
-    _structsIsSet = YES;
+    _structsIsSet = structs != nil;
 }
 
 - (void)setStringStructs:(NSArray *)stringStructs
 {
     _stringStructs = [stringStructs copy];
-    _stringStructsIsSet = YES;
+    _stringStructsIsSet = stringStructs != nil;
 }
 
 - (void)setASet:(NSSet *)aSet
 {
     _aSet = [aSet copy];
-    _aSetIsSet = YES;
+    _aSetIsSet = aSet != nil;
 }
 
 - (void)setAMap:(NSDictionary *)aMap
 {
     _aMap = [aMap copy];
-    _aMapIsSet = YES;
+    _aMapIsSet = aMap != nil;
 }
 
 - (void)setId_:(int32_t)id_
@@ -168,13 +168,13 @@
 - (void)setProtocol_:(NSString *)protocol_
 {
     _protocol_ = [protocol_ copy];
-    _protocol_IsSet = YES;
+    _protocol_IsSet = protocol_ != nil;
 }
 
 - (void)setSel_:(TFNTwitterThriftScribeTestStruct *)sel_
 {
     _sel_ = sel_;
-    _sel_IsSet = YES;
+    _sel_IsSet = sel_ != nil;
 }
 
 - (void)setNotACamel:(int32_t)notACamel

@@ -66,13 +66,13 @@
 - (void)setName:(NSString *)name
 {
     _name = [name copy];
-    _nameIsSet = YES;
+    _nameIsSet = name != nil;
 }
 
 - (void)setValues:(NSSet *)values
 {
     _values = [values copy];
-    _valuesIsSet = YES;
+    _valuesIsSet = values != nil;
 }
 
 - (void)setPrice:(int32_t)price

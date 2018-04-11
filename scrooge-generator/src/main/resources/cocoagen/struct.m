@@ -51,7 +51,12 @@
 - (void)set{{FieldName}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}} *{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}
 {
     _{{fieldNameCamelCase}} = {{^isPrimitive}}{{#readWriteInfo}}{{^isStruct}}[{{/isStruct}}{{/readWriteInfo}}{{/isPrimitive}}{{fieldNameCamelCase}}{{^isPrimitive}}{{#readWriteInfo}}{{^isStruct}} copy]{{/isStruct}}{{/readWriteInfo}}{{/isPrimitive}};
+{{#isPrimitive}}
     _{{fieldNameCamelCase}}IsSet = YES;
+{{/isPrimitive}}
+{{^isPrimitive}}
+    _{{fieldNameCamelCase}}IsSet = {{fieldNameCamelCase}} != nil;
+{{/isPrimitive}}
 }
 {{/fields|
 }}

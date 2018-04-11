@@ -4,6 +4,8 @@
 
 Unreleased
 ----------
+- scrooge-generator: Add support for empty struct in cocoa. ``PHAB_ID=D156539``
+- scrooge-generator: Fix setter bug for non-primitive type in cocoa. ``PHAB_ID=D156605``
 
 18.4.0
 -------

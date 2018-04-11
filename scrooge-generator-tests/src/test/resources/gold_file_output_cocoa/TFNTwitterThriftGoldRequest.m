@@ -165,37 +165,37 @@
 - (void)setAList:(NSArray *)aList
 {
     _aList = [aList copy];
-    _aListIsSet = YES;
+    _aListIsSet = aList != nil;
 }
 
 - (void)setASet:(NSSet *)aSet
 {
     _aSet = [aSet copy];
-    _aSetIsSet = YES;
+    _aSetIsSet = aSet != nil;
 }
 
 - (void)setAMap:(NSDictionary *)aMap
 {
     _aMap = [aMap copy];
-    _aMapIsSet = YES;
+    _aMapIsSet = aMap != nil;
 }
 
 - (void)setARequest:(TFNTwitterThriftGoldRequest *)aRequest
 {
     _aRequest = aRequest;
-    _aRequestIsSet = YES;
+    _aRequestIsSet = aRequest != nil;
 }
 
 - (void)setSubRequests:(NSArray *)subRequests
 {
     _subRequests = [subRequests copy];
-    _subRequestsIsSet = YES;
+    _subRequestsIsSet = subRequests != nil;
 }
 
 - (void)setHasDefault:(NSString *)hasDefault
 {
     _hasDefault = [hasDefault copy];
-    _hasDefaultIsSet = YES;
+    _hasDefaultIsSet = hasDefault != nil;
 }
 
 - (void)setNoComment:(int64_t)noComment
@@ -231,13 +231,13 @@
 - (void)setRecRequest:(TFNTwitterThriftGoldRecursive *)recRequest
 {
     _recRequest = recRequest;
-    _recRequestIsSet = YES;
+    _recRequestIsSet = recRequest != nil;
 }
 
 - (void)setRequiredField:(NSString *)requiredField
 {
     _requiredField = [requiredField copy];
-    _requiredFieldIsSet = YES;
+    _requiredFieldIsSet = requiredField != nil;
 }
 
 - (void)setConstructionRequiredField:(int64_t)constructionRequiredField
