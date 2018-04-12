@@ -4,6 +4,7 @@
 
 Unreleased
 ----------
+- scrooge-generator: Add cocoa initializer for each field in union. ``PHAB_ID=D156591``
 - scrooge-generator: Add support for empty struct in cocoa. ``PHAB_ID=D156539``
 - scrooge-generator: Fix setter bug for non-primitive type in cocoa. ``PHAB_ID=D156605``
 
