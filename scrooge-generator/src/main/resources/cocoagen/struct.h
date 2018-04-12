@@ -10,7 +10,14 @@
 
 {{/fields}}
 
+{{#isUnion}}
+{{#fields}}
+- (instancetype)initWith{{FieldName}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}};
+{{/fields}}
+{{/isUnion}}
+{{^isUnion}}
 - (instancetype)initWith{{#fields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/fields| }};
+{{/isUnion}}
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

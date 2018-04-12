@@ -15,6 +15,19 @@
     return [NSString stringWithString:ms];
 }
 
+{{#isUnion}}
+{{#fields}}
+- (instancetype)initWith{{FieldName}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}
+{
+    if (self = [super init]) {
+        [self set{{FieldName}}:{{fieldNameCamelCase}}];
+    }
+    return self;
+}
+
+{{/fields}}
+{{/isUnion}}
+{{^isUnion}}
 - (instancetype)initWith{{#fields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/fields| }}
 {
     if (self = [super init]) {
@@ -26,6 +39,7 @@
     return self;
 }
 
+{{/isUnion}}
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
     if (self = [super init]) {

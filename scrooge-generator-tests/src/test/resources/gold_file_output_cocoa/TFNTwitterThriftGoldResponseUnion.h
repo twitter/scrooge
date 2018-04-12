@@ -17,7 +17,8 @@
 @property (nonatomic, readonly) BOOL detailsIsSet;
 
 
-- (instancetype)initWithId_:(int64_t)id_ details:(NSString *)details;
+- (instancetype)initWithId_:(int64_t)id_;
+- (instancetype)initWithDetails:(NSString *)details;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

@@ -369,16 +369,24 @@ class CocoaGenerator(
       }
     }
 
-    val structsWithNamespace = doc.structs.map(
-      struct =>
+    val structsWithNamespace = doc.structs.map {
+      case union: Union =>
+        Union(
+          SimpleID(currentNamespace + union.sid.name),
+          union.originalName,
+          union.fields,
+          union.docstring,
+          union.annotations
+        )
+      case struct =>
         Struct(
           SimpleID(currentNamespace + struct.sid.name),
           struct.originalName,
           struct.fields,
           struct.docstring,
           struct.annotations
-      )
-    )
+        )
+    }
 
     if (!dryRun) {
       structsWithNamespace.foreach { struct =>

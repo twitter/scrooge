@@ -429,6 +429,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "InstanceClassName" -> (if (isStruct) v("Immutable") else structName),
       "underlyingStructName" -> genID(struct.sid.prepend("_underlying_")),
       "arity" -> v(arity.toString),
+      "isUnion" -> v(isUnion),
       "isException" -> v(isException),
       "isResponse" -> v(isResponse),
       "hasExceptionMessage" -> v(exceptionMsgField.isDefined),

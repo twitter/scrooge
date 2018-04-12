@@ -21,13 +21,19 @@
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithId_:(int64_t)id_ details:(NSString *)details
+- (instancetype)initWithId_:(int64_t)id_
 {
     if (self = [super init]) {
         [self setId_:id_];
+    }
+    return self;
+}
+
+- (instancetype)initWithDetails:(NSString *)details
+{
+    if (self = [super init]) {
         [self setDetails:details];
     }
-
     return self;
 }
 
