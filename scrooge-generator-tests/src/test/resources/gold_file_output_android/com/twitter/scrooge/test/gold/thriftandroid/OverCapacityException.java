@@ -123,6 +123,11 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
     this.chillTimeSeconds = other.chillTimeSeconds;
   }
 
+  public static List<String> validateNewInstance(OverCapacityException item) {
+    final List<String> buf = new ArrayList<String>();
+    return buf;
+  }
+
   public OverCapacityException deepCopy() {
     return new OverCapacityException(this);
   }

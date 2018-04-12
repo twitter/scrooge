@@ -336,6 +336,36 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.constructionRequiredField = other.constructionRequiredField;
   }
 
+  public static List<String> validateNewInstance(Request item) {
+    final List<String> buf = new ArrayList<String>();
+    if (item.isSet(_Fields.A_REQUEST)) {
+      Request _aRequest = item.aRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftandroid.Request.validateNewInstance(_aRequest));
+    }
+
+    if (item.isSet(_Fields.SUB_REQUESTS)) {
+      List<Request> _subRequests = item.subRequests;
+      for (Request _subRequests_element : _subRequests) {
+        buf.addAll(com.twitter.scrooge.test.gold.thriftandroid.Request.validateNewInstance(_subRequests_element));
+      }
+    }
+
+    if (item.isSet(_Fields.REC_REQUEST)) {
+      Recursive _recRequest = item.recRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftandroid.Recursive.validateNewInstance(_recRequest));
+    }
+
+    if (!item.isSet(_Fields.REQUIRED_FIELD)) {
+       buf.add("Required field 'requiredField' in type 'Request' was not present.");
+    }
+
+    if (!item.isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD)) {
+      buf.add("Construction required field 'constructionRequiredField' in type 'Request' was not present.");
+    }
+
+    return buf;
+  }
+
   public Request deepCopy() {
     return new Request(this);
   }

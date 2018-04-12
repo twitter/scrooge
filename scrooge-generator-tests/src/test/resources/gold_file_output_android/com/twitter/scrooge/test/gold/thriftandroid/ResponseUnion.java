@@ -112,6 +112,19 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
     super(other);
   }
 
+  public static List<String> validateNewInstance(ResponseUnion item) {
+    final List<String> buf = new ArrayList<String>();
+    final TFieldIdEnum setField = item.getSetField();
+
+    if (setField != null) {
+      final short thriftFieldId = setField.getThriftFieldId();
+    } else {
+      buf.add("No fields set for union type 'ResponseUnion'.");
+    }
+
+    return buf;
+  }
+
   public ResponseUnion deepCopy() {
     return new ResponseUnion(this);
   }

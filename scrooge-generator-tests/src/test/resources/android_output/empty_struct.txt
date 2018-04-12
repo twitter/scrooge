@@ -102,6 +102,11 @@ public class FollowerTargetingDetails implements TBase<FollowerTargetingDetails,
   public FollowerTargetingDetails(FollowerTargetingDetails other) {
   }
 
+  public static List<String> validateNewInstance(FollowerTargetingDetails item) {
+    final List<String> buf = new ArrayList<String>();
+    return buf;
+  }
+
   public FollowerTargetingDetails deepCopy() {
     return new FollowerTargetingDetails(this);
   }

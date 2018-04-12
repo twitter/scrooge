@@ -120,6 +120,19 @@ public class TestUnion extends TUnion<TestUnion, TestUnion._Fields> {
     super(other);
   }
 
+  public static List<String> validateNewInstance(TestUnion item) {
+    final List<String> buf = new ArrayList<String>();
+    final TFieldIdEnum setField = item.getSetField();
+
+    if (setField != null) {
+      final short thriftFieldId = setField.getThriftFieldId();
+    } else {
+      buf.add("No fields set for union type 'TestUnion'.");
+    }
+
+    return buf;
+  }
+
   public TestUnion deepCopy() {
     return new TestUnion(this);
   }

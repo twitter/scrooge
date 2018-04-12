@@ -1,7 +1,7 @@
 package com.twitter.scrooge.android_generator
 
 import com.twitter.scrooge.ast.{Field, Identifier}
-import com.twitter.scrooge.java_generator.{BaseController, Copy}
+import com.twitter.scrooge.java_generator.{BaseController, Copy, Validate}
 
 class StructFieldController(
   f: Field,
@@ -21,6 +21,11 @@ class StructFieldController(
     indent(generator.deepContainer("other", Some(name), "__this__" + name, fieldType, ns, Copy), 4)
   val generate_deep_copy_non_container =
     generator.deepNonContainer("other." + name, fieldType, ns, Copy)
+
+  val generate_deep_validate_container =
+    indent(generator.deepContainer("_" + name, None, "__this__" + name, fieldType, ns, Validate), 4)
+  val generate_deep_validate_non_container =
+    generator.deepNonContainer("_" + name, fieldType, ns, Validate)
 
   val key = f.index
   val field_metadata = indent(generator.fieldValueMetaData(fieldType, ns), 6, addLast = false)
