@@ -55,18 +55,16 @@ class AndroidGenerator(
     SimpleID(defaultNamespace)
   }
 
-  override def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap { doc: ResolvedDocument =>
-      doc.document.namespace("android")
-    }
-    javaNamespace.getOrElse(SimpleID(defaultNamespace))
-  }
-
+  /**
+   * @param fileNamespace The namespace to add to named types if they are defined in the file being
+   *                      generated.
+   */
   override def typeName(
     t: FunctionType,
     inContainer: Boolean = false,
     inInit: Boolean = false,
-    skipGeneric: Boolean = false
+    skipGeneric: Boolean = false,
+    fileNamespace: Option[Identifier] = None
   ): String = {
     t match {
       case Void => if (inContainer) "Void" else "void"
@@ -79,7 +77,8 @@ class AndroidGenerator(
       case TDouble => if (inContainer) "Double" else "double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case n: NamedType => qualifyNamedType(n.sid, n.scopePrefix).fullName
+      case n: NamedType =>
+        qualifyNamedType(n.sid, n.scopePrefix, fileNamespace).fullName
       case MapType(k, v, _) => {
         val prefix = if (inInit) "HashMap" else "Map"
         prefix + (if (skipGeneric) ""
@@ -130,9 +129,7 @@ class AndroidGenerator(
     dryRun: Boolean = false,
     genAdapt: Boolean = false
   ): Iterable[File] = {
-    val doc = resolvedDoc.document
     val generatedFiles = new mutable.ListBuffer[File]
-    val namespace = getNamespace(doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
 
     def renderFile(templateName: String, controller: TypeController) = {

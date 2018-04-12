@@ -184,6 +184,17 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
     }
   }
 
+  public static List<String> validateNewInstance(Response item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetResponseUnion()) {
+      ResponseUnion _responseUnion = item.responseUnion;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.ResponseUnion.validateNewInstance(_responseUnion));
+    }
+
+    return buf;
+  }
+
   public Response deepCopy() {
     return new Response(this);
   }

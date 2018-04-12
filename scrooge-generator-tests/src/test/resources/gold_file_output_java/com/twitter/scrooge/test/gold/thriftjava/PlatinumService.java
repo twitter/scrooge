@@ -646,6 +646,17 @@ public class PlatinumService {
     }
   }
 
+  public static List<String> validateNewInstance(moreCoolThings_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      Request _request = item.request;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_request));
+    }
+
+    return buf;
+  }
+
   public moreCoolThings_args deepCopy() {
     return new moreCoolThings_args(this);
   }
@@ -1004,6 +1015,22 @@ public class PlatinumService {
     if (other.isSetOce()) {
       this.oce = new OverCapacityException(other.oce);
     }
+  }
+
+  public static List<String> validateNewInstance(moreCoolThings_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetAx()) {
+      AnotherException _ax = item.ax;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.AnotherException.validateNewInstance(_ax));
+    }
+
+    if (item.isSetOce()) {
+      OverCapacityException _oce = item.oce;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.OverCapacityException.validateNewInstance(_oce));
+    }
+
+    return buf;
   }
 
   public moreCoolThings_result deepCopy() {

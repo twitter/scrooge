@@ -620,6 +620,12 @@ public class OtherService {
     this.req = other.req;
   }
 
+  public static List<String> validateNewInstance(test_endpoint_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    return buf;
+  }
+
   public test_endpoint_args deepCopy() {
     return new test_endpoint_args(this);
   }
@@ -948,6 +954,12 @@ public class OtherService {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.success = other.success;
+  }
+
+  public static List<String> validateNewInstance(test_endpoint_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    return buf;
   }
 
   public test_endpoint_result deepCopy() {

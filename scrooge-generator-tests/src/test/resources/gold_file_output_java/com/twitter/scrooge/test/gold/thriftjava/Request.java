@@ -284,7 +284,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     Map<Long,Long> aMap,
     List<Request> subRequests,
     String hasDefault,
-    String requiredField)
+    String requiredField,
+    long constructionRequiredField)
   {
     this();
     this.aList = aList;
@@ -293,6 +294,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.subRequests = subRequests;
     this.hasDefault = hasDefault;
     this.requiredField = requiredField;
+    this.constructionRequiredField = constructionRequiredField;
+    setConstructionRequiredFieldIsSet(true);
   }
 
   /**
@@ -351,6 +354,37 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       this.requiredField = other.requiredField;
     }
     this.constructionRequiredField = other.constructionRequiredField;
+  }
+
+  public static List<String> validateNewInstance(Request item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetARequest()) {
+      Request _aRequest = item.aRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_aRequest));
+    }
+
+    if (item.isSetSubRequests()) {
+      List<Request> _subRequests = item.subRequests;
+      for (Request _subRequests_element : _subRequests) {
+        buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_subRequests_element));
+      }
+    }
+
+    if (item.isSetRecRequest()) {
+      Recursive _recRequest = item.recRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Recursive.validateNewInstance(_recRequest));
+    }
+
+    if (!item.isSetRequiredField()) {
+       buf.add("Required field 'requiredField' in type 'Request' was not present.");
+    }
+
+    if (!item.isSetConstructionRequiredField()) {
+      buf.add("Construction required field 'constructionRequiredField' in type 'Request' was not present.");
+    }
+
+    return buf;
   }
 
   public Request deepCopy() {

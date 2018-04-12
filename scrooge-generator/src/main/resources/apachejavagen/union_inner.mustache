@@ -18,6 +18,34 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     super(other);
   }
 
+  public static List<String> validateNewInstance({{name}} item) {
+    final List<String> buf = new ArrayList<String>();
+    final TFieldIdEnum setField = item.getSetField();
+
+    if (setField != null) {
+      final short thriftFieldId = setField.getThriftFieldId();
+{{#fields}}
+{{#field_type.has_struct_at_leaf}}
+{{#consolidate_newlines}}
+      if ({{key}} == thriftFieldId && (item.isSet(_Fields.{{#constant_name}}{{name}}{{/constant_name}}))) {
+        {{{field_type.type_name_in_container}}} _{{name}} = ({{{field_type.type_name_in_container}}})item.getFieldValue();;
+{{#field_type.is_container}}
+        {{{generate_deep_validate_container}}}
+{{/field_type.is_container}}
+{{^field_type.is_container}}
+        {{{generate_deep_validate_non_container}}}
+{{/field_type.is_container}}
+      }
+{{/consolidate_newlines}}
+
+{{/field_type.has_struct_at_leaf}}
+{{/fields}}
+    } else {
+      buf.add("No fields set for union type '{{struct_type_name}}'.");
+    }
+    return buf;
+  }
+
   public {{name}} deepCopy() {
     return new {{name}}(this);
   }

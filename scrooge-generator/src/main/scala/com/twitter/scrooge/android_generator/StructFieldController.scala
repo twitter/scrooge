@@ -1,7 +1,7 @@
 package com.twitter.scrooge.android_generator
 
 import com.twitter.scrooge.ast.{Field, Identifier}
-import com.twitter.scrooge.java_generator.BaseController
+import com.twitter.scrooge.java_generator.{BaseController, Copy}
 
 class StructFieldController(
   f: Field,
@@ -18,9 +18,10 @@ class StructFieldController(
   val name = f.sid.name
   val deepCopyIndentLevel = if (field_type.nullable) 6 else 4
   val generate_deep_copy_container =
-    indent(generator.deepCopyContainer("other", name, "__this__" + name, fieldType, ns), 4)
+    indent(generator.deepContainer("other", Some(name), "__this__" + name, fieldType, ns, Copy), 4)
   val generate_deep_copy_non_container =
-    generator.deepCopyNonContainer("other." + name, fieldType, ns)
+    generator.deepNonContainer("other." + name, fieldType, ns, Copy)
+
   val key = f.index
   val field_metadata = indent(generator.fieldValueMetaData(fieldType, ns), 6, addLast = false)
   def deserialize_field =

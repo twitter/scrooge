@@ -642,6 +642,17 @@ public class GoldService {
     }
   }
 
+  public static List<String> validateNewInstance(doGreatThings_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      Request _request = item.request;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_request));
+    }
+
+    return buf;
+  }
+
   public doGreatThings_args deepCopy() {
     return new doGreatThings_args(this);
   }
@@ -985,6 +996,22 @@ public class GoldService {
     if (other.isSetEx()) {
       this.ex = new OverCapacityException(other.ex);
     }
+  }
+
+  public static List<String> validateNewInstance(doGreatThings_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetSuccess()) {
+      Response _success = item.success;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Response.validateNewInstance(_success));
+    }
+
+    if (item.isSetEx()) {
+      OverCapacityException _ex = item.ex;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.OverCapacityException.validateNewInstance(_ex));
+    }
+
+    return buf;
   }
 
   public doGreatThings_result deepCopy() {

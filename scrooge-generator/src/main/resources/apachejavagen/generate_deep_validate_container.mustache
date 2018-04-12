@@ -1,0 +1,34 @@
+{{#field_type.has_struct_at_leaf}}
+{{#map_value}}
+for (Map.Entry<{{{key_type.type_name_in_container}}}, {{{val_type.type_name_in_container}}}> {{iterator_element_name}} : {{source_name}}.entrySet()) {
+  {{#key_type.has_struct_at_leaf}}
+  {{{key_type.type_name_in_container}}} {{iterator_element_name}}_key = {{iterator_element_name}}.getKey();
+  {{#key_type.is_container}}
+  {{{generate_deep_validate_key_in_container}}}
+  {{/key_type.is_container}}
+  {{^key_type.is_container}}
+  {{{generate_deep_validate_key_non_container}}}
+  {{/key_type.is_container}}
+  {{/key_type.has_struct_at_leaf}}
+  {{#val_type.has_struct_at_leaf}}
+  {{{val_type.type_name_in_container}}} {{iterator_element_name}}_value = {{iterator_element_name}}.getValue();
+  {{#val_type.is_container}}
+  {{{generate_deep_validate_val_in_container}}}
+  {{/val_type.is_container}}
+  {{^val_type.is_container}}
+  {{{generate_deep_validate_val_non_container}}}
+  {{/val_type.is_container}}
+  {{/val_type.has_struct_at_leaf}}
+}
+{{/map_value}}
+{{#list_or_set_value}}
+for ({{{elem_type.type_name_in_container}}} {{iterator_element_name}} : {{source_name}}) {
+  {{#elem_type.is_container}}
+  {{{generate_deep_validate_in_container}}}
+  {{/elem_type.is_container}}
+  {{^elem_type.is_container}}
+  {{{generate_deep_validate_non_container}}}
+  {{/elem_type.is_container}}
+}
+{{/list_or_set_value}}
+{{/field_type.has_struct_at_leaf}}

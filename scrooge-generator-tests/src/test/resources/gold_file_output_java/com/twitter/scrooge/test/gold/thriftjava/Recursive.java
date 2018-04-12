@@ -182,6 +182,17 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
     }
   }
 
+  public static List<String> validateNewInstance(Recursive item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRecRequest()) {
+      Request _recRequest = item.recRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_recRequest));
+    }
+
+    return buf;
+  }
+
   public Recursive deepCopy() {
     return new Recursive(this);
   }

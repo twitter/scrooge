@@ -1,6 +1,7 @@
 package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast.{Field, _}
+import com.twitter.scrooge.backend.Generator
 import java.util.{Map => JMap, Set => JSet}
 import scala.collection.JavaConverters._
 
@@ -50,7 +51,7 @@ class StructController(
   })
 
   val non_optional_fields: Seq[StructFieldController] = cleanup(allFields.filter { f =>
-    !f.requiredness.isOptional
+    !f.requiredness.isOptional || Generator.isConstructionRequiredField(f)
   })
   val non_default_constructor: Boolean = non_optional_fields.size > 0
 

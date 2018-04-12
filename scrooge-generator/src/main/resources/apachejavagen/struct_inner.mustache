@@ -81,6 +81,46 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{/consolidate_newlines}}
   }
 
+  public static List<String> validateNewInstance({{name}} item) {
+    final List<String> buf = new ArrayList<String>();
+
+{{#fields}}
+{{#field.constructionRequired}}
+    if (!item.{{>generate_isset_check}}) {
+      buf.add("Construction required field '{{name}}' in type '{{struct_type_name}}' was not present.");
+    }
+
+{{/field.constructionRequired}}
+{{#field.required}}
+    if (!item.{{>generate_isset_check}}) {
+       buf.add("Required field '{{name}}' in type '{{struct_type_name}}' was not present.");
+    }
+
+{{/field.required}}
+{{#field_type.has_struct_at_leaf}}
+{{#consolidate_newlines}}
+{{#field_type.nullable}}
+    if (item.{{>generate_isset_check}}) {
+{{/field_type.nullable}}
+{{#field.i_if_nullable}}
+    {{{field_type.type_name_in_container}}} _{{name}} = item.{{name}};
+{{#field_type.is_container}}
+    {{{generate_deep_validate_container}}}
+{{/field_type.is_container}}
+{{^field_type.is_container}}
+    {{{generate_deep_validate_non_container}}}
+{{/field_type.is_container}}
+{{/field.i_if_nullable}}
+{{#field_type.nullable}}
+    }
+{{/field_type.nullable}}
+{{/consolidate_newlines}}
+
+{{/field_type.has_struct_at_leaf}}
+{{/fields}}
+    return buf;
+  }
+
   public {{name}} deepCopy() {
     return new {{name}}(this);
   }

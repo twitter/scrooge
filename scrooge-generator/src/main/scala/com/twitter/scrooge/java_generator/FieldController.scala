@@ -1,6 +1,7 @@
 package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.ast.{Requiredness, Identifier, Field}
+import com.twitter.scrooge.ast.{Field, Identifier, Requiredness}
+import com.twitter.scrooge.backend.Generator
 
 class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Identifier])
     extends BaseController(generator, ns) {
@@ -9,6 +10,7 @@ class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Ident
   val default = !f.default.isEmpty
   val optional = f.requiredness.isOptional
   val required = f.requiredness.isRequired
+  val constructionRequired = Generator.isConstructionRequiredField(f)
 
   val field_type = new FieldTypeController(f.fieldType, generator)
 

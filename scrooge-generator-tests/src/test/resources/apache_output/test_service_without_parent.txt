@@ -858,6 +858,17 @@ public class TestService {
     }
   }
 
+  public static List<String> validateNewInstance(test_void_endpoint_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      TestRequest _request = item.request;
+      buf.addAll(com.twitter.thrift.TestRequest.validateNewInstance(_request));
+    }
+
+    return buf;
+  }
+
   public test_void_endpoint_args deepCopy() {
     return new test_void_endpoint_args(this);
   }
@@ -1189,6 +1200,17 @@ public class TestService {
     if (other.isSetEx()) {
       this.ex = new TestException(other.ex);
     }
+  }
+
+  public static List<String> validateNewInstance(test_void_endpoint_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetEx()) {
+      TestException _ex = item.ex;
+      buf.addAll(com.twitter.thrift.TestException.validateNewInstance(_ex));
+    }
+
+    return buf;
   }
 
   public test_void_endpoint_result deepCopy() {
@@ -1523,6 +1545,17 @@ public class TestService {
     }
   }
 
+  public static List<String> validateNewInstance(test_endpoint_without_exception_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      TestRequest _request = item.request;
+      buf.addAll(com.twitter.thrift.TestRequest.validateNewInstance(_request));
+    }
+
+    return buf;
+  }
+
   public test_endpoint_without_exception_args deepCopy() {
     return new test_endpoint_without_exception_args(this);
   }
@@ -1854,6 +1887,17 @@ public class TestService {
     if (other.isSetSuccess()) {
       this.success = new TestResult(other.success);
     }
+  }
+
+  public static List<String> validateNewInstance(test_endpoint_without_exception_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetSuccess()) {
+      TestResult _success = item.success;
+      buf.addAll(com.twitter.thrift.TestResult.validateNewInstance(_success));
+    }
+
+    return buf;
   }
 
   public test_endpoint_without_exception_result deepCopy() {

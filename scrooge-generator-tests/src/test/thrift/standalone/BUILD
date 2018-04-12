@@ -22,6 +22,7 @@ java_thrift_library(
 java_thrift_library(
     name = "thrift-java",
     sources = [
+        "constructorRequired.thrift",
         "enumSet.thrift",
         "exception_fields.thrift",
     ],

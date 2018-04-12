@@ -350,6 +350,40 @@ public class Work implements TBase<Work, Work._Fields>, java.io.Serializable, Cl
     }
   }
 
+  public static List<String> validateNewInstance(Work item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (!item.isSetReq_int()) {
+       buf.add("Required field 'req_int' in type 'Work' was not present.");
+    }
+
+    if (!item.isSetDay()) {
+       buf.add("Required field 'day' in type 'Work' was not present.");
+    }
+
+    if (!item.isSetOther()) {
+       buf.add("Required field 'other' in type 'Work' was not present.");
+    }
+
+    if (item.isSetOther()) {
+      Other _other = item.other;
+      buf.addAll(thrift.Other.validateNewInstance(_other));
+    }
+
+    if (!item.isSetUser_ids()) {
+       buf.add("Required field 'user_ids' in type 'Work' was not present.");
+    }
+
+    if (item.isSetOther_list()) {
+      List<Other> _other_list = item.other_list;
+      for (Other _other_list_element : _other_list) {
+        buf.addAll(thrift.Other.validateNewInstance(_other_list_element));
+      }
+    }
+
+    return buf;
+  }
+
   public Work deepCopy() {
     return new Work(this);
   }

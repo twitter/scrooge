@@ -172,6 +172,12 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
     this.errorCode = other.errorCode;
   }
 
+  public static List<String> validateNewInstance(AnotherException item) {
+    final List<String> buf = new ArrayList<String>();
+
+    return buf;
+  }
+
   public AnotherException deepCopy() {
     return new AnotherException(this);
   }

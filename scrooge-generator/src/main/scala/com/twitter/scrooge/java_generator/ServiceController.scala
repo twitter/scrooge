@@ -9,7 +9,8 @@ class ServiceController(service: Service, generator: ApacheJavaGenerator, ns: Op
     case Some(parent) =>
       Map(
         "parent_name" ->
-          generator.qualifyNamedType(parent.sid, parent.filename).fullName
+          generator.qualifyNamedType(parent.sid, parent.filename)
+            .fullName
       )
     case None =>
       false

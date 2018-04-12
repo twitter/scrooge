@@ -1,0 +1,4 @@
+{{#field_type.is_struct}}
+{{!Use a fully qualified name here in case there is a field with the same name as this type}}
+buf.addAll({{{field_type.qualified_type_name}}}.validateNewInstance({{source_name}}));
+{{/field_type.is_struct}}

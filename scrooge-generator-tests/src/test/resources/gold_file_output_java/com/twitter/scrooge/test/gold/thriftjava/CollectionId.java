@@ -172,6 +172,16 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     this.collectionLongId = other.collectionLongId;
   }
 
+  public static List<String> validateNewInstance(CollectionId item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (!item.isSetCollectionLongId()) {
+       buf.add("Required field 'collectionLongId' in type 'CollectionId' was not present.");
+    }
+
+    return buf;
+  }
+
   public CollectionId deepCopy() {
     return new CollectionId(this);
   }

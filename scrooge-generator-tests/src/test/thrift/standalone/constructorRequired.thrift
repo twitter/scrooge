@@ -17,6 +17,8 @@ struct DeepValidationStruct {
   5: required map<ConstructorRequiredStruct, string> inMapKey
   6: required map<string, ConstructorRequiredStruct> inMapValue
   7: required map<set<list<ConstructorRequiredStruct>>, set<list<ConstructorRequiredStruct>>> crazyEmbedding
+  // test where the field is named the same as the type
+  8: optional ConstructorRequiredStruct ConstructorRequiredStruct
 }
 
 union DeepValidationUnion {

@@ -4,13 +4,17 @@ import com.twitter.scrooge.ast._
 import com.twitter.scrooge.ast.ListType
 import com.twitter.scrooge.frontend.ScroogeInternalException
 
-class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerator) {
+class FieldTypeController(
+  fieldType: FunctionType,
+  generator: ApacheJavaGenerator
+) {
   def to_enum = generator.getTypeString(fieldType)
   def to_enum_compat = generator.getTypeStringWithEnumMapping(fieldType)
   val type_name = generator.typeName(fieldType)
   val type_name_in_container = generator.typeName(fieldType, inContainer = true)
   val type_name_in_container_skip_generic =
     generator.typeName(fieldType, inContainer = true, skipGeneric = true)
+  val qualified_type_name = generator.typeName(fieldType, fileNamespace = Some(generator.namespace))
   val init_type_name = generator.typeName(fieldType, inInit = true)
   def is_enum_set: Boolean = fieldType match {
     case SetType(_: EnumType, _) => true
@@ -54,6 +58,7 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
   val is_struct = fieldType.isInstanceOf[StructType] // this can be a struct or an exception
   val is_struct_or_enum = is_struct || fieldType.isInstanceOf[EnumType]
   val is_void: Boolean = fieldType == Void || fieldType == OnewayVoid
+  val has_struct_at_leaf = hasStructAtLeaf(fieldType)
 
   def get_type = {
     fieldType match {
@@ -71,6 +76,25 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
       case _ => {
         throw new ScroogeInternalException("InvalidType for base type: " + fieldType)
       }
+    }
+  }
+
+  /**
+   * Recursive method for finding out whether a type has a struct at it's leaf. This is used for
+   * validateNewInstance. It tries only needs to generate the code for validation of deep
+   * structures when the there are structs at the leafs.
+   */
+  private[this] def hasStructAtLeaf(functionType: FunctionType): Boolean = {
+    functionType match {
+      case fieldType: FieldType =>
+        fieldType match {
+          case StructType(_, _) => true
+          case MapType(keyType, valueType, _) => hasStructAtLeaf(keyType) || hasStructAtLeaf(valueType)
+          case SetType(setType, _) => hasStructAtLeaf(setType)
+          case ListType(listType, _) => hasStructAtLeaf(listType)
+          case _ => false
+        }
+      case _ => false
     }
   }
 }

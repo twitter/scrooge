@@ -46,25 +46,27 @@ class ApacheJavaGenerator(
     renderMustache("print_const.mustache", controller).trim
   }
 
-  def deepCopyContainer(
-    source_name_p1: String,
-    source_name_p2: String,
-    result_name: String,
+  def deepContainer(
+    sourceNamePart1: String,
+    sourceNamePart2: Option[String],
+    resultName: String,
     fieldType: FieldType,
-    ns: Option[Identifier]
+    ns: Option[Identifier],
+    operation: DeepGeneratorOperation
   ): String = {
     val controller =
-      new DeepCopyController(source_name_p1, source_name_p2, result_name, fieldType, this, ns)
-    renderMustache("generate_deep_copy_container.mustache", controller).trim
+      new DeepGeneratorController(sourceNamePart1, sourceNamePart2, resultName, fieldType, this, ns, operation)
+    renderMustache(operation.containerMustacheFileName, controller).trim
   }
 
-  def deepCopyNonContainer(
-    source_name: String,
+  def deepNonContainer(
+    sourceName: String,
     fieldType: FieldType,
-    ns: Option[Identifier]
+    ns: Option[Identifier],
+    operation: DeepGeneratorOperation
   ): String = {
-    val controller = new DeepCopyController(source_name, "", "", fieldType, this, ns)
-    renderMustache("generate_deep_copy_noncontainer.mustache", controller).trim
+    val controller = new DeepGeneratorController(sourceName, None, "", fieldType, this, ns, operation)
+    renderMustache(operation.nonContainerMustacheFileName, controller).trim
   }
 
   def deserializeField(
@@ -117,26 +119,54 @@ class ApacheJavaGenerator(
   }
 
   def getNamespace(doc: Document): Identifier =
-    doc.namespace("java").getOrElse(SimpleID(defaultNamespace))
+    doc.namespace(namespaceLanguage).getOrElse(SimpleID(defaultNamespace))
 
   def getIncludeNamespace(includeFileName: String): Identifier = {
-    val javaNamespace = includeMap.get(includeFileName).flatMap { doc: ResolvedDocument =>
-      doc.document.namespace("java")
-    }
+    val javaNamespace = for {
+      doc: ResolvedDocument <-  includeMap.get(includeFileName)
+      identifier <- doc.document.namespace(namespaceLanguage)
+    } yield identifier
+
     javaNamespace.getOrElse(SimpleID(defaultNamespace))
   }
 
-  def qualifyNamedType(sid: SimpleID, scopePrefix: Option[SimpleID]): Identifier =
-    scopePrefix match {
-      case Some(scope) => sid.addScope(getIncludeNamespace(scope.name))
-      case None => sid
+  /**
+   *
+   * @param sid identifier for the named type
+   * @param scopePrefixOption name of the file name for this named type. If it is present the named
+   *                          type is in a different file (and package) from the file being
+   *                          generated.
+   * @param fileNamespaceOption The namespace of the file being generated. If not present do not
+   *                            qualify this named type with a package.
+   * @return An identifier for the passed in type
+   */
+  def qualifyNamedType(
+    sid: SimpleID,
+    scopePrefixOption: Option[SimpleID],
+    fileNamespaceOption: Option[Identifier] = None
+  ): Identifier = {
+    scopePrefixOption.map { scopePrefix =>
+      sid.addScope(getIncludeNamespace(scopePrefix.name))
+    }.orElse {
+      fileNamespaceOption.map { fileNamespace =>
+        sid.addScope(fileNamespace)
+      }
+    }.getOrElse {
+      sid
     }
+  }
 
+  /**
+   * @param fileNamespace The namespace to add to named types if they are defined in the file being
+   *                      generated. If you do not want a fully qualified name for types in the same
+   *                      package pass in None
+   */
   def typeName(
     t: FunctionType,
     inContainer: Boolean = false,
     inInit: Boolean = false,
-    skipGeneric: Boolean = false
+    skipGeneric: Boolean = false,
+    fileNamespace: Option[Identifier] = None
   ): String = {
     t match {
       case Void => if (inContainer) "Void" else "void"
@@ -149,7 +179,8 @@ class ApacheJavaGenerator(
       case TDouble => if (inContainer) "Double" else "double"
       case TString => "String"
       case TBinary => "ByteBuffer"
-      case n: NamedType => qualifyNamedType(n.sid, n.scopePrefix).fullName
+      case n: NamedType =>
+        qualifyNamedType(n.sid, n.scopePrefix, fileNamespace).fullName
       case MapType(k, v, _) =>
         val prefix = if (inInit) "HashMap" else "Map"
         prefix + (if (skipGeneric) ""
@@ -221,6 +252,8 @@ class ApacheJavaGenerator(
       case _ => true
     }
   }
+  protected val doc: Document = resolvedDoc.document
+  val namespace: Identifier = getNamespace(doc)
 
   // main entry
   def apply(
@@ -231,8 +264,6 @@ class ApacheJavaGenerator(
   ): Iterable[File] = {
     // TODO: Implement serviceOptions (WithFinagle, etc)
     val generatedFiles = new mutable.ListBuffer[File]
-    val doc = resolvedDoc.document
-    val namespace = getNamespace(doc)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
 
     def renderFile(templateName: String, controller: TypeController) = {

@@ -799,6 +799,17 @@ public class TestService {
     }
   }
 
+  public static List<String> validateNewInstance(test_endpoint_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      TestRequest _request = item.request;
+      buf.addAll(com.twitter.thrift.TestRequest.validateNewInstance(_request));
+    }
+
+    return buf;
+  }
+
   public test_endpoint_args deepCopy() {
     return new test_endpoint_args(this);
   }
@@ -1145,6 +1156,17 @@ public class TestService {
     if (other.isSetEx()) {
       this.ex = new TestException(other.ex);
     }
+  }
+
+  public static List<String> validateNewInstance(test_endpoint_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetEx()) {
+      TestException _ex = item.ex;
+      buf.addAll(com.twitter.thrift.TestException.validateNewInstance(_ex));
+    }
+
+    return buf;
   }
 
   public test_endpoint_result deepCopy() {
@@ -1551,6 +1573,17 @@ public class TestService {
     if (other.isSetRequest()) {
       this.request = new TestRequest(other.request);
     }
+  }
+
+  public static List<String> validateNewInstance(test_oneway_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      TestRequest _request = item.request;
+      buf.addAll(com.twitter.thrift.TestRequest.validateNewInstance(_request));
+    }
+
+    return buf;
   }
 
   public test_oneway_args deepCopy() {
