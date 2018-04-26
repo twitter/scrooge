@@ -249,7 +249,7 @@ lazy val scroogeCore = Project(
 )
 
 val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
-  sourceGenerators += ScroogeRunner.genSerializerTestThrift,
+  sourceGenerators in Test += ScroogeRunner.genSerializerTestThrift,
   ScroogeRunner.genSerializerTestThriftTask
 )
 
@@ -326,7 +326,7 @@ lazy val scroogeLinter = Project(
 ).dependsOn(scroogeGenerator)
 
 val benchThriftSettings: Seq[Setting[_]] = Seq(
-  sourceGenerators += ScroogeRunner.genBenchmarkThrift,
+  sourceGenerators in Compile += ScroogeRunner.genBenchmarkThrift,
   ScroogeRunner.genBenchmarkThriftTask
 )
 
