@@ -7,8 +7,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 
-import com.twitter.scrooge.java_generator.test.ApacheCompatibilityHelpers
-
 @RunWith(classOf[JUnitRunner])
 abstract class Spec extends WordSpec with MustMatchers with MockitoSugar
 
