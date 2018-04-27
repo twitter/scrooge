@@ -304,11 +304,12 @@ def scroogeSbtPluginSettings = {
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
-).enablePlugins(BuildInfoPlugin
+).enablePlugins(
+  BuildInfoPlugin
 ).settings(
   scroogeSbtPluginSettings: _*
 ).settings(
-  scalaVersion := "2.10.6",
+  crossSbtVersions := Vector("0.13.17", "1.1.2"),
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
