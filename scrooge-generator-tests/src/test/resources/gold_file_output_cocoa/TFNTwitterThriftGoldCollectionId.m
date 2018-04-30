@@ -28,6 +28,19 @@
     return self;
 }
 
++ (instancetype)instanceWithCollectionLongId:(int64_t)collectionLongId error:(NSError **)error
+{
+    TFNTwitterThriftGoldCollectionId *instance = [[TFNTwitterThriftGoldCollectionId alloc] initWithCollectionLongId:collectionLongId];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
+}
+
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
     if (self = [super init]) {
@@ -104,6 +117,15 @@
     if (!_collectionLongIdIsSet) {
         @throw [TProtocolException exceptionWithName:@"TProtocolException" reason:@"Required field 'collectionLongId' is not set."];
     }
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_collectionLongIdIsSet) {
+        [invalidFields addObject:@"collectionLongId"];
+    }
+    return [invalidFields copy];
 }
 
 @end

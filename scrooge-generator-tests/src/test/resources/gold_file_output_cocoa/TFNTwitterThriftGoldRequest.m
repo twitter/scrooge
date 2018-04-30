@@ -45,26 +45,32 @@
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap aRequest:(TFNTwitterThriftGoldRequest*)aRequest subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault noComment:(int64_t)noComment doubleSlashComment:(int64_t)doubleSlashComment hashtagComment:(int64_t)hashtagComment singleAsteriskComment:(int64_t)singleAsteriskComment docStringComment:(int64_t)docStringComment recRequest:(TFNTwitterThriftGoldRecursive*)recRequest requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField
 {
     if (self = [super init]) {
         [self setAList:aList];
         [self setASet:aSet];
         [self setAMap:aMap];
-        [self setARequest:aRequest];
         [self setSubRequests:subRequests];
         [self setHasDefault:hasDefault];
-        [self setNoComment:noComment];
-        [self setDoubleSlashComment:doubleSlashComment];
-        [self setHashtagComment:hashtagComment];
-        [self setSingleAsteriskComment:singleAsteriskComment];
-        [self setDocStringComment:docStringComment];
-        [self setRecRequest:recRequest];
         [self setRequiredField:requiredField];
         [self setConstructionRequiredField:constructionRequiredField];
     }
 
     return self;
+}
+
++ (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error
+{
+    TFNTwitterThriftGoldRequest *instance = [[TFNTwitterThriftGoldRequest alloc] initWithAList:aList aSet:aSet aMap:aMap subRequests:subRequests hasDefault:hasDefault requiredField:requiredField constructionRequiredField:constructionRequiredField];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
 }
 
 - (instancetype)initWithCoder:(NSCoder*)decoder
@@ -576,6 +582,33 @@
     if (!_requiredFieldIsSet) {
         @throw [TProtocolException exceptionWithName:@"TProtocolException" reason:@"Required field 'requiredField' is not set."];
     }
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_aListIsSet) {
+        [invalidFields addObject:@"aList"];
+    }
+    if (!_aSetIsSet) {
+        [invalidFields addObject:@"aSet"];
+    }
+    if (!_aMapIsSet) {
+        [invalidFields addObject:@"aMap"];
+    }
+    if (!_subRequestsIsSet) {
+        [invalidFields addObject:@"subRequests"];
+    }
+    if (!_hasDefaultIsSet) {
+        [invalidFields addObject:@"hasDefault"];
+    }
+    if (!_requiredFieldIsSet) {
+        [invalidFields addObject:@"requiredField"];
+    }
+    if (!_constructionRequiredFieldIsSet) {
+        [invalidFields addObject:@"constructionRequiredField"];
+    }
+    return [invalidFields copy];
 }
 
 @end

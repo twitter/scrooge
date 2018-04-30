@@ -18,6 +18,7 @@
 
 
 - (instancetype)initWithStatusCode:(int32_t)statusCode responseUnion:(TFNTwitterThriftGoldResponseUnion*)responseUnion;
++ (instancetype)instanceWithStatusCode:(int32_t)statusCode responseUnion:(TFNTwitterThriftGoldResponseUnion*)responseUnion error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

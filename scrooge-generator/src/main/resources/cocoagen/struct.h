@@ -16,7 +16,10 @@
 {{/fields}}
 {{/isUnion}}
 {{^isUnion}}
-- (instancetype)initWith{{#fields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/fields| }};
+{{#hasNonOptionalFields}}
+- (instancetype)initWith{{#nonOptionalFields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/nonOptionalFields| }};
++ (instancetype)instanceWith{{#nonOptionalFields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/nonOptionalFields| }} error:(NSError **)error;
+{{/hasNonOptionalFields}}
 {{/isUnion}}
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;

@@ -23,6 +23,7 @@ struct AnotherTestStruct {
   9: TestEnum anEnum                // ensure correct enum references
   10: i16 shortNum                  // ensure can handle 16-bit ints
   11: i64 longLongNum               // ensure can handle 64-bit ints
+  12: optional i64 constructionRequiredLongLong (construction_required = "true")
 }
 
 struct TestEmptyStruct {}

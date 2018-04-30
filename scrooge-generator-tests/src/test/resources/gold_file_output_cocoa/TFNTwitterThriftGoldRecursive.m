@@ -21,14 +21,26 @@
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithId_:(int64_t)id_ recRequest:(TFNTwitterThriftGoldRequest*)recRequest
+- (instancetype)initWithId_:(int64_t)id_
 {
     if (self = [super init]) {
         [self setId_:id_];
-        [self setRecRequest:recRequest];
     }
 
     return self;
+}
+
++ (instancetype)instanceWithId_:(int64_t)id_ error:(NSError **)error
+{
+    TFNTwitterThriftGoldRecursive *instance = [[TFNTwitterThriftGoldRecursive alloc] initWithId_:id_];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
 }
 
 - (instancetype)initWithCoder:(NSCoder*)decoder
@@ -133,6 +145,15 @@
 
 - (void)validate
 {
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_id_IsSet) {
+        [invalidFields addObject:@"id_"];
+    }
+    return [invalidFields copy];
 }
 
 @end

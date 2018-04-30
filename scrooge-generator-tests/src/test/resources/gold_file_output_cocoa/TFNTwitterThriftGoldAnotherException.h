@@ -15,6 +15,7 @@
 
 
 - (instancetype)initWithErrorCode:(int32_t)errorCode;
++ (instancetype)instanceWithErrorCode:(int32_t)errorCode error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

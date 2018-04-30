@@ -11,7 +11,6 @@
 @interface TFNTwitterThriftScribeTestEmptyStruct : NSObject <TBase, NSCoding>
 
 
-- (instancetype)initWith;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

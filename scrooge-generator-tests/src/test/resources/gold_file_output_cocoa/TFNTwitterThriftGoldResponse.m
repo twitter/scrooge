@@ -31,6 +31,19 @@
     return self;
 }
 
++ (instancetype)instanceWithStatusCode:(int32_t)statusCode responseUnion:(TFNTwitterThriftGoldResponseUnion*)responseUnion error:(NSError **)error
+{
+    TFNTwitterThriftGoldResponse *instance = [[TFNTwitterThriftGoldResponse alloc] initWithStatusCode:statusCode responseUnion:responseUnion];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
+}
+
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
     if (self = [super init]) {
@@ -133,6 +146,18 @@
 
 - (void)validate
 {
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_statusCodeIsSet) {
+        [invalidFields addObject:@"statusCode"];
+    }
+    if (!_responseUnionIsSet) {
+        [invalidFields addObject:@"responseUnion"];
+    }
+    return [invalidFields copy];
 }
 
 @end

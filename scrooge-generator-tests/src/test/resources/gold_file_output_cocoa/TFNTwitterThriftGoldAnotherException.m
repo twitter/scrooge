@@ -28,6 +28,19 @@
     return self;
 }
 
++ (instancetype)instanceWithErrorCode:(int32_t)errorCode error:(NSError **)error
+{
+    TFNTwitterThriftGoldAnotherException *instance = [[TFNTwitterThriftGoldAnotherException alloc] initWithErrorCode:errorCode];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
+}
+
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
     if (self = [super init]) {
@@ -101,6 +114,15 @@
 
 - (void)validate
 {
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_errorCodeIsSet) {
+        [invalidFields addObject:@"errorCode"];
+    }
+    return [invalidFields copy];
 }
 
 @end

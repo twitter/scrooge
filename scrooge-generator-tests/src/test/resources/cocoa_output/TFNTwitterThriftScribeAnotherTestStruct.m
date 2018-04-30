@@ -35,11 +35,13 @@
     [ms appendFormat:@"%@ ", @(_shortNum)];
     [ms appendString:@"longLongNum:"];
     [ms appendFormat:@"%@ ", @(_longLongNum)];
+    [ms appendString:@"constructionRequiredLongLong:"];
+    [ms appendFormat:@"%@ ", @(_constructionRequiredLongLong)];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum
+- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum constructionRequiredLongLong:(int64_t)constructionRequiredLongLong
 {
     if (self = [super init]) {
         [self setStructs:structs];
@@ -53,9 +55,23 @@
         [self setAnEnum:anEnum];
         [self setShortNum:shortNum];
         [self setLongLongNum:longLongNum];
+        [self setConstructionRequiredLongLong:constructionRequiredLongLong];
     }
 
     return self;
+}
+
++ (instancetype)instanceWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum constructionRequiredLongLong:(int64_t)constructionRequiredLongLong error:(NSError **)error
+{
+    TFNTwitterThriftScribeAnotherTestStruct *instance = [[TFNTwitterThriftScribeAnotherTestStruct alloc] initWithStructs:structs stringStructs:stringStructs aSet:aSet aMap:aMap id_:id_ protocol_:protocol_ sel_:sel_ notACamel:notACamel anEnum:anEnum shortNum:shortNum longLongNum:longLongNum constructionRequiredLongLong:constructionRequiredLongLong];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
 }
 
 - (instancetype)initWithCoder:(NSCoder*)decoder
@@ -93,6 +109,9 @@
         }
         if ([decoder containsValueForKey:@"11"]) {
             [self setLongLongNum:(int64_t)[decoder decodeInt64ForKey:@"11"]];
+        }
+        if ([decoder containsValueForKey:@"12"]) {
+            [self setConstructionRequiredLongLong:(int64_t)[decoder decodeInt64ForKey:@"12"]];
         }
     }
     return self;
@@ -132,6 +151,9 @@
     }
     if (_longLongNumIsSet) {
         [encoder encodeInt64:_longLongNum forKey:@"11"];
+    }
+    if (_constructionRequiredLongLongIsSet) {
+        [encoder encodeInt64:_constructionRequiredLongLong forKey:@"12"];
     }
 }
 
@@ -199,6 +221,12 @@
 {
     _longLongNum = longLongNum;
     _longLongNumIsSet = YES;
+}
+
+- (void)setConstructionRequiredLongLong:(int64_t)constructionRequiredLongLong
+{
+    _constructionRequiredLongLong = constructionRequiredLongLong;
+    _constructionRequiredLongLongIsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -370,6 +398,16 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 12:
+                if (fieldType == TType_I64) {
+                    int64_t constructionRequiredLongLong_item;
+                    constructionRequiredLongLong_item = [inProtocol readI64];
+                    [self setConstructionRequiredLongLong:constructionRequiredLongLong_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -475,12 +513,60 @@
         [outProtocol writeI64:longLongNum_item];
         [outProtocol writeFieldEnd];
     }
+    if (_constructionRequiredLongLongIsSet) {
+        [outProtocol writeFieldBeginWithName:@"constructionRequiredLongLong" type:TType_I64 fieldID:12];
+        int64_t constructionRequiredLongLong_item = _constructionRequiredLongLong;
+        [outProtocol writeI64:constructionRequiredLongLong_item];
+        [outProtocol writeFieldEnd];
+    }
     [outProtocol writeFieldStop];
     [outProtocol writeStructEnd];
 }
 
 - (void)validate
 {
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_structsIsSet) {
+        [invalidFields addObject:@"structs"];
+    }
+    if (!_stringStructsIsSet) {
+        [invalidFields addObject:@"stringStructs"];
+    }
+    if (!_aSetIsSet) {
+        [invalidFields addObject:@"aSet"];
+    }
+    if (!_aMapIsSet) {
+        [invalidFields addObject:@"aMap"];
+    }
+    if (!_id_IsSet) {
+        [invalidFields addObject:@"id_"];
+    }
+    if (!_protocol_IsSet) {
+        [invalidFields addObject:@"protocol_"];
+    }
+    if (!_sel_IsSet) {
+        [invalidFields addObject:@"sel_"];
+    }
+    if (!_notACamelIsSet) {
+        [invalidFields addObject:@"notACamel"];
+    }
+    if (!_anEnumIsSet) {
+        [invalidFields addObject:@"anEnum"];
+    }
+    if (!_shortNumIsSet) {
+        [invalidFields addObject:@"shortNum"];
+    }
+    if (!_longLongNumIsSet) {
+        [invalidFields addObject:@"longLongNum"];
+    }
+    if (!_constructionRequiredLongLongIsSet) {
+        [invalidFields addObject:@"constructionRequiredLongLong"];
+    }
+    return [invalidFields copy];
 }
 
 @end

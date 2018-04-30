@@ -21,6 +21,7 @@
 
 
 - (instancetype)initWithName:(NSString *)name values:(NSSet *)values price:(int32_t)price;
++ (instancetype)instanceWithName:(NSString *)name values:(NSSet *)values price:(int32_t)price error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

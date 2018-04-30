@@ -17,14 +17,6 @@
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWith
-{
-    if (self = [super init]) {
-    }
-
-    return self;
-}
-
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
     if (self = [super init]) {

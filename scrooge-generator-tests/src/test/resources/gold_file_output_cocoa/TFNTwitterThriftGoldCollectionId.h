@@ -15,6 +15,7 @@
 
 
 - (instancetype)initWithCollectionLongId:(int64_t)collectionLongId;
++ (instancetype)instanceWithCollectionLongId:(int64_t)collectionLongId error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

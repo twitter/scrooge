@@ -44,8 +44,12 @@
 @property (nonatomic) int64_t longLongNum;
 @property (nonatomic, readonly) BOOL longLongNumIsSet;
 
+@property (nonatomic) int64_t constructionRequiredLongLong;
+@property (nonatomic, readonly) BOOL constructionRequiredLongLongIsSet;
 
-- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum;
+
+- (instancetype)initWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum constructionRequiredLongLong:(int64_t)constructionRequiredLongLong;
++ (instancetype)instanceWithStructs:(NSArray *)structs stringStructs:(NSArray *)stringStructs aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap id_:(int32_t)id_ protocol_:(NSString *)protocol_ sel_:(TFNTwitterThriftScribeTestStruct*)sel_ notACamel:(int32_t)notACamel anEnum:(TFNTwitterThriftScribeTestEnum)anEnum shortNum:(int16_t)shortNum longLongNum:(int64_t)longLongNum constructionRequiredLongLong:(int64_t)constructionRequiredLongLong error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

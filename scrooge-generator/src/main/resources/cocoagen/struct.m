@@ -28,17 +28,32 @@
 {{/fields}}
 {{/isUnion}}
 {{^isUnion}}
-- (instancetype)initWith{{#fields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/fields| }}
+{{#hasNonOptionalFields}}
+- (instancetype)initWith{{#nonOptionalFields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/nonOptionalFields| }}
 {
     if (self = [super init]) {
-{{#fields}}
+{{#nonOptionalFields}}
         [self set{{FieldName}}:{{fieldNameCamelCase}}];
-{{/fields}}
+{{/nonOptionalFields}}
     }
 
     return self;
 }
 
++ (instancetype)instanceWith{{#nonOptionalFields}}{{fieldNameInInit}}:({{fieldType}}{{#readWriteInfo}}{{#isStruct}}*{{/isStruct}}{{/readWriteInfo}}){{fieldNameCamelCase}}{{/nonOptionalFields| }} error:(NSError **)error
+{
+    {{StructName}} *instance = [[{{StructName}} alloc] initWith{{#nonOptionalFields}}{{fieldNameInInit}}:{{fieldNameCamelCase}}{{/nonOptionalFields| }}];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
+}
+
+{{/hasNonOptionalFields}}
 {{/isUnion}}
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
@@ -128,5 +143,20 @@
 {{/fields}}
 }
 
+{{^isUnion}}
+{{#hasNonOptionalFields}}
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+{{#nonOptionalFields}}
+    if (!_{{fieldNameCamelCase}}IsSet) {
+        [invalidFields addObject:@"{{fieldNameCamelCase}}"];
+    }
+{{/nonOptionalFields}}
+    return [invalidFields copy];
+}
+
+{{/hasNonOptionalFields}}
+{{/isUnion}}
 @end
 

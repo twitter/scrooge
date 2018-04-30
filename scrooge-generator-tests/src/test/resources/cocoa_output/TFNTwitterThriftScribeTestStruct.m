@@ -34,6 +34,19 @@
     return self;
 }
 
++ (instancetype)instanceWithName:(NSString *)name values:(NSSet *)values price:(int32_t)price error:(NSError **)error
+{
+    TFNTwitterThriftScribeTestStruct *instance = [[TFNTwitterThriftScribeTestStruct alloc] initWithName:name values:values price:price];
+    if (error) {
+        NSArray *invalidFields = [instance validateNonOptionalFields];
+        if (invalidFields.count > 0) {
+            NSString *errorDescription = [NSString stringWithFormat:@"Required fields not set: %@", invalidFields];
+            *error = [NSError errorWithDomain:@"com.twitter.scrooge.backend.CocoaGenerator" code:0 userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+        }
+    }
+    return instance;
+}
+
 - (instancetype)initWithCoder:(NSCoder*)decoder
 {
     if (self = [super init]) {
@@ -177,6 +190,21 @@
 
 - (void)validate
 {
+}
+
+- (NSArray *)validateNonOptionalFields
+{
+    NSMutableArray *invalidFields = [NSMutableArray array];
+    if (!_nameIsSet) {
+        [invalidFields addObject:@"name"];
+    }
+    if (!_valuesIsSet) {
+        [invalidFields addObject:@"values"];
+    }
+    if (!_priceIsSet) {
+        [invalidFields addObject:@"price"];
+    }
+    return [invalidFields copy];
 }
 
 @end

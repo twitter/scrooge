@@ -15,6 +15,7 @@
 
 
 - (instancetype)initWithChillTimeSeconds:(int32_t)chillTimeSeconds;
++ (instancetype)instanceWithChillTimeSeconds:(int32_t)chillTimeSeconds error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

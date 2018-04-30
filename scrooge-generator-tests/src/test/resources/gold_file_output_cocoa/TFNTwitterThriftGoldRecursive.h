@@ -17,7 +17,8 @@
 @property (nonatomic, readonly) BOOL recRequestIsSet;
 
 
-- (instancetype)initWithId_:(int64_t)id_ recRequest:(TFNTwitterThriftGoldRequest*)recRequest;
+- (instancetype)initWithId_:(int64_t)id_;
++ (instancetype)instanceWithId_:(int64_t)id_ error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 

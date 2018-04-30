@@ -397,6 +397,13 @@ trait StructTemplate { self: TemplateGenerator =>
     val exceptionMsgField: Option[SimpleID] =
       if (isException) exceptionMsgFieldName(struct) else None
 
+    val nonOptionalFields = struct.fields.filter(field => field.requiredness.isRequired || field.requiredness.isDefault || Generator.isConstructionRequiredField(field))
+    val nonOptionalFieldDictionaries = fieldsToDict(
+      nonOptionalFields,
+      if (isException) Seq("message") else Nil,
+      namespace
+    )
+
     val fieldDictionaries = fieldsToDict(
       struct.fields,
       if (isException) Seq("message") else Nil,
@@ -415,6 +422,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "docstring" -> v(struct.docstring.getOrElse("")),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
+      "nonOptionalFields" -> v(nonOptionalFieldDictionaries),
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Nil)),
       "alternativeConstructor" -> v(
         struct.fields.exists(_.requiredness.isOptional)
@@ -423,6 +431,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "hasConstructionRequiredFields" -> v(
         struct.fields.exists(Generator.isConstructionRequiredField)
       ),
+      "hasNonOptionalFields" -> v(nonOptionalFields.nonEmpty),
       "StructNameForWire" -> v(struct.originalName),
       "StructName" ->
         structName,
