@@ -4,6 +4,9 @@
 
 Unreleased
 ----------
+
+18.5.0
+-------
 - scrooge-generator: Add support for construction_required fields in cocoa. ``PHAB_ID=D163127``
 - scrooge-generator: Add cocoa initializer for each field in union. ``PHAB_ID=D156591``
 - scrooge-generator: Add support for empty struct in cocoa. ``PHAB_ID=D156539``
