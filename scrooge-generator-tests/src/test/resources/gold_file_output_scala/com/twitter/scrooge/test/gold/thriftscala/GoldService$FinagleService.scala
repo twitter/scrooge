@@ -63,6 +63,7 @@ class GoldService$FinagleService(
   def serviceName: String = serverParam.serviceName
   private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
   private[this] def stats: StatsReceiver = serverParam.serverStats
+  private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
 
   private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
   private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
@@ -166,48 +167,57 @@ class GoldService$FinagleService(
       }
     }
 
-  private def recordResponse(reqRep: ctfs.ReqRep, methodStats: ThriftMethodStats): Unit = {
-    val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
-    responseClass match {
-      case ctfs.ResponseClass.Successful(_) =>
-        methodStats.successCounter.incr()
-      case ctfs.ResponseClass.Failed(_) =>
-        methodStats.failuresCounter.incr()
-        reqRep.response match {
-          case Throw(ex) =>
-            methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
-          case _ =>
-        }
+  private def recordRequest(method: ThriftMethod): Unit = {
+    if (perEndpointStats) {
+      val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+      methodStats.requestsCounter.incr()
+    }
+  }
+
+  private def recordResponse(reqRep: ctfs.ReqRep, method: ThriftMethod): Unit = {
+    if (perEndpointStats) {
+      val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+      val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
+      responseClass match {
+        case ctfs.ResponseClass.Successful(_) =>
+          methodStats.successCounter.incr()
+        case ctfs.ResponseClass.Failed(_) =>
+          methodStats.failuresCounter.incr()
+          reqRep.response match {
+            case Throw(ex) =>
+              methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
+            case _ =>
+          }
+      }
     }
   }
 
   final protected def perMethodStatsFilter(
     method: ThriftMethod
   ): finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] = {
-    val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
     new finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] {
       def apply(
         req: (TProtocol, Int),
         service: finagle$Service[(TProtocol, Int), RichResponse[method.Args, method.Result]]
       ): Future[Array[Byte]] = {
-        methodStats.requestsCounter.incr()
+        recordRequest(method)
         service(req).transform {
           case Return(value) =>
             value match {
               case SuccessfulResponse(req, _, result) =>
-                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Return(result.successField.get)), methodStats)
+                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Return(result.successField.get)), method)
               case ProtocolExceptionResponse(req, _, exp) =>
-                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(exp)), methodStats)
+                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(exp)), method)
               case ThriftExceptionResponse(req, _, ex) =>
                 val rep = ex match {
                   case exp: ThriftException => setServiceName(exp)
                   case _ => missingResult(serviceName)
                 }
-                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(rep)), methodStats)
+                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(rep)), method)
             }
             Future.value(Buf.ByteArray.Owned.extract(value.response))
           case t @ Throw(_) =>
-            recordResponse(ctfs.ReqRep(req, t), methodStats)
+            recordResponse(ctfs.ReqRep(req, t), method)
             Future.const(t.cast[Array[Byte]])
         }
       }

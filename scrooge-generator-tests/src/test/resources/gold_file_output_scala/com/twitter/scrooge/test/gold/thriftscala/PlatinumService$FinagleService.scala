@@ -63,6 +63,7 @@ class PlatinumService$FinagleService(
   override def serviceName: String = serverParam.serviceName
   private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
   private[this] def stats: StatsReceiver = serverParam.serverStats
+  private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
 
   addService("moreCoolThings", {
     val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = perMethodStatsFilter(MoreCoolThings)
