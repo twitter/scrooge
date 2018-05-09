@@ -139,21 +139,20 @@ abstract class GoldFileTest extends FunSuite
   }
 
   test("generated output looks as expected") {
-    if (exception.isDefined) {
-      fail(exception.get)
-    }
-    val ccl = Thread.currentThread().getContextClassLoader
+    if (exception.isEmpty) {
+      val ccl = Thread.currentThread().getContextClassLoader
 
-    generatedFiles.foreach { gen =>
-      // We want to take the path after tempDir and compare to the gold file
-      // in our resources dir. The +1 removes what would be a leading slash
-      // from the relative path.
-      val genRelPath = gen.toString.drop(tempDir.toString.length + 1)
+      generatedFiles.foreach { gen =>
+        // We want to take the path after tempDir and compare to the gold file
+        // in our resources dir. The +1 removes what would be a leading slash
+        // from the relative path.
+        val genRelPath = gen.toString.drop(tempDir.toString.length + 1)
 
-      withClue(genRelPath) {
-        val genStream = new ByteArrayInputStream(Files.readBytes(gen))
-        val goldStream = ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")
-        diff(goldStream, genStream, gen.getName, genRelPath)
+        withClue(genRelPath) {
+          val genStream = new ByteArrayInputStream(Files.readBytes(gen))
+          val goldStream = ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")
+          diff(goldStream, genStream, gen.getName, genRelPath)
+        }
       }
     }
   }
