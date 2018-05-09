@@ -20,8 +20,9 @@ abstract class GoldFileTest extends FunSuite
 
   private var tempDir: File = _
   protected var generatedFiles: Seq[File] = _
+  protected var exception: Option[Throwable] = None
 
-  override protected def beforeAll(): Unit = {
+  override protected def beforeAll(): Unit = try {
     tempDir = TempDirectory.create(None, deleteAtExit = false)
     if (!deleteTempFiles) {
       println(s"Temp dir $tempDir")
@@ -39,10 +40,14 @@ abstract class GoldFileTest extends FunSuite
       "--language", language,
       "--finagle",
       "--gen-adapt",
-      "--dest", tempDir.getPath) ++ inputThrifts
+      "--dest", tempDir.getPath) ++
+      experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
+      inputThrifts
 
     Main.main(args.toArray)
     generatedFiles = generatedFiles(tempDir)
+  } catch {
+    case ex: Throwable => exception = Some(ex)
   }
 
   final def relativePath(f: File): String = {
@@ -59,6 +64,7 @@ abstract class GoldFileTest extends FunSuite
     }
   }
 
+  protected def experimentFlags: Seq[String] = Seq.empty
   protected def language: String
   protected def deleteTempFiles: Boolean = true
 
@@ -133,6 +139,9 @@ abstract class GoldFileTest extends FunSuite
   }
 
   test("generated output looks as expected") {
+    if (exception.isDefined) {
+      fail(exception.get)
+    }
     val ccl = Thread.currentThread().getContextClassLoader
 
     generatedFiles.foreach { gen =>
