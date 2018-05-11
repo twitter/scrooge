@@ -700,6 +700,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = Thrift.client
           .configured(Stats(statsReceiver))
+          .withPerEndpointStats
           .servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
             Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
             "customServiceName"
@@ -819,6 +820,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = Thrift.client
           .configured(Stats(statsReceiver))
+          .withPerEndpointStats
           .servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
             Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
             "client"
@@ -1033,6 +1035,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = ThriftMux.client
+          .withPerEndpointStats
           .configured(Stats(statsReceiver))
           .servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
@@ -1108,6 +1111,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = ThriftMux.client
+          .withPerEndpointStats
           .configured(Stats(statsReceiver))
           .servicePerEndpoint[ExceptionalService.ReqRepServicePerEndpoint](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),

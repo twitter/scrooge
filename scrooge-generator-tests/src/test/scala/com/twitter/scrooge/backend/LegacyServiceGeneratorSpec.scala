@@ -244,6 +244,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = Thrift.client
+          .withPerEndpointStats
           .configured(Stats(statsReceiver))
           .newServiceIface[ExceptionalService.ServiceIface](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
@@ -320,6 +321,7 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
         val statsReceiver = new InMemoryStatsReceiver
         val clientService = Thrift.client
           .configured(Stats(statsReceiver))
+          .withPerEndpointStats
           .newServiceIface[ExceptionalService.ServiceIface](
           Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
           "client"
