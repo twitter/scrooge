@@ -74,7 +74,7 @@ class GoldService$FinagleService(
       val service = serviceMap.get(msg.name)
       service match {
         case _root_.scala.Some(svc) =>
-          svc(iprot, msg.seqid)
+          svc((iprot, msg.seqid))
         case _ =>
           TProtocolUtil.skip(iprot, TType.STRUCT)
           Future.value(Buf.ByteArray.Owned.extract(
