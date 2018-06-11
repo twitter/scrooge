@@ -274,7 +274,7 @@ object LintRule {
     // Struct and field names should not be keywords in Scala, Java, Ruby, Python, PHP.
     def apply(doc: Document) = {
       val messages = new ArrayBuffer[LintMessage]
-      val identifiers = doc.defs.collect {
+      doc.defs.collect {
         case struct: StructLike =>
           languageKeywords.foreach {
             case (lang, keywords) =>
@@ -285,7 +285,7 @@ object LintRule {
                 )
               }
           }
-          val fieldNames = struct.fields.map(_.originalName).toSet
+
           for {
             (lang, keywords) <- languageKeywords
             fields = struct.fields.filter { f =>
@@ -541,14 +541,6 @@ object LintRule {
         "yield"
       )
     )
-
-    // Returns a list of languages in which id is a keyword.
-    private[this] def checkKeyword(id: String): Iterable[String] = {
-      languageKeywords.collect {
-        case (lang, keywords) if keywords.contains(id) =>
-          lang
-      }
-    }
   }
 
   /**

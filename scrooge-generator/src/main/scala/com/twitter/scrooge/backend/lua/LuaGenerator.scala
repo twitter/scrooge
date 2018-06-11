@@ -45,10 +45,6 @@ class LuaGenerator(
   val fileExtension = ".lua"
   val experimentFlags = Seq.empty[String]
 
-  // Namespace for the current thrift file is not available when we construct the code generator.
-  // It will only be available when we call the apply method.
-  private[this] var currentNamespace = ""
-
   def templates: HandlebarLoader = templateLoader
 
   override def genConstant(
