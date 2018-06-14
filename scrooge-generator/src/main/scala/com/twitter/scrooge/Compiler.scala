@@ -49,7 +49,7 @@ class Compiler {
   var scalaWarnOnJavaNSFallback: Boolean = false
   var javaSerEnumType: Boolean = false
 
-  def run() {
+  def run(): Unit = {
     // if --gen-file-map is specified, prepare the map file.
     fileMapWriter = fileMapPath.map { path =>
       val file = new File(path)

@@ -11,7 +11,7 @@ import org.apache.commons.cli.{DefaultParser, Options}
  * Helper class to do side-by-side comparisons on what maven-finagle-thrift plugin generates.
  */
 object Main {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val options = new Options
     options.addOption("t", "thrift", true, "thrift resources directory")
     options.addOption("f", "file", true, "thrift file to build")

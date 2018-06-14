@@ -22,7 +22,7 @@ class TReusableMemoryTransport(baos: TByteArrayOutputStream) extends TTransport 
   /**
    * Resets both reads and writes.
    */
-  def reset() {
+  def reset(): Unit = {
     baos.reset()
     readPos = 0
   }
@@ -44,11 +44,11 @@ class TReusableMemoryTransport(baos: TByteArrayOutputStream) extends TTransport 
 
   override def isOpen: Boolean = true
 
-  override def close() {}
+  override def close(): Unit = {}
 
-  override def open() {}
+  override def open(): Unit = {}
 
-  override def write(from: Array[Byte], off: Int, len: Int) {
+  override def write(from: Array[Byte], off: Int, len: Int): Unit = {
     baos.write(from, off, len)
   }
 

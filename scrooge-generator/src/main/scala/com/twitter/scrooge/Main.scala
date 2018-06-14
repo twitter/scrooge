@@ -22,7 +22,7 @@ import java.util.Properties
 import scopt.OptionParser
 
 object Main {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val compiler = new Compiler()
     if (!parseOptions(compiler, args)) {
       System.exit(1)

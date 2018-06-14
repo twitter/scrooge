@@ -53,7 +53,7 @@ class CocoaGenerator(
       }
     }
 
-    def update(keyPath: Seq[String], data: Boolean) {
+    def update(keyPath: Seq[String], data: Boolean): Unit = {
       keyPath match {
         case head :: Nil => dictionary(head) = data
         case head :: tail => dictionary(head).children.head(tail) = data
@@ -324,7 +324,7 @@ class CocoaGenerator(
   def getParentFinagleClient(p: ServiceParent): CodeFragment =
     throw new Exception("not implemented")
 
-  private[this] def writeFile(file: File, fileHeader: String, fileContent: String) {
+  private[this] def writeFile(file: File, fileHeader: String, fileContent: String): Unit = {
     val stream = new FileOutputStream(file)
     val writer = new OutputStreamWriter(stream, "UTF-8")
     try {

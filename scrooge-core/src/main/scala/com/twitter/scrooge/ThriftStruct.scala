@@ -28,7 +28,7 @@ object ThriftStruct {
 
 trait ThriftStruct {
   @throws(classOf[org.apache.thrift.TException])
-  def write(oprot: TProtocol)
+  def write(oprot: TProtocol): Unit
 }
 
 trait HasThriftStructCodec3[T <: ThriftStruct] {

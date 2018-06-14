@@ -512,7 +512,7 @@ class ThriftParser(
   }
 
   // helper functions
-  def failOrWarn(ex: ParseWarning) {
+  def failOrWarn(ex: ParseWarning): Unit = {
     if (strict)
       throw ex
     else
