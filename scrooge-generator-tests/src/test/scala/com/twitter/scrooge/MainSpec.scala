@@ -23,7 +23,7 @@ class MainSpec extends Spec {
 
   private def buildPath(segments: String*) = segments.mkString(File.separator)
 
-  private def test(inDir: File, outDir: File, manifestDir: File) {
+  private def test(inDir: File, outDir: File, manifestDir: File): Unit = {
     val input = new File(inDir, "input.thrift")
     val fw = new FileWriter(input)
     fw.write("""

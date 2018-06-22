@@ -16,7 +16,7 @@ trait EvalHelper {
       obj.equals(item.asInstanceOf[TField])
     }
 
-    def describeTo(description: Description) {
+    def describeTo(description: Description): Unit = {
       description.appendValue(obj)
     }
   }
@@ -27,7 +27,7 @@ trait EvalHelper {
       obj.elemType == other.elemType && obj.size == other.size
     }
 
-    def describeTo(description: Description) {
+    def describeTo(description: Description): Unit = {
       description.appendValue(obj)
     }
   }
@@ -38,7 +38,7 @@ trait EvalHelper {
       obj.elemType == other.elemType && obj.size == other.size
     }
 
-    def describeTo(description: Description) {
+    def describeTo(description: Description): Unit = {
       description.appendValue(obj)
     }
   }
@@ -49,7 +49,7 @@ trait EvalHelper {
       obj.keyType == other.keyType && obj.valueType == other.valueType && obj.size == other.size
     }
 
-    def describeTo(description: Description) {
+    def describeTo(description: Description): Unit = {
       description.appendValue(obj)
     }
   }
@@ -59,45 +59,45 @@ trait EvalHelper {
   def setEqual(obj: TSet) = new TSetMatcher(obj)
   def mapEqual(obj: TMap) = new TMapMatcher(obj)
 
-  def emptyRead(expectations: Expectations, protocol: TProtocol) {
+  def emptyRead(expectations: Expectations, protocol: TProtocol): Unit = {
     import expectations._
     one(protocol).readStructBegin()
     one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
     one(protocol).readStructEnd()
   }
 
-  def startRead(expectations: Expectations, protocol: TProtocol, field: TField) {
+  def startRead(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
     one(protocol).readStructBegin()
     one(protocol).readFieldBegin(); will(returnValue(field))
   }
 
-  def nextRead(expectations: Expectations, protocol: TProtocol, field: TField) {
+  def nextRead(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
     one(protocol).readFieldEnd()
     one(protocol).readFieldBegin(); will(returnValue(field))
   }
 
-  def endRead(expectations: Expectations, protocol: TProtocol) {
+  def endRead(expectations: Expectations, protocol: TProtocol): Unit = {
     import expectations._
     one(protocol).readFieldEnd()
     one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
     one(protocol).readStructEnd()
   }
 
-  def startWrite(expectations: Expectations, protocol: TProtocol, field: TField) {
+  def startWrite(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
     one(protocol).writeStructBegin(`with`(any(classOf[TStruct])))
     one(protocol).writeFieldBegin(`with`(fieldEqual(field)))
   }
 
-  def nextWrite(expectations: Expectations, protocol: TProtocol, field: TField) {
+  def nextWrite(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
     one(protocol).writeFieldEnd()
     one(protocol).writeFieldBegin(`with`(fieldEqual(field)))
   }
 
-  def endWrite(expectations: Expectations, protocol: TProtocol) {
+  def endWrite(expectations: Expectations, protocol: TProtocol): Unit = {
     import expectations._
     one(protocol).writeFieldEnd()
     one(protocol).writeFieldStop()

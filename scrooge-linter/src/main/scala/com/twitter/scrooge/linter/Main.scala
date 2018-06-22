@@ -33,7 +33,7 @@ case class Config(
 )
 
 object Main {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val cfg = parseOptions(args)
     val numErrors = new Linter(cfg).lint()
     if (numErrors > 0 && !cfg.ignoreErrors)

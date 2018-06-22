@@ -19,9 +19,9 @@ class TRewindable extends TTransport {
   private[this] val arr = new ExposedBAOS()
 
   override def isOpen = true
-  override def open() {}
-  override def close() {}
-  override def flush() {}
+  override def open(): Unit = {}
+  override def close(): Unit = {}
+  override def flush(): Unit = {}
 
   override def read(buf: Array[Byte], off: Int, len: Int): Int = {
     val amtToRead = if (len > arr.len - pos) arr.len - pos else len
@@ -32,11 +32,11 @@ class TRewindable extends TTransport {
     amtToRead
   }
 
-  override def write(buf: Array[Byte], off: Int, len: Int) {
+  override def write(buf: Array[Byte], off: Int, len: Int): Unit = {
     arr.write(buf, off, len)
   }
 
-  def rewind() {
+  def rewind(): Unit = {
     pos = 0
   }
 
@@ -79,7 +79,7 @@ class Collections(size: Int) {
   SetCollections.encode(SetCollections(setVals.result), setProt)
   ListCollections.encode(ListCollections(listVals.result), listProt)
 
-  def run(codec: ThriftStructCodec[_], prot: TProtocol, buff: TRewindable) {
+  def run(codec: ThriftStructCodec[_], prot: TProtocol, buff: TRewindable): Unit = {
     codec.decode(prot)
     buff.rewind()
   }
