@@ -92,11 +92,13 @@ that unused considered fields start getting accessed which would lead
 to double decoding and is costly. A restart would fix that. This
 limitation would likely be fixed in future.
 
-The decoder class is named {{StructName}}$$AdaptDecoder. The use
-of two dollars is to avoid conflicts with regular code and is a
-namespacing mechanism. Nested classes are complicated to reload so
-the implentation is kept out of the companion object of the struct
-on purpose.
+The decoder class is named `{{StructName}}__AdaptDecoder`. The use
+of two underscores is to avoid conflicts with regular code and is a
+namespacing mechanism. We use underscores rather than dollar signs
+because scalac and zinc sometimes have issues with classnames containing
+dollars ([see](https://github.com/sbt/zinc/issues/531)). Nested classes
+are complicated to reload so the implementation is kept out of the
+companion object of the struct on purpose.
 
 Adapted Representation
 ----------------------

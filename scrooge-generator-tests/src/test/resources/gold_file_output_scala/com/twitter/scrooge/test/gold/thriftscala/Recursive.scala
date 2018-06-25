@@ -582,14 +582,14 @@ trait Recursive
   def _codec: ValidatingThriftStructCodec3[Recursive] = Recursive
 }
 
-private class Recursive$$AdaptDecoder {
+private class Recursive__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): Recursive = {
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset
 
-    val adapt = new Recursive$$Adapt(
+    val adapt = new Recursive__Adapt(
       _iprot,
       _iprot.buffer,
       _start_offset)
@@ -668,7 +668,7 @@ private class Recursive$$AdaptDecoder {
  * This is the base template for Adaptive decoding. This class gets pruned and
  * reloaded at runtime.
  */
-private class Recursive$$Adapt(
+private class Recursive__Adapt(
     _proto: AdaptTProtocol,
     _buf: Array[Byte],
     _start_offset: Int) extends Recursive {

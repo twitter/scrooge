@@ -2077,14 +2077,14 @@ trait Request
   def _codec: ValidatingThriftStructCodec3[Request] = Request
 }
 
-private class Request$$AdaptDecoder {
+private class Request__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): Request = {
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset
 
-    val adapt = new Request$$Adapt(
+    val adapt = new Request__Adapt(
       _iprot,
       _iprot.buffer,
       _start_offset)
@@ -2442,7 +2442,7 @@ private class Request$$AdaptDecoder {
  * This is the base template for Adaptive decoding. This class gets pruned and
  * reloaded at runtime.
  */
-private class Request$$Adapt(
+private class Request__Adapt(
     _proto: AdaptTProtocol,
     _buf: Array[Byte],
     _start_offset: Int) extends Request {

@@ -580,14 +580,14 @@ trait Response
   def _codec: ValidatingThriftStructCodec3[Response] = Response
 }
 
-private class Response$$AdaptDecoder {
+private class Response__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): Response = {
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset
 
-    val adapt = new Response$$Adapt(
+    val adapt = new Response__Adapt(
       _iprot,
       _iprot.buffer,
       _start_offset)
@@ -664,7 +664,7 @@ private class Response$$AdaptDecoder {
  * This is the base template for Adaptive decoding. This class gets pruned and
  * reloaded at runtime.
  */
-private class Response$$Adapt(
+private class Response__Adapt(
     _proto: AdaptTProtocol,
     _buf: Array[Byte],
     _start_offset: Int) extends Response {
