@@ -49,7 +49,7 @@ object ScroogeRunner {
       namespace: String,
       finagle: Boolean = true,
       args: String,
-      genAdapt: Boolean = false
+      genAdapt: Boolean = true
     ): Unit =  {
       val finagleArg = if(finagle) "--finagle" else ""
       val adaptArg = if (genAdapt) "--gen-adapt" else ""
@@ -70,7 +70,7 @@ object ScroogeRunner {
     def runScrooge(
       languages: Seq[Language],
       args: String,
-      genAdapt: Boolean = false
+      genAdapt: Boolean = true
     ) = languages foreach { lang =>
       run(lang, lang.defaultNamespace, finagle = true, genAdapt = genAdapt, args = args)
     }
