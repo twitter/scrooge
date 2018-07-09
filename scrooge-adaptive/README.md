@@ -103,7 +103,7 @@ companion object of the struct on purpose.
 Adapted Representation
 ----------------------
 
-Called {{StructName}}$$Adapt is the template for optimized
+Called {{StructName}}__Adapt is the template for optimized
 representation. At runtime this class is modified as follows:
 
 For unused fields the member variables for direct storage are

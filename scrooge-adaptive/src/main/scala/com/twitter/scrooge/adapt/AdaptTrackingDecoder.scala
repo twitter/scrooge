@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger
 private[adapt] object AdaptTrackingDecoder {
   val logger = Logger(this.getClass)
 
-  val AdaptSuffix = "$Adapt"
-  val AdaptDecoderSuffix = "$AdaptDecoder"
+  val AdaptSuffix = "__Adapt"
+  val AdaptDecoderSuffix = "__AdaptDecoder"
   val DecodeMethodName = "decode"
 }
 
@@ -93,8 +93,10 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
     useMapById: Map[Short, Boolean]
   ): Decoder[T] = {
     val codecClassName = codec.getClass.getName
-    val adaptFqdn = codecClassName + AdaptSuffix
-    val adaptDecoderFqdn = codecClassName + AdaptDecoderSuffix
+    // Remove the trailing `$` of codecClassName,
+    // codec can only be an object and the name of it should always end with `$`.
+    val adaptFqdn = codecClassName.dropRight(1) + AdaptSuffix
+    val adaptDecoderFqdn = codecClassName.dropRight(1) + AdaptDecoderSuffix
 
     // Prune AdaptTemplate to create Adapt and load it
     val adaptClassBytes = AdaptAsmPruner.pruneAdapt(adaptFqdn, useMapByName)
