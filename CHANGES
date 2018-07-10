@@ -5,6 +5,9 @@
 Unreleased
 ----------
 
+18.7.0
+-------
+
 - scrooge-adaptive: Turn the scrooge-adaptive back on as default in ScroogeRunner. `PHAB_ID=D187772``
 
 18.6.0
