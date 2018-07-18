@@ -9,13 +9,12 @@ package com.twitter.scrooge.test.gold.thriftscala
 import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob,
-  ThriftService,
+  ThriftMethod,
   ThriftStruct,
   ThriftStructCodec,
   ThriftStructFieldInfo,
   ThriftResponse,
   ThriftUtil,
-  ToThriftService,
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
@@ -25,7 +24,8 @@ import com.twitter.finagle.thrift.{
   RichClientParam,
   RichServerParam,
   ThriftClientRequest,
-  ThriftServiceIface
+  ThriftServiceIface,
+  ToThriftService
 }
 import com.twitter.util.Future
 import java.nio.ByteBuffer
@@ -34,7 +34,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryBuffer
-import scala.collection.immutable.{Map => immutable$Map}
+import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
 import scala.collection.mutable.{
   Builder,
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
@@ -44,7 +44,7 @@ import scala.language.higherKinds
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-trait GoldService[+MM[_]] extends ThriftService {
+trait GoldService[+MM[_]] extends _root_.com.twitter.finagle.thrift.ThriftService {
   /** Hello, I'm a comment. */
   def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[com.twitter.scrooge.test.gold.thriftscala.Response]
 
@@ -56,10 +56,14 @@ trait GoldService[+MM[_]] extends ThriftService {
 }
 
 
-object GoldService { self =>
+object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map(
     "an.annotation" -> "true"
+  )
+
+  val methods: immutable$Set[ThriftMethod] = immutable$Set(
+    self.DoGreatThings
   )
 
   trait ServicePerEndpoint
@@ -76,10 +80,10 @@ object GoldService { self =>
     def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
 
     /**
-     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
-    def toThriftService: ThriftService = MethodPerEndpoint(this)
+    def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = MethodPerEndpoint(this)
 
     /**
      * Used to close the underlying `Service`.
@@ -102,10 +106,10 @@ object GoldService { self =>
     def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
 
     /**
-     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
-    def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+    def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = ReqRepMethodPerEndpoint(this)
 
     /**
      * Used to close the underlying `Service`.
@@ -118,7 +122,7 @@ object GoldService { self =>
   trait BaseServiceIface extends ToThriftService {
     def doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
 
-    def toThriftService: ThriftService = new MethodIface(this)
+    def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = new MethodIface(this)
   }
 
   object ServicePerEndpoint {
@@ -176,6 +180,15 @@ object GoldService { self =>
     }
   }
 
+  def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = {
+    val doGreatThings = methods.get(self.DoGreatThings) match {
+      case Some(impl) => impl.asInstanceOf[self.DoGreatThings.ReqRepServicePerEndpointServiceType]
+      case _ => throw new IllegalArgumentException(s"No implementation found for method DoGreatThings in ${methods.keySet}")
+    }
+
+    ReqRepServicePerEndpoint(doGreatThings)
+  }
+
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
     doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
@@ -226,7 +239,7 @@ object GoldService { self =>
         )
   }
 
-  object DoGreatThings extends com.twitter.scrooge.ThriftMethod {
+  object DoGreatThings extends ThriftMethod {
     
     object Args extends ValidatingThriftStructCodec3[Args] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]

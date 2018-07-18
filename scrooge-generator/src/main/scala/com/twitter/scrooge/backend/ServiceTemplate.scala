@@ -279,7 +279,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
         .map { p =>
           genID(getServiceParentID(p)).append("[MM]")
         }
-        .getOrElse(v("ThriftService")),
+        .getOrElse(v("_root_.com.twitter.finagle.thrift.ThriftService")),
       "syncFunctions" -> v(service.functions.map { f =>
         functionDictionary(f, None)
       }),

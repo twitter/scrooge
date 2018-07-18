@@ -4,6 +4,17 @@
 
 Unreleased
 ----------
+ - scrooge-core: Trait `c.t.scrooge.ThriftService` is now `c.t.finagle.thrift.ThriftServiceMarker`.
+   Scrooge generated service objects now all inherit from `c.t.finagle.thrift.ThriftService`. Also,
+   the `AsClosableMethodName` string was formerly part of `c.t.finagle.thrift.ThriftService`, but
+   now is defined in the c.t.scrooge package object.
+   ``PHAB_ID=D180341``
+
+ - scrooge-generator: Thrift service objects now contain `unsafeBuildFromMethods`, which constructs
+   a `ReqRepServicePerEndpoint` from a map of
+   `ThriftMethod -> ThriftMethod.ReqRepServicePerEndpointServiceType`. It is unsafe because the
+   types are not checked upon service construction, only when a request is attempted.
+   ``PHAB_ID=D180341``
 
 18.7.0
 -------
@@ -46,9 +57,9 @@ No Changes
 - scrooge-generator: Add `asClosable` method to `ServicePerEndpoint` and
   `ReqRepServicePerEndpoint` interfaces as well. ``PHAB_ID=D134171``
 
-- scrooge-generator: Remove unused `functionToService` and `serviceToFunction` 
-  methods along with `ServiceType` and `ReqRepServiceType` type aliases in 
-  order to simplify code generation. 
+- scrooge-generator: Remove unused `functionToService` and `serviceToFunction`
+  methods along with `ServiceType` and `ReqRepServiceType` type aliases in
+  order to simplify code generation.
 
   NOTE: This functionality can be manually replicated by users if/when needed
   to convert between a Function1 and a Finagle `Service`. ``PHAB_ID=D132171``

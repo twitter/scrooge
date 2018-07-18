@@ -3,13 +3,12 @@ package {{package}}
 import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob,
-  ThriftService,
+  ThriftMethod,
   ThriftStruct,
   ThriftStructCodec,
   ThriftStructFieldInfo,
   ThriftResponse,
   ThriftUtil,
-  ToThriftService,
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
@@ -20,7 +19,8 @@ import com.twitter.finagle.thrift.{
   RichClientParam,
   RichServerParam,
   ThriftClientRequest,
-  ThriftServiceIface
+  ThriftServiceIface,
+  ToThriftService
 }
 import com.twitter.util.Future
 {{/withFinagle}}
@@ -30,7 +30,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryBuffer
-import scala.collection.immutable.{Map => immutable$Map}
+import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
 import scala.collection.mutable.{
   Builder,
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
@@ -55,7 +55,7 @@ trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/gen
 }
 
 {{docstring}}
-object {{ServiceName}} { self =>
+object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift.GeneratedThriftService {{/withFinagle}}{ self =>
 
 {{#annotations}}
   val annotations: immutable$Map[String, String] = immutable$Map(
@@ -67,6 +67,12 @@ object {{ServiceName}} { self =>
 {{^annotations}}
   val annotations: immutable$Map[String, String] = immutable$Map.empty
 {{/annotations}}
+
+  val methods: immutable$Set[ThriftMethod] = immutable$Set(
+{{#inheritedFunctions}}
+    {{ParentServiceName}}.{{funcObjectName}}
+{{/inheritedFunctions|,}}
+  )
 
 {{#withFinagle}}
 {{#generateServiceIface}}
@@ -92,10 +98,10 @@ object {{ServiceName}} { self =>
     {{#parent}}override {{/parent}}def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
 
     /**
-     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
-    {{#parent}}override {{/parent}}def toThriftService: ThriftService = MethodPerEndpoint(this)
+    {{#parent}}override {{/parent}}def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = MethodPerEndpoint(this)
 
 {{#withAsClosable}}
     /**
@@ -128,10 +134,10 @@ object {{ServiceName}} { self =>
     {{#parent}}override {{/parent}}def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
 
     /**
-     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
-    {{#parent}}override {{/parent}}def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+    {{#parent}}override {{/parent}}def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = ReqRepMethodPerEndpoint(this)
 
 {{#withAsClosable}}
     /**
@@ -148,7 +154,7 @@ object {{ServiceName}} { self =>
     def {{dedupedFuncName}} : com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
 {{/ownFunctions}}
 
-    {{#parent}}override {{/parent}}def toThriftService: ThriftService = new MethodIface(this)
+    {{#parent}}override {{/parent}}def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = new MethodIface(this)
   }
 
   object ServicePerEndpoint {
@@ -230,6 +236,17 @@ object {{ServiceName}} { self =>
     }
   }
 
+  def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = {
+{{#inheritedFunctions}}
+    val {{dedupedFuncName}} = methods.get({{ParentServiceName}}.{{funcObjectName}}) match {
+      case Some(impl) => impl.asInstanceOf[{{ParentServiceName}}.{{funcObjectName}}.ReqRepServicePerEndpointServiceType]
+      case _ => throw new IllegalArgumentException(s"No implementation found for method {{funcObjectName}} in ${methods.keySet}")
+    }
+{{/inheritedFunctions}}
+
+    ReqRepServicePerEndpoint({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }})
+  }
+
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
 {{#inheritedFunctions}}
@@ -296,11 +313,13 @@ object {{ServiceName}} { self =>
   //
   // scalac 2.11 fails to compile classes with more than 254 method arguments
   // due to https://issues.scala-lang.org/browse/SI-7324.
+
+  def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = ???
 {{/generateServiceIface}}
 
 {{/withFinagle}}
 {{#thriftFunctions}}
-  object {{funcObjectName}} extends com.twitter.scrooge.ThriftMethod {
+  object {{funcObjectName}} extends ThriftMethod {
 {{#functionArgsStruct}}
     {{>struct}}
 {{/functionArgsStruct}}

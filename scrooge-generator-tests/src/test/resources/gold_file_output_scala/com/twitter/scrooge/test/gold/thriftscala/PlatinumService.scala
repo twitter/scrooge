@@ -9,13 +9,12 @@ package com.twitter.scrooge.test.gold.thriftscala
 import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob,
-  ThriftService,
+  ThriftMethod,
   ThriftStruct,
   ThriftStructCodec,
   ThriftStructFieldInfo,
   ThriftResponse,
   ThriftUtil,
-  ToThriftService,
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
@@ -25,7 +24,8 @@ import com.twitter.finagle.thrift.{
   RichClientParam,
   RichServerParam,
   ThriftClientRequest,
-  ThriftServiceIface
+  ThriftServiceIface,
+  ToThriftService
 }
 import com.twitter.util.Future
 import java.nio.ByteBuffer
@@ -34,7 +34,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryBuffer
-import scala.collection.immutable.{Map => immutable$Map}
+import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
 import scala.collection.mutable.{
   Builder,
   ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
@@ -56,9 +56,14 @@ trait PlatinumService[+MM[_]] extends GoldService[MM] {
 }
 
 
-object PlatinumService { self =>
+object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThriftService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map.empty
+
+  val methods: immutable$Set[ThriftMethod] = immutable$Set(
+    self.MoreCoolThings,
+    com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings
+  )
 
   trait ServicePerEndpoint
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.ServicePerEndpoint
@@ -76,10 +81,10 @@ object PlatinumService { self =>
     override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
 
     /**
-     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
-    override def toThriftService: ThriftService = MethodPerEndpoint(this)
+    override def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = MethodPerEndpoint(this)
 
     /**
      * Used to close the underlying `Service`.
@@ -104,10 +109,10 @@ object PlatinumService { self =>
     override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
 
     /**
-     * Converts the `ServicePerEndpoint` to a `ThriftService`.
+     * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
      * @see _root_.com.twitter.scrooge.ToThriftService
      */
-    override def toThriftService: ThriftService = ReqRepMethodPerEndpoint(this)
+    override def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = ReqRepMethodPerEndpoint(this)
 
     /**
      * Used to close the underlying `Service`.
@@ -120,7 +125,7 @@ object PlatinumService { self =>
   trait BaseServiceIface extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface {
     def moreCoolThings : com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]
 
-    override def toThriftService: ThriftService = new MethodIface(this)
+    override def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = new MethodIface(this)
   }
 
   object ServicePerEndpoint {
@@ -195,6 +200,19 @@ object PlatinumService { self =>
     }
   }
 
+  def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = {
+    val moreCoolThings = methods.get(self.MoreCoolThings) match {
+      case Some(impl) => impl.asInstanceOf[self.MoreCoolThings.ReqRepServicePerEndpointServiceType]
+      case _ => throw new IllegalArgumentException(s"No implementation found for method MoreCoolThings in ${methods.keySet}")
+    }
+    val doGreatThings = methods.get(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings) match {
+      case Some(impl) => impl.asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.ReqRepServicePerEndpointServiceType]
+      case _ => throw new IllegalArgumentException(s"No implementation found for method DoGreatThings in ${methods.keySet}")
+    }
+
+    ReqRepServicePerEndpoint(moreCoolThings, doGreatThings)
+  }
+
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
     moreCoolThings : com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
@@ -251,7 +269,7 @@ object PlatinumService { self =>
         )
   }
 
-  object MoreCoolThings extends com.twitter.scrooge.ThriftMethod {
+  object MoreCoolThings extends ThriftMethod {
     
     object Args extends ValidatingThriftStructCodec3[Args] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
