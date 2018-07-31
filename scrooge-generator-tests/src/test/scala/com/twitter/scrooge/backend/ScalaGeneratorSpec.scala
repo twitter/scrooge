@@ -113,6 +113,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           case NumberID.EnumUnknownNumberID(id) => "UNKNOWN " + id
           case n => throw new MatchError(n)
         } must be(List("ONE", "UNKNOWN 999"))
+
+        NumberID.getOrUnknown(999).isInstanceOf[EnumItemUnknown] must be(true)
       }
 
       "get" in { _ =>

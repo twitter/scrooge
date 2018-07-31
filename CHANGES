@@ -4,6 +4,7 @@
 
 Unreleased
 ----------
+ - scrooge-core: Add interface for Scala generated Enum objects. ``PHAB_ID=D197147``
  - scrooge-core: Trait `c.t.scrooge.ThriftService` is now `c.t.finagle.thrift.ThriftServiceMarker`.
    Scrooge generated service objects now all inherit from `c.t.finagle.thrift.ThriftService`. Also,
    the `AsClosableMethodName` string was formerly part of `c.t.finagle.thrift.ThriftService`, but

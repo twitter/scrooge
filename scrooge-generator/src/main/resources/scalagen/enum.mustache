@@ -5,7 +5,7 @@ import scala.collection.immutable.{Map => immutable$Map}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-case object {{EnumName}} {
+case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{EnumName}}] {
 
 {{#annotations}}
   val annotations: immutable$Map[String, String] = immutable$Map(
@@ -39,7 +39,9 @@ case object {{EnumName}} {
   private[this] val _Some{{name}} = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})
 {{/values}}
 
-  case class EnumUnknown{{EnumName}}(value: Int) extends {{package}}.{{EnumName}} {
+  case class EnumUnknown{{EnumName}}(value: Int)
+    extends {{package}}.{{EnumName}} with _root_.com.twitter.scrooge.EnumItemUnknown
+  {
     val name: String = "EnumUnknown{{EnumName}}" + value
     def originalName: String = name
   }

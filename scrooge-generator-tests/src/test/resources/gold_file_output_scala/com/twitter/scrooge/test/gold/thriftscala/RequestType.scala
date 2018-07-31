@@ -11,7 +11,7 @@ import scala.collection.immutable.{Map => immutable$Map}
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-case object RequestType {
+case object RequestType extends _root_.com.twitter.scrooge.ThriftEnumObject[RequestType] {
 
   val annotations: immutable$Map[String, String] = immutable$Map(
     "enum.annotation" -> "false"
@@ -38,7 +38,9 @@ case object RequestType {
 
   private[this] val _SomeRead = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.RequestType.Read)
 
-  case class EnumUnknownRequestType(value: Int) extends com.twitter.scrooge.test.gold.thriftscala.RequestType {
+  case class EnumUnknownRequestType(value: Int)
+    extends com.twitter.scrooge.test.gold.thriftscala.RequestType with _root_.com.twitter.scrooge.EnumItemUnknown
+  {
     val name: String = "EnumUnknownRequestType" + value
     def originalName: String = name
   }
