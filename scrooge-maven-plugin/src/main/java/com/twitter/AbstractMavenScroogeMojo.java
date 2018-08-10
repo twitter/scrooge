@@ -297,7 +297,7 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
         attachFiles(compileRoots);
       }
     } catch (IOException e) {
-      throw new MojoExecutionException("An IO error occured", e);
+      throw new MojoExecutionException("An IO error occurred", e);
     }
   }
 
