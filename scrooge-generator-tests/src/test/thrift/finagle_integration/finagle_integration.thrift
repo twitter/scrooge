@@ -16,7 +16,9 @@ service BarService {
 
   string getDuck(1: i64 key)
 
-  void setDuck(1: i64 key, 2: string value)
+  void setDuck(1: i64 key, 2: string value) throws (
+    1: InvalidQueryException sx
+  )
 }
 
 service ExtendedBarService extends BarService {

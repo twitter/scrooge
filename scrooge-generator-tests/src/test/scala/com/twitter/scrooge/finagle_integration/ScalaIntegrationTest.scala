@@ -3,7 +3,7 @@ package com.twitter.scrooge.finagle_integration
 import com.twitter.conversions.time._
 import com.twitter.finagle._
 import com.twitter.scrooge.{Request, Response, ThriftMethod}
-import com.twitter.scrooge.finagle_integration.thriftscala.{BarService, ExtendedBarService}
+import com.twitter.scrooge.finagle_integration.thriftscala._
 import com.twitter.scrooge.finagle_integration.thriftscala.BarService.Echo
 import com.twitter.scrooge.finagle_integration.thriftscala.ExtendedBarService.Triple
 import com.twitter.util.{Await, Awaitable, Duration, Future}
@@ -298,10 +298,31 @@ class ScalaIntegrationTest extends FunSuite {
   }
 
   test("construct Thrift client with servicePerEndpoint[ServicePerEndpoint]") {
+    val server = Thrift.server.serveIface(
+      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+      new ExtendedBarService.MethodPerEndpoint {
+        def echo(x: String): Future[String] = Future.value(x)
+
+        def duplicate(y: String): Future[String] = Future.value(y + y)
+
+        def getDuck(key: Long): Future[String] =  Future.value("Scrooge")
+
+        def setDuck(key: Long, value: String): Future[Unit] =
+          Future.exception(new InvalidQueryException(value.length))
+
+        def triple(z: String): Future[String] = Future.value(z + z + z)
+      }
+    )
+
     val clientExtendedBarService = Thrift.client.servicePerEndpoint[ExtendedBarService.ServicePerEndpoint](
-      Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
+      Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
       "clientExtendedBarService"
     )
+
+    val ex = intercept[InvalidQueryException] {
+      await(clientExtendedBarService.setDuck(BarService.SetDuck.Args(1L, "hi")))
+    }
+    assert("hi".length == ex.errorCode)
 
     val filteredServicePerEndpointWith = clientExtendedBarService
       .withEcho(echo = echoFilter.andThen(clientExtendedBarService.echo))
@@ -309,6 +330,10 @@ class ScalaIntegrationTest extends FunSuite {
 
     val barMethodPerEndpointWith = Thrift.Client.methodPerEndpoint(filteredServicePerEndpointWith)
 
+    val eex = intercept[InvalidQueryException] {
+      await(barMethodPerEndpointWith.setDuck(1L, "hi"))
+    }
+    assert("hi".length == eex.errorCode)
     assert(await(barMethodPerEndpointWith.echo("echo")) == "echoecho")
     assert(await(barMethodPerEndpointWith.triple("3")) == "3.3.3.")
   }
