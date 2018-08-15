@@ -32,7 +32,8 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
-import com.twitter.finagle.thrift.DeserializeCtx;
+import com.twitter.finagle.thrift.ClientDeserializeCtx;
+import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class GoldService {
@@ -225,10 +226,10 @@ public class GoldService {
               }
             }
           };
-        DeserializeCtx serdeCtx = new DeserializeCtx<Response>(__args__, replyDeserializer);
+        ClientDeserializeCtx serdeCtx = new ClientDeserializeCtx<Response>(__args__, replyDeserializer);
 
         return com.twitter.finagle.context.Contexts.local().let(
-          DeserializeCtx.Key(),
+          ClientDeserializeCtx.Key(),
           serdeCtx,
           new com.twitter.util.Function0<Future<Response>>() {
             public Future<Response> apply() {
@@ -364,11 +365,14 @@ public class GoldService {
                 if (e instanceof TProtocolException) {
                   try {
                     iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
                     return exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
                   } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
                     return Future.exception(e1);
                   }
                 } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
                   return Future.exception(e);
                 }
               }
@@ -382,6 +386,7 @@ public class GoldService {
             TProtocol iprot = request._1();
             Integer seqid = request._2();
             doGreatThings_args args = new doGreatThings_args();
+
             try {
               args.read(iprot);
               iprot.readMessageEnd();
@@ -396,6 +401,7 @@ public class GoldService {
               public Future<byte[]> apply(Response value) {
                 result.success = value;
                 result.setSuccessIsSet(true);
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return reply("doGreatThings", seqid, result);
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -403,9 +409,11 @@ public class GoldService {
               public Future<byte[]> apply(Throwable t) {
                 if (t instanceof OverCapacityException) {
                   result.ex = (OverCapacityException)t;
+                  setReqRepContext(args, new com.twitter.util.Throw(result.ex));
                   return reply("doGreatThings", seqid, result);
                 }
                 else {
+                  setReqRepContext(args, new com.twitter.util.Throw(t));
                   return Future.exception(t);
                 }
               }
@@ -426,6 +434,13 @@ public class GoldService {
       }
 
       serviceMap.put("doGreatThings", (new doGreatThingsService()).getService);
+    }
+
+    private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
+      scala.Option<ServerToReqRep> serdeCtx = com.twitter.finagle.context.Contexts.local().get(ServerToReqRep.Key());
+      if (serdeCtx.nonEmpty()) {
+        serdeCtx.get().setReqRep(new com.twitter.finagle.service.ReqRep(req, rep));
+      }
     }
 
     public Future<byte[]> apply(byte[] request) {

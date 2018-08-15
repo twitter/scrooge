@@ -8,7 +8,7 @@ import com.twitter.finagle.{
   _
 }
 import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.RichServerParam
+import com.twitter.finagle.thrift.{RichServerParam, ServerToReqRep}
 import com.twitter.io.Buf
 import com.twitter.scrooge._
 import com.twitter.util.{Future, Return, Throw, Throwables}
@@ -170,6 +170,7 @@ class {{ServiceName}}$FinagleService(
   }
 
   private def recordResponse(reqRep: ctfs.ReqRep, method: ThriftMethod): Unit = {
+    ServerToReqRep.setCtx(reqRep)
     if (perEndpointStats) {
       val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
       val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
@@ -199,16 +200,16 @@ class {{ServiceName}}$FinagleService(
         service(req).transform {
           case Return(value) =>
             value match {
-              case SuccessfulResponse(req, _, result) =>
-                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Return(result.successField.get)), method)
-              case ProtocolExceptionResponse(req, _, exp) =>
-                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(exp)), method)
-              case ThriftExceptionResponse(req, _, ex) =>
+              case SuccessfulResponse(args, _, result) =>
+                recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Return(result.successField.get)), method)
+              case ProtocolExceptionResponse(args, _, exp) =>
+                recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(exp)), method)
+              case ThriftExceptionResponse(args, _, ex) =>
                 val rep = ex match {
                   case exp: ThriftException => setServiceName(exp)
                   case _ => missingResult(serviceName)
                 }
-                recordResponse(ctfs.ReqRep(req, _root_.com.twitter.util.Throw(rep)), method)
+                recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(rep)), method)
             }
             Future.value(Buf.ByteArray.Owned.extract(value.response))
           case t @ Throw(_) =>

@@ -32,7 +32,8 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
-import com.twitter.finagle.thrift.DeserializeCtx;
+import com.twitter.finagle.thrift.ClientDeserializeCtx;
+import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class OtherService {
@@ -222,10 +223,10 @@ public class OtherService {
               }
             }
           };
-        DeserializeCtx serdeCtx = new DeserializeCtx<Boolean>(__args__, replyDeserializer);
+        ClientDeserializeCtx serdeCtx = new ClientDeserializeCtx<Boolean>(__args__, replyDeserializer);
 
         return com.twitter.finagle.context.Contexts.local().let(
-          DeserializeCtx.Key(),
+          ClientDeserializeCtx.Key(),
           serdeCtx,
           new com.twitter.util.Function0<Future<Boolean>>() {
             public Future<Boolean> apply() {
@@ -345,11 +346,14 @@ public class OtherService {
                 if (e instanceof TProtocolException) {
                   try {
                     iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
                     return exception("test_endpoint", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
                   } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
                     return Future.exception(e1);
                   }
                 } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
                   return Future.exception(e);
                 }
               }
@@ -363,6 +367,7 @@ public class OtherService {
             TProtocol iprot = request._1();
             Integer seqid = request._2();
             test_endpoint_args args = new test_endpoint_args();
+
             try {
               args.read(iprot);
               iprot.readMessageEnd();
@@ -377,11 +382,13 @@ public class OtherService {
               public Future<byte[]> apply(Boolean value) {
                 result.success = value;
                 result.setSuccessIsSet(true);
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return reply("test_endpoint", seqid, result);
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
               @Override
               public Future<byte[]> apply(Throwable t) {
+                setReqRepContext(args, new com.twitter.util.Throw(t));
                 return Future.exception(t);
               }
             });
@@ -401,6 +408,13 @@ public class OtherService {
       }
 
       serviceMap.put("test_endpoint", (new test_endpointService()).getService);
+    }
+
+    private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
+      scala.Option<ServerToReqRep> serdeCtx = com.twitter.finagle.context.Contexts.local().get(ServerToReqRep.Key());
+      if (serdeCtx.nonEmpty()) {
+        serdeCtx.get().setReqRep(new com.twitter.finagle.service.ReqRep(req, rep));
+      }
     }
 
     public Future<byte[]> apply(byte[] request) {

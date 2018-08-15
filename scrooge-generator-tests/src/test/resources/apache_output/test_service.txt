@@ -32,7 +32,8 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
-import com.twitter.finagle.thrift.DeserializeCtx;
+import com.twitter.finagle.thrift.ClientDeserializeCtx;
+import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class TestService {
@@ -273,10 +274,10 @@ public class TestService {
               }
             }
           };
-        DeserializeCtx serdeCtx = new DeserializeCtx<Boolean>(__args__, replyDeserializer);
+        ClientDeserializeCtx serdeCtx = new ClientDeserializeCtx<Boolean>(__args__, replyDeserializer);
 
         return com.twitter.finagle.context.Contexts.local().let(
-          DeserializeCtx.Key(),
+          ClientDeserializeCtx.Key(),
           serdeCtx,
           new com.twitter.util.Function0<Future<Boolean>>() {
             public Future<Boolean> apply() {
@@ -461,11 +462,14 @@ public class TestService {
                 if (e instanceof TProtocolException) {
                   try {
                     iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
                     return exception("test_endpoint", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
                   } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
                     return Future.exception(e1);
                   }
                 } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
                   return Future.exception(e);
                 }
               }
@@ -479,6 +483,7 @@ public class TestService {
             TProtocol iprot = request._1();
             Integer seqid = request._2();
             test_endpoint_args args = new test_endpoint_args();
+
             try {
               args.read(iprot);
               iprot.readMessageEnd();
@@ -493,6 +498,7 @@ public class TestService {
               public Future<byte[]> apply(Boolean value) {
                 result.success = value;
                 result.setSuccessIsSet(true);
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return reply("test_endpoint", seqid, result);
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -500,9 +506,11 @@ public class TestService {
               public Future<byte[]> apply(Throwable t) {
                 if (t instanceof TestException) {
                   result.ex = (TestException)t;
+                  setReqRepContext(args, new com.twitter.util.Throw(result.ex));
                   return reply("test_endpoint", seqid, result);
                 }
                 else {
+                  setReqRepContext(args, new com.twitter.util.Throw(t));
                   return Future.exception(t);
                 }
               }
@@ -536,11 +544,14 @@ public class TestService {
                 if (e instanceof TProtocolException) {
                   try {
                     iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
                     return exception("test_oneway", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
                   } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
                     return Future.exception(e1);
                   }
                 } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
                   return Future.exception(e);
                 }
               }
@@ -554,6 +565,7 @@ public class TestService {
             TProtocol iprot = request._1();
             Integer seqid = request._2();
             test_oneway_args args = new test_oneway_args();
+
             try {
               args.read(iprot);
               iprot.readMessageEnd();
@@ -564,6 +576,7 @@ public class TestService {
             Future<Void> res = service.apply(args);
             return res.map(new Function<Void, byte[]>() {
               public byte[] apply(Void value) {
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return new byte[0];
               }
             });
@@ -583,6 +596,13 @@ public class TestService {
       }
 
       serviceMap.put("test_oneway", (new test_onewayService()).getService);
+    }
+
+    private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
+      scala.Option<ServerToReqRep> serdeCtx = com.twitter.finagle.context.Contexts.local().get(ServerToReqRep.Key());
+      if (serdeCtx.nonEmpty()) {
+        serdeCtx.get().setReqRep(new com.twitter.finagle.service.ReqRep(req, rep));
+      }
     }
 
     public Future<byte[]> apply(byte[] request) {

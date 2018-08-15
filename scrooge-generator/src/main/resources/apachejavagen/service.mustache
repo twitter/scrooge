@@ -11,7 +11,8 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
-import com.twitter.finagle.thrift.DeserializeCtx;
+import com.twitter.finagle.thrift.ClientDeserializeCtx;
+import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class {{name}} {
@@ -258,10 +259,10 @@ public class {{name}} {
               }
             }
           };
-        DeserializeCtx serdeCtx = new DeserializeCtx<{{{return_type.type_name_in_container}}}>(__args__, replyDeserializer);
+        ClientDeserializeCtx serdeCtx = new ClientDeserializeCtx<{{{return_type.type_name_in_container}}}>(__args__, replyDeserializer);
 
         return com.twitter.finagle.context.Contexts.local().let(
-          DeserializeCtx.Key(),
+          ClientDeserializeCtx.Key(),
           serdeCtx,
           new com.twitter.util.Function0<Future<{{{return_type.type_name_in_container}}}>>() {
             public Future<{{{return_type.type_name_in_container}}}> apply() {
@@ -461,11 +462,14 @@ public class {{name}} {
                 if (e instanceof TProtocolException) {
                   try {
                     iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
                     return exception("{{name}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
                   } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
                     return Future.exception(e1);
                   }
                 } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
                   return Future.exception(e);
                 }
               }
@@ -479,6 +483,7 @@ public class {{name}} {
             TProtocol iprot = request._1();
             Integer seqid = request._2();
             {{name}}_args args = new {{name}}_args();
+
             try {
               args.read(iprot);
               iprot.readMessageEnd();
@@ -490,6 +495,7 @@ public class {{name}} {
             {{#is_oneway}}
             return res.map(new Function<{{{return_type.type_name_in_container}}}, byte[]>() {
               public byte[] apply({{{return_type.type_name_in_container}}} value) {
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return new byte[0];
               }
             });
@@ -499,10 +505,13 @@ public class {{name}} {
             return res.flatMap(new Function<{{{return_type.type_name_in_container}}}, Future<byte[]>>() {
               @Override
               public Future<byte[]> apply({{{return_type.type_name_in_container}}} value) {
-              {{^is_oneway}}{{^return_type.is_void}}
+              {{^is_oneway}}
+              {{^return_type.is_void}}
                 result.success = value;
                 result.setSuccessIsSet(true);
-              {{/return_type.is_void}}{{/is_oneway}}
+              {{/return_type.is_void}}
+              {{/is_oneway}}
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return reply("{{name}}", seqid, result);
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -512,14 +521,17 @@ public class {{name}} {
                 {{#exceptions}}
                 {{^first}}else {{/first}}if (t instanceof {{{field_type.type_name}}}) {
                   result.{{field_name}} = ({{{field_type.type_name}}})t;
+                  setReqRepContext(args, new com.twitter.util.Throw(result.{{field_name}}));
                   return reply("{{name}}", seqid, result);
                 }
                 {{/exceptions}}
                 else {
+                  setReqRepContext(args, new com.twitter.util.Throw(t));
                   return Future.exception(t);
                 }
                 {{/has_exceptions}}
                 {{^has_exceptions}}
+                setReqRepContext(args, new com.twitter.util.Throw(t));
                 return Future.exception(t);
                 {{/has_exceptions}}
                 {{/is_oneway}}
@@ -546,6 +558,13 @@ public class {{name}} {
 
       serviceMap.put("{{name}}", (new {{name}}Service()).getService);
       {{/functions}}
+    }
+
+    private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
+      scala.Option<ServerToReqRep> serdeCtx = com.twitter.finagle.context.Contexts.local().get(ServerToReqRep.Key());
+      if (serdeCtx.nonEmpty()) {
+        serdeCtx.get().setReqRep(new com.twitter.finagle.service.ReqRep(req, rep));
+      }
     }
 
     public Future<byte[]> apply(byte[] request) {

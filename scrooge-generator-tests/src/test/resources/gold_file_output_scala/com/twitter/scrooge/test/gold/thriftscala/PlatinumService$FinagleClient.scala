@@ -83,9 +83,9 @@ class PlatinumService$FinagleClient(
     __stats_moreCoolThings.RequestsCounter.incr()
     val inputArgs = MoreCoolThings.Args(request)
   
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[Int](inputArgs, moreCoolThingsPlatinumServiceReplyDeserializer)
+    val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[Int](inputArgs, moreCoolThingsPlatinumServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
-      _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
+      _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
       serdeCtx,
       _root_.com.twitter.finagle.thrift.Headers.Request.Key,
       _root_.com.twitter.finagle.thrift.Headers.Request.newValues

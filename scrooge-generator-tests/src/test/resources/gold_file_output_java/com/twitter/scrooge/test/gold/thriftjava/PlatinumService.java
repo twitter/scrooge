@@ -32,7 +32,8 @@ import com.twitter.util.Function2;
 import com.twitter.util.Try;
 import com.twitter.util.Return;
 import com.twitter.util.Throw;
-import com.twitter.finagle.thrift.DeserializeCtx;
+import com.twitter.finagle.thrift.ClientDeserializeCtx;
+import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class PlatinumService {
@@ -228,10 +229,10 @@ public class PlatinumService {
               }
             }
           };
-        DeserializeCtx serdeCtx = new DeserializeCtx<Integer>(__args__, replyDeserializer);
+        ClientDeserializeCtx serdeCtx = new ClientDeserializeCtx<Integer>(__args__, replyDeserializer);
 
         return com.twitter.finagle.context.Contexts.local().let(
-          DeserializeCtx.Key(),
+          ClientDeserializeCtx.Key(),
           serdeCtx,
           new com.twitter.util.Function0<Future<Integer>>() {
             public Future<Integer> apply() {
@@ -364,11 +365,14 @@ public class PlatinumService {
                 if (e instanceof TProtocolException) {
                   try {
                     iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
                     return exception("moreCoolThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
                   } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
                     return Future.exception(e1);
                   }
                 } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
                   return Future.exception(e);
                 }
               }
@@ -382,6 +386,7 @@ public class PlatinumService {
             TProtocol iprot = request._1();
             Integer seqid = request._2();
             moreCoolThings_args args = new moreCoolThings_args();
+
             try {
               args.read(iprot);
               iprot.readMessageEnd();
@@ -396,6 +401,7 @@ public class PlatinumService {
               public Future<byte[]> apply(Integer value) {
                 result.success = value;
                 result.setSuccessIsSet(true);
+                setReqRepContext(args, new com.twitter.util.Return(value));
                 return reply("moreCoolThings", seqid, result);
               }
             }).rescue(new Function<Throwable, Future<byte[]>>() {
@@ -403,13 +409,16 @@ public class PlatinumService {
               public Future<byte[]> apply(Throwable t) {
                 if (t instanceof AnotherException) {
                   result.ax = (AnotherException)t;
+                  setReqRepContext(args, new com.twitter.util.Throw(result.ax));
                   return reply("moreCoolThings", seqid, result);
                 }
                 else if (t instanceof OverCapacityException) {
                   result.oce = (OverCapacityException)t;
+                  setReqRepContext(args, new com.twitter.util.Throw(result.oce));
                   return reply("moreCoolThings", seqid, result);
                 }
                 else {
+                  setReqRepContext(args, new com.twitter.util.Throw(t));
                   return Future.exception(t);
                 }
               }
@@ -430,6 +439,13 @@ public class PlatinumService {
       }
 
       serviceMap.put("moreCoolThings", (new moreCoolThingsService()).getService);
+    }
+
+    private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
+      scala.Option<ServerToReqRep> serdeCtx = com.twitter.finagle.context.Contexts.local().get(ServerToReqRep.Key());
+      if (serdeCtx.nonEmpty()) {
+        serdeCtx.get().setReqRep(new com.twitter.finagle.service.ReqRep(req, rep));
+      }
     }
 
     public Future<byte[]> apply(byte[] request) {

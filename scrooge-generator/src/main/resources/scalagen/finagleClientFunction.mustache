@@ -22,9 +22,9 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
   {{__stats_name}}.RequestsCounter.incr()
   val inputArgs = {{funcObjectName}}.Args({{argNames}})
 
-  val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[{{typeName}}](inputArgs, {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer)
+  val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[{{typeName}}](inputArgs, {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer)
   _root_.com.twitter.finagle.context.Contexts.local.let(
-    _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
+    _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
     serdeCtx,
     _root_.com.twitter.finagle.thrift.Headers.Request.Key,
     _root_.com.twitter.finagle.thrift.Headers.Request.newValues

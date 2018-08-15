@@ -147,9 +147,9 @@ class GoldService$FinagleClient(
     __stats_doGreatThings.RequestsCounter.incr()
     val inputArgs = DoGreatThings.Args(request)
   
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.DeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, doGreatThingsGoldServiceReplyDeserializer)
+    val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, doGreatThingsGoldServiceReplyDeserializer)
     _root_.com.twitter.finagle.context.Contexts.local.let(
-      _root_.com.twitter.finagle.thrift.DeserializeCtx.Key,
+      _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
       serdeCtx,
       _root_.com.twitter.finagle.thrift.Headers.Request.Key,
       _root_.com.twitter.finagle.thrift.Headers.Request.newValues

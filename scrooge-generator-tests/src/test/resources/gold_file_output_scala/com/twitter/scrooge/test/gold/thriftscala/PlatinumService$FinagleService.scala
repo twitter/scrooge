@@ -14,7 +14,7 @@ import com.twitter.finagle.{
   _
 }
 import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.RichServerParam
+import com.twitter.finagle.thrift.{RichServerParam, ServerToReqRep}
 import com.twitter.io.Buf
 import com.twitter.scrooge._
 import com.twitter.util.{Future, Return, Throw, Throwables}
