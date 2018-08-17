@@ -1,29 +1,19 @@
 package com.twitter.scrooge.android_generator
 
 import android_thrift_default_namespace.{ConstructorRequiredStruct, DeepValidationStruct, DeepValidationUnion}
-import java.util
-import com.twitter.scrooge.frontend._
-import java.io._
-import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
-import com.twitter.scrooge.CompilerDefaults
-import com.twitter.scrooge.mustache.ScalaObjectHandler
+import com.github.mustachejava.Mustache
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
+import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
 import com.twitter.scrooge.testutil.Spec
-import com.twitter.scrooge.testutil.Utils.{getFileContents, verify, verifyWithHint}
+import com.twitter.scrooge.testutil.Utils.getFileContents
+import java.util
+import java.util.{List => JList, Map => JMap, Set => JSet}
 import org.apache.thrift.protocol.TProtocolException
-import org.mockito.Mockito._
+import scala.collection.JavaConverters._
+import scala.collection.concurrent.TrieMap
 import thrift.complete.android.test1.{SimpleWithDefaults, StructXA, StructXB}
 import thrift.complete.android.test2.ComplexCollections
-import scala.collection.concurrent.TrieMap
-import java.util.{List => JList, Map => JMap, Set => JSet}
-import scala.collection.JavaConverters._
 
-/**
- * To generate the apache output for birdcage compatible thrift:
- * ~/source/maven-plugins/maven-finagle-thrift-plugin/src/main/resources/thrift/thrift-finagle.osx10.6
- *     --gen java -o /tmp/thrift test_thrift/empty_struct.thrift
- */
 class AndroidGeneratorSpec extends Spec {
   def generateDoc(str: String) = {
     val importer = Importer(
@@ -394,65 +384,6 @@ class AndroidGeneratorSpec extends Spec {
       controller.namespace must be("com.twitter.thrift")
     }
 
-    "generate enum code" in {
-      val controller = mock[EnumController]
-      when(controller.name) thenReturn "test"
-      when(controller.constants) thenReturn Seq(
-        new EnumConstant("foo", 1, false),
-        new EnumConstant("bar", 2, true)
-      )
-      when(controller.namespace) thenReturn "com.twitter.thrift"
-      when(controller.has_namespace) thenReturn true
-      val sw = renderMustache("enum.mustache", controller)
-      verify(sw, getFileContents("android_output/enum.txt"))
-    }
-
-    "populate consts" in {
-      val thriftSource = "test_thrift/consts.thrift"
-      val doc = generateDoc(getFileContents(thriftSource))
-      val controller = new ConstController(doc.consts, getGenerator(doc), getNamespace(doc))
-      val sw = renderMustache("consts.mustache", controller)
-      verifyWithHint(sw, "android_output/consts.txt", thriftSource, "com/twitter/thrift/Constants.java", "android")
-    }
-
-    "populate const map" in {
-      val thriftSource = "test_thrift/constant_map.thrift"
-      val doc = generateDoc(getFileContents(thriftSource))
-      val generator = getGenerator(doc)
-      val controller = new ConstController(doc.consts, generator, getNamespace(doc))
-      val sw = renderMustache("consts.mustache", controller)
-      verifyWithHint(sw, "android_output/constant_map.txt", thriftSource, "com/twitter/adserver/Constants.java", "android")
-    }
-
-    "generate struct" in {
-      val thriftSource = "test_thrift/struct.thrift"
-      val doc = generateDoc(getFileContents(thriftSource))
-      val generator = getGenerator(doc)
-      val controller =
-        new StructController(doc.structs(1), false, generator, getNamespace(doc))
-      val sw = renderMustache("struct.mustache", controller)
-      verifyWithHint(sw, "android_output/struct.txt", thriftSource, "thrift/android/test/Work.java", "android")
-    }
-
-    "generate empty struct" in {
-      val thriftSource = "test_thrift/empty_struct.thrift"
-      val doc = generateDoc(getFileContents(thriftSource))
-      val controller =
-        new StructController(doc.structs(0), false, getGenerator(doc), getNamespace(doc))
-      val sw = renderMustache("struct.mustache", controller)
-      verifyWithHint(sw, "android_output/empty_struct.txt", thriftSource, "test/thrift/android/FollowerTargetingDetails.java", "android")
-    }
-
-    "generate union" in {
-      val thriftSource = "test_thrift/union.thrift"
-      val doc = generateDoc(getFileContents(thriftSource))
-      val generator = getGenerator(doc)
-      val controller =
-        new StructController(doc.structs(0), false, generator, getNamespace(doc))
-      val sw = renderMustache("struct.mustache", controller)
-      verifyWithHint(sw, "android_output/union.txt", thriftSource, "thrift/test/android/TestUnion.java", "android")
-    }
-
     "constructor required fields" should {
       "not be optional in the contructor with args" in {
         val struct = new ConstructorRequiredStruct(
@@ -641,17 +572,4 @@ class AndroidGeneratorSpec extends Spec {
     }
   }
 
-  private[this] def getNamespace(doc: Document): Some[Identifier] = {
-    Some(doc.namespace("android").getOrElse(SimpleID(CompilerDefaults.defaultNamespace)))
-  }
-
-  def renderMustache(template: String, controller: Object) = {
-    val mf = new DefaultMustacheFactory("androidgen/")
-    mf.setObjectHandler(new ScalaObjectHandler)
-    val m = mf.compile(template)
-    val sw = new StringWriter()
-    m.execute(sw, controller).flush()
-    // Files.write(sw.toString, new File("/tmp/test"), Charsets.UTF_8)
-    sw.toString
-  }
 }
