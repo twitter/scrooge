@@ -408,6 +408,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       with java.io.Serializable
     {
       import Args._
+    
       def this(
         request: com.twitter.scrooge.test.gold.thriftscala.Request
       ) = this(
@@ -443,14 +444,17 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       private def _equals(x: Args, y: Args): Boolean =
           x.productArity == y.productArity &&
-          x.productIterator.sameElements(y.productIterator)
+          x.productIterator.sameElements(y.productIterator) &&
+          x._passthroughFields == y._passthroughFields
     
       override def equals(other: Any): Boolean =
         canEqual(other) &&
-          _equals(this, other.asInstanceOf[Args]) &&
-          _passthroughFields == other.asInstanceOf[Args]._passthroughFields
+          _equals(this, other.asInstanceOf[Args])
     
-      override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+      override def hashCode: Int = {
+        var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+        hash
+      }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
     
@@ -714,6 +718,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       with java.io.Serializable
     {
       import Result._
+    
       def this(
         success: _root_.scala.Option[Int] = _root_.scala.None,
         ax: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException] = _root_.scala.None,
@@ -771,14 +776,17 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       private def _equals(x: Result, y: Result): Boolean =
           x.productArity == y.productArity &&
-          x.productIterator.sameElements(y.productIterator)
+          x.productIterator.sameElements(y.productIterator) &&
+          x._passthroughFields == y._passthroughFields
     
       override def equals(other: Any): Boolean =
         canEqual(other) &&
-          _equals(this, other.asInstanceOf[Result]) &&
-          _passthroughFields == other.asInstanceOf[Result]._passthroughFields
+          _equals(this, other.asInstanceOf[Result])
     
-      override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+      override def hashCode: Int = {
+        var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+        hash
+      }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
     

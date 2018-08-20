@@ -23,16 +23,20 @@ import org.apache.thrift.async.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
+import com.twitter.finagle.AbstractFailureFlags;
+import com.twitter.finagle.JavaFailureFlags;
 
 // No additional import required for struct/union.
 
-public class AnotherException extends Exception implements TBase<AnotherException, AnotherException._Fields>, java.io.Serializable, Cloneable {
+public class AnotherException extends AbstractFailureFlags<AnotherException> implements TBase<AnotherException, AnotherException._Fields>, java.io.Serializable, Cloneable {
   private static final TStruct STRUCT_DESC = new TStruct("AnotherException");
 
   private static final TField ERROR_CODE_FIELD_DESC = new TField("errorCode", TType.I32, (short)1);
 
 
   public int errorCode;
+
+  private long _flags;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -153,6 +157,7 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
 
 
   public AnotherException() {
+    this._flags = JavaFailureFlags.EMPTY;
   }
 
   public AnotherException(
@@ -161,6 +166,7 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
     this();
     this.errorCode = errorCode;
     setErrorCodeIsSet(true);
+    this._flags = JavaFailureFlags.EMPTY;
   }
 
   /**
@@ -170,6 +176,17 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.errorCode = other.errorCode;
+    this._flags = other._flags;
+  }
+
+  public long flags() {
+    return _flags;
+  }
+
+  public AnotherException copyWithFlags(long flags) {
+    AnotherException copied = deepCopy();
+    copied._flags = flags;
+    return copied;
   }
 
   public static List<String> validateNewInstance(AnotherException item) {
@@ -186,6 +203,7 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
   public void clear() {
     setErrorCodeIsSet(false);
     this.errorCode = 0;
+    this._flags = JavaFailureFlags.EMPTY;
   }
 
   public int getErrorCode() {
@@ -266,6 +284,8 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
       if (this.errorCode != that.errorCode)
         return false;
     }
+    if (this._flags != that._flags)
+      return false;
 
     return true;
   }
@@ -275,6 +295,9 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
     int hashCode = 1;
     {
       hashCode = 31 * hashCode + ((Integer)errorCode).hashCode();
+    }
+    {
+      hashCode = 31 * hashCode + Long.hashCode(this._flags);
     }
     return hashCode;
   }

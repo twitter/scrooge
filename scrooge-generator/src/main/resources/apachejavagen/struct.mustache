@@ -2,6 +2,10 @@
 {{>package}}
 {{>type_imports}}
 {{>thrift_imports}}
+{{#is_exception}}
+import com.twitter.finagle.AbstractFailureFlags;
+import com.twitter.finagle.JavaFailureFlags;
+{{/is_exception}}
 
 // No additional import required for struct/union.
 

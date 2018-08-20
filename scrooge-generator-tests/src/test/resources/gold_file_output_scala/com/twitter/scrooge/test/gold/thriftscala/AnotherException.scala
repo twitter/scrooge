@@ -164,17 +164,30 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] {
 
 /**
  * Prefer the companion object's [[com.twitter.scrooge.test.gold.thriftscala.AnotherException.apply]]
- * for construction if you don't need to specify passthrough fields.
+ * for construction if you don't need to specify passthrough or
+ * flags.
  */
 class AnotherException(
     val errorCode: Int,
-    val _passthroughFields: immutable$Map[Short, TFieldBlob])
+    val _passthroughFields: immutable$Map[Short, TFieldBlob],
+    val flags: Long)
   extends ThriftException with com.twitter.finagle.SourcedException with ThriftStruct
   with _root_.scala.Product1[Int]
   with ValidatingThriftStruct[AnotherException]
   with java.io.Serializable
+  with _root_.com.twitter.finagle.FailureFlags[AnotherException]
 {
   import AnotherException._
+
+  def this(
+    errorCode: Int,
+    _passthroughFields: immutable$Map[Short, TFieldBlob]
+  ) = this(
+    errorCode,
+    _passthroughFields,
+    _root_.com.twitter.finagle.FailureFlags.Empty
+  )
+
   def this(
     errorCode: Int
   ) = this(
@@ -294,14 +307,19 @@ class AnotherException(
 
   private def _equals(x: AnotherException, y: AnotherException): Boolean =
       x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator)
+      x.productIterator.sameElements(y.productIterator) &&
+      x.flags == y.flags &&
+      x._passthroughFields == y._passthroughFields
 
   override def equals(other: Any): Boolean =
     canEqual(other) &&
-      _equals(this, other.asInstanceOf[AnotherException]) &&
-      _passthroughFields == other.asInstanceOf[AnotherException]._passthroughFields
+      _equals(this, other.asInstanceOf[AnotherException])
 
-  override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+  override def hashCode: Int = {
+    var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+    hash = 31 * hash + _root_.java.lang.Long.hashCode(this.flags)
+    hash
+  }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 
@@ -316,5 +334,12 @@ class AnotherException(
   override def productPrefix: String = "AnotherException"
 
   def _codec: ValidatingThriftStructCodec3[AnotherException] = AnotherException
+
+  protected def copyWithFlags(flags: Long): AnotherException =
+    new AnotherException(
+      errorCode,
+      _passthroughFields,
+      flags
+    )
 }
 

@@ -23,16 +23,20 @@ import org.apache.thrift.async.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
+import com.twitter.finagle.AbstractFailureFlags;
+import com.twitter.finagle.JavaFailureFlags;
 
 // No additional import required for struct/union.
 
-public class OverCapacityException extends Exception implements TBase<OverCapacityException, OverCapacityException._Fields>, java.io.Serializable, Cloneable {
+public class OverCapacityException extends AbstractFailureFlags<OverCapacityException> implements TBase<OverCapacityException, OverCapacityException._Fields>, java.io.Serializable, Cloneable {
   private static final TStruct STRUCT_DESC = new TStruct("OverCapacityException");
 
   private static final TField CHILL_TIME_SECONDS_FIELD_DESC = new TField("chillTimeSeconds", TType.I32, (short)1);
 
 
   public int chillTimeSeconds;
+
+  private long _flags;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -161,6 +165,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
 
 
   public OverCapacityException() {
+    this._flags = JavaFailureFlags.EMPTY;
   }
 
   public OverCapacityException(
@@ -169,6 +174,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
     this();
     this.chillTimeSeconds = chillTimeSeconds;
     setChillTimeSecondsIsSet(true);
+    this._flags = JavaFailureFlags.EMPTY;
   }
 
   /**
@@ -178,6 +184,17 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.chillTimeSeconds = other.chillTimeSeconds;
+    this._flags = other._flags;
+  }
+
+  public long flags() {
+    return _flags;
+  }
+
+  public OverCapacityException copyWithFlags(long flags) {
+    OverCapacityException copied = deepCopy();
+    copied._flags = flags;
+    return copied;
   }
 
   public static List<String> validateNewInstance(OverCapacityException item) {
@@ -194,6 +211,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
   public void clear() {
     setChillTimeSecondsIsSet(false);
     this.chillTimeSeconds = 0;
+    this._flags = JavaFailureFlags.EMPTY;
   }
 
   public int getChillTimeSeconds() {
@@ -274,6 +292,8 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
       if (this.chillTimeSeconds != that.chillTimeSeconds)
         return false;
     }
+    if (this._flags != that._flags)
+      return false;
 
     return true;
   }
@@ -283,6 +303,9 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
     int hashCode = 1;
     {
       hashCode = 31 * hashCode + ((Integer)chillTimeSeconds).hashCode();
+    }
+    {
+      hashCode = 31 * hashCode + Long.hashCode(this._flags);
     }
     return hashCode;
   }

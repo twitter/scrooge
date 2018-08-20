@@ -8,15 +8,18 @@ import scala.collection.JavaConversions;
 import org.junit.Test;
 
 import com.twitter.finagle.Addresses;
+import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Name$;
 import com.twitter.finagle.ThriftMux;
 import com.twitter.scrooge.finagle_integration.thriftjava.BarService;
+import com.twitter.scrooge.finagle_integration.thriftjava.InvalidQueryException;
 import com.twitter.util.Await;
 import com.twitter.util.Duration;
 import com.twitter.util.Future;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class JavaIntegrationTest {
 
@@ -60,6 +63,23 @@ public class JavaIntegrationTest {
     public Future<Void> setDuck(long key, String value) {
       return Future.Void();
     }
+  }
+
+  @Test
+  public void exceptions() {
+    InvalidQueryException ex = new InvalidQueryException(5);
+    assertEquals(JavaFailureFlags.EMPTY, ex.flags());
+
+    InvalidQueryException rejected = ex.asRejected();
+    assertEquals(JavaFailureFlags.REJECTED, rejected.flags());
+
+    // verify flags is included in `equals` and `hashCode`
+    assertNotEquals(ex, rejected);
+    assertNotEquals(ex.hashCode(), rejected.hashCode());
+
+    // verify flags are cleared by `clear`
+    rejected.clear();
+    assertEquals(JavaFailureFlags.EMPTY, rejected.flags());
   }
 
 }

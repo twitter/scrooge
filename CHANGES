@@ -5,6 +5,10 @@
 Unreleased
 ----------
 
+ - scrooge-generator: Scala and Java generated Thrift exceptions now
+   implement `c.t.f.FailureFlags`. This allows exceptions to carry
+   Finagle metadata such as non-retryable. ``PHAB_ID=D204132``
+
 18.8.0
 -------
  - scrooge-core: Add interface for Scala generated Enum objects. ``PHAB_ID=D197147``

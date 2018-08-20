@@ -1,10 +1,14 @@
-public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{name}} {{#is_exception}}extends Exception {{/is_exception}}implements TBase<{{name}}, {{name}}._Fields>, java.io.Serializable, Cloneable {
+public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{name}} {{#is_exception}}extends AbstractFailureFlags<{{name}}> {{/is_exception}}implements TBase<{{name}}, {{name}}._Fields>, java.io.Serializable, Cloneable {
   {{#i_2}}{{>generate_struct_desc}}{{/i_2}}
   {{#i_2}}{{>generate_field_descs}}{{/i_2}}
 
   {{#fields}}
   public {{{field_type.type_name}}} {{name}};
   {{/fields}}
+{{#is_exception}}
+
+  private long _flags;
+{{/is_exception}}
 
   {{#i_2}}{{>generate_field_name_constants}}{{/i_2}}
 
@@ -30,6 +34,9 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{#default_fields}}
     {{{print_const}}}
     {{/default_fields}}
+{{#is_exception}}
+    this._flags = JavaFailureFlags.EMPTY;
+{{/is_exception}}
     {{/consolidate_newlines}}
   }
 
@@ -46,6 +53,9 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     set{{#cap}}{{name}}{{/cap}}IsSet(true);
     {{/field_type.nullable}}
     {{/non_optional_fields}}
+    {{#is_exception}}
+    this._flags = JavaFailureFlags.EMPTY;
+    {{/is_exception}}
   }
   {{/non_default_constructor}}
 
@@ -78,8 +88,24 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{/field_type.nullable}}
 
     {{/fields}}
+
+    {{#is_exception}}
+    this._flags = other._flags;
+    {{/is_exception}}
     {{/consolidate_newlines}}
   }
+{{#is_exception}}
+
+  public long flags() {
+    return _flags;
+  }
+
+  public {{name}} copyWithFlags(long flags) {
+    {{name}} copied = deepCopy();
+    copied._flags = flags;
+    return copied;
+  }
+{{/is_exception}}
 
   public static List<String> validateNewInstance({{name}} item) {
     final List<String> buf = new ArrayList<String>();
@@ -152,6 +178,9 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{/field.default}}
     {{/consolidate_newlines}}
     {{/fields}}
+    {{#is_exception}}
+    this._flags = JavaFailureFlags.EMPTY;
+    {{/is_exception}}
   }
 
   {{#fields}}
@@ -329,12 +358,17 @@ this.{{name}} != that.{{name}}
     }
     {{/consolidate_newlines}}
     {{/fields}}
+    {{#is_exception}}
+    if (this._flags != that._flags)
+      return false;
+    {{/is_exception}}
 
     return true;
   }
 
   @java.lang.Override
   public int hashCode() {
+    {{#consolidate_newlines}}
     {{#gen_hash_code}}
     int hashCode = 1;
     {{#fields}}
@@ -347,11 +381,17 @@ this.{{name}} != that.{{name}}
     {{/field_type.is_enum}}
     }
     {{/fields}}
+    {{#is_exception}}
+    {
+      hashCode = 31 * hashCode + Long.hashCode(this._flags);
+    }
+    {{/is_exception}}
     return hashCode;
     {{/gen_hash_code}}
     {{^gen_hash_code}}
     return 0;
     {{/gen_hash_code}}
+    {{/consolidate_newlines}}
   }
 
   public int compareTo({{struct_type_name}} other) {

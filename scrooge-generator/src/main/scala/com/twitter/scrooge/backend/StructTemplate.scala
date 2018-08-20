@@ -378,7 +378,7 @@ trait StructTemplate { self: TemplateGenerator =>
     toplevel: Boolean = false // True if this struct is defined in its own file. False for internal structs.
   ): Dictionary = {
     val parentType = struct match {
-      case e: Exception_ if (serviceOptions contains WithFinagle) =>
+      case e: Exception_ if serviceOptions.contains(WithFinagle) =>
         "ThriftException with com.twitter.finagle.SourcedException with ThriftStruct"
       case e: Exception_ => "ThriftException with ThriftStruct"
       case u: Union => "ThriftUnion\n  with ThriftStruct"
@@ -446,11 +446,12 @@ trait StructTemplate { self: TemplateGenerator =>
       "product" -> v(productN(struct.fields, namespace)),
       "tuple" -> v(tupleN(struct.fields, namespace)),
       "arity0" -> v(arity == 0),
-      "arity1" -> v((if (arity == 1) fieldDictionaries.take(1) else Nil)),
+      "arity1" -> v(if (arity == 1) fieldDictionaries.take(1) else Nil),
       "arityN" -> v(arity > 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
       "withTrait" -> v(isStruct),
       "adapt" -> v(genAdapt),
+      "hasFailureFlags" -> v(isException && serviceOptions.contains(WithFinagle)),
       "structAnnotations" -> TemplateGenerator.renderPairs(struct.annotations)
     )
   }

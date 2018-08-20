@@ -555,14 +555,17 @@ trait Response
 
   private def _equals(x: Response, y: Response): Boolean =
       x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator)
+      x.productIterator.sameElements(y.productIterator) &&
+      x._passthroughFields == y._passthroughFields
 
   override def equals(other: Any): Boolean =
     canEqual(other) &&
-      _equals(this, other.asInstanceOf[Response]) &&
-      _passthroughFields == other.asInstanceOf[Response]._passthroughFields
+      _equals(this, other.asInstanceOf[Response])
 
-  override def hashCode: Int = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+  override def hashCode: Int = {
+    var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
+    hash
+  }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
 

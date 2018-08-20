@@ -1169,5 +1169,17 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         context.assertIsSatisfied()
       }
     }
+
+    "generate exceptions with FailureFlags" in { _ =>
+      val x = Xception(5, "hi")
+      assert(x.flags == FailureFlags.Empty)
+
+      val rejected = x.asRejected
+      assert(rejected.flags == FailureFlags.Rejected)
+
+      // verify flags are included in `equals` and `hashCode`
+      assert(x != rejected)
+      assert(x.hashCode != rejected.hashCode)
+    }
   }
 }
