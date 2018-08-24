@@ -73,8 +73,8 @@ compatibility can be kept by adding a forwarding method. Note that we
 avoid adding default arguments because this is not a compatible change
 for our Java users.  However, when the benefits outweigh the costs, we
 are willing to break APIs. The break should be noted in the Breaking
-API Changes section of the [changelog](CHANGES). Note that changes to
-non-public APIs will not be called out in the [changelog](CHANGES).
+API Changes section of the [changelog][changes]. Note that changes to
+non-public APIs will not be called out in the [changelog][changes].
 
 ## Java
 
@@ -217,4 +217,4 @@ requests that improve the existing Scaladocs!
 [scalatest]: http://www.scalatest.org/
 [ssg]: http://docs.scala-lang.org/style/scaladoc.html
 [travis-ci]: https://travis-ci.org/twitter/scrooge
-[changes]: https://github.com/twitter/scrooge/blob/develop/CHANGES
+[changes]: https://github.com/twitter/scrooge/blob/develop/CHANGELOG.rst
