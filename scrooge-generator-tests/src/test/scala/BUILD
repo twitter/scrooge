@@ -39,7 +39,7 @@ junit_tests(
         "*.scala",
         exclude = LIB_SOURCES,
     ),
-    fatal_warnings = True,
+    compiler_option_sets = {"fatal_warnings"},
     dependencies = [
         ":lib",
         "3rdparty/jvm/asm",
