@@ -12,6 +12,7 @@ cache:
    - $HOME/.ivy2
    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
    - $HOME/.dodo
+   - $HOME/**/target/*/scoverage-data/*.*
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -27,7 +28,7 @@ jdk:
 
 notifications:
   slack:
-    secure: jpSo1XQMxe0sP47fZIM3wE0zZgp+QkPRdKlVgRIwFjVgYurjK12CUwjHhc9u3IIOlMRsAGhnLZQ3VChecaZnwIVI4o7Gvei17L7O/1jLqAya4QxTiD7seCASyeeMWb6+dQPD3YJC8oU6IN1y9qy09K+/WIKrbVwepTYgKZe4bcE=
+    secure: Iyuxm9yOwUcT69bjgjqFnHTUQMRCIBAB3V0Xz2I2kir8gKYDsjjigKZgxFSAGMB9fF6KD72sAR0qwbIUt02jSM3qtkmKcAkaeqGQBKPJDiwWUGvgU5DVJuLH0huSvTePGNvPZ2YH60Y5KURJMF/0FtbqKL6Y+xfgAiZhrqvEAgw=
 
 script:
   - unset SBT_OPTS # default $SBT_OPTS is irrelevant to sbt launcher
@@ -35,7 +36,6 @@ script:
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
   - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-  - bash <(curl -s https://codecov.io/bash)
 
 jobs:
   include:
@@ -43,7 +43,12 @@ jobs:
       scala: 2.11.11
       jdk: oraclejdk8
       script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
+    - stage: coverage
+      scala: 2.11.11
+      jdk: oraclejdk8
+      script: bash <(curl -s https://codecov.io/bash)
 
 stages:
   - dodo
   - test
+  - coverage 
