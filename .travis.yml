@@ -12,7 +12,8 @@ cache:
    - $HOME/.ivy2
    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
    - $HOME/.dodo
-   - $HOME/**/target/*/scoverage-data/*.*
+   - $HOME/**/target/scala-2.12/scoverage-data/*.xml # 2.12 only
+   - $HOME/**/target/scala-2.12/coverage-report/*.xml # 2.12 only
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -44,7 +45,7 @@ jobs:
       jdk: oraclejdk8
       script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
     - stage: coverage
-      scala: 2.11.11
+      scala: 2.12.4
       jdk: oraclejdk8
       script: bash <(curl -s https://codecov.io/bash)
 
