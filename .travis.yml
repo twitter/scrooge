@@ -29,17 +29,12 @@ notifications:
   slack:
     secure: jpSo1XQMxe0sP47fZIM3wE0zZgp+QkPRdKlVgRIwFjVgYurjK12CUwjHhc9u3IIOlMRsAGhnLZQ3VChecaZnwIVI4o7Gvei17L7O/1jLqAya4QxTiD7seCASyeeMWb6+dQPD3YJC8oU6IN1y9qy09K+/WIKrbVwepTYgKZe4bcE=
 
-before_script:
-  # default $SBT_OPTS is irrelevant to sbt launcher
-  - unset SBT_OPTS
-  - travis_retry ./sbt --error ++$TRAVIS_SCALA_VERSION update
-
 script:
+  - unset SBT_OPTS # default $SBT_OPTS is irrelevant to sbt launcher
+  - travis_retry ./sbt --error ++$TRAVIS_SCALA_VERSION update
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
   - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-
-after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 jobs:
