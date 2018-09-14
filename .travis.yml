@@ -27,6 +27,8 @@ jobs:
     - stage: dodo
       scala:
         - 2.11.11
+      jdk:
+        - oraclejdk8
       script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
     - stage: test
       scala:
@@ -39,10 +41,8 @@ jobs:
       script: travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
       script: travis_retry ./sbt ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
       script: ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-    - stage: coverage
       script: bash <(curl -s https://codecov.io/bash)
 
 stages:
   - dodo
   - test
-  - coverage
