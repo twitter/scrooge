@@ -25,6 +25,8 @@ notifications:
 jobs:
   include:
     - stage: dodo
+      scala:
+        - 2.11.11
       script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
     - stage: test
       scala:
