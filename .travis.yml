@@ -4,8 +4,8 @@ sudo: false
 language: scala
 
 git:
-  quiet: true
-  depth: 5
+  quiet: true # (default = false)
+  depth: 5 # (default = 50)
 
 env:
   - JAVA_OPTS="-DSKIP_FLAKY=true -Dsbt.log.noformat=true"
@@ -24,7 +24,7 @@ before_cache:
   - find $HOME/.sbt -name "*.lock" -delete
 
 scala:
-  - 2.11.11
+  - 2.11.12
   - 2.12.4
 
 jdk:
@@ -34,21 +34,24 @@ notifications:
   slack:
     secure: Iyuxm9yOwUcT69bjgjqFnHTUQMRCIBAB3V0Xz2I2kir8gKYDsjjigKZgxFSAGMB9fF6KD72sAR0qwbIUt02jSM3qtkmKcAkaeqGQBKPJDiwWUGvgU5DVJuLH0huSvTePGNvPZ2YH60Y5KURJMF/0FtbqKL6Y+xfgAiZhrqvEAgw=
 
-script:
-  - unset SBT_OPTS # default $SBT_OPTS is irrelevant to sbt launcher
+before_script:
+  - unset SBT_OPTS # default $SBT_OPTS is irrelevant to sbt lancher
   - travis_retry ./sbt --error ++$TRAVIS_SCALA_VERSION update
+
+script:
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
   - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-  - bash <(curl -s https://codecov.io/bash)
 
-jobs:
-  include:
-    - stage: dodo
-      scala: 2.11.11
-      jdk: oraclejdk8
-      script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
+after_success: # note this is run per job in the matrix but only the last run is kept by codecov.io.
+  - bash <(curl -s https://codecov.io/bash)
 
 stages:
   - dodo
   - test
+
+jobs:
+  include:
+    - stage: dodo
+      jdk: oraclejdk8
+      script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
