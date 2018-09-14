@@ -46,6 +46,7 @@ jobs:
   include:
     - stage: dodo
       scala: 2.11.11
+      jdk: oraclejdk8
       script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
 
 stages:
