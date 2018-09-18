@@ -7,25 +7,19 @@
 package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.{
-  service => ctfs,
-  Filter => finagle$Filter,
+  Filter => _,
   Service => finagle$Service,
   thrift => _,
   _
 }
-import com.twitter.finagle.stats.{Counter, NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{RichServerParam, ServerToReqRep}
+import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
+import com.twitter.finagle.thrift.RichServerParam
 import com.twitter.io.Buf
-import com.twitter.scrooge._
-import com.twitter.util.{Future, Return, Throw, Throwables}
-import java.nio.ByteBuffer
-import java.util.Arrays
+import com.twitter.util.Future
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
-import scala.collection.mutable.{
-  ArrayBuffer => mutable$ArrayBuffer, HashMap => mutable$HashMap}
-import scala.collection.{Map, Set}
+import scala.collection.mutable.{HashMap => mutable$HashMap}
 
 import scala.language.higherKinds
 
@@ -61,13 +55,11 @@ class PlatinumService$FinagleService(
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
   override def serviceName: String = serverParam.serviceName
-  private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
-  private[this] def stats: StatsReceiver = serverParam.serverStats
-  private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
+  private[this] val filters = new Filter(serverParam)
+
+  // ---- end boilerplate.
 
   addService("moreCoolThings", {
-    val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = perMethodStatsFilter(MoreCoolThings)
-  
     val methodService = new finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
         if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
@@ -77,66 +69,6 @@ class PlatinumService$FinagleService(
       }
     }
   
-    val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] {
-      def apply(
-        request: (TProtocol, Int),
-        service: finagle$Service[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]]
-      ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
-        val iprot = request._1
-        val seqid = request._2
-        val res = service(request)
-        res.transform {
-          case _root_.com.twitter.util.Throw(e: TProtocolException) =>
-            iprot.readMessageEnd()
-            Future.value(
-              ProtocolExceptionResponse(
-                null,
-                exception("moreCoolThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
-                new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
-          case _ =>
-            res
-        }
-      }
-    }
-  
-    val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result], MoreCoolThings.Args, MoreCoolThings.SuccessType] {
-      def apply(
-        request: (TProtocol, Int),
-        service: finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType]
-      ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
-        val iprot = request._1
-        val seqid = request._2
-        val args = MoreCoolThings.Args.decode(iprot)
-        iprot.readMessageEnd()
-        val res = service(args)
-        res.transform {
-          case _root_.com.twitter.util.Return(value) =>
-            val methodResult = MoreCoolThings.Result(success = Some(value))
-            Future.value(
-              SuccessfulResponse(
-                args,
-                reply("moreCoolThings", seqid, methodResult),
-                methodResult))
-          case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.AnotherException) => {
-            Future.value(
-              ThriftExceptionResponse(
-                args,
-                reply("moreCoolThings", seqid, MoreCoolThings.Result(ax = Some(e))),
-                e))
-          }
-          case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException) => {
-            Future.value(
-              ThriftExceptionResponse(
-                args,
-                reply("moreCoolThings", seqid, MoreCoolThings.Result(oce = Some(e))),
-                e))
-          }
-          case t @ _root_.com.twitter.util.Throw(_) =>
-            Future.const(t.cast[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]])
-        }
-      }
-    }
-  
-    statsFilter.andThen(protocolExnFilter).andThen(serdeFilter).andThen(methodService)
+    filters.moreCoolThings.andThen(methodService)
   })
 }

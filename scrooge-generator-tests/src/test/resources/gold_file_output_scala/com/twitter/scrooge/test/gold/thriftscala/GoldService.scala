@@ -6,34 +6,30 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.scrooge.{
-  LazyTProtocol,
-  TFieldBlob,
-  ThriftMethod,
-  ThriftStruct,
-  ThriftStructCodec,
-  ThriftStructFieldInfo,
-  ThriftResponse,
-  ThriftUtil,
-  ValidatingThriftStruct,
-  ValidatingThriftStructCodec3
+import com.twitter.scrooge._
+import com.twitter.finagle.{
+  service => ctfs,
+  Filter => finagle$Filter,
+  Service => finagle$Service,
+  thrift => _,
+  _
 }
-import com.twitter.finagle.{service => ctfs}
+import com.twitter.finagle.stats.{Counter, StatsReceiver}
 import com.twitter.finagle.thrift.{
   Protocols,
   RichClientParam,
   RichServerParam,
+  ServerToReqRep,
   ThriftClientRequest,
   ThriftServiceIface,
   ToThriftService
 }
-import com.twitter.util.Future
+import com.twitter.util.{Future, Return, Throw, Throwables}
+import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.util.Arrays
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.TTransport
 import org.apache.thrift.TApplicationException
-import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
 import scala.collection.mutable.{
   Builder,
@@ -903,4 +899,205 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       serviceName: String = "GoldService"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))
   }
+
+  class Filter(serverParam: RichServerParam) {
+    private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
+
+    private[this] def serviceName: String = serverParam.serviceName
+    private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
+    private[this] def stats: StatsReceiver = serverParam.serverStats
+    private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
+    private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
+
+    private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
+
+    private[thriftscala] def exception(name: String, seqid: Int, code: Int, message: String): Buf = {
+      val x = new TApplicationException(code, message)
+      val memoryBuffer = tlReusableBuffer.get()
+      try {
+        val oprot = protocolFactory.getProtocol(memoryBuffer)
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid))
+        x.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.getTransport().flush()
+
+        // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
+        Buf.ByteArray.Shared(memoryBuffer.getArray(), 0, memoryBuffer.length())
+      } finally {
+        tlReusableBuffer.reset()
+      }
+    }
+
+    private def reply(name: String, seqid: Int, result: ThriftStruct): Buf = {
+      val memoryBuffer = tlReusableBuffer.get()
+      try {
+        val oprot = protocolFactory.getProtocol(memoryBuffer)
+
+        oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid))
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.getTransport().flush()
+
+        // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
+        Buf.ByteArray.Shared(memoryBuffer.getArray(), 0, memoryBuffer.length())
+      } finally {
+        tlReusableBuffer.reset()
+      }
+    }
+
+    private object ThriftMethodStats {
+      def apply(stats: StatsReceiver): ThriftMethodStats =
+        ThriftMethodStats(
+          stats.counter("requests"),
+          stats.counter("success"),
+          stats.counter("failures"),
+          stats.scope("failures")
+        )
+    }
+
+    private case class ThriftMethodStats(
+      requestsCounter: Counter,
+      successCounter: Counter,
+      failuresCounter: Counter,
+      failuresScope: StatsReceiver
+    )
+
+    private def missingResult(name: String): TApplicationException = {
+      new TApplicationException(
+        TApplicationException.MISSING_RESULT,
+        name + " failed: unknown result"
+      )
+    }
+
+    private def setServiceName(ex: Throwable): Throwable =
+      if (this.serviceName == "") ex
+      else {
+        ex match {
+          case se: SourcedException =>
+            se.serviceName = this.serviceName
+            se
+          case _ => ex
+        }
+      }
+
+    private def recordRequest(method: ThriftMethod): Unit = {
+      if (perEndpointStats) {
+        val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+        methodStats.requestsCounter.incr()
+      }
+    }
+
+    private def recordResponse(reqRep: ctfs.ReqRep, method: ThriftMethod): Unit = {
+      ServerToReqRep.setCtx(reqRep)
+      if (perEndpointStats) {
+        val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+        val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
+        responseClass match {
+          case ctfs.ResponseClass.Successful(_) =>
+            methodStats.successCounter.incr()
+          case ctfs.ResponseClass.Failed(_) =>
+            methodStats.failuresCounter.incr()
+            reqRep.response match {
+              case Throw(ex) =>
+                methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
+              case _ =>
+            }
+        }
+      }
+    }
+
+    final protected def perMethodStatsFilter(
+      method: ThriftMethod
+    ): finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] = {
+      new finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] {
+        def apply(
+          req: (TProtocol, Int),
+          service: finagle$Service[(TProtocol, Int), RichResponse[method.Args, method.Result]]
+        ): Future[Array[Byte]] = {
+          recordRequest(method)
+          service(req).transform {
+            case Return(value) =>
+              value match {
+                case SuccessfulResponse(args, _, result) =>
+                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Return(result.successField.get)), method)
+                case ProtocolExceptionResponse(args, _, exp) =>
+                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(exp)), method)
+                case ThriftExceptionResponse(args, _, ex) =>
+                  val rep = ex match {
+                    case exp: ThriftException => setServiceName(exp)
+                    case _ => missingResult(serviceName)
+                  }
+                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(rep)), method)
+              }
+              Future.value(Buf.ByteArray.Owned.extract(value.response))
+            case t @ Throw(_) =>
+              recordResponse(ctfs.ReqRep(req, t), method)
+              Future.const(t.cast[Array[Byte]])
+          }
+        }
+      }
+    }
+    // ---- end boilerplate.
+
+    val doGreatThings: finagle$Filter[(TProtocol, Int), Array[Byte], DoGreatThings.Args, DoGreatThings.SuccessType] = {
+      val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result]] = perMethodStatsFilter(DoGreatThings)
+    
+      val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result]] {
+        def apply(
+          request: (TProtocol, Int),
+          service: finagle$Service[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result]]
+        ): Future[RichResponse[DoGreatThings.Args, DoGreatThings.Result]] = {
+          val iprot = request._1
+          val seqid = request._2
+          val res = service(request)
+          res.transform {
+            case _root_.com.twitter.util.Throw(e: TProtocolException) =>
+              iprot.readMessageEnd()
+              Future.value(
+                ProtocolExceptionResponse(
+                  null,
+                  exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
+                  new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
+            case _ =>
+              res
+          }
+        }
+      }
+    
+      val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[DoGreatThings.Args, DoGreatThings.Result], DoGreatThings.Args, DoGreatThings.SuccessType] {
+        def apply(
+          request: (TProtocol, Int),
+          service: finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType]
+        ): Future[RichResponse[DoGreatThings.Args, DoGreatThings.Result]] = {
+          val iprot = request._1
+          val seqid = request._2
+          val args = DoGreatThings.Args.decode(iprot)
+          iprot.readMessageEnd()
+          val res = service(args)
+          res.transform {
+            case _root_.com.twitter.util.Return(value) =>
+              val methodResult = DoGreatThings.Result(success = Some(value))
+              Future.value(
+                SuccessfulResponse(
+                  args,
+                  reply("doGreatThings", seqid, methodResult),
+                  methodResult))
+            case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException) => {
+              Future.value(
+                ThriftExceptionResponse(
+                  args,
+                  reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(e))),
+                  e))
+            }
+            case t @ _root_.com.twitter.util.Throw(_) =>
+              Future.const(t.cast[RichResponse[DoGreatThings.Args, DoGreatThings.Result]])
+          }
+        }
+      }
+    
+      statsFilter.andThen(protocolExnFilter).andThen(serdeFilter)
+    }
+  }
+
 }

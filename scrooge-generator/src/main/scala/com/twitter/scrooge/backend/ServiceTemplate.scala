@@ -80,7 +80,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
         v(s"Function1$types")
       },
       "reqRepFunctionType" -> {
-        val returnType = s"Future[_root_.com.twitter.scrooge.Response[${genType(function.funcType)}]]"
+        val returnType =
+          s"Future[_root_.com.twitter.scrooge.Response[${genType(function.funcType)}]]"
         val types = s"[_root_.com.twitter.scrooge.Request[Args],$returnType]"
         v(s"Function1$types")
       },
@@ -216,6 +217,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
           .mkString(", ")
     }
 
+  private def basename(fqdn: String): String = fqdn.split('.').last
+
   def serviceDict(
     service: Service,
     namespace: Identifier,
@@ -225,14 +228,14 @@ trait ServiceTemplate { self: TemplateGenerator =>
   ): Dictionary = {
     val withFinagle = options.contains(WithFinagle)
     val withAsClosable = options.contains(WithAsClosable)
-    lazy val computeInheritedFunctions: Service => (Seq[Dictionary], Seq[Dictionary]) = {
-      service => {
+    lazy val computeInheritedFunctions: Service => (Seq[Dictionary], Seq[Dictionary]) = { service =>
+      {
         // For service-per-endpoint, we generate a class with a value for each method, so
         // method names must be unique.
         val deduper = new NameDeduplicator()
         val inheritedFunctions: Seq[Dictionary] =
-        // Note: inherited functions must be deduped first, so we walk the parent chain
-        // from the topmost parent down (hence the reverse).
+          // Note: inherited functions must be deduped first, so we walk the parent chain
+          // from the topmost parent down (hence the reverse).
           resolvedDoc
             .resolveParentServices(service, namespaceLanguage, defaultNamespace)
             .reverse
@@ -258,9 +261,13 @@ trait ServiceTemplate { self: TemplateGenerator =>
       }
     }
 
+    val pkg = genID(namespace)
+    val pkgName = v(basename(pkg.toData))
+
     Dictionary(
       "function" -> v(templates("function")),
-      "package" -> genID(namespace),
+      "package" -> pkg,
+      "packageName" -> pkgName,
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> v(service.docstring.getOrElse("")),
       "syncParent" -> v(service.parent.map { p =>
@@ -343,7 +350,32 @@ trait ServiceTemplate { self: TemplateGenerator =>
         v(ownFunctions)
       },
       "annotations" -> TemplateGenerator.renderPairs(service.annotations),
-      "withAsClosable" -> v(withAsClosable)
+      "withAsClosable" -> v(withAsClosable),
+      "methodFilter" -> v(templates("methodFilter")),
+      "methodFilters" -> v(service.functions map { f =>
+        Dictionary(
+          "methodSvcNameForCompile" -> genID(f.funcName.toCamelCase),
+          "methodSvcNameForWire" -> v(f.originalName),
+          "funcObjectName" -> genID(functionObjectName(f)),
+          "argNames" ->
+            v(
+              f.args
+                .map { field =>
+                  "args." + genID(field.sid).toData
+                }
+                .mkString(", ")
+            ),
+          "typeName" -> genType(f.funcType),
+          "resultNamedArg" ->
+            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(value)" else ""),
+          "exceptions" -> v(f.throws map { t =>
+            Dictionary(
+              "exceptionType" -> genType(t.fieldType),
+              "fieldName" -> genID(t.sid)
+            )
+          })
+        )
+      })
     )
   }
 

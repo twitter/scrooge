@@ -2,6 +2,7 @@ package com.twitter.scrooge.backend
 
 import _root_.thrift.test.ExceptionalService._
 import _root_.thrift.test._
+import collisions.dupes.thriftscala.{Aaa, Ccc}
 import com.twitter.conversions.time._
 import com.twitter.finagle
 import com.twitter.finagle.param.Stats
@@ -15,6 +16,7 @@ import com.twitter.util.{Await, Future, Return, Time}
 import java.net.{InetAddress, InetSocketAddress}
 import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.thrift.protocol._
+import org.apache.thrift.transport.TMemoryInputTransport
 import org.jmock.Expectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
@@ -287,6 +289,95 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         })
 
         Await.result(service(request)) must be(response)
+        context.assertIsSatisfied()
+      }
+    }
+
+    "generate Filter" should {
+      val context = new Mockery
+      context.setImposteriser(ClassImposteriser.INSTANCE)
+      val protocolFactory = new TBinaryProtocol.Factory
+
+      "basic usage" in { _ =>
+        val request = encodeRequest("deliver", ExceptionalService.Deliver.Args("Boston")).message
+        val response =
+          encodeResponse("deliver", ExceptionalService.Deliver.Result(success = Some(42)))
+
+        val impl = context.mock(
+          classOf[
+            finagleService[ExceptionalService.Deliver.Args, ExceptionalService.Deliver.SuccessType]
+          ]
+        )
+        val filters = new ExceptionalService.Filter(RichServerParam())
+        val svc = filters.deliver.andThen(impl)
+
+        context.checking(new Expectations {
+          one(impl).apply(ExceptionalService.Deliver.Args("Boston"));
+          will(returnValue(Future.value(42)))
+        })
+
+        // this initial deserialisation is normally done by the router
+        val inputTransport = new TMemoryInputTransport(request)
+        val iprot = protocolFactory.getProtocol(inputTransport)
+        val msg = iprot.readMessageBegin()
+
+        Await.result(svc((iprot, msg.seqid))) must be(response)
+        context.assertIsSatisfied()
+      }
+
+      "inherited method" in { _ =>
+        val request = encodeRequest("duplicated", Ccc.Duplicated.Args("ccc")).message
+        val response =
+          encodeResponse("duplicated", Ccc.Duplicated.Result(success = Some(42)))
+
+        val impl = context.mock(
+          classOf[
+            finagleService[Ccc.Duplicated.Args, Ccc.Duplicated.SuccessType]
+          ],
+          "ccc"
+        )
+        val filters = new Ccc.Filter(RichServerParam())
+        val svc = filters.duplicated.andThen(impl)
+
+        context.checking(new Expectations {
+          one(impl).apply(Ccc.Duplicated.Args("ccc"));
+          will(returnValue(Future.value(42)))
+        })
+
+        // this initial deserialisation is normally done by the router
+        val inputTransport = new TMemoryInputTransport(request)
+        val iprot = protocolFactory.getProtocol(inputTransport)
+        val msg = iprot.readMessageBegin()
+
+        Await.result(svc((iprot, msg.seqid))) must be(response)
+        context.assertIsSatisfied()
+      }
+
+      "parent method" in { _ =>
+        val request = encodeRequest("duplicated", Aaa.Duplicated.Args()).message
+        val response =
+          encodeResponse("duplicated", Aaa.Duplicated.Result(success = Some(42)))
+
+        val impl = context.mock(
+          classOf[
+            finagleService[Aaa.Duplicated.Args, Aaa.Duplicated.SuccessType]
+          ],
+          "aaa"
+        )
+        val filters = new Aaa.Filter(RichServerParam())
+        val svc = filters.duplicated.andThen(impl)
+
+        context.checking(new Expectations {
+          one(impl).apply(Aaa.Duplicated.Args());
+          will(returnValue(Future.value(42)))
+        })
+
+        // this initial deserialisation is normally done by the router
+        val inputTransport = new TMemoryInputTransport(request)
+        val iprot = protocolFactory.getProtocol(inputTransport)
+        val msg = iprot.readMessageBegin()
+
+        Await.result(svc((iprot, msg.seqid))) must be(response)
         context.assertIsSatisfied()
       }
     }
