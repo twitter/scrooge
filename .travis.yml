@@ -30,15 +30,21 @@ notifications:
     secure: Iyuxm9yOwUcT69bjgjqFnHTUQMRCIBAB3V0Xz2I2kir8gKYDsjjigKZgxFSAGMB9fF6KD72sAR0qwbIUt02jSM3qtkmKcAkaeqGQBKPJDiwWUGvgU5DVJuLH0huSvTePGNvPZ2YH60Y5KURJMF/0FtbqKL6Y+xfgAiZhrqvEAgw=
 
 before_script:
-  # default $SBT_OPTS is irrelevant to sbt launcher
-  - unset SBT_OPTS
-  - curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
-  - travis_retry ./sbt --error ++$TRAVIS_SCALA_VERSION update
+  - unset SBT_OPTS # default $SBT_OPTS is irrelevant to sbt launcher
 
 script:
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION "project scrooge-generator-tests" coverage test coverageReport
-  - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
 
 after_success:
+  - ./sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
   - bash <(curl -s https://codecov.io/bash)
+
+stages:
+  - dodo
+  - test
+
+jobs:
+  include:
+    - stage: dodo
+      script: curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
