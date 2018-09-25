@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
-      <version>0.8.0</version>
+      <version>0.10.0</version>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
@@ -172,18 +172,6 @@
       <name>Maven Central</name>
       <url>http://repo1.maven.org/maven2</url>
     </repository>
-    <repository>
-      <id>maven.twttr.com</id>
-      <name>maven.twttr.com</name>
-      <url>https://maven.twttr.com</url>
-    </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>maven.twttr.com</id>
-      <name>maven.twttr.com</name>
-      <url>https://maven.twttr.com</url>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>

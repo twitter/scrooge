@@ -55,8 +55,6 @@ val sharedSettingsWithoutScalaVersion = Seq(
 
   ScoverageKeys.coverageHighlighting := true,
 
-  resolvers += "twitter-repo" at "https://maven.twttr.com",
-
   parallelExecution in Test := false,
 
   // -a: print stack traces for failing asserts

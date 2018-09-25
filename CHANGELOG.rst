@@ -7,6 +7,10 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge: Finally remove `maven.twttr.com` as a dependency or plugin repository. With 
+  the update to a more recent libthrift dependency, this should no longer be necessary. 
+  ``PHAB_ID=D219665``
+
 18.9.0
 -------
 

@@ -281,11 +281,6 @@
       <name>Maven Central</name>
       <url>http://repo1.maven.org/maven2</url>
     </repository>
-    <repository>
-      <id>maven.twttr.com</id>
-      <name>maven.twttr.com</name>
-      <url>https://maven.twttr.com</url>
-    </repository>
   </repositories>
   <reporting>
     <plugins>
