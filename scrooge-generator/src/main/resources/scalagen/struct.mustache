@@ -34,13 +34,13 @@ import scala.collection.{Map, Set}
 {{docstring}}
 object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("{{StructNameForWire}}")
+  val Struct: TStruct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
-  val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
+  val {{fieldConst}}: TField = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
 {{#isEnum}}
-  val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
+  val {{fieldConst}}I32: TField = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
 {{/isEnum}}
-  val {{fieldConst}}Manifest = implicitly[Manifest[{{fieldType}}]]
+  val {{fieldConst}}Manifest: Manifest[{{fieldType}}] = implicitly[Manifest[{{fieldType}}]]
 {{/fields}}
 
   /**
@@ -196,7 +196,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{/fields}}
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
-    override def _passthroughFields = underlying._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
   }
 {{/withTrait}}
 {{/adapt}}
@@ -505,7 +505,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{#fields}}
     override def {{fieldName}}: {{>optionalType}} = {{underlyingStructName}}.{{fieldName}}
 {{/fields}}
-    override def _passthroughFields = {{underlyingStructName}}._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = {{underlyingStructName}}._passthroughFields
   }
 {{/withTrait}}
 }
@@ -587,7 +587,7 @@ class {{StructName}}(
 {{/withTrait}}
 
 {{#fields}}
-  def _{{indexP1}} = {{fieldName}}
+  def _{{indexP1}}: {{>optionalType}} = {{fieldName}}
 {{/fields}}
 
 {{#arityN}}

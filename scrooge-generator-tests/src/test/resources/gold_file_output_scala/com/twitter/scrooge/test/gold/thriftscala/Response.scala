@@ -36,11 +36,11 @@ import scala.collection.{Map, Set}
 
 object Response extends ValidatingThriftStructCodec3[Response] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("Response")
-  val StatusCodeField = new TField("statusCode", TType.I32, 1)
-  val StatusCodeFieldManifest = implicitly[Manifest[Int]]
-  val ResponseUnionField = new TField("responseUnion", TType.STRUCT, 2)
-  val ResponseUnionFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]]
+  val Struct: TStruct = new TStruct("Response")
+  val StatusCodeField: TField = new TField("statusCode", TType.I32, 1)
+  val StatusCodeFieldManifest: Manifest[Int] = implicitly[Manifest[Int]]
+  val ResponseUnionField: TField = new TField("responseUnion", TType.STRUCT, 2)
+  val ResponseUnionFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]]
 
   /**
    * Field information in declaration order.
@@ -145,7 +145,7 @@ object Response extends ValidatingThriftStructCodec3[Response] {
     }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
-    override def _passthroughFields = underlying._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
   }
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): Response = {
@@ -394,7 +394,7 @@ object Response extends ValidatingThriftStructCodec3[Response] {
     protected def _underlying_Response: Response
     override def statusCode: Int = _underlying_Response.statusCode
     override def responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = _underlying_Response.responseUnion
-    override def _passthroughFields = _underlying_Response._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_Response._passthroughFields
   }
 }
 
@@ -415,8 +415,8 @@ trait Response
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
-  def _1 = statusCode
-  def _2 = responseUnion
+  def _1: Int = statusCode
+  def _2: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = responseUnion
 
   def toTuple: _root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] = {
     (

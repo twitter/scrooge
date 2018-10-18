@@ -102,13 +102,13 @@ object {{StructName}}Aliases {
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
-  val Union = new TStruct("{{StructNameForWire}}")
+  val Union: TStruct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
-  val {{fieldConst}} = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
+  val {{fieldConst}}: TField = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
 {{#isEnum}}
   private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
 {{/isEnum}}
-  val {{fieldConst}}Manifest = implicitly[Manifest[{{FieldName}}]]
+  val {{fieldConst}}Manifest: Manifest[{{FieldName}}] = implicitly[Manifest[{{FieldName}}]]
 {{/fields}}
 
   lazy val structAnnotations: immutable$Map[String, String] =

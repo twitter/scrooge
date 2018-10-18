@@ -239,9 +239,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
     object Args extends ValidatingThriftStructCodec3[Args] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-      val Struct = new TStruct("doGreatThings_args")
-      val RequestField = new TField("request", TType.STRUCT, 1)
-      val RequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+      val Struct: TStruct = new TStruct("doGreatThings_args")
+      val RequestField: TField = new TField("request", TType.STRUCT, 1)
+      val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
     
       /**
        * Field information in declaration order.
@@ -382,7 +382,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         Map.empty
       )
     
-      def _1 = request
+      def _1: com.twitter.scrooge.test.gold.thriftscala.Request = request
     
     
     
@@ -441,11 +441,11 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
     object Result extends ValidatingThriftStructCodec3[Result] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-      val Struct = new TStruct("doGreatThings_result")
-      val SuccessField = new TField("success", TType.STRUCT, 0)
-      val SuccessFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
-      val ExField = new TField("ex", TType.STRUCT, 1)
-      val ExFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+      val Struct: TStruct = new TStruct("doGreatThings_result")
+      val SuccessField: TField = new TField("success", TType.STRUCT, 0)
+      val SuccessFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Response] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
+      val ExField: TField = new TField("ex", TType.STRUCT, 1)
+      val ExFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
     
       /**
        * Field information in declaration order.
@@ -641,8 +641,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         Map.empty
       )
     
-      def _1 = success
-      def _2 = ex
+      def _1: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
+      def _2: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = ex
     
       def toTuple: _root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]] = {
         (

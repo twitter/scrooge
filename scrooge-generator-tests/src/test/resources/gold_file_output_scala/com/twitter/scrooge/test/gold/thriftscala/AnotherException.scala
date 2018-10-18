@@ -36,9 +36,9 @@ import scala.collection.{Map, Set}
 
 object AnotherException extends ValidatingThriftStructCodec3[AnotherException] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("AnotherException")
-  val ErrorCodeField = new TField("errorCode", TType.I32, 1)
-  val ErrorCodeFieldManifest = implicitly[Manifest[Int]]
+  val Struct: TStruct = new TStruct("AnotherException")
+  val ErrorCodeField: TField = new TField("errorCode", TType.I32, 1)
+  val ErrorCodeFieldManifest: Manifest[Int] = implicitly[Manifest[Int]]
 
   /**
    * Field information in declaration order.
@@ -195,7 +195,7 @@ class AnotherException(
     Map.empty
   )
 
-  def _1 = errorCode
+  def _1: Int = errorCode
 
 
   /**

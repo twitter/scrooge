@@ -36,9 +36,9 @@ import scala.collection.{Map, Set}
 
 object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityException] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("OverCapacityException")
-  val ChillTimeSecondsField = new TField("chillTimeSeconds", TType.I32, 1)
-  val ChillTimeSecondsFieldManifest = implicitly[Manifest[Int]]
+  val Struct: TStruct = new TStruct("OverCapacityException")
+  val ChillTimeSecondsField: TField = new TField("chillTimeSeconds", TType.I32, 1)
+  val ChillTimeSecondsFieldManifest: Manifest[Int] = implicitly[Manifest[Int]]
 
   /**
    * Field information in declaration order.
@@ -199,7 +199,7 @@ class OverCapacityException(
     Map.empty
   )
 
-  def _1 = chillTimeSeconds
+  def _1: Int = chillTimeSeconds
 
 
   /**

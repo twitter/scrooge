@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge: Add type annotations to public members in generated code.
+  ``PHAB_ID=D229710``
+
 18.9.1
 -------
 

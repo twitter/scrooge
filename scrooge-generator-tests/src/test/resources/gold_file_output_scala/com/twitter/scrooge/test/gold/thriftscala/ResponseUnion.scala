@@ -112,11 +112,11 @@ object ResponseUnionAliases {
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
-  val Union = new TStruct("ResponseUnion")
-  val IdField = new TField("id", TType.I64, 1)
-  val IdFieldManifest = implicitly[Manifest[Id]]
-  val DetailsField = new TField("details", TType.STRING, 2)
-  val DetailsFieldManifest = implicitly[Manifest[Details]]
+  val Union: TStruct = new TStruct("ResponseUnion")
+  val IdField: TField = new TField("id", TType.I64, 1)
+  val IdFieldManifest: Manifest[Id] = implicitly[Manifest[Id]]
+  val DetailsField: TField = new TField("details", TType.STRING, 2)
+  val DetailsFieldManifest: Manifest[Details] = implicitly[Manifest[Details]]
 
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](

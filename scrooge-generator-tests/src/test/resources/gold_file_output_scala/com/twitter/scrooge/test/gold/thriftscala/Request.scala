@@ -38,35 +38,35 @@ import scala.collection.{Map, Set}
  */
 object Request extends ValidatingThriftStructCodec3[Request] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("Request")
-  val AListField = new TField("aList", TType.LIST, 1)
-  val AListFieldManifest = implicitly[Manifest[Seq[String]]]
-  val ASetField = new TField("aSet", TType.SET, 2)
-  val ASetFieldManifest = implicitly[Manifest[Set[Int]]]
-  val AMapField = new TField("aMap", TType.MAP, 3)
-  val AMapFieldManifest = implicitly[Manifest[Map[Long, Long]]]
-  val ARequestField = new TField("aRequest", TType.STRUCT, 4)
-  val ARequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
-  val SubRequestsField = new TField("subRequests", TType.LIST, 5)
-  val SubRequestsFieldManifest = implicitly[Manifest[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]]
-  val HasDefaultField = new TField("hasDefault", TType.STRING, 6)
-  val HasDefaultFieldManifest = implicitly[Manifest[String]]
-  val NoCommentField = new TField("noComment", TType.I64, 7)
-  val NoCommentFieldManifest = implicitly[Manifest[Long]]
-  val DoubleSlashCommentField = new TField("doubleSlashComment", TType.I64, 8)
-  val DoubleSlashCommentFieldManifest = implicitly[Manifest[Long]]
-  val HashtagCommentField = new TField("hashtagComment", TType.I64, 9)
-  val HashtagCommentFieldManifest = implicitly[Manifest[Long]]
-  val SingleAsteriskCommentField = new TField("singleAsteriskComment", TType.I64, 10)
-  val SingleAsteriskCommentFieldManifest = implicitly[Manifest[Long]]
-  val DocStringCommentField = new TField("docStringComment", TType.I64, 11)
-  val DocStringCommentFieldManifest = implicitly[Manifest[Long]]
-  val RecRequestField = new TField("recRequest", TType.STRUCT, 12)
-  val RecRequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
-  val RequiredFieldField = new TField("requiredField", TType.STRING, 13)
-  val RequiredFieldFieldManifest = implicitly[Manifest[String]]
-  val ConstructionRequiredFieldField = new TField("constructionRequiredField", TType.I64, 14)
-  val ConstructionRequiredFieldFieldManifest = implicitly[Manifest[Long]]
+  val Struct: TStruct = new TStruct("Request")
+  val AListField: TField = new TField("aList", TType.LIST, 1)
+  val AListFieldManifest: Manifest[Seq[String]] = implicitly[Manifest[Seq[String]]]
+  val ASetField: TField = new TField("aSet", TType.SET, 2)
+  val ASetFieldManifest: Manifest[Set[Int]] = implicitly[Manifest[Set[Int]]]
+  val AMapField: TField = new TField("aMap", TType.MAP, 3)
+  val AMapFieldManifest: Manifest[Map[Long, Long]] = implicitly[Manifest[Map[Long, Long]]]
+  val ARequestField: TField = new TField("aRequest", TType.STRUCT, 4)
+  val ARequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  val SubRequestsField: TField = new TField("subRequests", TType.LIST, 5)
+  val SubRequestsFieldManifest: Manifest[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]] = implicitly[Manifest[Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]]
+  val HasDefaultField: TField = new TField("hasDefault", TType.STRING, 6)
+  val HasDefaultFieldManifest: Manifest[String] = implicitly[Manifest[String]]
+  val NoCommentField: TField = new TField("noComment", TType.I64, 7)
+  val NoCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val DoubleSlashCommentField: TField = new TField("doubleSlashComment", TType.I64, 8)
+  val DoubleSlashCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val HashtagCommentField: TField = new TField("hashtagComment", TType.I64, 9)
+  val HashtagCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val SingleAsteriskCommentField: TField = new TField("singleAsteriskComment", TType.I64, 10)
+  val SingleAsteriskCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val DocStringCommentField: TField = new TField("docStringComment", TType.I64, 11)
+  val DocStringCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val RecRequestField: TField = new TField("recRequest", TType.STRUCT, 12)
+  val RecRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
+  val RequiredFieldField: TField = new TField("requiredField", TType.STRING, 13)
+  val RequiredFieldFieldManifest: Manifest[String] = implicitly[Manifest[String]]
+  val ConstructionRequiredFieldField: TField = new TField("constructionRequiredField", TType.I64, 14)
+  val ConstructionRequiredFieldFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
 
   /**
    * Field information in declaration order.
@@ -476,7 +476,7 @@ object Request extends ValidatingThriftStructCodec3[Request] {
     }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
-    override def _passthroughFields = underlying._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
   }
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): Request = {
@@ -1571,7 +1571,7 @@ object Request extends ValidatingThriftStructCodec3[Request] {
     override def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _underlying_Request.recRequest
     override def requiredField: String = _underlying_Request.requiredField
     override def constructionRequiredField: _root_.scala.Option[Long] = _underlying_Request.constructionRequiredField
-    override def _passthroughFields = _underlying_Request._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_Request._passthroughFields
   }
 }
 
@@ -1610,20 +1610,20 @@ trait Request
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
-  def _1 = aList
-  def _2 = aSet
-  def _3 = aMap
-  def _4 = aRequest
-  def _5 = subRequests
-  def _6 = hasDefault
-  def _7 = noComment
-  def _8 = doubleSlashComment
-  def _9 = hashtagComment
-  def _10 = singleAsteriskComment
-  def _11 = docStringComment
-  def _12 = recRequest
-  def _13 = requiredField
-  def _14 = constructionRequiredField
+  def _1: Seq[String] = aList
+  def _2: Set[Int] = aSet
+  def _3: Map[Long, Long] = aMap
+  def _4: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = aRequest
+  def _5: Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = subRequests
+  def _6: String = hasDefault
+  def _7: _root_.scala.Option[Long] = noComment
+  def _8: _root_.scala.Option[Long] = doubleSlashComment
+  def _9: _root_.scala.Option[Long] = hashtagComment
+  def _10: _root_.scala.Option[Long] = singleAsteriskComment
+  def _11: _root_.scala.Option[Long] = docStringComment
+  def _12: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = recRequest
+  def _13: String = requiredField
+  def _14: _root_.scala.Option[Long] = constructionRequiredField
 
   def toTuple: _root_.scala.Tuple14[Seq[String], Set[Int], Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long]] = {
     (

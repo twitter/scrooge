@@ -36,9 +36,9 @@ import scala.collection.{Map, Set}
 
 object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("CollectionId")
-  val CollectionLongIdField = new TField("collectionLongId", TType.I64, 1)
-  val CollectionLongIdFieldManifest = implicitly[Manifest[Long]]
+  val Struct: TStruct = new TStruct("CollectionId")
+  val CollectionLongIdField: TField = new TField("collectionLongId", TType.I64, 1)
+  val CollectionLongIdFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
 
   /**
    * Field information in declaration order.
@@ -122,7 +122,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
     }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
-    override def _passthroughFields = underlying._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
   }
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): CollectionId = {
@@ -325,7 +325,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
   trait Proxy extends CollectionId {
     protected def _underlying_CollectionId: CollectionId
     override def collectionLongId: Long = _underlying_CollectionId.collectionLongId
-    override def _passthroughFields = _underlying_CollectionId._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_CollectionId._passthroughFields
   }
 }
 
@@ -345,7 +345,7 @@ trait CollectionId
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
-  def _1 = collectionLongId
+  def _1: Long = collectionLongId
 
 
   /**

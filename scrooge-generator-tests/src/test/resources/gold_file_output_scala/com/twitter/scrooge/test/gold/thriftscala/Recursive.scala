@@ -36,11 +36,11 @@ import scala.collection.{Map, Set}
 
 object Recursive extends ValidatingThriftStructCodec3[Recursive] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
-  val Struct = new TStruct("Recursive")
-  val IdField = new TField("id", TType.I64, 1)
-  val IdFieldManifest = implicitly[Manifest[Long]]
-  val RecRequestField = new TField("recRequest", TType.STRUCT, 2)
-  val RecRequestFieldManifest = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  val Struct: TStruct = new TStruct("Recursive")
+  val IdField: TField = new TField("id", TType.I64, 1)
+  val IdFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val RecRequestField: TField = new TField("recRequest", TType.STRUCT, 2)
+  val RecRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
 
   /**
    * Field information in declaration order.
@@ -147,7 +147,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] {
     }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
-    override def _passthroughFields = underlying._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
   }
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): Recursive = {
@@ -396,7 +396,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] {
     protected def _underlying_Recursive: Recursive
     override def id: Long = _underlying_Recursive.id
     override def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Recursive.recRequest
-    override def _passthroughFields = _underlying_Recursive._passthroughFields
+    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_Recursive._passthroughFields
   }
 }
 
@@ -417,8 +417,8 @@ trait Recursive
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
-  def _1 = id
-  def _2 = recRequest
+  def _1: Long = id
+  def _2: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = recRequest
 
   def toTuple: _root_.scala.Tuple2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]] = {
     (
