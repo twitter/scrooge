@@ -16,11 +16,10 @@
 
 package com.twitter.scrooge.linter
 
-import com.twitter.logging.{ConsoleHandler, Formatter}
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser, TypeResolver}
 import java.io.File
-import java.util.logging.{Level, LogManager, LogRecord, Logger}
+import java.util.logging.{ConsoleHandler, Formatter, Level, LogManager, LogRecord, Logger}
 import scala.collection.mutable.ArrayBuffer
 
 object LintLevel extends Enumeration {
@@ -34,19 +33,19 @@ case class LintMessage(msg: String, level: LintLevel = Warning)
 
 trait LintRule extends (Document => Iterable[LintMessage]) {
   def requiresIncludes: Boolean = false
-  def name = getClass.getSimpleName.replaceAll("\\p{Punct}", "") // no $
+  def name: String = getClass.getSimpleName.replaceAll("\\p{Punct}", "") // no $
 }
 
 object LintRule {
   def all(rules: Seq[LintRule]): LintRule =
     new LintRule {
       def apply(doc: Document): Seq[LintMessage] =
-        rules flatMap { r =>
+        rules.flatMap { r =>
           r(doc)
         }
     }
 
-  val DefaultRules = Seq(
+  val DefaultRules: Seq[LintRule] = Seq(
     Namespaces,
     CompilerOptimizedMethodParamLimit,
     RelativeIncludes,
@@ -59,7 +58,7 @@ object LintRule {
     MapKeyType
   )
 
-  val Rules = DefaultRules ++ Seq(
+  val Rules: Seq[LintRule] = DefaultRules ++ Seq(
     // Add any optional rules here.
     // These can be enabled with enable-rule flag.
     DocumentedPersisted
@@ -72,15 +71,18 @@ object LintRule {
 
     override def requiresIncludes: Boolean = true
 
-    def isPersisted(struct: StructLike) =
+    def isPersisted(struct: StructLike): Boolean =
       struct.annotations.getOrElse("persisted", "false") == "true"
 
-    def apply(doc0: Document) = {
+    def apply(doc0: Document): Seq[LintMessage] = {
       // resolving ReferenceTypes
       val resolver = TypeResolver()(doc0)
       val doc = resolver.document
 
-      def findUnpersistedStructs(s: StructLike, scopePrefix: Option[SimpleID] = None): Seq[String] = {
+      def findUnpersistedStructs(
+        s: StructLike,
+        scopePrefix: Option[SimpleID] = None
+      ): Seq[String] = {
         val current =
           if (!isPersisted(s)) Seq(scopePrefix.map(_.name + ".").getOrElse("") + s.sid.name)
           else Seq.empty
@@ -91,7 +93,7 @@ object LintRule {
         fieldTypes.flatMap {
           case StructType(s, scopePrefix) =>
             findUnpersistedStructs(s, scopePrefix) // includes Unions
-          case EnumType(enum: Enum, _) => Seq.empty // enums don't have annotations
+          case EnumType(_: Enum, _) => Seq.empty // enums don't have annotations
           case MapType(keyType, valueType, _) =>
             findUnpersistedStructsFromFields(Seq(keyType, valueType))
           case SetType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
@@ -110,7 +112,7 @@ object LintRule {
         structChild <- findUnpersistedStructs(struct)
       } yield
         LintMessage(
-          s"struct ${struct.originalName} with persisted annotation refers to struct ${structChild} that is not annotated persisted.",
+          s"struct ${struct.originalName} with persisted annotation refers to struct $structChild that is not annotated persisted.",
           Error
         )
     }
@@ -120,8 +122,8 @@ object LintRule {
    * all structs annotated (persisted = "true") must have their fields documented
    */
   object DocumentedPersisted extends LintRule {
-    def apply(doc: Document) = {
-      val persistedStructs = doc.structs.filter(TransitivePersistence.isPersisted(_))
+    def apply(doc: Document): Seq[LintMessage] = {
+      val persistedStructs = doc.structs.filter(TransitivePersistence.isPersisted)
       val fieldsErrors = for {
         s <- persistedStructs
         field <- s.fields if field.docstring.isEmpty
@@ -141,7 +143,7 @@ object LintRule {
 
   object Namespaces extends LintRule {
     // All IDLs have a scala and a java namespace
-    def apply(doc: Document) = {
+    def apply(doc: Document): Seq[LintMessage] = {
       Seq("scala", "java").collect {
         case lang if doc.namespace(lang).isEmpty =>
           LintMessage("Missing namespace: %s.".format(lang))
@@ -151,7 +153,7 @@ object LintRule {
 
   object RelativeIncludes extends LintRule {
     // No relative includes
-    def apply(doc: Document) = {
+    def apply(doc: Document): Seq[LintMessage] = {
       doc.headers.collect {
         case include @ Include(f, d) if f.contains("..") =>
           LintMessage(s"Relative include path found:\n${include.pos.longString}")
@@ -194,17 +196,23 @@ object LintRule {
         case service: Service =>
           service.functions.collect {
             case fn: Function if fn.args.length >= optimalLimit =>
-              lintMessage("thrift service method parameters", s"${service.sid.name}.${fn.funcName.name} function")
+              lintMessage(
+                "thrift service method parameters",
+                s"${service.sid.name}.${fn.funcName.name} function"
+              )
           }
       }.flatten
 
       // service function exceptions fields generate thrift response struct
       // constructors and an unapply function
       val serviceFnExceptions = doc.defs.collect {
-        case service: Service=>
+        case service: Service =>
           service.functions.collect {
             case fn: Function if fn.throws.length >= optimalLimit =>
-              lintMessage("thrift service method exceptions", s"${service.sid.name}.${fn.funcName.name} function")
+              lintMessage(
+                "thrift service method exceptions",
+                s"${service.sid.name}.${fn.funcName.name} function"
+              )
           }
       }.flatten
 
@@ -221,7 +229,7 @@ object LintRule {
   object CamelCase extends LintRule {
     // Struct names are UpperCamelCase.
     // Field names are lowerCamelCase.
-    def apply(doc: Document) = {
+    def apply(doc: Document): Seq[LintMessage] = {
       val messages = new ArrayBuffer[LintMessage]
       doc.defs.foreach {
         case struct: StructLike =>
@@ -229,7 +237,7 @@ object LintRule {
             val correctName = Identifier.toTitleCase(struct.originalName)
             messages += LintMessage(
               s"Struct name ${struct.originalName} is not UpperCamelCase. " +
-                s"Should be: ${correctName}. \n${struct.pos.longString}"
+                s"Should be: $correctName. \n${struct.pos.longString}"
             )
           }
 
@@ -256,7 +264,7 @@ object LintRule {
 
   object RequiredFieldDefault extends LintRule {
     // No default values for required fields
-    def apply(doc: Document) = {
+    def apply(doc: Document): Seq[LintMessage] = {
       doc.defs.collect {
         case struct: StructLike =>
           struct.fields.collect {
@@ -272,7 +280,7 @@ object LintRule {
 
   object Keywords extends LintRule {
     // Struct and field names should not be keywords in Scala, Java, Ruby, Python, PHP.
-    def apply(doc: Document) = {
+    def apply(doc: Document): Seq[LintMessage] = {
       val messages = new ArrayBuffer[LintMessage]
       doc.defs.collect {
         case struct: StructLike =>
@@ -547,7 +555,7 @@ object LintRule {
    * all fields must have their field index greater than 0
    */
   object FieldIndexGreaterThanZeroRule extends LintRule {
-    def apply(doc: Document) = {
+    def apply(doc: Document): Seq[LintMessage] = {
       doc.defs.collect {
         case struct: StructLike =>
           struct.fields.collect {
@@ -607,20 +615,27 @@ object LintRule {
       doc.defs.flatMap {
         case const: ConstDefinition => checkForMapKeyType(const.sid, const.fieldType).toSeq
         case typedef: Typedef => checkForMapKeyType(typedef.sid, typedef.fieldType).toSeq
-        case struct: StructLike => struct.fields.flatMap { field => checkForMapKeyType(field.sid, field.fieldType) }
+        case struct: StructLike =>
+          struct.fields.flatMap { field =>
+            checkForMapKeyType(field.sid, field.fieldType)
+          }
         case _ => Seq.empty
       }
     }
 
     private def checkForMapKeyType(sid: SimpleID, fieldType: FieldType): Option[LintMessage] = {
       fieldType match {
-        case m: MapType => {
+        case m: MapType =>
           m.keyType match {
             case _: BaseType => None
-            case _ => Some(LintMessage(s"${sid.name} is a map with a complex key type. " +
-              s"Only base types should be used, see https://thrift.apache.org/docs/types#containers."))
+            case _ =>
+              Some(
+                LintMessage(
+                  s"${sid.name} is a map with a complex key type. " +
+                    s"Only base types should be used, see https://thrift.apache.org/docs/types#containers."
+                )
+              )
           }
-        }
         case _ => None
       }
     }
@@ -631,15 +646,16 @@ object ErrorLogLevel extends Level("LINT-ERROR", 999)
 object WarningLogLevel extends Level("LINT-WARN", 998)
 
 class Linter(cfg: Config) {
-  LogManager.getLogManager.reset
+  LogManager.getLogManager.reset()
 
   private[this] val log = Logger.getLogger("linter")
-  private[this] val formatter = new Formatter() {
-    override def format(record: LogRecord) =
-      "%s: %s%s".format(record.getLevel.getName, formatText(record), lineTerminator)
-  }
-
-  log.addHandler(new ConsoleHandler(formatter, None))
+  private[this] val handler = new ConsoleHandler()
+  handler.setFormatter(new Formatter() {
+    def format(record: LogRecord): String = {
+      s"${record.getLevel.getName}: ${formatMessage(record)}\n"
+    }
+  })
+  log.addHandler(handler)
 
   private[this] val rules = cfg.enabledRules
 
@@ -702,7 +718,7 @@ class Linter(cfg: Config) {
         val doc0 = parser.parseFile(inputFile)
         apply(doc0, inputFile)
       } catch {
-        case e: FileParseException if (cfg.ignoreParseErrors) =>
+        case e: FileParseException if cfg.ignoreParseErrors =>
           e.printStackTrace()
           0
       }

@@ -10,7 +10,6 @@ scala_library(
         "3rdparty/jvm/com/github/scopt",
         "3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators",
         "scrooge/scrooge-generator",
-        "util/util-logging",
     ],
     exports = [
         "3rdparty/jvm/com/github/scopt",
