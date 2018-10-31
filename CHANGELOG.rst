@@ -7,6 +7,10 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Allow for `Filter.TypeAgnostic` filters to be applied to a generated
+  Java `Service` via a new constructor that takes an additional argument of a `Filter.TypeAgnostic`.
+  This filter is then applied per generated method service. ``PHAB_ID=D235709``
+
 18.10.0
 -------
 
@@ -14,14 +18,14 @@ Unreleased
   ``PHAB_ID=D229710``
 
 18.9.1
--------
+------
 
 * scrooge: Finally remove `maven.twttr.com` as a dependency or plugin repository. With 
   the update to a more recent libthrift dependency, this should no longer be necessary. 
   ``PHAB_ID=D219665``
 
 18.9.0
--------
+------
 
 New Features
 ~~~~~~~~~~~~
@@ -31,7 +35,8 @@ New Features
   Finagle metadata such as non-retryable. ``PHAB_ID=D204132``
 
 18.8.0
--------
+------
+
 * scrooge-core: Add interface for Scala generated Enum objects. ``PHAB_ID=D197147``
  
 * scrooge-core: Trait `c.t.scrooge.ThriftService` is now `c.t.finagle.thrift.ThriftServiceMarker`.
@@ -47,17 +52,17 @@ New Features
   ``PHAB_ID=D180341``
 
 18.7.0
--------
+------
 
 * scrooge-adaptive: Turn the scrooge-adaptive back on as default in ScroogeRunner. `PHAB_ID=D187772``
 
 18.6.0
--------
+------
 
 No Changes
 
 18.5.0
--------
+------
 * scrooge-generator: Add support for construction_required fields in cocoa. ``PHAB_ID=D163127``
 * scrooge-generator: Add cocoa initializer for each field in union. ``PHAB_ID=D156591``
 * scrooge-generator: Add support for empty struct in cocoa. ``PHAB_ID=D156539``
@@ -67,7 +72,8 @@ No Changes
   incompatibility with sbt > 1.0.2. ``PHAB_ID=D163144``
 
 18.4.0
--------
+------
+
 * scrooge-generator: Add support for construction_required fields. Add a validateNewInstance method
   to all generated scala companion objects. ``PHAB_ID=D148841``
 
@@ -77,12 +83,12 @@ No Changes
 
 
 18.3.0
--------
+------
 
 * scrooge-generator: Add support for mutually recursive structs. ``PHAB_ID=D134470``
 
 18.2.0
--------
+------
 
 * scrooge-generator: Add `asClosable` method to `ServicePerEndpoint` and
   `ReqRepServicePerEndpoint` interfaces as well. ``PHAB_ID=D134171``
@@ -104,7 +110,7 @@ No Changes
   used by the generated code. ``PHAB_ID=D132202``
 
 18.1.0
--------
+------
 
 * scrooge-generator: Update `c.t.fingale.thrit.service.MethodPerEndpointBuilder`
   to build `MethodPerEndpoint` types. Add new `ThriftServiceBuilder` for

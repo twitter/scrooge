@@ -20,6 +20,7 @@ import com.twitter.util.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 public class JavaIntegrationTest {
 
@@ -29,7 +30,7 @@ public class JavaIntegrationTest {
         ThriftMux.server().serveIface("localhost:*", new BarServiceImpl());
 
     BarService.ServiceIface client =
-        ThriftMux.client().newIface(
+        ThriftMux.client().build(
             Name$.MODULE$.bound(JavaConversions.asScalaBuffer(
                 Collections.singletonList(
                     Addresses.newInetAddress((InetSocketAddress) server.boundAddress())))),
@@ -38,7 +39,7 @@ public class JavaIntegrationTest {
     assertEquals(Await.result(client.echo("echo"), Duration.fromSeconds(5)), "echo");
     assertEquals(Await.result(client.duplicate("double"), Duration.fromSeconds(5)), "doubledouble");
     assertEquals(Await.result(client.getDuck(10L), Duration.fromSeconds(5)), "Scrooge");
-    assertEquals(Await.result(client.setDuck(20L, "McDuck"), Duration.fromSeconds(5)), null);
+    assertNull(Await.result(client.setDuck(20L, "McDuck"), Duration.fromSeconds(5)));
     Await.result(server.close(), Duration.fromSeconds(5));
   }
 

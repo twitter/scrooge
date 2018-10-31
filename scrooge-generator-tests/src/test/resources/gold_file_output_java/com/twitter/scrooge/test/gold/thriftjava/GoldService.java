@@ -328,15 +328,21 @@ public class GoldService {
 
   public static class Service extends com.twitter.finagle.Service<byte[], byte[]> {
     private final ServiceIface iface;
+    private final com.twitter.finagle.Filter.TypeAgnostic filters;
     private final TProtocolFactory protocolFactory;
     private final TReusableBuffer tlReusableBuffer;
     protected HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>> serviceMap =
       new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
-    public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
+    public Service(final ServiceIface iface, final com.twitter.finagle.Filter.TypeAgnostic filters, final com.twitter.finagle.thrift.RichServerParam serverParam) {
       this.iface = iface;
+      this.filters = filters;
       this.protocolFactory = serverParam.restrictedProtocolFactory();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
+    }
+
+    public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
+      this(iface, com.twitter.finagle.Filter.TypeAgnostic$.MODULE$.Identity(), serverParam);
     }
 
     public Service(final ServiceIface iface) {
@@ -430,7 +436,7 @@ public class GoldService {
         };
 
         private final com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> getService =
-          protocolExnFilter.andThen(serdeFilter).andThen(methodService);
+          protocolExnFilter.andThen(serdeFilter).andThen(filters.toFilter()).andThen(methodService);
       }
 
       serviceMap.put("doGreatThings", (new doGreatThingsService()).getService);
