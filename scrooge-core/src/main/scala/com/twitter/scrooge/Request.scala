@@ -14,8 +14,9 @@ object Request {
   }
 
   def apply[Args <: ThriftStruct](bufs: Seq[(Buf, Buf)], args: Args): Request[Args] = {
-    val headers = bufs.groupBy(keyGroupByFn).map { case (key, headersBufs) =>
-      (key, headersBufs.map { case (_, headerValueBuf) => headerValueBuf })
+    val headers = bufs.groupBy(keyGroupByFn).map {
+      case (key, headersBufs) =>
+        (key, headersBufs.map { case (_, headerValueBuf) => headerValueBuf })
     }
     new Request(headers, args)
   }
@@ -34,9 +35,7 @@ class Request[+Args <: ThriftStruct] private (headerMap: Map[String, Seq[Buf]], 
    * @return a new `Request` with the given header added to the contained headers.
    */
   def setHeader(headerKey: String, headerValue: String): Request[Args] = {
-    Request(
-      headers = headers.toMap + (headerKey -> Seq(Buf.Utf8(headerValue))),
-      args = args)
+    Request(headers = headers.toMap + (headerKey -> Seq(Buf.Utf8(headerValue))), args = args)
   }
 
   /**
@@ -47,8 +46,6 @@ class Request[+Args <: ThriftStruct] private (headerMap: Map[String, Seq[Buf]], 
    * @return a new `Request` with the given header added to the contained headers.
    */
   def setHeader(headerKey: String, headerValues: Buf*): Request[Args] = {
-    Request(
-      headers = headers.toMap + (headerKey -> headerValues),
-      args = args)
+    Request(headers = headers.toMap + (headerKey -> headerValues), args = args)
   }
 }

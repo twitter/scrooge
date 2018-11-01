@@ -2,7 +2,12 @@ package com.twitter.scrooge.backend
 
 import com.twitter.conversions.time._
 import com.twitter.finagle.{Service, SourcedException}
-import com.twitter.scrooge.backend.thriftscala.{ConstructorRequiredStruct, ConstructorRequiredStructPackageProtected, DeepValidationStruct, DeepValidationUnion}
+import com.twitter.scrooge.backend.thriftscala.{
+  ConstructorRequiredStruct,
+  ConstructorRequiredStructPackageProtected,
+  DeepValidationStruct,
+  DeepValidationUnion
+}
 import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
 import com.twitter.scrooge._
 import com.twitter.scrooge.validation.{MissingConstructionRequiredField, MissingRequiredField}
@@ -1392,7 +1397,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           defaultRequirednessField = 4
         )
         val copiedStruct = struct.copyChangingConstructionRequiredFields(
-        )
+          )
         copiedStruct must be(struct)
       }
 
@@ -1405,7 +1410,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           _passthroughFields = Map.empty[Short, TFieldBlob]
         )
         val copiedStruct = struct.copyChangingConstructionRequiredFields(
-        )
+          )
         copiedStruct must be(struct)
       }
 
@@ -1521,67 +1526,75 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         val result = DeepValidationStruct.validateNewInstance(struct)
         result must be(Seq.empty)
       }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid requiredConstructorRequiredStruct" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = missingConstructionRequiredFieldInstance
-        )
-        validateMissingConstructionRequiredField(struct)
-      }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid optionalConstructorRequiredStruct" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = validInstance,
-            optionalConstructorRequiredStruct = Some(missingConstructionRequiredFieldInstance)
-        )
-        validateMissingConstructionRequiredField(struct)
-      }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inList" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = validInstance,
-          inList = List(missingConstructionRequiredFieldInstance)
-        )
-        validateMissingConstructionRequiredField(struct)
-      }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inSet" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = validInstance,
-          inSet = Set(missingConstructionRequiredFieldInstance)
-        )
-        validateMissingConstructionRequiredField(struct)
-      }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inMapKey" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = validInstance,
-          inMapKey = Map(missingConstructionRequiredFieldInstance -> "value")
-        )
-        validateMissingConstructionRequiredField(struct)
-      }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inMapValue" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = validInstance,
-          inMapValue = Map("key" -> missingConstructionRequiredFieldInstance)
-        )
-        validateMissingConstructionRequiredField(struct)
-      }
-      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid crazyEmbedding" in { _ =>
-        val struct = DeepValidationStruct(
-          requiredConstructorRequiredStruct = validInstance,
-          crazyEmbedding = Map(
-            Set(Seq(missingConstructionRequiredFieldInstance)) ->
-              Set(Seq(missingConstructionRequiredFieldInstance))
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid requiredConstructorRequiredStruct" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = missingConstructionRequiredFieldInstance
           )
-        )
-        validateMissingConstructionRequiredField(struct, 2)
+          validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid optionalConstructorRequiredStruct" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = validInstance,
+            optionalConstructorRequiredStruct = Some(missingConstructionRequiredFieldInstance)
+          )
+          validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inList" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = validInstance,
+            inList = List(missingConstructionRequiredFieldInstance)
+          )
+          validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inSet" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = validInstance,
+            inSet = Set(missingConstructionRequiredFieldInstance)
+          )
+          validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inMapKey" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = validInstance,
+            inMapKey = Map(missingConstructionRequiredFieldInstance -> "value")
+          )
+          validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid inMapValue" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = validInstance,
+            inMapValue = Map("key" -> missingConstructionRequiredFieldInstance)
+          )
+          validateMissingConstructionRequiredField(struct)
+      }
+      "return a MissingConstructionRequiredField when DeepValidationStruct has invalid crazyEmbedding" in {
+        _ =>
+          val struct = DeepValidationStruct(
+            requiredConstructorRequiredStruct = validInstance,
+            crazyEmbedding = Map(
+              Set(Seq(missingConstructionRequiredFieldInstance)) ->
+                Set(Seq(missingConstructionRequiredFieldInstance))
+            )
+          )
+          validateMissingConstructionRequiredField(struct, 2)
       }
       "return an empty list when DeepValidationUnion has valid constructorRequiredStruct" in { _ =>
         val struct = DeepValidationUnion.ConstructorRequiredStruct(validInstance)
         val result = DeepValidationUnion.validateNewInstance(struct)
         result must be(Seq.empty)
       }
-      "return a MissingConstructionRequiredField when DeepValidationUnion has invalid constructorRequiredStruct" in { _ =>
-        val struct =
-          DeepValidationUnion.ConstructorRequiredStruct(missingConstructionRequiredFieldInstance)
-        val result = DeepValidationUnion.validateNewInstance(struct)
-        result must be(Seq(MissingConstructionRequiredField(constructionRequiredField)))
+      "return a MissingConstructionRequiredField when DeepValidationUnion has invalid constructorRequiredStruct" in {
+        _ =>
+          val struct =
+            DeepValidationUnion.ConstructorRequiredStruct(missingConstructionRequiredFieldInstance)
+          val result = DeepValidationUnion.validateNewInstance(struct)
+          result must be(Seq(MissingConstructionRequiredField(constructionRequiredField)))
       }
       "return an empty list when DeepValidationUnion has an unrelated field" in { _ =>
         val struct = DeepValidationUnion.OtherField(1L)

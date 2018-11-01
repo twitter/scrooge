@@ -68,7 +68,9 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
     val useMapById = useMapByField.map { case (f, v) => (f.id, v) }
 
     if (allFieldsUsed(useMapById)) {
-      logger.ifDebug(s"Adaptive scrooge is using all fields for ${codec.metaData.structName} struct.")
+      logger.ifDebug(
+        s"Adaptive scrooge is using all fields for ${codec.metaData.structName} struct."
+      )
       fallbackDecoder
     } else {
       val namesToUse = useMapByName.collect {
@@ -81,7 +83,8 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
         )
       } else {
         logger.ifDebug(
-          s"Adaptive scrooge is using fields: ${namesToUse.mkString(",")} for ${codec.metaData.structName} struct with settings: $settings"
+          s"Adaptive scrooge is using fields: ${namesToUse
+            .mkString(",")} for ${codec.metaData.structName} struct with settings: $settings"
         )
       }
       buildAdaptiveDecoder(useMapByName, useMapById)

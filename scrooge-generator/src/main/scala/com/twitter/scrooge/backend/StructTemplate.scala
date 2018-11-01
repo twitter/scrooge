@@ -106,7 +106,7 @@ trait StructTemplate { self: TemplateGenerator =>
           )
         )
       case t: EnumType =>
-       TypeTemplate + Dictionary(
+        TypeTemplate + Dictionary(
           "isNamedType" -> v(true),
           "isImported" -> v(t.scopePrefix.isDefined),
           "fieldType" -> {
@@ -218,8 +218,13 @@ trait StructTemplate { self: TemplateGenerator =>
           "defaultFieldValue" -> genDefaultFieldValue(field).getOrElse(NoValue),
           // these two alternate default values are for constructors that do not accept Options for
           // construction required fields.
-          "hasAlternateDefaultValue" -> v(genDefaultFieldValue(field, forAlternateConstructor = true).isDefined),
-          "alternateDefaultFieldValue" -> genDefaultFieldValue(field, forAlternateConstructor = true).getOrElse(NoValue),
+          "hasAlternateDefaultValue" -> v(
+            genDefaultFieldValue(field, forAlternateConstructor = true).isDefined
+          ),
+          "alternateDefaultFieldValue" -> genDefaultFieldValue(
+            field,
+            forAlternateConstructor = true
+          ).getOrElse(NoValue),
           "hasDefaultFieldValueForFieldInfo" -> v(
             genDefaultFieldValueForFieldInfo(field).isDefined
           ),
@@ -397,7 +402,11 @@ trait StructTemplate { self: TemplateGenerator =>
     val exceptionMsgField: Option[SimpleID] =
       if (isException) exceptionMsgFieldName(struct) else None
 
-    val nonOptionalFields = struct.fields.filter(field => field.requiredness.isRequired || field.requiredness.isDefault || Generator.isConstructionRequiredField(field))
+    val nonOptionalFields = struct.fields.filter(
+      field =>
+        field.requiredness.isRequired || field.requiredness.isDefault || Generator
+          .isConstructionRequiredField(field)
+    )
     val nonOptionalFieldDictionaries = fieldsToDict(
       nonOptionalFields,
       if (isException) Seq("message") else Nil,

@@ -1,6 +1,10 @@
 package com.twitter.scrooge.android_generator
 
-import android_thrift_default_namespace.{ConstructorRequiredStruct, DeepValidationStruct, DeepValidationUnion}
+import android_thrift_default_namespace.{
+  ConstructorRequiredStruct,
+  DeepValidationStruct,
+  DeepValidationUnion
+}
 import com.github.mustachejava.Mustache
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver, _}
@@ -445,15 +449,18 @@ class AndroidGeneratorSpec extends Spec {
       missingConstructionRequiredFieldInstance
         .setFieldValue(ConstructorRequiredStruct.DEFAULT_REQUIREDNESS_FIELD, 4L)
 
-      val constructionRequiredErrorMessage = "Construction required field 'constructionRequiredField' in type 'ConstructorRequiredStruct' was not present."
-      val requiredErrorMessage = "Required field 'requiredField' in type 'ConstructorRequiredStruct' was not present."
+      val constructionRequiredErrorMessage =
+        "Construction required field 'constructionRequiredField' in type 'ConstructorRequiredStruct' was not present."
+      val requiredErrorMessage =
+        "Required field 'requiredField' in type 'ConstructorRequiredStruct' was not present."
 
       def validateMissingConstructionRequiredField(
-        struct: DeepValidationStruct, number: Int = 1
+        struct: DeepValidationStruct,
+        number: Int = 1
       ): Unit = {
         val result = DeepValidationStruct.validateNewInstance(struct).asScala
         result must have size number
-        result.foreach{ errorMessage =>
+        result.foreach { errorMessage =>
           errorMessage must be(constructionRequiredErrorMessage)
         }
       }
@@ -464,8 +471,9 @@ class AndroidGeneratorSpec extends Spec {
         requiredField: ConstructorRequiredStruct = validInstance,
         inMapKey: JMap[ConstructorRequiredStruct, String] = Map(validInstance -> "value").asJava,
         inMapValue: JMap[String, ConstructorRequiredStruct] = Map("value" -> validInstance).asJava,
-        crazyEmbedding: JMap[JSet[JList[ConstructorRequiredStruct]], JSet[JList[ConstructorRequiredStruct]]] =
-        Map(
+        crazyEmbedding: JMap[JSet[JList[ConstructorRequiredStruct]], JSet[
+          JList[ConstructorRequiredStruct]
+        ]] = Map(
           Set(Seq(validInstance).asJava).asJava ->
             Set(Seq(validInstance).asJava).asJava
         ).asJava,
@@ -488,11 +496,13 @@ class AndroidGeneratorSpec extends Spec {
         result must be(List.empty)
       }
       "return a MissingRequiredField when missing a required field" in {
-        val result = ConstructorRequiredStruct.validateNewInstance(missingRequiredFieldInstance).asScala
+        val result =
+          ConstructorRequiredStruct.validateNewInstance(missingRequiredFieldInstance).asScala
         result must be(List(requiredErrorMessage))
       }
       "return a MissingConstructionRequiredField when missing a required field" in {
-        val result = ConstructorRequiredStruct.validateNewInstance(missingConstructionRequiredFieldInstance).asScala
+        val result = ConstructorRequiredStruct
+          .validateNewInstance(missingConstructionRequiredFieldInstance).asScala
         result must be(List(constructionRequiredErrorMessage))
       }
 
@@ -502,7 +512,8 @@ class AndroidGeneratorSpec extends Spec {
         result must be(List.empty)
       }
       "return a MissingConstructionRequiredField when DeepValidationStruct has invalid requiredConstructorRequiredStruct" in {
-        val struct = buildDeepValidationStruct(requiredField = missingConstructionRequiredFieldInstance)
+        val struct =
+          buildDeepValidationStruct(requiredField = missingConstructionRequiredFieldInstance)
         validateMissingConstructionRequiredField(struct)
       }
       "return a MissingConstructionRequiredField when DeepValidationStruct has invalid optionalConstructorRequiredStruct" in {
@@ -553,7 +564,8 @@ class AndroidGeneratorSpec extends Spec {
       "return a MissingConstructionRequiredField when DeepValidationUnion has invalid constructorRequiredStruct" in {
         val struct = new DeepValidationUnion()
         struct.setFieldValue(
-          DeepValidationUnion.CONSTRUCTOR_REQUIRED_STRUCT, missingConstructionRequiredFieldInstance
+          DeepValidationUnion.CONSTRUCTOR_REQUIRED_STRUCT,
+          missingConstructionRequiredFieldInstance
         )
         val result = DeepValidationUnion.validateNewInstance(struct).asScala
         result must be(List(constructionRequiredErrorMessage))

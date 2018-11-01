@@ -105,7 +105,8 @@ class CocoaGenerator(
       }
     }
 
-    struct.fields.map(field => getDependentTypes(field.fieldType)).foldLeft(Set[FieldType]())(_ ++ _)
+    struct.fields
+      .map(field => getDependentTypes(field.fieldType)).foldLeft(Set[FieldType]())(_ ++ _)
   }
 
   def getDependentHeaders(struct: StructLike): String = {

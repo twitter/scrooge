@@ -59,9 +59,10 @@ class StructController(
 
   val has_struct_annotations: Boolean = !struct_annotations.isEmpty
 
-  val field_annotations: JSet[JMap.Entry[Field, JSet[JMap.Entry[String, String]]]] = allFields.filter(_.fieldAnnotations.nonEmpty).map { field =>
-    field -> field.fieldAnnotations.asJava.entrySet()
-  }.toMap.asJava.entrySet()
+  val field_annotations: JSet[JMap.Entry[Field, JSet[JMap.Entry[String, String]]]] = allFields
+    .filter(_.fieldAnnotations.nonEmpty).map { field =>
+      field -> field.fieldAnnotations.asJava.entrySet()
+    }.toMap.asJava.entrySet()
 
   val has_field_annotations: Boolean = !field_annotations.isEmpty
 

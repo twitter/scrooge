@@ -394,9 +394,12 @@ class ThriftParser(
   ) <~
     "}") ~ defaultedAnnotations ^^ {
     case comment ~ sid ~ extend ~ functions ~ annotations => {
-      val hasFuncNamedAsClosable = functions.exists(_.funcName.name.equalsIgnoreCase(WithAsClosable.AsClosableMethodName))
+      val hasFuncNamedAsClosable =
+        functions.exists(_.funcName.name.equalsIgnoreCase(WithAsClosable.AsClosableMethodName))
       val options: Set[ServiceOption] = if (hasFuncNamedAsClosable) {
-        logger.warning(s"Generating user defined asClosable instead of default one for ${sid.fullName}")
+        logger.warning(
+          s"Generating user defined asClosable instead of default one for ${sid.fullName}"
+        )
         Set.empty
       } else {
         Set(WithAsClosable)

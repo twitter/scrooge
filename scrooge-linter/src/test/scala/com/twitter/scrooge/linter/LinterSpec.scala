@@ -646,20 +646,20 @@ class LinterSpec extends WordSpec with MustMatchers {
 
     "warn on maps with complex key types" in {
       val complexType = StructType(
-                          Struct(
-                            SimpleID("SomeStruct"),
-                            "SomeStruct",
-                            Seq(
-                              Field(
-                                1,
-                                SimpleID("val"),
-                                "val",
-                                TString
-                              )
-                            ),
-                            None
-                          )
-                        )
+        Struct(
+          SimpleID("SomeStruct"),
+          "SomeStruct",
+          Seq(
+            Field(
+              1,
+              SimpleID("val"),
+              "val",
+              TString
+            )
+          ),
+          None
+        )
+      )
 
       val warnings = LintRule.MapKeyType(
         Document(

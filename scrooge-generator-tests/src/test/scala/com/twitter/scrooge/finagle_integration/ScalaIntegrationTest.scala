@@ -42,15 +42,16 @@ class ScalaIntegrationTest extends FunSuite {
     await(muxServer.close())
   }
 
-  def thriftBarClient(server: ListeningServer) = Thrift.client.build[BarService.MethodPerEndpoint] (
+  def thriftBarClient(server: ListeningServer) = Thrift.client.build[BarService.MethodPerEndpoint](
     Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
     "thriftBarClient"
   )
 
-  def thriftExtendedBarClient(server: ListeningServer) = Thrift.client.build[ExtendedBarService.MethodPerEndpoint] (
-    Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
-    "thriftExtendedBarClient"
-  )
+  def thriftExtendedBarClient(server: ListeningServer) =
+    Thrift.client.build[ExtendedBarService.MethodPerEndpoint](
+      Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
+      "thriftExtendedBarClient"
+    )
 
   val thriftBarServer = Thrift.server.serveIface(
     new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
@@ -72,7 +73,7 @@ class ScalaIntegrationTest extends FunSuite {
 
       override def duplicate(y: String): Future[String] = Future.value(y + y)
 
-      override def getDuck(key: Long): Future[String] =  Future.value("Scrooge")
+      override def getDuck(key: Long): Future[String] = Future.value("Scrooge")
 
       override def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
 
@@ -151,21 +152,36 @@ class ScalaIntegrationTest extends FunSuite {
     assert(await(thriftExtendedBarClient(thriftExtendedBarServer).triple("3")) == "333")
   }
 
-  test("Fail to construct a Thrift server from Map[ThiriftMethod, Service[_,_]] if implementations are not found") {
-    def mkPair(m: ThriftMethod)(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
+  test(
+    "Fail to construct a Thrift server from Map[ThiriftMethod, Service[_,_]] if implementations are not found"
+  ) {
+    def mkPair(
+      m: ThriftMethod
+    )(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
       val reqRep = { r: Request[m.Args] =>
-        f(r.args).map { x: m.SuccessType => Response(x) }
+        f(r.args).map { x: m.SuccessType =>
+          Response(x)
+        }
       }.asInstanceOf[m.ReqRepFunctionType]
-      m -> m.toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
-     }
+      m -> m
+        .toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
+    }
 
-     val methods: Map[ThriftMethod, Service[Request[_], Response[_]]] = Map(
-       mkPair(ExtendedBarService.Triple){ a: ExtendedBarService.Triple.Args => Future.value(a.z + a.z + a.z) },
-       mkPair(BarService.Echo){ a: BarService.Echo.Args => Future.value(a.x) },
-       mkPair(BarService.Duplicate){ a: BarService.Duplicate.Args => Future.value(a.y + a.y)},
-       mkPair(BarService.SetDuck){ a: BarService.SetDuck.Args => Future.Unit }
-       // Missing GetDuck
-     )
+    val methods: Map[ThriftMethod, Service[Request[_], Response[_]]] = Map(
+      mkPair(ExtendedBarService.Triple) { a: ExtendedBarService.Triple.Args =>
+        Future.value(a.z + a.z + a.z)
+      },
+      mkPair(BarService.Echo) { a: BarService.Echo.Args =>
+        Future.value(a.x)
+      },
+      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args =>
+        Future.value(a.y + a.y)
+      },
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args =>
+        Future.Unit
+      }
+      // Missing GetDuck
+    )
 
     intercept[IllegalArgumentException] {
       ExtendedBarService.unsafeBuildFromMethods(methods)
@@ -173,57 +189,90 @@ class ScalaIntegrationTest extends FunSuite {
   }
 
   test("construct a Thrift server from Map[ThiriftMethod, Service[Request[_],Response[_]]") {
-    def mkPair(m: ThriftMethod)(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
+    def mkPair(
+      m: ThriftMethod
+    )(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
       val reqRep = { r: Request[m.Args] =>
-        f(r.args).map { x: m.SuccessType => Response(x) }
+        f(r.args).map { x: m.SuccessType =>
+          Response(x)
+        }
       }.asInstanceOf[m.ReqRepFunctionType]
-      m -> m.toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
-     }
-
-     val methods: Map[ThriftMethod, Service[Request[_], Response[_]]] = Map(
-       mkPair(ExtendedBarService.Triple){ a: ExtendedBarService.Triple.Args => Future.value(a.z + a.z + a.z) },
-       mkPair(BarService.Echo){ a: BarService.Echo.Args => Future.value(a.x) },
-       mkPair(BarService.Duplicate){ a: BarService.Duplicate.Args => Future.value(a.y + a.y)},
-       mkPair(BarService.SetDuck){ a: BarService.SetDuck.Args => Future.Unit },
-       mkPair(BarService.GetDuck){ a: BarService.GetDuck.Args => Future.value("Scrooge") }
-     )
-
-     val extendedBarService = Thrift.server.serveIface(
-       new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-       ExtendedBarService.unsafeBuildFromMethods(methods).toThriftService
-     )
-
-     val clnt = thriftExtendedBarClient(extendedBarService)
-
-     assert(await(clnt.echo("echo")) == "echo")
-     assert(await(clnt.duplicate("y")) == "yy")
-     assert(await(clnt.getDuck(3)) == "Scrooge")
-     assert(await(clnt.setDuck(3, "x")) === ())
-     assert(await(clnt.triple("x")) == "xxx")
-   }
-
- test("Fail with a TApplicationException at request time if the implementation provided is incorrect") {
-  // NB: As of now, the method to build a service from methods is marked "unsafe", but it would be
-  // ideal if types could be checked on construction.
-
-   def mkPair(m: ThriftMethod)(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
-     val reqRep = { r: Request[m.Args] =>
-       f(r.args).map { x: m.SuccessType => Response(x) }
-     }.asInstanceOf[m.ReqRepFunctionType]
-     m -> m.toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
+      m -> m
+        .toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
     }
 
-    val echoService = new Service[Request[BarService.Echo.Args], Response[BarService.Echo.SuccessType]] {
-     def apply(req: Request[BarService.Echo.Args]): Future[Response[BarService.Echo.SuccessType]] = {
-       Future.value(Response(req.args.x))
-     }
-    }.asInstanceOf[Service[Request[_], Response[_]]]
+    val methods: Map[ThriftMethod, Service[Request[_], Response[_]]] = Map(
+      mkPair(ExtendedBarService.Triple) { a: ExtendedBarService.Triple.Args =>
+        Future.value(a.z + a.z + a.z)
+      },
+      mkPair(BarService.Echo) { a: BarService.Echo.Args =>
+        Future.value(a.x)
+      },
+      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args =>
+        Future.value(a.y + a.y)
+      },
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args =>
+        Future.Unit
+      },
+      mkPair(BarService.GetDuck) { a: BarService.GetDuck.Args =>
+        Future.value("Scrooge")
+      }
+    )
+
+    val extendedBarService = Thrift.server.serveIface(
+      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+      ExtendedBarService.unsafeBuildFromMethods(methods).toThriftService
+    )
+
+    val clnt = thriftExtendedBarClient(extendedBarService)
+
+    assert(await(clnt.echo("echo")) == "echo")
+    assert(await(clnt.duplicate("y")) == "yy")
+    assert(await(clnt.getDuck(3)) == "Scrooge")
+    assert(await(clnt.setDuck(3, "x")) === ())
+    assert(await(clnt.triple("x")) == "xxx")
+  }
+
+  test(
+    "Fail with a TApplicationException at request time if the implementation provided is incorrect"
+  ) {
+    // NB: As of now, the method to build a service from methods is marked "unsafe", but it would be
+    // ideal if types could be checked on construction.
+
+    def mkPair(
+      m: ThriftMethod
+    )(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
+      val reqRep = { r: Request[m.Args] =>
+        f(r.args).map { x: m.SuccessType =>
+          Response(x)
+        }
+      }.asInstanceOf[m.ReqRepFunctionType]
+      m -> m
+        .toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
+    }
+
+    val echoService =
+      new Service[Request[BarService.Echo.Args], Response[BarService.Echo.SuccessType]] {
+        def apply(
+          req: Request[BarService.Echo.Args]
+        ): Future[Response[BarService.Echo.SuccessType]] = {
+          Future.value(Response(req.args.x))
+        }
+      }.asInstanceOf[Service[Request[_], Response[_]]]
 
     val methods: Map[ThriftMethod, Service[Request[_], Response[_]]] = Map(
-      mkPair(ExtendedBarService.Triple){ a: ExtendedBarService.Triple.Args => Future.value(a.z + a.z + a.z) },
-      mkPair(BarService.Echo){ a: BarService.Echo.Args => Future.value(a.x) },
-      mkPair(BarService.Duplicate){ a: BarService.Duplicate.Args => Future.value(a.y + a.y)},
-      mkPair(BarService.SetDuck){ a: BarService.SetDuck.Args => Future.Unit },
+      mkPair(ExtendedBarService.Triple) { a: ExtendedBarService.Triple.Args =>
+        Future.value(a.z + a.z + a.z)
+      },
+      mkPair(BarService.Echo) { a: BarService.Echo.Args =>
+        Future.value(a.x)
+      },
+      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args =>
+        Future.value(a.y + a.y)
+      },
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args =>
+        Future.Unit
+      },
       BarService.GetDuck -> echoService
     )
 
@@ -241,12 +290,12 @@ class ScalaIntegrationTest extends FunSuite {
   }
 
   test("construct Thrift client with newIface[FutureIface] -- backward compatible") {
-    val futureIfaceBarClient = Thrift.client.newIface[BarService.FutureIface] (
+    val futureIfaceBarClient = Thrift.client.newIface[BarService.FutureIface](
       Name.bound(Address(thriftBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "futureIfaceBarClient"
     )
 
-    val futureIfaceExtendedBarClient = Thrift.client.newIface[ExtendedBarService.FutureIface] (
+    val futureIfaceExtendedBarClient = Thrift.client.newIface[ExtendedBarService.FutureIface](
       Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "futureIfaceExtendedBarClient"
     )
@@ -257,12 +306,12 @@ class ScalaIntegrationTest extends FunSuite {
   }
 
   test("construct Thrift client with Service[Future]]") {
-    val serviceBarClient = Thrift.client.build[BarService[Future]] (
+    val serviceBarClient = Thrift.client.build[BarService[Future]](
       Name.bound(Address(thriftBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "serviceBarClient"
     )
 
-    val serviceExtendedBarClient = Thrift.client.build[ExtendedBarService[Future]] (
+    val serviceExtendedBarClient = Thrift.client.build[ExtendedBarService[Future]](
       Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "serviceExtendedBarClient"
     )
@@ -305,7 +354,7 @@ class ScalaIntegrationTest extends FunSuite {
 
         def duplicate(y: String): Future[String] = Future.value(y + y)
 
-        def getDuck(key: Long): Future[String] =  Future.value("Scrooge")
+        def getDuck(key: Long): Future[String] = Future.value("Scrooge")
 
         def setDuck(key: Long, value: String): Future[Unit] =
           Future.exception(new InvalidQueryException(value.length))
@@ -314,10 +363,11 @@ class ScalaIntegrationTest extends FunSuite {
       }
     )
 
-    val clientExtendedBarService = Thrift.client.servicePerEndpoint[ExtendedBarService.ServicePerEndpoint](
-      Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
-      "clientExtendedBarService"
-    )
+    val clientExtendedBarService =
+      Thrift.client.servicePerEndpoint[ExtendedBarService.ServicePerEndpoint](
+        Name.bound(Address(server.boundAddress.asInstanceOf[InetSocketAddress])),
+        "clientExtendedBarService"
+      )
 
     val ex = intercept[InvalidQueryException] {
       await(clientExtendedBarService.setDuck(BarService.SetDuck.Args(1L, "hi")))

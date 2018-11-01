@@ -129,15 +129,18 @@ class ApacheJavaGeneratorSpec extends Spec {
           .setRequiredField("test")
           .setDefaultRequirednessField(4)
 
-      val constructionRequiredErrorMessage = "Construction required field 'constructionRequiredField' in type 'ConstructorRequiredStruct' was not present."
-      val requiredErrorMessage = "Required field 'requiredField' in type 'ConstructorRequiredStruct' was not present."
+      val constructionRequiredErrorMessage =
+        "Construction required field 'constructionRequiredField' in type 'ConstructorRequiredStruct' was not present."
+      val requiredErrorMessage =
+        "Required field 'requiredField' in type 'ConstructorRequiredStruct' was not present."
 
       def validateMissingConstructionRequiredField(
-        struct: DeepValidationStruct, number: Int = 1
+        struct: DeepValidationStruct,
+        number: Int = 1
       ): Unit = {
         val result = DeepValidationStruct.validateNewInstance(struct).asScala
         result must have size number
-        result.foreach{ errorMessage =>
+        result.foreach { errorMessage =>
           errorMessage must be(constructionRequiredErrorMessage)
         }
       }
@@ -148,11 +151,12 @@ class ApacheJavaGeneratorSpec extends Spec {
         requiredField: ConstructorRequiredStruct = validInstance,
         inMapKey: JMap[ConstructorRequiredStruct, String] = Map(validInstance -> "value").asJava,
         inMapValue: JMap[String, ConstructorRequiredStruct] = Map("value" -> validInstance).asJava,
-        crazyEmbedding: JMap[JSet[JList[ConstructorRequiredStruct]], JSet[JList[ConstructorRequiredStruct]]] =
-          Map(
-            Set(Seq(validInstance).asJava).asJava ->
-              Set(Seq(validInstance).asJava).asJava
-          ).asJava,
+        crazyEmbedding: JMap[JSet[JList[ConstructorRequiredStruct]], JSet[
+          JList[ConstructorRequiredStruct]
+        ]] = Map(
+          Set(Seq(validInstance).asJava).asJava ->
+            Set(Seq(validInstance).asJava).asJava
+        ).asJava,
         optionalField: ConstructorRequiredStruct = validInstance
       ): DeepValidationStruct = {
         new DeepValidationStruct(
@@ -162,8 +166,7 @@ class ApacheJavaGeneratorSpec extends Spec {
           inMapKey,
           inMapValue,
           crazyEmbedding
-        )
-          .setOptionalConstructorRequiredStruct(optionalField)
+        ).setOptionalConstructorRequiredStruct(optionalField)
       }
 
       "return an empty list when required fields are present" in {
@@ -171,11 +174,13 @@ class ApacheJavaGeneratorSpec extends Spec {
         result must be(List.empty)
       }
       "return a MissingRequiredField when missing a required field" in {
-        val result = ConstructorRequiredStruct.validateNewInstance(missingRequiredFieldInstance).asScala
+        val result =
+          ConstructorRequiredStruct.validateNewInstance(missingRequiredFieldInstance).asScala
         result must be(List(requiredErrorMessage))
       }
       "return a MissingConstructionRequiredField when missing a required field" in {
-        val result = ConstructorRequiredStruct.validateNewInstance(missingConstructionRequiredFieldInstance).asScala
+        val result = ConstructorRequiredStruct
+          .validateNewInstance(missingConstructionRequiredFieldInstance).asScala
         result must be(List(constructionRequiredErrorMessage))
       }
 
@@ -185,7 +190,8 @@ class ApacheJavaGeneratorSpec extends Spec {
         result must be(List.empty)
       }
       "return a MissingConstructionRequiredField when DeepValidationStruct has invalid requiredConstructorRequiredStruct" in {
-        val struct = buildDeepValidationStruct(requiredField = missingConstructionRequiredFieldInstance)
+        val struct =
+          buildDeepValidationStruct(requiredField = missingConstructionRequiredFieldInstance)
         validateMissingConstructionRequiredField(struct)
       }
       "return a MissingConstructionRequiredField when DeepValidationStruct has invalid optionalConstructorRequiredStruct" in {

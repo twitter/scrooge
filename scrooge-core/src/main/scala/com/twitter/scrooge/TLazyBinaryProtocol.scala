@@ -162,7 +162,8 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
     if (transport.getBytesRemainingInBuffer < length) {
       throw new TException(
         s"Requested length $length > Buffer length ${transport.getBytesRemainingInBuffer}. " +
-          "Possible data corruption")
+          "Possible data corruption"
+      )
     }
   }
 

@@ -36,6 +36,7 @@ case object WithAsClosable extends ServiceOption {
 case class JavaService(service: Service, options: Set[ServiceOption])
 
 object Generator {
+
   /**
    * Annotation used for fields which are required for new instances of a struct, but which are
    * optional for the purpose of reading and serialization.

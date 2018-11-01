@@ -518,7 +518,14 @@ enum Foo
       )
 
       parser.parse("service LeechCache extends Cache {}", parser.definition) must be(
-        Service(SimpleID("LeechCache"), Some(ServiceParent(SimpleID("Cache"), None)), Seq(), None, Map(),  Set(WithAsClosable))
+        Service(
+          SimpleID("LeechCache"),
+          Some(ServiceParent(SimpleID("Cache"), None)),
+          Seq(),
+          None,
+          Map(),
+          Set(WithAsClosable)
+        )
       )
     }
 

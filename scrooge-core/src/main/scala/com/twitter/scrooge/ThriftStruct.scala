@@ -96,6 +96,7 @@ trait ThriftStructCodec[T <: ThriftStruct] {
 }
 
 abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec3[T] {
+
   /**
    * Checks that the struct is a valid as a new instance. If there are any missing required or
    * construction required fields, return a non-empty Seq of Issues.
@@ -115,11 +116,12 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
       case validatingStruct: U =>
         validatingStruct._codec.validateNewInstance(validatingStruct)
       case map: collection.Map[_, _] =>
-        map.flatMap { case (key, value) =>
-          Seq(
-            validateField(key),
-            validateField(value)
-          ).flatten
+        map.flatMap {
+          case (key, value) =>
+            Seq(
+              validateField(key),
+              validateField(value)
+            ).flatten
         }.toList
       case iterable: Iterable[_] => iterable.toList.flatMap(validateField)
       case option: Option[_] => option.toList.flatMap(validateField)
@@ -137,11 +139,10 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
  * A method could be added to this trait that does this (with more type safety), but we want to
  * avoid adding unnecessary methods to thrift structs.
  */
-trait ValidatingThriftStruct[T <: ThriftStruct]
-  extends ThriftStruct with HasThriftStructCodec3[T] { self: T =>
+trait ValidatingThriftStruct[T <: ThriftStruct] extends ThriftStruct with HasThriftStructCodec3[T] {
+  self: T =>
   override def _codec: ValidatingThriftStructCodec3[T]
 }
-
 
 /**
  * Introduced as a backwards compatible API bridge in Scrooge 3.
@@ -194,9 +195,9 @@ trait ThriftMethod {
   type Result <: ThriftResponse[SuccessType] with ThriftStruct
 
   // Note there is some indirection here for `FunctionType`, `ServiceIfaceServiceType`,
-  // ServicePerEndpointServiceType, and ReqRepServicePerEndpointServiceType. This is 
-  // because for Scala generated with Finagle bindings, these add dependencies on 
-  // Twitter Util and Finagle. This indirection allows us to sidestep that and keep 
+  // ServicePerEndpointServiceType, and ReqRepServicePerEndpointServiceType. This is
+  // because for Scala generated with Finagle bindings, these add dependencies on
+  // Twitter Util and Finagle. This indirection allows us to sidestep that and keep
   // scrooge-core free of those dependencies.
 
   /**

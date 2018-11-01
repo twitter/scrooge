@@ -89,7 +89,8 @@ class FieldTypeController(
       case fieldType: FieldType =>
         fieldType match {
           case StructType(_, _) => true
-          case MapType(keyType, valueType, _) => hasStructAtLeaf(keyType) || hasStructAtLeaf(valueType)
+          case MapType(keyType, valueType, _) =>
+            hasStructAtLeaf(keyType) || hasStructAtLeaf(valueType)
           case SetType(setType, _) => hasStructAtLeaf(setType)
           case ListType(listType, _) => hasStructAtLeaf(listType)
           case _ => false

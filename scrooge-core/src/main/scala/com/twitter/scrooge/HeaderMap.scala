@@ -4,8 +4,9 @@ import com.twitter.io.Buf
 import java.nio.charset.{StandardCharsets => JChar}
 
 private[scrooge] object HeaderMap {
-  val keyGroupByFn: ((Buf, Buf)) => String = { case (key: Buf, _) =>
-    Buf.decodeString(key, JChar.UTF_8).toLowerCase
+  val keyGroupByFn: ((Buf, Buf)) => String = {
+    case (key: Buf, _) =>
+      Buf.decodeString(key, JChar.UTF_8).toLowerCase
   }
 
   def apply(): HeaderMap = new HeaderMap(Map.empty[String, Seq[Buf]])
@@ -69,14 +70,17 @@ class HeaderMap private (headers: Map[String, Seq[Buf]]) {
    *
    * @return a sequence of (Buf, Buf) tuples containing all elements of this [[HeaderMap]].
    */
-  def toBufSeq: Seq[(Buf, Buf)] = for {
-    (key, values) <- toMap.toSeq
-    value <- values
-  } yield (Buf.Utf8(key), value)
+  def toBufSeq: Seq[(Buf, Buf)] =
+    for {
+      (key, values) <- toMap.toSeq
+      value <- values
+    } yield (Buf.Utf8(key), value)
 
   override def toString: String = {
-    s"HeaderMap(${headers.map { case (key, values) =>
-      s"$key -> ${values.map(Buf.decodeString(_, JChar.UTF_8)).mkString(" ")}"}.mkString(", ")
-    })"
+    s"HeaderMap(${headers
+      .map {
+        case (key, values) =>
+          s"$key -> ${values.map(Buf.decodeString(_, JChar.UTF_8)).mkString(" ")}"
+      }.mkString(", ")})"
   }
 }

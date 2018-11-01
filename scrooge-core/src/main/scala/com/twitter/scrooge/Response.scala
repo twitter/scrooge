@@ -9,13 +9,17 @@ object Response {
     new Response(value)
   }
 
-  def apply[SuccessType](headers: Map[String, Seq[Buf]], value: SuccessType): Response[SuccessType] = {
+  def apply[SuccessType](
+    headers: Map[String, Seq[Buf]],
+    value: SuccessType
+  ): Response[SuccessType] = {
     new Response(headers, value)
   }
 
   def apply[SuccessType](bufs: Seq[(Buf, Buf)], value: SuccessType): Response[SuccessType] = {
-    val headers = bufs.groupBy(keyGroupByFn).map { case (key, headersBufs) =>
-      (key, headersBufs.map { case (_, headerValueBuf) => headerValueBuf })
+    val headers = bufs.groupBy(keyGroupByFn).map {
+      case (key, headersBufs) =>
+        (key, headersBufs.map { case (_, headerValueBuf) => headerValueBuf })
     }
     new Response(headers, value)
   }
@@ -34,9 +38,7 @@ class Response[+SuccessType] private (headerMap: Map[String, Seq[Buf]], val valu
    * @return a new `Response` with the given header added to the contained headers.
    */
   def setHeader(headerKey: String, headerValue: String): Response[SuccessType] = {
-    Response(
-      headers = headers.toMap + (headerKey -> Seq(Buf.Utf8(headerValue))),
-      value = value)
+    Response(headers = headers.toMap + (headerKey -> Seq(Buf.Utf8(headerValue))), value = value)
   }
 
   /**
@@ -47,8 +49,6 @@ class Response[+SuccessType] private (headerMap: Map[String, Seq[Buf]], val valu
    * @return a new `Response` with the given header added to the contained headers.
    */
   def setHeader(headerKey: String, headerValues: Buf*): Response[SuccessType] = {
-    Response(
-      headers = headers.toMap + (headerKey -> headerValues),
-      value = value)
+    Response(headers = headers.toMap + (headerKey -> headerValues), value = value)
   }
 }

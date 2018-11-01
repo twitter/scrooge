@@ -164,7 +164,10 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           )
 
         val doubleFilter = new SimpleFilter[Deliver.Args, Deliver.SuccessType] {
-          def apply(args: Deliver.Args, service: finagleService[Deliver.Args, Deliver.SuccessType]) =
+          def apply(
+            args: Deliver.Args,
+            service: finagleService[Deliver.Args, Deliver.SuccessType]
+          ) =
             service(args.copy(where = args.where + args.where))
         }
 
@@ -243,13 +246,12 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
       "have correct stats" in { _ =>
         val service = serveExceptionalService()
         val statsReceiver = new InMemoryStatsReceiver
-        val clientService = Thrift.client
-          .withPerEndpointStats
+        val clientService = Thrift.client.withPerEndpointStats
           .configured(Stats(statsReceiver))
           .newServiceIface[ExceptionalService.ServiceIface](
-          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
-          "customServiceName"
-        )
+            Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
+            "customServiceName"
+          )
 
         val futureIface = Thrift.Client.newMethodIface(clientService)
 
@@ -323,9 +325,9 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           .configured(Stats(statsReceiver))
           .withPerEndpointStats
           .newServiceIface[ExceptionalService.ServiceIface](
-          Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
-          "client"
-        )
+            Name.bound(Address(service.boundAddress.asInstanceOf[InetSocketAddress])),
+            "client"
+          )
 
         val futureIface = Thrift.Client.newMethodIface(clientService)
 

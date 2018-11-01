@@ -22,7 +22,7 @@ sealed trait RichResponse[In, Out] {
  *
  * @param exception a TApplicationException of protocol error
  */
-case class ProtocolExceptionResponse[In, Out] (
+case class ProtocolExceptionResponse[In, Out](
   input: In,
   response: Buf,
   exception: TApplicationException
@@ -34,7 +34,7 @@ case class ProtocolExceptionResponse[In, Out] (
  *
  * @param result a result contains deserialized successful response
  */
-case class SuccessfulResponse[In, Out] (
+case class SuccessfulResponse[In, Out](
   input: In,
   response: Buf,
   result: Out
@@ -47,7 +47,7 @@ case class SuccessfulResponse[In, Out] (
  *
  * @param ex the thrift application exception
  */
-case class ThriftExceptionResponse[In, Out] (
+case class ThriftExceptionResponse[In, Out](
   input: In,
   response: Buf,
   ex: ThriftException

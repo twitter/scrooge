@@ -5,6 +5,7 @@ package com.twitter.scrooge.backend.thriftscala
 import com.twitter.scrooge.TFieldBlob
 
 object ConstructorRequiredStructPackageProtected {
+
   /**
    * Method that exposes the package private constructor for ConstructorRequiredStruct. We can use
    * this to create ConstructorRequiredStruct.Immutable that are missing constructionRequiredField.

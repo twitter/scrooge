@@ -55,7 +55,15 @@ class ApacheJavaGenerator(
     operation: DeepGeneratorOperation
   ): String = {
     val controller =
-      new DeepGeneratorController(sourceNamePart1, sourceNamePart2, resultName, fieldType, this, ns, operation)
+      new DeepGeneratorController(
+        sourceNamePart1,
+        sourceNamePart2,
+        resultName,
+        fieldType,
+        this,
+        ns,
+        operation
+      )
     renderMustache(operation.containerMustacheFileName, controller).trim
   }
 
@@ -65,7 +73,8 @@ class ApacheJavaGenerator(
     ns: Option[Identifier],
     operation: DeepGeneratorOperation
   ): String = {
-    val controller = new DeepGeneratorController(sourceName, None, "", fieldType, this, ns, operation)
+    val controller =
+      new DeepGeneratorController(sourceName, None, "", fieldType, this, ns, operation)
     renderMustache(operation.nonContainerMustacheFileName, controller).trim
   }
 
@@ -123,7 +132,7 @@ class ApacheJavaGenerator(
 
   def getIncludeNamespace(includeFileName: String): Identifier = {
     val javaNamespace = for {
-      doc: ResolvedDocument <-  includeMap.get(includeFileName)
+      doc: ResolvedDocument <- includeMap.get(includeFileName)
       identifier <- doc.document.namespace(namespaceLanguage)
     } yield identifier
 
@@ -145,15 +154,16 @@ class ApacheJavaGenerator(
     scopePrefixOption: Option[SimpleID],
     fileNamespaceOption: Option[Identifier] = None
   ): Identifier = {
-    scopePrefixOption.map { scopePrefix =>
-      sid.addScope(getIncludeNamespace(scopePrefix.name))
-    }.orElse {
-      fileNamespaceOption.map { fileNamespace =>
-        sid.addScope(fileNamespace)
+    scopePrefixOption
+      .map { scopePrefix =>
+        sid.addScope(getIncludeNamespace(scopePrefix.name))
+      }.orElse {
+        fileNamespaceOption.map { fileNamespace =>
+          sid.addScope(fileNamespace)
+        }
+      }.getOrElse {
+        sid
       }
-    }.getOrElse {
-      sid
-    }
   }
 
   /**

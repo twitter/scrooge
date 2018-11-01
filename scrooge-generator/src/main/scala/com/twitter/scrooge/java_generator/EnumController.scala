@@ -19,9 +19,13 @@ class EnumController(e: Enum, generator: ApacheJavaGenerator, ns: Option[Identif
 
   val has_struct_annotations: Boolean = !struct_annotations.isEmpty
 
-  val value_annotations: JSet[JMap.Entry[EnumField, EnumValueAnnotation]] = e.values.filter(_.annotations.nonEmpty).map { value =>
-    value -> new EnumValueAnnotation(name = value.sid.name, annotations  = value.annotations.asJava.entrySet())
-  }.toMap.asJava.entrySet()
+  val value_annotations: JSet[JMap.Entry[EnumField, EnumValueAnnotation]] = e.values
+    .filter(_.annotations.nonEmpty).map { value =>
+      value -> new EnumValueAnnotation(
+        name = value.sid.name,
+        annotations = value.annotations.asJava.entrySet()
+      )
+    }.toMap.asJava.entrySet()
 
   val has_value_annotations: Boolean = !value_annotations.isEmpty
 
