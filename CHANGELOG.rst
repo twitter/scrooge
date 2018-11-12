@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+18.11.0
+-------
+
 * scrooge-generator: Allow for `Filter.TypeAgnostic` filters to be applied to a generated
   Java `Service` via a new constructor that takes an additional argument of a `Filter.TypeAgnostic`.
   This filter is then applied per generated method service. ``PHAB_ID=D235709``
