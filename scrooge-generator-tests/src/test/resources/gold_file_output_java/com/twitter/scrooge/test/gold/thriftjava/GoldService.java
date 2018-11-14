@@ -330,6 +330,7 @@ public class GoldService {
     private final ServiceIface iface;
     private final com.twitter.finagle.Filter.TypeAgnostic filters;
     private final TProtocolFactory protocolFactory;
+    private final String serviceName;
     private final TReusableBuffer tlReusableBuffer;
     protected HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>> serviceMap =
       new HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>>();
@@ -337,6 +338,7 @@ public class GoldService {
       this.iface = iface;
       this.filters = filters;
       this.protocolFactory = serverParam.restrictedProtocolFactory();
+      this.serviceName = serverParam.serviceName();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }
@@ -400,7 +402,19 @@ public class GoldService {
               return Future.exception(e);
             }
 
-            Future<Response> res = service.apply(args);
+            Future<Response> res = com.twitter.finagle.context.Contexts.local().let(
+                com.twitter.finagle.thrift.MethodMetadata.Key(),
+                new com.twitter.finagle.thrift.MethodMetadata(
+                    "doGreatThings",
+                    serviceName,
+                    doGreatThings_args.class,
+                    doGreatThings_result.class),
+                new scala.runtime.AbstractFunction0<Future<Response>>() {
+                  @Override
+                  public Future<Response> apply() {
+                    return service.apply(args);
+                  }
+                });
             doGreatThings_result result = new doGreatThings_result();
             return res.flatMap(new Function<Response, Future<byte[]>>() {
               @Override

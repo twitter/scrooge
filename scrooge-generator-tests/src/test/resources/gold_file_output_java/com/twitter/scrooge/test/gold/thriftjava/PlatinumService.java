@@ -331,12 +331,14 @@ public class PlatinumService {
     private final ServiceIface iface;
     private final com.twitter.finagle.Filter.TypeAgnostic filters;
     private final TProtocolFactory protocolFactory;
+    private final String serviceName;
     private final TReusableBuffer tlReusableBuffer;
     public Service(final ServiceIface iface, final com.twitter.finagle.Filter.TypeAgnostic filters, final com.twitter.finagle.thrift.RichServerParam serverParam) {
       super(iface, filters, serverParam);
       this.iface = iface;
       this.filters = filters;
       this.protocolFactory = serverParam.restrictedProtocolFactory();
+      this.serviceName = serverParam.serviceName();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }
@@ -400,7 +402,19 @@ public class PlatinumService {
               return Future.exception(e);
             }
 
-            Future<Integer> res = service.apply(args);
+            Future<Integer> res = com.twitter.finagle.context.Contexts.local().let(
+                com.twitter.finagle.thrift.MethodMetadata.Key(),
+                new com.twitter.finagle.thrift.MethodMetadata(
+                    "moreCoolThings",
+                    serviceName,
+                    moreCoolThings_args.class,
+                    moreCoolThings_result.class),
+                new scala.runtime.AbstractFunction0<Future<Integer>>() {
+                  @Override
+                  public Future<Integer> apply() {
+                    return service.apply(args);
+                  }
+                });
             moreCoolThings_result result = new moreCoolThings_result();
             return res.flatMap(new Function<Integer, Future<byte[]>>() {
               @Override

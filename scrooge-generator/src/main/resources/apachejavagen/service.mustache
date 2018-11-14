@@ -421,6 +421,7 @@ public class {{name}} {
     private final ServiceIface iface;
     private final com.twitter.finagle.Filter.TypeAgnostic filters;
     private final TProtocolFactory protocolFactory;
+    private final String serviceName;
     private final TReusableBuffer tlReusableBuffer;
     {{^extends_iface}}
     protected HashMap<String, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]>> serviceMap =
@@ -433,6 +434,7 @@ public class {{name}} {
       this.iface = iface;
       this.filters = filters;
       this.protocolFactory = serverParam.restrictedProtocolFactory();
+      this.serviceName = serverParam.serviceName();
       this.tlReusableBuffer = new TReusableBuffer(512, serverParam.maxThriftBufferSize());
       createMethods();
     }
@@ -497,7 +499,19 @@ public class {{name}} {
               return Future.exception(e);
             }
 
-            Future<{{{return_type.type_name_in_container}}}> res = service.apply(args);
+            Future<{{{return_type.type_name_in_container}}}> res = com.twitter.finagle.context.Contexts.local().let(
+                com.twitter.finagle.thrift.MethodMetadata.Key(),
+                new com.twitter.finagle.thrift.MethodMetadata(
+                    "{{name}}",
+                    serviceName,
+                    {{name}}_args.class,
+                    {{#is_oneway}}Void.class{{/is_oneway}}{{^is_oneway}}{{name}}_result.class{{/is_oneway}}),
+                new scala.runtime.AbstractFunction0<Future<{{{return_type.type_name_in_container}}}>>() {
+                  @Override
+                  public Future<{{{return_type.type_name_in_container}}}> apply() {
+                    return service.apply(args);
+                  }
+                });
             {{#is_oneway}}
             return res.map(new Function<{{{return_type.type_name_in_container}}}, byte[]>() {
               public byte[] apply({{{return_type.type_name_in_container}}} value) {

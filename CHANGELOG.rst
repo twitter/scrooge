@@ -7,6 +7,10 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Set a `LocalContext` value with the current Thrift method in the
+  generated Java and Scala code such that the application `Service[-R, +R]` being executed has
+  access to information about the current Thrift method being invoked. ``PHAB_ID=D241295``
+
 18.11.0
 -------
 

@@ -1168,7 +1168,11 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           val seqid = request._2
           val args = MoreCoolThings.Args.decode(iprot)
           iprot.readMessageEnd()
-          val res = service(args)
+          val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+            _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
+            _root_.com.twitter.finagle.thrift.MethodMetadata(MoreCoolThings)) {
+            service(args)
+          }
           res.transform {
             case _root_.com.twitter.util.Return(value) =>
               val methodResult = MoreCoolThings.Result(success = Some(value))

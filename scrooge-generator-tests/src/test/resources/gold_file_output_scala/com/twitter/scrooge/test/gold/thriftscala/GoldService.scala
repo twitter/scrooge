@@ -1074,7 +1074,11 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val seqid = request._2
           val args = DoGreatThings.Args.decode(iprot)
           iprot.readMessageEnd()
-          val res = service(args)
+          val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+            _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
+            _root_.com.twitter.finagle.thrift.MethodMetadata(DoGreatThings)) {
+            service(args)
+          }
           res.transform {
             case _root_.com.twitter.util.Return(value) =>
               val methodResult = DoGreatThings.Result(success = Some(value))

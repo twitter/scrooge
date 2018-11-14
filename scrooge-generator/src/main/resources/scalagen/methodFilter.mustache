@@ -32,7 +32,11 @@ val {{methodSvcNameForCompile}}: finagle$Filter[(TProtocol, Int), Array[Byte], {
       val seqid = request._2
       val args = {{funcObjectName}}.Args.decode(iprot)
       iprot.readMessageEnd()
-      val res = service(args)
+      val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+        _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
+        _root_.com.twitter.finagle.thrift.MethodMetadata({{funcObjectName}})) {
+        service(args)
+      }
       res.transform {
         case _root_.com.twitter.util.Return(value) =>
           val methodResult = {{funcObjectName}}.Result({{resultNamedArg}})
