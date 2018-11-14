@@ -31,7 +31,7 @@ public class JavaIntegrationFilterTest {
   public void test() throws Exception {
     // andThen with Identity just to show a "complex" filter chain
     Filter.TypeAgnostic filters =
-        Filter.TypeAgnostic$.MODULE$.Identity()
+        Filter.typeAgnosticIdentity()
             .andThen(new HandleIllegalArgumentExceptionsFilter());
 
     ListeningServer server =

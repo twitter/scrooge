@@ -344,7 +344,7 @@ public class GoldService {
     }
 
     public Service(final ServiceIface iface, final com.twitter.finagle.thrift.RichServerParam serverParam) {
-      this(iface, com.twitter.finagle.Filter.TypeAgnostic$.MODULE$.Identity(), serverParam);
+      this(iface, com.twitter.finagle.Filter.typeAgnosticIdentity(), serverParam);
     }
 
     public Service(final ServiceIface iface) {
