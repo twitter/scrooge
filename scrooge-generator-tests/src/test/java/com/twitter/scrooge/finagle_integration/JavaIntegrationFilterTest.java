@@ -2,9 +2,6 @@ package com.twitter.scrooge.finagle_integration;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Collections;
-
-import scala.collection.JavaConversions;
 
 import org.apache.thrift.TApplicationException;
 import org.junit.Test;
@@ -12,7 +9,7 @@ import org.junit.Test;
 import com.twitter.finagle.Addresses;
 import com.twitter.finagle.Filter;
 import com.twitter.finagle.ListeningServer;
-import com.twitter.finagle.Name$;
+import com.twitter.finagle.Names;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.ThriftMux;
 import com.twitter.finagle.thrift.RichServerParam;
@@ -41,9 +38,7 @@ public class JavaIntegrationFilterTest {
 
     BarService.ServiceIface client =
         ThriftMux.client().build(
-            Name$.MODULE$.bound(JavaConversions.asScalaBuffer(
-                Collections.singletonList(
-                    Addresses.newInetAddress((InetSocketAddress) server.boundAddress())))),
+            Names.bound(Addresses.newInetAddress((InetSocketAddress) server.boundAddress())),
             "client",
             BarService.ServiceIface.class);
 
