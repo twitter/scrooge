@@ -54,6 +54,7 @@ junit_tests(
         "3rdparty/jvm/org/objenesis",
         "3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators",
         "3rdparty/jvm/org/scalatest",
+        "3rdparty/jvm/org/slf4j:slf4j-nop",
         "finagle/finagle-core/src/main/scala",
         "finagle/finagle-thrift/src/main/java",
         "finagle/finagle-thrift/src/main/scala",

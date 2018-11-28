@@ -1,3 +1,4 @@
+import scala.language.reflectiveCalls
 import scoverage.ScoverageKeys
 
 // Please use dodo to build the dependencies for the scrooge develop branch.  If
@@ -7,7 +8,10 @@ import scoverage.ScoverageKeys
 // All Twitter library releases are date versioned as YY.MM.patch
 val releaseVersion = "18.12.0-SNAPSHOT"
 
-val libthriftVersion = "0.10.0"
+lazy val versions = new {
+  val slf4j = "1.7.21"
+  val libthrift = "0.10.0"
+}
 
 def util(which: String) = "com.twitter" %% ("util-"+which) % releaseVersion
 def finagle(which: String) = "com.twitter" %% ("finagle-"+which) % releaseVersion
@@ -199,7 +203,7 @@ lazy val scroogeGenerator = Project(
 ).settings(
   name := "scrooge-generator",
   libraryDependencies ++= Seq(
-    "org.apache.thrift" % "libthrift" % libthriftVersion,
+    "org.apache.thrift" % "libthrift" % versions.libthrift,
     "com.github.scopt" %% "scopt" % "3.5.0",
     "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
     "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
@@ -225,7 +229,7 @@ lazy val scroogeGeneratorTests = Project(
   name := "scrooge-generator-tests",
   libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude("org.mockito", "mockito-all"),
-    "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test", // used in thrift transports
+    "org.slf4j" % "slf4j-nop" % versions.slf4j % "test", // used in thrift transports
     finagle("thrift") % "test",
     finagle("thriftmux") % "test"
   ),
@@ -241,7 +245,7 @@ lazy val scroogeCore = Project(
 ).settings(
   name := "scrooge-core",
   libraryDependencies ++= Seq(
-    "org.apache.thrift" % "libthrift" % libthriftVersion % "provided",
+    "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
     util("core")
   )
 )
@@ -262,8 +266,8 @@ lazy val scroogeSerializer = Project(
   libraryDependencies ++= Seq(
     util("app"),
     util("codec"),
-    "org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test",
-    "org.apache.thrift" % "libthrift" % libthriftVersion % "provided"
+    "org.slf4j" % "slf4j-nop" % versions.slf4j % "test",
+    "org.apache.thrift" % "libthrift" % versions.libthrift % "provided"
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
@@ -279,7 +283,7 @@ lazy val scroogeAdaptive = Project(
     "asm" % "asm" % "3.3.1",
     "asm" % "asm-commons" % "3.3.1",
     "asm" % "asm-util" % "3.3.1",
-    "org.apache.thrift" % "libthrift" % libthriftVersion % "provided",
+    "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
     util("logging")
   )
 ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
@@ -339,8 +343,8 @@ lazy val scroogeBenchmark = Project(
   JmhPlugin
 ).settings(
   libraryDependencies ++= Seq(
-    "org.slf4j" % "slf4j-log4j12" % "1.7.7", // Needed for the thrift transports
-    "org.apache.thrift" % "libthrift" % libthriftVersion
+    "org.slf4j" % "slf4j-nop" % versions.slf4j, // Needed for the thrift transports
+    "org.apache.thrift" % "libthrift" % versions.libthrift
   )
 ).dependsOn(
   scroogeAdaptive % "compile->test", // Need ReloadOnceAdaptBinarySerializer defined in test
