@@ -22,8 +22,7 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
 class ApacheJavaGenerator(
   resolvedDoc: ResolvedDocument,
   defaultNamespace: String,
-  templateCache: TrieMap[String, Mustache]
-) // Defaulting to true for pants.
+  templateCache: TrieMap[String, Mustache]) // Defaulting to true for pants.
     extends Generator(resolvedDoc) {
   val namespaceLanguage = "java"
 
@@ -213,10 +212,7 @@ class ApacheJavaGenerator(
     }
   }
 
-  def initField(
-    fieldType: FunctionType,
-    inContainer: Boolean = false
-  ): String = {
+  def initField(fieldType: FunctionType, inContainer: Boolean = false): String = {
     fieldType match {
       case SetType(eltType: EnumType, _) =>
         s"EnumSet.noneOf(${typeName(eltType)}.class)"

@@ -8,8 +8,8 @@ class StructFieldController(
   total: Int,
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
-  serializePrefix: String
-) extends BaseController(generator, ns) {
+  serializePrefix: String)
+    extends BaseController(generator, ns) {
   val field = new FieldController(f, generator, ns)
   val fieldType = f.fieldType
   val field_type = field.field_type

@@ -974,12 +974,14 @@ enum Foo
         )
       )
 
-      parser.parse("""
+      parser.parse(
+        """
         |service foo_service {
         |  void foo() ( foo = "bar" )
         |} (a.b="c")
         |
-      """.stripMargin, parser.service) must be(
+      """.stripMargin,
+        parser.service) must be(
         Service(
           SimpleID("foo_service", None),
           None,

@@ -9,8 +9,8 @@ class SerializeFieldController(
   fieldName: String,
   prefix: String,
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier]
-) extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
+  ns: Option[Identifier])
+    extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
   val tmp_iter = if (field_type.is_container) generator.tmp("_iter") else false
 
   def deserialize_map_element = {

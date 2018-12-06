@@ -128,11 +128,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
   private def resultStructNameForWire(f: Function): String =
     f.funcName.name + "_result"
 
-  def finagleClient(
-    service: Service,
-    namespace: Identifier,
-    withAsClosable: Boolean
-  ): Dictionary =
+  def finagleClient(service: Service, namespace: Identifier, withAsClosable: Boolean): Dictionary =
     Dictionary(
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
@@ -165,10 +161,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "withAsClosable" -> v(withAsClosable)
     )
 
-  def finagleService(
-    service: Service,
-    namespace: Identifier
-  ): Dictionary =
+  def finagleService(service: Service, namespace: Identifier): Dictionary =
     Dictionary(
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),

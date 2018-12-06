@@ -151,12 +151,12 @@ class ApacheJavaGeneratorSpec extends Spec {
         requiredField: ConstructorRequiredStruct = validInstance,
         inMapKey: JMap[ConstructorRequiredStruct, String] = Map(validInstance -> "value").asJava,
         inMapValue: JMap[String, ConstructorRequiredStruct] = Map("value" -> validInstance).asJava,
-        crazyEmbedding: JMap[JSet[JList[ConstructorRequiredStruct]], JSet[
-          JList[ConstructorRequiredStruct]
-        ]] = Map(
-          Set(Seq(validInstance).asJava).asJava ->
-            Set(Seq(validInstance).asJava).asJava
-        ).asJava,
+        crazyEmbedding: JMap[
+          JSet[JList[ConstructorRequiredStruct]],
+          JSet[
+            JList[ConstructorRequiredStruct]
+          ]] = Map(Set(Seq(validInstance).asJava).asJava ->
+            Set(Seq(validInstance).asJava).asJava).asJava,
         optionalField: ConstructorRequiredStruct = validInstance
       ): DeepValidationStruct = {
         new DeepValidationStruct(

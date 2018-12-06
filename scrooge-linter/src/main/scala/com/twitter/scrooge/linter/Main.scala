@@ -29,8 +29,7 @@ case class Config(
   includePaths: Seq[String] = Seq.empty,
   enabledRules: Seq[LintRule] = LintRule.DefaultRules,
   verbose: Boolean = false,
-  fatalWarnings: Boolean = false
-)
+  fatalWarnings: Boolean = false)
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -90,7 +89,8 @@ object Main {
             val rule = findRule(ruleName);
             if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
           }
-      } text (s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(LintRule.DefaultRules)}")
+      } text (s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(
+        LintRule.DefaultRules)}")
 
       opt[String]('d', "disable-rule") unbounded () valueName ("<rule-name>") action {
         (ruleName, c) =>

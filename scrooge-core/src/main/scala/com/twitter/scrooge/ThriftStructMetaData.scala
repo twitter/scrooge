@@ -115,8 +115,7 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
 final class ThriftStructField[T <: ThriftStruct](
   val tfield: TField,
   val method: Method,
-  val manifest: scala.Option[Manifest[_]]
-) {
+  val manifest: scala.Option[Manifest[_]]) {
 
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
@@ -153,10 +152,8 @@ final class ThriftStructField[T <: ThriftStruct](
 final class ThriftUnionFieldInfo[
   UnionFieldType <: ThriftUnion with ThriftStruct: ClassTag,
   ContainedType: ClassTag
-](
-  val structFieldInfo: ThriftStructFieldInfo,
-  fieldUnapply: UnionFieldType => scala.Option[ContainedType]
-) {
+](val structFieldInfo: ThriftStructFieldInfo,
+  fieldUnapply: UnionFieldType => scala.Option[ContainedType]) {
 
   /**
    * Class tag for the class representing this union field; useful for reflection-related tasks
@@ -192,8 +189,7 @@ final class ThriftStructFieldInfo(
   val valueManifest: scala.Option[Manifest[_]],
   val typeAnnotations: Map[String, String],
   val fieldAnnotations: Map[String, String],
-  val defaultValue: Option[Any]
-) {
+  val defaultValue: Option[Any]) {
 
   /**
    * Provide backwards compatibility for older scrooge-generator that does not generate the defaultValue field

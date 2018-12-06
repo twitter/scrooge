@@ -10,8 +10,8 @@ class StructController(
   val in_class: Boolean,
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
-  val is_result: Boolean = false
-) extends TypeController(struct, generator, ns) {
+  val is_result: Boolean = false)
+    extends TypeController(struct, generator, ns) {
 
   val struct_type_name: String = generator.typeName(StructType(struct))
 

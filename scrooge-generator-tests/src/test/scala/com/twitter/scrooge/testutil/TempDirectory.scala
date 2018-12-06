@@ -4,6 +4,7 @@ import com.twitter.io.Files
 import java.io.File
 
 object TempDirectory {
+
   /**
    * Create a new temporary directory in the current directory,
    * which will be deleted upon the exit of the VM.
@@ -19,11 +20,12 @@ object TempDirectory {
     file.mkdir()
 
     if (deleteAtExit)
-      Runtime.getRuntime().addShutdownHook(new Thread {
-        override def run() {
-          Files.delete(file)
-        }
-      })
+      Runtime
+        .getRuntime().addShutdownHook(new Thread {
+          override def run() {
+            Files.delete(file)
+          }
+        })
 
     file
   }

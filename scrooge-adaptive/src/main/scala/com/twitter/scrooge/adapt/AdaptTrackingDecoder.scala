@@ -35,8 +35,8 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
   fallbackDecoder: Decoder[T],
   accessRecordingDecoderBuilder: AccessRecorder => Decoder[T],
   settings: AdaptSettings,
-  classLoader: AdaptClassLoader
-) extends AccessRecorder
+  classLoader: AdaptClassLoader)
+    extends AccessRecorder
     with Decoder[T] {
   import AdaptTrackingDecoder._
 

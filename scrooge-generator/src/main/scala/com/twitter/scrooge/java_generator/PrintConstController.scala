@@ -13,8 +13,8 @@ class PrintConstController(
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
   val in_static: Boolean = false,
-  val defval: Boolean = false
-) extends BaseController(generator, ns) {
+  val defval: Boolean = false)
+    extends BaseController(generator, ns) {
   val field_type = new FieldTypeController(fieldType, generator)
   def rendered_value = renderConstValue(value, fieldType).value
 

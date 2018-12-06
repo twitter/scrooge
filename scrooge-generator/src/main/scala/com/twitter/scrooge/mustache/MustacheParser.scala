@@ -28,8 +28,8 @@ object MustacheAST {
     name: String,
     document: Template,
     reversed: Boolean,
-    joiner: Option[String] = None
-  ) extends Segment
+    joiner: Option[String] = None)
+      extends Segment
   case class Partial(name: String) extends Segment
 }
 

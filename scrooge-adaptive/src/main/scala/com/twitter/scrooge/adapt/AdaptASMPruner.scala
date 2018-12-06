@@ -42,10 +42,7 @@ private[adapt] object AdaptAsmPruner {
    *
    * @return Bytes of the pruned Adapt class.
    */
-  def pruneAdapt(
-    templateFqdn: String,
-    useMap: Map[String, Boolean]
-  ): Array[Byte] = {
+  def pruneAdapt(templateFqdn: String, useMap: Map[String, Boolean]): Array[Byte] = {
     // Using ASM prune Adapt first and then decoder
     val classReader = new ClassReader(classBytesStream(templateFqdn))
     val classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES)
@@ -129,10 +126,7 @@ private[adapt] object AdaptAsmPruner {
    * Marker method looks like _fieldNameUsedStartMarker, extract the fieldName
    * from it.
    */
-  private[this] def extractFieldNameFromMarkerName(
-    methodName: String,
-    markerType: String
-  ): String =
+  private[this] def extractFieldNameFromMarkerName(methodName: String, markerType: String): String =
     methodName.substring(1, methodName.size - markerType.size)
 
   private[this] def isAdaptTProtocolModuleLoadInstruction(insn: Any): Boolean =
@@ -156,10 +150,7 @@ private[adapt] object AdaptAsmPruner {
    * marker (getStatic). Always returns iter at the same original
    * location, effectively does not mutate iter.
    */
-  private[this] def readMarker(
-    iter: ListIterator[_],
-    markerType: String
-  ): Option[Short] = {
+  private[this] def readMarker(iter: ListIterator[_], markerType: String): Option[Short] = {
     // Skip first instruction
     // There should be at least 3 instructions, early exit if none
     if (!iter.hasNext) {
@@ -275,10 +266,7 @@ private[adapt] object AdaptAsmPruner {
   private[this] def jvmFqdn(dottedName: String): String =
     dottedName.replace('.', '/')
 
-  private[this] def processMarkers(
-    di: InsnList,
-    useMap: Map[Short, Boolean]
-  ): Unit = {
+  private[this] def processMarkers(di: InsnList, useMap: Map[Short, Boolean]): Unit = {
     val iter = di.iterator
     while (iter.hasNext) {
 
@@ -336,10 +324,7 @@ private[adapt] object AdaptAsmPruner {
    *               Important: field name should be in camel case.
    * @return Bytes of the pruned Decoder class.
    */
-  def pruneAdaptDecoder(
-    decoderTemplateFqdn: String,
-    useMap: Map[Short, Boolean]
-  ): Array[Byte] = {
+  def pruneAdaptDecoder(decoderTemplateFqdn: String, useMap: Map[Short, Boolean]): Array[Byte] = {
 
     val classReader = new ClassReader(classBytesStream(decoderTemplateFqdn))
     val classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES)

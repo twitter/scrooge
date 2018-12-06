@@ -36,8 +36,8 @@ object LuaGeneratorFactory extends GeneratorFactory {
 class LuaGenerator(
   val doc: ResolvedDocument,
   val defaultNamespace: String,
-  val templateLoader: HandlebarLoader
-) extends TemplateGenerator(doc) {
+  val templateLoader: HandlebarLoader)
+    extends TemplateGenerator(doc) {
 
   import LuaGenerator._
 
@@ -47,10 +47,7 @@ class LuaGenerator(
 
   def templates: HandlebarLoader = templateLoader
 
-  override def genConstant(
-    constant: RHS,
-    fieldType: Option[FieldType] = None
-  ): CodeFragment = {
+  override def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     constant match {
       case NullLiteral => v("nil")
       case _ => super.genConstant(constant, fieldType)

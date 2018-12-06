@@ -68,8 +68,8 @@ object AdaptBinaryThriftStructSerializer {
    */
   private[this] class AdaptBinaryThriftStructSerializer[T <: ThriftStruct](
     val codec: ThriftStructCodec[T],
-    settings: AdaptSettings
-  ) extends ThriftStructSerializer[T] {
+    settings: AdaptSettings)
+      extends ThriftStructSerializer[T] {
 
     // Since we only support the fast path reading from the TArrayByteTransport
     // we provide the default if someone hits it to be the TBinaryProtocol

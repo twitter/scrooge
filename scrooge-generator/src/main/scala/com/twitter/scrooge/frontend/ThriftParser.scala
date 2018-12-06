@@ -30,7 +30,8 @@ class ThriftParser(
   defaultOptional: Boolean = false,
   skipIncludes: Boolean = false,
   documentCache: Map[String, Document] = new TrieMap[String, Document]
-)(implicit val logger: Logger = Logger.getLogger(getClass.getName))
+)(
+  implicit val logger: Logger = Logger.getLogger(getClass.getName))
     extends RegexParsers {
 
   //                            1    2           3                     4         4a    4b    4c       4d

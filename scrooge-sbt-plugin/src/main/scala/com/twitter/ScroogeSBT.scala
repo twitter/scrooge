@@ -37,7 +37,9 @@ object ScroogeSBT extends AutoPlugin {
       val compiler = new Compiler()
       compiler.destFolder = outputDir.getPath
       thriftIncludes.map { compiler.includePaths += _.getPath }
-      namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2) }
+      namespaceMappings.map { e =>
+        compiler.namespaceMappings.put(e._1, e._2)
+      }
       compiler.flags ++= flags
       compiler.thriftFiles ++= thriftFiles.map(_.getPath())
       compiler.strict = !disableStrict
@@ -53,7 +55,9 @@ object ScroogeSBT extends AutoPlugin {
   def filter(dependencies: Classpath, whitelist: Set[String]): Classpath = {
     dependencies.filter { dep =>
       // NOTE: module-id supports SBT pre-1.x while moduleID supports SBT 1.0 and later.
-      val module = dep.get(AttributeKey[ModuleID]("module-id")).orElse(dep.get(AttributeKey[ModuleID]("moduleID")))
+      val module = dep
+        .get(AttributeKey[ModuleID]("module-id")).orElse(
+          dep.get(AttributeKey[ModuleID]("moduleID")))
       module.exists { m =>
         whitelist.contains(m.name)
       }
@@ -179,13 +183,10 @@ object ScroogeSBT extends AutoPlugin {
     scroogeThriftDependencies := Seq(),
     scroogeLanguages := Seq("scala"),
     libraryDependencies += "com.twitter" %% "scrooge-core" % com.twitter.BuildInfo.version,
-
     // complete list of source files
     scroogeThriftSources := (scroogeThriftSourceFolder.value ** "*.thrift").get,
-
     // complete list of include directories
     scroogeThriftIncludes := scroogeThriftIncludeFolders.value ++ scroogeUnpackDeps.value,
-
     // unpack thrift files from all dependencies in the `thrift` configuration
     //
     // returns Seq[File] - directories that include thrift files
@@ -194,32 +195,37 @@ object ScroogeSBT extends AutoPlugin {
       val whitelist = scroogeThriftDependencies.value.toSet
       val dependencies =
         Classpaths.managedJars(ThriftConfig, classpathTypes.value, update.value) ++
-        filter(Classpaths.managedJars(configuration.value, classpathTypes.value, update.value), whitelist)
+          filter(
+            Classpaths.managedJars(configuration.value, classpathTypes.value, update.value),
+            whitelist)
 
       val sourceFolder = scroogeThriftExternalSourceFolder.value
-      val paths = dependencies.map { dep =>
-        // NOTE: module-id supports SBT pre-1.x while moduleID supports SBT 1.0 and later.
-        val module = dep.get(AttributeKey[ModuleID]("module-id")).orElse(dep.get(AttributeKey[ModuleID]("moduleID")))
-        module.flatMap { m =>
-          val dest = new File(sourceFolder, m.name)
-          IO.createDirectory(dest)
-          val thriftFiles = IO.unzip(dep.data, dest, "*.thrift").toSeq
-          if (thriftFiles.isEmpty) {
-            None
-          } else {
-            Some(dest)
+      val paths = dependencies.map {
+        dep =>
+          // NOTE: module-id supports SBT pre-1.x while moduleID supports SBT 1.0 and later.
+          val module = dep
+            .get(AttributeKey[ModuleID]("module-id")).orElse(
+              dep.get(AttributeKey[ModuleID]("moduleID")))
+          module.flatMap { m =>
+            val dest = new File(sourceFolder, m.name)
+            IO.createDirectory(dest)
+            val thriftFiles = IO.unzip(dep.data, dest, "*.thrift").toSeq
+            if (thriftFiles.isEmpty) {
+              None
+            } else {
+              Some(dest)
+            }
           }
-        }
       }
       paths.filter(_.isDefined).map(_.get)
     },
-
     // look at includes and our sources to see if anything is newer than any of our output files
     scroogeIsDirty := {
       // figure out if we need to actually rebuild, based on mtimes.
       val allSourceDeps: Seq[File] =
-        scroogeThriftSources.value ++ scroogeThriftIncludes.value.foldLeft(Seq[File]()) { (files, dir) =>
-          files ++ (dir ** "*.thrift").get
+        scroogeThriftSources.value ++ scroogeThriftIncludes.value.foldLeft(Seq[File]()) {
+          (files, dir) =>
+            files ++ (dir ** "*.thrift").get
         }
       val sourcesLastModified: Seq[Long] = allSourceDeps.map(_.lastModified)
       val newestSource: Long =
@@ -242,7 +248,6 @@ object ScroogeSBT extends AutoPlugin {
         }
       oldestOutput < newestSource
     },
-
     // actually run scrooge
     scroogeGen := {
       val streamValue = streams.value
@@ -295,8 +300,8 @@ object ScroogeSBT extends AutoPlugin {
 
   override lazy val projectSettings =
     Seq(ivyConfigurations += ThriftConfig) ++
-    inConfig(Test)(genThriftSettings) ++
-    inConfig(Compile)(genThriftSettings) :+ packageThrift :+ generatedSources
+      inConfig(Test)(genThriftSettings) ++
+      inConfig(Compile)(genThriftSettings) :+ packageThrift :+ generatedSources
 
   @deprecated("Settings auto-imported via AutoPlugin mechanism", "2015-03-24")
   lazy val newSettings = projectSettings

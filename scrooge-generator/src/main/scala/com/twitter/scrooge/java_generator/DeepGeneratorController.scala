@@ -27,8 +27,8 @@ class DeepGeneratorController(
   fieldType: FieldType,
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
-  operation: DeepGeneratorOperation
-) extends BaseController(generator, ns) {
+  operation: DeepGeneratorOperation)
+    extends BaseController(generator, ns) {
   val source_name =
     sourceNamePart2.map(sourceNamePart1 + "." + _).getOrElse(sourceNamePart1)
   val iterator_element_name = sourceNamePart1 + "_element"

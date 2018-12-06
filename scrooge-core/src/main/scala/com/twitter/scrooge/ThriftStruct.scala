@@ -107,9 +107,7 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
    * Method that should be called on every field of a struct to validate new instances of that
    * struct. This should only called by the generated implementations of validateNewInstance.
    */
-  final protected def validateField[U <: ValidatingThriftStruct[U]](
-    any: Any
-  ): Seq[Issue] = {
+  final protected def validateField[U <: ValidatingThriftStruct[U]](any: Any): Seq[Issue] = {
     any match {
       // U is unchecked since it is eliminated by erasure, but we know that validatingStruct extends
       // from ValidatingThriftStruct. The code below should be safe for any ValidatingThriftStruct

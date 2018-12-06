@@ -6,7 +6,11 @@ import java.io.{BufferedReader, InputStreamReader}
 import org.scalatest.MustMatchers
 
 object Utils extends MustMatchers {
-  def verify(actual: String, expected: String, assertionMessage: String = "The contents did not match") {
+  def verify(
+    actual: String,
+    expected: String,
+    assertionMessage: String = "The contents did not match"
+  ) {
     val actualItems = normalizeHeaders(actual).split("\n")
     val expectedItems = normalizeHeaders(expected).split("\n")
     for (i <- 0 until actualItems.size) {
@@ -22,7 +26,13 @@ object Utils extends MustMatchers {
     }
   }
 
-  def verifyWithHint(actual: String, expectedResourcePath: String, thriftSourcePath: String, generatedFilePath: String, language: String): Unit = {
+  def verifyWithHint(
+    actual: String,
+    expectedResourcePath: String,
+    thriftSourcePath: String,
+    generatedFilePath: String,
+    language: String
+  ): Unit = {
     val hint = "To regenerate the file run scrooge with these options:\n" +
       s"--language $language --finagle --gen-adapt --dest /tmp/struct " +
       s"$$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/$thriftSourcePath\n" +

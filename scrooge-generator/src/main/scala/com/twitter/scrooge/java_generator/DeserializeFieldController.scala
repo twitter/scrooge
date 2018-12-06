@@ -7,8 +7,8 @@ class DeserializeFieldController(
   fieldName: String,
   prefix: String,
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier]
-) extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
+  ns: Option[Identifier])
+    extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
   val obj =
     if (field_type.is_container) generator.tmp("_" + field_type.get_type.toLowerCase) else false
   val tmp_i = if (field_type.is_container) generator.tmp("_i") else false

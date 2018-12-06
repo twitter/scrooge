@@ -8,8 +8,8 @@ import com.twitter.scrooge.ast.Struct
 class FunctionController(
   function: TFunction,
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier]
-) extends BaseController(generator, ns) {
+  ns: Option[Identifier])
+    extends BaseController(generator, ns) {
   val return_type = new FieldTypeController(function.funcType, generator)
   val name = function.funcName.name
   val argument_list = function.args map { a =>

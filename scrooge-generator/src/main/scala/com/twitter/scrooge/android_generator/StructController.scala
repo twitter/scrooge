@@ -9,8 +9,8 @@ class StructController(
   val in_class: Boolean,
   generator: AndroidGenerator,
   ns: Option[Identifier],
-  val is_result: Boolean = false
-) extends JavaTypeController(struct, generator, ns) {
+  val is_result: Boolean = false)
+    extends JavaTypeController(struct, generator, ns) {
   val struct_type_name = generator.typeName(StructType(struct))
   val is_final = false // TODO: not sure if we need this annotations support
   val is_exception = struct.isInstanceOf[Exception_]

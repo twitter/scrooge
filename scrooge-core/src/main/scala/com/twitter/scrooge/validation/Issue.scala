@@ -14,14 +14,10 @@ sealed trait Issue
  * the object.
  * @param field ThriftStructFieldInfo for the missing field
  */
-case class MissingConstructionRequiredField(
-  field: ThriftStructFieldInfo
-) extends Issue
+case class MissingConstructionRequiredField(field: ThriftStructFieldInfo) extends Issue
 
 /**
  * When the Issue is returned by validateNewInstance a required field is missing from the object.
  * @param field ThriftStructFieldInfo for the missing field
  */
-case class MissingRequiredField(
-  field: ThriftStructFieldInfo
-) extends Issue
+case class MissingRequiredField(field: ThriftStructFieldInfo) extends Issue

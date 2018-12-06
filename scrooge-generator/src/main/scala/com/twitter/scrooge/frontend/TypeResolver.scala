@@ -56,11 +56,7 @@ case class ResolvedDocument(document: Document, resolver: TypeResolver) {
   /**
    * Given a type, produce its FQN (e.g. a Java FQN) by appending the namespace.
    */
-  def qualifyName(
-    name: NamedType,
-    language: String,
-    defaultNamespace: String
-  ): Identifier = {
+  def qualifyName(name: NamedType, language: String, defaultNamespace: String): Identifier = {
     name.scopePrefix match {
       case Some(filename) =>
         resolver.includeMap(filename.name).qualifySimpleID(name.sid, language, defaultNamespace)
@@ -117,12 +113,14 @@ case class TypeResolver(
   constMap: Map[String, ConstDefinition] = Map.empty,
   serviceMap: Map[String, Service] = Map.empty,
   includeMap: Map[String, ResolvedDocument] = Map.empty,
-  structsMap: Map[String, StructType] = Map.empty
-) {
+  structsMap: Map[String, StructType] = Map.empty) {
 
-  protected def getResolver(includePath: String, pos: Positional = new Positional {
-    pos = NoPosition
-  }): TypeResolver = {
+  protected def getResolver(
+    includePath: String,
+    pos: Positional = new Positional {
+      pos = NoPosition
+    }
+  ): TypeResolver = {
     includeMap
       .getOrElse(includePath, throw new QualifierNotFoundException(includePath, pos))
       .resolver
@@ -247,7 +245,8 @@ case class TypeResolver(
           val fieldType: FieldType = typeMap(s.sid.name)
           if (fieldType != StructType(s, scopePrefix))
             throw new DuplicatedIdentifierException(
-              s"Detected a duplicated identifier [${s.sid.name}] for differing types: Struct, ${typeMap(s.sid.name)}",
+              s"Detected a duplicated identifier [${s.sid.name}] for differing types: Struct, ${typeMap(
+                s.sid.name)}",
               s
             )
           else this // return the current TypeResolver as we've already resolved this type

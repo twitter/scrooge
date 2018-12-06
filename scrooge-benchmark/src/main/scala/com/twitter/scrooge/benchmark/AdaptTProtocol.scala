@@ -16,10 +16,7 @@ object AdaptTProtocolBenchmark {
 
   // Consume a set of fields
   // lazy deserializers will need to materialize these into the blackhole.
-  private final def read3Fields(
-    bh: Blackhole,
-    airline: Airline
-  ): Unit = {
+  private final def read3Fields(bh: Blackhole, airline: Airline): Unit = {
     bh.consume(airline.name)
     bh.consume(airline.headQuarter)
     bh.consume(airline.owner)
@@ -43,10 +40,7 @@ class AdaptTProtocolBenchmark {
   // todo: Add benchmarks for toBytes, all fields accessed, more fields accessed etc.
 
   @Benchmark
-  def timeFromBytesAdapt3FieldsAccessed(
-    threadState: AirlineThreadState,
-    bh: Blackhole
-  ): Unit = {
+  def timeFromBytesAdapt3FieldsAccessed(threadState: AirlineThreadState, bh: Blackhole): Unit = {
     val bytes = airlinesBytes(threadState.iter % airlines.size)
     threadState.iter += 1
     val airline = threadState.adaptSerializer.fromBytes(bytes)

@@ -25,8 +25,7 @@ import scala.io.Source
 class HandlebarLoader(
   prefix: String,
   suffix: String = ".mustache",
-  commentFct: (CommentStyle => String) = scalaJavaCommentFunction
-) {
+  commentFct: (CommentStyle => String) = scalaJavaCommentFunction) {
 
   private[this] val cache = new TrieMap[String, Handlebar]
 

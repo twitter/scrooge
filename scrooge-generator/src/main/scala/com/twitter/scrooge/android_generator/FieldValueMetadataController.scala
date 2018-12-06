@@ -8,7 +8,7 @@ import com.twitter.scrooge.java_generator.{
 class FieldValueMetadataController(
   fieldType: FieldType,
   generator: AndroidGenerator,
-  ns: Option[Identifier]
-) extends JavaFieldValueMetadataController(fieldType, generator, ns) {
+  ns: Option[Identifier])
+    extends JavaFieldValueMetadataController(fieldType, generator, ns) {
   override val field_type = new FieldTypeController(fieldType, generator)
 }

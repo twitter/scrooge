@@ -25,8 +25,8 @@ object ReloadOnceAdaptBinarySerializer {
 
   private[this] class ReloadOnceAdaptBinarySerializer[T <: ThriftStruct](
     val codec: ThriftStructCodec[T],
-    settings: AdaptSettings
-  ) extends ThriftStructSerializer[T] {
+    settings: AdaptSettings)
+      extends ThriftStructSerializer[T] {
 
     private[this] val adaptContext = new ReloadOnceAdaptContext(new TrackingAdaptContext(settings))
 

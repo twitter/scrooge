@@ -360,8 +360,8 @@ class AndroidGeneratorSpec extends Spec {
       complex_list_value.size must be(3)
       (complex_list_value.get(2): util.HashMap[String, Integer]) must be(map_in_complex_list3)
 
-      val super_complex_list
-        : util.ArrayList[util.HashSet[util.HashMap[String, util.ArrayList[String]]]] =
+      val super_complex_list: util.ArrayList[
+        util.HashSet[util.HashMap[String, util.ArrayList[String]]]] =
         complexColl.get(ComplexCollections.SUPER_COMPLEX_COLLECTION)
       super_complex_list.size must be(3)
       super_complex_list.contains(set_in_super_complex1) must be(true)
@@ -471,12 +471,12 @@ class AndroidGeneratorSpec extends Spec {
         requiredField: ConstructorRequiredStruct = validInstance,
         inMapKey: JMap[ConstructorRequiredStruct, String] = Map(validInstance -> "value").asJava,
         inMapValue: JMap[String, ConstructorRequiredStruct] = Map("value" -> validInstance).asJava,
-        crazyEmbedding: JMap[JSet[JList[ConstructorRequiredStruct]], JSet[
-          JList[ConstructorRequiredStruct]
-        ]] = Map(
-          Set(Seq(validInstance).asJava).asJava ->
-            Set(Seq(validInstance).asJava).asJava
-        ).asJava,
+        crazyEmbedding: JMap[
+          JSet[JList[ConstructorRequiredStruct]],
+          JSet[
+            JList[ConstructorRequiredStruct]
+          ]] = Map(Set(Seq(validInstance).asJava).asJava ->
+            Set(Seq(validInstance).asJava).asJava).asJava,
         optionalField: ConstructorRequiredStruct = validInstance
       ): DeepValidationStruct = {
         new DeepValidationStruct(

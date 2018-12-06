@@ -121,18 +121,19 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     )
   }
 
-  def useAccessPropTestStruct(use: TestStruct => Any)(
-    access: TestStruct => Any
-  ) = useAccessProp(TestStruct, use)(access)
+  def useAccessPropTestStruct(use: TestStruct => Any)(access: TestStruct => Any) =
+    useAccessProp(TestStruct, use)(access)
 
-  def useAccessPropTestNestedStruct(use: TestNestedStruct => Any)(
-    access: TestNestedStruct => Any
-  ) = useAccessProp(TestNestedStruct, use)(access)
+  def useAccessPropTestNestedStruct(use: TestNestedStruct => Any)(access: TestNestedStruct => Any) =
+    useAccessProp(TestNestedStruct, use)(access)
 
   def useAccessProp[T <: ThriftStruct](
     thriftCodec: ThriftStructCodec[T],
     use: T => Any
-  )(access: T => Any)(implicit arb: Arbitrary[T]): Prop =
+  )(access: T => Any
+  )(
+    implicit arb: Arbitrary[T]
+  ): Prop =
     forAll { (orig: T) =>
       val eagerSer = BinaryThriftStructSerializer(thriftCodec)
       // Make sure materialization happens
@@ -151,15 +152,10 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       orig == after
     }
 
-  def encodeDecodeTest[T <: ThriftStruct](
-    t: T,
-    ser: ThriftStructSerializer[T]
-  ): Boolean = t == encodeDecode(t, ser)
+  def encodeDecodeTest[T <: ThriftStruct](t: T, ser: ThriftStructSerializer[T]): Boolean =
+    t == encodeDecode(t, ser)
 
-  def protocolDecodeTest(
-    t: TestStruct,
-    accessor: Accessor[TestStruct]
-  ): Boolean = {
+  def protocolDecodeTest(t: TestStruct, accessor: Accessor[TestStruct]): Boolean = {
     val eagerSer = BinaryThriftStructSerializer(TestStruct)
     val lazSer = LazyBinaryThriftStructSerializer(TestStruct)
     val bytes = eagerSer.toBytes(t)
@@ -208,22 +204,14 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     }
   }
 
-  def getFieldsWithSetters[T <: ThriftStruct](
-    t: T,
-    codec: ThriftStructCodec[T]
-  ): Seq[String] =
+  def getFieldsWithSetters[T <: ThriftStruct](t: T, codec: ThriftStructCodec[T]): Seq[String] =
     getFieldsWithMethodPrefix(t, codec, AdaptAsmPruner.SetterPrefix)
 
-  def getFieldsWithDelegates[T <: ThriftStruct](
-    t: T,
-    codec: ThriftStructCodec[T]
-  ): Seq[String] =
+  def getFieldsWithDelegates[T <: ThriftStruct](t: T, codec: ThriftStructCodec[T]): Seq[String] =
     getFieldsWithMethodPrefix(t, codec, AdaptAsmPruner.DelegatePrefix)
 
-  def encodeDecode[T <: ThriftStruct](
-    t: T,
-    ser: ThriftStructSerializer[T]
-  ) = ser.fromBytes(ser.toBytes(t))
+  def encodeDecode[T <: ThriftStruct](t: T, ser: ThriftStructSerializer[T]) =
+    ser.fromBytes(ser.toBytes(t))
 
   def toEager[T <: ThriftStruct](t: T, codec: ThriftStructCodec[T]): T =
     encodeDecode(t, BinaryThriftStructSerializer(codec))
@@ -247,21 +235,18 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
     def adapted: T
   }
 
-  def fixture[T <: ThriftStruct](
-    t: T,
-    codec: ThriftStructCodec[T],
-    train: T => Any = NoAccess
-  ) = new Fixture[T] {
-    val eagerSer = BinaryThriftStructSerializer(codec)
-    val bytes = eagerSer.toBytes(t)
-    val (adaptSer, recorder, adapted) = {
-      val ser = ReloadOnceAdaptBinarySerializer(codec)
-      val recorder = ser.fromBytes(bytes)
-      train(recorder)
-      val adapted = ser.fromBytes(bytes)
-      (ser, recorder, adapted)
+  def fixture[T <: ThriftStruct](t: T, codec: ThriftStructCodec[T], train: T => Any = NoAccess) =
+    new Fixture[T] {
+      val eagerSer = BinaryThriftStructSerializer(codec)
+      val bytes = eagerSer.toBytes(t)
+      val (adaptSer, recorder, adapted) = {
+        val ser = ReloadOnceAdaptBinarySerializer(codec)
+        val recorder = ser.fromBytes(bytes)
+        train(recorder)
+        val adapted = ser.fromBytes(bytes)
+        (ser, recorder, adapted)
+      }
     }
-  }
 
   def testStructFixture(t: TestStruct, train: TestStruct => Any = NoAccess) =
     fixture(t, TestStruct, train)

@@ -45,10 +45,7 @@ object AirlineGenerator {
       buildAirline(rng)
     }.toArray
 
-  def buildAirlinesAndBytes(
-    seed: Long,
-    num: Int
-  ): (Array[Airline], Array[Array[Byte]]) = {
+  def buildAirlinesAndBytes(seed: Long, num: Int): (Array[Airline], Array[Array[Byte]]) = {
     val rng = new Random(seed)
     val airlines = buildAirlines(rng, num)
 

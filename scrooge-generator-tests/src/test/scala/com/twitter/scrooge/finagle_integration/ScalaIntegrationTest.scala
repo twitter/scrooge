@@ -157,7 +157,8 @@ class ScalaIntegrationTest extends FunSuite {
   ) {
     def mkPair(
       m: ThriftMethod
-    )(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
+    )(f: m.Args => Future[m.SuccessType]
+    ): (ThriftMethod, Service[Request[_], Response[_]]) = {
       val reqRep = { r: Request[m.Args] =>
         f(r.args).map { x: m.SuccessType =>
           Response(x)
@@ -191,7 +192,8 @@ class ScalaIntegrationTest extends FunSuite {
   test("construct a Thrift server from Map[ThiriftMethod, Service[Request[_],Response[_]]") {
     def mkPair(
       m: ThriftMethod
-    )(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
+    )(f: m.Args => Future[m.SuccessType]
+    ): (ThriftMethod, Service[Request[_], Response[_]]) = {
       val reqRep = { r: Request[m.Args] =>
         f(r.args).map { x: m.SuccessType =>
           Response(x)
@@ -241,7 +243,8 @@ class ScalaIntegrationTest extends FunSuite {
 
     def mkPair(
       m: ThriftMethod
-    )(f: m.Args => Future[m.SuccessType]): (ThriftMethod, Service[Request[_], Response[_]]) = {
+    )(f: m.Args => Future[m.SuccessType]
+    ): (ThriftMethod, Service[Request[_], Response[_]]) = {
       val reqRep = { r: Request[m.Args] =>
         f(r.args).map { x: m.SuccessType =>
           Response(x)

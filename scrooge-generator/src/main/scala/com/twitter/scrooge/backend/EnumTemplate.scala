@@ -5,10 +5,7 @@ import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.ast.{Enum, Identifier}
 
 trait EnumTemplate { self: TemplateGenerator =>
-  def enumDict(
-    namespace: Identifier,
-    enum: Enum
-  ): Dictionary =
+  def enumDict(namespace: Identifier, enum: Enum): Dictionary =
     Dictionary(
       "package" -> genID(namespace),
       "EnumName" -> genID(enum.sid.toTitleCase),

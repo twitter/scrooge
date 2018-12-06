@@ -8,8 +8,8 @@ import com.twitter.scrooge.ast.{Definition, Identifier}
 abstract class TypeController(
   val name: String,
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier]
-) extends BaseController(generator, ns) {
+  ns: Option[Identifier])
+    extends BaseController(generator, ns) {
   def this(typeId: Definition, generator: ApacheJavaGenerator, ns: Option[Identifier]) = {
     this(typeId.sid.name, generator, ns)
   }

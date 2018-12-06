@@ -28,8 +28,8 @@ class CocoaGenerator(
   val doc: ResolvedDocument,
   val defaultNamespace: String,
   val headerTemplateLoader: HandlebarLoader,
-  val implementationTemplateLoader: HandlebarLoader
-) extends TemplateGenerator(doc) {
+  val implementationTemplateLoader: HandlebarLoader)
+    extends TemplateGenerator(doc) {
 
   val namespaceLanguage = "cocoa"
 

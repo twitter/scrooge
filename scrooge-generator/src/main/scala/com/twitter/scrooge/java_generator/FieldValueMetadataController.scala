@@ -7,8 +7,8 @@ import com.twitter.scrooge.ast.MapType
 class FieldValueMetadataController(
   fieldType: FieldType,
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier]
-) extends BaseController(generator, ns) {
+  ns: Option[Identifier])
+    extends BaseController(generator, ns) {
   val field_type = new FieldTypeController(fieldType, generator)
 
   def map_element = {

@@ -66,8 +66,8 @@ case class Field(
   requiredness: Requiredness = Requiredness.Default,
   typeAnnotations: Map[String, String] = Map.empty,
   fieldAnnotations: Map[String, String] = Map.empty,
-  docstring: Option[String] = None
-) extends Node
+  docstring: Option[String] = None)
+    extends Node
 
 case class Function(
   funcName: SimpleID,
@@ -76,5 +76,5 @@ case class Function(
   args: Seq[Field],
   throws: Seq[Field],
   docstring: Option[String],
-  annotations: Map[String, String] = Map.empty
-) extends Node
+  annotations: Map[String, String] = Map.empty)
+    extends Node

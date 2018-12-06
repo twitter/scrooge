@@ -12,10 +12,7 @@ import org.apache.thrift.protocol.TType
 object BinaryThriftFieldRemover {
   import TAdaptBinaryProtocol._
 
-  def removeField(
-    thriftBytes: Array[Byte],
-    fieldToRemove: Short
-  ): Array[Byte] = {
+  def removeField(thriftBytes: Array[Byte], fieldToRemove: Short): Array[Byte] = {
     fieldRange(thriftBytes, fieldToRemove) match {
       case Some((start, end)) =>
         val l = end - start
@@ -105,10 +102,7 @@ object BinaryThriftFieldRemover {
   private[this] def readFieldId(ba: Array[Byte], pos: Int) =
     (((ba(pos) & 0xff) << 8) | ((ba(pos + 1) & 0xff))).toShort
 
-  private[this] def fieldRange(
-    ba: Array[Byte],
-    fieldToRemove: Short
-  ): Option[(Int, Int)] = {
+  private[this] def fieldRange(ba: Array[Byte], fieldToRemove: Short): Option[(Int, Int)] = {
     var start = 0
     var end = 0
     var range = Option.empty[(Int, Int)]

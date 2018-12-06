@@ -36,8 +36,8 @@ class ScalaGenerator(
   override val resolvedDoc: ResolvedDocument,
   val defaultNamespace: String,
   val experimentFlags: Seq[String],
-  val templatesLoader: HandlebarLoader
-) extends TemplateGenerator(resolvedDoc) {
+  val templatesLoader: HandlebarLoader)
+    extends TemplateGenerator(resolvedDoc) {
   def templates: HandlebarLoader = templatesLoader
   val namespaceLanguage = "scala"
 
@@ -116,10 +116,7 @@ class ScalaGenerator(
   override def getNamespace(doc: Document): Identifier =
     getNamespaceWithWarning(doc).getOrElse(SimpleID(defaultNamespace))
 
-  def genList(
-    list: ListRHS,
-    fieldType: Option[FieldType] = None
-  ): CodeFragment = {
+  def genList(list: ListRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
     val code =
       list.elems
@@ -130,10 +127,7 @@ class ScalaGenerator(
     v(s"Seq($code)")
   }
 
-  def genSet(
-    set: SetRHS,
-    fieldType: Option[FieldType] = None
-  ): CodeFragment = {
+  def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
     val code = set.elems
       .map { e =>
@@ -143,10 +137,7 @@ class ScalaGenerator(
     v(s"Set($code)")
   }
 
-  def genMap(
-    map: MapRHS,
-    fieldType: Option[FieldType] = None
-  ): CodeFragment = {
+  def genMap(map: MapRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val mapType = fieldType.map(_.asInstanceOf[MapType])
     val code = map.elems
       .map {
@@ -204,10 +195,7 @@ class ScalaGenerator(
     v(code)
   }
 
-  override def genConstant(
-    constant: RHS,
-    fieldType: Option[FieldType] = None
-  ): CodeFragment = {
+  override def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
     (constant, fieldType) match {
       case (IntLiteral(value), Some(TI64)) => v(value.toString + "L")
       case _ => super.genConstant(constant, fieldType)

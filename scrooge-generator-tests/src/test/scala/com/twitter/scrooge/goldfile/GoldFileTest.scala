@@ -15,46 +15,42 @@ import scala.io.Source
  * intentional due to the corresponding changes in the generator code or
  * templates.
  */
-abstract class GoldFileTest extends FunSuite
-  with BeforeAndAfterAll {
+abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
 
   private var tempDir: File = _
   protected var generatedFiles: Seq[File] = _
   protected var exception: Option[Throwable] = None
 
-  override protected def beforeAll(): Unit = try {
-    tempDir = TempDirectory.create(None, deleteAtExit = false)
-    if (!deleteTempFiles) {
-      println(s"Temp dir $tempDir")
+  override protected def beforeAll(): Unit =
+    try {
+      tempDir = TempDirectory.create(None, deleteAtExit = false)
+      if (!deleteTempFiles) {
+        println(s"Temp dir $tempDir")
+      }
+
+      val ccl = Thread.currentThread().getContextClassLoader
+
+      val inputThrifts = testThriftFiles.map { r =>
+        Option(ccl.getResource(r))
+          .getOrElse(sys.error(s"Couldn't find resource: $r"))
+          .getPath
+      }
+
+      val args = Seq("--language", language, "--finagle", "--gen-adapt", "--dest", tempDir.getPath) ++
+        experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
+        inputThrifts
+
+      Main.main(args.toArray)
+      generatedFiles = generatedFiles(tempDir)
+    } catch {
+      case ex: Throwable => exception = Some(ex)
     }
-
-    val ccl = Thread.currentThread().getContextClassLoader
-
-    val inputThrifts = testThriftFiles.map { r =>
-      Option(ccl.getResource(r))
-        .getOrElse(sys.error(s"Couldn't find resource: $r"))
-        .getPath
-    }
-
-    val args = Seq(
-      "--language", language,
-      "--finagle",
-      "--gen-adapt",
-      "--dest", tempDir.getPath) ++
-      experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
-      inputThrifts
-
-    Main.main(args.toArray)
-    generatedFiles = generatedFiles(tempDir)
-  } catch {
-    case ex: Throwable => exception = Some(ex)
-  }
 
   final def relativePath(f: File): String = {
     val root = tempDir.getAbsolutePath
     val b = f.getAbsolutePath
     assert(b.startsWith(root), s"Cannot relativize $b, not under root $root")
-    b.substring(root.length+1, b.length)
+    b.substring(root.length + 1, b.length)
   }
 
   override protected def afterAll(): Unit = {
@@ -86,7 +82,12 @@ abstract class GoldFileTest extends FunSuite
   protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
   protected def goldFilesRoot: String = s"gold_file_output_$language"
 
-  protected def diff(gold: InputStream, gen: InputStream, genFileName: String, genRelPath: String): Unit = {
+  protected def diff(
+    gold: InputStream,
+    gen: InputStream,
+    genFileName: String,
+    genRelPath: String
+  ): Unit = {
     val genStr = Utils.normalizeHeaders(inputStreamToString(gen))
     val expected = Utils.normalizeHeaders(inputStreamToString(gold))
     if (genStr != expected) {
@@ -99,11 +100,13 @@ abstract class GoldFileTest extends FunSuite
         val longerStr = if (genStr.length >= expected.length) genStr else expected
         val substring =
           longerStr.substring(math.max(0, i - surround), i) ++
-          s"|->${longerStr(i)}<-|" ++
-          longerStr.substring(math.min(i + 1, longerStr.length), math.min(i + surround, longerStr.length))
+            s"|->${longerStr(i)}<-|" ++
+            longerStr.substring(
+              math.min(i + 1, longerStr.length),
+              math.min(i + surround, longerStr.length))
 
         s"The difference is at character $i: " +
-          s"($substring). line: ${ longerStr.substring(0, i).count(_ == '\n') + 1 }"
+          s"($substring). line: ${longerStr.substring(0, i).count(_ == '\n') + 1}"
       }
 
       val msg =

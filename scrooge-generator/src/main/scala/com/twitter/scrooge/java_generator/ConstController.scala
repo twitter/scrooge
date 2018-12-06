@@ -8,8 +8,8 @@ import com.twitter.scrooge.ast.{ConstDefinition, Identifier}
 class ConstController(
   defs: Seq[ConstDefinition],
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier]
-) extends TypeController("Constants", generator, ns) {
+  ns: Option[Identifier])
+    extends TypeController("Constants", generator, ns) {
   val constants = defs map { d =>
     Map(
       "rendered_value" -> indent(generator.printConstValue(d.sid.name, d.fieldType, d.value, ns), 2)

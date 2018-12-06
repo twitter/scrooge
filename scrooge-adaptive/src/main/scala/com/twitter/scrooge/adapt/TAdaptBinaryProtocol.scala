@@ -27,10 +27,8 @@ object TAdaptBinaryProtocol {
  * with adaptive decoding. See doc comments for specific methods in base
  * trait to learn more.
  */
-class TAdaptBinaryProtocol(
-  transport: TArrayByteTransport,
-  context: AdaptContext
-) extends TLazyBinaryProtocol(transport)
+class TAdaptBinaryProtocol(transport: TArrayByteTransport, context: AdaptContext)
+    extends TLazyBinaryProtocol(transport)
     with AdaptTProtocol {
   import TAdaptBinaryProtocol._
 

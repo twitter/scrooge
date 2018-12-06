@@ -93,8 +93,7 @@ object Dictionary {
 
 case class Dictionary private (
   private val parent: Option[Dictionary],
-  private val map: mutable.Map[String, Dictionary.Value]
-) {
+  private val map: mutable.Map[String, Dictionary.Value]) {
   import Dictionary._
 
   override def toString: String = "Dictionary(parent=%s, map=%s)".format(parent.isDefined, map)
