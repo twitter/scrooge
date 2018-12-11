@@ -7,10 +7,10 @@ scala_library(
         repo = artifactory,
     ),
     dependencies = [
-        "3rdparty/jvm/asm",
-        "3rdparty/jvm/asm:asm-commons",
-        "3rdparty/jvm/asm:asm-util",
         "3rdparty/jvm/org/apache/thrift:libthrift",
+        "3rdparty/jvm/org/ow2/asm",
+        "3rdparty/jvm/org/ow2/asm:asm-commons",
+        "3rdparty/jvm/org/ow2/asm:asm-util",
         "scrooge/scrooge-core",
         "scrooge/scrooge-serializer",
         "util/util-codec/src/main/scala",

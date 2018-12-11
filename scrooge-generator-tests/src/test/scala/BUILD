@@ -42,7 +42,6 @@ junit_tests(
     compiler_option_sets = {"fatal_warnings"},
     dependencies = [
         ":lib",
-        "3rdparty/jvm/asm",
         "3rdparty/jvm/cglib",
         "3rdparty/jvm/com/github/spullara/mustache/java",
         "3rdparty/jvm/com/google/guava",
@@ -50,8 +49,10 @@ junit_tests(
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/hamcrest:hamcrest-core",
         "3rdparty/jvm/org/jmock",
+        "3rdparty/jvm/org/jmock:jmock-legacy",
         "3rdparty/jvm/org/mockito:mockito-all",
         "3rdparty/jvm/org/objenesis",
+        "3rdparty/jvm/org/ow2/asm",
         "3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators",
         "3rdparty/jvm/org/scalatest",
         "3rdparty/jvm/org/slf4j:slf4j-nop",

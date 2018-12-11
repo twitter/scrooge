@@ -153,9 +153,10 @@ val settingsCrossCompiledWithTwoTen =
 
 val jmockSettings = Seq(
   libraryDependencies ++= Seq(
-    "org.jmock" % "jmock" % "2.4.0" % "test",
-    "cglib" % "cglib" % "2.2.2" % "test",
-    "asm" % "asm" % "3.3.1" % "test",
+    "org.jmock" % "jmock" % "2.9.0" % "test",
+    "org.jmock" % "jmock-legacy" % "2.9.0" % "test",
+    "cglib" % "cglib" % "3.2.8" % "test",
+    "org.ow2.asm" % "asm" % "6.2.1" % "test",
     "org.objenesis" % "objenesis" % "1.1" % "test",
     "org.mockito" % "mockito-core" % "1.9.5" % "test"
   )
@@ -280,9 +281,9 @@ lazy val scroogeAdaptive = Project(
 ).settings(
   name := "scrooge-adaptive",
   libraryDependencies ++= Seq(
-    "asm" % "asm" % "3.3.1",
-    "asm" % "asm-commons" % "3.3.1",
-    "asm" % "asm-util" % "3.3.1",
+    "org.ow2.asm" % "asm" % "6.2.1",
+    "org.ow2.asm" % "asm-commons" % "6.2.1",
+    "org.ow2.asm" % "asm-util" % "6.2.1",
     "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
     util("logging")
   )

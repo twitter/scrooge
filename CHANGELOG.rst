@@ -7,6 +7,8 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* Update asm, cglib, jmock dependencies ``PHAB_ID=D250175``
+
 18.12.0
 -------
 

@@ -17,7 +17,7 @@ import java.net.{InetAddress, InetSocketAddress}
 import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryInputTransport
-import org.jmock.Expectations.{any, returnValue}
+import org.jmock.AbstractExpectations.{any, returnValue}
 import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import org.scalatest.concurrent.Eventually
@@ -135,9 +135,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         startWrite(e, protocol, new TField("arg0", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("bonk", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("message", TType.STRING, 1))
-        one(protocol).writeString(`with`(Expectations.equal("hello world")))
+        one(protocol).writeString(`with`("hello world"))
         nextWrite(e, protocol, new TField("type", TType.I32, 2))
-        one(protocol).writeI32(`with`(Expectations.equal(42)))
+        one(protocol).writeI32(`with`(42))
         endWrite(e, protocol)
         endWrite(e, protocol)
         endWrite(e, protocol)
@@ -175,9 +175,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         startWrite(e, protocol, new TField("success", TType.STRUCT, 0))
         startWrite(e, protocol, new TField("bonk", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("message", TType.STRING, 1))
-        one(protocol).writeString(`with`(Expectations.equal("hello world")))
+        one(protocol).writeString(`with`("hello world"))
         nextWrite(e, protocol, new TField("type", TType.I32, 2))
-        one(protocol).writeI32(`with`(Expectations.equal(42)))
+        one(protocol).writeI32(`with`(42))
         endWrite(e, protocol)
         endWrite(e, protocol)
         endWrite(e, protocol)
@@ -229,9 +229,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import e._
         startWrite(e, protocol, new TField("ex", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("errorCode", TType.I32, 1))
-        one(protocol).writeI32(`with`(Expectations.equal(1)))
+        one(protocol).writeI32(`with`(1))
         nextWrite(e, protocol, new TField("message", TType.STRING, 2))
-        one(protocol).writeString(`with`(Expectations.equal("silly")))
+        one(protocol).writeString(`with`("silly"))
         endWrite(e, protocol)
         endWrite(e, protocol)
       }

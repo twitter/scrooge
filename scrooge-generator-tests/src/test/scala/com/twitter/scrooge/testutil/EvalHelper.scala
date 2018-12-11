@@ -7,7 +7,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.hamcrest.{BaseMatcher, Description}
 import org.jmock.Expectations
-import org.jmock.Expectations.{any, returnValue}
+import org.jmock.AbstractExpectations.{any, returnValue}
 
 trait EvalHelper {
   class TFieldMatcher(obj: TField) extends BaseMatcher[TField] {
@@ -126,4 +126,5 @@ trait EvalHelper {
 
     Arrays.copyOfRange(buf.getArray, 0, buf.length)
   }
+
 }

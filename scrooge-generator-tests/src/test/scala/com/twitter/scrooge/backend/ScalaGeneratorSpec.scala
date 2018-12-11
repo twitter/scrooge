@@ -20,8 +20,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, 
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
-import org.jmock.Expectations
-import org.jmock.Expectations.returnValue
+import org.jmock.AbstractExpectations.returnValue
 import scala.collection.Map
 import scrooge.test.annotations.thriftscala.AnnoEnum
 import thrift.test._
@@ -353,11 +352,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("baby", TType.I16, 1))
-            one(protocol).writeI16(`with`(Expectations.equal(16: Short)))
+            one(protocol).writeI16(`with`(16: Short))
             nextWrite(e, protocol, new TField("mama", TType.I32, 2))
-            one(protocol).writeI32(`with`(Expectations.equal(32)))
+            one(protocol).writeI32(`with`(32))
             nextWrite(e, protocol, new TField("papa", TType.I64, 3))
-            one(protocol).writeI64(`with`(Expectations.equal(64L)))
+            one(protocol).writeI64(`with`(64L))
             endWrite(e, protocol)
           }
 
@@ -393,9 +392,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("x", TType.BYTE, 1))
-            one(protocol).writeByte(`with`(Expectations.equal(16.toByte)))
+            one(protocol).writeByte(`with`(16.toByte))
             nextWrite(e, protocol, new TField("y", TType.STRING, 2))
-            one(protocol).writeBinary(`with`(Expectations.equal(stringToBytes("goodbye"))))
+            one(protocol).writeBinary(`with`(stringToBytes("goodbye")))
             endWrite(e, protocol)
           }
 
@@ -431,11 +430,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("alive", TType.BOOL, 1))
-            one(protocol).writeBool(`with`(Expectations.equal(false)))
+            one(protocol).writeBool(`with`(false))
             nextWrite(e, protocol, new TField("pi", TType.DOUBLE, 2))
-            one(protocol).writeDouble(`with`(Expectations.equal(6.28)))
+            one(protocol).writeDouble(`with`(6.28))
             nextWrite(e, protocol, new TField("name", TType.STRING, 3))
-            one(protocol).writeString(`with`(Expectations.equal("fry")))
+            one(protocol).writeString(`with`("fry"))
             endWrite(e, protocol)
           }
 
@@ -494,23 +493,23 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             import e._
             startWrite(e, protocol, new TField("intlist", TType.LIST, 1))
             one(protocol).writeListBegin(`with`(listEqual(new TList(TType.I32, 2))))
-            one(protocol).writeI32(`with`(Expectations.equal(10)))
-            one(protocol).writeI32(`with`(Expectations.equal(20)))
+            one(protocol).writeI32(`with`(10))
+            one(protocol).writeI32(`with`(20))
             one(protocol).writeListEnd()
             nextWrite(e, protocol, new TField("intset", TType.SET, 2))
             one(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 2))))
-            one(protocol).writeI32(`with`(Expectations.equal(44)))
-            one(protocol).writeI32(`with`(Expectations.equal(55)))
+            one(protocol).writeI32(`with`(44))
+            one(protocol).writeI32(`with`(55))
             one(protocol).writeSetEnd()
             nextWrite(e, protocol, new TField("namemap", TType.MAP, 3))
             one(protocol).writeMapBegin(`with`(mapEqual(new TMap(TType.STRING, TType.I32, 1))))
-            one(protocol).writeString(`with`(Expectations.equal("wendy")))
-            one(protocol).writeI32(`with`(Expectations.equal(500)))
+            one(protocol).writeString(`with`("wendy"))
+            one(protocol).writeI32(`with`(500))
             one(protocol).writeMapEnd()
             nextWrite(e, protocol, new TField("nested", TType.LIST, 4))
             one(protocol).writeListBegin(`with`(listEqual(new TList(TType.SET, 1))))
             one(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 1))))
-            one(protocol).writeI32(`with`(Expectations.equal(9)))
+            one(protocol).writeI32(`with`(9))
             one(protocol).writeSetEnd()
             one(protocol).writeListEnd()
             endWrite(e, protocol)
@@ -655,9 +654,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`(Expectations.equal("Commie")))
+            one(protocol).writeString(`with`("Commie"))
             nextWrite(e, protocol, new TField("age", TType.I32, 2))
-            one(protocol).writeI32(`with`(Expectations.equal(14)))
+            one(protocol).writeI32(`with`(14))
             endWrite(e, protocol)
           }
 
@@ -672,7 +671,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`(Expectations.equal("Commie")))
+            one(protocol).writeString(`with`("Commie"))
             endWrite(e, protocol)
           }
 
@@ -759,19 +758,19 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`(Expectations.equal("Canada")))
+            one(protocol).writeString(`with`("Canada"))
             nextWrite(e, protocol, new TField("provinces", TType.LIST, 2))
             one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 2))))
-            one(protocol).writeString(`with`(Expectations.equal("Manitoba")))
-            one(protocol).writeString(`with`(Expectations.equal("Alberta")))
+            one(protocol).writeString(`with`("Manitoba"))
+            one(protocol).writeString(`with`("Alberta"))
             one(protocol).writeListEnd()
             nextWrite(e, protocol, new TField("emperor", TType.STRUCT, 5))
 
             // emperor
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`(Expectations.equal("Larry")))
+            one(protocol).writeString(`with`("Larry"))
             nextWrite(e, protocol, new TField("age", TType.I32, 2))
-            one(protocol).writeI32(`with`(Expectations.equal(13)))
+            one(protocol).writeI32(`with`(13))
             endWrite(e, protocol)
 
             endWrite(e, protocol)
@@ -904,7 +903,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
-            one(protocol).writeString(`with`(Expectations.equal("foo")))
+            one(protocol).writeString(`with`("foo"))
             endWrite(e, protocol)
           }
 
@@ -964,9 +963,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             import e._
             startWrite(e, protocol, new TField("raptor", TType.STRUCT, 1))
             startWrite(e, protocol, new TField("isOwl", TType.BOOL, 1))
-            one(protocol).writeBool(`with`(Expectations.equal(true)))
+            one(protocol).writeBool(`with`(true))
             nextWrite(e, protocol, new TField("species", TType.STRING, 2))
-            one(protocol).writeString(`with`(Expectations.equal("Tyto alba")))
+            one(protocol).writeString(`with`("Tyto alba"))
             endWrite(e, protocol)
             endWrite(e, protocol)
           }
@@ -1004,9 +1003,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             import e._
             startWrite(e, protocol, new TField("flock", TType.LIST, 4))
             one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 3))))
-            one(protocol).writeString(`with`(Expectations.equal("starling")))
-            one(protocol).writeString(`with`(Expectations.equal("kestrel")))
-            one(protocol).writeString(`with`(Expectations.equal("warbler")))
+            one(protocol).writeString(`with`("starling"))
+            one(protocol).writeString(`with`("kestrel"))
+            one(protocol).writeString(`with`("warbler"))
             one(protocol).writeListEnd()
             endWrite(e, protocol)
           }
