@@ -98,5 +98,6 @@ class GoldService$FinagleService(
     }
   
     filters.doGreatThings.andThen(methodService)
-  })
+    }
+  )
 }
