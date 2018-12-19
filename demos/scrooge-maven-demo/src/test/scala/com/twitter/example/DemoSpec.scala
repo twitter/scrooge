@@ -1,6 +1,6 @@
 package com.twitter.example
 
-import com.twitter.conversions.time._
+import com.twitter.conversions.DurationOps._
 import com.twitter.mydemo.renamed.User
 import com.twitter.util.{Future, Await}
 import org.junit.runner.RunWith

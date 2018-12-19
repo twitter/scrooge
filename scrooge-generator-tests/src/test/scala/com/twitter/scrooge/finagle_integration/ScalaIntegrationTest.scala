@@ -1,6 +1,6 @@
 package com.twitter.scrooge.finagle_integration
 
-import com.twitter.conversions.time._
+import com.twitter.conversions.DurationOps._
 import com.twitter.finagle._
 import com.twitter.scrooge.{Request, Response, ThriftMethod}
 import com.twitter.scrooge.finagle_integration.thriftscala._

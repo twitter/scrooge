@@ -3,7 +3,7 @@ package com.twitter.scrooge.backend
 import _root_.thrift.test.ExceptionalService._
 import _root_.thrift.test._
 import collisions.dupes.thriftscala.{Aaa, Ccc}
-import com.twitter.conversions.time._
+import com.twitter.conversions.DurationOps._
 import com.twitter.finagle
 import com.twitter.finagle.param.Stats
 import com.twitter.finagle.service.{ReqRep, ResponseClass, ResponseClassifier}

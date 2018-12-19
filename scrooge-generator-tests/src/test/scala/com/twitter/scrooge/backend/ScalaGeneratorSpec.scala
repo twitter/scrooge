@@ -1,6 +1,6 @@
 package com.twitter.scrooge.backend
 
-import com.twitter.conversions.time._
+import com.twitter.conversions.DurationOps._
 import com.twitter.finagle.{Service, SourcedException}
 import com.twitter.scrooge.backend.thriftscala.{
   ConstructorRequiredStruct,

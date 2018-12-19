@@ -1,6 +1,6 @@
 package com.twitter.scrooge.backend
 
-import com.twitter.conversions.time._
+import com.twitter.conversions.DurationOps._
 import com.twitter.finagle.param.Stats
 import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.finagle.{Service => finagleService, _}
