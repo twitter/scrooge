@@ -117,7 +117,8 @@ val sharedSettings =
       "-feature", "-Xlint",
       "-encoding", "utf8",
       "-target:jvm-1.8",
-      "-Ypatmat-exhaust-depth", "40"),
+      "-Ypatmat-exhaust-depth", "40",
+      "-Yno-adapted-args"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.8")
   )
@@ -128,7 +129,8 @@ val scalacTwoTenOptions = Seq(
   "-deprecation",
   "-unchecked",
   "-feature", "-Xlint",
-  "-encoding", "utf8")
+  "-encoding", "utf8",
+  "-Yno-adapted-args")
 
 // settings for projects that are scala 2.10
 val settingsWithTwoTen =

@@ -38,7 +38,7 @@ class ScalaIntegrationTest extends FunSuite {
     assert(await(muxClient.echo("hello")) == "hello")
     assert(await(muxClient.duplicate("hi")) == "hihi")
     assert(await(muxClient.getDuck(10L)) == "Scrooge")
-    assert(await(muxClient.setDuck(20L, "McDuck")) === ())
+    assert(await(muxClient.setDuck(20L, "McDuck")) === (()))
     await(muxServer.close())
   }
 
@@ -231,7 +231,7 @@ class ScalaIntegrationTest extends FunSuite {
     assert(await(clnt.echo("echo")) == "echo")
     assert(await(clnt.duplicate("y")) == "yy")
     assert(await(clnt.getDuck(3)) == "Scrooge")
-    assert(await(clnt.setDuck(3, "x")) === ())
+    assert(await(clnt.setDuck(3, "x")) === (()))
     assert(await(clnt.triple("x")) == "xxx")
   }
 
