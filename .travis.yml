@@ -29,6 +29,7 @@ scala:
 
 jdk:
   - oraclejdk8
+  - oraclejdk11
 
 notifications:
   slack:

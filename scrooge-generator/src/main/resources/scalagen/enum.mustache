@@ -4,7 +4,12 @@ import com.twitter.scrooge.ThriftEnum
 import scala.collection.immutable.{Map => immutable$Map}
 
 {{docstring}}
+{{#java8}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java8}}
+{{#java11}}
+@javax.annotation.processing.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java11}}
 case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{EnumName}}] {
 
 {{#annotations}}
@@ -98,5 +103,10 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
 
 
 {{docstring}}
+{{#java8}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java8}}
+{{#java11}}
+@javax.annotation.processing.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java11}}
 sealed trait {{EnumName}} extends ThriftEnum with Serializable

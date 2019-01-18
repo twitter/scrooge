@@ -16,6 +16,7 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.Util
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
 import com.twitter.scrooge.frontend.ScroogeInternalException
@@ -429,6 +430,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "package" -> pkg,
       "packageName" -> pkgName,
       "docstring" -> v(struct.docstring.getOrElse("")),
+      "java8" -> v(Util.javaVersion == Some(8)),
+      "java11" -> v(Util.javaVersion == Some(11)),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
       "nonOptionalFields" -> v(nonOptionalFieldDictionaries),

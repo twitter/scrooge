@@ -8,18 +8,34 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.io.Source
 
 /**
- * Compares the output of a generator to a set of "golden files".
- *
- * This helps to viscerally see how changes to the generator affect the
- * generated code at code review time. Most updates to the gold files are
- * intentional due to the corresponding changes in the generator code or
- * templates.
- */
+  * Compares the output of a generator to a set of "golden files".
+  *
+  * This helps to viscerally see how changes to the generator affect the
+  * generated code at code review time. Most updates to the gold files are
+  * intentional due to the corresponding changes in the generator code or
+  * templates.
+  */
 abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
 
   private var tempDir: File = _
   protected var generatedFiles: Seq[File] = _
   protected var exception: Option[Throwable] = None
+
+
+  /**
+    * Gets a valid Java version to test the gold files against
+    *
+    * Necessary because some annotation classes changed after Java 8.
+    * Won't test for Java 9 and 10 at this point
+    */
+  private val testJavaVersion =
+    Option(System.getProperty("java.version")) match {
+      case Some(version) if version.startsWith("1.8") => Some("8")
+      case Some(version) if version.startsWith("11.") => Some("11")
+      case _ =>
+        fail("Only supported Java versions for running tests are Java 8 and 11")
+        None
+    }
 
   override protected def beforeAll(): Unit =
     try {
@@ -80,37 +96,43 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
   }
 
   protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
-  protected def goldFilesRoot: String = s"gold_file_output_$language"
+  protected def goldFilesRoot: String = language match {
+    case "scala" => testJavaVersion match {
+      case Some(version) => s"gold_file_output_scala/java_$version"
+      case None => ""
+    }
+    case lang => s"gold_file_output_$lang"
+  }
 
-  protected def diff(
-    gold: InputStream,
-    gen: InputStream,
-    genFileName: String,
-    genRelPath: String
-  ): Unit = {
-    val genStr = Utils.normalizeHeaders(inputStreamToString(gen))
-    val expected = Utils.normalizeHeaders(inputStreamToString(gold))
-    if (genStr != expected) {
-      val diff = {
-        var i = 0
-        while (i < math.min(genStr.length, expected.length) && genStr(i) == expected(i)) {
-          i += 1
-        }
-        val surround = 50
-        val longerStr = if (genStr.length >= expected.length) genStr else expected
-        val substring =
-          longerStr.substring(math.max(0, i - surround), i) ++
-            s"|->${longerStr(i)}<-|" ++
-            longerStr.substring(
-              math.min(i + 1, longerStr.length),
-              math.min(i + surround, longerStr.length))
+      protected def diff(
+        gold: InputStream,
+        gen: InputStream,
+        genFileName: String,
+        genRelPath: String
+      ): Unit = {
+        val genStr = Utils.normalizeHeaders(inputStreamToString(gen))
+        val expected = Utils.normalizeHeaders(inputStreamToString(gold))
+        if (genStr != expected) {
+          val diff = {
+            var i = 0
+            while (i < math.min(genStr.length, expected.length) && genStr(i) == expected(i)) {
+              i += 1
+            }
+            val surround = 50
+            val longerStr = if (genStr.length >= expected.length) genStr else expected
+            val substring =
+              longerStr.substring(math.max(0, i - surround), i) ++
+                s"|->${longerStr(i)}<-|" ++
+                longerStr.substring(
+                  math.min(i + 1, longerStr.length),
+                  math.min(i + surround, longerStr.length))
 
-        s"The difference is at character $i: " +
-          s"($substring). line: ${longerStr.substring(0, i).count(_ == '\n') + 1}"
-      }
+            s"The difference is at character $i: " +
+              s"($substring). line: ${longerStr.substring(0, i).count(_ == '\n') + 1}"
+          }
 
-      val msg =
-        s"""
+          val msg =
+            s"""
            |The generated file ${genFileName} did not match gold file
            |"$goldFilesRoot/$genRelPath".
            |Generated string is ${genStr.length} characters long
@@ -122,41 +144,44 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
            |either fix the generator or update the gold file to match.
            |
            |To regenerate file automatically first remove all the existing files:
-           |rm -r $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/*
+           |rm -r $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/$goldFilesRoot/*
            |Then regenerate data by passing these arguments into scrooge
-           |--language $language --finagle --gen-adapt --dest $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/ $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
+           |--language $language --finagle --gen-adapt --dest $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/$goldFilesRoot/ $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
            |
          """.stripMargin
-      println(msg)
-      println(s"Generated file $genRelPath:\n$genStr<<<EOF")
-      fail(msg)
-    }
-  }
-
-  private def inputStreamToString(is: InputStream): String = {
-    if (is == null) {
-      ""
-    } else {
-      Source.fromInputStream(is, "UTF-8").mkString
-    }
-  }
-
-  test("generated output looks as expected") {
-    if (exception.isEmpty) {
-      val ccl = Thread.currentThread().getContextClassLoader
-
-      generatedFiles.foreach { gen =>
-        // We want to take the path after tempDir and compare to the gold file
-        // in our resources dir. The +1 removes what would be a leading slash
-        // from the relative path.
-        val genRelPath = gen.toString.drop(tempDir.toString.length + 1)
-
-        withClue(genRelPath) {
-          val genStream = new ByteArrayInputStream(Files.readBytes(gen))
-          val goldStream = ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")
-          diff(goldStream, genStream, gen.getName, genRelPath)
+          println(msg)
+          println(s"Generated file $genRelPath:\n$genStr<<<EOF")
+          fail(msg)
         }
       }
-    }
+
+      private def inputStreamToString(is: InputStream): String = {
+        if (is == null) {
+          ""
+        } else {
+          Source.fromInputStream(is, "UTF-8").mkString
+        }
+      }
+
+
+
+      test("generated output looks as expected") {
+        if (exception.isEmpty) {
+          val ccl = Thread.currentThread().getContextClassLoader
+
+          generatedFiles.foreach { gen =>
+            // We want to take the path after tempDir and compare to the gold file
+            // in our resources dir. The +1 removes what would be a leading slash
+            // from the relative path.
+            val genRelPath = gen.toString.drop(tempDir.toString.length + 1)
+
+            withClue(genRelPath) {
+              val genStream = new ByteArrayInputStream(Files.readBytes(gen))
+              val goldStream = ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")
+              diff(goldStream, genStream, gen.getName, genRelPath)
+            }
+          }
+        }
+      }
+
   }
-}

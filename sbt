@@ -25,9 +25,7 @@ java -ea                          \
   $SBT_OPTS                       \
   $JAVA_OPTS                      \
   -Djava.net.preferIPv4Stack=true \
-  -XX:+AggressiveOpts             \
-  -XX:+UseParNewGC                \
-  -XX:+UseConcMarkSweepGC         \
+  -XX:+UseParallelGC              \
   -XX:+CMSParallelRemarkEnabled   \
   -XX:+CMSClassUnloadingEnabled   \
   -XX:ReservedCodeCacheSize=128m  \

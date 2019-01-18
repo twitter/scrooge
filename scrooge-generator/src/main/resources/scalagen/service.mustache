@@ -35,7 +35,12 @@ import scala.collection.{Map, Set}
 import scala.language.higherKinds
 
 {{docstring}}
+{{#java8}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java8}}
+{{#java11}}
+@javax.annotation.processing.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java11}}
 trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/genericParent}}{
 {{#genericFunctions}}
   {{>function}}

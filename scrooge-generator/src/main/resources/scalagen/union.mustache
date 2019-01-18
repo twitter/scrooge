@@ -12,7 +12,12 @@ import scala.collection.mutable.{
 import scala.collection.{Map, Set}
 
 {{/public}}
+{{#java8}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java8}}
+{{#java11}}
+@javax.annotation.processing.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java11}}
 sealed trait {{StructName}}
   extends {{parentType}}
   with ValidatingThriftStruct[{{StructName}}] {
@@ -100,7 +105,12 @@ object {{StructName}}Aliases {
 }
 
 {{docstring}}
+{{#java8}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java8}}
+{{#java11}}
+@javax.annotation.processing.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java11}}
 object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
   val Union: TStruct = new TStruct("{{StructNameForWire}}")
 {{#fields}}

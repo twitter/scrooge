@@ -1,6 +1,11 @@
 package {{package}}
 
+{{#java8}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java8}}
+{{#java11}}
+@javax.annotation.processing.Generated(value = Array("com.twitter.scrooge.Compiler"))
+{{/java11}}
 object Constants {
 {{#constants}}
   {{docstring}}

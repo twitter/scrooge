@@ -16,10 +16,12 @@ package com.twitter.scrooge.backend
  * limitations under the License.
  */
 import com.twitter.scrooge.ast._
+import com.twitter.scrooge.Util
 import com.twitter.scrooge.frontend.ResolvedService
 import com.twitter.scrooge.mustache.Dictionary
 import com.twitter.scrooge.mustache.Dictionary._
 import scala.collection.mutable
+
 
 trait ServiceTemplate { self: TemplateGenerator =>
   def functionDictionary(function: Function, generic: Option[String]): Dictionary = {
@@ -133,6 +135,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> v(service.docstring.getOrElse("")),
+      "java8" -> v(Util.javaVersion == Some(8)),
+      "java11" -> v(Util.javaVersion == Some(11)),
       "hasParent" -> v(service.parent.isDefined),
       "parent" -> v(service.parent.map { p =>
         genID(getServiceParentID(p))
@@ -166,6 +170,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "package" -> genID(namespace),
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> v(service.docstring.getOrElse("")),
+      "java8" -> v(Util.javaVersion == Some(8)),
+      "java11" -> v(Util.javaVersion == Some(11)),
       "hasParent" -> v(service.parent.isDefined),
       "finagleServiceParent" ->
         service.parent.map(getParentFinagleService).getOrElse(genBaseFinagleService),
@@ -263,6 +269,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "packageName" -> pkgName,
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> v(service.docstring.getOrElse("")),
+      "java8" -> v(Util.javaVersion == Some(8)),
+      "java11" -> v(Util.javaVersion == Some(11)),
       "syncParent" -> v(service.parent.map { p =>
         genID(getServiceParentID(p)).append(".Iface")
       }),
