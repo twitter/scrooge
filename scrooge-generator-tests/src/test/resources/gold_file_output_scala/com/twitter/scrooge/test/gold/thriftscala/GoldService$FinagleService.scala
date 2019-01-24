@@ -59,7 +59,7 @@ class GoldService$FinagleService(
 
   private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
 
-  protected val serviceMap = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
+  protected val serviceMap: mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]] = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
 
   protected def addService(name: String, service: finagle$Service[(TProtocol, Int), Array[Byte]]): Unit = {
     serviceMap(name) = service

@@ -61,9 +61,9 @@ class GoldService$FinagleClient(
   private[this] def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
   private[this] def maxReusableBufferSize: Int = clientParam.maxThriftBufferSize
 
-  private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
+  private[this] val tlReusableBuffer: TReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
 
-  protected def encodeRequest(name: String, args: ThriftStruct) = {
+  protected def encodeRequest(name: String, args: ThriftStruct): ThriftClientRequest = {
     val memoryBuffer = tlReusableBuffer.get()
     try {
       val oprot = protocolFactory.getProtocol(memoryBuffer)
@@ -79,7 +79,7 @@ class GoldService$FinagleClient(
     }
   }
 
-  protected def decodeResponse[T <: ThriftStruct](resBytes: Array[Byte], codec: ThriftStructCodec[T]) = {
+  protected def decodeResponse[T <: ThriftStruct](resBytes: Array[Byte], codec: ThriftStructCodec[T]): T = {
     val iprot = protocolFactory.getProtocol(new TMemoryInputTransport(resBytes))
     val msg = iprot.readMessageBegin()
     try {
@@ -99,7 +99,7 @@ class GoldService$FinagleClient(
     }
   }
 
-  protected def missingResult(name: String) = {
+  protected def missingResult(name: String): TApplicationException = {
     new TApplicationException(
       TApplicationException.MISSING_RESULT,
       name + " failed: unknown result"
@@ -122,7 +122,7 @@ class GoldService$FinagleClient(
   private[this] def stats: StatsReceiver = clientParam.clientStats
   private[this] def responseClassifier: ctfs.ResponseClassifier = clientParam.responseClassifier
 
-  private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
+  private[this] val scopedStats: StatsReceiver = if (serviceName != "") stats.scope(serviceName) else stats
   private[this] object __stats_doGreatThings {
     val RequestsCounter = scopedStats.scope("doGreatThings").counter("requests")
     val SuccessCounter = scopedStats.scope("doGreatThings").counter("success")

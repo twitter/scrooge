@@ -58,7 +58,7 @@ class PlatinumService$FinagleClient(
   private[this] def stats: StatsReceiver = clientParam.clientStats
   private[this] def responseClassifier: ctfs.ResponseClassifier = clientParam.responseClassifier
 
-  private[this] val scopedStats = if (serviceName != "") stats.scope(serviceName) else stats
+  private[this] val scopedStats: StatsReceiver = if (serviceName != "") stats.scope(serviceName) else stats
   private[this] object __stats_moreCoolThings {
     val RequestsCounter = scopedStats.scope("moreCoolThings").counter("requests")
     val SuccessCounter = scopedStats.scope("moreCoolThings").counter("success")

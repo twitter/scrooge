@@ -377,16 +377,16 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 
     val name: String = "{{originalFuncName}}"
     val serviceName: String = "{{ServiceName}}"
-    val argsCodec = Args
-    val responseCodec = Result
+    val argsCodec: Args.type = Args
+    val responseCodec: Result.type = Result
     val oneway: Boolean = {{is_oneway}}
   }
 
   // Compatibility aliases.
-  val {{funcName}}$args = {{funcObjectName}}.Args
+  val {{funcName}}$args: {{funcObjectName}}.Args.type = {{funcObjectName}}.Args
   type {{funcName}}$args = {{funcObjectName}}.Args
 
-  val {{funcName}}$result = {{funcObjectName}}.Result
+  val {{funcName}}$result: {{funcObjectName}}.Result.type = {{funcObjectName}}.Result
   type {{funcName}}$result = {{funcObjectName}}.Result
 
 {{/thriftFunctions}}
@@ -567,7 +567,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
     private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
     private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
 
-    private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
+    private[this] val tlReusableBuffer: TReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
 
     private[{{packageName}}] def exception(name: String, seqid: Int, code: Int, message: String): Buf = {
       val x = new TApplicationException(code, message)

@@ -242,7 +242,7 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
   }
 
   case class UnknownUnionField private[ResponseUnion](
-      private val field: TFieldBlob)
+      field: TFieldBlob)
     extends ResponseUnion {
 
     protected type ContainedType = Unit

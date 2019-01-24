@@ -79,7 +79,7 @@ object {{StructName}}Aliases {
   }
 
 {{#hasDefaultValue}}
-  val {{FieldName}}DefaultValue = {{defaultFieldValue}}
+  val {{FieldName}}DefaultValue: {{FieldName}}Alias = {{defaultFieldValue}}
 {{/hasDefaultValue}}
 {{#fieldKeyType}}
   val {{FieldName}}KeyTypeManifest: _root_.scala.Option[Manifest[{{fieldKeyType}}]] =
@@ -221,7 +221,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 
 {{/fields}}
   case class UnknownUnionField private[{{StructName}}](
-      private val field: TFieldBlob)
+      field: TFieldBlob)
     extends {{StructName}} {
 
     protected type ContainedType = Unit

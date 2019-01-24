@@ -740,16 +740,16 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
     val name: String = "doGreatThings"
     val serviceName: String = "GoldService"
-    val argsCodec = Args
-    val responseCodec = Result
+    val argsCodec: Args.type = Args
+    val responseCodec: Result.type = Result
     val oneway: Boolean = false
   }
 
   // Compatibility aliases.
-  val doGreatThings$args = DoGreatThings.Args
+  val doGreatThings$args: DoGreatThings.Args.type = DoGreatThings.Args
   type doGreatThings$args = DoGreatThings.Args
 
-  val doGreatThings$result = DoGreatThings.Result
+  val doGreatThings$result: DoGreatThings.Result.type = DoGreatThings.Result
   type doGreatThings$result = DoGreatThings.Result
 
 
@@ -909,7 +909,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
     private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
 
-    private[this] val tlReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
+    private[this] val tlReusableBuffer: TReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
 
     private[thriftscala] def exception(name: String, seqid: Int, code: Int, message: String): Buf = {
       val x = new TApplicationException(code, message)
