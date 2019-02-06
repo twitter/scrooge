@@ -690,6 +690,7 @@ class Linter(cfg: Config) {
           error(s"$inputFile\n$msg")
         case LintMessage(msg, Warning) =>
           warning(s"$inputFile\n$msg")
+        case _ => ()
       }
 
       if (errorCount + warnCount > 0) {
