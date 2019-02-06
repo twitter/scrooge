@@ -233,7 +233,7 @@ public class GoldService {
           serdeCtx,
           new com.twitter.util.Function0<Future<Response>>() {
             public Future<Response> apply() {
-
+              serdeCtx.rpcName("doGreatThings");
               Future<byte[]> __done__ = service.apply(__request__);
               return __done__.flatMap(new Function<byte[], Future<Response>>() {
                 public Future<Response> apply(byte[] __buffer__) {

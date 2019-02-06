@@ -266,7 +266,7 @@ public class {{name}} {
           serdeCtx,
           new com.twitter.util.Function0<Future<{{{return_type.type_name_in_container}}}>>() {
             public Future<{{{return_type.type_name_in_container}}}> apply() {
-
+              serdeCtx.rpcName("{{name}}");
               Future<byte[]> __done__ = service.apply(__request__);
               return __done__.flatMap(new Function<byte[], Future<{{{return_type.type_name_in_container}}}>>() {
                 public Future<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {

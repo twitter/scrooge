@@ -29,6 +29,7 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
     _root_.com.twitter.finagle.thrift.Headers.Request.Key,
     _root_.com.twitter.finagle.thrift.Headers.Request.newValues
   ) {
+    serdeCtx.rpcName("{{clientFuncNameForWire}}"){{! stores the rpc name to be read/recorded later once tracing is initialized }}
     val serialized = encodeRequest("{{clientFuncNameForWire}}", inputArgs)
     this.service(serialized).flatMap { response =>
       Future.const(serdeCtx.deserialize(response))

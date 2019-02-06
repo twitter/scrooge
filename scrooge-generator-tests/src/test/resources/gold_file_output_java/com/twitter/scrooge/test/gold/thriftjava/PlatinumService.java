@@ -236,7 +236,7 @@ public class PlatinumService {
           serdeCtx,
           new com.twitter.util.Function0<Future<Integer>>() {
             public Future<Integer> apply() {
-
+              serdeCtx.rpcName("moreCoolThings");
               Future<byte[]> __done__ = service.apply(__request__);
               return __done__.flatMap(new Function<byte[], Future<Integer>>() {
                 public Future<Integer> apply(byte[] __buffer__) {

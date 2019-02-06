@@ -90,6 +90,7 @@ class PlatinumService$FinagleClient(
       _root_.com.twitter.finagle.thrift.Headers.Request.Key,
       _root_.com.twitter.finagle.thrift.Headers.Request.newValues
     ) {
+      serdeCtx.rpcName("moreCoolThings")
       val serialized = encodeRequest("moreCoolThings", inputArgs)
       this.service(serialized).flatMap { response =>
         Future.const(serdeCtx.deserialize(response))
