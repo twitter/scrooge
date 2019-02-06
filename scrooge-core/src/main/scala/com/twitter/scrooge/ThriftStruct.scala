@@ -111,8 +111,9 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
     any match {
       // U is unchecked since it is eliminated by erasure, but we know that validatingStruct extends
       // from ValidatingThriftStruct. The code below should be safe for any ValidatingThriftStruct
-      case validatingStruct: U =>
-        validatingStruct._codec.validateNewInstance(validatingStruct)
+      case validatingStruct: ValidatingThriftStruct[_] =>
+        val struct: U = validatingStruct.asInstanceOf[U]
+        struct._codec.validateNewInstance(struct)
       case map: collection.Map[_, _] =>
         map.flatMap {
           case (key, value) =>

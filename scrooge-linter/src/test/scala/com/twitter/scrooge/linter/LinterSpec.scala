@@ -17,10 +17,8 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast._
-import org.junit.runner.RunWith
 import org.scalatest.{MustMatchers, WordSpec}
-import org.scalatest.junit.JUnitRunner
-@RunWith(classOf[JUnitRunner])
+
 class LinterSpec extends WordSpec with MustMatchers {
 
   def mustPass(errors: Iterable[LintMessage]) =
@@ -201,7 +199,7 @@ class LinterSpec extends WordSpec with MustMatchers {
         )
         .toSeq
       errors.length must be(2)
-      assert(errors.forall(_.level == LintLevel.Warning))
+      assert(errors.forall(_.level == Warning))
       val structError = errors.head.msg
       assert(structError.contains("SomeType"))
       val fieldError = errors(1).msg

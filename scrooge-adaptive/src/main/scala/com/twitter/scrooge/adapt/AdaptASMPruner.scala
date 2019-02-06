@@ -122,13 +122,6 @@ private[adapt] object AdaptAsmPruner {
     throw new IllegalStateException("decode method not found")
   }
 
-  /**
-   * Marker method looks like _fieldNameUsedStartMarker, extract the fieldName
-   * from it.
-   */
-  private[this] def extractFieldNameFromMarkerName(methodName: String, markerType: String): String =
-    methodName.substring(1, methodName.size - markerType.size)
-
   private[this] def isAdaptTProtocolModuleLoadInstruction(insn: Any): Boolean =
     insn match {
       case f: FieldInsnNode =>
@@ -243,7 +236,7 @@ private[adapt] object AdaptAsmPruner {
   private[this] def deleteMarkedSection(
     iter: ListIterator[_],
     markerType: String,
-    deleteContent: Boolean = true
+    deleteContent: Boolean
   ): Unit = {
     deleteMarker(iter)
     while (iter.hasNext) {

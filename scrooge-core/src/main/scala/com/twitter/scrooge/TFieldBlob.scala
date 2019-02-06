@@ -51,7 +51,6 @@ case class TFieldBlob(field: TField, content: Buf) {
     Buf.ByteArray.coerce(content) match {
       case Buf.ByteArray.Owned(bytes, off, len) =>
         new TCompactProtocol(new TMemoryInputTransport(bytes, off, len), sysPropReadLength, -1)
-      case b => throw new IllegalArgumentException(s"Not a valid Buf for TFieldBlob: $b")
     }
   }
 

@@ -3,7 +3,7 @@ package com.twitter.scrooge.java_generator.test
 import com.twitter.scrooge.Compiler
 import org.codehaus.plexus.util.FileUtils
 import java.io._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import org.apache.commons.cli.{DefaultParser, Options}
 
@@ -33,8 +33,9 @@ object Main {
       compiler.includePaths += cmdLine.getOptionValue("i")
     }
     if (cmdLine.hasOption("t")) {
-      FileUtils.getFiles(new File(cmdLine.getOptionValue("t")), "**/*.thrift", "") foreach { s =>
-        compiler.thriftFiles += s.asInstanceOf[File].getAbsolutePath
+      FileUtils.getFiles(new File(cmdLine.getOptionValue("t")), "**/*.thrift", "").asScala.foreach {
+        s =>
+          compiler.thriftFiles += s.asInstanceOf[File].getAbsolutePath
       }
     }
     if (cmdLine.hasOption("f")) {
@@ -50,11 +51,11 @@ object Main {
       println("Wrong number of files generated")
       sys.exit(1)
     }
-    FileUtils.getFiles(new File(compiler.destFolder), "**/*.java", "") foreach { s =>
+    FileUtils.getFiles(new File(compiler.destFolder), "**/*.java", "").asScala.foreach { s =>
       val file = s.asInstanceOf[File]
       newGenMap.put(file.getName, file)
     }
-    FileUtils.getFiles(new File(originalGen), "**/*.java", "") foreach { s =>
+    FileUtils.getFiles(new File(originalGen), "**/*.java", "").asScala.foreach { s =>
       val file = s.asInstanceOf[File]
       oldGenMap.put(file.getName, file)
     }
@@ -65,11 +66,11 @@ object Main {
       case (k, v) => {
         // println("Comparing: " + v + " and " + oldGenMap(k))
         if (!verify(getFileContents(v), getFileContents(oldGenMap(k)))) {
-          failed.add(k)
+          failed += k
           println("FAILED: " + v + " and " + oldGenMap(k))
           // System.exit(1)
         } else {
-          success.add(k)
+          success += k
         }
       }
     }

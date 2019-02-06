@@ -1,11 +1,11 @@
 package com.twitter.scrooge.mustache
 
-import collection.JavaConversions._
 import com.github.mustachejava.Iteration
 import com.github.mustachejava.reflect.ReflectionObjectHandler
 import java.io.Writer
 import java.lang.reflect.{Field, Method}
 import runtime.BoxedUnit
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 /**
@@ -23,7 +23,9 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
 
   override def coerce(value: AnyRef) = {
     value match {
-      case m: collection.Map[_, _] => mapAsJavaMap(m)
+      case m: scala.collection.Map[_, _] =>
+        // TODO: when we stop supporting scala 2.11, use JavaConverters.mapAsJavaMap
+        m.asJava
       case u: BoxedUnit => null
       case Some(some: AnyRef) => coerce(some)
       case None => null
