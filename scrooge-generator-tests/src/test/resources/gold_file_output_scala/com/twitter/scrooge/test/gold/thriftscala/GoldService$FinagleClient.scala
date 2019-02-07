@@ -155,7 +155,9 @@ class GoldService$FinagleClient(
       _root_.com.twitter.finagle.thrift.Headers.Request.newValues
     ) {
       serdeCtx.rpcName("doGreatThings")
+      val start = System.nanoTime
       val serialized = encodeRequest("doGreatThings", inputArgs)
+      serdeCtx.serializationTime(System.nanoTime - start)
       this.service(serialized).flatMap { response =>
         Future.const(serdeCtx.deserialize(response))
       }.respond { response =>

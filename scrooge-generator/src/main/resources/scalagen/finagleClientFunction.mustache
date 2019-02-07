@@ -21,7 +21,7 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
 {{>function}} = {
   {{__stats_name}}.RequestsCounter.incr()
   val inputArgs = {{funcObjectName}}.Args({{argNames}})
-
+  {{! this is used to store values to be read later, inside the finagle stack }}
   val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[{{typeName}}](inputArgs, {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer)
   _root_.com.twitter.finagle.context.Contexts.local.let(
     _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
@@ -29,8 +29,10 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
     _root_.com.twitter.finagle.thrift.Headers.Request.Key,
     _root_.com.twitter.finagle.thrift.Headers.Request.newValues
   ) {
-    serdeCtx.rpcName("{{clientFuncNameForWire}}"){{! stores the rpc name to be read/recorded later once tracing is initialized }}
+    serdeCtx.rpcName("{{clientFuncNameForWire}}")
+    val start = System.nanoTime
     val serialized = encodeRequest("{{clientFuncNameForWire}}", inputArgs)
+    serdeCtx.serializationTime(System.nanoTime - start)
     this.service(serialized).flatMap { response =>
       Future.const(serdeCtx.deserialize(response))
     }.respond { response =>

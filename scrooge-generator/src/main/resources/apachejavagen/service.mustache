@@ -233,14 +233,8 @@ public class {{name}} {
         {{#fields}}
         __args__.set{{#cap}}{{field_name}}{{/cap}}({{field_name}});
         {{/fields}}
-        __args__.write(__prot__);
-        __prot__.writeMessageEnd();
-
-
-        byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
-        final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
-
         {{^is_oneway}}
+
         Function<byte[], com.twitter.util.Try<{{{return_type.type_name_in_container}}}>> replyDeserializer =
           new Function<byte[], com.twitter.util.Try<{{{return_type.type_name_in_container}}}>>() {
             public com.twitter.util.Try<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {
@@ -259,14 +253,22 @@ public class {{name}} {
               }
             }
           };
-        ClientDeserializeCtx serdeCtx = new ClientDeserializeCtx<{{{return_type.type_name_in_container}}}>(__args__, replyDeserializer);
 
+        ClientDeserializeCtx<{{{return_type.type_name_in_container}}}> serdeCtx = new ClientDeserializeCtx<>(__args__, replyDeserializer);
         return com.twitter.finagle.context.Contexts.local().let(
           ClientDeserializeCtx.Key(),
           serdeCtx,
-          new com.twitter.util.Function0<Future<{{{return_type.type_name_in_container}}}>>() {
-            public Future<{{{return_type.type_name_in_container}}}> apply() {
+          new com.twitter.util.ExceptionalFunction0<Future<{{{return_type.type_name_in_container}}}>>() {
+            public Future<{{{return_type.type_name_in_container}}}> applyE() throws TException {
               serdeCtx.rpcName("{{name}}");
+              long start = System.nanoTime();
+              __args__.write(__prot__);
+              __prot__.writeMessageEnd();
+              serdeCtx.serializationTime(System.nanoTime() - start);
+
+              byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
+              final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
+
               Future<byte[]> __done__ = service.apply(__request__);
               return __done__.flatMap(new Function<byte[], Future<{{{return_type.type_name_in_container}}}>>() {
                 public Future<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {
@@ -287,29 +289,54 @@ public class {{name}} {
               });
             }
           });
-          {{/is_oneway}}
-          {{#is_oneway}}
-          Future<byte[]> __done__ = this.service.apply(__request__);
-          return __done__.flatMap(new Function<byte[], Future<{{{return_type.type_name_in_container}}}>>() {
-            public Future<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {
-              TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
-              TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
-              try {
-                {{#is_oneway_or_void}}
-                {{^is_oneway}}
-                (new Client(__prot__)).recv_{{name}}();
-                {{/is_oneway}}
-                return Future.value(null);
-                {{/is_oneway_or_void}}
-                {{^is_oneway_or_void}}
-                return Future.value((new Client(__prot__)).recv_{{name}}());
-               {{/is_oneway_or_void}}
-              } catch (Exception e) {
-                return Future.exception(e);
-              }
+        {{/is_oneway}}
+        {{#is_oneway}}
+
+        Function<byte[], com.twitter.util.Try<{{{return_type.type_name_in_container}}}>> replyDeserializer =
+          new Function<byte[], com.twitter.util.Try<{{{return_type.type_name_in_container}}}>>() {
+            public com.twitter.util.Try<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {
+              return new com.twitter.util.Return<{{{return_type.type_name_in_container}}}>(null);
+            }
+          };
+
+        ClientDeserializeCtx<{{{return_type.type_name_in_container}}}> serdeCtx = new ClientDeserializeCtx<>(__args__, replyDeserializer);
+        return com.twitter.finagle.context.Contexts.local().let(
+          ClientDeserializeCtx.Key(),
+          serdeCtx,
+          new com.twitter.util.ExceptionalFunction0<Future<{{{return_type.type_name_in_container}}}>>() {
+            public Future<{{{return_type.type_name_in_container}}}> applyE() throws TException {
+              serdeCtx.rpcName("{{name}}");
+              long start = System.nanoTime();
+              __args__.write(__prot__);
+              __prot__.writeMessageEnd();
+              serdeCtx.serializationTime(System.nanoTime() - start);
+
+              byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
+              final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, {{#is_oneway}}true{{/is_oneway}}{{^is_oneway}}false{{/is_oneway}});
+
+              Future<byte[]> __done__ = service.apply(__request__);
+              return __done__.flatMap(new Function<byte[], Future<{{{return_type.type_name_in_container}}}>>() {
+                public Future<{{{return_type.type_name_in_container}}}> apply(byte[] __buffer__) {
+                  TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+                  TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+                  try {
+                    {{#is_oneway_or_void}}
+                    {{^is_oneway}}
+                    (new Client(__prot__)).recv_{{name}}();
+                    {{/is_oneway}}
+                    return Future.value(null);
+                    {{/is_oneway_or_void}}
+                    {{^is_oneway_or_void}}
+                    return Future.value((new Client(__prot__)).recv_{{name}}());
+                    {{/is_oneway_or_void}}
+                  } catch (Exception e) {
+                    return Future.exception(e);
+                  }
+                }
+              });
             }
           });
-          {{/is_oneway}}
+        {{/is_oneway}}
       } catch (TException e) {
         return Future.exception(e);
       } finally {
