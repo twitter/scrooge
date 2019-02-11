@@ -36,7 +36,7 @@ object AdaptBinaryThriftStructSerializer {
    */
   private def cachedProtocol(settings: AdaptSettings): ProtocolAndTransport = {
 
-    /**
+    /*
      * The protocol is mutable but this is threadsafe because we have a
      * separate copy for each thread. This way we reuse the underlying
      * byte arrays and avoid gc cost.

@@ -132,7 +132,7 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
       adaptiveDecoder(prot)
     } else {
 
-      /**
+      /*
        * Note that we only block one event, one that makes trackedCount
        * reach settings.trackedReads, to build the decoder. Subsequent
        * events will continue to use accessRecordingDecoderBuilder until

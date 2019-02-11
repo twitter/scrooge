@@ -102,7 +102,7 @@ class LuaGenerator(
       case _ => v(s"$part = '${genPrimitiveType(valueType)}'")
     }
 
-  def genType(t: FunctionType): CodeFragment = t match {
+  def genType(t: FunctionType, immutable: Boolean = false): CodeFragment = t match {
     case bt: BaseType => v(s"ttype = '${genPrimitiveType(bt)}'")
     case StructType(st, _) => v(s"ttype = 'struct', fields = ${genID(st.sid.toTitleCase)}.fields")
     case EnumType(et, _) => v(s"ttype = 'enum', value = ${genID(et.sid.toTitleCase)}")

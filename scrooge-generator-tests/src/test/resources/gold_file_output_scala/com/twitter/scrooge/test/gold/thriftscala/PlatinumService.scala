@@ -20,22 +20,14 @@ import com.twitter.finagle.thrift.{
   RichClientParam,
   RichServerParam,
   ServerToReqRep,
-  ThriftClientRequest,
-  ThriftServiceIface,
-  ToThriftService
+  ThriftClientRequest
 }
 import com.twitter.util.{Future, Return, Throw, Throwables}
 import com.twitter.io.Buf
-import java.nio.ByteBuffer
-import java.util.Arrays
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
+import scala.collection.mutable.Builder
 import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
-import scala.collection.mutable.{
-  Builder,
-  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
-  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
-import scala.collection.{Map, Set}
 import scala.language.higherKinds
 
 
@@ -215,7 +207,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
   ) extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface
     with BaseServiceIface
-    with com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
@@ -235,8 +227,16 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         clientParam: RichClientParam
       ): ServicePerEndpoint =
         ServicePerEndpoint(
-          moreCoolThings = ThriftServiceIface(self.MoreCoolThings, thriftService, clientParam),
-          doGreatThings = ThriftServiceIface(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, thriftService, clientParam)
+          moreCoolThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+            self.MoreCoolThings,
+            thriftService,
+            clientParam
+          ),
+          doGreatThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+            com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
+            thriftService,
+            clientParam
+          )
         )
   }
 
@@ -260,8 +260,16 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         clientParam: RichClientParam
       ): ServiceIface =
         ServiceIface(
-          moreCoolThings = ThriftServiceIface(self.MoreCoolThings, binaryService, clientParam),
-          doGreatThings = ThriftServiceIface(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, binaryService, clientParam)
+          moreCoolThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+            self.MoreCoolThings,
+            binaryService,
+            clientParam
+          ),
+          doGreatThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+            com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
+            binaryService,
+            clientParam
+          )
         )
   }
 
@@ -448,8 +456,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _equals(this, other.asInstanceOf[Args])
     
       override def hashCode: Int = {
-        var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
-        hash
+        _root_.scala.runtime.ScalaRunTime._hashCode(this)
       }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
@@ -780,8 +787,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _equals(this, other.asInstanceOf[Result])
     
       override def hashCode: Int = {
-        var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
-        hash
+        _root_.scala.runtime.ScalaRunTime._hashCode(this)
       }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
@@ -825,7 +831,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         f(request)
       }
 
-    private[this] val toResult = (res: SuccessType) => Result(Some(res))
 
     val name: String = "moreCoolThings"
     val serviceName: String = "PlatinumService"
@@ -1068,7 +1073,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       if (this.serviceName == "") ex
       else {
         ex match {
-          case se: SourcedException =>
+          case se: _root_.com.twitter.finagle.SourcedException =>
             se.serviceName = this.serviceName
             se
           case _ => ex
@@ -1140,7 +1145,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] {
         def apply(
           request: (TProtocol, Int),
-          service: finagle$Service[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]]
+          service: _root_.com.twitter.finagle.Service[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]]
         ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
           val iprot = request._1
           val seqid = request._2
@@ -1162,7 +1167,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[MoreCoolThings.Args, MoreCoolThings.Result], MoreCoolThings.Args, MoreCoolThings.SuccessType] {
         def apply(
           request: (TProtocol, Int),
-          service: finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType]
+          service: _root_.com.twitter.finagle.Service[MoreCoolThings.Args, MoreCoolThings.SuccessType]
         ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
           val iprot = request._1
           val seqid = request._2

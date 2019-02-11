@@ -6,8 +6,8 @@ import com.twitter.finagle.{
   service => ctfs,
   Filter => finagle$Filter,
   Service => finagle$Service,
-  thrift => _,
-  _
+  thrift => _{{#hasThriftFunctions}},
+  _{{/hasThriftFunctions}}
 }
 import com.twitter.finagle.stats.{Counter, StatsReceiver}
 import com.twitter.finagle.thrift.{
@@ -15,23 +15,22 @@ import com.twitter.finagle.thrift.{
   RichClientParam,
   RichServerParam,
   ServerToReqRep,
-  ThriftClientRequest,
-  ThriftServiceIface,
-  ToThriftService
+  ThriftClientRequest{{#withFinagle}}{{^parent}}{{#generateServiceIface}},
+  ToThriftService{{/generateServiceIface}}{{/parent}}{{/withFinagle}}
 }
 import com.twitter.util.{Future, Return, Throw, Throwables}
-{{/withFinagle}}
 import com.twitter.io.Buf
-import java.nio.ByteBuffer
-import java.util.Arrays
+{{/withFinagle}}
 import org.apache.thrift.protocol._
+{{#withFinagle}}
 import org.apache.thrift.TApplicationException
+{{/withFinagle}}
+{{^public}}
+{{#hasThriftFunctions}}
+import scala.collection.mutable.Builder
+{{/hasThriftFunctions}}
+{{/public}}
 import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
-import scala.collection.mutable.{
-  Builder,
-  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
-  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
-import scala.collection.{Map, Set}
 import scala.language.higherKinds
 
 {{docstring}}
@@ -250,7 +249,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.BaseServiceIface
     with {{/parent}}BaseServiceIface
-    with com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
@@ -272,7 +271,11 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       ): ServicePerEndpoint =
         ServicePerEndpoint(
 {{#inheritedFunctions}}
-          {{dedupedFuncName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, thriftService, clientParam)
+          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+            {{ParentServiceName}}.{{funcObjectName}},
+            thriftService,
+            clientParam
+          )
 {{/inheritedFunctions|,}}
         )
   }
@@ -299,7 +302,11 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       ): ServiceIface =
         ServiceIface(
 {{#inheritedFunctions}}
-          {{dedupedFuncName}} = ThriftServiceIface({{ParentServiceName}}.{{funcObjectName}}, binaryService, clientParam)
+          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+            {{ParentServiceName}}.{{funcObjectName}},
+            binaryService,
+            clientParam
+          )
 {{/inheritedFunctions|,}}
         )
   }
@@ -359,7 +366,6 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
         f(request)
       }
 
-    private[this] val toResult = (res: SuccessType) => Result({{^isVoid}}Some(res){{/isVoid}})
 {{/withFinagle}}
 {{^withFinagle}}
     type FunctionType = Nothing
@@ -587,6 +593,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       }
     }
 
+{{#hasThriftFunctions}}
     private def reply(name: String, seqid: Int, result: ThriftStruct): Buf = {
       val memoryBuffer = tlReusableBuffer.get()
       try {
@@ -603,6 +610,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
         tlReusableBuffer.reset()
       }
     }
+{{/hasThriftFunctions}}
 
     private object ThriftMethodStats {
       def apply(stats: StatsReceiver): ThriftMethodStats =
@@ -632,7 +640,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       if (this.serviceName == "") ex
       else {
         ex match {
-          case se: SourcedException =>
+          case se: _root_.com.twitter.finagle.SourcedException =>
             se.serviceName = this.serviceName
             se
           case _ => ex

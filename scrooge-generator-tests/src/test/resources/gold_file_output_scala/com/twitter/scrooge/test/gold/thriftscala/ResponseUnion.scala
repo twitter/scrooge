@@ -6,15 +6,9 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.scrooge.{HasThriftStructCodec3, ThriftStruct, ThriftStructCodec3, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo, ValidatingThriftStruct, ValidatingThriftStructCodec3}
+import com.twitter.scrooge.{ThriftStruct, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo, ValidatingThriftStruct, ValidatingThriftStructCodec3}
 import org.apache.thrift.protocol._
-import java.nio.ByteBuffer
-import java.util.Arrays
 import scala.collection.immutable.{Map => immutable$Map}
-import scala.collection.mutable.{
-  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
-  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
-import scala.collection.{Map, Set}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 sealed trait ResponseUnion

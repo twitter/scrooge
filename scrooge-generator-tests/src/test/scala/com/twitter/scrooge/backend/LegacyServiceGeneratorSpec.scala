@@ -11,6 +11,8 @@ import org.scalatest.concurrent.Eventually
 import _root_.thrift.test.ExceptionalService._
 import _root_.thrift.test._
 
+// deprecated just so that it doesn't trigger deprecation warnings
+@deprecated("", "")
 class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
 

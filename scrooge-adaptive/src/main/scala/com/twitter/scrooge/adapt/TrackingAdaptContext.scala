@@ -5,7 +5,7 @@ import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec}
 /**
  * An AdaptContext that builds a decoder that tracks field accesses
  * to do adaptive decoding.
- * @see [[AdaptTProtocol]]
+ * @see `AdaptTProtocol`
  * @param settings        Settings that govern how adaptation is done
  */
 class TrackingAdaptContext(settings: AdaptSettings) extends AdaptContext {

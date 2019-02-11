@@ -8,20 +8,13 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.{
   Filter => _,
-  Service => finagle$Service,
   thrift => _,
   _
 }
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.RichServerParam
-import com.twitter.io.Buf
 import com.twitter.util.Future
 import org.apache.thrift.protocol._
-import org.apache.thrift.TApplicationException
-import org.apache.thrift.transport.TMemoryInputTransport
-import scala.collection.mutable.{HashMap => mutable$HashMap}
-
-import scala.language.higherKinds
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -60,7 +53,7 @@ class PlatinumService$FinagleService(
   // ---- end boilerplate.
 
   addService("moreCoolThings", {
-    val methodService = new finagle$Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
+    val methodService = new _root_.com.twitter.finagle.Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
         if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
           _root_.com.twitter.finagle.tracing.Trace.recordRpc("moreCoolThings")

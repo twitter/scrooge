@@ -1,5 +1,5 @@
 addService("{{methodSvcNameForWire}}", {
-  val methodService = new finagle$Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType] {
+  val methodService = new _root_.com.twitter.finagle.Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType] {
     def apply(args: {{funcObjectName}}.Args): Future[{{funcObjectName}}.SuccessType] = {
       if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
         _root_.com.twitter.finagle.tracing.Trace.recordRpc("{{methodSvcNameForWire}}")

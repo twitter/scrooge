@@ -286,7 +286,7 @@ class CocoaGenerator(
   def toMutable(t: FieldType): (String, String) = ("", "")
   def toMutable(f: Field): (String, String) = ("", "")
 
-  def genType(t: FunctionType): CodeFragment = {
+  def genType(t: FunctionType, immutable: Boolean = false): CodeFragment = {
     val code = t match {
       case Void => "void"
       case OnewayVoid => "void"

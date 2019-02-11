@@ -10,28 +10,19 @@ import com.twitter.io.Buf
 import com.twitter.scrooge.{
   LazyTProtocol,
   TFieldBlob,
-  ThriftException,
   ThriftStruct,
   ThriftStructCodec3,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
-  ThriftUtil,
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
-import java.io.ByteArrayInputStream
-import java.nio.ByteBuffer
-import java.util.Arrays
-import java.util.concurrent.atomic.AtomicInteger
+import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.mutable.{
-  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
-  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
-import scala.collection.{Map, Set}
+import scala.collection.Map
 
 
 object Recursive extends ValidatingThriftStructCodec3[Recursive] {
@@ -565,8 +556,7 @@ trait Recursive
       _equals(this, other.asInstanceOf[Recursive])
 
   override def hashCode: Int = {
-    var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
-    hash
+    _root_.scala.runtime.ScalaRunTime._hashCode(this)
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
@@ -680,7 +670,7 @@ private class Recursive__Adapt(
    * In case any unexpected field is accessed, fallback to eager decoding.
    */
   private[this] lazy val delegate: Recursive = {
-    val bytes = Arrays.copyOfRange(_buf, _start_offset, _end_offset)
+    val bytes = _root_.java.util.Arrays.copyOfRange(_buf, _start_offset, _end_offset)
     val proto = _proto.withBytes(bytes)
     Recursive.eagerDecode(proto)
   }

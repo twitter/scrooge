@@ -396,7 +396,7 @@ class TypeResolverSpec extends Spec {
           |
           |const U c = { }
         """.stripMargin
-      val ex = intercept[UndefinedConstantException] {
+      intercept[UndefinedConstantException] {
         resolve(input)
       }
     }
@@ -410,7 +410,7 @@ class TypeResolverSpec extends Spec {
           |
           |const U c = { "a": 3, "b": "b" }
         """.stripMargin
-      val ex = intercept[UndefinedConstantException] {
+      intercept[UndefinedConstantException] {
         resolve(input)
       }
     }
@@ -450,7 +450,7 @@ class TypeResolverSpec extends Spec {
 
         val parser = new ThriftParser(Importer("."), strict = true)
 
-        val doc = parser.parse(input, parser.document)
+        parser.parse(input, parser.document)
         val ex = intercept[UndefinedSymbolException] {
           resolve(input)
         }
@@ -474,7 +474,7 @@ class TypeResolverSpec extends Spec {
       "QualifierNotFoundException" in {
         val input = "const i32 i = UnknownImport.SomeConst"
 
-        val ex = intercept[QualifierNotFoundException] {
+        intercept[QualifierNotFoundException] {
           resolve(input)
         }
       }

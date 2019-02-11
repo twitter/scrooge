@@ -158,9 +158,8 @@ class AndroidGeneratorSpec extends Spec {
       val xa1 = (new StructXA.Builder).set(StructXA.ID, 100L).build
       val xa2 = (new StructXA.Builder).set(StructXA.ID, 321L).build
       val xa3 = (new StructXA.Builder).set(StructXA.ID, 333L).build
-      val xa4 = (new StructXA.Builder).set(StructXA.ID, 444L).build
-      val xa5 = (new StructXA.Builder).set(StructXA.ID, 555L).build
-      val xa6 = (new StructXA.Builder).set(StructXA.ID, 666L).build
+      val xa4 = (new StructXA.Builder).set(StructXA.ID, 555L).build
+      val xa5 = (new StructXA.Builder).set(StructXA.ID, 666L).build
 
       val xb1 = (new StructXB.Builder)
         .set(StructXB.SNAKE_CASE_FIELD, 10L)
@@ -203,7 +202,7 @@ class AndroidGeneratorSpec extends Spec {
         .set(StructXB.CAMEL_CASE_FIELD, 523L)
         .set(StructXB.OPTIONAL_FIELD, "5 very very very optional field")
         .set(StructXB.REQUIRED_FIELD, 5703L)
-        .set(StructXB.STRUCT_FIELD, xa5)
+        .set(StructXB.STRUCT_FIELD, xa4)
         .set(StructXB.DEFAULT_FIELD, 5303L)
         .build
 
@@ -212,7 +211,7 @@ class AndroidGeneratorSpec extends Spec {
         .set(StructXB.CAMEL_CASE_FIELD, 623L)
         .set(StructXB.OPTIONAL_FIELD, "6 very very very optional field")
         .set(StructXB.REQUIRED_FIELD, 6703L)
-        .set(StructXB.STRUCT_FIELD, xa6)
+        .set(StructXB.STRUCT_FIELD, xa5)
         .set(StructXB.DEFAULT_FIELD, 6303L)
         .build
 

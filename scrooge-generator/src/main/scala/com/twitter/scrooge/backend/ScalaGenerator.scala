@@ -202,7 +202,8 @@ class ScalaGenerator(
     }
   }
 
-  def genType(t: FunctionType): CodeFragment = {
+  def genType(t: FunctionType, immutable: Boolean = false): CodeFragment = {
+    val prefix = if (immutable) "_root_.scala.collection.immutable." else "_root_.scala.collection."
     val code = t match {
       case Void => "Unit"
       case OnewayVoid => "Unit"
@@ -213,13 +214,14 @@ class ScalaGenerator(
       case TI64 => "Long"
       case TDouble => "Double"
       case TString => "String"
-      case TBinary => "ByteBuffer"
+      case TBinary => "_root_.java.nio.ByteBuffer"
       case MapType(k, v, _) =>
-        "Map[" + genType(k).toData + ", " + genType(v).toData + "]"
+        prefix + "Map[" + genType(k, immutable).toData + ", " + genType(v, immutable).toData + "]"
       case SetType(x, _) =>
-        "Set[" + genType(x).toData + "]"
+        prefix + "Set[" + genType(x, immutable).toData + "]"
       case ListType(x, _) =>
-        "Seq[" + genType(x).toData + "]"
+        // for historical reasons
+        "_root_.scala.collection.Seq[" + genType(x, immutable).toData + "]"
       case t: NamedType =>
         val id = resolvedDoc.qualifyName(t, namespaceLanguage, defaultNamespace)
         // Named types are capitalized.

@@ -65,7 +65,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       expecting { e =>
         import e._
         startRead(e, protocol, new TField("where", TType.STRING, 1))
-        one(protocol).readString(); will(returnValue("boston"))
+        e.oneOf(protocol).readString(); will(returnValue("boston"))
         endRead(e, protocol)
       }
 
@@ -74,9 +74,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       expecting { e =>
-        import e._
         startWrite(e, protocol, new TField("where", TType.STRING, 1))
-        one(protocol).writeString("atlanta")
+        e.oneOf(protocol).writeString("atlanta")
         endWrite(e, protocol)
       }
 
@@ -87,7 +86,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       expecting { e =>
         import e._
         startRead(e, protocol, new TField("success", TType.I32, 0))
-        one(protocol).readI32(); will(returnValue(13))
+        e.oneOf(protocol).readI32(); will(returnValue(13))
         endRead(e, protocol)
       }
 
@@ -96,9 +95,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       expecting { e =>
-        import e._
         startWrite(e, protocol, new TField("success", TType.I32, 0))
-        one(protocol).writeI32(24)
+        e.oneOf(protocol).writeI32(24)
         endWrite(e, protocol)
       }
 
@@ -116,9 +114,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         startRead(e, protocol, new TField("arg0", TType.STRUCT, 1))
         startRead(e, protocol, new TField("bools", TType.STRUCT, 2))
         startRead(e, protocol, new TField("im_true", TType.BOOL, 1))
-        one(protocol).readBool(); will(returnValue(true))
+        e.oneOf(protocol).readBool(); will(returnValue(true))
         nextRead(e, protocol, new TField("im_false", TType.BOOL, 2))
-        one(protocol).readBool(); will(returnValue(false))
+        e.oneOf(protocol).readBool(); will(returnValue(false))
         endRead(e, protocol)
         endRead(e, protocol)
         endRead(e, protocol)
@@ -135,9 +133,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         startWrite(e, protocol, new TField("arg0", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("bonk", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("message", TType.STRING, 1))
-        one(protocol).writeString(`with`("hello world"))
+        e.oneOf(protocol).writeString(`with`("hello world"))
         nextWrite(e, protocol, new TField("type", TType.I32, 2))
-        one(protocol).writeI32(`with`(42))
+        e.oneOf(protocol).writeI32(`with`(42))
         endWrite(e, protocol)
         endWrite(e, protocol)
         endWrite(e, protocol)
@@ -156,9 +154,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         startRead(e, protocol, new TField("success", TType.STRUCT, 0))
         startRead(e, protocol, new TField("bools", TType.STRUCT, 2))
         startRead(e, protocol, new TField("im_true", TType.BOOL, 1))
-        one(protocol).readBool(); will(returnValue(true))
+        e.oneOf(protocol).readBool(); will(returnValue(true))
         nextRead(e, protocol, new TField("im_false", TType.BOOL, 2))
-        one(protocol).readBool(); will(returnValue(false))
+        e.oneOf(protocol).readBool(); will(returnValue(false))
         endRead(e, protocol)
         endRead(e, protocol)
         endRead(e, protocol)
@@ -175,9 +173,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         startWrite(e, protocol, new TField("success", TType.STRUCT, 0))
         startWrite(e, protocol, new TField("bonk", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("message", TType.STRING, 1))
-        one(protocol).writeString(`with`("hello world"))
+        e.oneOf(protocol).writeString(`with`("hello world"))
         nextWrite(e, protocol, new TField("type", TType.I32, 2))
-        one(protocol).writeI32(`with`(42))
+        e.oneOf(protocol).writeI32(`with`(42))
         endWrite(e, protocol)
         endWrite(e, protocol)
         endWrite(e, protocol)
@@ -200,9 +198,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import e._
         startRead(e, protocol, new TField("ex", TType.STRUCT, 1))
         startRead(e, protocol, new TField("errorCode", TType.I32, 1))
-        one(protocol).readI32(); will(returnValue(1))
+        e.oneOf(protocol).readI32(); will(returnValue(1))
         nextRead(e, protocol, new TField("message", TType.STRING, 2))
-        one(protocol).readString(); will(returnValue("silly"))
+        e.oneOf(protocol).readString(); will(returnValue("silly"))
         endRead(e, protocol)
         endRead(e, protocol)
       }
@@ -215,9 +213,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       expecting { e =>
-        import e._
         startWrite(e, protocol, new TField("success", TType.I32, 0))
-        one(protocol).writeI32(24)
+        e.oneOf(protocol).writeI32(24)
         endWrite(e, protocol)
       }
 
@@ -229,9 +226,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import e._
         startWrite(e, protocol, new TField("ex", TType.STRUCT, 1))
         startWrite(e, protocol, new TField("errorCode", TType.I32, 1))
-        one(protocol).writeI32(`with`(1))
+        e.oneOf(protocol).writeI32(`with`(1))
         nextWrite(e, protocol, new TField("message", TType.STRING, 2))
-        one(protocol).writeString(`with`("silly"))
+        e.oneOf(protocol).writeString(`with`("silly"))
         endWrite(e, protocol)
         endWrite(e, protocol)
       }
@@ -245,9 +242,9 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       expecting { e =>
         import e._
         startWrite(e, protocol, new TField("ex3", TType.STRUCT, 3))
-        one(protocol).writeStructBegin(`with`(any(classOf[TStruct])))
-        one(protocol).writeFieldStop()
-        one(protocol).writeStructEnd()
+        e.oneOf(protocol).writeStructBegin(`with`(any(classOf[TStruct])))
+        e.oneOf(protocol).writeFieldStop()
+        e.oneOf(protocol).writeStructEnd()
         endWrite(e, protocol)
       }
 
@@ -272,7 +269,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           encodeResponse("deliver", ExceptionalService.Deliver.Result(success = Some(42)))
 
         context.checking(new Expectations {
-          one(impl).deliver("Boston"); will(returnValue(Future.value(42)))
+          this.oneOf(impl).deliver("Boston"); will(returnValue(Future.value(42)))
         })
 
         Await.result(service(request)) must be(response)
@@ -285,7 +282,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val response = encodeResponse("deliver", ExceptionalService.Deliver.Result(ex = Some(ex)))
 
         context.checking(new Expectations {
-          one(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
+          this.oneOf(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
         })
 
         Await.result(service(request)) must be(response)
@@ -312,7 +309,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val svc = filters.deliver.andThen(impl)
 
         context.checking(new Expectations {
-          one(impl).apply(ExceptionalService.Deliver.Args("Boston"));
+          this.oneOf(impl).apply(ExceptionalService.Deliver.Args("Boston"));
           will(returnValue(Future.value(42)))
         })
 
@@ -340,7 +337,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val svc = filters.duplicated.andThen(impl)
 
         context.checking(new Expectations {
-          one(impl).apply(Ccc.Duplicated.Args("ccc"));
+          this.oneOf(impl).apply(Ccc.Duplicated.Args("ccc"));
           will(returnValue(Future.value(42)))
         })
 
@@ -368,7 +365,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val svc = filters.duplicated.andThen(impl)
 
         context.checking(new Expectations {
-          one(impl).apply(Aaa.Duplicated.Args());
+          this.oneOf(impl).apply(Aaa.Duplicated.Args());
           will(returnValue(Future.value(42)))
         })
 
@@ -402,7 +399,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       "success" in { _ =>
         context.checking(new Expectations {
-          one(impl).deliver("Boston"); will(returnValue(Future.value(42)))
+          this.oneOf(impl).deliver("Boston"); will(returnValue(Future.value(42)))
         })
 
         Await.result(client.deliver("Boston")) must be(42)
@@ -411,7 +408,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       "success void" in { _ =>
         context.checking(new Expectations {
-          one(impl).remove(123); will(returnValue(Future.Done))
+          this.oneOf(impl).remove(123); will(returnValue(Future.Done))
         })
 
         Await.result(client.remove(123)) must be(())
@@ -422,7 +419,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val ex = Xception(1, "boom")
 
         context.checking(new Expectations {
-          one(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
+          this.oneOf(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
         })
 
         assert(Xception(1, "boom") == ex)
@@ -437,7 +434,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val ex = new SourcedException {}
 
         context.checking(new Expectations {
-          one(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
+          this.oneOf(impl).deliver("Boston"); will(returnValue(Future.exception(ex)))
         })
 
         val e = intercept[SourcedException] {
@@ -451,7 +448,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         val ex = Xception(1, "boom")
 
         context.checking(new Expectations {
-          one(impl).remove(123); will(returnValue(Future.exception(ex)))
+          this.oneOf(impl).remove(123); will(returnValue(Future.exception(ex)))
         })
 
         val e = intercept[ThriftException] {
@@ -912,8 +909,11 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val svc = new SimpleService.FinagledClient(
           clientService,
-          stats = stats,
-          responseClassifier = bigNumsAreFailures
+          RichClientParam(
+            clientStats = stats,
+            serviceName = "SimpleService",
+            responseClassifier = bigNumsAreFailures
+          )
         )
 
         val requests = stats.counter("SimpleService", "deliver", "requests")
@@ -1279,7 +1279,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       "allow generation and calls to eponymous FinagledService" in { _ =>
         context.checking(new Expectations {
-          one(impl).test(); will(returnValue(Future.value(())))
+          this.oneOf(impl).test(); will(returnValue(Future.value(())))
         })
 
         val request = encodeRequest("test", _root_.thrift.test.Service.Test.Args()).message
@@ -1301,7 +1301,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         )
 
         context.checking(new Expectations {
-          one(impl).test(); will(returnValue(Future.Done))
+          this.oneOf(impl).test(); will(returnValue(Future.Done))
         })
 
         Await.result(client.test()) mustBe ((): Unit)

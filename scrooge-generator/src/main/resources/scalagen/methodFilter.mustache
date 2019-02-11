@@ -4,7 +4,7 @@ val {{methodSvcNameForCompile}}: finagle$Filter[(TProtocol, Int), Array[Byte], {
   val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]] {
     def apply(
       request: (TProtocol, Int),
-      service: finagle$Service[(TProtocol, Int), RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]]
+      service: _root_.com.twitter.finagle.Service[(TProtocol, Int), RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]]
     ): Future[RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]] = {
       val iprot = request._1
       val seqid = request._2
@@ -26,7 +26,7 @@ val {{methodSvcNameForCompile}}: finagle$Filter[(TProtocol, Int), Array[Byte], {
   val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result], {{funcObjectName}}.Args, {{funcObjectName}}.SuccessType] {
     def apply(
       request: (TProtocol, Int),
-      service: finagle$Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType]
+      service: _root_.com.twitter.finagle.Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType]
     ): Future[RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]] = {
       val iprot = request._1
       val seqid = request._2

@@ -10,7 +10,7 @@ trait ConstsTemplate { self: TemplateGenerator =>
     "constants" -> v(consts map { c =>
       Dictionary(
         "name" -> genID(c.sid),
-        "fieldType" -> genType(c.fieldType),
+        "fieldType" -> genType(c.fieldType, immutable = true),
         "value" -> genConstant(c.value, Some(c.fieldType)),
         "docstring" -> v(c.docstring.getOrElse(""))
       )

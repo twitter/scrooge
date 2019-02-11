@@ -8,30 +8,17 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
-  LazyTProtocol,
   TFieldBlob,
-  ThriftException,
   ThriftStruct,
-  ThriftStructCodec3,
   ThriftStructFieldInfo,
-  ThriftStructMetaData,
-  ThriftUtil,
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
-import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
-import java.io.ByteArrayInputStream
-import java.nio.ByteBuffer
-import java.util.Arrays
-import java.util.concurrent.atomic.AtomicInteger
+import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.mutable.{
-  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
-  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
-import scala.collection.{Map, Set}
+import scala.collection.Map
 
 
 object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityException] {
@@ -175,7 +162,7 @@ class OverCapacityException(
     val chillTimeSeconds: Int,
     val _passthroughFields: immutable$Map[Short, TFieldBlob],
     val flags: Long)
-  extends ThriftException with com.twitter.finagle.SourcedException with ThriftStruct
+  extends _root_.com.twitter.scrooge.ThriftException with _root_.com.twitter.finagle.SourcedException with ThriftStruct
   with _root_.scala.Product1[Int]
   with ValidatingThriftStruct[OverCapacityException]
   with java.io.Serializable
@@ -320,9 +307,8 @@ class OverCapacityException(
       _equals(this, other.asInstanceOf[OverCapacityException])
 
   override def hashCode: Int = {
-    var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
-    hash = 31 * hash + _root_.java.lang.Long.hashCode(this.flags)
-    hash
+    31 * _root_.scala.runtime.ScalaRunTime._hashCode(this) +
+      _root_.java.lang.Long.hashCode(this.flags)
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)

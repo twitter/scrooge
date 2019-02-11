@@ -309,7 +309,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       thrift.test.Constants.someDouble must be(3.0)
       thrift.test.Constants.someList must be(List("piggy"))
       thrift.test.Constants.emptyList must be(List())
-      thrift.test.Constants.someMap must be(Map("foo" -> "bar"))
+      // validate that its type is still an immutable Map
+      (thrift.test.Constants.someMap: scala.collection.immutable.Map[_, _]) must be(
+        Map("foo" -> "bar"))
       thrift.test.Constants.someSimpleSet must be(Set("foo", "bar"))
       thrift.test.Constants.someSet must be(
         Set(
@@ -333,11 +335,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("baby", TType.I16, 1))
-            one(protocol).readI16(); will(returnValue((16: Short)))
+            e.oneOf(protocol).readI16(); will(returnValue((16: Short)))
             nextRead(e, protocol, new TField("mama", TType.I32, 2))
-            one(protocol).readI32(); will(returnValue(32))
+            e.oneOf(protocol).readI32(); will(returnValue(32))
             nextRead(e, protocol, new TField("papa", TType.I64, 3))
-            one(protocol).readI64(); will(returnValue(64L))
+            e.oneOf(protocol).readI64(); will(returnValue(64L))
             endRead(e, protocol)
           }
 
@@ -352,11 +354,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("baby", TType.I16, 1))
-            one(protocol).writeI16(`with`(16: Short))
+            e.oneOf(protocol).writeI16(`with`(16: Short))
             nextWrite(e, protocol, new TField("mama", TType.I32, 2))
-            one(protocol).writeI32(`with`(32))
+            e.oneOf(protocol).writeI32(`with`(32))
             nextWrite(e, protocol, new TField("papa", TType.I64, 3))
-            one(protocol).writeI64(`with`(64L))
+            e.oneOf(protocol).writeI64(`with`(64L))
             endWrite(e, protocol)
           }
 
@@ -373,9 +375,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("x", TType.BYTE, 1))
-            one(protocol).readByte(); will(returnValue(3.toByte))
+            e.oneOf(protocol).readByte(); will(returnValue(3.toByte))
             nextRead(e, protocol, new TField("y", TType.STRING, 2))
-            one(protocol).readBinary(); will(returnValue(stringToBytes("hello")))
+            e.oneOf(protocol).readBinary(); will(returnValue(stringToBytes("hello")))
             endRead(e, protocol)
           }
 
@@ -392,9 +394,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("x", TType.BYTE, 1))
-            one(protocol).writeByte(`with`(16.toByte))
+            e.oneOf(protocol).writeByte(`with`(16.toByte))
             nextWrite(e, protocol, new TField("y", TType.STRING, 2))
-            one(protocol).writeBinary(`with`(stringToBytes("goodbye")))
+            e.oneOf(protocol).writeBinary(`with`(stringToBytes("goodbye")))
             endWrite(e, protocol)
           }
 
@@ -411,11 +413,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("alive", TType.BOOL, 1))
-            one(protocol).readBool(); will(returnValue(true))
+            e.oneOf(protocol).readBool(); will(returnValue(true))
             nextRead(e, protocol, new TField("pi", TType.DOUBLE, 2))
-            one(protocol).readDouble(); will(returnValue(3.14))
+            e.oneOf(protocol).readDouble(); will(returnValue(3.14))
             nextRead(e, protocol, new TField("name", TType.STRING, 3))
-            one(protocol).readString(); will(returnValue("bender"))
+            e.oneOf(protocol).readString(); will(returnValue("bender"))
             endRead(e, protocol)
           }
 
@@ -430,11 +432,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("alive", TType.BOOL, 1))
-            one(protocol).writeBool(`with`(false))
+            e.oneOf(protocol).writeBool(`with`(false))
             nextWrite(e, protocol, new TField("pi", TType.DOUBLE, 2))
-            one(protocol).writeDouble(`with`(6.28))
+            e.oneOf(protocol).writeDouble(`with`(6.28))
             nextWrite(e, protocol, new TField("name", TType.STRING, 3))
-            one(protocol).writeString(`with`("fry"))
+            e.oneOf(protocol).writeString(`with`("fry"))
             endWrite(e, protocol)
           }
 
@@ -458,26 +460,27 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("intlist", TType.LIST, 1))
-            one(protocol).readListBegin(); will(returnValue(new TList(TType.I32, 2)))
-            one(protocol).readI32(); will(returnValue(10))
-            one(protocol).readI32(); will(returnValue(20))
-            one(protocol).readListEnd()
+            e.oneOf(protocol).readListBegin(); will(returnValue(new TList(TType.I32, 2)))
+            e.oneOf(protocol).readI32(); will(returnValue(10))
+            e.oneOf(protocol).readI32(); will(returnValue(20))
+            e.oneOf(protocol).readListEnd()
             nextRead(e, protocol, new TField("intset", TType.SET, 2))
-            one(protocol).readSetBegin(); will(returnValue(new TSet(TType.I32, 2)))
-            one(protocol).readI32(); will(returnValue(44))
-            one(protocol).readI32(); will(returnValue(55))
-            one(protocol).readSetEnd()
+            e.oneOf(protocol).readSetBegin(); will(returnValue(new TSet(TType.I32, 2)))
+            e.oneOf(protocol).readI32(); will(returnValue(44))
+            e.oneOf(protocol).readI32(); will(returnValue(55))
+            e.oneOf(protocol).readSetEnd()
             nextRead(e, protocol, new TField("namemap", TType.MAP, 3))
-            one(protocol).readMapBegin(); will(returnValue(new TMap(TType.STRING, TType.I32, 1)))
-            one(protocol).readString(); will(returnValue("wendy"))
-            one(protocol).readI32(); will(returnValue(500))
-            one(protocol).readMapEnd()
+            e.oneOf(protocol).readMapBegin();
+            will(returnValue(new TMap(TType.STRING, TType.I32, 1)))
+            e.oneOf(protocol).readString(); will(returnValue("wendy"))
+            e.oneOf(protocol).readI32(); will(returnValue(500))
+            e.oneOf(protocol).readMapEnd()
             nextRead(e, protocol, new TField("nested", TType.LIST, 4))
-            one(protocol).readListBegin(); will(returnValue(new TList(TType.SET, 1)))
-            one(protocol).readSetBegin(); will(returnValue(new TSet(TType.I32, 1)))
-            one(protocol).readI32(); will(returnValue(9))
-            one(protocol).readSetEnd()
-            one(protocol).readListEnd()
+            e.oneOf(protocol).readListBegin(); will(returnValue(new TList(TType.SET, 1)))
+            e.oneOf(protocol).readSetBegin(); will(returnValue(new TSet(TType.I32, 1)))
+            e.oneOf(protocol).readI32(); will(returnValue(9))
+            e.oneOf(protocol).readSetEnd()
+            e.oneOf(protocol).readListEnd()
             endRead(e, protocol)
           }
 
@@ -492,26 +495,26 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("intlist", TType.LIST, 1))
-            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.I32, 2))))
-            one(protocol).writeI32(`with`(10))
-            one(protocol).writeI32(`with`(20))
-            one(protocol).writeListEnd()
+            e.oneOf(protocol).writeListBegin(`with`(listEqual(new TList(TType.I32, 2))))
+            e.oneOf(protocol).writeI32(`with`(10))
+            e.oneOf(protocol).writeI32(`with`(20))
+            e.oneOf(protocol).writeListEnd()
             nextWrite(e, protocol, new TField("intset", TType.SET, 2))
-            one(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 2))))
-            one(protocol).writeI32(`with`(44))
-            one(protocol).writeI32(`with`(55))
-            one(protocol).writeSetEnd()
+            e.oneOf(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 2))))
+            e.oneOf(protocol).writeI32(`with`(44))
+            e.oneOf(protocol).writeI32(`with`(55))
+            e.oneOf(protocol).writeSetEnd()
             nextWrite(e, protocol, new TField("namemap", TType.MAP, 3))
-            one(protocol).writeMapBegin(`with`(mapEqual(new TMap(TType.STRING, TType.I32, 1))))
-            one(protocol).writeString(`with`("wendy"))
-            one(protocol).writeI32(`with`(500))
-            one(protocol).writeMapEnd()
+            e.oneOf(protocol).writeMapBegin(`with`(mapEqual(new TMap(TType.STRING, TType.I32, 1))))
+            e.oneOf(protocol).writeString(`with`("wendy"))
+            e.oneOf(protocol).writeI32(`with`(500))
+            e.oneOf(protocol).writeMapEnd()
             nextWrite(e, protocol, new TField("nested", TType.LIST, 4))
-            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.SET, 1))))
-            one(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 1))))
-            one(protocol).writeI32(`with`(9))
-            one(protocol).writeSetEnd()
-            one(protocol).writeListEnd()
+            e.oneOf(protocol).writeListBegin(`with`(listEqual(new TList(TType.SET, 1))))
+            e.oneOf(protocol).writeSetBegin(`with`(setEqual(new TSet(TType.I32, 1))))
+            e.oneOf(protocol).writeI32(`with`(9))
+            e.oneOf(protocol).writeSetEnd()
+            e.oneOf(protocol).writeListEnd()
             endWrite(e, protocol)
           }
 
@@ -530,7 +533,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("string", TType.STRING, 1))
-            one(protocol).readString(); will(returnValue("yo"))
+            e.oneOf(protocol).readString(); will(returnValue("yo"))
             endRead(e, protocol)
           }
 
@@ -622,9 +625,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString(); will(returnValue("Commie"))
+            e.oneOf(protocol).readString(); will(returnValue("Commie"))
             nextRead(e, protocol, new TField("age", TType.I32, 2))
-            one(protocol).readI32(); will(returnValue(14))
+            e.oneOf(protocol).readI32(); will(returnValue(14))
             endRead(e, protocol)
           }
 
@@ -639,7 +642,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString(); will(returnValue("Commie"))
+            e.oneOf(protocol).readString(); will(returnValue("Commie"))
             endRead(e, protocol)
           }
 
@@ -654,9 +657,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`("Commie"))
+            e.oneOf(protocol).writeString(`with`("Commie"))
             nextWrite(e, protocol, new TField("age", TType.I32, 2))
-            one(protocol).writeI32(`with`(14))
+            e.oneOf(protocol).writeI32(`with`(14))
             endWrite(e, protocol)
           }
 
@@ -671,7 +674,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`("Commie"))
+            e.oneOf(protocol).writeString(`with`("Commie"))
             endWrite(e, protocol)
           }
 
@@ -687,9 +690,10 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           val protocol = mock[TProtocol]
           expecting { e =>
             import e._
-            one(protocol).readStructBegin()
-            one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
-            one(protocol).readStructEnd()
+            e.oneOf(protocol).readStructBegin()
+            e.oneOf(protocol).readFieldBegin();
+            will(returnValue(new TField("stop", TType.STOP, 10)))
+            e.oneOf(protocol).readStructEnd()
           }
 
           whenExecuting {
@@ -702,11 +706,12 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           val protocol = mock[TProtocol]
           expecting { e =>
             import e._
-            one(protocol).readStructBegin()
+            e.oneOf(protocol).readStructBegin()
             nextRead(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString(); will(returnValue("delilah"))
-            one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
-            one(protocol).readStructEnd()
+            e.oneOf(protocol).readString(); will(returnValue("delilah"))
+            e.oneOf(protocol).readFieldBegin();
+            will(returnValue(new TField("stop", TType.STOP, 10)))
+            e.oneOf(protocol).readStructEnd()
           }
 
           whenExecuting {
@@ -722,19 +727,19 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString(); will(returnValue("United States of America"))
+            e.oneOf(protocol).readString(); will(returnValue("United States of America"))
             nextRead(e, protocol, new TField("provinces", TType.LIST, 2))
-            one(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 2)))
-            one(protocol).readString(); will(returnValue("connecticut"))
-            one(protocol).readString(); will(returnValue("california"))
-            one(protocol).readListEnd()
+            e.oneOf(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 2)))
+            e.oneOf(protocol).readString(); will(returnValue("connecticut"))
+            e.oneOf(protocol).readString(); will(returnValue("california"))
+            e.oneOf(protocol).readListEnd()
             nextRead(e, protocol, new TField("emperor", TType.STRUCT, 5))
 
             /** Start of Emperor struct **/
             startRead(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).readString(); will(returnValue("Bush"))
+            e.oneOf(protocol).readString(); will(returnValue("Bush"))
             nextRead(e, protocol, new TField("age", TType.I32, 2))
-            one(protocol).readI32(); will(returnValue(42))
+            e.oneOf(protocol).readI32(); will(returnValue(42))
             endRead(e, protocol)
 
             /** End of Emperor struct **/
@@ -758,19 +763,19 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`("Canada"))
+            e.oneOf(protocol).writeString(`with`("Canada"))
             nextWrite(e, protocol, new TField("provinces", TType.LIST, 2))
-            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 2))))
-            one(protocol).writeString(`with`("Manitoba"))
-            one(protocol).writeString(`with`("Alberta"))
-            one(protocol).writeListEnd()
+            e.oneOf(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 2))))
+            e.oneOf(protocol).writeString(`with`("Manitoba"))
+            e.oneOf(protocol).writeString(`with`("Alberta"))
+            e.oneOf(protocol).writeListEnd()
             nextWrite(e, protocol, new TField("emperor", TType.STRUCT, 5))
 
             // emperor
             startWrite(e, protocol, new TField("name", TType.STRING, 1))
-            one(protocol).writeString(`with`("Larry"))
+            e.oneOf(protocol).writeString(`with`("Larry"))
             nextWrite(e, protocol, new TField("age", TType.I32, 2))
-            one(protocol).writeI32(`with`(13))
+            e.oneOf(protocol).writeI32(`with`(13))
             endWrite(e, protocol)
 
             endWrite(e, protocol)
@@ -847,11 +852,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     "unions" should {
       "have a working apply method" in { _ =>
         val s: String = "bird"
-        val cast = Bird.Hummingbird(s)
+        Bird.Hummingbird(s)
         Seq(s).map { Bird.Hummingbird.apply }
 
         val r: Raptor = Raptor(false, "RaptorSpecies")
-        val raptorInUnion = Bird.Raptor(r)
+        Bird.Raptor(r)
         Seq(r).map { Bird.Raptor }
       }
 
@@ -888,7 +893,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("hummingbird", TType.STRING, 2))
-            one(protocol).readString(); will(returnValue("Ruby-Throated"))
+            e.oneOf(protocol).readString(); will(returnValue("Ruby-Throated"))
             endRead(e, protocol)
           }
 
@@ -903,7 +908,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
-            one(protocol).writeString(`with`("foo"))
+            e.oneOf(protocol).writeString(`with`("foo"))
             endWrite(e, protocol)
           }
 
@@ -920,9 +925,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("hummingbird", TType.STRING, 2))
-            one(protocol).readString(); will(returnValue("Anna's Hummingbird"))
+            e.oneOf(protocol).readString(); will(returnValue("Anna's Hummingbird"))
             nextRead(e, protocol, new TField("owlet_nightjar", TType.STRING, 3))
-            one(protocol).readBinary(); will(returnValue(ByteBuffer.allocate(1)))
+            e.oneOf(protocol).readBinary(); will(returnValue(ByteBuffer.allocate(1)))
             endRead(e, protocol)
           }
 
@@ -944,9 +949,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             import e._
             startRead(e, protocol, new TField("raptor", TType.STRUCT, 1))
             startRead(e, protocol, new TField("isOwl", TType.BOOL, 1))
-            one(protocol).readBool(); will(returnValue(false))
+            e.oneOf(protocol).readBool(); will(returnValue(false))
             nextRead(e, protocol, new TField("species", TType.STRING, 2))
-            one(protocol).readString(); will(returnValue("peregrine"))
+            e.oneOf(protocol).readString(); will(returnValue("peregrine"))
             endRead(e, protocol)
             endRead(e, protocol)
           }
@@ -963,9 +968,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
             import e._
             startWrite(e, protocol, new TField("raptor", TType.STRUCT, 1))
             startWrite(e, protocol, new TField("isOwl", TType.BOOL, 1))
-            one(protocol).writeBool(`with`(true))
+            e.oneOf(protocol).writeBool(`with`(true))
             nextWrite(e, protocol, new TField("species", TType.STRING, 2))
-            one(protocol).writeString(`with`("Tyto alba"))
+            e.oneOf(protocol).writeString(`with`("Tyto alba"))
             endWrite(e, protocol)
             endWrite(e, protocol)
           }
@@ -983,11 +988,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startRead(e, protocol, new TField("flock", TType.LIST, 4))
-            one(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 3)))
-            one(protocol).readString(); will(returnValue("starling"))
-            one(protocol).readString(); will(returnValue("kestrel"))
-            one(protocol).readString(); will(returnValue("warbler"))
-            one(protocol).readListEnd()
+            e.oneOf(protocol).readListBegin(); will(returnValue(new TList(TType.STRING, 3)))
+            e.oneOf(protocol).readString(); will(returnValue("starling"))
+            e.oneOf(protocol).readString(); will(returnValue("kestrel"))
+            e.oneOf(protocol).readString(); will(returnValue("warbler"))
+            e.oneOf(protocol).readListEnd()
             endRead(e, protocol)
           }
 
@@ -1002,11 +1007,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           expecting { e =>
             import e._
             startWrite(e, protocol, new TField("flock", TType.LIST, 4))
-            one(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 3))))
-            one(protocol).writeString(`with`("starling"))
-            one(protocol).writeString(`with`("kestrel"))
-            one(protocol).writeString(`with`("warbler"))
-            one(protocol).writeListEnd()
+            e.oneOf(protocol).writeListBegin(`with`(listEqual(new TList(TType.STRING, 3))))
+            e.oneOf(protocol).writeString(`with`("starling"))
+            e.oneOf(protocol).writeString(`with`("kestrel"))
+            e.oneOf(protocol).writeString(`with`("warbler"))
+            e.oneOf(protocol).writeListEnd()
             endWrite(e, protocol)
           }
 
@@ -1248,7 +1253,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     }
 
     "generate inherited services correctly" in { _ =>
-      val dddService = Ddd.ServiceIface(
+      val dddService = Ddd.ServicePerEndpoint(
         delete = new Service[Ddd.Delete.Args, Ddd.Delete.SuccessType] {
           def apply(args: Ddd.Delete.Args) = Future.value(args.input)
         },

@@ -45,9 +45,10 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
         case ctfs.ResponseClass.Failed(_) =>
           {{__stats_name}}.FailuresCounter.incr()
           response match {
-            case Throw(ex) =>
+            case _root_.com.twitter.util.Throw(ex) =>
               setServiceName(ex)
-              {{__stats_name}}.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
+              {{__stats_name}}.FailuresScope.counter(
+                _root_.com.twitter.util.Throwables.mkString(ex): _*).incr()
             case _ =>
           }
       }

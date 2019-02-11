@@ -468,7 +468,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     v(code)
   }
 
-  def genType(t: FunctionType): CodeFragment
+  def genType(t: FunctionType, immutable: Boolean = false): CodeFragment
 
   def genPrimitiveType(t: FunctionType): CodeFragment
 

@@ -12,6 +12,9 @@ Unreleased
 
 * Update asm, cglib, jmock dependencies ``PHAB_ID=D250175``
 
+* scrooge-generator: Add an `immutable` argument to `Generator#genType` that makes it easier to use
+  immutable types when generating constants. ``PHAB_ID=D270863``
+
 18.12.0
 -------
 

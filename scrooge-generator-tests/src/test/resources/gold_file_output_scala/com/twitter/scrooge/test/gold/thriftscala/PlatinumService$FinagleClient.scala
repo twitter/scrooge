@@ -6,19 +6,11 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.finagle.SourcedException
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{Protocols,RichClientParam, ThriftClientRequest}
-import com.twitter.scrooge.{TReusableBuffer, ThriftStruct, ThriftStructCodec}
-import com.twitter.util.{Future, Return, Throw, Throwables}
-import java.nio.ByteBuffer
-import java.util.Arrays
+import com.twitter.finagle.thrift.{Protocols, RichClientParam, ThriftClientRequest}
+import com.twitter.util.Future
 import org.apache.thrift.protocol._
-import org.apache.thrift.TApplicationException
-import org.apache.thrift.transport.TMemoryInputTransport
-import scala.collection.{Map, Set}
-import scala.language.higherKinds
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -106,9 +98,10 @@ class PlatinumService$FinagleClient(
           case ctfs.ResponseClass.Failed(_) =>
             __stats_moreCoolThings.FailuresCounter.incr()
             response match {
-              case Throw(ex) =>
+              case _root_.com.twitter.util.Throw(ex) =>
                 setServiceName(ex)
-                __stats_moreCoolThings.FailuresScope.counter(Throwables.mkString(ex): _*).incr()
+                __stats_moreCoolThings.FailuresScope.counter(
+                  _root_.com.twitter.util.Throwables.mkString(ex): _*).incr()
               case _ =>
             }
         }

@@ -61,47 +61,48 @@ trait EvalHelper {
 
   def emptyRead(expectations: Expectations, protocol: TProtocol): Unit = {
     import expectations._
-    one(protocol).readStructBegin()
-    one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
-    one(protocol).readStructEnd()
+    expectations.oneOf(protocol).readStructBegin()
+    expectations.oneOf(protocol).readFieldBegin();
+    will(returnValue(new TField("stop", TType.STOP, 10)))
+    expectations.oneOf(protocol).readStructEnd()
   }
 
   def startRead(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
-    one(protocol).readStructBegin()
-    one(protocol).readFieldBegin(); will(returnValue(field))
+    expectations.oneOf(protocol).readStructBegin()
+    expectations.oneOf(protocol).readFieldBegin(); will(returnValue(field))
   }
 
   def nextRead(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
-    one(protocol).readFieldEnd()
-    one(protocol).readFieldBegin(); will(returnValue(field))
+    expectations.oneOf(protocol).readFieldEnd()
+    expectations.oneOf(protocol).readFieldBegin(); will(returnValue(field))
   }
 
   def endRead(expectations: Expectations, protocol: TProtocol): Unit = {
     import expectations._
-    one(protocol).readFieldEnd()
-    one(protocol).readFieldBegin(); will(returnValue(new TField("stop", TType.STOP, 10)))
-    one(protocol).readStructEnd()
+    expectations.oneOf(protocol).readFieldEnd()
+    expectations.oneOf(protocol).readFieldBegin();
+    will(returnValue(new TField("stop", TType.STOP, 10)))
+    expectations.oneOf(protocol).readStructEnd()
   }
 
   def startWrite(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
-    one(protocol).writeStructBegin(`with`(any(classOf[TStruct])))
-    one(protocol).writeFieldBegin(`with`(fieldEqual(field)))
+    expectations.oneOf(protocol).writeStructBegin(`with`(any(classOf[TStruct])))
+    expectations.oneOf(protocol).writeFieldBegin(`with`(fieldEqual(field)))
   }
 
   def nextWrite(expectations: Expectations, protocol: TProtocol, field: TField): Unit = {
     import expectations._
-    one(protocol).writeFieldEnd()
-    one(protocol).writeFieldBegin(`with`(fieldEqual(field)))
+    expectations.oneOf(protocol).writeFieldEnd()
+    expectations.oneOf(protocol).writeFieldBegin(`with`(fieldEqual(field)))
   }
 
   def endWrite(expectations: Expectations, protocol: TProtocol): Unit = {
-    import expectations._
-    one(protocol).writeFieldEnd()
-    one(protocol).writeFieldStop()
-    one(protocol).writeStructEnd()
+    expectations.oneOf(protocol).writeFieldEnd()
+    expectations.oneOf(protocol).writeFieldStop()
+    expectations.oneOf(protocol).writeStructEnd()
   }
 
   def encodeRequest(name: String, args: ThriftStruct): ThriftClientRequest = {

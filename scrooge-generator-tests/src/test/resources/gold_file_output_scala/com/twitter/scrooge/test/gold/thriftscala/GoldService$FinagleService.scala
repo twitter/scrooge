@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.{
   Filter => _,
-  Service => finagle$Service,
   thrift => _,
   _
 }
@@ -19,9 +18,6 @@ import com.twitter.util.Future
 import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
-import scala.collection.mutable.{HashMap => mutable$HashMap}
-
-import scala.language.higherKinds
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -59,9 +55,10 @@ class GoldService$FinagleService(
 
   private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
 
-  protected val serviceMap: mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]] = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
+  protected val serviceMap: _root_.scala.collection.mutable.HashMap[String, _root_.com.twitter.finagle.Service[(TProtocol, Int), Array[Byte]]] =
+    new _root_.scala.collection.mutable.HashMap[String, _root_.com.twitter.finagle.Service[(TProtocol, Int), Array[Byte]]]()
 
-  protected def addService(name: String, service: finagle$Service[(TProtocol, Int), Array[Byte]]): Unit = {
+  protected def addService(name: String, service: _root_.com.twitter.finagle.Service[(TProtocol, Int), Array[Byte]]): Unit = {
     serviceMap(name) = service
   }
 
@@ -88,7 +85,7 @@ class GoldService$FinagleService(
   // ---- end boilerplate.
 
   addService("doGreatThings", {
-    val methodService = new finagle$Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
+    val methodService = new _root_.com.twitter.finagle.Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
         if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
           _root_.com.twitter.finagle.tracing.Trace.recordRpc("doGreatThings")

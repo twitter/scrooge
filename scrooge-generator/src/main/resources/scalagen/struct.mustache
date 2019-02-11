@@ -3,32 +3,29 @@ package {{package}}
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+{{^isException}}
   LazyTProtocol,
+{{/isException}}
   TFieldBlob,
-  ThriftException,
   ThriftStruct,
+{{^isException}}
   ThriftStructCodec3,
+{{/isException}}
   ThriftStructFieldInfo,
+{{^isException}}
   ThriftStructMetaData,
-  ThriftUtil,
+{{/isException}}
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
-{{#adapt}}
+{{#adapt}}{{^isException}}
 import com.twitter.scrooge.adapt.{AccessRecorder, AdaptTProtocol, Decoder}
-{{/adapt}}
+{{/isException}}{{/adapt}}
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TTransport, TIOStreamTransport}
-import java.io.ByteArrayInputStream
-import java.nio.ByteBuffer
-import java.util.Arrays
-import java.util.concurrent.atomic.AtomicInteger
+import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.mutable.{
-  ArrayBuffer => mutable$ArrayBuffer, Buffer => mutable$Buffer,
-  HashMap => mutable$HashMap, HashSet => mutable$HashSet}
-import scala.collection.{Map, Set}
+import scala.collection.Map
 
 {{/public}}
 {{docstring}}
@@ -613,7 +610,9 @@ class {{StructName}}(
    */
   def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
     lazy val _buff = new TMemoryBuffer(32)
+{{#hasFields}}
     lazy val _oprot = new TCompactProtocol(_buff)
+{{/hasFields}}
     _passthroughFields.get(_fieldId) match {
       case blob: _root_.scala.Some[TFieldBlob] => blob
       case _root_.scala.None => {
@@ -819,11 +818,13 @@ class {{StructName}}(
       _equals(this, other.asInstanceOf[{{StructName}}])
 
   override def hashCode: Int = {
-    var hash = _root_.scala.runtime.ScalaRunTime._hashCode(this)
 {{#hasFailureFlags}}
-    hash = 31 * hash + _root_.java.lang.Long.hashCode(this.flags)
+    31 * _root_.scala.runtime.ScalaRunTime._hashCode(this) +
+      _root_.java.lang.Long.hashCode(this.flags)
 {{/hasFailureFlags}}
-    hash
+{{^hasFailureFlags}}
+    _root_.scala.runtime.ScalaRunTime._hashCode(this)
+{{/hasFailureFlags}}
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
@@ -936,14 +937,16 @@ private class {{StructName}}__Adapt(
     _buf: Array[Byte],
     _start_offset: Int) extends {{StructName}} {
 
+{{#hasFields}}
   /**
    * In case any unexpected field is accessed, fallback to eager decoding.
    */
   private[this] lazy val delegate: {{StructName}} = {
-    val bytes = Arrays.copyOfRange(_buf, _start_offset, _end_offset)
+    val bytes = _root_.java.util.Arrays.copyOfRange(_buf, _start_offset, _end_offset)
     val proto = _proto.withBytes(bytes)
     {{StructName}}.eagerDecode(proto)
   }
+{{/hasFields}}
 
 {{#fields}}
   private[this] var {{memberName}}: {{>optionalType}} = _

@@ -382,10 +382,12 @@ trait StructTemplate { self: TemplateGenerator =>
     genAdapt: Boolean,
     toplevel: Boolean = false // True if this struct is defined in its own file. False for internal structs.
   ): Dictionary = {
+    val fullyQualifiedThriftExn = "_root_.com.twitter.scrooge.ThriftException"
+    val fullyQualifiedSourcedExn = "_root_.com.twitter.finagle.SourcedException"
     val parentType = struct match {
       case e: Exception_ if serviceOptions.contains(WithFinagle) =>
-        "ThriftException with com.twitter.finagle.SourcedException with ThriftStruct"
-      case e: Exception_ => "ThriftException with ThriftStruct"
+        s"$fullyQualifiedThriftExn with $fullyQualifiedSourcedExn with ThriftStruct"
+      case e: Exception_ => s"$fullyQualifiedThriftExn with ThriftStruct"
       case u: Union => "ThriftUnion\n  with ThriftStruct"
       case result: FunctionResult =>
         val resultType = getSuccessType(result)
@@ -431,6 +433,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "docstring" -> v(struct.docstring.getOrElse("")),
       "parentType" -> v(parentType),
       "fields" -> v(fieldDictionaries),
+      "hasFields" -> v(fieldDictionaries.nonEmpty),
       "nonOptionalFields" -> v(nonOptionalFieldDictionaries),
       "defaultFields" -> v(fieldsToDict(struct.fields.filter(!_.requiredness.isOptional), Nil)),
       "alternativeConstructor" -> v(

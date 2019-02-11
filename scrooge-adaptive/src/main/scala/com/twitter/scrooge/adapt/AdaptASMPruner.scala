@@ -263,7 +263,7 @@ private[adapt] object AdaptAsmPruner {
     val iter = di.iterator
     while (iter.hasNext) {
 
-      /**
+      /*
        * Each field has sections in the template for when it is used or unused.
        * Based on whether the field is used we keep corresponding section and
        * delete the other.

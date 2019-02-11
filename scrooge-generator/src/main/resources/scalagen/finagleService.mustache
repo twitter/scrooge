@@ -2,20 +2,20 @@ package {{package}}
 
 import com.twitter.finagle.{
   Filter => _,
-  Service => finagle$Service,
   thrift => _,
   _
 }
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
 import com.twitter.finagle.thrift.RichServerParam
+{{^hasParent}}
 import com.twitter.io.Buf
+{{/hasParent}}
 import com.twitter.util.Future
 import org.apache.thrift.protocol._
+{{^hasParent}}
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
-import scala.collection.mutable.{HashMap => mutable$HashMap}
-
-import scala.language.higherKinds
+{{/hasParent}}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -23,7 +23,14 @@ class {{ServiceName}}$FinagleService(
   iface: {{ServiceName}}[Future],
   serverParam: RichServerParam
 ) extends {{finagleServiceParent}}{{#hasParent}}(iface, serverParam){{/hasParent}} {
+{{#hasMethodServices}}
   import {{ServiceName}}._
+{{/hasMethodServices}}
+{{^hasMethodServices}}
+{{^hasParent}}
+  import {{ServiceName}}._
+{{/hasParent}}
+{{/hasMethodServices}}
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
@@ -49,14 +56,22 @@ class {{ServiceName}}$FinagleService(
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
   {{#hasParent}}override {{/hasParent}}def serviceName: String = serverParam.serviceName
+{{#hasMethodServices}}
   private[this] val filters = new Filter(serverParam)
+{{/hasMethodServices}}
+{{^hasMethodServices}}
+{{^hasParent}}
+  private[this] val filters = new Filter(serverParam)
+{{/hasParent}}
+{{/hasMethodServices}}
 
 {{^hasParent}}
   private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
 
-  protected val serviceMap: mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]] = new mutable$HashMap[String, finagle$Service[(TProtocol, Int), Array[Byte]]]()
+  protected val serviceMap: _root_.scala.collection.mutable.HashMap[String, _root_.com.twitter.finagle.Service[(TProtocol, Int), Array[Byte]]] =
+    new _root_.scala.collection.mutable.HashMap[String, _root_.com.twitter.finagle.Service[(TProtocol, Int), Array[Byte]]]()
 
-  protected def addService(name: String, service: finagle$Service[(TProtocol, Int), Array[Byte]]): Unit = {
+  protected def addService(name: String, service: _root_.com.twitter.finagle.Service[(TProtocol, Int), Array[Byte]]): Unit = {
     serviceMap(name) = service
   }
 
