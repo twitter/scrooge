@@ -1032,10 +1032,11 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       val memoryBuffer = tlReusableBuffer.get()
       try {
         val oprot = protocolFactory.getProtocol(memoryBuffer)
-
+        val start = System.nanoTime
         oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid))
         result.write(oprot)
         oprot.writeMessageEnd()
+        _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
         oprot.getTransport().flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
@@ -1171,8 +1172,10 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         ): Future[RichResponse[MoreCoolThings.Args, MoreCoolThings.Result]] = {
           val iprot = request._1
           val seqid = request._2
+          val start = System.nanoTime
           val args = MoreCoolThings.Args.decode(iprot)
           iprot.readMessageEnd()
+          _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
           val res = _root_.com.twitter.finagle.context.Contexts.local.let(
             _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
             _root_.com.twitter.finagle.thrift.MethodMetadata(MoreCoolThings)) {

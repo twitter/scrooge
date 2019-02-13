@@ -30,8 +30,10 @@ val {{methodSvcNameForCompile}}: finagle$Filter[(TProtocol, Int), Array[Byte], {
     ): Future[RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]] = {
       val iprot = request._1
       val seqid = request._2
+      val start = System.nanoTime
       val args = {{funcObjectName}}.Args.decode(iprot)
       iprot.readMessageEnd()
+      _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
       val res = _root_.com.twitter.finagle.context.Contexts.local.let(
         _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
         _root_.com.twitter.finagle.thrift.MethodMetadata({{funcObjectName}})) {

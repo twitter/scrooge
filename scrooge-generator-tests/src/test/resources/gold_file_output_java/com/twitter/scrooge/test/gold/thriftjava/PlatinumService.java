@@ -398,8 +398,10 @@ public class PlatinumService {
             moreCoolThings_args args = new moreCoolThings_args();
 
             try {
+              long start = System.nanoTime();
               args.read(iprot);
               iprot.readMessageEnd();
+              com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime() - start);
             } catch (Exception e) {
               return Future.exception(e);
             }
@@ -506,12 +508,14 @@ public class PlatinumService {
 
     private Future<byte[]> reply(String name, Integer seqid, TBase result) {
       try {
+        long start = System.nanoTime();
         TReusableMemoryTransport memoryBuffer = tlReusableBuffer.get();
         TProtocol oprot = protocolFactory.getProtocol(memoryBuffer);
 
         oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
+        com.twitter.finagle.tracing.Trace.recordBinary("srv/response_serialization_ns", System.nanoTime() - start);
 
         return Future.value(Arrays.copyOf(memoryBuffer.getArray(), memoryBuffer.length()));
       } catch (Exception e) {
