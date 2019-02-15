@@ -73,7 +73,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 {{#generateServiceIface}}
   trait ServicePerEndpoint
     extends {{#parent}}{{parent}}.ServicePerEndpoint{{/parent}}{{^parent}}ToThriftService{{/parent}}
-    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServicePerEndpoint] {
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ServicePerEndpoint] {
 {{#ownFunctions}}
     def {{dedupedFuncName}} : _root_.com.twitter.finagle.Service[self.{{funcObjectName}}.Args, self.{{funcObjectName}}.SuccessType]
 {{/ownFunctions}}
@@ -249,7 +249,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 {{/inheritedFunctions|,}}
   ) extends {{#parent}}{{parent}}.BaseServiceIface
     with {{/parent}}BaseServiceIface
-    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ServiceIface] {
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
@@ -271,7 +271,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       ): ServicePerEndpoint =
         ServicePerEndpoint(
 {{#inheritedFunctions}}
-          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             {{ParentServiceName}}.{{funcObjectName}},
             thriftService,
             clientParam
@@ -302,7 +302,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       ): ServiceIface =
         ServiceIface(
 {{#inheritedFunctions}}
-          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          {{dedupedFuncName}} = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             {{ParentServiceName}}.{{funcObjectName}},
             binaryService,
             clientParam

@@ -55,7 +55,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
   trait ServicePerEndpoint
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.ServicePerEndpoint
-    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServicePerEndpoint] {
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ServicePerEndpoint] {
     def moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]
 
     def withMoreCoolThings(moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]): ServicePerEndpoint = this
@@ -207,7 +207,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
   ) extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface
     with BaseServiceIface
-    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ServiceIface] {
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
@@ -227,12 +227,12 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         clientParam: RichClientParam
       ): ServicePerEndpoint =
         ServicePerEndpoint(
-          moreCoolThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          moreCoolThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             self.MoreCoolThings,
             thriftService,
             clientParam
           ),
-          doGreatThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
             thriftService,
             clientParam
@@ -260,12 +260,12 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         clientParam: RichClientParam
       ): ServiceIface =
         ServiceIface(
-          moreCoolThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          moreCoolThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             self.MoreCoolThings,
             binaryService,
             clientParam
           ),
-          doGreatThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
             binaryService,
             clientParam

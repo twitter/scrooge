@@ -57,7 +57,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
   trait ServicePerEndpoint
     extends ToThriftService
-    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServicePerEndpoint] {
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ServicePerEndpoint] {
     def doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
 
     def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]): ServicePerEndpoint = this
@@ -182,7 +182,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   case class ServiceIface(
     doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
   ) extends BaseServiceIface
-    with _root_.com.twitter.finagle.thrift.ThriftServiceIface.Filterable[ServiceIface] {
+    with _root_.com.twitter.finagle.thrift.service.Filterable[ServiceIface] {
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
@@ -201,7 +201,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         clientParam: RichClientParam
       ): ServicePerEndpoint =
         ServicePerEndpoint(
-          doGreatThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             self.DoGreatThings,
             thriftService,
             clientParam
@@ -228,7 +228,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         clientParam: RichClientParam
       ): ServiceIface =
         ServiceIface(
-          doGreatThings = _root_.com.twitter.finagle.thrift.ThriftServiceIface(
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             self.DoGreatThings,
             binaryService,
             clientParam
