@@ -7,6 +7,11 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+19.2.0
+-------
+
+No Changes
+
 19.1.0
 -------
 
@@ -38,8 +43,8 @@ Unreleased
 18.9.1
 ------
 
-* scrooge: Finally remove `maven.twttr.com` as a dependency or plugin repository. With 
-  the update to a more recent libthrift dependency, this should no longer be necessary. 
+* scrooge: Finally remove `maven.twttr.com` as a dependency or plugin repository. With
+  the update to a more recent libthrift dependency, this should no longer be necessary.
   ``PHAB_ID=D219665``
 
 18.9.0
@@ -56,7 +61,7 @@ New Features
 ------
 
 * scrooge-core: Add interface for Scala generated Enum objects. ``PHAB_ID=D197147``
- 
+
 * scrooge-core: Trait `c.t.scrooge.ThriftService` is now `c.t.finagle.thrift.ThriftServiceMarker`.
   Scrooge generated service objects now all inherit from `c.t.finagle.thrift.ThriftService`. Also,
   the `AsClosableMethodName` string was formerly part of `c.t.finagle.thrift.ThriftService`, but
