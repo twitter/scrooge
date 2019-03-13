@@ -1,9 +1,9 @@
 resolvers += Resolver.url(
   "bintray-sbt-plugin-releases",
-   url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+   url("https://dl.bintray.com/content/sbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-resolvers += "maven" at "http://repo1.maven.org/maven2/"
+resolvers += "maven" at "https://repo1.maven.org/maven2/"
 
 resolvers += Classpaths.sbtPluginReleases
 
