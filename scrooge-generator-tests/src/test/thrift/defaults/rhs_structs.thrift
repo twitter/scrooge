@@ -51,6 +51,7 @@ const list<StructB> ListOfComplexStructs = [
 union SimpleUnion {
   1: i32 a,
   2: string b
+  3: string STRING
 }
 
 const SimpleUnion sss = { "a": 3 }
