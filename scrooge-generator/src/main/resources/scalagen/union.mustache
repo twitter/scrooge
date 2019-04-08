@@ -105,16 +105,16 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
   val {{fieldConst}}Manifest: Manifest[{{FieldName}}] = implicitly[Manifest[{{FieldName}}]]
 {{/fields}}
 
-  lazy val structAnnotations: immutable$Map[String, String] =
+  lazy val structAnnotations: immutable$Map[java.lang.String, java.lang.String] =
 {{#structAnnotations}}
-    immutable$Map[String, String](
+    immutable$Map[java.lang.String, java.lang.String](
 {{#pairs}}
         "{{key}}" -> "{{value}}"
 {{/pairs|,}}
     )
 {{/structAnnotations}}
 {{^structAnnotations}}
-    immutable$Map.empty[String, String]
+    immutable$Map.empty[java.lang.String, java.lang.String]
 {{/structAnnotations}}
 
   /**
@@ -169,7 +169,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
         ),
 {{/fieldTypeAnnotations}}
 {{^fieldTypeAnnotations}}
-        immutable$Map.empty[String, String],
+        immutable$Map.empty[java.lang.String, java.lang.String],
 {{/fieldTypeAnnotations}}
 {{#fieldFieldAnnotations}}
         immutable$Map(
@@ -179,7 +179,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
         )
 {{/fieldFieldAnnotations}}
 {{^fieldFieldAnnotations}}
-        immutable$Map.empty[String, String]
+        immutable$Map.empty[java.lang.String, java.lang.String]
 {{/fieldFieldAnnotations}}
       )
   }

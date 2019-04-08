@@ -112,8 +112,8 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
   val DetailsField: TField = new TField("details", TType.STRING, 2)
   val DetailsFieldManifest: Manifest[Details] = implicitly[Manifest[Details]]
 
-  lazy val structAnnotations: immutable$Map[String, String] =
-    immutable$Map[String, String](
+  lazy val structAnnotations: immutable$Map[java.lang.String, java.lang.String] =
+    immutable$Map[java.lang.String, java.lang.String](
         "u.annotation" -> "y"
     )
 
@@ -161,8 +161,8 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
         manifest[IdAlias],
         IdKeyTypeManifest,
         IdValueTypeManifest,
-        immutable$Map.empty[String, String],
-        immutable$Map.empty[String, String]
+        immutable$Map.empty[java.lang.String, java.lang.String],
+        immutable$Map.empty[java.lang.String, java.lang.String]
       )
   }
 
@@ -202,7 +202,7 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
         manifest[DetailsAlias],
         DetailsKeyTypeManifest,
         DetailsValueTypeManifest,
-        immutable$Map.empty[String, String],
+        immutable$Map.empty[java.lang.String, java.lang.String],
         immutable$Map(
           "u.field.annotation" -> "x"
         )
