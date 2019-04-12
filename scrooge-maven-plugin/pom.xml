@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.twitter</groupId>
   <artifactId>scrooge-maven-plugin</artifactId>
@@ -9,7 +9,7 @@
   <prerequisites>
     <maven>3.0.4</maven>
   </prerequisites>
-  <url>http://github.com/twitter/scrooge</url>
+  <url>https://github.com/twitter/scrooge</url>
   <description>A Thrift generator for Scala</description>
   <scm>
     <connection>scm:git:git@github.com:twitter/scrooge.git</connection>
@@ -19,7 +19,7 @@
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
   <distributionManagement>
@@ -279,7 +279,7 @@
     <repository>
       <id>maven.central</id>
       <name>Maven Central</name>
-      <url>http://repo1.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
     </repository>
   </repositories>
   <reporting>

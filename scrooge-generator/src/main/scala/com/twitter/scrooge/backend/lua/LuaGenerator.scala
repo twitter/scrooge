@@ -167,7 +167,7 @@ class LuaGenerator(
   // Finds all struct types that may be referenced by the given struct or by container types (list,
   // map, set) including nested container types to arbitrary depths.
   // `excludeSelfType` is the SimpleID of the self type such that we avoid adding a require statement
-  // for self-type references that were introduced in http://go/rb/873802.
+  // for self-type references that were introduced in go/rb/873802.
   private[this] def findRequireableStructTypes(
     ft: FieldType,
     excludeSelfType: SimpleID

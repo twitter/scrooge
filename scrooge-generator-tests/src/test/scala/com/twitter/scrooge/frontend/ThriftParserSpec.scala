@@ -804,7 +804,7 @@ enum Foo
     }
 
     "Apache-compatible annotations" in {
-      // see http://svn.apache.org/viewvc/thrift/trunk/test/AnnotationTest.thrift?view=markup&pathrev=1386848
+      // see https://svn.apache.org/viewvc/thrift/trunk/test/AnnotationTest.thrift?view=markup&pathrev=1386848
 
       parser.parse(
         """typedef list<i32> ( cpp.template = "std::list" ) int_linked_list""",
