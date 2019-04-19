@@ -5,7 +5,7 @@ Thrift is severely underspecified with respect to the handling of
 required/optional/unspecified-requiredness and default values in various cases
 such as serialization, deserialization, and new instance creation, and
 different implementations do different things (see
-`here <http://lionet.livejournal.com/66899.html>`_ for a good analysis).
+`here <https://lionet.livejournal.com/66899.html>`_ for a good analysis).
 
 Scrooge attempts to be as rigorous as possible in this regard with
 consistently applied and, hopefully, easy-to-understand rules.

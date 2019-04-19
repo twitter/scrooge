@@ -4,7 +4,7 @@ Scrooge
 .. image:: _static/scrooge.png
    :class: floatingflask
 
-Scrooge is a `thrift <http://thrift.apache.org/>`_ code generator written in
+Scrooge is a `thrift <https://thrift.apache.org/>`_ code generator written in
 Scala, which currently generates code for Scala, Java, Cocoa, Android and Lua.
 
 It's meant to be a replacement for the apache thrift code generator, and

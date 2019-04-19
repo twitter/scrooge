@@ -73,7 +73,7 @@ SBT 0.13.5 and above
 ~~~~~~~~~~~~~~~~~~~~
 
 The Scrooge SBT plugin now uses SBT's `auto plugin system
-<http://www.scala-sbt.org/0.13/docs/Plugins.html>`_, which is only available
+<https://www.scala-sbt.org/0.13/docs/Plugins.html>`_, which is only available
 for SBT 0.13.5 and later.
 
 Projects using  `build.sbt`
