@@ -66,7 +66,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
-    def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
+    def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
+      ServicePerEndpoint.apply(doGreatThings).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -92,7 +93,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
-    def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
+    def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
+      ReqRepServicePerEndpoint.apply(doGreatThings).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.

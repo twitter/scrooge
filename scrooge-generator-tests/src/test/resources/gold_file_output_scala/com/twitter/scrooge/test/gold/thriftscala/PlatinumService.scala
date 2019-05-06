@@ -66,7 +66,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
-    override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
+    override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
+      ServicePerEndpoint.apply(moreCoolThings, doGreatThings).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -94,7 +95,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
-    override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
+    override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
+      ReqRepServicePerEndpoint.apply(moreCoolThings, doGreatThings).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.

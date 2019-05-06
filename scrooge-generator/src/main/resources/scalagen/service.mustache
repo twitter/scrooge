@@ -90,7 +90,8 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
-    {{#parent}}override {{/parent}}def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint = this
+    {{#parent}}override {{/parent}}def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
+      ServicePerEndpoint.apply({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }}).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -126,7 +127,8 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
-    {{#parent}}override {{/parent}}def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint = this
+    {{#parent}}override {{/parent}}def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
+      ReqRepServicePerEndpoint.apply({{#inheritedFunctions}}{{dedupedFuncName}}{{/inheritedFunctions|, }}).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
