@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+19.5.0
+------
+
 * scrooge-generator: Extensions of (ReqRep)ServicePerEndpoint now provide a proper `filtered`
   method by default. ``PHAB_ID=D309920``
 
