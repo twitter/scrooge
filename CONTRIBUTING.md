@@ -13,6 +13,13 @@ you can use our build tool, [dodo](https://github.com/twitter/dodo).
 curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test scrooge
 ```
 
+## Building Scrooge
+
+Scrooge is built using [sbt][sbt]. When building please use the included
+[`./sbt`](https://github.com/twitter/scrooge/blob/develop/sbt) script which
+provides a thin wrapper over [sbt][sbt] and correctly sets memory and other
+settings.
+
 If you have any questions or run into any problems, please create
 an issue here, chat with us in [gitter](https://gitter.im/twitter/finagle), or email
 the Finaglers [mailing list](https://groups.google.com/forum/#!forum/finaglers).
@@ -214,6 +221,7 @@ requests that improve the existing Scaladocs!
 [8]: https://docs.scala-lang.org/style/scaladoc.html
 [es]: https://twitter.github.io/effectivescala/
 [funsuite]: https://www.scalatest.org/getting_started_with_fun_suite
+[sbt]: https://www.scala-sbt.org/
 [scalatest]: https://www.scalatest.org/
 [ssg]: https://docs.scala-lang.org/style/scaladoc.html
 [travis-ci]: https://travis-ci.org/twitter/scrooge
