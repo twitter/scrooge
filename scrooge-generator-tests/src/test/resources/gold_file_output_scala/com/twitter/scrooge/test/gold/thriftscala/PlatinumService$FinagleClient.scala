@@ -93,6 +93,7 @@ class PlatinumService$FinagleClient(
           ctfs.ReqRep(inputArgs, response),
           ctfs.ResponseClassifier.Default)
         responseClass match {
+          case ctfs.ResponseClass.Ignorable => // Do nothing.
           case ctfs.ResponseClass.Successful(_) =>
             __stats_moreCoolThings.SuccessCounter.incr()
           case ctfs.ResponseClass.Failed(_) =>

@@ -40,6 +40,7 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
         ctfs.ReqRep(inputArgs, response),
         ctfs.ResponseClassifier.Default)
       responseClass match {
+        case ctfs.ResponseClass.Ignorable => // Do nothing.
         case ctfs.ResponseClass.Successful(_) =>
           {{__stats_name}}.SuccessCounter.incr()
         case ctfs.ResponseClass.Failed(_) =>

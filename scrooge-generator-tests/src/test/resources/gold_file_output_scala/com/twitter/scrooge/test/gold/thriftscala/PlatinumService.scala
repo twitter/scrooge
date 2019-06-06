@@ -1096,6 +1096,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
         val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
         responseClass match {
+          case ctfs.ResponseClass.Ignorable => // Do nothing.
           case ctfs.ResponseClass.Successful(_) =>
             methodStats.successCounter.incr()
           case ctfs.ResponseClass.Failed(_) =>
