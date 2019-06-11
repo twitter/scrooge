@@ -1083,27 +1083,25 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         }
       }
 
-    private def recordRequest(method: ThriftMethod): Unit = {
-      if (perEndpointStats) {
-        val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
-        methodStats.requestsCounter.incr()
+    private def recordRequest(methodStats: Option[ThriftMethodStats]): Unit = {
+      methodStats.foreach { stats =>
+        stats.requestsCounter.incr()
       }
     }
 
-    private def recordResponse(reqRep: ctfs.ReqRep, method: ThriftMethod): Unit = {
+    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: Option[ThriftMethodStats]): Unit = {
       ServerToReqRep.setCtx(reqRep)
-      if (perEndpointStats) {
-        val methodStats = ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+      methodStats.foreach { stats =>
         val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
         responseClass match {
           case ctfs.ResponseClass.Ignorable => // Do nothing.
           case ctfs.ResponseClass.Successful(_) =>
-            methodStats.successCounter.incr()
+            stats.successCounter.incr()
           case ctfs.ResponseClass.Failed(_) =>
-            methodStats.failuresCounter.incr()
+            stats.failuresCounter.incr()
             reqRep.response match {
               case Throw(ex) =>
-                methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
+                stats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
               case _ =>
             }
         }
@@ -1113,29 +1111,35 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     final protected def perMethodStatsFilter(
       method: ThriftMethod
     ): finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] = {
+      val methodStats = if (perEndpointStats) {
+        Some(ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name)))
+      } else {
+        None
+      }
+
       new finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] {
         def apply(
           req: (TProtocol, Int),
           service: finagle$Service[(TProtocol, Int), RichResponse[method.Args, method.Result]]
         ): Future[Array[Byte]] = {
-          recordRequest(method)
+          recordRequest(methodStats)
           service(req).transform {
             case Return(value) =>
               value match {
                 case SuccessfulResponse(args, _, result) =>
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Return(result.successField.get)), method)
+                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Return(result.successField.get)), methodStats)
                 case ProtocolExceptionResponse(args, _, exp) =>
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(exp)), method)
+                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(exp)), methodStats)
                 case ThriftExceptionResponse(args, _, ex) =>
                   val rep = ex match {
                     case exp: ThriftException => setServiceName(exp)
                     case _ => missingResult(serviceName)
                   }
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(rep)), method)
+                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(rep)), methodStats)
               }
               Future.value(Buf.ByteArray.Owned.extract(value.response))
             case t @ Throw(_) =>
-              recordResponse(ctfs.ReqRep(req, t), method)
+              recordResponse(ctfs.ReqRep(req, t), methodStats)
               Future.const(t.cast[Array[Byte]])
           }
         }
