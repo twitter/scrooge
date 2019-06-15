@@ -955,6 +955,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           stats.counter("failures"),
           stats.scope("failures")
         )
+
+      val nullMethodStats = apply(com.twitter.finagle.stats.NullStatsReceiver)
     }
 
     private case class ThriftMethodStats(
@@ -982,28 +984,24 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         }
       }
 
-    private def recordRequest(methodStats: Option[ThriftMethodStats]): Unit = {
-      methodStats.foreach { stats =>
-        stats.requestsCounter.incr()
-      }
+    private def recordRequest(methodStats: ThriftMethodStats): Unit = {
+      methodStats.requestsCounter.incr()
     }
 
-    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: Option[ThriftMethodStats]): Unit = {
+    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: ThriftMethodStats): Unit = {
       ServerToReqRep.setCtx(reqRep)
-      methodStats.foreach { stats =>
-        val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
-        responseClass match {
-          case ctfs.ResponseClass.Ignorable => // Do nothing.
-          case ctfs.ResponseClass.Successful(_) =>
-            stats.successCounter.incr()
-          case ctfs.ResponseClass.Failed(_) =>
-            stats.failuresCounter.incr()
-            reqRep.response match {
-              case Throw(ex) =>
-                stats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
-              case _ =>
-            }
-        }
+      val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
+      responseClass match {
+        case ctfs.ResponseClass.Ignorable => // Do nothing.
+        case ctfs.ResponseClass.Successful(_) =>
+          methodStats.successCounter.incr()
+        case ctfs.ResponseClass.Failed(_) =>
+          methodStats.failuresCounter.incr()
+          reqRep.response match {
+            case Throw(ex) =>
+              methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
+            case _ =>
+          }
       }
     }
 
@@ -1011,9 +1009,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       method: ThriftMethod
     ): finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] = {
       val methodStats = if (perEndpointStats) {
-        Some(ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name)))
+        ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
       } else {
-        None
+        ThriftMethodStats.nullMethodStats
       }
 
       new finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] {
