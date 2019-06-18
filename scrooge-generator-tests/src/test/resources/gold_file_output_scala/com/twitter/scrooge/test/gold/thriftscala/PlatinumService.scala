@@ -1048,25 +1048,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       }
     }
 
-    private object ThriftMethodStats {
-      def apply(stats: StatsReceiver): ThriftMethodStats =
-        ThriftMethodStats(
-          stats.counter("requests"),
-          stats.counter("success"),
-          stats.counter("failures"),
-          stats.scope("failures")
-        )
-
-      val nullMethodStats = apply(com.twitter.finagle.stats.NullStatsReceiver)
-    }
-
-    private case class ThriftMethodStats(
-      requestsCounter: Counter,
-      successCounter: Counter,
-      failuresCounter: Counter,
-      failuresScope: StatsReceiver
-    )
-
     private def missingResult(name: String): TApplicationException = {
       new TApplicationException(
         TApplicationException.MISSING_RESULT,
@@ -1085,11 +1066,11 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         }
       }
 
-    private def recordRequest(methodStats: ThriftMethodStats): Unit = {
+    private def recordRequest(methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
       methodStats.requestsCounter.incr()
     }
 
-    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: ThriftMethodStats): Unit = {
+    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
       ServerToReqRep.setCtx(reqRep)
       val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
       responseClass match {
@@ -1110,9 +1091,9 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       method: ThriftMethod
     ): finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] = {
       val methodStats = if (perEndpointStats) {
-        ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
+        _root_.com.twitter.finagle.thrift.ThriftMethodStats((if (serviceName != "") stats.scope(serviceName) else stats).scope(method.name))
       } else {
-        ThriftMethodStats.nullMethodStats
+        _root_.com.twitter.finagle.thrift.ThriftMethodStats.Null
       }
 
       new finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[method.Args, method.Result]] {
