@@ -110,6 +110,17 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
     }
   }
 
+  /**
+   * Parsed annotations at the struct or union level. Left hand side of equal sign is the key,
+   * right side is the value.
+   */
+  val structAnnotations: Map[String, String] = {
+    codecClass
+      .getMethod("structAnnotations")
+      .invoke(codec)
+      .asInstanceOf[Map[String, String]]
+  }
+
 }
 
 final class ThriftStructField[T <: ThriftStruct](

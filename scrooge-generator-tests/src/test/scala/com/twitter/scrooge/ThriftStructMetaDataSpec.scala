@@ -122,6 +122,8 @@ class ThriftStructMetaDataSpec extends Spec {
 
   "reports no struct annotations" in {
     XtructColl.structAnnotations must be(Map.empty[String, String])
+
+    XtructColl.metaData.structAnnotations must equal(XtructColl.structAnnotations)
   }
 
   // AnnoStruct has one annotation in each position:
@@ -147,6 +149,8 @@ class ThriftStructMetaDataSpec extends Spec {
         "structKey" -> "structValue"
       )
     )
+
+    AnnoStruct.metaData.structAnnotations must equal(AnnoStruct.structAnnotations)
   }
 
   // MultiAnnoStruct has two annotations in each position:
@@ -175,6 +179,8 @@ class ThriftStructMetaDataSpec extends Spec {
         "structKey2" -> "structValue2"
       )
     )
+
+    MultiAnnoStruct.metaData.structAnnotations must equal(MultiAnnoStruct.structAnnotations)
   }
 
   "populates metaData for unions" in {
@@ -231,6 +237,8 @@ class ThriftStructMetaDataSpec extends Spec {
         "unionKey" -> "unionValue"
       )
     )
+
+    AnnoUnion.metaData.structAnnotations must equal(AnnoUnion.structAnnotations)
   }
 
   "contains union field annotations" in {
@@ -308,5 +316,23 @@ class ThriftStructMetaDataSpec extends Spec {
       info.valueManifest must be(Some(manifest[MatchingStructMap]))
     }
     0
+  }
+
+  // This test makes sure the method names that are used to reflectively pull struct annotations
+  // into ThriftStructMetadata do not change unexpectedly.
+  "pull struct annotations into ThriftStructMetaData" in {
+    AnnoUnion.getClass
+      .getMethod("structAnnotations")
+      .invoke(AnnoUnion)
+      .asInstanceOf[Map[String, String]] must equal(
+      AnnoUnion.metaData.structAnnotations
+    )
+
+    AnnoStruct.getClass
+      .getMethod("structAnnotations")
+      .invoke(AnnoStruct)
+      .asInstanceOf[Map[String, String]] must equal(
+      AnnoStruct.metaData.structAnnotations
+    )
   }
 }
