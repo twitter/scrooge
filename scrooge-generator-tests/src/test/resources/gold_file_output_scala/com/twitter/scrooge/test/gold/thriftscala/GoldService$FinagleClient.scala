@@ -37,14 +37,6 @@ class GoldService$FinagleClient(
     )
   )
 
-  @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
-  def this(
-    service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
-    protocolFactory: TProtocolFactory,
-    serviceName: String,
-    stats: StatsReceiver
-  ) = this(service, protocolFactory, serviceName, stats, ctfs.ResponseClassifier.Default)
-
   import GoldService._
 
   def serviceName: String = clientParam.serviceName

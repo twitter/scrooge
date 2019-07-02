@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: A deprecated `$FinagleClient` constructor which does not
+use `RichClientParam` has been removed. ``PHAB_ID=D335831``
+
 19.6.0
 ------
 
