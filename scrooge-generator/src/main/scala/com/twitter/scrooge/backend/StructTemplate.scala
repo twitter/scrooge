@@ -286,7 +286,9 @@ trait StructTemplate { self: TemplateGenerator =>
           "constructionOptionalType" -> v(templates("constructionOptionalType")),
           "withoutPassthrough" -> v(templates("withoutPassthrough")),
           "readWriteInfo" -> v(readWriteInfo(valueVariableID, field.fieldType)),
-          "valueVariableName" -> genID(valueVariableID)
+          "valueVariableName" -> genID(valueVariableID),
+          "first" -> v(fields.head.index == field.index),
+          "last" -> v(fields.last.index == field.index)
         )
     }
   }
