@@ -7,11 +7,14 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: The deprecated `ReqRepThriftServiceBuilder` has been
+  removed. ``PHAB_ID=D345740``
+
 19.7.0
 ------
 
 * scrooge-generator: A deprecated `$FinagleClient` constructor which does not
-use `RichClientParam` has been removed. ``PHAB_ID=D335831``
+  use `RichClientParam` has been removed. ``PHAB_ID=D335831``
 
 19.6.0
 ------

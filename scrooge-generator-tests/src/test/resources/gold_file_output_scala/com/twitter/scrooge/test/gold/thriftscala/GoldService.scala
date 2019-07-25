@@ -826,13 +826,6 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       ReqRepMethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use ReqRepMethodPerEndpointBuilder", "2018-01-12")
-  implicit object ReqRepThriftServiceBuilder
-    extends _root_.com.twitter.finagle.thrift.service.ReqRepThriftServiceBuilder[ReqRepServicePerEndpoint, GoldService[Future]] {
-    def build(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
-      ReqRepMethodPerEndpoint(servicePerEndpoint)
-  }
-
   @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
   implicit object MethodIfaceBuilder
     extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, GoldService[Future]] {

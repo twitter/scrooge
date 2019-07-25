@@ -926,13 +926,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       ReqRepMethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use ReqRepMethodPerEndpointBuilder", "2018-01-12")
-  implicit object ReqRepThriftServiceBuilder
-    extends _root_.com.twitter.finagle.thrift.service.ReqRepThriftServiceBuilder[ReqRepServicePerEndpoint, PlatinumService[Future]] {
-    def build(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
-      ReqRepMethodPerEndpoint(servicePerEndpoint)
-  }
-
   @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
   implicit object MethodIfaceBuilder
     extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, PlatinumService[Future]] {
