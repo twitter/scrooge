@@ -204,6 +204,7 @@ class ThriftParser(
   lazy val baseType: Parser[BaseType] = (
     "bool" ^^^ TBool |
       "byte" ^^^ TByte |
+      "i8" ^^^ TByte |
       "i16" ^^^ TI16 |
       "i32" ^^^ TI32 |
       "i64" ^^^ TI64 |
