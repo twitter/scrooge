@@ -62,7 +62,7 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
 
   protected def experimentFlags: Seq[String] = Seq.empty
   protected def language: String
-  protected def deleteTempFiles: Boolean = true
+  protected def deleteTempFiles: Boolean = false
 
   private def generatedFiles(f: File): Seq[File] = {
     def accumulate(f: File, buf: Vector[File]): Vector[File] = {

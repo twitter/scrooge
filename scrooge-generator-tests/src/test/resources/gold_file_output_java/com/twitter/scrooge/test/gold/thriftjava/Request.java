@@ -43,6 +43,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField REC_REQUEST_FIELD_DESC = new TField("recRequest", TType.STRUCT, (short)12);
   private static final TField REQUIRED_FIELD_FIELD_DESC = new TField("requiredField", TType.STRING, (short)13);
   private static final TField CONSTRUCTION_REQUIRED_FIELD_FIELD_DESC = new TField("constructionRequiredField", TType.I64, (short)14);
+  private static final TField AN_INT8_FIELD_DESC = new TField("anInt8", TType.BYTE, (short)15);
 
 
   public List<String> aList;
@@ -59,6 +60,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public Recursive recRequest;
   public String requiredField;
   public long constructionRequiredField;
+  public byte anInt8;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -75,7 +77,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     DOC_STRING_COMMENT((short)11, "docStringComment"),
     REC_REQUEST((short)12, "recRequest"),
     REQUIRED_FIELD((short)13, "requiredField"),
-    CONSTRUCTION_REQUIRED_FIELD((short)14, "constructionRequiredField");
+    CONSTRUCTION_REQUIRED_FIELD((short)14, "constructionRequiredField"),
+    AN_INT8((short)15, "anInt8");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -118,6 +121,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return REQUIRED_FIELD;
         case 14: // CONSTRUCTION_REQUIRED_FIELD
           return CONSTRUCTION_REQUIRED_FIELD;
+        case 15: // AN_INT8
+          return AN_INT8;
         default:
           return null;
       }
@@ -165,7 +170,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final int __SINGLEASTERISKCOMMENT_ISSET_ID = 3;
   private static final int __DOCSTRINGCOMMENT_ISSET_ID = 4;
   private static final int __CONSTRUCTIONREQUIREDFIELD_ISSET_ID = 5;
-  private BitSet __isset_bit_vector = new BitSet(6);
+  private static final int __ANINT8_ISSET_ID = 6;
+  private BitSet __isset_bit_vector = new BitSet(7);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   
@@ -217,6 +223,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new FieldValueMetaData(TType.STRING)));
     tmpMap.put(_Fields.CONSTRUCTION_REQUIRED_FIELD, new FieldMetaData("constructionRequiredField", TFieldRequirementType.OPTIONAL,
       new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.AN_INT8, new FieldMetaData("anInt8", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.BYTE)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
@@ -354,6 +362,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       this.requiredField = other.requiredField;
     }
     this.constructionRequiredField = other.constructionRequiredField;
+    this.anInt8 = other.anInt8;
   }
 
   public static List<String> validateNewInstance(Request item) {
@@ -413,6 +422,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.requiredField = null;
     setConstructionRequiredFieldIsSet(false);
     this.constructionRequiredField = 0;
+    setAnInt8IsSet(false);
+    this.anInt8 = 0;
   }
 
   public int getAListSize() {
@@ -815,6 +826,30 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, value);
   }
 
+  public byte getAnInt8() {
+    return this.anInt8;
+  }
+
+  public Request setAnInt8(byte anInt8) {
+    this.anInt8 = anInt8;
+    setAnInt8IsSet(true);
+
+    return this;
+  }
+
+  public void unsetAnInt8() {
+  __isset_bit_vector.clear(__ANINT8_ISSET_ID);
+  }
+
+  /** Returns true if field anInt8 is set (has been assigned a value) and false otherwise */
+  public boolean isSetAnInt8() {
+    return __isset_bit_vector.get(__ANINT8_ISSET_ID);
+  }
+
+  public void setAnInt8IsSet(boolean value) {
+    __isset_bit_vector.set(__ANINT8_ISSET_ID, value);
+  }
+
   @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
@@ -916,6 +951,13 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         setConstructionRequiredField((Long)value);
       }
       break;
+    case AN_INT8:
+      if (value == null) {
+        unsetAnInt8();
+      } else {
+        setAnInt8((Byte)value);
+      }
+      break;
     }
   }
 
@@ -949,6 +991,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return getRequiredField();
     case CONSTRUCTION_REQUIRED_FIELD:
       return new Long(getConstructionRequiredField());
+    case AN_INT8:
+      return new Byte(getAnInt8());
     }
     throw new IllegalStateException();
   }
@@ -988,6 +1032,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return isSetRequiredField();
     case CONSTRUCTION_REQUIRED_FIELD:
       return isSetConstructionRequiredField();
+    case AN_INT8:
+      return isSetAnInt8();
     }
     throw new IllegalStateException();
   }
@@ -1116,6 +1162,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (this.constructionRequiredField != that.constructionRequiredField)
         return false;
     }
+    boolean this_present_anInt8 = true && this.isSetAnInt8();
+    boolean that_present_anInt8 = true && that.isSetAnInt8();
+    if (this_present_anInt8 || that_present_anInt8) {
+      if (!(this_present_anInt8 && that_present_anInt8))
+        return false;
+      if (this.anInt8 != that.anInt8)
+        return false;
+    }
 
     return true;
   }
@@ -1164,6 +1218,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSetConstructionRequiredField()) {
       hashCode = 31 * hashCode + ((Long)constructionRequiredField).hashCode();
+    }
+    if (isSetAnInt8()) {
+      hashCode = 31 * hashCode + ((Byte)anInt8).hashCode();
     }
     return hashCode;
   }
@@ -1312,6 +1369,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSetConstructionRequiredField()) {
       lastComparison = TBaseHelper.compareTo(this.constructionRequiredField, typedOther.constructionRequiredField);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetAnInt8()).compareTo(typedOther.isSetAnInt8());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAnInt8()) {
+      lastComparison = TBaseHelper.compareTo(this.anInt8, typedOther.anInt8);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1483,6 +1550,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 15: // AN_INT8
+          if (field.type == TType.BYTE) {
+            this.anInt8 = iprot.readByte();
+            setAnInt8IsSet(true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -1601,6 +1676,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeI64(this.constructionRequiredField);
       oprot.writeFieldEnd();
     }
+    if (isSetAnInt8()) {
+      oprot.writeFieldBegin(AN_INT8_FIELD_DESC);
+      oprot.writeByte(this.anInt8);
+      oprot.writeFieldEnd();
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -1710,6 +1790,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!first) sb.append(", ");
       sb.append("constructionRequiredField:");
       sb.append(this.constructionRequiredField);
+      first = false;
+      }
+    if (isSetAnInt8()) {
+      if (!first) sb.append(", ");
+      sb.append("anInt8:");
+      sb.append(this.anInt8);
       first = false;
       }
     sb.append(")");

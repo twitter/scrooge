@@ -42,6 +42,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField REC_REQUEST_FIELD_DESC = new TField("recRequest", TType.STRUCT, (short)12);
   private static final TField REQUIRED_FIELD_FIELD_DESC = new TField("requiredField", TType.STRING, (short)13);
   private static final TField CONSTRUCTION_REQUIRED_FIELD_FIELD_DESC = new TField("constructionRequiredField", TType.I64, (short)14);
+  private static final TField AN_INT8_FIELD_DESC = new TField("anInt8", TType.BYTE, (short)15);
 
 
   private List<String> aList;
@@ -58,6 +59,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private Recursive recRequest;
   private String requiredField;
   private long constructionRequiredField;
+  private byte anInt8;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
@@ -74,7 +76,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     DOC_STRING_COMMENT((short)11, "docStringComment"),
     REC_REQUEST((short)12, "recRequest"),
     REQUIRED_FIELD((short)13, "requiredField"),
-    CONSTRUCTION_REQUIRED_FIELD((short)14, "constructionRequiredField");
+    CONSTRUCTION_REQUIRED_FIELD((short)14, "constructionRequiredField"),
+    AN_INT8((short)15, "anInt8");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -117,6 +120,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return REQUIRED_FIELD;
         case 14: // CONSTRUCTION_REQUIRED_FIELD
           return CONSTRUCTION_REQUIRED_FIELD;
+        case 15: // AN_INT8
+          return AN_INT8;
         default:
           return null;
       }
@@ -157,7 +162,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final int __SINGLEASTERISKCOMMENT_ISSET_ID = 3;
   private static final int __DOCSTRINGCOMMENT_ISSET_ID = 4;
   private static final int __CONSTRUCTIONREQUIREDFIELD_ISSET_ID = 5;
-  private BitSet __isset_bit_vector = new BitSet(6);
+  private static final int __ANINT8_ISSET_ID = 6;
+  private BitSet __isset_bit_vector = new BitSet(7);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   static {
@@ -195,6 +201,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new FieldValueMetaData(TType.STRING)));
     tmpMap.put(_Fields.CONSTRUCTION_REQUIRED_FIELD, new FieldMetaData("constructionRequiredField", TFieldRequirementType.OPTIONAL,
       new FieldValueMetaData(TType.I64)));
+    tmpMap.put(_Fields.AN_INT8, new FieldMetaData("anInt8", TFieldRequirementType.OPTIONAL,
+      new FieldValueMetaData(TType.BYTE)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
   }
@@ -218,7 +226,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       Long docStringComment,
       Recursive recRequest,
       String requiredField,
-      Long constructionRequiredField
+      Long constructionRequiredField,
+      Byte anInt8
   ) {
     this();
     if(aList != null) {
@@ -273,6 +282,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     if(constructionRequiredField != null) {
       this.constructionRequiredField = constructionRequiredField;
       __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, true);
+
+    }
+    if(anInt8 != null) {
+      this.anInt8 = anInt8;
+      __isset_bit_vector.set(__ANINT8_ISSET_ID, true);
 
     }
   }
@@ -334,6 +348,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       this.requiredField = other.requiredField;
     }
     this.constructionRequiredField = other.constructionRequiredField;
+    this.anInt8 = other.anInt8;
   }
 
   public static List<String> validateNewInstance(Request item) {
@@ -392,6 +407,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.requiredField = null;
     __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, false);
     this.constructionRequiredField = 0;
+    __isset_bit_vector.set(__ANINT8_ISSET_ID, false);
+    this.anInt8 = 0;
   }
 
   @SuppressWarnings("unchecked")
@@ -557,6 +574,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         __isset_bit_vector.set(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID, true);
       }
       break;
+    case AN_INT8:
+      if (value == null) {
+        __isset_bit_vector.clear(__ANINT8_ISSET_ID);
+      } else {
+        this.anInt8 = (Byte) value;
+        __isset_bit_vector.set(__ANINT8_ISSET_ID, true);
+      }
+      break;
     }
   }
 
@@ -590,6 +615,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return this.requiredField;
     case CONSTRUCTION_REQUIRED_FIELD:
       return new Long(this.constructionRequiredField);
+    case AN_INT8:
+      return new Byte(this.anInt8);
     }
     throw new IllegalStateException();
   }
@@ -639,6 +666,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       case CONSTRUCTION_REQUIRED_FIELD:
           Any rval_constructionRequiredField = (Any)((Long) getFieldValue(field));
           return rval_constructionRequiredField;
+      case AN_INT8:
+          Any rval_anInt8 = (Any)((Byte) getFieldValue(field));
+          return rval_anInt8;
       default:
         throw new IllegalStateException("Invalid field type");
     }
@@ -675,6 +705,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         return requiredField != null;
     case CONSTRUCTION_REQUIRED_FIELD:
         return __isset_bit_vector.get(__CONSTRUCTIONREQUIREDFIELD_ISSET_ID);
+    case AN_INT8:
+        return __isset_bit_vector.get(__ANINT8_ISSET_ID);
     }
     throw new IllegalStateException();
   }
@@ -803,6 +835,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (this.constructionRequiredField != that.constructionRequiredField)
         return false;
     }
+    boolean this_present_anInt8 = true && this.isSet(_Fields.AN_INT8);
+    boolean that_present_anInt8 = true && that.isSet(_Fields.AN_INT8);
+    if (this_present_anInt8 || that_present_anInt8) {
+      if (!(this_present_anInt8 && that_present_anInt8))
+        return false;
+      if (this.anInt8 != that.anInt8)
+        return false;
+    }
 
     return true;
   }
@@ -852,6 +892,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (true && (isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD))) {
         hashCode = 31 * hashCode + ((Long)constructionRequiredField).hashCode();
+    }
+    if (true && (isSet(_Fields.AN_INT8))) {
+        hashCode = 31 * hashCode + ((Byte)anInt8).hashCode();
     }
     return hashCode;
   }
@@ -1000,6 +1043,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSet(_Fields.CONSTRUCTION_REQUIRED_FIELD)) {
       lastComparison = TBaseHelper.compareTo(this.constructionRequiredField, typedOther.constructionRequiredField);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSet(_Fields.AN_INT8)).compareTo(typedOther.isSet(_Fields.AN_INT8));
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSet(_Fields.AN_INT8)) {
+      lastComparison = TBaseHelper.compareTo(this.anInt8, typedOther.anInt8);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1171,6 +1224,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case 15: // AN_INT8
+          if (field.type == TType.BYTE) {
+            this.anInt8 = iprot.readByte();
+            __isset_bit_vector.set(__ANINT8_ISSET_ID, true);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         default:
           TProtocolUtil.skip(iprot, field.type);
       }
@@ -1289,6 +1350,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeI64(this.constructionRequiredField);
       oprot.writeFieldEnd();
     }
+    if (isSet(_Fields.AN_INT8)) {
+      oprot.writeFieldBegin(AN_INT8_FIELD_DESC);
+      oprot.writeByte(this.anInt8);
+      oprot.writeFieldEnd();
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -1400,6 +1466,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       sb.append(this.constructionRequiredField);
       first = false;
       }
+    if (isSet(_Fields.AN_INT8)) {
+      if (!first) sb.append(", ");
+      sb.append("anInt8:");
+      sb.append(this.anInt8);
+      first = false;
+      }
     sb.append(")");
     return sb.toString();
   }
@@ -1425,6 +1497,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public static final _Fields REC_REQUEST = _Fields.REC_REQUEST;
   public static final _Fields REQUIRED_FIELD = _Fields.REQUIRED_FIELD;
   public static final _Fields CONSTRUCTION_REQUIRED_FIELD = _Fields.CONSTRUCTION_REQUIRED_FIELD;
+  public static final _Fields AN_INT8 = _Fields.AN_INT8;
 
   public static class Builder {
     private List<String> aList;
@@ -1441,6 +1514,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     private Recursive recRequest;
     private String requiredField;
     private Long constructionRequiredField;
+    private Byte anInt8;
   @SuppressWarnings("unchecked")
   public Builder set (_Fields field, Object value) {
     switch(field) {
@@ -1528,6 +1602,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         }
         break;
       }
+      case AN_INT8: {
+        if (value != null) {
+          this.anInt8 = (Byte) value;
+        }
+        break;
+      }
       default: {
         break;
       }
@@ -1595,7 +1675,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     if (this.requiredField == null) {
       throw new IllegalArgumentException("Required field 'requiredField' was not present! Struct: " + toString());
     }
-    return new Request(aList,aSet,aMap,aRequest,subRequests,hasDefault,noComment,doubleSlashComment,hashtagComment,singleAsteriskComment,docStringComment,recRequest,requiredField,constructionRequiredField);
+    return new Request(aList,aSet,aMap,aRequest,subRequests,hasDefault,noComment,doubleSlashComment,hashtagComment,singleAsteriskComment,docStringComment,recRequest,requiredField,constructionRequiredField,anInt8);
     }
   }
 }
