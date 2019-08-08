@@ -53,6 +53,9 @@
 @property (nonatomic) int64_t constructionRequiredField;
 @property (nonatomic, readonly) BOOL constructionRequiredFieldIsSet;
 
+@property (nonatomic) int8_t anInt8;
+@property (nonatomic, readonly) BOOL anInt8IsSet;
+
 
 - (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField;
 + (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error;

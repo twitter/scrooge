@@ -85,6 +85,7 @@ struct MyStruct {}
     }
 
     "base types" in {
+      parser.parse("i8", parser.fieldType) must be(TByte)
       parser.parse("i16", parser.fieldType) must be(TI16)
       parser.parse("i32", parser.fieldType) must be(TI32)
       parser.parse("i64", parser.fieldType) must be(TI64)

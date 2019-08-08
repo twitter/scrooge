@@ -41,6 +41,8 @@
     [ms appendFormat:@"%@ ", _requiredField];
     [ms appendString:@"constructionRequiredField:"];
     [ms appendFormat:@"%@ ", @(_constructionRequiredField)];
+    [ms appendString:@"anInt8:"];
+    [ms appendFormat:@"%@ ", @(_anInt8)];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
@@ -118,6 +120,9 @@
         if ([decoder containsValueForKey:@"14"]) {
             [self setConstructionRequiredField:(int64_t)[decoder decodeInt64ForKey:@"14"]];
         }
+        if ([decoder containsValueForKey:@"15"]) {
+            [self setAnInt8:(int8_t)[decoder decodeInt32ForKey:@"15"]];
+        }
     }
     return self;
 }
@@ -165,6 +170,9 @@
     }
     if (_constructionRequiredFieldIsSet) {
         [encoder encodeInt64:_constructionRequiredField forKey:@"14"];
+    }
+    if (_anInt8IsSet) {
+        [encoder encodeInt32:_anInt8 forKey:@"15"];
     }
 }
 
@@ -250,6 +258,12 @@
 {
     _constructionRequiredField = constructionRequiredField;
     _constructionRequiredFieldIsSet = YES;
+}
+
+- (void)setAnInt8:(int8_t)anInt8
+{
+    _anInt8 = anInt8;
+    _anInt8IsSet = YES;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -450,6 +464,16 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 15:
+                if (fieldType == TType_BYTE) {
+                    int8_t anInt8_item;
+                    anInt8_item = [inProtocol readByte];
+                    [self setAnInt8:anInt8_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -571,6 +595,12 @@
         [outProtocol writeFieldBeginWithName:@"constructionRequiredField" type:TType_I64 fieldID:14];
         int64_t constructionRequiredField_item = _constructionRequiredField;
         [outProtocol writeI64:constructionRequiredField_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_anInt8IsSet) {
+        [outProtocol writeFieldBeginWithName:@"anInt8" type:TType_BYTE fieldID:15];
+        int8_t anInt8_item = _anInt8;
+        [outProtocol writeByte:anInt8_item];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

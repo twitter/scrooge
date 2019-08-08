@@ -68,6 +68,7 @@ struct Request {
 
   13: required string requiredField
   14: optional i64 constructionRequiredField (construction_required = "true")
+  15: optional i8 anInt8
 } (s.annotation.one = "something", s.annotation.two = "other")
 
 struct Response {
