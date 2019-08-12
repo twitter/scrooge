@@ -63,7 +63,7 @@ class Compiler {
       new FileWriter(file)
     }
 
-    val importer = Importer(new File(".")) +: Importer(includePaths)
+    val importer = Importer(new File(".")) +: Importer(includePaths.toSeq)
 
     val isJava = language.equals("java")
     val documentCache = new TrieMap[String, Document]
@@ -82,7 +82,7 @@ class Compiler {
 
         if (verbose) println("+ Compiling %s".format(inputFile))
         val resolvedDoc = TypeResolver()(doc)
-        val generator = GeneratorFactory(language, resolvedDoc, defaultNamespace, experimentFlags)
+        val generator = GeneratorFactory(language, resolvedDoc, defaultNamespace, experimentFlags.toSeq)
 
         generator match {
           case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback

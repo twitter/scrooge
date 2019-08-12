@@ -399,7 +399,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{#fields}}
       {{fieldName}},
 {{/fields}}
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
 {{#hasConstructionRequiredFields}}
   def this(
@@ -415,7 +415,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
       {{fieldName}},
 {{/constructionRequired}}
 {{/fields}}
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
   def this(
 {{#fields}}
@@ -568,7 +568,7 @@ class {{StructName}}(
 {{#fields}}
     {{fieldName}},
 {{/fields}}
-    Map.empty
+    immutable$Map.empty
   )
 {{/withTrait}}
 {{#withTrait}}

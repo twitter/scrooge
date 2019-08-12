@@ -26,7 +26,7 @@ object Identifier {
     if (ids.size == 1)
       SimpleID(ids.head)
     else
-      QualifiedID(ids)
+      QualifiedID(ids.toIndexedSeq)
   }
 
   def toTitleCase(str: String): String = toCamelCase(str, true)
