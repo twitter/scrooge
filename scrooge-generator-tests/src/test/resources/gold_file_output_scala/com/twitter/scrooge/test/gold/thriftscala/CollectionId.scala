@@ -269,7 +269,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
       collectionLongId: Long
     ) = this(
       collectionLongId,
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
   }
 

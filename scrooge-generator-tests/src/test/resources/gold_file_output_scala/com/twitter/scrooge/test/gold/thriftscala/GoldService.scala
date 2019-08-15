@@ -382,7 +382,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         request: com.twitter.scrooge.test.gold.thriftscala.Request
       ) = this(
         request,
-        Map.empty
+        immutable$Map.empty
       )
     
       def _1: com.twitter.scrooge.test.gold.thriftscala.Request = request
@@ -640,7 +640,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       ) = this(
         success,
         ex,
-        Map.empty
+        immutable$Map.empty
       )
     
       def _1: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success

@@ -419,7 +419,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         request: com.twitter.scrooge.test.gold.thriftscala.Request
       ) = this(
         request,
-        Map.empty
+        immutable$Map.empty
       )
     
       def _1: com.twitter.scrooge.test.gold.thriftscala.Request = request
@@ -732,7 +732,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         success,
         ax,
         oce,
-        Map.empty
+        immutable$Map.empty
       )
     
       def _1: _root_.scala.Option[Int] = success

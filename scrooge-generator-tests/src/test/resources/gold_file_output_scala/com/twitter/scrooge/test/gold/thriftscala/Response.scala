@@ -336,7 +336,7 @@ object Response extends ValidatingThriftStructCodec3[Response] {
     ) = this(
       statusCode,
       responseUnion,
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
   }
 
