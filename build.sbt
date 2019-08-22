@@ -250,7 +250,7 @@ lazy val scroogeGenerator = Project(
   name := "scrooge-generator",
   libraryDependencies ++= Seq(
     "org.apache.thrift" % "libthrift" % versions.libthrift,
-    "com.github.scopt" %% "scopt" % "3.5.0",
+    "com.github.scopt" %% "scopt" % "4.0.0-RC2",
     "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
     "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
     "com.google.code.findbugs" % "jsr305" % "2.0.1",

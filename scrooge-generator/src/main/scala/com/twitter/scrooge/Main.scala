@@ -39,7 +39,7 @@ object Main {
     val parser = new OptionParser[Compiler]("scrooge") {
       help("help").text("show this help screen")
 
-      override def showUsageOnError: Boolean = true
+      override def showUsageOnError: Option[Boolean] = Some(true)
 
       opt[Unit]('V', "version")
         .action { (_, c) =>
