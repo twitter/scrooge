@@ -362,7 +362,7 @@ trait StructTemplate { self: TemplateGenerator =>
   def getSuccessValue(result: FunctionResult): CodeFragment =
     result.success match {
       case Some(field) => v("success")
-      case None => v("Some(Unit)")
+      case None => v("Some(())")
     }
 
   def getExceptionFields(result: FunctionResult): CodeFragment = {

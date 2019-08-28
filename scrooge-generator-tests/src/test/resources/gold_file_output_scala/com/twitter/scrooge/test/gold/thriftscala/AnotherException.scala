@@ -179,7 +179,7 @@ class AnotherException(
     errorCode: Int
   ) = this(
     errorCode,
-    Map.empty
+    immutable$Map.empty
   )
 
   def _1: Int = errorCode

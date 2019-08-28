@@ -1451,7 +1451,7 @@ object Request extends ValidatingThriftStructCodec3[Request] {
       requiredField,
       constructionRequiredField,
       anInt8,
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
   def this(
       aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.Seq[String](),
@@ -1485,7 +1485,7 @@ object Request extends ValidatingThriftStructCodec3[Request] {
       requiredField,
       Some(constructionRequiredField),
       anInt8,
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
   def this(
       aList: _root_.scala.collection.Seq[String],

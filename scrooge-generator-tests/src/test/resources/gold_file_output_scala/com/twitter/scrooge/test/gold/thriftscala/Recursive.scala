@@ -338,7 +338,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] {
     ) = this(
       id,
       recRequest,
-      Map.empty[Short, TFieldBlob]
+      immutable$Map.empty[Short, TFieldBlob]
     )
   }
 

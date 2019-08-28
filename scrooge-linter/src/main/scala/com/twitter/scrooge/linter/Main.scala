@@ -67,7 +67,7 @@ object Main {
           c.copy(ignoreErrors = true)
       }
 
-      opt[String]('n', "include-path") unbounded () valueName ("<path>") action { (path, c) =>
+      opt[String]('n', "include-path").unbounded.valueName("<path>").action { (path, c) =>
         c.copy(includePaths = c.includePaths ++ path.split(File.pathSeparator))
       } text ("path(s) to search for included thrift files (may be used multiple times)")
 
@@ -83,20 +83,18 @@ object Main {
 
       def ruleList(rules: Seq[LintRule]) = rules.map(_.name).mkString(", ")
 
-      opt[String]('e', "enable-rule") unbounded () valueName ("<rule-name>") action {
-        (ruleName, c) =>
-          {
-            val rule = findRule(ruleName);
-            if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
-          }
+      opt[String]('e', "enable-rule").unbounded.valueName("<rule-name>").action { (ruleName, c) =>
+        {
+          val rule = findRule(ruleName);
+          if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
+        }
       } text (s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(
         LintRule.DefaultRules)}")
 
-      opt[String]('d', "disable-rule") unbounded () valueName ("<rule-name>") action {
-        (ruleName, c) =>
-          {
-            c.copy(enabledRules = c.enabledRules.filter(_ != findRule(ruleName)))
-          }
+      opt[String]('d', "disable-rule").unbounded.valueName("<rule-name>").action { (ruleName, c) =>
+        {
+          c.copy(enabledRules = c.enabledRules.filter(_ != findRule(ruleName)))
+        }
       } text ("rules to be disabled.")
 
       opt[Unit]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action {
@@ -117,7 +115,7 @@ object Main {
         c.copy(fatalWarnings = true)
       }
 
-      arg[String]("<files...>") unbounded () text ("thrift files to compile") action { (input, c) =>
+      arg[String]("<files...>").unbounded.text("thrift files to compile").action { (input, c) =>
         c.copy(files = c.files :+ input)
       }
     }

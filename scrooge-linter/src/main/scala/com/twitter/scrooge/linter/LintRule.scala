@@ -224,7 +224,7 @@ object LintRule {
           }
         case _ =>
       }
-      messages
+      messages.toSeq
     }
 
     private[this] def isCamelCase(name: String): Boolean = {
@@ -278,7 +278,7 @@ object LintRule {
               s"Avoid using keywords as identifiers.\n${fields.head.pos.longString}"
           )
       }
-      messages
+      messages.toSeq
     }
 
     private[this] val languageKeywords: Map[String, Set[String]] = Map(

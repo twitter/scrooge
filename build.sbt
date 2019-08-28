@@ -83,8 +83,8 @@ val sharedSettingsWithoutScalaVersion = Seq(
   ),
 
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.13.4" % "test",
+    "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",
     "junit" % "junit" % "4.12" % "test"
   ),
 
@@ -153,15 +153,15 @@ val sharedSettings =
   sharedSettingsWithoutScalaVersion ++
   Seq(
     scalaVersion := "2.12.8",
-    crossScalaVersions := Seq("2.11.12", "2.12.8"),
+    crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
     scalacOptions := Seq(
       "-deprecation",
       "-unchecked",
       "-feature", "-Xlint",
       "-encoding", "utf8",
       "-target:jvm-1.8",
-      "-Ypatmat-exhaust-depth", "40",
-      "-Yno-adapted-args"),
+      "-Ypatmat-exhaust-depth", "40"
+      ),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.8")
   )
@@ -172,8 +172,7 @@ val scalacTwoTenOptions = Seq(
   "-deprecation",
   "-unchecked",
   "-feature", "-Xlint",
-  "-encoding", "utf8",
-  "-Yno-adapted-args")
+  "-encoding", "utf8")
 
 // settings for projects that are scala 2.10
 val settingsWithTwoTen =
@@ -189,7 +188,7 @@ val settingsWithTwoTen =
 val settingsCrossCompiledWithTwoTen =
   sharedSettingsWithoutScalaVersion ++
   Seq(
-    crossScalaVersions := Seq("2.10.6", "2.11.12", "2.12.8"),
+    crossScalaVersions := Seq("2.10.6", "2.11.12", "2.12.8", "2.13.0"),
     scalaVersion := "2.12.8",
     scalacOptions := scalacTwoTenOptions,
     javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
@@ -257,7 +256,7 @@ lazy val scroogeGenerator = Project(
     "commons-cli" % "commons-cli" % "1.3.1"
   ).++(CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, x)) if x >= 11 =>
-      Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4")
+      Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2")
     case _ => Nil
   }),
   test in assembly := {},  // Skip tests when running assembly.
@@ -358,6 +357,7 @@ lazy val scroogeSbtPlugin = Project(
   scroogeSbtPluginSettings: _*
 ).settings(
   scalaVersion := "2.10.6",
+  crossSbtVersions := Seq("0.13.16", "1.1.4"),
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,

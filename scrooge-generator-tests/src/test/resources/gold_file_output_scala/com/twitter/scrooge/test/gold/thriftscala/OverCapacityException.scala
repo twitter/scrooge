@@ -183,7 +183,7 @@ class OverCapacityException(
     chillTimeSeconds: Int
   ) = this(
     chillTimeSeconds,
-    Map.empty
+    immutable$Map.empty
   )
 
   def _1: Int = chillTimeSeconds
