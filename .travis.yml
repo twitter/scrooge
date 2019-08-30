@@ -39,7 +39,7 @@ notifications:
 
 before_script:
   - unset SBT_OPTS # default $SBT_OPTS is irrelevant to sbt launcher
-  - curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test --scala-version $TRAVIS_SCALA_VERSION scrooge
+  - curl -s https://raw.githubusercontent.com/twitter/dodo/enbnt/jdk11-support/bin/build | bash -s -- --no-test --scala-version $TRAVIS_SCALA_VERSION scrooge
 
 script:
   - travis_retry ./sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
