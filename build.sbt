@@ -180,8 +180,8 @@ val settingsWithTwoTen =
   Seq(
     scalaVersion := "2.10.7",
     scalacOptions := scalacTwoTenOptions,
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.7")
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
+    javacOptions in doc := Seq("-source", "1.8")
   )
 
 // settings for projects that are cross compiled with scala 2.10
@@ -191,8 +191,8 @@ val settingsCrossCompiledWithTwoTen =
     crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8", "2.13.0"),
     scalaVersion := "2.12.8",
     scalacOptions := scalacTwoTenOptions,
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.7")
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
+    javacOptions in doc := Seq("-source", "1.8")
   )
 
 val jmockSettings = Seq(
