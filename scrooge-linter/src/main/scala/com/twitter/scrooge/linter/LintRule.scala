@@ -252,7 +252,7 @@ object LintRule {
   }
 
   object Keywords extends LintRule {
-    // Struct and field names should not be keywords in Scala, Java, Ruby, Python, PHP.
+    // Struct, field, and function names should not be keywords in Scala, Java, Ruby, Python, PHP, Javascript, and Go.
     def apply(doc: Document): Seq[LintMessage] = {
       val messages = new ArrayBuffer[LintMessage]
       doc.defs.collect {
@@ -276,6 +276,18 @@ object LintRule {
           } messages += LintMessage(
             s"Found field names that are $lang keywords: ${fieldNames.mkString(", ")}. " +
               s"Avoid using keywords as identifiers.\n${fields.head.pos.longString}"
+          )
+
+        case service: Service =>
+          for {
+            (lang, keywords) <- languageKeywords
+            functions = service.functions.filter { f =>
+              keywords.contains(f.originalName)
+            } if functions.nonEmpty
+            functionNames = functions.map(_.originalName)
+          } messages += LintMessage(
+            s"Found function names that are $lang keywords: ${functionNames.mkString(", ")}. " +
+              s"Avoid using keywords as identifiers.\n"
           )
       }
       messages.toSeq
@@ -520,6 +532,78 @@ object LintRule {
         "while",
         "with",
         "yield"
+      ),
+      "javascript" -> Set(
+        "await",
+        "break",
+        "case",
+        "catch",
+        "class",
+        "const",
+        "continue",
+        "debugger",
+        "default",
+        "delete",
+        "do",
+        "else",
+        "enum",
+        "export",
+        "extends",
+        "finally",
+        "for",
+        "function",
+        "if",
+        "implements",
+        "import",
+        "in",
+        "instanceof",
+        "interface",
+        "let",
+        "new",
+        "package",
+        "private",
+        "protected",
+        "public",
+        "return",
+        "static",
+        "super",
+        "switch",
+        "this",
+        "throw",
+        "try",
+        "typeof",
+        "var",
+        "void",
+        "while",
+        "with",
+        "yield"
+      ),
+      "go" -> Set(
+        "break",
+        "case",
+        "chan",
+        "const",
+        "continue",
+        "default",
+        "defer",
+        "else",
+        "fallthrough",
+        "for",
+        "func",
+        "go",
+        "goto",
+        "if",
+        "import",
+        "interface",
+        "map",
+        "package",
+        "range",
+        "return",
+        "select",
+        "struct",
+        "switch",
+        "type",
+        "var"
       )
     )
   }
