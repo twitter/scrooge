@@ -10,13 +10,15 @@ git:
 env:
   - JAVA_OPTS="-Dsbt.log.noformat=true"
 
+cache: false
+
 # These directories are cached to S3 at the end of the build
-cache:
-  directories:
-   - $HOME/.ivy2/cache
-   - $HOME/.ivy2/local/com.twitter
-   - $HOME/.sbt
-   - $HOME/.dodo
+# cache:
+#   directories:
+#    - $HOME/.ivy2/cache
+#    - $HOME/.ivy2/local/com.twitter
+#    - $HOME/.sbt
+#    - $HOME/.dodo
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
