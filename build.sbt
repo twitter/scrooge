@@ -181,35 +181,6 @@ val sharedSettings =
     javacOptions in doc := Seq("-source", "1.8")
   )
 
-// scalac options for projects that are scala 2.10
-// or cross compiled with scala 2.10
-val scalacTwoTenOptions = Seq(
-  "-deprecation",
-  "-unchecked",
-  "-feature", "-Xlint",
-  "-encoding", "utf8")
-
-// settings for projects that are scala 2.10
-val settingsWithTwoTen =
-  sharedSettingsWithoutScalaVersion ++
-  Seq(
-    scalaVersion := "2.12.8",
-    scalacOptions := scalacTwoTenOptions,
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.8")
-  )
-
-// settings for projects that are cross compiled with scala 2.10
-val settingsCrossCompiledWithTwoTen =
-  sharedSettingsWithoutScalaVersion ++
-  Seq(
-    crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
-    scalaVersion := "2.12.8",
-    scalacOptions := scalacTwoTenOptions,
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.8")
-  )
-
 val jmockSettings = Seq(
   libraryDependencies ++= Seq(
     "org.jmock" % "jmock" % "2.9.0" % "test",
@@ -253,13 +224,11 @@ lazy val scroogePublishLocal = Project(
   sharedSettings
 ).aggregate(publishedProjects: _*)
 
-// must be cross compiled with scala 2.10 because scrooge-sbt-plugin
-// has a dependency on this.
 lazy val scroogeGenerator = Project(
   id = "scrooge-generator",
   base = file("scrooge-generator")
 ).settings(
-  settingsCrossCompiledWithTwoTen
+  sharedSettings
 ).settings(
   name := "scrooge-generator",
   libraryDependencies ++= Seq(
@@ -353,7 +322,7 @@ lazy val scroogeAdaptive = Project(
 // already sets it, and setting it again breaks the plugin.
 def scroogeSbtPluginSettings = {
   if (!releaseVersion.trim.endsWith("SNAPSHOT")) {
-    settingsWithTwoTen
+    sharedSettings
       .filter(_.key.key.label != "publishTo") ++
       Seq(
         bintrayRepository := "sbt-plugins",
@@ -361,7 +330,7 @@ def scroogeSbtPluginSettings = {
         publishMavenStyle := false
       )
   } else {
-    settingsWithTwoTen
+    sharedSettings
   }
 }
 lazy val scroogeSbtPlugin = Project(
