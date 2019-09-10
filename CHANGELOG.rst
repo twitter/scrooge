@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+19.9.0
+------
+
 * scrooge-generator: Introduce i8 type identifier as an alias for byte type. ``PHAB_ID=D351820``
 
 19.8.0
