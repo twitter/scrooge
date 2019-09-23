@@ -276,7 +276,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case ID:
-      return new Long(getId());
+      return Long.valueOf(getId());
     case REC_REQUEST:
       return getRecRequest();
     }

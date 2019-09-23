@@ -278,7 +278,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case STATUS_CODE:
-      return new Integer(getStatusCode());
+      return Integer.valueOf(getStatusCode());
     case RESPONSE_UNION:
       return getResponseUnion();
     }

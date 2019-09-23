@@ -7,6 +7,8 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Use wrapper class valueOf in apachejavagen's getFieldValue. ``PHAB_ID=D374413``
+
 19.9.0
 ------
 

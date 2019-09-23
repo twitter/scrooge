@@ -246,7 +246,7 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case ERROR_CODE:
-      return new Integer(getErrorCode());
+      return Integer.valueOf(getErrorCode());
     }
     throw new IllegalStateException();
   }

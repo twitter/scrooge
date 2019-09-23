@@ -254,7 +254,7 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case CHILL_TIME_SECONDS:
-      return new Integer(getChillTimeSeconds());
+      return Integer.valueOf(getChillTimeSeconds());
     }
     throw new IllegalStateException();
   }

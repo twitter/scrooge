@@ -976,23 +976,23 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     case HAS_DEFAULT:
       return getHasDefault();
     case NO_COMMENT:
-      return new Long(getNoComment());
+      return Long.valueOf(getNoComment());
     case DOUBLE_SLASH_COMMENT:
-      return new Long(getDoubleSlashComment());
+      return Long.valueOf(getDoubleSlashComment());
     case HASHTAG_COMMENT:
-      return new Long(getHashtagComment());
+      return Long.valueOf(getHashtagComment());
     case SINGLE_ASTERISK_COMMENT:
-      return new Long(getSingleAsteriskComment());
+      return Long.valueOf(getSingleAsteriskComment());
     case DOC_STRING_COMMENT:
-      return new Long(getDocStringComment());
+      return Long.valueOf(getDocStringComment());
     case REC_REQUEST:
       return getRecRequest();
     case REQUIRED_FIELD:
       return getRequiredField();
     case CONSTRUCTION_REQUIRED_FIELD:
-      return new Long(getConstructionRequiredField());
+      return Long.valueOf(getConstructionRequiredField());
     case AN_INT8:
-      return new Byte(getAnInt8());
+      return Byte.valueOf(getAnInt8());
     }
     throw new IllegalStateException();
   }

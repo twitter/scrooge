@@ -296,7 +296,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{#consolidate_newlines}}
     case {{#constant_name}}{{name}}{{/constant_name}}:
       {{#field_type.is_base_type_not_string}}
-      return new {{{field_type.type_name_in_container}}}({{#field_type.boolean}}is{{/field_type.boolean}}{{^field_type.boolean}}get{{/field_type.boolean}}{{#cap}}{{name}}{{/cap}}());
+      return {{{field_type.type_name_in_container}}}.valueOf({{#field_type.boolean}}is{{/field_type.boolean}}{{^field_type.boolean}}get{{/field_type.boolean}}{{#cap}}{{name}}{{/cap}}());
       {{/field_type.is_base_type_not_string}}
       {{^field_type.is_base_type_not_string}}
       return get{{#cap}}{{name}}{{/cap}}();

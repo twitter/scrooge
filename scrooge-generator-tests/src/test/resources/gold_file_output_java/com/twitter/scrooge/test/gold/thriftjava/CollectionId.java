@@ -232,7 +232,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case COLLECTION_LONG_ID:
-      return new Long(getCollectionLongId());
+      return Long.valueOf(getCollectionLongId());
     }
     throw new IllegalStateException();
   }

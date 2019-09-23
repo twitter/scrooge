@@ -1191,7 +1191,7 @@ public class PlatinumService {
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case SUCCESS:
-      return new Integer(getSuccess());
+      return Integer.valueOf(getSuccess());
     case AX:
       return getAx();
     case OCE:
