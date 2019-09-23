@@ -96,4 +96,16 @@ class GoldService$FinagleService(
   
     filters.doGreatThings.andThen(methodService)
   })
+  addService("noExceptionCall", {
+    val methodService = new _root_.com.twitter.finagle.Service[NoExceptionCall.Args, NoExceptionCall.SuccessType] {
+      def apply(args: NoExceptionCall.Args): Future[NoExceptionCall.SuccessType] = {
+        if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
+          _root_.com.twitter.finagle.tracing.Trace.recordRpc("noExceptionCall")
+        }
+        iface.noExceptionCall(args.request)
+      }
+    }
+  
+    filters.noExceptionCall.andThen(methodService)
+  })
 }

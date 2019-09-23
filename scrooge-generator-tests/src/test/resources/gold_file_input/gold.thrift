@@ -85,6 +85,10 @@ service GoldService {
     1: OverCapacityException ex
   ) (some.annotation = "false")
 
+  Response noExceptionCall(
+    1: Request request
+  )
+
 } (an.annotation = "true")
 
 service PlatinumService extends GoldService {

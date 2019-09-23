@@ -50,7 +50,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
   val methods: immutable$Set[ThriftMethod] = immutable$Set(
     self.MoreCoolThings,
-    com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings
+    com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
+    com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall
   )
 
   trait ServicePerEndpoint
@@ -62,12 +63,14 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
     override def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]): ServicePerEndpoint = this
 
+    override def withNoExceptionCall(noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]): ServicePerEndpoint = this
+
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
     override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
-      ServicePerEndpoint.apply(moreCoolThings, doGreatThings).filtered(filter)
+      ServicePerEndpoint.apply(moreCoolThings, doGreatThings, noExceptionCall).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -91,12 +94,14 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
     override def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]]): ReqRepServicePerEndpoint = this
 
+    override def withNoExceptionCall(noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]]): ReqRepServicePerEndpoint = this
+
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
     override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
-      ReqRepServicePerEndpoint.apply(moreCoolThings, doGreatThings).filtered(filter)
+      ReqRepServicePerEndpoint.apply(moreCoolThings, doGreatThings, noExceptionCall).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -122,34 +127,43 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
     def apply(
       moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
-      doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
-    ): ServicePerEndpoint = new ServicePerEndpointImpl(moreCoolThings, doGreatThings)
+      doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType],
+      noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]
+    ): ServicePerEndpoint = new ServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
 
     private final class ServicePerEndpointImpl(
       override val moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
-      override val doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
+      override val doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType],
+      override val noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]
     ) extends ServicePerEndpoint {
 
       override def withMoreCoolThings(
         moreCoolThings : _root_.com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType]
       ): ServicePerEndpoint =
-        new ServicePerEndpointImpl(moreCoolThings, doGreatThings)
+        new ServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
 
       override def withDoGreatThings(
         doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
       ): ServicePerEndpoint =
-        new ServicePerEndpointImpl(moreCoolThings, doGreatThings)
+        new ServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
+
+      override def withNoExceptionCall(
+        noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]
+      ): ServicePerEndpoint =
+        new ServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
 
       override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
         new ServicePerEndpointImpl(
           moreCoolThings = filter.toFilter.andThen(moreCoolThings),
-          doGreatThings = filter.toFilter.andThen(doGreatThings)
+          doGreatThings = filter.toFilter.andThen(doGreatThings),
+          noExceptionCall = filter.toFilter.andThen(noExceptionCall)
         )
 
       override def asClosable: _root_.com.twitter.util.Closable =
         _root_.com.twitter.util.Closable.all(
           this.moreCoolThings,
-          this.doGreatThings
+          this.doGreatThings,
+          this.noExceptionCall
         )
     }
   }
@@ -158,34 +172,42 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
     def apply(
       moreCoolThings :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.MoreCoolThings.Args], _root_.com.twitter.scrooge.Response[self.MoreCoolThings.SuccessType]],
-      doGreatThings :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]]
+      doGreatThings :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]],
+      noExceptionCall :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]]
     ): ReqRepServicePerEndpoint =
-      new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings)
+      new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
 
     private final class ReqRepServicePerEndpointImpl(
       override val moreCoolThings : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.MoreCoolThings.Args], _root_.com.twitter.scrooge.Response[self.MoreCoolThings.SuccessType]],
-      override val doGreatThings : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]]
+      override val doGreatThings : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]],
+      override val noExceptionCall : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]]
     ) extends ReqRepServicePerEndpoint {
 
       override def withMoreCoolThings(
         moreCoolThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.MoreCoolThings.Args], _root_.com.twitter.scrooge.Response[self.MoreCoolThings.SuccessType]]
       ): ReqRepServicePerEndpoint =
-        new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings)
+        new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
       override def withDoGreatThings(
         doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]]
       ): ReqRepServicePerEndpoint =
-        new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings)
+        new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
+      override def withNoExceptionCall(
+        noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]]
+      ): ReqRepServicePerEndpoint =
+        new ReqRepServicePerEndpointImpl(moreCoolThings, doGreatThings, noExceptionCall)
 
       override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
         new ReqRepServicePerEndpointImpl(
           moreCoolThings = filter.toFilter.andThen(moreCoolThings),
-          doGreatThings = filter.toFilter.andThen(doGreatThings)
+          doGreatThings = filter.toFilter.andThen(doGreatThings),
+          noExceptionCall = filter.toFilter.andThen(noExceptionCall)
         )
 
       override def asClosable: _root_.com.twitter.util.Closable =
         _root_.com.twitter.util.Closable.all(
           this.moreCoolThings,
-          this.doGreatThings
+          this.doGreatThings,
+          this.noExceptionCall
         )
     }
   }
@@ -199,14 +221,19 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       case Some(impl) => impl.asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.ReqRepServicePerEndpointServiceType]
       case _ => throw new IllegalArgumentException(s"No implementation found for method DoGreatThings in ${methods.keySet}")
     }
+    val noExceptionCall = methods.get(com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall) match {
+      case Some(impl) => impl.asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.ReqRepServicePerEndpointServiceType]
+      case _ => throw new IllegalArgumentException(s"No implementation found for method NoExceptionCall in ${methods.keySet}")
+    }
 
-    ReqRepServicePerEndpoint(moreCoolThings, doGreatThings)
+    ReqRepServicePerEndpoint(moreCoolThings, doGreatThings, noExceptionCall)
   }
 
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
     moreCoolThings : com.twitter.finagle.Service[self.MoreCoolThings.Args, self.MoreCoolThings.SuccessType],
-    doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType]
+    doGreatThings : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings.SuccessType],
+    noExceptionCall : com.twitter.finagle.Service[com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.Args, com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall.SuccessType]
   ) extends com.twitter.scrooge.test.gold.thriftscala.GoldService.BaseServiceIface
     with BaseServiceIface
     with _root_.com.twitter.finagle.thrift.service.Filterable[ServiceIface] {
@@ -218,7 +245,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ServiceIface =
       copy(
         moreCoolThings = filter.toFilter.andThen(moreCoolThings),
-        doGreatThings = filter.toFilter.andThen(doGreatThings)
+        doGreatThings = filter.toFilter.andThen(doGreatThings),
+        noExceptionCall = filter.toFilter.andThen(noExceptionCall)
       )
   }
 
@@ -238,6 +266,11 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
             com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
             thriftService,
             clientParam
+          ),
+          noExceptionCall = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
+            com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall,
+            thriftService,
+            clientParam
           )
         )
   }
@@ -250,7 +283,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       ): ReqRepServicePerEndpoint =
         ReqRepServicePerEndpoint(
           moreCoolThings = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(self.MoreCoolThings, thriftService, clientParam),
-          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, thriftService, clientParam)
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings, thriftService, clientParam),
+          noExceptionCall = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall, thriftService, clientParam)
         )
   }
 
@@ -269,6 +303,11 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           ),
           doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             com.twitter.scrooge.test.gold.thriftscala.GoldService.DoGreatThings,
+            binaryService,
+            clientParam
+          ),
+          noExceptionCall = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
+            com.twitter.scrooge.test.gold.thriftscala.GoldService.NoExceptionCall,
             binaryService,
             clientParam
           )

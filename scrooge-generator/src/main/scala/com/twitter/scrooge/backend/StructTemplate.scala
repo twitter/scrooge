@@ -366,12 +366,16 @@ trait StructTemplate { self: TemplateGenerator =>
     }
 
   def getExceptionFields(result: FunctionResult): CodeFragment = {
-    val exceptions = result.exceptions
-      .map { field: Field =>
-        genID(field.sid).toData
-      }
-      .mkString(", ")
-    v(s"Seq($exceptions)")
+    if (result.exceptions.isEmpty) {
+      v("Nil")
+    } else {
+      val exceptions = result.exceptions
+        .map { field: Field =>
+          genID(field.sid).toData
+        }
+        .mkString(", ")
+      v(s"Seq($exceptions)")
+    }
   }
 
   private def basename(fqdn: String): String = fqdn.split('.').last

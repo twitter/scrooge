@@ -39,14 +39,17 @@ import com.twitter.finagle.thrift.ThriftClientRequest;
 public class GoldService {
   public interface Iface {
     public Response doGreatThings(Request request) throws OverCapacityException, TException;
+    public Response noExceptionCall(Request request) throws TException;
   }
 
   public interface AsyncIface {
     public void doGreatThings(Request request, AsyncMethodCallback<Response> resultHandler) throws TException;
+    public void noExceptionCall(Request request, AsyncMethodCallback<Response> resultHandler) throws TException;
   }
 
   public interface ServiceIface {
     public Future<Response> doGreatThings(Request request);
+    public Future<Response> noExceptionCall(Request request);
   }
 
   public static class Client extends TServiceClient implements Iface {
@@ -108,6 +111,41 @@ public class GoldService {
       }
       throw new TApplicationException(TApplicationException.MISSING_RESULT, "doGreatThings failed: unknown result");
     }
+    public Response noExceptionCall(Request request) throws TException
+    {
+      send_noExceptionCall(request);
+      return recv_noExceptionCall();
+    }
+
+    public void send_noExceptionCall(Request request) throws TException
+    {
+      oprot_.writeMessageBegin(new TMessage("noExceptionCall", TMessageType.CALL, ++seqid_));
+      noExceptionCall_args __args__ = new noExceptionCall_args();
+      __args__.setRequest(request);
+      __args__.write(oprot_);
+      oprot_.writeMessageEnd();
+      oprot_.getTransport().flush();
+    }
+
+    public Response recv_noExceptionCall() throws TException
+    {
+      TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == TMessageType.EXCEPTION) {
+        TApplicationException x = TApplicationException.readFrom(iprot_);
+        iprot_.readMessageEnd();
+        throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new TApplicationException(TApplicationException.BAD_SEQUENCE_ID, "noExceptionCall failed: out of sequence response");
+      }
+      noExceptionCall_result result = new noExceptionCall_result();
+      result.read(iprot_);
+      iprot_.readMessageEnd();
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      throw new TApplicationException(TApplicationException.MISSING_RESULT, "noExceptionCall failed: unknown result");
+    }
   }
 
   public static class AsyncClient extends TAsyncClient implements AsyncIface {
@@ -161,6 +199,37 @@ public class GoldService {
         TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
         TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
         return (new Client(__prot__)).recv_doGreatThings();
+      }
+     }
+    public void noExceptionCall(Request request, AsyncMethodCallback<Response> __resultHandler__) throws TException {
+      checkReady();
+      noExceptionCall_call __method_call__ = new noExceptionCall_call(request, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      this.manager.call(__method_call__);
+    }
+
+    public static class noExceptionCall_call extends TAsyncMethodCall<Response> {
+      private Request request;
+
+      public noExceptionCall_call(Request request, AsyncMethodCallback<Response> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+        super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
+        this.request = request;
+      }
+
+      public void write_args(TProtocol __prot__) throws TException {
+        __prot__.writeMessageBegin(new TMessage("noExceptionCall", TMessageType.CALL, 0));
+        noExceptionCall_args __args__ = new noExceptionCall_args();
+        __args__.setRequest(request);
+        __args__.write(__prot__);
+        __prot__.writeMessageEnd();
+      }
+
+      protected Response getResult() throws TException {
+        if (getState() != State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(getFrameBuffer().array());
+        TProtocol __prot__ = super.client.getProtocolFactory().getProtocol(__memoryTransport__);
+        return (new Client(__prot__)).recv_noExceptionCall();
       }
      }
    }
@@ -256,6 +325,62 @@ public class GoldService {
         tlReusableBuffer.reset();
       }
     }
+    public Future<Response> noExceptionCall(Request request) {
+      try {
+        TReusableMemoryTransport __memoryTransport__ = tlReusableBuffer.get();
+        TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
+        __prot__.writeMessageBegin(new TMessage("noExceptionCall", TMessageType.CALL, 0));
+        noExceptionCall_args __args__ = new noExceptionCall_args();
+        __args__.setRequest(request);
+
+        Function<byte[], com.twitter.util.Try<Response>> replyDeserializer =
+          new Function<byte[], com.twitter.util.Try<Response>>() {
+            public com.twitter.util.Try<Response> apply(byte[] __buffer__) {
+              TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+              TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+              try {
+                return new com.twitter.util.Return<Response>(((new Client(__prot__)).recv_noExceptionCall()));
+              } catch (Exception e) {
+                return new com.twitter.util.Throw<Response>(e);
+              }
+            }
+          };
+
+        ClientDeserializeCtx<Response> serdeCtx = new ClientDeserializeCtx<>(__args__, replyDeserializer);
+        return com.twitter.finagle.context.Contexts.local().let(
+          ClientDeserializeCtx.Key(),
+          serdeCtx,
+          new com.twitter.util.ExceptionalFunction0<Future<Response>>() {
+            public Future<Response> applyE() throws TException {
+              serdeCtx.rpcName("noExceptionCall");
+              long start = System.nanoTime();
+              __args__.write(__prot__);
+              __prot__.writeMessageEnd();
+              serdeCtx.serializationTime(System.nanoTime() - start);
+
+              byte[] __buffer__ = Arrays.copyOf(__memoryTransport__.getArray(), __memoryTransport__.length());
+              final ThriftClientRequest __request__ = new ThriftClientRequest(__buffer__, false);
+
+              Future<byte[]> __done__ = service.apply(__request__);
+              return __done__.flatMap(new Function<byte[], Future<Response>>() {
+                public Future<Response> apply(byte[] __buffer__) {
+                  TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
+                  TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
+                  try {
+                    return Future.value((new Client(__prot__)).recv_noExceptionCall());
+                  } catch (Exception e) {
+                    return Future.exception(e);
+                  }
+                }
+              });
+            }
+          });
+      } catch (TException e) {
+        return Future.exception(e);
+      } finally {
+        tlReusableBuffer.reset();
+      }
+    }
   }
 
   public static class Processor implements TProcessor {
@@ -263,6 +388,7 @@ public class GoldService {
     {
       iface_ = iface;
       processMap_.put("doGreatThings", new doGreatThings());
+      processMap_.put("noExceptionCall", new noExceptionCall());
     }
 
     protected static interface ProcessFunction {
@@ -321,6 +447,31 @@ public class GoldService {
           return;
         }
         oprot.writeMessageBegin(new TMessage("doGreatThings", TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+      }
+    }
+    private class noExceptionCall implements ProcessFunction {
+      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      {
+        noExceptionCall_args args = new noExceptionCall_args();
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("noExceptionCall", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        iprot.readMessageEnd();
+        noExceptionCall_result result = new noExceptionCall_result();
+        result.success = iface_.noExceptionCall(args.request);
+        
+        oprot.writeMessageBegin(new TMessage("noExceptionCall", TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -458,6 +609,95 @@ public class GoldService {
       }
 
       serviceMap.put("doGreatThings", (new doGreatThingsService()).getService);
+
+      class noExceptionCallService {
+        private final com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]> protocolExnFilter = new com.twitter.finagle.SimpleFilter<scala.Tuple2<TProtocol, Integer>, byte[]>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> service) {
+            return service.apply(request).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable e) {
+                TProtocol iprot = request._1();
+                Integer seqid = request._2();
+                if (e instanceof TProtocolException) {
+                  try {
+                    iprot.readMessageEnd();
+                    setReqRepContext(request, new com.twitter.util.Throw(new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage())));
+                    return exception("noExceptionCall", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage());
+                  } catch (Exception e1) {
+                    setReqRepContext(request, new com.twitter.util.Throw(e1));
+                    return Future.exception(e1);
+                  }
+                } else {
+                  setReqRepContext(request, new com.twitter.util.Throw(e));
+                  return Future.exception(e);
+                }
+              }
+            });
+          }
+        };
+
+        private final com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], noExceptionCall_args, Response> serdeFilter = new com.twitter.finagle.Filter<scala.Tuple2<TProtocol, Integer>, byte[], noExceptionCall_args, Response>() {
+          @Override
+          public Future<byte[]> apply(scala.Tuple2<TProtocol, Integer> request, com.twitter.finagle.Service<noExceptionCall_args, Response> service) {
+            TProtocol iprot = request._1();
+            Integer seqid = request._2();
+            noExceptionCall_args args = new noExceptionCall_args();
+
+            try {
+              long start = System.nanoTime();
+              args.read(iprot);
+              iprot.readMessageEnd();
+              com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime() - start);
+            } catch (Exception e) {
+              return Future.exception(e);
+            }
+
+            Future<Response> res = com.twitter.finagle.context.Contexts.local().let(
+                com.twitter.finagle.thrift.MethodMetadata.Key(),
+                new com.twitter.finagle.thrift.MethodMetadata(
+                    "noExceptionCall",
+                    serviceName,
+                    noExceptionCall_args.class,
+                    noExceptionCall_result.class),
+                new scala.runtime.AbstractFunction0<Future<Response>>() {
+                  @Override
+                  public Future<Response> apply() {
+                    return service.apply(args);
+                  }
+                });
+            noExceptionCall_result result = new noExceptionCall_result();
+            return res.flatMap(new Function<Response, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Response value) {
+                result.success = value;
+                result.setSuccessIsSet(true);
+                setReqRepContext(args, new com.twitter.util.Return(value));
+                return reply("noExceptionCall", seqid, result);
+              }
+            }).rescue(new Function<Throwable, Future<byte[]>>() {
+              @Override
+              public Future<byte[]> apply(Throwable t) {
+                setReqRepContext(args, new com.twitter.util.Throw(t));
+                return Future.exception(t);
+              }
+            });
+          }
+        };
+
+        private final com.twitter.finagle.Service<noExceptionCall_args, Response> methodService = new com.twitter.finagle.Service<noExceptionCall_args, Response>() {
+          @Override
+          public Future<Response> apply(noExceptionCall_args args) {
+            Future<Response> future = iface.noExceptionCall(args.request);
+            return future;
+          }
+        };
+
+        private final com.twitter.finagle.Service<scala.Tuple2<TProtocol, Integer>, byte[]> getService =
+          protocolExnFilter.andThen(serdeFilter).andThen(filters.toFilter()).andThen(methodService);
+      }
+
+      serviceMap.put("noExceptionCall", (new noExceptionCallService()).getService);
     }
 
     private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
@@ -1309,6 +1549,693 @@ public class GoldService {
       sb.append("null");
     } else {
       sb.append(this.ex);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws TException {
+    // check for required fields
+  }
+}
+
+
+
+  public static class noExceptionCall_args implements TBase<noExceptionCall_args, noExceptionCall_args._Fields>, java.io.Serializable, Cloneable {
+  private static final TStruct STRUCT_DESC = new TStruct("noExceptionCall_args");
+
+  private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
+
+
+  public Request request;
+
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    REQUEST((short)1, "request");
+  
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+  
+    static {
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
+    }
+  
+    /**
+     * Find the _Fields constant that matches fieldId, or null if its not found.
+     */
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 1: // REQUEST
+          return REQUEST;
+        default:
+          return null;
+      }
+    }
+  
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
+    }
+  
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+  
+    private final short _thriftId;
+    private final String _fieldName;
+  
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+  
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+  
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
+
+
+  // isset id assignments
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
+  static {
+    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
+    tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, Request.class)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
+    FieldMetaData.addStructMetaDataMap(noExceptionCall_args.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    structAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    fieldAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
+  }
+
+
+  public noExceptionCall_args() {
+  }
+
+  public noExceptionCall_args(
+    Request request)
+  {
+    this();
+    this.request = request;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public noExceptionCall_args(noExceptionCall_args other) {
+    if (other.isSetRequest()) {
+      this.request = new Request(other.request);
+    }
+  }
+
+  public static List<String> validateNewInstance(noExceptionCall_args item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetRequest()) {
+      Request _request = item.request;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_request));
+    }
+
+    return buf;
+  }
+
+  public noExceptionCall_args deepCopy() {
+    return new noExceptionCall_args(this);
+  }
+
+  @java.lang.Override
+  public void clear() {
+    this.request = null;
+  }
+
+  public Request getRequest() {
+    return this.request;
+  }
+
+  public noExceptionCall_args setRequest(Request request) {
+    this.request = request;
+    
+    return this;
+  }
+
+  public void unsetRequest() {
+    this.request = null;
+  }
+
+  /** Returns true if field request is set (has been assigned a value) and false otherwise */
+  public boolean isSetRequest() {
+    return this.request != null;
+  }
+
+  public void setRequestIsSet(boolean value) {
+    if (!value) {
+      this.request = null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case REQUEST:
+      if (value == null) {
+        unsetRequest();
+      } else {
+        setRequest((Request)value);
+      }
+      break;
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case REQUEST:
+      return getRequest();
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
+    }
+
+    switch (field) {
+    case REQUEST:
+      return isSetRequest();
+    }
+    throw new IllegalStateException();
+  }
+
+  @java.lang.Override
+  public boolean equals(Object that) {
+    if (that == null)
+      return false;
+    if (that instanceof noExceptionCall_args)
+      return this.equals((noExceptionCall_args)that);
+    return false;
+  }
+
+  public boolean equals(noExceptionCall_args that) {
+    if (that == null)
+      return false;
+    boolean this_present_request = true && this.isSetRequest();
+    boolean that_present_request = true && that.isSetRequest();
+    if (this_present_request || that_present_request) {
+      if (!(this_present_request && that_present_request))
+        return false;
+      if (!this.request.equals(that.request))
+        return false;
+    }
+
+    return true;
+  }
+
+  @java.lang.Override
+  public int hashCode() {
+    int hashCode = 1;
+    if (isSetRequest()) {
+      hashCode = 31 * hashCode + request.hashCode();
+    }
+    return hashCode;
+  }
+
+  public int compareTo(noExceptionCall_args other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
+    }
+
+    int lastComparison = 0;
+    noExceptionCall_args typedOther = (noExceptionCall_args)other;
+
+    lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRequest()) {
+      lastComparison = TBaseHelper.compareTo(this.request, typedOther.request);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    return 0;
+  }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        case 1: // REQUEST
+          if (field.type == TType.STRUCT) {
+            this.request = new Request();
+            this.request.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    validate();
+  }
+
+  public void write(TProtocol oprot) throws TException {
+    validate();
+    
+    oprot.writeStructBegin(STRUCT_DESC);
+    if (this.request != null) {
+      oprot.writeFieldBegin(REQUEST_FIELD_DESC);
+      this.request.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+
+  @java.lang.Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("noExceptionCall_args(");
+    boolean first = true;
+    sb.append("request:");
+    if (this.request == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.request);
+    }
+    first = false;
+    sb.append(")");
+    return sb.toString();
+  }
+
+  public void validate() throws TException {
+    // check for required fields
+  }
+}
+
+
+  public static class noExceptionCall_result implements TBase<noExceptionCall_result, noExceptionCall_result._Fields>, java.io.Serializable, Cloneable {
+  private static final TStruct STRUCT_DESC = new TStruct("noExceptionCall_result");
+
+  private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
+
+
+  public Response success;
+
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    SUCCESS((short)0, "success");
+  
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+  
+    static {
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byName.put(field.getFieldName(), field);
+      }
+    }
+  
+    /**
+     * Find the _Fields constant that matches fieldId, or null if its not found.
+     */
+    public static _Fields findByThriftId(int fieldId) {
+      switch(fieldId) {
+        case 0: // SUCCESS
+          return SUCCESS;
+        default:
+          return null;
+      }
+    }
+  
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
+    }
+  
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+  
+    private final short _thriftId;
+    private final String _fieldName;
+  
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+  
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+  
+    public String getFieldName() {
+      return _fieldName;
+    }
+  }
+
+
+  // isset id assignments
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
+  static {
+    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
+    tmpMap.put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, Response.class)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
+    FieldMetaData.addStructMetaDataMap(noExceptionCall_result.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    structAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    fieldAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
+  }
+
+
+  public noExceptionCall_result() {
+  }
+
+  public noExceptionCall_result(
+    Response success)
+  {
+    this();
+    this.success = success;
+  }
+
+  /**
+   * Performs a deep copy on <i>other</i>.
+   */
+  public noExceptionCall_result(noExceptionCall_result other) {
+    if (other.isSetSuccess()) {
+      this.success = new Response(other.success);
+    }
+  }
+
+  public static List<String> validateNewInstance(noExceptionCall_result item) {
+    final List<String> buf = new ArrayList<String>();
+
+    if (item.isSetSuccess()) {
+      Response _success = item.success;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Response.validateNewInstance(_success));
+    }
+
+    return buf;
+  }
+
+  public noExceptionCall_result deepCopy() {
+    return new noExceptionCall_result(this);
+  }
+
+  @java.lang.Override
+  public void clear() {
+    this.success = null;
+  }
+
+  public Response getSuccess() {
+    return this.success;
+  }
+
+  public noExceptionCall_result setSuccess(Response success) {
+    this.success = success;
+    
+    return this;
+  }
+
+  public void unsetSuccess() {
+    this.success = null;
+  }
+
+  /** Returns true if field success is set (has been assigned a value) and false otherwise */
+  public boolean isSetSuccess() {
+    return this.success != null;
+  }
+
+  public void setSuccessIsSet(boolean value) {
+    if (!value) {
+      this.success = null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
+    case SUCCESS:
+      if (value == null) {
+        unsetSuccess();
+      } else {
+        setSuccess((Response)value);
+      }
+      break;
+    }
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
+    case SUCCESS:
+      return getSuccess();
+    }
+    throw new IllegalStateException();
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
+    }
+
+    switch (field) {
+    case SUCCESS:
+      return isSetSuccess();
+    }
+    throw new IllegalStateException();
+  }
+
+  @java.lang.Override
+  public boolean equals(Object that) {
+    if (that == null)
+      return false;
+    if (that instanceof noExceptionCall_result)
+      return this.equals((noExceptionCall_result)that);
+    return false;
+  }
+
+  public boolean equals(noExceptionCall_result that) {
+    if (that == null)
+      return false;
+    boolean this_present_success = true && this.isSetSuccess();
+    boolean that_present_success = true && that.isSetSuccess();
+    if (this_present_success || that_present_success) {
+      if (!(this_present_success && that_present_success))
+        return false;
+      if (!this.success.equals(that.success))
+        return false;
+    }
+
+    return true;
+  }
+
+  @java.lang.Override
+  public int hashCode() {
+    int hashCode = 1;
+    if (isSetSuccess()) {
+      hashCode = 31 * hashCode + success.hashCode();
+    }
+    return hashCode;
+  }
+
+  public int compareTo(noExceptionCall_result other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
+    }
+
+    int lastComparison = 0;
+    noExceptionCall_result typedOther = (noExceptionCall_result)other;
+
+    lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSuccess()) {
+      lastComparison = TBaseHelper.compareTo(this.success, typedOther.success);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    return 0;
+  }
+
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+
+  public void read(TProtocol iprot) throws TException {
+    TField field;
+    iprot.readStructBegin();
+    while (true)
+    {
+      field = iprot.readFieldBegin();
+      if (field.type == TType.STOP) {
+        break;
+      }
+      switch (field.id) {
+        case 0: // SUCCESS
+          if (field.type == TType.STRUCT) {
+            this.success = new Response();
+            this.success.read(iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
+        default:
+          TProtocolUtil.skip(iprot, field.type);
+      }
+      iprot.readFieldEnd();
+    }
+    iprot.readStructEnd();
+
+    // check for required fields of primitive type, which can't be checked in the validate method
+    validate();
+  }
+
+  public void write(TProtocol oprot) throws TException {
+    oprot.writeStructBegin(STRUCT_DESC);
+    if (this.isSetSuccess()) {
+      oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+      this.success.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    oprot.writeFieldStop();
+    oprot.writeStructEnd();
+  }
+
+  @java.lang.Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("noExceptionCall_result(");
+    boolean first = true;
+    sb.append("success:");
+    if (this.success == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.success);
     }
     first = false;
     sb.append(")");

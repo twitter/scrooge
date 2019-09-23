@@ -36,6 +36,8 @@ import scala.language.higherKinds
 trait GoldService[+MM[_]] extends _root_.com.twitter.finagle.thrift.ThriftService {
   /** Hello, I'm a comment. */
   def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[com.twitter.scrooge.test.gold.thriftscala.Response]
+  
+  def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[com.twitter.scrooge.test.gold.thriftscala.Response]
 
   /**
    * Used to close the underlying `Service`.
@@ -52,22 +54,26 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   )
 
   val methods: immutable$Set[ThriftMethod] = immutable$Set(
-    self.DoGreatThings
+    self.DoGreatThings,
+    self.NoExceptionCall
   )
 
   trait ServicePerEndpoint
     extends ToThriftService
     with _root_.com.twitter.finagle.thrift.service.Filterable[ServicePerEndpoint] {
     def doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+    def noExceptionCall : _root_.com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]
 
     def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]): ServicePerEndpoint = this
+
+    def withNoExceptionCall(noExceptionCall : _root_.com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]): ServicePerEndpoint = this
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
     def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
-      ServicePerEndpoint.apply(doGreatThings).filtered(filter)
+      ServicePerEndpoint.apply(doGreatThings, noExceptionCall).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -86,15 +92,18 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     extends ToThriftService
     with _root_.com.twitter.finagle.thrift.service.Filterable[ReqRepServicePerEndpoint] {
     def doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+    def noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[self.NoExceptionCall.SuccessType]]
 
     def withDoGreatThings(doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]): ReqRepServicePerEndpoint = this
+
+    def withNoExceptionCall(noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[self.NoExceptionCall.SuccessType]]): ReqRepServicePerEndpoint = this
 
     /**
      * Prepends the given type-agnostic `Filter` to all of the `Services`
      * and returns a copy of the `ServicePerEndpoint` now including the filter.
      */
     def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
-      ReqRepServicePerEndpoint.apply(doGreatThings).filtered(filter)
+      ReqRepServicePerEndpoint.apply(doGreatThings, noExceptionCall).filtered(filter)
 
     /**
      * Converts the `ServicePerEndpoint` to a `GeneratedThriftService`.
@@ -112,6 +121,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
   trait BaseServiceIface extends ToThriftService {
     def doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+    def noExceptionCall : com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]
 
     def toThriftService: _root_.com.twitter.finagle.thrift.ThriftService = new MethodIface(this)
   }
@@ -119,26 +129,35 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   object ServicePerEndpoint {
 
     def apply(
-      doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
-    ): ServicePerEndpoint = new ServicePerEndpointImpl(doGreatThings)
+      doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType],
+      noExceptionCall : _root_.com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]
+    ): ServicePerEndpoint = new ServicePerEndpointImpl(doGreatThings, noExceptionCall)
 
     private final class ServicePerEndpointImpl(
-      override val doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+      override val doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType],
+      override val noExceptionCall : _root_.com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]
     ) extends ServicePerEndpoint {
 
       override def withDoGreatThings(
         doGreatThings : _root_.com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
       ): ServicePerEndpoint =
-        new ServicePerEndpointImpl(doGreatThings)
+        new ServicePerEndpointImpl(doGreatThings, noExceptionCall)
+
+      override def withNoExceptionCall(
+        noExceptionCall : _root_.com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]
+      ): ServicePerEndpoint =
+        new ServicePerEndpointImpl(doGreatThings, noExceptionCall)
 
       override def filtered(filter: _root_.com.twitter.finagle.Filter.TypeAgnostic): ServicePerEndpoint =
         new ServicePerEndpointImpl(
-          doGreatThings = filter.toFilter.andThen(doGreatThings)
+          doGreatThings = filter.toFilter.andThen(doGreatThings),
+          noExceptionCall = filter.toFilter.andThen(noExceptionCall)
         )
 
       override def asClosable: _root_.com.twitter.util.Closable =
         _root_.com.twitter.util.Closable.all(
-          this.doGreatThings
+          this.doGreatThings,
+          this.noExceptionCall
         )
     }
   }
@@ -146,27 +165,35 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   object ReqRepServicePerEndpoint {
 
     def apply(
-      doGreatThings :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+      doGreatThings :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]],
+      noExceptionCall :  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[self.NoExceptionCall.SuccessType]]
     ): ReqRepServicePerEndpoint =
-      new ReqRepServicePerEndpointImpl(doGreatThings)
+      new ReqRepServicePerEndpointImpl(doGreatThings, noExceptionCall)
 
     private final class ReqRepServicePerEndpointImpl(
-      override val doGreatThings : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
+      override val doGreatThings : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]],
+      override val noExceptionCall : _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[self.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[self.NoExceptionCall.SuccessType]]
     ) extends ReqRepServicePerEndpoint {
 
       override def withDoGreatThings(
         doGreatThings : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.DoGreatThings.Args], _root_.com.twitter.scrooge.Response[self.DoGreatThings.SuccessType]]
       ): ReqRepServicePerEndpoint =
-        new ReqRepServicePerEndpointImpl(doGreatThings)
+        new ReqRepServicePerEndpointImpl(doGreatThings, noExceptionCall)
+      override def withNoExceptionCall(
+        noExceptionCall : _root_.com.twitter.finagle.Service[com.twitter.scrooge.Request[self.NoExceptionCall.Args], _root_.com.twitter.scrooge.Response[self.NoExceptionCall.SuccessType]]
+      ): ReqRepServicePerEndpoint =
+        new ReqRepServicePerEndpointImpl(doGreatThings, noExceptionCall)
 
       override def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ReqRepServicePerEndpoint =
         new ReqRepServicePerEndpointImpl(
-          doGreatThings = filter.toFilter.andThen(doGreatThings)
+          doGreatThings = filter.toFilter.andThen(doGreatThings),
+          noExceptionCall = filter.toFilter.andThen(noExceptionCall)
         )
 
       override def asClosable: _root_.com.twitter.util.Closable =
         _root_.com.twitter.util.Closable.all(
-          this.doGreatThings
+          this.doGreatThings,
+          this.noExceptionCall
         )
     }
   }
@@ -176,13 +203,18 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       case Some(impl) => impl.asInstanceOf[self.DoGreatThings.ReqRepServicePerEndpointServiceType]
       case _ => throw new IllegalArgumentException(s"No implementation found for method DoGreatThings in ${methods.keySet}")
     }
+    val noExceptionCall = methods.get(self.NoExceptionCall) match {
+      case Some(impl) => impl.asInstanceOf[self.NoExceptionCall.ReqRepServicePerEndpointServiceType]
+      case _ => throw new IllegalArgumentException(s"No implementation found for method NoExceptionCall in ${methods.keySet}")
+    }
 
-    ReqRepServicePerEndpoint(doGreatThings)
+    ReqRepServicePerEndpoint(doGreatThings, noExceptionCall)
   }
 
   @deprecated("Use ServicePerEndpoint", "2017-11-07")
   case class ServiceIface(
-    doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType]
+    doGreatThings : com.twitter.finagle.Service[self.DoGreatThings.Args, self.DoGreatThings.SuccessType],
+    noExceptionCall : com.twitter.finagle.Service[self.NoExceptionCall.Args, self.NoExceptionCall.SuccessType]
   ) extends BaseServiceIface
     with _root_.com.twitter.finagle.thrift.service.Filterable[ServiceIface] {
 
@@ -192,7 +224,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
      */
     def filtered(filter: com.twitter.finagle.Filter.TypeAgnostic): ServiceIface =
       copy(
-        doGreatThings = filter.toFilter.andThen(doGreatThings)
+        doGreatThings = filter.toFilter.andThen(doGreatThings),
+        noExceptionCall = filter.toFilter.andThen(noExceptionCall)
       )
   }
 
@@ -207,6 +240,11 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
             self.DoGreatThings,
             thriftService,
             clientParam
+          ),
+          noExceptionCall = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
+            self.NoExceptionCall,
+            thriftService,
+            clientParam
           )
         )
   }
@@ -218,7 +256,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         clientParam: RichClientParam
       ): ReqRepServicePerEndpoint =
         ReqRepServicePerEndpoint(
-          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(self.DoGreatThings, thriftService, clientParam)
+          doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(self.DoGreatThings, thriftService, clientParam),
+          noExceptionCall = _root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint(self.NoExceptionCall, thriftService, clientParam)
         )
   }
 
@@ -232,6 +271,11 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         ServiceIface(
           doGreatThings = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
             self.DoGreatThings,
+            binaryService,
+            clientParam
+          ),
+          noExceptionCall = _root_.com.twitter.finagle.thrift.service.ThriftServicePerEndpoint(
+            self.NoExceptionCall,
             binaryService,
             clientParam
           )
@@ -752,11 +796,458 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   val doGreatThings$result: DoGreatThings.Result.type = DoGreatThings.Result
   type doGreatThings$result = DoGreatThings.Result
 
+  object NoExceptionCall extends ThriftMethod {
+    
+    object Args extends ValidatingThriftStructCodec3[Args] {
+      val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+      val Struct: TStruct = new TStruct("noExceptionCall_args")
+      val RequestField: TField = new TField("request", TType.STRUCT, 1)
+      val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+    
+      /**
+       * Field information in declaration order.
+       */
+      lazy val fieldInfos: scala.List[ThriftStructFieldInfo] = scala.List[ThriftStructFieldInfo](
+        new ThriftStructFieldInfo(
+          RequestField,
+          false,
+          false,
+          RequestFieldManifest,
+          _root_.scala.None,
+          _root_.scala.None,
+          immutable$Map.empty[String, String],
+          immutable$Map.empty[String, String],
+          None
+        )
+      )
+    
+      lazy val structAnnotations: immutable$Map[String, String] =
+        immutable$Map.empty[String, String]
+    
+      /**
+       * Checks that all required fields are non-null.
+       */
+      def validate(_item: Args): Unit = {
+      }
+    
+      /**
+       * Checks that the struct is a valid as a new instance. If there are any missing required or
+       * construction required fields, return a non-empty list.
+       */
+      def validateNewInstance(item: Args): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+        val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+    
+        buf ++= validateField(item.request)
+        buf.toList
+      }
+    
+      def withoutPassthroughFields(original: Args): Args =
+        new Args(
+          request =
+            {
+              val field = original.request
+              com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
+            }
+        )
+    
+      override def encode(_item: Args, _oproto: TProtocol): Unit = {
+        _item.write(_oproto)
+      }
+    
+    
+      override def decode(_iprot: TProtocol): Args = {
+        var request: com.twitter.scrooge.test.gold.thriftscala.Request = null
+        var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+        var _done = false
+    
+        _iprot.readStructBegin()
+        while (!_done) {
+          val _field = _iprot.readFieldBegin()
+          if (_field.`type` == TType.STOP) {
+            _done = true
+          } else {
+            _field.id match {
+              case 1 =>
+                _field.`type` match {
+                  case TType.STRUCT =>
+                    request = readRequestValue(_iprot)
+                  case _actualType =>
+                    val _expectedType = TType.STRUCT
+                    throw new TProtocolException(
+                      "Received wrong type for field 'request' (expected=%s, actual=%s).".format(
+                        ttypeToString(_expectedType),
+                        ttypeToString(_actualType)
+                      )
+                    )
+                }
+              case _ =>
+                if (_passthroughFields == null)
+                  _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+                _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            }
+            _iprot.readFieldEnd()
+          }
+        }
+        _iprot.readStructEnd()
+    
+        new Args(
+          request,
+          if (_passthroughFields == null)
+            NoPassthroughFields
+          else
+            _passthroughFields.result()
+        )
+      }
+    
+      def apply(
+        request: com.twitter.scrooge.test.gold.thriftscala.Request
+      ): Args =
+        new Args(
+          request
+        )
+    
+      def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
+    
+    
+      @inline private[thriftscala] def readRequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
+        com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
+      }
+    
+      @inline private def writeRequestField(request_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
+        _oprot.writeFieldBegin(RequestField)
+        writeRequestValue(request_item, _oprot)
+        _oprot.writeFieldEnd()
+      }
+    
+      @inline private def writeRequestValue(request_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
+        request_item.write(_oprot)
+      }
+    
+    
+    }
+    
+    class Args(
+        val request: com.twitter.scrooge.test.gold.thriftscala.Request,
+        val _passthroughFields: immutable$Map[Short, TFieldBlob])
+      extends ThriftStruct
+      with _root_.scala.Product1[com.twitter.scrooge.test.gold.thriftscala.Request]
+      with ValidatingThriftStruct[Args]
+      with java.io.Serializable
+    {
+      import Args._
+    
+      def this(
+        request: com.twitter.scrooge.test.gold.thriftscala.Request
+      ) = this(
+        request,
+        immutable$Map.empty
+      )
+    
+      def _1: com.twitter.scrooge.test.gold.thriftscala.Request = request
+    
+    
+    
+      override def write(_oprot: TProtocol): Unit = {
+        Args.validate(this)
+        _oprot.writeStructBegin(Struct)
+        if (request ne null) writeRequestField(request, _oprot)
+        if (_passthroughFields.nonEmpty) {
+          _passthroughFields.values.foreach { _.write(_oprot) }
+        }
+        _oprot.writeFieldStop()
+        _oprot.writeStructEnd()
+      }
+    
+      def copy(
+        request: com.twitter.scrooge.test.gold.thriftscala.Request = this.request,
+        _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
+      ): Args =
+        new Args(
+          request,
+          _passthroughFields
+        )
+    
+      override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
+    
+      private def _equals(x: Args, y: Args): Boolean =
+          x.productArity == y.productArity &&
+          x.productIterator.sameElements(y.productIterator) &&
+          x._passthroughFields == y._passthroughFields
+    
+      override def equals(other: Any): Boolean =
+        canEqual(other) &&
+          _equals(this, other.asInstanceOf[Args])
+    
+      override def hashCode: Int = {
+        _root_.scala.runtime.ScalaRunTime._hashCode(this)
+      }
+    
+      override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
+    
+    
+      override def productArity: Int = 1
+    
+      override def productElement(n: Int): Any = n match {
+        case 0 => this.request
+        case _ => throw new IndexOutOfBoundsException(n.toString)
+      }
+    
+      override def productPrefix: String = "Args"
+    
+      def _codec: ValidatingThriftStructCodec3[Args] = Args
+    }
+
+    type SuccessType = com.twitter.scrooge.test.gold.thriftscala.Response
+    
+    object Result extends ValidatingThriftStructCodec3[Result] {
+      val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+      val Struct: TStruct = new TStruct("noExceptionCall_result")
+      val SuccessField: TField = new TField("success", TType.STRUCT, 0)
+      val SuccessFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Response] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
+    
+      /**
+       * Field information in declaration order.
+       */
+      lazy val fieldInfos: scala.List[ThriftStructFieldInfo] = scala.List[ThriftStructFieldInfo](
+        new ThriftStructFieldInfo(
+          SuccessField,
+          true,
+          false,
+          SuccessFieldManifest,
+          _root_.scala.None,
+          _root_.scala.None,
+          immutable$Map.empty[String, String],
+          immutable$Map.empty[String, String],
+          None
+        )
+      )
+    
+      lazy val structAnnotations: immutable$Map[String, String] =
+        immutable$Map.empty[String, String]
+    
+      /**
+       * Checks that all required fields are non-null.
+       */
+      def validate(_item: Result): Unit = {
+      }
+    
+      /**
+       * Checks that the struct is a valid as a new instance. If there are any missing required or
+       * construction required fields, return a non-empty list.
+       */
+      def validateNewInstance(item: Result): scala.Seq[com.twitter.scrooge.validation.Issue] = {
+        val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
+    
+        buf ++= validateField(item.success)
+        buf.toList
+      }
+    
+      def withoutPassthroughFields(original: Result): Result =
+        new Result(
+          success =
+            {
+              val field = original.success
+              field.map { field =>
+                com.twitter.scrooge.test.gold.thriftscala.Response.withoutPassthroughFields(field)
+              }
+            }
+        )
+    
+      override def encode(_item: Result, _oproto: TProtocol): Unit = {
+        _item.write(_oproto)
+      }
+    
+    
+      override def decode(_iprot: TProtocol): Result = {
+        var success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
+        var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
+        var _done = false
+    
+        _iprot.readStructBegin()
+        while (!_done) {
+          val _field = _iprot.readFieldBegin()
+          if (_field.`type` == TType.STOP) {
+            _done = true
+          } else {
+            _field.id match {
+              case 0 =>
+                _field.`type` match {
+                  case TType.STRUCT =>
+                    success = _root_.scala.Some(readSuccessValue(_iprot))
+                  case _actualType =>
+                    val _expectedType = TType.STRUCT
+                    throw new TProtocolException(
+                      "Received wrong type for field 'success' (expected=%s, actual=%s).".format(
+                        ttypeToString(_expectedType),
+                        ttypeToString(_actualType)
+                      )
+                    )
+                }
+              case _ =>
+                if (_passthroughFields == null)
+                  _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
+                _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            }
+            _iprot.readFieldEnd()
+          }
+        }
+        _iprot.readStructEnd()
+    
+        new Result(
+          success,
+          if (_passthroughFields == null)
+            NoPassthroughFields
+          else
+            _passthroughFields.result()
+        )
+      }
+    
+      def apply(
+        success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
+      ): Result =
+        new Result(
+          success
+        )
+    
+      def unapply(_item: Result): _root_.scala.Option[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]] = _root_.scala.Some(_item.success)
+    
+    
+      @inline private[thriftscala] def readSuccessValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Response = {
+        com.twitter.scrooge.test.gold.thriftscala.Response.decode(_iprot)
+      }
+    
+      @inline private def writeSuccessField(success_item: com.twitter.scrooge.test.gold.thriftscala.Response, _oprot: TProtocol): Unit = {
+        _oprot.writeFieldBegin(SuccessField)
+        writeSuccessValue(success_item, _oprot)
+        _oprot.writeFieldEnd()
+      }
+    
+      @inline private def writeSuccessValue(success_item: com.twitter.scrooge.test.gold.thriftscala.Response, _oprot: TProtocol): Unit = {
+        success_item.write(_oprot)
+      }
+    
+    
+    }
+    
+    class Result(
+        val success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response],
+        val _passthroughFields: immutable$Map[Short, TFieldBlob])
+      extends ThriftResponse[com.twitter.scrooge.test.gold.thriftscala.Response] with ThriftStruct
+      with _root_.scala.Product1[Option[com.twitter.scrooge.test.gold.thriftscala.Response]]
+      with ValidatingThriftStruct[Result]
+      with java.io.Serializable
+    {
+      import Result._
+    
+      def this(
+        success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
+      ) = this(
+        success,
+        immutable$Map.empty
+      )
+    
+      def _1: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
+    
+      def successField: Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
+      def exceptionFields: Iterable[Option[com.twitter.scrooge.ThriftException]] = Nil
+    
+    
+      override def write(_oprot: TProtocol): Unit = {
+        Result.validate(this)
+        _oprot.writeStructBegin(Struct)
+        if (success.isDefined) writeSuccessField(success.get, _oprot)
+        if (_passthroughFields.nonEmpty) {
+          _passthroughFields.values.foreach { _.write(_oprot) }
+        }
+        _oprot.writeFieldStop()
+        _oprot.writeStructEnd()
+      }
+    
+      def copy(
+        success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = this.success,
+        _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
+      ): Result =
+        new Result(
+          success,
+          _passthroughFields
+        )
+    
+      override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
+    
+      private def _equals(x: Result, y: Result): Boolean =
+          x.productArity == y.productArity &&
+          x.productIterator.sameElements(y.productIterator) &&
+          x._passthroughFields == y._passthroughFields
+    
+      override def equals(other: Any): Boolean =
+        canEqual(other) &&
+          _equals(this, other.asInstanceOf[Result])
+    
+      override def hashCode: Int = {
+        _root_.scala.runtime.ScalaRunTime._hashCode(this)
+      }
+    
+      override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
+    
+    
+      override def productArity: Int = 1
+    
+      override def productElement(n: Int): Any = n match {
+        case 0 => this.success
+        case _ => throw new IndexOutOfBoundsException(n.toString)
+      }
+    
+      override def productPrefix: String = "Result"
+    
+      def _codec: ValidatingThriftStructCodec3[Result] = Result
+    }
+
+    val annotations: immutable$Map[String, String] = immutable$Map.empty
+
+    type FunctionType = Function1[Args,Future[com.twitter.scrooge.test.gold.thriftscala.Response]]
+    type ReqRepFunctionType = Function1[_root_.com.twitter.scrooge.Request[Args],Future[_root_.com.twitter.scrooge.Response[com.twitter.scrooge.test.gold.thriftscala.Response]]]
+
+    type ServiceIfaceServiceType = _root_.com.twitter.finagle.Service[Args, SuccessType]
+    type ServicePerEndpointServiceType = _root_.com.twitter.finagle.Service[Args, SuccessType]
+    type ReqRepServicePerEndpointServiceType = _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[Args], _root_.com.twitter.scrooge.Response[SuccessType]]
+
+    def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType =
+      _root_.com.twitter.finagle.Service.mk { args: Args =>
+        f(args)
+      }
+
+    def toServicePerEndpointService(f: FunctionType): ServicePerEndpointServiceType =
+      _root_.com.twitter.finagle.Service.mk { args: Args =>
+        f(args)
+      }
+
+    def toReqRepServicePerEndpointService(f: ReqRepFunctionType): ReqRepServicePerEndpointServiceType =
+      _root_.com.twitter.finagle.Service.mk[_root_.com.twitter.scrooge.Request[Args], _root_.com.twitter.scrooge.Response[SuccessType]] { request: _root_.com.twitter.scrooge.Request[Args] =>
+        f(request)
+      }
+
+
+    val name: String = "noExceptionCall"
+    val serviceName: String = "GoldService"
+    val argsCodec: Args.type = Args
+    val responseCodec: Result.type = Result
+    val oneway: Boolean = false
+  }
+
+  // Compatibility aliases.
+  val noExceptionCall$args: NoExceptionCall.Args.type = NoExceptionCall.Args
+  type noExceptionCall$args = NoExceptionCall.Args
+
+  val noExceptionCall$result: NoExceptionCall.Result.type = NoExceptionCall.Result
+  type noExceptionCall$result = NoExceptionCall.Result
+
 
   trait MethodPerEndpoint
     extends GoldService[Future] {
     /** Hello, I'm a comment. */
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
+    
+    def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
   }
 
   object MethodPerEndpoint {
@@ -772,6 +1263,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       extends MethodPerEndpoint {
         def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
           servicePerEndpoint.doGreatThings(self.DoGreatThings.Args(request))
+        def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+          servicePerEndpoint.noExceptionCall(self.NoExceptionCall.Args(request))
 
         override def asClosable: _root_.com.twitter.util.Closable =
           servicePerEndpoint.asClosable
@@ -794,6 +1287,11 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.DoGreatThings.Args(request))
           servicePerEndpoint.doGreatThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
         }
+        def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+          val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
+          val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.NoExceptionCall.Args(request))
+          servicePerEndpoint.noExceptionCall(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
+        }
 
         override def asClosable: _root_.com.twitter.util.Closable =
           servicePerEndpoint.asClosable
@@ -805,6 +1303,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     extends FutureIface {
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
       serviceIface.doGreatThings(self.DoGreatThings.Args(request))
+    def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+      serviceIface.noExceptionCall(self.NoExceptionCall.Args(request))
   }
 
   implicit object MethodPerEndpointBuilder
@@ -838,6 +1338,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     extends GoldService[Future] {
     /** Hello, I'm a comment. */
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
+    
+    def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
   }
 
   class FinagledClient(
@@ -1076,6 +1578,63 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
             }
             case t @ _root_.com.twitter.util.Throw(_) =>
               Future.const(t.cast[RichResponse[DoGreatThings.Args, DoGreatThings.Result]])
+          }
+        }
+      }
+    
+      statsFilter.andThen(protocolExnFilter).andThen(serdeFilter)
+    }
+    val noExceptionCall: finagle$Filter[(TProtocol, Int), Array[Byte], NoExceptionCall.Args, NoExceptionCall.SuccessType] = {
+      val statsFilter: finagle$Filter[(TProtocol, Int), Array[Byte], (TProtocol, Int), RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]] = perMethodStatsFilter(NoExceptionCall)
+    
+      val protocolExnFilter = new SimpleFilter[(TProtocol, Int), RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]] {
+        def apply(
+          request: (TProtocol, Int),
+          service: _root_.com.twitter.finagle.Service[(TProtocol, Int), RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]]
+        ): Future[RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]] = {
+          val iprot = request._1
+          val seqid = request._2
+          val res = service(request)
+          res.transform {
+            case _root_.com.twitter.util.Throw(e: TProtocolException) =>
+              iprot.readMessageEnd()
+              Future.value(
+                ProtocolExceptionResponse(
+                  null,
+                  exception("noExceptionCall", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
+                  new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
+            case _ =>
+              res
+          }
+        }
+      }
+    
+      val serdeFilter = new finagle$Filter[(TProtocol, Int), RichResponse[NoExceptionCall.Args, NoExceptionCall.Result], NoExceptionCall.Args, NoExceptionCall.SuccessType] {
+        def apply(
+          request: (TProtocol, Int),
+          service: _root_.com.twitter.finagle.Service[NoExceptionCall.Args, NoExceptionCall.SuccessType]
+        ): Future[RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]] = {
+          val iprot = request._1
+          val seqid = request._2
+          val start = System.nanoTime
+          val args = NoExceptionCall.Args.decode(iprot)
+          iprot.readMessageEnd()
+          _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
+          val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+            _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
+            _root_.com.twitter.finagle.thrift.MethodMetadata(NoExceptionCall)) {
+            service(args)
+          }
+          res.transform {
+            case _root_.com.twitter.util.Return(value) =>
+              val methodResult = NoExceptionCall.Result(success = Some(value))
+              Future.value(
+                SuccessfulResponse(
+                  args,
+                  reply("noExceptionCall", seqid, methodResult),
+                  methodResult))
+            case t @ _root_.com.twitter.util.Throw(_) =>
+              Future.const(t.cast[RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]])
           }
         }
       }
