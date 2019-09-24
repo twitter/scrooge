@@ -20,7 +20,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   private static final int {{#isset_field_id}}{{name}}{{/isset_field_id}} = {{i}};
   {{/non_nullable_fields}}
   {{#has_non_nullable_fields}}
-  private BitSet __isset_bit_vector = new BitSet({{non_nullable_fields.size}});
+  private final BitSet __isset_bit_vector = new BitSet({{non_nullable_fields.size}});
   {{/has_non_nullable_fields}}
   {{/consolidate_newlines}}
 

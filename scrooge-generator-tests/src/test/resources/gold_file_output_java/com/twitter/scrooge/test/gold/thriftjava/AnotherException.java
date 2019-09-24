@@ -99,7 +99,7 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
 
   // isset id assignments
   private static final int __ERRORCODE_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private final BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   

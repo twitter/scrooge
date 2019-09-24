@@ -87,7 +87,7 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
 
   // isset id assignments
   private static final int __CHILLTIMESECONDS_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private final BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   static {

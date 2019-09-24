@@ -171,7 +171,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final int __DOCSTRINGCOMMENT_ISSET_ID = 4;
   private static final int __CONSTRUCTIONREQUIREDFIELD_ISSET_ID = 5;
   private static final int __ANINT8_ISSET_ID = 6;
-  private BitSet __isset_bit_vector = new BitSet(7);
+  private final BitSet __isset_bit_vector = new BitSet(7);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   

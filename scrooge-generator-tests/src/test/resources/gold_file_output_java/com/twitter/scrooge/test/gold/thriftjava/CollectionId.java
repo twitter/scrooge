@@ -95,7 +95,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
   // isset id assignments
   private static final int __COLLECTIONLONGID_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private final BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
   
