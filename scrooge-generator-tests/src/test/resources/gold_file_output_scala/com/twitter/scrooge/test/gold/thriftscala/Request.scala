@@ -497,11 +497,11 @@ object Request extends ValidatingThriftStructCodec3[Request] {
 
   private[this] def lazyDecode(_iprot: LazyTProtocol): Request = {
 
-    var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.Seq[String]()
-    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.Set[Int]()
-    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.Map[Long, Long]()
+    var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
+    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
+    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
     var aRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Request] = None
-    var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+    var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
     var hasDefaultOffset: Int = -1
     var noCommentOffset: Int = -1
     var doubleSlashCommentOffset: Int = -1
@@ -782,11 +782,11 @@ object Request extends ValidatingThriftStructCodec3[Request] {
     }
 
   private[thriftscala] def eagerDecode(_iprot: TProtocol): Request = {
-    var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.Seq[String]()
-    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.Set[Int]()
-    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.Map[Long, Long]()
+    var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
+    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
+    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
-    var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+    var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
     var hasDefault: String = "the_default"
     var noComment: _root_.scala.Option[Long] = _root_.scala.None
     var doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None
@@ -1039,11 +1039,11 @@ object Request extends ValidatingThriftStructCodec3[Request] {
   }
 
   def apply(
-    aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.Seq[String](),
-    aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.Set[Int](),
-    aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.Map[Long, Long](),
+    aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil,
+    aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty,
+    aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty,
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
-    subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
+    subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil,
     hasDefault: String = "the_default",
     noComment: _root_.scala.Option[Long] = _root_.scala.None,
     doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
@@ -1454,11 +1454,11 @@ object Request extends ValidatingThriftStructCodec3[Request] {
       immutable$Map.empty[Short, TFieldBlob]
     )
   def this(
-      aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.Seq[String](),
-      aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.Set[Int](),
-      aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.Map[Long, Long](),
+      aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil,
+      aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty,
+      aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty,
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
-      subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request](),
+      subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil,
       hasDefault: String = "the_default",
       noComment: _root_.scala.Option[Long] = _root_.scala.None,
       doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
@@ -1962,15 +1962,15 @@ trait Request
 
     _fieldId match {
       case 1 =>
-        aList = _root_.scala.collection.Seq[String]()
+        aList = _root_.scala.collection.immutable.Nil
       case 2 =>
-        aSet = _root_.scala.collection.Set[Int]()
+        aSet = _root_.scala.collection.immutable.Set.empty
       case 3 =>
-        aMap = _root_.scala.collection.Map[Long, Long]()
+        aMap = _root_.scala.collection.immutable.Map.empty
       case 4 =>
         aRequest = _root_.scala.None
       case 5 =>
-        subRequests = _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+        subRequests = _root_.scala.collection.immutable.Nil
       case 6 =>
         hasDefault = "the_default"
       case 7 =>
@@ -2195,19 +2195,19 @@ private class Request__AdaptDecoder {
       _start_offset)
 
     AdaptTProtocol.usedStartMarker(1)
-    var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.Seq[String]()
+    var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
 
     adapt.set_aList(aList)
     AdaptTProtocol.usedEndMarker(1)
 
     AdaptTProtocol.usedStartMarker(2)
-    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.Set[Int]()
+    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
 
     adapt.set_aSet(aSet)
     AdaptTProtocol.usedEndMarker(2)
 
     AdaptTProtocol.usedStartMarker(3)
-    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.Map[Long, Long]()
+    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
 
     adapt.set_aMap(aMap)
     AdaptTProtocol.usedEndMarker(3)
@@ -2219,7 +2219,7 @@ private class Request__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(4)
 
     AdaptTProtocol.usedStartMarker(5)
-    var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]()
+    var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
 
     adapt.set_subRequests(subRequests)
     AdaptTProtocol.usedEndMarker(5)

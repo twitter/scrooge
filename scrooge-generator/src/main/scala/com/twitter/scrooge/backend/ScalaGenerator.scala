@@ -188,8 +188,12 @@ class ScalaGenerator(
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
     val code = fieldType match {
       case TI64 => "0L"
-      case MapType(_, _, _) | SetType(_, _) | ListType(_, _) =>
-        genType(fieldType).toData + "()"
+      case ListType(_, _) =>
+        "_root_.scala.collection.immutable.Nil"
+      case MapType(_, _, _) =>
+        "_root_.scala.collection.immutable.Map.empty"
+      case SetType(_, _) =>
+        "_root_.scala.collection.immutable.Set.empty"
       case _ => super.genDefaultValue(fieldType).toData
     }
     v(code)

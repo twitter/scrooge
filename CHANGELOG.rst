@@ -8,7 +8,11 @@ Unreleased
 ----------
 
 * scrooge-generator: Make isset BitSet final in Java generated thrift classes. ``PHAB_ID=D374553``
+
 * scrooge-generator: Return Nil for exceptionFields when no exceptions declared in Scala service. ``PHAB_ID=D374436``
+
+* scrooge-generator: Use empty instances as defaults for Seq, Map, Set for Scala generated code. ``PHAB_ID=D375306``
+
 * scrooge-generator: Use wrapper class valueOf in apachejavagen's getFieldValue. ``PHAB_ID=D374413``
 
 19.9.0
