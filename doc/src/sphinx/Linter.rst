@@ -10,9 +10,9 @@ To run the thrift linter with sbt:
 
 .. code-block:: bash
 
-    $ ./sbt 'scrooge-linter/run-main com.twitter.scrooge.linter.Main --help'
+    $ ./sbt 'scrooge-linter/runMain com.twitter.scrooge.linter.Main --help'
 
-    $ ./sbt 'scrooge-linter/run-main com.twitter.scrooge.linter.Main /path/to/thrift/file.thrift'
+    $ ./sbt 'scrooge-linter/runMain com.twitter.scrooge.linter.Main /path/to/thrift/file.thrift'
 
 List of rules
 -------------
@@ -35,4 +35,4 @@ The warning-level rules are:
 
    Field names must be lowerCamelCase.
 
-2. Struct and field names must not be keywords in Scala, Java, Ruby, Python, PHP.
+2. Struct, field, and function names must not be keywords in Scala, Java, Ruby, Python, PHP, Javascript, and Go

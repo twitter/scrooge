@@ -354,6 +354,35 @@ class LinterSpec extends WordSpec with MustMatchers {
       assert(errors(0).msg contains ("Avoid using keywords"))
     }
 
+    "fail Keywords if keyword used as function name" in {
+      val errors = LintRule
+        .Keywords(
+          Document(
+            Seq(),
+            Seq(
+              Service(
+                SimpleID("SomeService"),
+                None,
+                Seq(
+                  Function(
+                    SimpleID("delete"), // delete is a keyword in javascript
+                    "delete",
+                    TString,
+                    genFields(2),
+                    throws = Seq(),
+                    docstring = None
+                  )
+                ),
+                None
+              )
+            )
+          )
+        )
+        .toSeq
+      errors.length must be(1)
+      assert(errors(0).msg contains ("Avoid using keywords"))
+    }
+
     "pass non negative index" in {
       mustPass(
         LintRule.FieldIndexGreaterThanZeroRule(

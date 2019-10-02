@@ -15,6 +15,9 @@ Unreleased
 
 * scrooge-generator: Use wrapper class valueOf in apachejavagen's getFieldValue. ``PHAB_ID=D374413``
 
+* scrooge-linter: Warn when function names are reserved words. Add support for reserved 
+  words in Javascript and Go. ``PHAB_ID=D379008``
+
 19.9.0
 ------
 
