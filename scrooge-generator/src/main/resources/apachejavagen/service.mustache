@@ -208,7 +208,7 @@ public class {{name}} {
       this.service = service;
       this.protocolFactory = clientParam.restrictedProtocolFactory();
       {{^is_oneway}}this.responseClassifier = clientParam.responseClassifier();{{/is_oneway}}
-      this.tlReusableBuffer = new TReusableBuffer(512, clientParam.maxThriftBufferSize());
+      this.tlReusableBuffer = clientParam.createThriftReusableBuffer();
     }
 
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service) {

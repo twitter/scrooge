@@ -188,7 +188,7 @@ public class PlatinumService {
       this.service = service;
       this.protocolFactory = clientParam.restrictedProtocolFactory();
       this.responseClassifier = clientParam.responseClassifier();
-      this.tlReusableBuffer = new TReusableBuffer(512, clientParam.maxThriftBufferSize());
+      this.tlReusableBuffer = clientParam.createThriftReusableBuffer();
     }
 
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service) {

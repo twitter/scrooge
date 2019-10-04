@@ -44,10 +44,9 @@ class GoldService$FinagleClient(
   override def asClosable: _root_.com.twitter.util.Closable = service
 
   private[this] def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
-  private[this] def maxReusableBufferSize: Int = clientParam.maxThriftBufferSize
 
   private[this] val tlReusableBuffer: _root_.com.twitter.scrooge.TReusableBuffer =
-    _root_.com.twitter.scrooge.TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
+    clientParam.createThriftReusableBuffer()
 
   protected def encodeRequest(name: String, args: _root_.com.twitter.scrooge.ThriftStruct): ThriftClientRequest = {
     val memoryBuffer = tlReusableBuffer.get()

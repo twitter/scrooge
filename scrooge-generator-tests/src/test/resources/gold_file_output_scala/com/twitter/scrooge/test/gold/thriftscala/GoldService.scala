@@ -1402,9 +1402,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     private[this] def responseClassifier: ctfs.ResponseClassifier = serverParam.responseClassifier
     private[this] def stats: StatsReceiver = serverParam.serverStats
     private[this] def perEndpointStats: Boolean = serverParam.perEndpointStats && !stats.isNull
-    private[this] def maxReusableBufferSize: Int = serverParam.maxThriftBufferSize
 
-    private[this] val tlReusableBuffer: TReusableBuffer = TReusableBuffer(maxThriftBufferSize = maxReusableBufferSize)
+    private[this] val tlReusableBuffer: TReusableBuffer = TReusableBuffer(maxThriftBufferSize = serverParam.maxThriftBufferSize)
 
     private[thriftscala] def exception(name: String, seqid: Int, code: Int, message: String): Buf = {
       val x = new TApplicationException(code, message)
