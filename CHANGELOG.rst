@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+19.10.0
+-------
+
 * scrooge-generator: Make isset BitSet final in Java generated thrift classes. ``PHAB_ID=D374553``
 
 * scrooge-generator: Return Nil for exceptionFields when no exceptions declared in Scala service. ``PHAB_ID=D374436``
