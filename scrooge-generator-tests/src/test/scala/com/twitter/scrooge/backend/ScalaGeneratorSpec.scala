@@ -80,6 +80,9 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       "annotations" in { _ =>
         AnnoEnum.annotations.get("enumKey") must contain("enumValue")
         AnnoEnum.Enum1.annotations.get("enumFieldKey") must contain("enumFieldValue")
+
+        val enum: AnnoEnum = AnnoEnum.Enum1
+        assert(enum.annotations == Map("enumFieldKey" -> "enumFieldValue"))
       }
 
       "apply" in { _ =>

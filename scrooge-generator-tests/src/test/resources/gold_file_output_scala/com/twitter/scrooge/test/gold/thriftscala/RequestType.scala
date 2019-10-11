@@ -43,6 +43,9 @@ case object RequestType extends _root_.com.twitter.scrooge.ThriftEnumObject[Requ
   {
     val name: String = "EnumUnknownRequestType" + value
     def originalName: String = name
+    val annotations: immutable$Map[String, String] = immutable$Map(
+      "enum.annotation" -> "false"
+    )
   }
 
   /**

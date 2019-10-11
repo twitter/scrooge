@@ -44,6 +44,15 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
   {
     val name: String = "EnumUnknown{{EnumName}}" + value
     def originalName: String = name
+{{#annotations}}
+    val annotations: immutable$Map[String, String] = immutable$Map(
+  {{#pairs}}
+    "{{key}}" -> "{{value}}"
+  {{/pairs|,}}  )
+{{/annotations}}
+{{^annotations}}
+    val annotations: immutable$Map[String, String] = immutable$Map.empty
+{{/annotations}}
   }
 
   /**

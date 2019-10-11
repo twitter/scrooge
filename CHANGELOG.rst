@@ -21,6 +21,9 @@ Unreleased
 * scrooge-linter: Warn when function names are reserved words. Add support for reserved 
   words in Javascript and Go. ``PHAB_ID=D379008``
 
+* scrooge-core: Add annotations method to `c.t.scrooge.ThriftEnum` to make the
+  annotations more accessible in (only) the Scala generated code. ``PHAB_ID=D380663``
+
 19.9.0
 ------
 

@@ -12,6 +12,8 @@ trait ThriftEnum extends TEnum {
   def originalName: String
 
   def getValue = value
+
+  def annotations: Map[String, String]
 }
 
 /**
