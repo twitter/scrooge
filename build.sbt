@@ -44,6 +44,30 @@ val adaptiveScroogeTestThriftSettings = Seq(
 )
 
 def gcJavaOptions: Seq[String] = {
+  val javaVersion = System.getProperty("java.version")
+  if (javaVersion.startsWith("1.8")) {
+    jdk8GcJavaOptions
+  } else {
+    jdk11GcJavaOptions
+  }
+}
+
+def jdk8GcJavaOptions: Seq[String] = {
+  Seq(
+    "-XX:+UseParNewGC",
+    "-XX:+UseConcMarkSweepGC",
+    "-XX:+CMSParallelRemarkEnabled",
+    "-XX:+CMSClassUnloadingEnabled",
+    "-XX:ReservedCodeCacheSize=128m",
+    "-XX:SurvivorRatio=128",
+    "-XX:MaxTenuringThreshold=0",
+    "-Xss8M",
+    "-Xms512M",
+    "-Xmx2G"
+  )
+}
+
+def jdk11GcJavaOptions: Seq[String] = {
   Seq(
     "-XX:+UseParNewGC",
     "-XX:+UseConcMarkSweepGC",
@@ -73,6 +97,14 @@ def travisTestJavaOptions: Seq[String] = {
     )
   }
 }
+
+// scalac options for projects that are scala 2.10
+// or cross compiled with scala 2.10
+val scalacTwoTenOptions = Seq(
+  "-deprecation",
+  "-unchecked",
+  "-feature", "-Xlint",
+  "-encoding", "utf8")
 
 val sharedSettingsWithoutScalaVersion = Seq(
   version := releaseVersion,
@@ -149,6 +181,27 @@ val sharedSettingsWithoutScalaVersion = Seq(
   }
 )
 
+// settings for projects that are scala 2.10
+val settingsWithTwoTen =
+  sharedSettingsWithoutScalaVersion ++
+    Seq(
+      scalaVersion := "2.10.7",
+      scalacOptions := scalacTwoTenOptions,
+      javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.8")
+    )
+
+// settings for projects that are cross compiled with scala 2.10
+val settingsCrossCompiledWithTwoTen =
+  sharedSettingsWithoutScalaVersion ++
+    Seq(
+      crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8", "2.13.0"),
+      scalaVersion := "2.12.8",
+      scalacOptions := scalacTwoTenOptions,
+      javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
+      javacOptions in doc := Seq("-source", "1.8")
+    )
+
 val sharedSettings =
   sharedSettingsWithoutScalaVersion ++
   Seq(
@@ -164,35 +217,6 @@ val sharedSettings =
       ),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
     javacOptions in doc := Seq("-source", "1.8")
-  )
-
-// scalac options for projects that are scala 2.10
-// or cross compiled with scala 2.10
-val scalacTwoTenOptions = Seq(
-  "-deprecation",
-  "-unchecked",
-  "-feature", "-Xlint",
-  "-encoding", "utf8")
-
-// settings for projects that are scala 2.10
-val settingsWithTwoTen =
-  sharedSettingsWithoutScalaVersion ++
-  Seq(
-    scalaVersion := "2.10.6",
-    scalacOptions := scalacTwoTenOptions,
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.7")
-  )
-
-// settings for projects that are cross compiled with scala 2.10
-val settingsCrossCompiledWithTwoTen =
-  sharedSettingsWithoutScalaVersion ++
-  Seq(
-    crossScalaVersions := Seq("2.10.6", "2.11.12", "2.12.8", "2.13.0"),
-    scalaVersion := "2.12.8",
-    scalacOptions := scalacTwoTenOptions,
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked"),
-    javacOptions in doc := Seq("-source", "1.7")
   )
 
 val jmockSettings = Seq(
@@ -356,8 +380,8 @@ lazy val scroogeSbtPlugin = Project(
 ).settings(
   scroogeSbtPluginSettings: _*
 ).settings(
-  scalaVersion := "2.10.6",
-  crossSbtVersions := Seq("0.13.16", "1.2.8"),
+  scalaVersion := "2.12.8",
+  crossSbtVersions := Seq("0.13.18", "1.2.8"),
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := "com.twitter",
   sbtPlugin := true,
