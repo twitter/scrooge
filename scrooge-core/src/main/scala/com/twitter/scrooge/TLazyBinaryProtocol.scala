@@ -29,7 +29,7 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
     transport.write(buf, offset, len)
   }
 
-  override def writeFieldBegin(field: TField) = {
+  override def writeFieldBegin(field: TField): Unit = {
     val buf = transport.getBuffer(3)
     val offset = transport.writerOffset
     buf(offset) = field.`type`

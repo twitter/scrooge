@@ -72,7 +72,7 @@ case class FunctionResult(
   success: Option[Field], // None for void methods
   exceptions: Seq[Field])
     extends StructLike {
-  override val fields = success.toList ++ exceptions
+  override val fields: Seq[Field] = success.toList ++ exceptions
   override val docstring: Option[String] = None
   override val annotations: Map[String, String] = Map.empty
 }

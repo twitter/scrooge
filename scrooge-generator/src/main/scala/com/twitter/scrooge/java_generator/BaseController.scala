@@ -2,19 +2,21 @@ package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast._
 import com.google.common.base.{Function => GFunction}
+import scala.util.matching.Regex
 
 class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
   val gen_hash_code = true
-  def has_namespace = !ns.isEmpty
-  def namespace = ns.get.fullName
-  val trim_regex = """\s+\n""".r
-  val consolidate_newline_regex = """\n+""".r
+  def has_namespace: Boolean = !ns.isEmpty
+  def namespace: String = ns.get.fullName
+  val trim_regex: Regex = """\s+\n""".r
+  val consolidate_newline_regex: Regex = """\n+""".r
 
-  def newHelper(f: String => String) = new GFunction[String, String]() {
-    override def apply(input: String): String = f(input)
-  }
+  def newHelper(f: String => String): Object with GFunction[String, String] =
+    new GFunction[String, String]() {
+      override def apply(input: String): String = f(input)
+    }
 
-  val consolidate_newlines = newHelper { input =>
+  val consolidate_newlines: Object with GFunction[String, String] = newHelper { input =>
     val consolidated = consolidate_newline_regex.replaceAllIn(
       trim_regex
         .replaceAllIn(input, "\n"),
@@ -23,19 +25,19 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
     consolidated.replaceAll("<br/>", "").replaceAll("&nbsp;", " ")
   }
 
-  val newlines_to_spaces = newHelper { input =>
+  val newlines_to_spaces: Object with GFunction[String, String] = newHelper { input =>
     input.replaceAll("\n", " ")
   }
 
-  val trim = newHelper { input =>
+  val trim: Object with GFunction[String, String] = newHelper { input =>
     input.replaceAll("\n", "").trim
   }
 
-  val cap = newHelper { input =>
+  val cap: Object with GFunction[String, String] = newHelper { input =>
     input.capitalize
   }
 
-  val constant_name = newHelper { input =>
+  val constant_name: Object with GFunction[String, String] = newHelper { input =>
     val constantName = new StringBuilder
     var isFirst = true
     var wasPrevUpper = false
@@ -50,15 +52,15 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
     constantName.toString()
   }
 
-  val isset_field_id = newHelper { fieldName =>
+  val isset_field_id: Object with GFunction[String, String] = newHelper { fieldName =>
     "__" + fieldName.toUpperCase + "_ISSET_ID"
   }
 
-  def i_2 = newHelper { input =>
+  def i_2: Object with GFunction[String, String] = newHelper { input =>
     indent(input, 2)
   }
 
-  def i_4 = newHelper { input =>
+  def i_4: Object with GFunction[String, String] = newHelper { input =>
     indent(input, 4)
   }
 

@@ -9,6 +9,6 @@ class BaseSerializeController(
   generator: ApacheJavaGenerator,
   ns: Option[Identifier])
     extends BaseController(generator, ns) {
-  val field_type = new FieldTypeController(fieldType, generator)
-  val name = prefix + fieldName
+  val field_type: FieldTypeController = new FieldTypeController(fieldType, generator)
+  val name: String = prefix + fieldName
 }

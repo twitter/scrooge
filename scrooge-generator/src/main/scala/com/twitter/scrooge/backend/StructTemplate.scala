@@ -25,7 +25,7 @@ trait StructTemplate { self: TemplateGenerator =>
 
   case class Binding[FT <: FieldType](name: String, fieldType: FT)
 
-  val TypeTemplate =
+  val TypeTemplate: Dictionary =
     Dictionary(
       "isList" -> v(false),
       "isSet" -> v(false),
@@ -293,7 +293,7 @@ trait StructTemplate { self: TemplateGenerator =>
     }
   }
 
-  val basePassthrough = Dictionary(
+  val basePassthrough: Dictionary = Dictionary(
     "ptStruct" -> v(false),
     "ptIter" -> v(false),
     "ptMap" -> v(false),

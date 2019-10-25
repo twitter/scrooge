@@ -9,9 +9,9 @@ class FieldValueMetadataController(
   generator: ApacheJavaGenerator,
   ns: Option[Identifier])
     extends BaseController(generator, ns) {
-  val field_type = new FieldTypeController(fieldType, generator)
+  val field_type: FieldTypeController = new FieldTypeController(fieldType, generator)
 
-  def map_element = {
+  def map_element: Any = {
     fieldType match {
       case MapType(k, v, _) => {
         Map(
@@ -23,7 +23,7 @@ class FieldValueMetadataController(
     }
   }
 
-  def set_or_list_element = {
+  def set_or_list_element: Any = {
     fieldType match {
       case SetType(x, _) => elem(x)
       case ListType(x, _) => elem(x)

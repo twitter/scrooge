@@ -23,6 +23,8 @@ import java.io.FileNotFoundException
 import scala.collection.concurrent.{Map, TrieMap}
 import scala.collection.mutable
 import scala.util.parsing.combinator._
+import scala.collection.immutable
+import scala.util.matching.Regex
 
 class ThriftParser(
   importer: Importer,
@@ -35,7 +37,7 @@ class ThriftParser(
     extends RegexParsers {
 
   //                            1    2           3                     4         4a    4b    4c       4d
-  override val whiteSpace =
+  override val whiteSpace: Regex =
     """(\s+|(//.*\r?\n)|(#([^@\r\n].*)?\r?\n)|(/\*[^\*]([^\*]+|\r?\n|\*(?!/))*\*/))+""".r
   // 1: whitespace, 1 or more
   // 2: leading // followed by anything 0 or more, until newline
@@ -97,8 +99,8 @@ class ThriftParser(
 
       def identifier: Parser[Identifier] = qualifiedID | simpleID
    */
-  val identifierRegex = "[A-Za-z_][A-Za-z0-9\\._]*".r
-  lazy val identifier = positioned(identifierRegex ^^ { x =>
+  val identifierRegex: Regex = "[A-Za-z_][A-Za-z0-9\\._]*".r
+  lazy val identifier: Parser[Identifier] = positioned(identifierRegex ^^ { x =>
     Identifier(x)
   })
 
@@ -132,8 +134,8 @@ class ThriftParser(
     "string"
   )
 
-  lazy val simpleIDRegex = "[A-Za-z_][A-Za-z0-9_]*".r
-  lazy val simpleID = positioned(simpleIDRegex ^^ { x =>
+  lazy val simpleIDRegex: Regex = "[A-Za-z_][A-Za-z0-9_]*".r
+  lazy val simpleID: Parser[SimpleID] = positioned(simpleIDRegex ^^ { x =>
     if (thriftKeywords.contains(x))
       failOrWarn(new KeywordException(x))
 
@@ -152,11 +154,11 @@ class ThriftParser(
     else BoolLiteral(true)
   }
 
-  lazy val intConstant = "[-+]?\\d+(?!\\.)".r ^^ { x =>
+  lazy val intConstant: Parser[IntLiteral] = "[-+]?\\d+(?!\\.)".r ^^ { x =>
     IntLiteral(x.toLong)
   }
 
-  lazy val numberLiteral = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ { x =>
+  lazy val numberLiteral: Parser[Literal] = "[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?".r ^^ { x =>
     if (x.exists { c =>
         "eE." contains c
       }) DoubleLiteral(x.toDouble)
@@ -165,31 +167,32 @@ class ThriftParser(
 
   // use a single regex to match string quote-to-quote, so that whitespace parser doesn't
   // get executed inside the quotes
-  lazy val doubleQuotedString = """(")(\\.|[^\\"])*(")""".r
-  lazy val singleQuotedString = """'(\\.|[^\\'])*'""".r
+  lazy val doubleQuotedString: Regex = """(")(\\.|[^\\"])*(")""".r
+  lazy val singleQuotedString: Regex = """'(\\.|[^\\'])*'""".r
 
-  lazy val stringLiteral = (doubleQuotedString | singleQuotedString) ^^ {
+  lazy val stringLiteral: Parser[StringLiteral] = (doubleQuotedString | singleQuotedString) ^^ {
     // strip off quotes
     x =>
       StringLiteral(x.substring(1, x.length - 1))
   }
 
-  lazy val listSeparator = "[,;]?".r
+  lazy val listSeparator: Regex = "[,;]?".r
 
-  lazy val listOrMapRHS = "[" ~> repsep(rhs, listSeparator) <~ opt(listSeparator) <~ "]" ^^ {
+  lazy val listOrMapRHS: Parser[ListRHS] = "[" ~> repsep(rhs, listSeparator) <~ opt(listSeparator) <~ "]" ^^ {
     list =>
       ListRHS(list)
   }
 
-  lazy val keyval = rhs ~ (":" ~> rhs) ^^ {
+  lazy val keyval: Parser[(RHS, RHS)] = rhs ~ (":" ~> rhs) ^^ {
     case k ~ v => (k, v)
   }
 
-  lazy val mapRHS = "{" ~> repsep(keyval, listSeparator) <~ opt(listSeparator) <~ "}" ^^ { list =>
-    MapRHS(list)
+  lazy val mapRHS: Parser[MapRHS] = "{" ~> repsep(keyval, listSeparator) <~ opt(listSeparator) <~ "}" ^^ {
+    list =>
+      MapRHS(list)
   }
 
-  lazy val idRHS = identifier ^^ { id =>
+  lazy val idRHS: Parser[IdRHS] = identifier ^^ { id =>
     IdRHS(id)
   }
 
@@ -197,7 +200,7 @@ class ThriftParser(
 
   lazy val fieldType: Parser[FieldType] = baseType | containerType | referenceType
 
-  lazy val referenceType = identifier ^^ { id =>
+  lazy val referenceType: Parser[ReferenceType] = identifier ^^ { id =>
     ReferenceType(id)
   }
 
@@ -215,20 +218,20 @@ class ThriftParser(
 
   lazy val containerType: Parser[ContainerType] = mapType | setType | listType
 
-  lazy val mapType = ("map" ~> opt(cppType) <~ "<") ~ (fieldType <~ ",") ~ (fieldType <~ ">") ^^ {
+  lazy val mapType: Parser[MapType] = ("map" ~> opt(cppType) <~ "<") ~ (fieldType <~ ",") ~ (fieldType <~ ">") ^^ {
     case cpp ~ key ~ value => MapType(key, value, cpp)
   }
 
-  lazy val setType = ("set" ~> opt(cppType)) ~ ("<" ~> fieldType <~ ">") ^^ {
+  lazy val setType: Parser[SetType] = ("set" ~> opt(cppType)) ~ ("<" ~> fieldType <~ ">") ^^ {
     case cpp ~ t => SetType(t, cpp)
   }
 
-  lazy val listType = ("list" ~ "<") ~> (fieldType <~ ">") ~ opt(cppType) ^^ {
+  lazy val listType: Parser[ListType] = ("list" ~ "<") ~> (fieldType <~ ">") ~ opt(cppType) ^^ {
     case t ~ cpp => ListType(t, cpp)
   }
 
   // FFS. i'm very close to removing this and forcably breaking old thrift files.
-  lazy val cppType = "cpp_type" ~> stringLiteral ^^ { literal =>
+  lazy val cppType: Parser[String] = "cpp_type" ~> stringLiteral ^^ { literal =>
     literal.value
   }
 
@@ -248,7 +251,7 @@ class ThriftParser(
 
   // fields
 
-  lazy val field = positioned(
+  lazy val field: Parser[Field] = positioned(
     (opt(comments) ~ opt(fieldId) ~ fieldReq) ~
       (fieldType ~ defaultedAnnotations ~ simpleID) ~
       opt("=" ~> rhs) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
@@ -273,11 +276,11 @@ class ThriftParser(
     }
   )
 
-  lazy val fieldId = intConstant <~ ":" ^^ { x =>
+  lazy val fieldId: Parser[Int] = intConstant <~ ":" ^^ { x =>
     x.value.toInt
   }
 
-  lazy val fieldReq = opt("required" | "optional") ^^ {
+  lazy val fieldReq: Parser[Requiredness] = opt("required" | "optional") ^^ {
     case Some("required") => Requiredness.Required
     case Some("optional") => Requiredness.Optional
     case Some(r) => throw new ParseException(s"Invalid requiredness value '$r'")
@@ -286,7 +289,7 @@ class ThriftParser(
 
   // functions
 
-  lazy val function = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(
+  lazy val function: Parser[Function] = (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(
     field
   ) <~ ")") ~
     (opt(throws) <~ opt(listSeparator)) ~ defaultedAnnotations ^^ {
@@ -304,25 +307,25 @@ class ThriftParser(
 
   lazy val functionType: Parser[FunctionType] = ("void" ^^^ Void) | fieldType
 
-  lazy val throws = "throws" ~> "(" ~> rep(field) <~ ")"
+  lazy val throws: Parser[List[Field]] = "throws" ~> "(" ~> rep(field) <~ ")"
 
   // definitions
 
-  lazy val definition = const | typedef | enum | senum | struct | union | exception | service
+  lazy val definition: Parser[Definition] = const | typedef | enum | senum | struct | union | exception | service
 
-  lazy val const = opt(comments) ~ ("const" ~> fieldType) ~ simpleID ~ ("=" ~> rhs) ~ opt(
+  lazy val const: Parser[ConstDefinition] = opt(comments) ~ ("const" ~> fieldType) ~ simpleID ~ ("=" ~> rhs) ~ opt(
     listSeparator
   ) ^^ {
     case comment ~ ftype ~ sid ~ const ~ _ =>
       ConstDefinition(sid, ftype, convertRhs(ftype, const), comment)
   }
 
-  lazy val typedef = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ~ defaultedAnnotations ^^ {
+  lazy val typedef: Parser[Typedef] = (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ~ defaultedAnnotations ^^ {
     case dtype ~ referentAnnotations ~ sid ~ aliasAnnotations =>
       Typedef(sid, dtype, referentAnnotations, aliasAnnotations)
   }
 
-  lazy val enum = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(
+  lazy val enum: Parser[Enum] = (opt(comments) ~ (("enum" ~> simpleID) <~ "{")) ~ rep(
     opt(comments) ~ simpleID ~ opt("=" ~> intConstant) ~ defaultedAnnotations <~
       opt(listSeparator)
   ) ~ ("}" ~> defaultedAnnotations) ^^ {
@@ -350,7 +353,8 @@ class ThriftParser(
       }
   }
 
-  lazy val senum = (("senum" ~> simpleID) <~ "{") ~ (rep(stringLiteral <~ opt(listSeparator)) <~
+  lazy val senum: Parser[Senum] = (("senum" ~> simpleID) <~ "{") ~ (rep(
+    stringLiteral <~ opt(listSeparator)) <~
     "}") ~ defaultedAnnotations ^^ {
     case sid ~ items ~ annotations =>
       Senum(sid, items.map {
@@ -358,10 +362,12 @@ class ThriftParser(
       }, annotations)
   }
 
-  def structLike(keyword: String) =
+  def structLike(
+    keyword: String
+  ): Parser[Option[String] ~ SimpleID ~ List[Field] ~ immutable.Map[String, String]] =
     (opt(comments) ~ ((keyword ~> simpleID) <~ "{")) ~ rep(field) ~ ("}" ~> defaultedAnnotations)
 
-  lazy val struct = positioned(structLike("struct") ^^ {
+  lazy val struct: Parser[Struct] = positioned(structLike("struct") ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       Struct(sid, sid.name, fixFieldIds(fields), comment, annotations)
   })
@@ -370,7 +376,7 @@ class ThriftParser(
     _.toLowerCase
   }
 
-  lazy val union = positioned(structLike("union") ^^ {
+  lazy val union: Parser[Union] = positioned(structLike("union") ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       val fields0 = fields.map {
         case f if f.requiredness == Requiredness.Default =>
@@ -385,13 +391,15 @@ class ThriftParser(
       Union(sid, sid.name, fixFieldIds(fields0), comment, annotations)
   })
 
-  lazy val exception = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(rep(field)) ~
+  lazy val exception: Parser[Exception_] = (opt(comments) ~ ("exception" ~> simpleID <~ "{")) ~ opt(
+    rep(field)) ~
     ("}" ~> defaultedAnnotations) ^^ {
     case comment ~ sid ~ fields ~ annotations =>
       Exception_(sid, sid.name, fixFieldIds(fields.getOrElse(Nil)), comment, annotations)
   }
 
-  lazy val service = (opt(comments) ~ ("service" ~> simpleID)) ~ opt("extends" ~> serviceParentID) ~ ("{" ~> rep(
+  lazy val service: Parser[Service] = (opt(comments) ~ ("service" ~> simpleID)) ~ opt(
+    "extends" ~> serviceParentID) ~ ("{" ~> rep(
     function
   ) <~
     "}") ~ defaultedAnnotations ^^ {
@@ -411,7 +419,7 @@ class ThriftParser(
   }
 
   // This is a simpleID without the keyword check. Filenames that are thrift keywords are allowed.
-  lazy val serviceParentID = opt(simpleIDRegex <~ ".") ~ simpleID ^^ {
+  lazy val serviceParentID: Parser[ServiceParent] = opt(simpleIDRegex <~ ".") ~ simpleID ^^ {
     case prefix ~ sid =>
       ServiceParent(sid, prefix.map(SimpleID(_)))
   }
@@ -424,27 +432,28 @@ class ThriftParser(
 
   lazy val header: Parser[Header] = include | cppInclude | namespace
 
-  lazy val include = opt(comments) ~> "include" ~> positioned(stringLiteral ^^ { s =>
-    val doc =
-      if (skipIncludes) {
-        Document(Seq(), Seq())
-      } else {
-        parseFile(s.value)
-      }
-    Include(s.value, doc)
+  lazy val include: Parser[Include] = opt(comments) ~> "include" ~> positioned(stringLiteral ^^ {
+    s =>
+      val doc =
+        if (skipIncludes) {
+          Document(Seq(), Seq())
+        } else {
+          parseFile(s.value)
+        }
+      Include(s.value, doc)
   })
 
   // bogus dude.
-  lazy val cppInclude = "cpp_include" ~> stringLiteral ^^ { s =>
+  lazy val cppInclude: Parser[CppInclude] = "cpp_include" ~> stringLiteral ^^ { s =>
     CppInclude(s.value)
   }
 
-  lazy val namespace = opt(comments) ~> opt("#@") ~> "namespace" ~> namespaceScope ~ identifier ^^ {
+  lazy val namespace: Parser[Namespace] = opt(comments) ~> opt("#@") ~> "namespace" ~> namespaceScope ~ identifier ^^ {
     case scope ~ id =>
       Namespace(scope, id)
   }
 
-  lazy val namespaceScope = "*" ^^^ "*" | (identifier ^^ { _.fullName })
+  lazy val namespaceScope: Parser[String] = "*" ^^^ "*" | (identifier ^^ { _.fullName })
 
   /**
    * Matches scaladoc/javadoc style comments.
@@ -461,13 +470,16 @@ class ThriftParser(
 
   // annotations
 
-  lazy val annotation = identifier ~ ("=" ~> stringLiteral) ^^ {
+  lazy val annotation: Parser[(String, String)] = identifier ~ ("=" ~> stringLiteral) ^^ {
     case id ~ StringLiteral(value) => id.fullName -> value
   }
 
-  lazy val annotationGroup = "(" ~> repsep(annotation, ",") <~ (opt(",") ~ ")") ^^ { _.toMap }
+  lazy val annotationGroup: Parser[immutable.Map[String, String]] = "(" ~> repsep(annotation, ",") <~ (opt(
+    ",") ~ ")") ^^ { _.toMap }
 
-  lazy val defaultedAnnotations = opt(annotationGroup) ^^ { _ getOrElse Map.empty }
+  lazy val defaultedAnnotations: Parser[immutable.Map[String, String]] = opt(annotationGroup) ^^ {
+    _ getOrElse Map.empty
+  }
 
   def parse[T](in: String, parser: Parser[T], file: Option[String] = None): T =
     parseAll(parser, in) match {

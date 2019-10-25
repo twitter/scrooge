@@ -9,7 +9,7 @@ object TByteArrayOutputStreamBenchmark {
   @State(Scope.Thread)
   class InputState {
     val bytes: Int = 16
-    val buf = new Array[Byte](bytes)
+    val buf: Array[Byte] = new Array[Byte](bytes)
   }
 
   @State(Scope.Benchmark)
@@ -50,13 +50,13 @@ class TByteArrayOutputStreamBenchmark {
   }
 
   @Benchmark
-  def timeTByteArrayOutputStream(in: InputState, out: TByteArrayOutputStreamState) =
+  def timeTByteArrayOutputStream(in: InputState, out: TByteArrayOutputStreamState): Unit =
     run(in.buf, out.stream)
 
   @Benchmark
   def timeTUnboundedByteArrayOutputStream(
     in: InputState,
     out: TUnboundedByteArrayOutputStreamState
-  ) =
+  ): Unit =
     run(in.buf, out.stream)
 }

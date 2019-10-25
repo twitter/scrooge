@@ -33,7 +33,7 @@ class AndroidGenerator(
     extends ApacheJavaGenerator(resolvedDoc, defaultNamespace, templateCache) {
   override val namespaceLanguage = "android"
 
-  override def renderMustache(template: String, controller: Any = this) = {
+  override def renderMustache(template: String, controller: Any = this): String = {
     val sw = new StringWriter()
     val mustache = templateCache.getOrElseUpdate(template, {
       val mf = new DefaultMustacheFactory("androidgen/")
@@ -115,7 +115,7 @@ class AndroidGenerator(
     }
   }
 
-  def isListOrSetType(t: FunctionType) = {
+  def isListOrSetType(t: FunctionType): Boolean = {
     t match {
       case ListType(_, _) => true
       case SetType(_, _) => true

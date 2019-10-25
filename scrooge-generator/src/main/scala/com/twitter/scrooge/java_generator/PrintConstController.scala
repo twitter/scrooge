@@ -15,10 +15,10 @@ class PrintConstController(
   val in_static: Boolean = false,
   val defval: Boolean = false)
     extends BaseController(generator, ns) {
-  val field_type = new FieldTypeController(fieldType, generator)
-  def rendered_value = renderConstValue(value, fieldType).value
+  val field_type: FieldTypeController = new FieldTypeController(fieldType, generator)
+  def rendered_value: String = renderConstValue(value, fieldType).value
 
-  def map_values = {
+  def map_values: Seq[Map[String, String]] = {
     val values = value.asInstanceOf[MapRHS]
     val mapType = fieldType.asInstanceOf[MapType]
     values.elems map {
@@ -34,7 +34,7 @@ class PrintConstController(
     }
   }
 
-  def list_or_set_values = {
+  def list_or_set_values: Iterable[Map[String, String]] with Map[String, String] with Int => Any = {
     value match {
       case SetRHS(elems) => {
         val setType = fieldType.asInstanceOf[SetType]

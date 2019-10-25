@@ -29,14 +29,14 @@ class DeepGeneratorController(
   ns: Option[Identifier],
   operation: DeepGeneratorOperation)
     extends BaseController(generator, ns) {
-  val source_name =
+  val source_name: String =
     sourceNamePart2.map(sourceNamePart1 + "." + _).getOrElse(sourceNamePart1)
-  val iterator_element_name = sourceNamePart1 + "_element"
-  val result_element_name = s"${result_name}_${operation.name}"
-  val field_type = new FieldTypeController(fieldType, generator)
-  val direct_copy = field_type.is_base_type || field_type.is_enum || field_type.is_typedef || field_type.is_binary
+  val iterator_element_name: String = sourceNamePart1 + "_element"
+  val result_element_name: String = s"${result_name}_${operation.name}"
+  val field_type: FieldTypeController = new FieldTypeController(fieldType, generator)
+  val direct_copy: Boolean = field_type.is_base_type || field_type.is_enum || field_type.is_typedef || field_type.is_binary
 
-  def map_value = {
+  def map_value: Any = {
     fieldType match {
       case MapType(k, v, _) =>
         Map(
@@ -67,7 +67,7 @@ class DeepGeneratorController(
     indent(deepCopy, 2, true, true)
   }
 
-  def list_or_set_value = {
+  def list_or_set_value: Any = {
     fieldType match {
       case SetType(x, _) => getListSetMap(x)
       case ListType(x, _) => getListSetMap(x)

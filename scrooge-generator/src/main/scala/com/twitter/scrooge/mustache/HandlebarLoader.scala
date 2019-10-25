@@ -48,7 +48,7 @@ class HandlebarLoader(
     )
   }
 
-  val header = {
+  val header: String = {
     val p = new Properties
     val resource = getClass.getResource("/com/twitter/scrooge-generator/build.properties")
     if (resource == null)

@@ -10,5 +10,5 @@ class FieldValueMetadataController(
   generator: AndroidGenerator,
   ns: Option[Identifier])
     extends JavaFieldValueMetadataController(fieldType, generator, ns) {
-  override val field_type = new FieldTypeController(fieldType, generator)
+  override val field_type: FieldTypeController = new FieldTypeController(fieldType, generator)
 }

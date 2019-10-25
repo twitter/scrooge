@@ -6,15 +6,15 @@ import org.apache.thrift.protocol._
 object TAdaptBinaryProtocol {
   // Constants for Thrift Binary protocol
   val FieldTypeBytes = 1
-  val TwoFieldTypesBytes = 2 * FieldTypeBytes
+  val TwoFieldTypesBytes: Int = 2 * FieldTypeBytes
   val FieldIdBytes = 2
-  val FieldTypeAndIdBytes = FieldTypeBytes + FieldIdBytes
+  val FieldTypeAndIdBytes: Int = FieldTypeBytes + FieldIdBytes
   val BoolBytes = 1
   val ByteBytes = 1
   val I16Bytes = 2
   val I32Bytes = 4
-  val I32WithTypeBytes = I32Bytes + FieldTypeBytes
-  val I32WithTwoFieldTypesBytes = I32Bytes + TwoFieldTypesBytes
+  val I32WithTypeBytes: Int = I32Bytes + FieldTypeBytes
+  val I32WithTwoFieldTypesBytes: Int = I32Bytes + TwoFieldTypesBytes
   val EnumBytes = 4
   val I64Bytes = 8
   val DoubleBytes = 8

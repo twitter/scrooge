@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 import thrift.benchmark._
+import com.twitter.scrooge.ThriftStructSerializer
 
 object AdaptTProtocolBenchmark {
   // Pass in a seed and fixed number of airlines.
@@ -24,9 +25,11 @@ object AdaptTProtocolBenchmark {
 
   @State(Scope.Thread)
   class AirlineThreadState {
-    val threadUnsafeLazySerializer = ThreadUnsafeLazyBinaryProtocol(Airline)
-    val eagerThriftSerializer = BinaryThriftStructSerializer(Airline)
-    val adaptSerializer =
+    val threadUnsafeLazySerializer: ThreadUnsafeLazyBinaryProtocol[Airline] =
+      ThreadUnsafeLazyBinaryProtocol(Airline)
+    val eagerThriftSerializer: BinaryThriftStructSerializer[Airline] = BinaryThriftStructSerializer(
+      Airline)
+    val adaptSerializer: ThriftStructSerializer[Airline] =
       ReloadOnceAdaptBinarySerializer(Airline)
     var iter = 0
   }

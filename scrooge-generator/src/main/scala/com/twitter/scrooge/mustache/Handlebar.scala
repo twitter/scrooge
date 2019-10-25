@@ -127,22 +127,24 @@ case class Handlebar(document: MustacheAST.Template) {
   /**
    * Create a string out of a template, using a dictionary to fill in the blanks.
    */
-  def generate(dictionary: Dictionary) = Handlebar.generate(document, dictionary)
+  def generate(dictionary: Dictionary): String = Handlebar.generate(document, dictionary)
 
   /**
    * Given an `unpacker` function that can turn objects of type `T` into dictionaries, return a
    * new function of `T => String` that unpacks items of type `T` and runs them through the
    * template.
    */
-  def generate[T](unpacker: T => Dictionary) = new (T => String) {
+  def generate[T](unpacker: T => Dictionary): T => String = new (T => String) {
     def apply(item: T) = Handlebar.generate(document, unpacker(item))
   }
 
-  def generate[T1, T2](unpacker: (T1, T2) => Dictionary) = new ((T1, T2) => String) {
-    def apply(t1: T1, t2: T2) = Handlebar.generate(document, unpacker(t1, t2))
-  }
+  def generate[T1, T2](unpacker: (T1, T2) => Dictionary): (T1, T2) => String =
+    new ((T1, T2) => String) {
+      def apply(t1: T1, t2: T2) = Handlebar.generate(document, unpacker(t1, t2))
+    }
 
-  def generate[T1, T2, T3](unpacker: (T1, T2, T3) => Dictionary) = new ((T1, T2, T3) => String) {
-    def apply(t1: T1, t2: T2, t3: T3) = Handlebar.generate(document, unpacker(t1, t2, t3))
-  }
+  def generate[T1, T2, T3](unpacker: (T1, T2, T3) => Dictionary): (T1, T2, T3) => String =
+    new ((T1, T2, T3) => String) {
+      def apply(t1: T1, t2: T2, t3: T3) = Handlebar.generate(document, unpacker(t1, t2, t3))
+    }
 }

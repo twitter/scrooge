@@ -29,12 +29,12 @@ sealed trait NamedType extends FieldType {
 }
 
 case class StructType(struct: StructLike, scopePrefix: Option[SimpleID] = None) extends NamedType {
-  val sid = struct.sid
+  val sid: SimpleID = struct.sid
   override def toString: String = "Struct(?)"
 }
 
 case class EnumType(enum: Enum, scopePrefix: Option[SimpleID] = None) extends NamedType {
-  val sid = enum.sid
+  val sid: SimpleID = enum.sid
   override def toString: String = "Enum(?)"
 }
 

@@ -101,7 +101,7 @@ object GeneratorFactory {
     }.toMap
   }
 
-  def languages = factories.keys
+  def languages: Iterable[String] = factories.keys
 
   def apply(
     lan: String,
@@ -221,9 +221,9 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   def normalizeCase[N <: Node](node: N): N =
     TemplateGenerator.normalizeCase(node)
 
-  def quote(str: String) = "\"" + str + "\""
+  def quote(str: String): String = "\"" + str + "\""
   def quoteKeyword(str: String): String
-  def isNullableType(t: FieldType, isOptional: Boolean = false) = {
+  def isNullableType(t: FieldType, isOptional: Boolean = false): Boolean = {
     !isOptional && (
       t match {
         case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false

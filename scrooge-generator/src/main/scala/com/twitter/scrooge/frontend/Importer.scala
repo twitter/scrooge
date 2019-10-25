@@ -110,7 +110,7 @@ case class DirImporter(dir: File) extends Importer {
 case class ZipImporter(file: File) extends Importer {
   private[this] val zipFile = new ZipFile(file)
 
-  lazy val canonicalPaths = Seq(file.getCanonicalPath)
+  lazy val canonicalPaths: Seq[String] = Seq(file.getCanonicalPath)
 
   private def resolve(filename: String): Option[ZipEntry] =
     Option(zipFile.getEntry(filename))
@@ -141,7 +141,7 @@ case class ZipImporter(file: File) extends Importer {
 }
 
 case class MultiImporter(importers: Seq[Importer]) extends Importer {
-  lazy val canonicalPaths = importers flatMap { _.canonicalPaths }
+  lazy val canonicalPaths: Seq[String] = importers flatMap { _.canonicalPaths }
 
   private def first[A](f: Importer => Option[A]): Option[A] =
     importers.foldLeft[Option[A]](None) { (accum, next) =>
@@ -166,7 +166,7 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
 }
 
 object NullImporter extends Importer {
-  val canonicalPaths = Nil
-  def lastModified(filename: String) = None
-  def apply(filename: String) = None
+  val canonicalPaths: Nil.type = Nil
+  def lastModified(filename: String): None.type = None
+  def apply(filename: String): None.type = None
 }

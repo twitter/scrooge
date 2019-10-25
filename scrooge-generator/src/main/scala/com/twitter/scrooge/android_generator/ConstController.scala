@@ -11,7 +11,7 @@ class ConstController(
   generator: AndroidGenerator,
   ns: Option[Identifier])
     extends TypeController("Constants", generator, ns) {
-  val constants = defs map { d =>
+  val constants: Seq[Map[String, String]] = defs map { d =>
     Map(
       "rendered_value" -> indent(generator.printConstValue(d.sid.name, d.fieldType, d.value, ns), 2)
     )

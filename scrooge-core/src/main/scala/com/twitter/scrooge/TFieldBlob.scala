@@ -35,7 +35,7 @@ case class TFieldBlob(field: TField, content: Buf) {
   def this(field: TField, data: Array[Byte]) =
     this(field, Buf.ByteArray.Owned(data))
 
-  def id = field.id
+  def id: Short = field.id
 
   @deprecated(
     "TFieldBlob now uses `c.t.io.Buf` to represent the data, call `content` instead",

@@ -21,7 +21,7 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
 
   override def checkField(member: Field): Unit = {}
 
-  override def coerce(value: AnyRef) = {
+  override def coerce(value: AnyRef): Object = {
     value match {
       case m: scala.collection.Map[_, _] =>
         // TODO: when we stop supporting scala 2.11, use JavaConverters.mapAsJavaMap
@@ -38,7 +38,7 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
     writer: Writer,
     value: AnyRef,
     scopes: Array[AnyRef]
-  ) = {
+  ): Writer = {
     value match {
       case TraversableAnyRef(t) => {
         var newWriter = writer
@@ -58,7 +58,7 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
     writer: Writer,
     value: AnyRef,
     scopes: Array[AnyRef]
-  ) = {
+  ): Writer = {
     value match {
       case TraversableAnyRef(t) => {
         if (t.isEmpty) {
@@ -73,7 +73,7 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
     }
   }
 
-  val TraversableAnyRef = new Def[Traversable[AnyRef]]
+  val TraversableAnyRef: Def[Traversable[AnyRef]] = new Def[Traversable[AnyRef]]
   class Def[C: ClassTag] {
     def unapply[X: ClassTag](x: X): Option[C] = {
       x match {

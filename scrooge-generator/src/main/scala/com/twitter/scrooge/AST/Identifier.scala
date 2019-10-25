@@ -76,12 +76,12 @@ case class SimpleID(name: String, origName: Option[String] = None) extends Ident
   assert(!name.contains(".") && !name.isEmpty, s"'$name' is not a valid SimpleID") // name is a simple string
   val fullName: String = name
 
-  val originalName = origName.getOrElse(fullName)
+  val originalName: String = origName.getOrElse(fullName)
 
-  def toCamelCase = SimpleID(Identifier.toCamelCase(name), origName = Some(originalName))
-  def toTitleCase = SimpleID(Identifier.toTitleCase(name), origName = Some(originalName))
-  def toUpperCase = SimpleID(name.toUpperCase, origName = Some(originalName))
-  def toLowerCase = SimpleID(name.toLowerCase, origName = Some(originalName))
+  def toCamelCase: SimpleID = SimpleID(Identifier.toCamelCase(name), origName = Some(originalName))
+  def toTitleCase: SimpleID = SimpleID(Identifier.toTitleCase(name), origName = Some(originalName))
+  def toUpperCase: SimpleID = SimpleID(name.toUpperCase, origName = Some(originalName))
+  def toLowerCase: SimpleID = SimpleID(name.toLowerCase, origName = Some(originalName))
 
   // append and prepend only available for SimpleID
   // To encourage correct usage of SimpleID, we intentionally don't use implicit
@@ -109,13 +109,13 @@ case class QualifiedID(names: Seq[String]) extends Identifier {
   val fullName: String = names.mkString(".")
 
   // case conversion only happens on the last id
-  def toCamelCase =
+  def toCamelCase: QualifiedID =
     QualifiedID(names.dropRight(1) :+ Identifier.toCamelCase(names.last))
-  def toTitleCase =
+  def toTitleCase: QualifiedID =
     QualifiedID(names.dropRight(1) :+ Identifier.toTitleCase(names.last))
-  def toUpperCase =
+  def toUpperCase: QualifiedID =
     QualifiedID(names.dropRight(1) :+ names.last.toUpperCase)
-  def toLowerCase =
+  def toLowerCase: QualifiedID =
     QualifiedID(names.dropRight(1) :+ names.last.toLowerCase)
 
   def head: SimpleID = SimpleID(names.head)

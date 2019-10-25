@@ -6,5 +6,5 @@ import com.twitter.scrooge.java_generator.{FieldController => JavaFieldControlle
 class FieldController(f: Field, generator: AndroidGenerator, ns: Option[Identifier])
     extends JavaFieldController(f, generator, ns) {
 
-  override val field_type = new FieldTypeController(f.fieldType, generator)
+  override val field_type: FieldTypeController = new FieldTypeController(f.fieldType, generator)
 }

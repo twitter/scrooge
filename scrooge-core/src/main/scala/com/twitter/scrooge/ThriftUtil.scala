@@ -5,7 +5,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TTransport
 
 object ThriftUtil {
-  val EmptyPassthroughs = Map.empty[TField, TTransport]
+  val EmptyPassthroughs: Map[TField, TTransport] = Map.empty[TField, TTransport]
 
   def transfer(outProt: TProtocol, inProt: TProtocol, typ: Byte): Unit =
     transfer(outProt, inProt, typ, Int.MaxValue)

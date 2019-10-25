@@ -5,37 +5,38 @@ import com.twitter.scrooge.ast.ListType
 import com.twitter.scrooge.frontend.ScroogeInternalException
 
 class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerator) {
-  def to_enum = generator.getTypeString(fieldType)
-  def to_enum_compat = generator.getTypeStringWithEnumMapping(fieldType)
-  val type_name = generator.typeName(fieldType)
-  val type_name_in_container = generator.typeName(fieldType, inContainer = true)
-  val type_name_in_container_skip_generic =
+  def to_enum: String = generator.getTypeString(fieldType)
+  def to_enum_compat: String = generator.getTypeStringWithEnumMapping(fieldType)
+  val type_name: String = generator.typeName(fieldType)
+  val type_name_in_container: String = generator.typeName(fieldType, inContainer = true)
+  val type_name_in_container_skip_generic: String =
     generator.typeName(fieldType, inContainer = true, skipGeneric = true)
-  val qualified_type_name = generator.typeName(fieldType, fileNamespace = Some(generator.namespace))
-  val init_type_name = generator.typeName(fieldType, inInit = true)
+  val qualified_type_name: String =
+    generator.typeName(fieldType, fileNamespace = Some(generator.namespace))
+  val init_type_name: String = generator.typeName(fieldType, inInit = true)
   def is_enum_set: Boolean = fieldType match {
     case SetType(_: EnumType, _) => true
     case _ => false
   }
-  def init_field = generator.initField(fieldType)
-  val nullable = generator.isNullableType(fieldType)
-  val double = fieldType == TDouble
-  val boolean = fieldType == TBool
-  val is_container = fieldType match {
+  def init_field: String = generator.initField(fieldType)
+  val nullable: Boolean = generator.isNullableType(fieldType)
+  val double: Boolean = fieldType == TDouble
+  val boolean: Boolean = fieldType == TBool
+  val is_container: Boolean = fieldType match {
     case _: MapType | _: SetType | _: ListType => true
     case _ => false
   }
-  val is_enum = fieldType.isInstanceOf[EnumType]
+  val is_enum: Boolean = fieldType.isInstanceOf[EnumType]
   // is the field value effectively an i32
-  val base_int_type = fieldType != TDouble && fieldType != TBool
-  val is_list_or_set = fieldType match {
+  val base_int_type: Boolean = fieldType != TDouble && fieldType != TBool
+  val is_list_or_set: Any = fieldType match {
     case SetType(x, _) => Map("elem_type" -> new FieldTypeController(x, generator))
     case ListType(x, _) => Map("elem_type" -> new FieldTypeController(x, generator))
     case _ => false
   }
-  val is_list = fieldType.isInstanceOf[ListType]
-  val is_map = fieldType.isInstanceOf[MapType]
-  def map_types = fieldType match {
+  val is_list: Boolean = fieldType.isInstanceOf[ListType]
+  val is_map: Boolean = fieldType.isInstanceOf[MapType]
+  def map_types: Any = fieldType match {
     case MapType(k, v, _) =>
       Map(
         "key_type" -> new FieldTypeController(k, generator),
@@ -43,21 +44,21 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
       )
     case _ => false
   }
-  val is_binary = fieldType == TBinary
-  val is_typedef = fieldType.isInstanceOf[Typedef]
-  val is_base_type = fieldType match {
+  val is_binary: Boolean = fieldType == TBinary
+  val is_typedef: Boolean = fieldType.isInstanceOf[Typedef]
+  val is_base_type: Boolean = fieldType match {
     case Void | TString | TBool | TByte | TI16 | TI32 | TI64 | TDouble => true
     case _ => false
   }
-  val is_base_type_or_enum = is_base_type || fieldType.isInstanceOf[EnumType]
-  val is_base_type_or_binary = is_base_type || fieldType == TBinary
-  val is_base_type_not_string = is_base_type && fieldType != TString
-  val is_struct = fieldType.isInstanceOf[StructType] // this can be a struct or an exception
-  val is_struct_or_enum = is_struct || fieldType.isInstanceOf[EnumType]
+  val is_base_type_or_enum: Boolean = is_base_type || fieldType.isInstanceOf[EnumType]
+  val is_base_type_or_binary: Boolean = is_base_type || fieldType == TBinary
+  val is_base_type_not_string: Boolean = is_base_type && fieldType != TString
+  val is_struct: Boolean = fieldType.isInstanceOf[StructType] // this can be a struct or an exception
+  val is_struct_or_enum: Boolean = is_struct || fieldType.isInstanceOf[EnumType]
   val is_void: Boolean = fieldType == Void || fieldType == OnewayVoid
-  val has_struct_at_leaf = hasStructAtLeaf(fieldType)
+  val has_struct_at_leaf: Boolean = hasStructAtLeaf(fieldType)
 
-  def get_type = {
+  def get_type: String = {
     fieldType match {
       case TString => "String"
       case TBool => "Bool"

@@ -18,6 +18,7 @@ package com.twitter.scrooge.mustache
 
 import com.twitter.scrooge.frontend.ParseException
 import scala.util.parsing.combinator._
+import scala.util.matching.Regex
 
 object MustacheAST {
   case class Template(segments: Seq[Segment])
@@ -39,7 +40,7 @@ class ParserPool(size: Int = 10) {
     queue.offer(new MustacheParser)
   }
 
-  def apply[T](f: MustacheParser => T) = {
+  def apply[T](f: MustacheParser => T): T = {
     val parser = queue.take()
     try {
       f(parser)
@@ -66,26 +67,27 @@ class MustacheParser extends RegexParsers {
 
   def directive: Parser[Option[Segment]] = interpolation | section | comment | partial
 
-  def interpolation = "{{" ~> id <~ "}}" ^^ { x =>
+  def interpolation: Parser[Some[Interpolation]] = "{{" ~> id <~ "}}" ^^ { x =>
     Some(Interpolation(x))
   }
 
-  def startSection = "{{" ~> """#|\^""".r ~ id <~ "}}" ^^ {
+  def startSection: Parser[(Boolean, String)] = "{{" ~> """#|\^""".r ~ id <~ "}}" ^^ {
     case prefix ~ id =>
       (prefix == "^", id)
   }
 
-  def endSection = "{{/" ~> id ~ opt("|" ~> """([^}]|}(?!}))+""".r) <~ "}}"
+  def endSection: Parser[String ~ Option[String]] =
+    "{{/" ~> id ~ opt("|" ~> """([^}]|}(?!}))+""".r) <~ "}}"
 
-  def section = startSection ~ document ~ endSection ^^ {
+  def section: Parser[Some[Section]] = startSection ~ document ~ endSection ^^ {
     case (reversed, id1) ~ doc ~ (id2 ~ joiner) =>
       if (id1 != id2) err("Expected " + id1 + ", got " + id2)
       Some(Section(id1, doc, reversed, joiner))
   }
 
-  def comment = """\{\{!(.*?)}}""".r ^^^ None
+  def comment: Parser[None.type] = """\{\{!(.*?)}}""".r ^^^ None
 
-  def partial = "{{>" ~> id <~ "}}" ^^ { x =>
+  def partial: Parser[Some[Partial]] = "{{>" ~> id <~ "}}" ^^ { x =>
     Some(Partial(x))
   }
 
@@ -93,7 +95,7 @@ class MustacheParser extends RegexParsers {
     Some(Data(x))
   }
 
-  def id = """[A-Za-z0-9_\.]+""".r
+  def id: Regex = """[A-Za-z0-9_\.]+""".r
 
   def apply(in: String): Template = {
     CleanupWhitespace {

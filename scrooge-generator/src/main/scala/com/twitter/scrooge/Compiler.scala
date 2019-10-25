@@ -32,10 +32,10 @@ object CompilerDefaults {
 class Compiler {
   val defaultDestFolder = "."
   var destFolder: String = defaultDestFolder
-  val includePaths = new mutable.ListBuffer[String]
-  val thriftFiles = new mutable.ListBuffer[String]
-  val flags = new mutable.HashSet[ServiceOption]
-  val namespaceMappings = new mutable.HashMap[String, String]
+  val includePaths: mutable.ListBuffer[String] = new mutable.ListBuffer[String]
+  val thriftFiles: mutable.ListBuffer[String] = new mutable.ListBuffer[String]
+  val flags: mutable.HashSet[ServiceOption] = new mutable.HashSet[ServiceOption]
+  val namespaceMappings: mutable.HashMap[String, String] = new mutable.HashMap[String, String]
   var verbose = false
   var strict = true
   var genAdapt = false

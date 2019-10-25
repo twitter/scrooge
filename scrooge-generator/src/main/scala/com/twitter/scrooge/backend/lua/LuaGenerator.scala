@@ -6,6 +6,7 @@ import com.twitter.scrooge.frontend.ResolvedDocument
 import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
 import com.twitter.scrooge.mustache.HandlebarLoader
 import java.io.File
+import com.twitter.scrooge.mustache.Dictionary
 
 object LuaGeneratorFactory extends GeneratorFactory {
 
@@ -21,7 +22,8 @@ object LuaGeneratorFactory extends GeneratorFactory {
   }
 
   val language = "lua"
-  val templateLoader = new HandlebarLoader("/luagen/", ".mustache", luaCommentFunction)
+  val templateLoader: HandlebarLoader =
+    new HandlebarLoader("/luagen/", ".mustache", luaCommentFunction)
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
@@ -43,7 +45,7 @@ class LuaGenerator(
 
   val namespaceLanguage = "lua"
   val fileExtension = ".lua"
-  val experimentFlags = Seq.empty[String]
+  val experimentFlags: Seq[String] = Seq.empty[String]
 
   def templates: HandlebarLoader = templateLoader
 
@@ -200,7 +202,7 @@ class LuaGenerator(
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
     toplevel: Boolean = false
-  ) = {
+  ): Dictionary = {
     val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     // Struct or Enum types referenced in the struct that need a `require` statement at the top of the lua file
     val requireStatements = struct.fields
@@ -214,7 +216,7 @@ class LuaGenerator(
   }
 
   // Finagle support, not implemented
-  def genBaseFinagleService = v("")
+  def genBaseFinagleService: CodeFragment = v("")
   def getParentFinagleService(p: ServiceParent): CodeFragment = v("")
   def getParentFinagleClient(p: ServiceParent): CodeFragment = v("")
 }

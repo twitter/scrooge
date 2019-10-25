@@ -9,11 +9,11 @@ class DeserializeFieldController(
   generator: ApacheJavaGenerator,
   ns: Option[Identifier])
     extends BaseSerializeController(fieldType, fieldName, prefix, generator, ns) {
-  val obj =
+  val obj: Any =
     if (field_type.is_container) generator.tmp("_" + field_type.get_type.toLowerCase) else false
-  val tmp_i = if (field_type.is_container) generator.tmp("_i") else false
+  val tmp_i: Any = if (field_type.is_container) generator.tmp("_i") else false
 
-  def deserialize_map_element = {
+  def deserialize_map_element: Any = {
     fieldType match {
       case MapType(k, v, _) => {
         val tmpKey = generator.tmp("_key")
@@ -31,7 +31,7 @@ class DeserializeFieldController(
     }
   }
 
-  def deserialize_set_or_list_element = {
+  def deserialize_set_or_list_element: Any = {
     fieldType match {
       case SetType(x, _) => deserialize_elem(x)
       case ListType(x, _) => deserialize_elem(x)

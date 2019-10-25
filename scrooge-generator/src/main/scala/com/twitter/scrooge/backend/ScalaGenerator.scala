@@ -24,7 +24,7 @@ import java.io.File
 
 object ScalaGeneratorFactory extends GeneratorFactory {
   val language = "scala"
-  val handlebarLoader = new HandlebarLoader("/scalagen/", ".mustache")
+  val handlebarLoader: HandlebarLoader = new HandlebarLoader("/scalagen/", ".mustache")
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,

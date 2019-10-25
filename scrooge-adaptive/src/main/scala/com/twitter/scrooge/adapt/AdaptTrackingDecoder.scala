@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.atomic.AtomicInteger
 
 private[adapt] object AdaptTrackingDecoder {
-  val logger = Logger(this.getClass)
+  val logger: Logger = Logger(this.getClass)
 
   val AdaptSuffix = "__Adapt"
   val AdaptDecoderSuffix = "__AdaptDecoder"

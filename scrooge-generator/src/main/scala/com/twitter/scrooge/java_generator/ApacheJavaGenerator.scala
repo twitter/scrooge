@@ -252,7 +252,7 @@ class ApacheJavaGenerator(
     }
   }
 
-  def isNullableType(t: FunctionType) = {
+  def isNullableType(t: FunctionType): Boolean = {
     t match {
       case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
       case _ => true

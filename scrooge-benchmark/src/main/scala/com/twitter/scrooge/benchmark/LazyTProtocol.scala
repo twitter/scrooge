@@ -26,8 +26,8 @@ case class StatelessLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStructCod
 }
 
 case class ThreadUnsafeLazyBinaryProtocol[T <: ThriftStruct](codec: ThriftStructCodec[T]) {
-  val transport = new TArrayByteTransport
-  val proto = new TLazyBinaryProtocol(transport)
+  val transport: TArrayByteTransport = new TArrayByteTransport
+  val proto: TLazyBinaryProtocol = new TLazyBinaryProtocol(transport)
 
   def toBytes(obj: T): Array[Byte] = {
     transport.reset()
@@ -72,17 +72,21 @@ object LazyTProtocolBenchmark {
 
   @State(Scope.Thread)
   class AirportThreadState {
-    val threadUnsafeLazySerializer = ThreadUnsafeLazyBinaryProtocol(Airport)
+    val threadUnsafeLazySerializer: ThreadUnsafeLazyBinaryProtocol[Airport] =
+      ThreadUnsafeLazyBinaryProtocol(Airport)
   }
 
   @State(Scope.Benchmark)
   class AirportState {
 
-    val binaryThriftStructSerializer = BinaryThriftStructSerializer(Airport)
+    val binaryThriftStructSerializer: BinaryThriftStructSerializer[Airport] =
+      BinaryThriftStructSerializer(Airport)
 
-    val statelessLazySerializer = StatelessLazyBinaryProtocol(Airport)
+    val statelessLazySerializer: StatelessLazyBinaryProtocol[Airport] = StatelessLazyBinaryProtocol(
+      Airport)
 
-    val statefulLazySerializer = LazyBinaryThriftStructSerializer(Airport)
+    val statefulLazySerializer: LazyBinaryThriftStructSerializer[Airport] =
+      LazyBinaryThriftStructSerializer(Airport)
 
     @Setup(Level.Trial)
     def setup(): Unit = {

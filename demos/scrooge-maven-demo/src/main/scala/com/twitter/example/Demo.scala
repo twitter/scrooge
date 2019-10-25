@@ -7,9 +7,10 @@ import com.twitter.util.Future
 import java.net.{SocketAddress, InetSocketAddress}
 import java.util.concurrent.atomic.AtomicInteger
 import org.apache.thrift.protocol.TBinaryProtocol
+import com.twitter.finagle.ListeningServer
 
 object DemoClient {
-  def buildClient(address: SocketAddress) = {
+  def buildClient(address: SocketAddress): UserService.FinagledClient = {
     val clientService = ClientBuilder()
       .hosts(address.asInstanceOf[InetSocketAddress])
       .stack(Thrift.client)
@@ -30,7 +31,7 @@ object DemoServer {
     }
   }
 
-  def buildServer() = {
+  def buildServer(): ListeningServer = {
     val protocol = new TBinaryProtocol.Factory()
     val serverService = new UserService.FinagledService(new MyUserImpl, protocol)
     ServerBuilder()

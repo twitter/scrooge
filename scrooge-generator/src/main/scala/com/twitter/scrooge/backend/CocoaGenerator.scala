@@ -10,8 +10,8 @@ import scala.collection.mutable
 
 object CocoaGeneratorFactory extends GeneratorFactory {
   val language = "cocoa"
-  val headerTemplateLoader = new HandlebarLoader("/cocoagen/", ".h")
-  val implementationTemplateLoader = new HandlebarLoader("/cocoagen/", ".m")
+  val headerTemplateLoader: HandlebarLoader = new HandlebarLoader("/cocoagen/", ".h")
+  val implementationTemplateLoader: HandlebarLoader = new HandlebarLoader("/cocoagen/", ".m")
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
@@ -36,13 +36,13 @@ class CocoaGenerator(
   val fileExtension = ".m"
   val headerExtension = ".h"
   val templateDirName = "/cocoagen/"
-  val experimentFlags = Seq.empty[String]
+  val experimentFlags: Seq[String] = Seq.empty[String]
 
   // Namespace for the current thrift file is not avaialbe when we construct the code generator.
   // It will only be available when we call the apply method.
   var currentNamespace = ""
 
-  def templates = implementationTemplateLoader
+  def templates: HandlebarLoader = implementationTemplateLoader
 
   implicit class RichDictionary(dictionary: Dictionary) {
     def update(keyPath: Seq[String], data: String): Unit = {
@@ -137,7 +137,7 @@ class CocoaGenerator(
     fields: Seq[Field],
     blacklist: Seq[String],
     namespace: Option[Identifier] = None
-  ) = {
+  ): Seq[Dictionary] = {
     val dictionaries = super.fieldsToDict(fields, blacklist)
 
     (dictionaries, fields, 0 until dictionaries.size).zipped.foreach {
@@ -162,7 +162,7 @@ class CocoaGenerator(
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
     toplevel: Boolean = false
-  ) = {
+  ): Dictionary = {
     val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     dictionary("headers") = getDependentHeaders(struct)
 
@@ -319,7 +319,7 @@ class CocoaGenerator(
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment = v("")
 
   // Finagle support, not implemented
-  def genBaseFinagleService = throw new Exception("not implemented")
+  def genBaseFinagleService: CodeFragment = throw new Exception("not implemented")
   def getParentFinagleService(p: ServiceParent): CodeFragment =
     throw new Exception("not implemented")
   def getParentFinagleClient(p: ServiceParent): CodeFragment =

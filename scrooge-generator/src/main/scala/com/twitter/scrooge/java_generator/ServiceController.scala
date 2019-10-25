@@ -5,7 +5,7 @@ import com.twitter.scrooge.ast.Service
 
 class ServiceController(service: Service, generator: ApacheJavaGenerator, ns: Option[Identifier])
     extends TypeController(service, generator, ns) {
-  val extends_iface = service.parent match {
+  val extends_iface: Any = service.parent match {
     case Some(parent) =>
       Map(
         "parent_name" ->
@@ -14,7 +14,7 @@ class ServiceController(service: Service, generator: ApacheJavaGenerator, ns: Op
     case None =>
       false
   }
-  val functions = service.functions map { f =>
+  val functions: Seq[FunctionController] = service.functions map { f =>
     new FunctionController(f, generator, ns)
   }
 }

@@ -8,10 +8,11 @@ import org.apache.thrift.protocol.{TProtocol, TBinaryProtocol}
 import org.apache.thrift.transport.TTransport
 import org.openjdk.jmh.annotations._
 import thrift.benchmark._
+import scala.collection.mutable
 
 private class ExposedBAOS extends ByteArrayOutputStream {
-  def get = buf
-  def len = count
+  def get: Array[Byte] = buf
+  def len: Int = count
 }
 
 class TRewindable extends TTransport {
@@ -53,22 +54,22 @@ class TRewindable extends TTransport {
 }
 
 class Collections(size: Int) {
-  val map = new TRewindable
-  val mapProt = new TBinaryProtocol(map)
+  val map: TRewindable = new TRewindable
+  val mapProt: TBinaryProtocol = new TBinaryProtocol(map)
 
-  val set = new TRewindable
-  val setProt = new TBinaryProtocol(set)
+  val set: TRewindable = new TRewindable
+  val setProt: TBinaryProtocol = new TBinaryProtocol(set)
 
-  val list = new TRewindable
-  val listProt = new TBinaryProtocol(list)
+  val list: TRewindable = new TRewindable
+  val listProt: TBinaryProtocol = new TBinaryProtocol(list)
 
-  val rng = new Random(31415926535897932L)
+  val rng: Random = new Random(31415926535897932L)
 
-  val mapVals = Map.newBuilder[Long, String]
-  val setVals = Set.newBuilder[Long]
-  val listVals = Seq.newBuilder[Long]
+  val mapVals: mutable.Builder[(Long, String), Map[Long, String]] = Map.newBuilder[Long, String]
+  val setVals: mutable.Builder[Long, Set[Long]] = Set.newBuilder[Long]
+  val listVals: mutable.Builder[Long, Seq[Long]] = Seq.newBuilder[Long]
 
-  val m = for (_ <- (0 until size)) {
+  val m: Unit = for (_ <- (0 until size)) {
     val num = rng.nextLong()
     mapVals += (num -> num.toString)
     setVals += num
@@ -107,14 +108,14 @@ class CollectionsBenchmark {
   import CollectionsBenchmark._
 
   @Benchmark
-  def timeMap(state: CollectionsState) =
+  def timeMap(state: CollectionsState): Unit =
     state.col.run(MapCollections, state.col.mapProt, state.col.map)
 
   @Benchmark
-  def timeSet(state: CollectionsState) =
+  def timeSet(state: CollectionsState): Unit =
     state.col.run(SetCollections, state.col.setProt, state.col.set)
 
   @Benchmark
-  def timeList(state: CollectionsState) =
+  def timeList(state: CollectionsState): Unit =
     state.col.run(ListCollections, state.col.listProt, state.col.list)
 }
