@@ -69,7 +69,6 @@ def jdk8GcJavaOptions: Seq[String] = {
 
 def jdk11GcJavaOptions: Seq[String] = {
   Seq(
-    "-XX:+UseParNewGC",
     "-XX:+UseConcMarkSweepGC",
     "-XX:+CMSParallelRemarkEnabled",
     "-XX:+CMSClassUnloadingEnabled",
