@@ -8,7 +8,10 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+  InvalidFieldsException,
   LazyTProtocol,
+  StructBuilder,
+  StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
@@ -22,10 +25,10 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.Map
+import scala.reflect.{ClassTag, classTag}
 
 
-object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
+object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with StructBuilderFactory[CollectionId] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("CollectionId")
   val CollectionLongIdField: TField = new TField("collectionLongId", TType.I64, 1)
@@ -50,6 +53,10 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
 
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
+
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+    classTag[Long].asInstanceOf[ClassTag[_]]
+  )
 
   /**
    * Checks that all required fields are non-null.
@@ -76,6 +83,8 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] {
           field
         }
     )
+
+  def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.None, fieldTypes)
 
   override def encode(_item: CollectionId, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -472,6 +481,26 @@ trait CollectionId
   override def productPrefix: String = "CollectionId"
 
   def _codec: ValidatingThriftStructCodec3[CollectionId] = CollectionId
+
+  def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.Some(this), fieldTypes)
+}
+
+private[thriftscala] class CollectionIdStructBuilder(instance: _root_.scala.Option[CollectionId], fieldTypes: IndexedSeq[ClassTag[_]])
+    extends StructBuilder[CollectionId](fieldTypes) {
+
+  def build(): CollectionId = instance match {
+    case _root_.scala.Some(i) =>
+      CollectionId(
+        (if (fieldArray(0) == null) i.collectionLongId else fieldArray(0)).asInstanceOf[Long]
+      )
+    case _root_.scala.None =>
+      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("CollectionId"))
+      else {
+        CollectionId(
+          fieldArray(0).asInstanceOf[Long]
+        )
+      }
+    }
 }
 
 private class CollectionId__AdaptDecoder {

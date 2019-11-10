@@ -29,6 +29,7 @@ import org.apache.thrift.TApplicationException
 import scala.collection.mutable.Builder
 import scala.collection.immutable.{Map => immutable$Map, Set => immutable$Set}
 import scala.language.higherKinds
+import scala.reflect.{ClassTag, classTag}
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
@@ -316,7 +317,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
 
   object MoreCoolThings extends ThriftMethod {
     
-    object Args extends ValidatingThriftStructCodec3[Args] {
+    object Args extends ValidatingThriftStructCodec3[Args] with StructBuilderFactory[Args] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct: TStruct = new TStruct("moreCoolThings_args")
       val RequestField: TField = new TField("request", TType.STRUCT, 1)
@@ -341,6 +342,10 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       lazy val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
+    
+      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+        classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
+      )
     
       /**
        * Checks that all required fields are non-null.
@@ -367,6 +372,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
               com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
             }
         )
+    
+      def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.None, fieldTypes)
     
       override def encode(_item: Args, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
@@ -513,11 +520,31 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       override def productPrefix: String = "Args"
     
       def _codec: ValidatingThriftStructCodec3[Args] = Args
+    
+      def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.Some(this), fieldTypes)
+    }
+    
+    private[thriftscala] class ArgsStructBuilder(instance: _root_.scala.Option[Args], fieldTypes: IndexedSeq[ClassTag[_]])
+        extends StructBuilder[Args](fieldTypes) {
+    
+      def build(): Args = instance match {
+        case _root_.scala.Some(i) =>
+          Args(
+            (if (fieldArray(0) == null) i.request else fieldArray(0)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+          )
+        case _root_.scala.None =>
+          if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
+          else {
+            Args(
+              fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            )
+          }
+        }
     }
 
     type SuccessType = Int
     
-    object Result extends ValidatingThriftStructCodec3[Result] {
+    object Result extends ValidatingThriftStructCodec3[Result] with StructBuilderFactory[Result] {
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct: TStruct = new TStruct("moreCoolThings_result")
       val SuccessField: TField = new TField("success", TType.I32, 0)
@@ -569,6 +596,12 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       lazy val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
     
+      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+        classTag[_root_.scala.Option[Int]].asInstanceOf[ClassTag[_]],
+        classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException]].asInstanceOf[ClassTag[_]],
+        classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]].asInstanceOf[ClassTag[_]]
+      )
+    
       /**
        * Checks that all required fields are non-null.
        */
@@ -612,6 +645,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
               }
             }
         )
+    
+      def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.None, fieldTypes)
     
       override def encode(_item: Result, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
@@ -846,6 +881,30 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       override def productPrefix: String = "Result"
     
       def _codec: ValidatingThriftStructCodec3[Result] = Result
+    
+      def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.Some(this), fieldTypes)
+    }
+    
+    private[thriftscala] class ResultStructBuilder(instance: _root_.scala.Option[Result], fieldTypes: IndexedSeq[ClassTag[_]])
+        extends StructBuilder[Result](fieldTypes) {
+    
+      def build(): Result = instance match {
+        case _root_.scala.Some(i) =>
+          Result(
+            (if (fieldArray(0) == null) i.success else fieldArray(0)).asInstanceOf[_root_.scala.Option[Int]],
+            (if (fieldArray(1) == null) i.ax else fieldArray(1)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException]],
+            (if (fieldArray(2) == null) i.oce else fieldArray(2)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+          )
+        case _root_.scala.None =>
+          if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Result"))
+          else {
+            Result(
+              fieldArray(0).asInstanceOf[_root_.scala.Option[Int]],
+              fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException]],
+              fieldArray(2).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+            )
+          }
+        }
     }
 
     val annotations: immutable$Map[String, String] = immutable$Map.empty

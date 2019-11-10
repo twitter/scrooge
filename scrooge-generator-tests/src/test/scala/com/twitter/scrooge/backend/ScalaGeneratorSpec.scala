@@ -1440,6 +1440,121 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         )
         copiedStruct must be(expected)
       }
+
+      "structBuilder with an instance" should {
+        "with setField" should {
+          "create new struct without error" in { _ =>
+            val struct = ConstructorRequiredStruct(
+              optionalField = Some(1),
+              requiredField = "",
+              constructionRequiredField = 3,
+              defaultRequirednessField = 4
+            )
+
+            val instanceBuilder = struct.newBuilder().setField(0, Some(4))
+            assert(instanceBuilder.build() == ConstructorRequiredStruct(Some(4), "", 3L, 4L, None))
+          }
+
+          "throw an exception with wrong field type" in { _ =>
+            val struct = ConstructorRequiredStruct(
+              optionalField = Some(1),
+              requiredField = "",
+              constructionRequiredField = 3,
+              defaultRequirednessField = 4
+            )
+
+            val instanceBuilder = struct.newBuilder()
+
+            intercept[IllegalArgumentException] {
+              instanceBuilder.setField(0, 5)
+            }
+          }
+
+          "throw an exception with a field that doesn't exist" in { _ =>
+            val struct = ConstructorRequiredStruct(
+              optionalField = Some(1),
+              requiredField = "",
+              constructionRequiredField = 3,
+              defaultRequirednessField = 4
+            )
+
+            val instanceBuilder = struct.newBuilder()
+
+            intercept[IndexOutOfBoundsException] {
+              instanceBuilder.setField(9, 0)
+            }
+          }
+        }
+
+        "with setAllFields" should {
+          "create new struct without error" in { _ =>
+            val struct = ConstructorRequiredStruct(
+              optionalField = Some(1),
+              requiredField = "",
+              constructionRequiredField = 3,
+              defaultRequirednessField = 4
+            )
+
+            val instanceBuilder = struct.newBuilder()
+
+            instanceBuilder.setAllFields(Seq(Some(8), "tada", 10L, 2L, None))
+            assert(
+              instanceBuilder.build() == ConstructorRequiredStruct(Some(8), "tada", 10L, 2L, None))
+          }
+
+          "throw an exception with wrong field type" in { _ =>
+            val struct = ConstructorRequiredStruct(
+              optionalField = Some(1),
+              requiredField = "",
+              constructionRequiredField = 3,
+              defaultRequirednessField = 4
+            )
+
+            val instanceBuilder = struct.newBuilder()
+
+            intercept[IllegalArgumentException] {
+              instanceBuilder.setAllFields(Seq("wrongTypedValue", 0, 0, 0, None))
+            }
+          }
+
+          "throw an exception with wrong number of fields" in { _ =>
+            val struct = ConstructorRequiredStruct(
+              optionalField = Some(1),
+              requiredField = "",
+              constructionRequiredField = 3,
+              defaultRequirednessField = 4
+            )
+
+            val instanceBuilder = struct.newBuilder()
+
+            intercept[IndexOutOfBoundsException] {
+              instanceBuilder.setAllFields(Seq())
+            }
+
+            intercept[IndexOutOfBoundsException] {
+              instanceBuilder.setAllFields(Seq(Some(8), "tada", 10L, 2L, None, 0))
+            }
+          }
+        }
+      }
+
+      "structBuilder from static" should {
+        "create new struct without error after setting all fields" in { _ =>
+          val staticBuilder = ConstructorRequiredStruct.newBuilder()
+
+          staticBuilder.setAllFields(Seq(Some(11), "woo", 7L, 15L, None))
+          assert(staticBuilder.build() == ConstructorRequiredStruct(Some(11), "woo", 7L, 15L, None))
+        }
+
+        "throw an exception when building after setting just one field" in { _ =>
+          val staticBuilder = ConstructorRequiredStruct.newBuilder().setField(1, "voila")
+
+          intercept[InvalidFieldsException] {
+            // Not all fields were set
+            staticBuilder.build()
+          }
+        }
+      }
     }
 
     "validate" should {

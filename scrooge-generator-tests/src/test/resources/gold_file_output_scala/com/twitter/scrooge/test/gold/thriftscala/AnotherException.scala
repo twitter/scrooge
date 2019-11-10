@@ -8,6 +8,9 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+  InvalidFieldsException,
+  StructBuilder,
+  StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
   ThriftStructFieldInfo,
@@ -18,10 +21,10 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.Map
+import scala.reflect.{ClassTag, classTag}
 
 
-object AnotherException extends ValidatingThriftStructCodec3[AnotherException] {
+object AnotherException extends ValidatingThriftStructCodec3[AnotherException] with StructBuilderFactory[AnotherException] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("AnotherException")
   val ErrorCodeField: TField = new TField("errorCode", TType.I32, 1)
@@ -46,6 +49,10 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] {
 
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
+
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+    classTag[Int].asInstanceOf[ClassTag[_]]
+  )
 
   /**
    * Checks that all required fields are non-null.
@@ -72,6 +79,8 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] {
           field
         }
     )
+
+  def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.None, fieldTypes)
 
   override def encode(_item: AnotherException, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -327,5 +336,25 @@ class AnotherException(
       _passthroughFields,
       flags
     )
+
+  def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.Some(this), fieldTypes)
+}
+
+private[thriftscala] class AnotherExceptionStructBuilder(instance: _root_.scala.Option[AnotherException], fieldTypes: IndexedSeq[ClassTag[_]])
+    extends StructBuilder[AnotherException](fieldTypes) {
+
+  def build(): AnotherException = instance match {
+    case _root_.scala.Some(i) =>
+      AnotherException(
+        (if (fieldArray(0) == null) i.errorCode else fieldArray(0)).asInstanceOf[Int]
+      )
+    case _root_.scala.None =>
+      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("AnotherException"))
+      else {
+        AnotherException(
+          fieldArray(0).asInstanceOf[Int]
+        )
+      }
+    }
 }
 

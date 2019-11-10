@@ -8,6 +8,9 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+  InvalidFieldsException,
+  StructBuilder,
+  StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
   ThriftStructFieldInfo,
@@ -18,10 +21,10 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.Map
+import scala.reflect.{ClassTag, classTag}
 
 
-object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityException] {
+object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityException] with StructBuilderFactory[OverCapacityException] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("OverCapacityException")
   val ChillTimeSecondsField: TField = new TField("chillTimeSeconds", TType.I32, 1)
@@ -51,6 +54,10 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
         "e.annotation" -> "true"
     )
 
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+    classTag[Int].asInstanceOf[ClassTag[_]]
+  )
+
   /**
    * Checks that all required fields are non-null.
    */
@@ -76,6 +83,8 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
           field
         }
     )
+
+  def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.None, fieldTypes)
 
   override def encode(_item: OverCapacityException, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -331,5 +340,25 @@ class OverCapacityException(
       _passthroughFields,
       flags
     )
+
+  def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.Some(this), fieldTypes)
+}
+
+private[thriftscala] class OverCapacityExceptionStructBuilder(instance: _root_.scala.Option[OverCapacityException], fieldTypes: IndexedSeq[ClassTag[_]])
+    extends StructBuilder[OverCapacityException](fieldTypes) {
+
+  def build(): OverCapacityException = instance match {
+    case _root_.scala.Some(i) =>
+      OverCapacityException(
+        (if (fieldArray(0) == null) i.chillTimeSeconds else fieldArray(0)).asInstanceOf[Int]
+      )
+    case _root_.scala.None =>
+      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("OverCapacityException"))
+      else {
+        OverCapacityException(
+          fieldArray(0).asInstanceOf[Int]
+        )
+      }
+    }
 }
 

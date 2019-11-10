@@ -8,7 +8,10 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+  InvalidFieldsException,
   LazyTProtocol,
+  StructBuilder,
+  StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
@@ -22,10 +25,10 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.Map
+import scala.reflect.{ClassTag, classTag}
 
 
-object Recursive extends ValidatingThriftStructCodec3[Recursive] {
+object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuilderFactory[Recursive] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("Recursive")
   val IdField: TField = new TField("id", TType.I64, 1)
@@ -64,6 +67,11 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] {
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+    classTag[Long].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]].asInstanceOf[ClassTag[_]]
+  )
+
   /**
    * Checks that all required fields are non-null.
    */
@@ -97,6 +105,8 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] {
           }
         }
     )
+
+  def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.None, fieldTypes)
 
   override def encode(_item: Recursive, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -573,6 +583,28 @@ trait Recursive
   override def productPrefix: String = "Recursive"
 
   def _codec: ValidatingThriftStructCodec3[Recursive] = Recursive
+
+  def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.Some(this), fieldTypes)
+}
+
+private[thriftscala] class RecursiveStructBuilder(instance: _root_.scala.Option[Recursive], fieldTypes: IndexedSeq[ClassTag[_]])
+    extends StructBuilder[Recursive](fieldTypes) {
+
+  def build(): Recursive = instance match {
+    case _root_.scala.Some(i) =>
+      Recursive(
+        (if (fieldArray(0) == null) i.id else fieldArray(0)).asInstanceOf[Long],
+        (if (fieldArray(1) == null) i.recRequest else fieldArray(1)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
+      )
+    case _root_.scala.None =>
+      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Recursive"))
+      else {
+        Recursive(
+          fieldArray(0).asInstanceOf[Long],
+          fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
+        )
+      }
+    }
 }
 
 private class Recursive__AdaptDecoder {

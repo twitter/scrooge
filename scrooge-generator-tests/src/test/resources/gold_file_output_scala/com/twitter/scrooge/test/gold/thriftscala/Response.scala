@@ -8,7 +8,10 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+  InvalidFieldsException,
   LazyTProtocol,
+  StructBuilder,
+  StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
@@ -22,10 +25,10 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.Map
+import scala.reflect.{ClassTag, classTag}
 
 
-object Response extends ValidatingThriftStructCodec3[Response] {
+object Response extends ValidatingThriftStructCodec3[Response] with StructBuilderFactory[Response] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("Response")
   val StatusCodeField: TField = new TField("statusCode", TType.I32, 1)
@@ -64,6 +67,11 @@ object Response extends ValidatingThriftStructCodec3[Response] {
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+    classTag[Int].asInstanceOf[ClassTag[_]],
+    classTag[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion].asInstanceOf[ClassTag[_]]
+  )
+
   /**
    * Checks that all required fields are non-null.
    */
@@ -95,6 +103,8 @@ object Response extends ValidatingThriftStructCodec3[Response] {
           com.twitter.scrooge.test.gold.thriftscala.ResponseUnion.withoutPassthroughFields(field)
         }
     )
+
+  def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.None, fieldTypes)
 
   override def encode(_item: Response, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -571,6 +581,28 @@ trait Response
   override def productPrefix: String = "Response"
 
   def _codec: ValidatingThriftStructCodec3[Response] = Response
+
+  def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.Some(this), fieldTypes)
+}
+
+private[thriftscala] class ResponseStructBuilder(instance: _root_.scala.Option[Response], fieldTypes: IndexedSeq[ClassTag[_]])
+    extends StructBuilder[Response](fieldTypes) {
+
+  def build(): Response = instance match {
+    case _root_.scala.Some(i) =>
+      Response(
+        (if (fieldArray(0) == null) i.statusCode else fieldArray(0)).asInstanceOf[Int],
+        (if (fieldArray(1) == null) i.responseUnion else fieldArray(1)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+      )
+    case _root_.scala.None =>
+      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Response"))
+      else {
+        Response(
+          fieldArray(0).asInstanceOf[Int],
+          fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+        )
+      }
+    }
 }
 
 private class Response__AdaptDecoder {

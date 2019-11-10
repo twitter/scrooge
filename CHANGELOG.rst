@@ -12,6 +12,8 @@ Unreleased
 
 * scrooge: Add initial support for JDK 11 compatibility. ``PHAB_ID=D365075``
 
+* scrooge-core: Add StructBuilderFactory to `c.t.scrooge.ThriftStruct` for Scala generated code. ``PHAB_ID=D383568``
+
 19.10.0
 -------
 

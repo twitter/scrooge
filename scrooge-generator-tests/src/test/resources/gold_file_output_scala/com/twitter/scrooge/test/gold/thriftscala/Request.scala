@@ -8,7 +8,10 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.io.Buf
 import com.twitter.scrooge.{
+  InvalidFieldsException,
   LazyTProtocol,
+  StructBuilder,
+  StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
@@ -22,12 +25,12 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.immutable.{Map => immutable$Map}
 import scala.collection.mutable.Builder
-import scala.collection.Map
+import scala.reflect.{ClassTag, classTag}
 
 /**
  * Request struct docstring
  */
-object Request extends ValidatingThriftStructCodec3[Request] {
+object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderFactory[Request] {
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("Request")
   val AListField: TField = new TField("aList", TType.LIST, 1)
@@ -245,6 +248,24 @@ object Request extends ValidatingThriftStructCodec3[Request] {
         "s.annotation.two" -> "other"
     )
 
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+    classTag[_root_.scala.collection.Seq[String]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.collection.Set[Int]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.collection.Map[Long, Long]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]].asInstanceOf[ClassTag[_]],
+    classTag[String].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[Long]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[Long]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[Long]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[Long]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[Long]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]].asInstanceOf[ClassTag[_]],
+    classTag[String].asInstanceOf[ClassTag[_]],
+    classTag[Long].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[Byte]].asInstanceOf[ClassTag[_]]
+  )
+
   /**
    * Checks that all required fields are non-null.
    */
@@ -399,6 +420,8 @@ object Request extends ValidatingThriftStructCodec3[Request] {
           }
         }
     )
+
+  def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.None, fieldTypes)
 
   override def encode(_item: Request, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -2180,6 +2203,54 @@ trait Request
   override def productPrefix: String = "Request"
 
   def _codec: ValidatingThriftStructCodec3[Request] = Request
+
+  def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.Some(this), fieldTypes)
+}
+
+private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Request], fieldTypes: IndexedSeq[ClassTag[_]])
+    extends StructBuilder[Request](fieldTypes) {
+
+  def build(): Request = instance match {
+    case _root_.scala.Some(i) =>
+      Request(
+        (if (fieldArray(0) == null) i.aList else fieldArray(0)).asInstanceOf[_root_.scala.collection.Seq[String]],
+        (if (fieldArray(1) == null) i.aSet else fieldArray(1)).asInstanceOf[_root_.scala.collection.Set[Int]],
+        (if (fieldArray(2) == null) i.aMap else fieldArray(2)).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
+        (if (fieldArray(3) == null) i.aRequest else fieldArray(3)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        (if (fieldArray(4) == null) i.subRequests else fieldArray(4)).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        (if (fieldArray(5) == null) i.hasDefault else fieldArray(5)).asInstanceOf[String],
+        (if (fieldArray(6) == null) i.noComment else fieldArray(6)).asInstanceOf[_root_.scala.Option[Long]],
+        (if (fieldArray(7) == null) i.doubleSlashComment else fieldArray(7)).asInstanceOf[_root_.scala.Option[Long]],
+        (if (fieldArray(8) == null) i.hashtagComment else fieldArray(8)).asInstanceOf[_root_.scala.Option[Long]],
+        (if (fieldArray(9) == null) i.singleAsteriskComment else fieldArray(9)).asInstanceOf[_root_.scala.Option[Long]],
+        (if (fieldArray(10) == null) i.docStringComment else fieldArray(10)).asInstanceOf[_root_.scala.Option[Long]],
+        (if (fieldArray(11) == null) i.recRequest else fieldArray(11)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
+        (if (fieldArray(12) == null) i.requiredField else fieldArray(12)).asInstanceOf[String],
+        (if (fieldArray(13) == null) i.constructionRequiredField.get else fieldArray(13)).asInstanceOf[Long],
+        (if (fieldArray(14) == null) i.anInt8 else fieldArray(14)).asInstanceOf[_root_.scala.Option[Byte]]
+      )
+    case _root_.scala.None =>
+      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Request"))
+      else {
+        Request(
+          fieldArray(0).asInstanceOf[_root_.scala.collection.Seq[String]],
+          fieldArray(1).asInstanceOf[_root_.scala.collection.Set[Int]],
+          fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
+          fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
+          fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
+          fieldArray(5).asInstanceOf[String],
+          fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
+          fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
+          fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],
+          fieldArray(9).asInstanceOf[_root_.scala.Option[Long]],
+          fieldArray(10).asInstanceOf[_root_.scala.Option[Long]],
+          fieldArray(11).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
+          fieldArray(12).asInstanceOf[String],
+          fieldArray(13).asInstanceOf[Long],
+          fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]]
+        )
+      }
+    }
 }
 
 private class Request__AdaptDecoder {
