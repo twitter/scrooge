@@ -4,7 +4,6 @@ scala_library(
     dependencies = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/openjdk/jmh:jmh-core",
-        "3rdparty/jvm/org/slf4j:slf4j-nop",
         "scrooge/scrooge-adaptive",
         "scrooge/scrooge-adaptive/src/test/scala/com/twitter/scrooge/adapt/testutil",
         "scrooge/scrooge-benchmark/src/main/thrift:thrift-scala",
@@ -21,5 +20,6 @@ jvm_binary(
     main = "org.openjdk.jmh.Main",
     dependencies = [
         ":scala",
+        "3rdparty/jvm/org/slf4j:slf4j-nop",
     ],
 )
