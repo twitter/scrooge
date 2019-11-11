@@ -1,5 +1,5 @@
 junit_tests(
-    sources = globs("com/twitter/example/DemoSpec.scala"),
+    sources = globs("com/twitter/example/DemoTest.scala"),
     dependencies = [
         "3rdparty/jvm/junit",
         "3rdparty/jvm/org/scalatest",
