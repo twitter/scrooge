@@ -246,7 +246,7 @@ public class GoldService {
      */
     @Deprecated
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory, scala.PartialFunction<com.twitter.finagle.service.ReqRep,com.twitter.finagle.service.ResponseClass> responseClassifier) {
-      this(service, new com.twitter.finagle.thrift.RichClientParam(protocolFactory, responseClassifier));
+      this(service, com.twitter.finagle.thrift.RichClientParam.apply(protocolFactory, responseClassifier));
     }
 
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, com.twitter.finagle.thrift.RichClientParam clientParam) {
@@ -258,7 +258,7 @@ public class GoldService {
     }
 
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service) {
-      this(service, new com.twitter.finagle.thrift.RichClientParam());
+      this(service, com.twitter.finagle.thrift.RichClientParam.apply());
     }
 
     /**
@@ -266,7 +266,7 @@ public class GoldService {
      */
     @Deprecated
     public ServiceToClient(com.twitter.finagle.Service<ThriftClientRequest, byte[]> service, TProtocolFactory protocolFactory) {
-      this(service, new com.twitter.finagle.thrift.RichClientParam(protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default()));
+      this(service, com.twitter.finagle.thrift.RichClientParam.apply(protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default()));
     }
 
     public Future<Response> doGreatThings(Request request) {
