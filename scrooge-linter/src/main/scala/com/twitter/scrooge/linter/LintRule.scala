@@ -144,12 +144,16 @@ object LintRule {
      * method and marks the method as not compilable at all tiers. This makes every subsequently
      * compiled call to M a call into the interpreter causing hotspots and high CPU times/throttling.
      */
-    private[this] val optimalLimit: Int = 66
+    protected[linter] val OptimalLimit: Int = 66
 
-    private[this] def lintMessage(lintType: String, thriftObj: String): LintMessage = {
+    private[this] def lintMessage(
+      lintType: String,
+      thriftObj: String,
+      foundCount: Int
+    ): LintMessage = {
       val msg =
         s"""
-           |Too many $lintType found in $thriftObj. Optimal compiler limit is $optimalLimit.
+           |Too many $lintType found in $thriftObj. Optimal compiler limit is $OptimalLimit, but $foundCount items were found.
            | This will generate a method too large for inlining which may lead to higher than expected CPU costs.
         """.stripMargin.replace("\n", "")
 
@@ -160,19 +164,19 @@ object LintRule {
 
       // struct fields are generated in an unapply function
       val structs = doc.defs.collect {
-        case s: StructLike if s.fields.length >= optimalLimit =>
-          lintMessage("fields for thrift struct", s"${s.originalName} struct")
+        case s: StructLike if s.fields.length >= OptimalLimit =>
+          lintMessage("fields for thrift struct", s"${s.originalName} struct", s.fields.length)
       }
 
       // service function fields are generated as a function
       val serviceFnParams = doc.defs.collect {
         case service: Service =>
           service.functions.collect {
-            case fn: Function if fn.args.length >= optimalLimit =>
+            case fn: Function if fn.args.length >= OptimalLimit =>
               lintMessage(
                 "thrift service method parameters",
-                s"${service.sid.name}.${fn.funcName.name} function"
-              )
+                s"${service.sid.name}.${fn.funcName.name} function",
+                fn.args.length)
           }
       }.flatten
 
@@ -181,18 +185,22 @@ object LintRule {
       val serviceFnExceptions = doc.defs.collect {
         case service: Service =>
           service.functions.collect {
-            case fn: Function if fn.throws.length >= optimalLimit =>
+            case fn: Function if fn.throws.length >= OptimalLimit =>
               lintMessage(
                 "thrift service method exceptions",
-                s"${service.sid.name}.${fn.funcName.name} function"
+                s"${service.sid.name}.${fn.funcName.name} function",
+                fn.throws.length
               )
           }
       }.flatten
 
       // service functions are generated as constructor parameters for the service
       val serviceFns = doc.defs.collect {
-        case service: Service if service.functions.length >= optimalLimit =>
-          lintMessage("thrift service methods", s"${service.sid.name} struct")
+        case service: Service if service.functions.length >= OptimalLimit =>
+          lintMessage(
+            "thrift service methods",
+            s"${service.sid.name} struct",
+            service.functions.length)
       }
 
       structs ++ serviceFns ++ serviceFnParams ++ serviceFnExceptions

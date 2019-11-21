@@ -439,6 +439,10 @@ class LinterSpec extends WordSpec with MustMatchers {
       assert(errors(0).msg contains ("Field id should be supplied"))
     }
 
+    def assertCompilerOptimizedMethodParamLimitMessage(message: String) =
+      assert(
+        message contains (s"Optimal compiler limit is ${LintRule.CompilerOptimizedMethodParamLimit.OptimalLimit}, but 100 items were found."))
+
     "warn on max struct fields" in {
       val warnings = LintRule
         .CompilerOptimizedMethodParamLimit(
@@ -448,6 +452,7 @@ class LinterSpec extends WordSpec with MustMatchers {
       warnings.size must be(1)
       assert(warnings(0).msg contains ("fields for thrift struct"))
       assert(warnings(0).msg contains ("SomeType"))
+      assertCompilerOptimizedMethodParamLimitMessage(warnings(0).msg)
     }
 
     "warn on max service function fields" in {
@@ -478,6 +483,7 @@ class LinterSpec extends WordSpec with MustMatchers {
       warnings.size must be(1)
       assert(warnings(0).msg contains ("thrift service method parameters"))
       assert(warnings(0).msg contains ("SomeType.someFunc"))
+      assertCompilerOptimizedMethodParamLimitMessage(warnings(0).msg)
     }
 
     "warn on max service function exception fields" in {
@@ -508,6 +514,7 @@ class LinterSpec extends WordSpec with MustMatchers {
       warnings.size must be(1)
       assert(warnings(0).msg contains ("thrift service method exceptions"))
       assert(warnings(0).msg contains ("SomeType.someFunc"))
+      assertCompilerOptimizedMethodParamLimitMessage(warnings(0).msg)
     }
 
     "warn on max service functions " in {
@@ -526,6 +533,7 @@ class LinterSpec extends WordSpec with MustMatchers {
       warnings.size must be(1)
       assert(warnings(0).msg contains ("thrift service methods"))
       assert(warnings(0).msg contains ("SomeType"))
+      assertCompilerOptimizedMethodParamLimitMessage(warnings(0).msg)
     }
 
     "detect malformed comment string" in {
