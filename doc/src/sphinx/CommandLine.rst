@@ -11,7 +11,7 @@ the Scrooge directory, and checkout the master branch:
 
 .. code-block:: bash
 
-    $ git clone git@github.com:twitter/scrooge.git
+    $ git clone https://github.com/twitter/scrooge.git
     $ cd scrooge
     $ git checkout master
 
