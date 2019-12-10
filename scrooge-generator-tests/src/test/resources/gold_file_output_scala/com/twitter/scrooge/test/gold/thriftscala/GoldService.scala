@@ -315,6 +315,20 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
       )
     
+      private[this] val structFields: Seq[ThriftStructField[Args]] = {
+        Seq(
+          new ThriftStructField[Args](
+            RequestField,
+            _root_.scala.Some(RequestFieldManifest),
+            classOf[Args]) {
+              def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
+          }
+        )
+      }
+    
+      override lazy val metaData: ThriftStructMetaData[Args] =
+        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    
       /**
        * Checks that all required fields are non-null.
        */
@@ -555,6 +569,26 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]].asInstanceOf[ClassTag[_]],
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]].asInstanceOf[ClassTag[_]]
       )
+    
+      private[this] val structFields: Seq[ThriftStructField[Result]] = {
+        Seq(
+          new ThriftStructField[Result](
+            SuccessField,
+            _root_.scala.Some(SuccessFieldManifest),
+            classOf[Result]) {
+              def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
+          },
+          new ThriftStructField[Result](
+            ExField,
+            _root_.scala.Some(ExFieldManifest),
+            classOf[Result]) {
+              def getValue[R](struct: Result): R = struct.ex.asInstanceOf[R]
+          }
+        )
+      }
+    
+      override lazy val metaData: ThriftStructMetaData[Result] =
+        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -884,6 +918,20 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
       )
     
+      private[this] val structFields: Seq[ThriftStructField[Args]] = {
+        Seq(
+          new ThriftStructField[Args](
+            RequestField,
+            _root_.scala.Some(RequestFieldManifest),
+            classOf[Args]) {
+              def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
+          }
+        )
+      }
+    
+      override lazy val metaData: ThriftStructMetaData[Args] =
+        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    
       /**
        * Checks that all required fields are non-null.
        */
@@ -1110,6 +1158,20 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]].asInstanceOf[ClassTag[_]]
       )
+    
+      private[this] val structFields: Seq[ThriftStructField[Result]] = {
+        Seq(
+          new ThriftStructField[Result](
+            SuccessField,
+            _root_.scala.Some(SuccessFieldManifest),
+            classOf[Result]) {
+              def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
+          }
+        )
+      }
+    
+      override lazy val metaData: ThriftStructMetaData[Result] =
+        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
     
       /**
        * Checks that all required fields are non-null.

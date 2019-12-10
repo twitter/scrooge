@@ -15,6 +15,7 @@ import com.twitter.scrooge.{
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
+  ThriftStructField,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
   ValidatingThriftStruct,
@@ -71,6 +72,26 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     classTag[Int].asInstanceOf[ClassTag[_]],
     classTag[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion].asInstanceOf[ClassTag[_]]
   )
+
+  private[this] val structFields: Seq[ThriftStructField[Response]] = {
+    Seq(
+      new ThriftStructField[Response](
+        StatusCodeField,
+        _root_.scala.Some(StatusCodeFieldManifest),
+        classOf[Response]) {
+          def getValue[R](struct: Response): R = struct.statusCode.asInstanceOf[R]
+      },
+      new ThriftStructField[Response](
+        ResponseUnionField,
+        _root_.scala.Some(ResponseUnionFieldManifest),
+        classOf[Response]) {
+          def getValue[R](struct: Response): R = struct.responseUnion.asInstanceOf[R]
+      }
+    )
+  }
+
+  override lazy val metaData: ThriftStructMetaData[Response] =
+    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

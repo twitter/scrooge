@@ -6,7 +6,15 @@
  */
 package com.twitter.scrooge.test.gold.thriftscala
 
-import com.twitter.scrooge.{ThriftStruct, ThriftStructFieldInfo, ThriftUnion, TFieldBlob, ThriftUnionFieldInfo, ValidatingThriftStruct, ValidatingThriftStructCodec3}
+import com.twitter.scrooge.{
+  TFieldBlob,
+  ThriftStruct,
+  ThriftStructFieldInfo,
+  ThriftStructMetaData,
+  ThriftUnion,
+  ThriftUnionFieldInfo,
+  ValidatingThriftStruct,
+  ValidatingThriftStructCodec3}
 import org.apache.thrift.protocol._
 import scala.collection.immutable.{Map => immutable$Map}
 
@@ -130,6 +138,13 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
       Details.unapply
     )
   )
+
+  override lazy val metaData = new ThriftStructMetaData(
+    this,
+    Seq(),
+    Seq(),
+    fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion with _root_.com.twitter.scrooge.ThriftStruct, _]]],
+    structAnnotations)
 
   override def encode(_item: ResponseUnion, _oprot: TProtocol): Unit =
     _item.write(_oprot)

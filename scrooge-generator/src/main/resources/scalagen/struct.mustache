@@ -14,10 +14,9 @@ import com.twitter.scrooge.{
 {{^isException}}
   ThriftStructCodec3,
 {{/isException}}
+  ThriftStructField,
   ThriftStructFieldInfo,
-{{^isException}}
   ThriftStructMetaData,
-{{/isException}}
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
@@ -112,6 +111,22 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
     classTag[{{>constructionOptionalType}}].asInstanceOf[ClassTag[_]]
 {{/fields|,}}
   )
+
+  private[this] val structFields: Seq[ThriftStructField[{{StructName}}]] = {
+    Seq(
+{{#fields}}
+      new ThriftStructField[{{StructName}}](
+        {{fieldConst}},
+        _root_.scala.Some({{fieldConst}}Manifest),
+        classOf[{{StructName}}]) {
+          def getValue[R](struct: {{StructName}}): R = struct.{{fieldName}}.asInstanceOf[R]
+      }
+{{/fields|,}}
+    )
+  }
+
+  override lazy val metaData: ThriftStructMetaData[{{StructName}}] =
+    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

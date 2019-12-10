@@ -15,6 +15,7 @@ import com.twitter.scrooge.{
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
+  ThriftStructField,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
   ValidatingThriftStruct,
@@ -71,6 +72,26 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     classTag[Long].asInstanceOf[ClassTag[_]],
     classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]].asInstanceOf[ClassTag[_]]
   )
+
+  private[this] val structFields: Seq[ThriftStructField[Recursive]] = {
+    Seq(
+      new ThriftStructField[Recursive](
+        IdField,
+        _root_.scala.Some(IdFieldManifest),
+        classOf[Recursive]) {
+          def getValue[R](struct: Recursive): R = struct.id.asInstanceOf[R]
+      },
+      new ThriftStructField[Recursive](
+        RecRequestField,
+        _root_.scala.Some(RecRequestFieldManifest),
+        classOf[Recursive]) {
+          def getValue[R](struct: Recursive): R = struct.recRequest.asInstanceOf[R]
+      }
+    )
+  }
+
+  override lazy val metaData: ThriftStructMetaData[Recursive] =
+    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

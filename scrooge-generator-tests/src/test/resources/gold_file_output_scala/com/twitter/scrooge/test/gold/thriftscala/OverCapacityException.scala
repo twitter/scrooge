@@ -13,7 +13,9 @@ import com.twitter.scrooge.{
   StructBuilderFactory,
   TFieldBlob,
   ThriftStruct,
+  ThriftStructField,
   ThriftStructFieldInfo,
+  ThriftStructMetaData,
   ValidatingThriftStruct,
   ValidatingThriftStructCodec3
 }
@@ -57,6 +59,20 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
   private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
     classTag[Int].asInstanceOf[ClassTag[_]]
   )
+
+  private[this] val structFields: Seq[ThriftStructField[OverCapacityException]] = {
+    Seq(
+      new ThriftStructField[OverCapacityException](
+        ChillTimeSecondsField,
+        _root_.scala.Some(ChillTimeSecondsFieldManifest),
+        classOf[OverCapacityException]) {
+          def getValue[R](struct: OverCapacityException): R = struct.chillTimeSeconds.asInstanceOf[R]
+      }
+    )
+  }
+
+  override lazy val metaData: ThriftStructMetaData[OverCapacityException] =
+    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

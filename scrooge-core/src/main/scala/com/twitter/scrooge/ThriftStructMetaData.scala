@@ -7,8 +7,115 @@ import scala.reflect.ClassTag
 /**
  * A simple class for generic introspection on ThriftStruct classes.
  */
-final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec[T]) {
-  private[this] def toCamelCase(str: String): String = {
+final class ThriftStructMetaData[T <: ThriftStruct] private (
+  val codec: ThriftStructCodec[T],
+  structFields: Option[Seq[ThriftStructField[T]]],
+  structFieldInfos: Option[Seq[ThriftStructFieldInfo]],
+  unionFieldInfos: Option[Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]],
+  annotations: Option[Map[String, String]]) {
+
+  /**
+   * A constructor that when used, the metadata is
+   * populated via reflection.
+   */
+  def this(codec: ThriftStructCodec[T]) = this(
+    codec = codec,
+    structFields = None,
+    structFieldInfos = None,
+    unionFieldInfos = None,
+    annotations = None
+  )
+
+  /**
+   * A constructor that when used, does not use reflection to populate
+   * the metadata and rather uses the information that is passed in.
+   */
+  def this(
+    codec: ThriftStructCodec[T],
+    structFields: Seq[ThriftStructField[T]],
+    structFieldInfos: Seq[ThriftStructFieldInfo],
+    unionFieldInfos: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]],
+    annotations: Map[String, String]
+  ) = this(
+    codec = codec,
+    structFields = Some(structFields),
+    structFieldInfos = Some(structFieldInfos),
+    unionFieldInfos = Some(unionFieldInfos),
+    annotations = Some(annotations)
+  )
+
+  private[this] val metaDataUtil = new ThriftStructMetaDataUtil[T](codec)
+
+  /**
+   * The Class object for the ThriftStructCodec subclass.
+   */
+  def codecClass: Class[_] = metaDataUtil.structCodecClass
+
+  /**
+   * The fully qualified name of the ThriftStruct subclass.
+   */
+  val structClassName: String = metaDataUtil.thriftStructSubClassName
+
+  /**
+   * Gets the unqualified name of the struct.
+   */
+  val structName: String = metaDataUtil.thriftStructName
+
+  /**
+   * The Class object for ThriftStruct subclass.
+   *
+   * For a union, this is the parent trait of all branches for the union.
+   */
+  val structClass: Class[T] = metaDataUtil.thriftStructClass
+
+  /**
+   * A Seq of ThriftStructFields representing the fields defined in the ThriftStruct.
+   *
+   * For unions, this will return an empty Seq.
+   */
+  val fields: Seq[ThriftStructField[T]] = structFields match {
+    case Some(fields) => fields
+    case None => PopulateMetaDataWithReflection.getFieldsWithReflection[T](codec, metaDataUtil)
+  }
+
+  /**
+   * For non-unions, will return its [[ThriftStructFieldInfo ThriftStructFieldInfos]].
+   *
+   * For unions, will return an empty `Seq`.
+   */
+  val fieldInfos: Seq[ThriftStructFieldInfo] = structFieldInfos match {
+    case Some(fieldInfos) => fieldInfos
+    case None => PopulateMetaDataWithReflection.getFieldInfosWithReflection[T](codec, metaDataUtil)
+  }
+
+  /**
+   * For unions, will return its [[ThriftUnionFieldInfo ThriftUnionFieldInfos]].
+   *
+   * For non-unions, will return an empty `Seq`.
+   */
+  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]] =
+    unionFieldInfos match {
+      case Some(unionFieldInfos) => unionFieldInfos
+      case None =>
+        PopulateMetaDataWithReflection.getUnionFieldsWithReflection[T](codec, metaDataUtil)
+    }
+
+  /**
+   * Parsed annotations at the struct or union level. Left hand side of equal sign is the key,
+   * right side is the value.
+   */
+  val structAnnotations: Map[String, String] = annotations match {
+    case Some(structAnnotations) => structAnnotations
+    case None =>
+      PopulateMetaDataWithReflection.getStructAnnotationsWithReflection[T](codec, metaDataUtil)
+  }
+}
+
+/**
+ * Companion of ThriftStructField that provides helper methods.
+ */
+private object ThriftStructField {
+  protected def snakeCaseToCamelCase(str: String): String = {
     str.takeWhile(_ == '_') + str
       .split('_')
       .filterNot(_.isEmpty)
@@ -22,111 +129,23 @@ final class ThriftStructMetaData[T <: ThriftStruct](val codec: ThriftStructCodec
       }
       .mkString
   }
-
-  /**
-   * The Class object for the ThriftStructCodec subclass.
-   */
-  def codecClass: Class[_] = codec.getClass
-
-  /**
-   * The fully qualified name of the ThriftStruct subclass.
-   */
-  val structClassName: String = codecClass.getName.dropRight(1) // drop '$' from object name
-
-  /**
-   * Gets the unqualified name of the struct.
-   */
-  val structName: String = structClassName.split("\\.").last
-
-  /**
-   * The Class object for ThriftStruct subclass.
-   *
-   * For a union, this is the parent trait of all branches for the union.
-   */
-  val structClass: Class[T] =
-    codecClass.getClassLoader.loadClass(structClassName).asInstanceOf[Class[T]]
-
-  private[this] val isUnion: Boolean =
-    classOf[ThriftUnion].isAssignableFrom(structClass)
-
-  /**
-   * A Seq of ThriftStructFields representing the fields defined in the ThriftStruct.
-   *
-   * For unions, this will return an empty Seq.
-   */
-  val fields: Seq[ThriftStructField[T]] = {
-    if (isUnion) {
-      Nil
-    } else {
-      codecClass.getMethods.toList
-        .filter { m =>
-          m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
-        }
-        .map { m =>
-          val tfield = m.invoke(codec).asInstanceOf[TField]
-          val manifest: scala.Option[Manifest[_]] = try {
-            Some {
-              codecClass
-                .getMethod(m.getName + "Manifest")
-                .invoke(codec)
-                .asInstanceOf[Manifest[_]]
-            }
-          } catch { case _: Throwable => None }
-          val method = structClass.getMethod(toCamelCase(tfield.name))
-          new ThriftStructField[T](tfield, method, manifest)
-        }
-    }
-  }
-
-  /**
-   * For non-unions, will return its [[ThriftStructFieldInfo ThriftStructFieldInfos]].
-   *
-   * For unions, will return an empty `Seq`.
-   */
-  val fieldInfos: Seq[ThriftStructFieldInfo] = {
-    if (isUnion) {
-      Nil
-    } else {
-      codecClass
-        .getMethod("fieldInfos")
-        .invoke(codec)
-        .asInstanceOf[Seq[ThriftStructFieldInfo]]
-    }
-  }
-
-  /**
-   * For unions, will return its [[ThriftUnionFieldInfo ThriftUnionFieldInfos]].
-   *
-   * For non-unions, will return an empty `Seq`.
-   */
-  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]] = {
-    if (!isUnion) {
-      Nil
-    } else {
-      codecClass
-        .getMethod("fieldInfos")
-        .invoke(codec)
-        .asInstanceOf[Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]]
-    }
-  }
-
-  /**
-   * Parsed annotations at the struct or union level. Left hand side of equal sign is the key,
-   * right side is the value.
-   */
-  val structAnnotations: Map[String, String] = {
-    codecClass
-      .getMethod("structAnnotations")
-      .invoke(codec)
-      .asInstanceOf[Map[String, String]]
-  }
-
 }
 
-final class ThriftStructField[T <: ThriftStruct](
+/**
+ * Field information and a generic way to access the field value. The
+ * [[ThriftStructField]] is defined in the generated struct's companion
+ * object in order to avoid using reflection to access the field value.
+ * If the struct is being created in another way (i.e. not generated through
+ * scrooge) the fields will be defined via reflection in
+ * [[PopulateMetaDataWithReflection.getFieldsWithReflection]].
+ */
+abstract class ThriftStructField[T <: ThriftStruct](
   val tfield: TField,
-  val method: Method,
-  val manifest: scala.Option[Manifest[_]]) {
+  val manifest: scala.Option[Manifest[_]],
+  thriftStructClass: Class[T]) {
+
+  val method: Method =
+    thriftStructClass.getMethod(ThriftStructField.snakeCaseToCamelCase(tfield.name))
 
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
@@ -147,7 +166,7 @@ final class ThriftStructField[T <: ThriftStruct](
    * Gets the value of the field from the struct. You can specify the expected return
    * type, rather than casting explicitly.
    */
-  def getValue[R](struct: T): R = method.invoke(struct).asInstanceOf[R]
+  def getValue[R](struct: T): R
 }
 
 /**
@@ -272,4 +291,123 @@ final class ThriftStructFieldInfo(
       Map.empty[String, String],
       None
     )
+}
+
+/**
+ * A simple class for introspecting a ThriftStruct to get its name and class
+ * information. It utilizes reflection to get the required information from the
+ * codec so usage should be avoided as much as possible.
+ */
+private final class ThriftStructMetaDataUtil[T <: ThriftStruct](codec: ThriftStructCodec[T]) {
+
+  /**
+   * The Class object for the ThriftStructCodec subclass.
+   */
+  def structCodecClass: Class[_] = codec.getClass
+
+  /**
+   * The fully qualified name of the ThriftStruct subclass.
+   */
+  val thriftStructSubClassName: String = structCodecClass.getName.dropRight(1) // drop '$' from object name
+
+  /**
+   * Gets the unqualified name of the struct.
+   */
+  val thriftStructName: String = thriftStructSubClassName.split("\\.").last
+
+  /**
+   * The Class object for ThriftStruct subclass.
+   *
+   * For a union, this is the parent trait of all branches for the union.
+   */
+  val thriftStructClass: Class[T] =
+    structCodecClass.getClassLoader.loadClass(thriftStructSubClassName).asInstanceOf[Class[T]]
+
+  def isUnion(): Boolean = classOf[ThriftUnion].isAssignableFrom(thriftStructClass)
+}
+
+/**
+ * An object containing static methods that retrieves metadata through reflection.
+ */
+private object PopulateMetaDataWithReflection {
+
+  /**
+   * Using reflection, get a Seq of [[ThriftStructField]]s representing
+   * the fields defined in the ThriftStruct. This will return an
+   * empty Seq for unions.
+   */
+  def getFieldsWithReflection[T <: ThriftStruct](
+    codec: ThriftStructCodec[T],
+    metaDataUtil: ThriftStructMetaDataUtil[T]
+  ): Seq[ThriftStructField[T]] =
+    if (metaDataUtil.isUnion()) {
+      Nil
+    } else {
+      metaDataUtil.structCodecClass.getMethods.toList
+        .filter { m =>
+          m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
+        }
+        .map { m =>
+          val tfield = m.invoke(codec).asInstanceOf[TField]
+          val manifest: scala.Option[Manifest[_]] = try {
+            Some {
+              metaDataUtil.structCodecClass
+                .getMethod(m.getName + "Manifest")
+                .invoke(codec)
+                .asInstanceOf[Manifest[_]]
+            }
+          } catch { case _: Throwable => None }
+          new ThriftStructField[T](tfield, manifest, metaDataUtil.thriftStructClass) {
+            def getValue[R](struct: T): R = method.invoke(struct).asInstanceOf[R]
+          }
+        }
+    }
+
+  /**
+   * Using reflection, get a Seq of [[ThriftStructFieldInfo]]s
+   * representing the fields defined in the ThriftStruct.
+   * This will return an empty Seq for unions.
+   */
+  def getFieldInfosWithReflection[T <: ThriftStruct](
+    codec: ThriftStructCodec[T],
+    metaDataUtil: ThriftStructMetaDataUtil[T]
+  ): Seq[ThriftStructFieldInfo] =
+    if (metaDataUtil.isUnion()) {
+      Nil
+    } else {
+      metaDataUtil.structCodecClass
+        .getMethod("fieldInfos")
+        .invoke(codec)
+        .asInstanceOf[Seq[ThriftStructFieldInfo]]
+    }
+
+  /**
+   * Using reflection, get a Seq of [[ThriftUnionFieldInfo]]s representing the
+   * fields of the union. This will return an empty Seq for non-unions.
+   */
+  def getUnionFieldsWithReflection[T <: ThriftStruct](
+    codec: ThriftStructCodec[T],
+    metaDataUtil: ThriftStructMetaDataUtil[T]
+  ): Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]] =
+    if (!metaDataUtil.isUnion()) {
+      Nil
+    } else {
+      metaDataUtil.structCodecClass
+        .getMethod("fieldInfos")
+        .invoke(codec)
+        .asInstanceOf[Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]]
+    }
+
+  /**
+   * Using reflection, get the parsed annotations at the struct or union level.
+   * Left hand side of equal sign is the key, right side is the value.
+   */
+  def getStructAnnotationsWithReflection[T <: ThriftStruct](
+    codec: ThriftStructCodec[T],
+    metaDataUtil: ThriftStructMetaDataUtil[T]
+  ): Map[String, String] =
+    metaDataUtil.structCodecClass
+      .getMethod("structAnnotations")
+      .invoke(codec)
+      .asInstanceOf[Map[String, String]]
 }

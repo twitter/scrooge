@@ -15,6 +15,7 @@ import com.twitter.scrooge.{
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
+  ThriftStructField,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
   ValidatingThriftStruct,
@@ -265,6 +266,104 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     classTag[Long].asInstanceOf[ClassTag[_]],
     classTag[_root_.scala.Option[Byte]].asInstanceOf[ClassTag[_]]
   )
+
+  private[this] val structFields: Seq[ThriftStructField[Request]] = {
+    Seq(
+      new ThriftStructField[Request](
+        AListField,
+        _root_.scala.Some(AListFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.aList.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        ASetField,
+        _root_.scala.Some(ASetFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.aSet.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        AMapField,
+        _root_.scala.Some(AMapFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.aMap.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        ARequestField,
+        _root_.scala.Some(ARequestFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.aRequest.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        SubRequestsField,
+        _root_.scala.Some(SubRequestsFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.subRequests.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        HasDefaultField,
+        _root_.scala.Some(HasDefaultFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.hasDefault.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        NoCommentField,
+        _root_.scala.Some(NoCommentFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.noComment.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        DoubleSlashCommentField,
+        _root_.scala.Some(DoubleSlashCommentFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.doubleSlashComment.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        HashtagCommentField,
+        _root_.scala.Some(HashtagCommentFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.hashtagComment.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        SingleAsteriskCommentField,
+        _root_.scala.Some(SingleAsteriskCommentFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.singleAsteriskComment.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        DocStringCommentField,
+        _root_.scala.Some(DocStringCommentFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.docStringComment.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        RecRequestField,
+        _root_.scala.Some(RecRequestFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.recRequest.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        RequiredFieldField,
+        _root_.scala.Some(RequiredFieldFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.requiredField.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        ConstructionRequiredFieldField,
+        _root_.scala.Some(ConstructionRequiredFieldFieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.constructionRequiredField.asInstanceOf[R]
+      },
+      new ThriftStructField[Request](
+        AnInt8Field,
+        _root_.scala.Some(AnInt8FieldManifest),
+        classOf[Request]) {
+          def getValue[R](struct: Request): R = struct.anInt8.asInstanceOf[R]
+      }
+    )
+  }
+
+  override lazy val metaData: ThriftStructMetaData[Request] =
+    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

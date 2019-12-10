@@ -347,6 +347,20 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
       )
     
+      private[this] val structFields: Seq[ThriftStructField[Args]] = {
+        Seq(
+          new ThriftStructField[Args](
+            RequestField,
+            _root_.scala.Some(RequestFieldManifest),
+            classOf[Args]) {
+              def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
+          }
+        )
+      }
+    
+      override lazy val metaData: ThriftStructMetaData[Args] =
+        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    
       /**
        * Checks that all required fields are non-null.
        */
@@ -601,6 +615,32 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException]].asInstanceOf[ClassTag[_]],
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]].asInstanceOf[ClassTag[_]]
       )
+    
+      private[this] val structFields: Seq[ThriftStructField[Result]] = {
+        Seq(
+          new ThriftStructField[Result](
+            SuccessField,
+            _root_.scala.Some(SuccessFieldManifest),
+            classOf[Result]) {
+              def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
+          },
+          new ThriftStructField[Result](
+            AxField,
+            _root_.scala.Some(AxFieldManifest),
+            classOf[Result]) {
+              def getValue[R](struct: Result): R = struct.ax.asInstanceOf[R]
+          },
+          new ThriftStructField[Result](
+            OceField,
+            _root_.scala.Some(OceFieldManifest),
+            classOf[Result]) {
+              def getValue[R](struct: Result): R = struct.oce.asInstanceOf[R]
+          }
+        )
+      }
+    
+      override lazy val metaData: ThriftStructMetaData[Result] =
+        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
     
       /**
        * Checks that all required fields are non-null.

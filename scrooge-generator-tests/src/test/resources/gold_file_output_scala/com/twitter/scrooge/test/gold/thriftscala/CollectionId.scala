@@ -15,6 +15,7 @@ import com.twitter.scrooge.{
   TFieldBlob,
   ThriftStruct,
   ThriftStructCodec3,
+  ThriftStructField,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
   ValidatingThriftStruct,
@@ -57,6 +58,20 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
   private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
     classTag[Long].asInstanceOf[ClassTag[_]]
   )
+
+  private[this] val structFields: Seq[ThriftStructField[CollectionId]] = {
+    Seq(
+      new ThriftStructField[CollectionId](
+        CollectionLongIdField,
+        _root_.scala.Some(CollectionLongIdFieldManifest),
+        classOf[CollectionId]) {
+          def getValue[R](struct: CollectionId): R = struct.collectionLongId.asInstanceOf[R]
+      }
+    )
+  }
+
+  override lazy val metaData: ThriftStructMetaData[CollectionId] =
+    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
