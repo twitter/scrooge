@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command Line &#8212; Scrooge 19.11.0 documentation</title>
+    <title>Command Line &#8212; Scrooge 19.12.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '19.11.0',
+        VERSION:     '19.12.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Scrooge 19.11.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 19.12.0 documentation" href="index.html" />
     <link rel="next" title="Finagle Integration" href="Finagle.html" />
     <link rel="prev" title="Maven Plugin" href="MVNPlugin.html" />
    
@@ -60,63 +60,107 @@
             
   <div class="section" id="command-line">
 <h1>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
+<p>Aside from integrating with SBT and maven, Scrooge can also be run directly
+from the command line. One way to do so is to run the main files of the
+&#8216;scrooge-generator&#8217; or &#8216;scrooge-linter&#8217; projects with the help of SBT. This
+requires having the Scrooge project available locally.</p>
+<p>To start, clone the Scrooge repository from GitHub, change into
+the Scrooge directory, and checkout the master branch:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git clone https://github.com/twitter/scrooge.git
+$ <span class="nb">cd</span> scrooge
+$ git checkout master
+</pre></div>
+</div>
+<p>Working off of the master branch will ensure that you&#8217;re using the latest
+released version of Scrooge.</p>
+<div class="section" id="scrooge-generator">
+<h2>scrooge-generator<a class="headerlink" href="#scrooge-generator" title="Permalink to this headline">¶</a></h2>
+<p>The &#8216;scrooge-generator&#8217; project is responsible for converting Thrift IDL
+files into generated code. Running it from the command line requires
+running the &#8216;com.twitter.scrooge.Main&#8217; object.</p>
 <p>To get command line help:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/run-main com.twitter.scrooge.Main --help&#39;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main --help&#39;</span>
 </pre></div>
 </div>
 <p>To generate source with content written to the current directory:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/run-main com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
 </pre></div>
 </div>
 <p>To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/run-main com.twitter.scrooge.Main \</span>
-<span class="s1">  -d &lt;target-dir&gt;   \</span>
-<span class="s1">  -i &lt;include-path&gt; \</span>
-<span class="s1">  -s                \</span>
-<span class="s1">  &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d &lt;target-dir&gt; -i &lt;include-path&gt; -s &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
 </pre></div>
 </div>
-<p>A complete command line help menu:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Usage: ./sbt &#39;scrooge-generator/run-main com.twitter.scrooge.Main [options] &lt;files...&gt;&#39;
-
-  --help
-        show this help screen
-  -V | --version
-        print version and quit
-  -v | --verbose
-        log verbose messages about progress
-  -d &lt;path&gt; | --dest &lt;path&gt;
-        write generated code to a folder (default: .)
-  --import-path &lt;path&gt;
-        [DEPRECATED] path(s) to search for included thrift files (may be used multiple times)
-  -i &lt;path&gt; | --include-path &lt;path&gt;
-        path(s) to search for included thrift files (may be used multiple times)
-  -n &lt;oldname&gt;=&lt;newname&gt; | --namespace-map &lt;oldname&gt;=&lt;newname&gt;
-        map old namespace to new (may be used multiple times)
-  --default-java-namespace &lt;name&gt;
-        Use &lt;name&gt; as default namespace if the thrift file doesn&#39;t define its own namespace. If this option is not specified either, then use &quot;thrift&quot; as default namespace
-  --disable-strict
-        issue warnings on non-severe parse errors instead of aborting
-  --gen-file-map &lt;path&gt;
-        generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files
-  --gen-adapt
-        generate code for adaptive decoding for scala.
-  --dry-run
-        parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
-  -s | --skip-unchanged
-        Don&#39;t re-generate if the target is newer than the input
-  -l &lt;value&gt; | --language &lt;value&gt;
-        name of language to generate code in (&#39;scala&#39; is currently supported)
-  --experiment-flag &lt;flag&gt;
-        [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
-  --scala-warn-on-java-ns-fallback
-        Print a warning when the scala generator falls back to the java namespace
-  --finagle
-        generate finagle classes
-  &lt;files...&gt;
-        thrift files to compile
+<p>As an example, to generate Scala code for the &#8216;user.thrift&#8217; file from the
+&#8216;scrooge-maven-demo&#8217;, you can run the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d generated -i demos/scrooge-maven-demo/src/main/thrift -s user.thrift&#39;</span>
 </pre></div>
+</div>
+<p>This will output the &#8216;User.scala&#8217; and &#8216;UserService.scala&#8217; files in namespaced
+directories underneath the &#8216;generated&#8217; directory.</p>
+<p>A complete command line help menu for scrooge-generator:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Usage: scrooge [options] &lt;files...&gt;
+
+--help                                    show this help screen
+-V, --version                             print version and quit
+-v, --verbose                             log verbose messages about progress
+-d, --dest &lt;path&gt;                         write generated code to a folder (default: .)
+--import-path &lt;path&gt;                      [DEPRECATED] path(s) to search for included thrift files (may be used multiple times)
+-i, --include-path &lt;path&gt;                 path(s) to search for included thrift files (may be used multiple times)
+-n, --namespace-map &lt;oldname&gt;=&lt;newname&gt;   map old namespace to new (may be used multiple times)
+--default-java-namespace &lt;name&gt;           Use &lt;name&gt; as default namespace if the thrift file doesn&#39;t define its own namespace. If this option is not specified either, then use &quot;thrift&quot; as default namespace
+--disable-strict                          issue warnings on non-severe parse errors instead of aborting
+--gen-file-map &lt;path&gt;                     generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files
+--dry-run                                 parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
+-s, --skip-unchanged                      Don&#39;t re-generate if the target is newer than the input
+-l, --language &lt;value&gt;                    name of language to generate code in (currently supported languages: java, lua, scala, cocoa, android)
+--java-ser-enum-type                      Encode a thrift enum as o.a.t.p.TType.ENUM instead of TType.I32
+--experiment-flag &lt;flag&gt;                  [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
+--scala-warn-on-java-ns-fallback          Print a warning when the scala generator falls back to the java namespace
+--finagle                                 generate finagle classes
+--gen-adapt                               Generate code for adaptive decoding for scala.
+&lt;files...&gt;                                thrift files to compile
+</pre></div>
+</div>
+</div>
+<div class="section" id="scrooge-linter">
+<h2>scrooge-linter<a class="headerlink" href="#scrooge-linter" title="Permalink to this headline">¶</a></h2>
+<p>The &#8216;scrooge-linter&#8217; project is responsible for verifying that a Thrift
+IDL file complies with Scrooge&#8217;s understanding of the Thrift grammar. It
+can be useful when making modifications to Thrift files to check it via
+the &#8216;scrooge-linter&#8217; without running the full on &#8216;scrooge-generator&#8217;.</p>
+<p>To get command line help:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main --help&#39;</span>
+</pre></div>
+</div>
+<p>To lint a specific file (or files):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main &lt;files...&gt;&#39;</span>
+</pre></div>
+</div>
+<p>As an example, to lint the &#8216;user.thrift&#8217; file from the &#8216;scrooge-maven-demo&#8217;, you
+can run the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main -n demos/scrooge-maven-demo/src/main/thrift user.thrift&#39;</span>
+</pre></div>
+</div>
+<p>A complete command line help menu for scrooge-linter:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Usage: scrooge-linter [options] &lt;files...&gt;
+
+--help                                 show this help screen
+-V, --version                          print version and quit
+-v, --verbose                          log verbose messages about progress
+-i, --ignore-errors                    return 0 if linter errors are found. If not set, linter returns 1.
+-n, --include-path &lt;path&gt;              path(s) to search for included thrift files (may be used multiple times)
+-e, --enable-rule &lt;rule-name&gt;          rules to be enabled.
+  Available: Namespaces, CompilerOptimizedMethodParamLimit, RelativeIncludes, CamelCase, RequiredFieldDefault, Keywords, TransitivePersistence, FieldIndexGreaterThanZeroRule, MalformedDocstring, MapKeyType, DocumentedPersisted
+    Default: Namespaces, CompilerOptimizedMethodParamLimit, RelativeIncludes, CamelCase, RequiredFieldDefault, Keywords, TransitivePersistence, FieldIndexGreaterThanZeroRule, MalformedDocstring, MapKeyType
+-d, --disable-rule &lt;rule-name&gt;         rules to be disabled.
+-p, --ignore-parse-errors              continue if parsing errors are found.
+-w, --warnings                         show linter warnings (default = False)
+--disable-strict                       issue warnings on non-severe parse errors instead of aborting
+--fatal-warnings                       convert warnings to errors
+&lt;files...&gt;                             thrift files to compile
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -137,7 +181,16 @@ extra include paths, rebuilding only those files that have changed:</p>
 <ul>
   <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
   <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
-</ul><h3>Related Topics</h3>
+</ul>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command Line</a><ul>
+<li><a class="reference internal" href="#scrooge-generator">scrooge-generator</a></li>
+<li><a class="reference internal" href="#scrooge-linter">scrooge-linter</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="MVNPlugin.html" title="previous chapter">Maven Plugin</a></li>

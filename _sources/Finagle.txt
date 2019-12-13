@@ -14,18 +14,43 @@ following Thrift IDL:
       binary fetchBlob(1: i64 id)
     }
 
-For both clients and servers you have three API choices to pick from —
-``ServicePerEndpoint``, ``ReqRepServicePerEndpoint``, and ``MethodPerEndpoint``.
+For both clients and servers you have three API choices to pick from:
 
-The ``ServicePerEndpoint`` is a collection of Finagle ``Services``. By their nature
-of being ``Services``, these play well with Finagle's standard ``Filter`` composition.
+* ``MethodPerEndpoint``
+* ``ServicePerEndpoint``
+* ``ReqRepServicePerEndpoint``
 
-The ``ReqRepServicePerEndpoint`` is also a collection of Finagle ``Services``, however
-they are services from a |c.t.scrooge.Request|_ to a |c.t.scrooge.Response|_. These envelope
-types allow for the passing of header information between clients and servers. Note, exchanging
-header information *only* works when using the ``com.twitter.finagle.ThriftMux`` protocol.
+``MethodPerEndpoint`` represents each Thrift service endpoint, or function, as
+a method of the generated service class. The signature of each method will
+closely match the corresponding function as defined in the Thrift IDL. One
+difference though is that the return type of each method will be modified to
+return a ``Future`` of the expected value, instead of the value directly. As an
+example, the ``fetchBlob`` function of the ``BinaryService`` would be a method
+which takes a ``Long`` named 'id' as an argument, and returns a ``Future``
+of a Java NIO ``ByteBuffer``, with ``ByteBuffer`` being used to represent a
+binary value.
 
-The ``MethodPerEndpoint`` is simply a collection of methods returning ``Futures``.
+``ServicePerEndpoint`` represents each Thrift service endpoint, or function, as
+a Finagle ``Service``, instead of a method. This allows methods to be filtered,
+either individually or collectively, as a ``Filter`` can be composed with a
+``Service`` but not a method. At its base, a Finagle ``Service`` is defined as a
+function from a ``RequestType`` to a ``Future`` of a ``ResponseType``.
+Therefore, a call to a ``Service`` requires a single argument. To handle the
+discrepancy with Thrift methods, where endpoints can require multiple arguments,
+an ``Args`` class is generated, with each value being a named endpoint
+parameter. For the return type of the ``Service``, a type alias is used named
+``SuccessType``, which represents the return type of the Thrift service
+endpoint. As an example, the ``fetchBlob`` function of the ``BinaryService``
+would be a ``Service[FetchBlob.Args, FetchBlob.SuccessType]``. The
+``FetchBlob.Args`` class would contain an 'id' value of type ``Long``. Whereas
+``FetchBlob.SuccessType`` would be a type alias for Java NIO's ``ByteBuffer``.
+
+``ReqRepServicePerEndpoint`` is similar to ``ServicePerEndpoint``, except that
+each endpoint is represented by a ``Service`` from a |c.t.scrooge.Request|_ to
+a |c.t.scrooge.Response|_. These envelope types allow for the passing of header
+information between clients and servers, similar to the way HTTP request and
+response headers work. Note that exchanging header information *only* works
+when using the ``com.twitter.finagle.ThriftMux`` protocol.
 
 Terminology
 -----------

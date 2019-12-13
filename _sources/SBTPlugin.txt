@@ -1,50 +1,72 @@
 SBT Plugin
 ==========
 
-The scrooge-sbt-plugin is not published to Maven Central but published to `Bintray <https://bintray.com/twittercsl/sbt-plugins/scrooge-sbt-plugin/view>`_
+Scrooge is capable of integrating with the Scala Build Tool (SBT). It works
+with either version 1.x or the older 0.13. It does so through an SBT plugin,
+aptly named 'scrooge-sbt-plugin'. Unlike other Scrooge artifacts though, the
+scrooge-sbt-plugin is not published to Maven Central but published to
+`Bintray <https://bintray.com/twittercsl/sbt-plugins/scrooge-sbt-plugin/view>`_.
 
-Add the following lines to your `project/plugins.sbt` file:
+Plugin Addition
+~~~~~~~~~~~~~~~
 
-::
-
-    addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "4.5.0")
-
-In your `build.sbt` file:
-
-::
-
-    // Exclusion rule required to evict the com.twitter libthrift library.
-    libraryDependencies ++= Seq(
-      "org.apache.thrift" % "libthrift" % "0.9.2",
-      "com.twitter" %% "scrooge-core" % "4.6.0" exclude("com.twitter", "libthrift"),
-      "com.twitter" %% "finagle-thrift" % "6.34.0" exclude("com.twitter", "libthrift")
-    )
-
-or, in your `project/Build.scala` file:
+To use the scrooge-sbt-plugin, add the following lines to your
+`project/plugins.sbt` file:
 
 ::
 
-    lazy val myProject = Project(
-      id = "my-project",
-      base = file("my-project"),
-      settings = Project.defaultSettings
-    ).settings(
-      libraryDependencies ++= Seq(
-        "org.apache.thrift" % "libthrift" % "0.9.2",
-        "com.twitter" %% "scrooge-core" % "4.6.0" exclude("com.twitter", "libthrift"),
-        "com.twitter" %% "finagle-thrift" % "6.34.0" exclude("com.twitter", "libthrift")
+    addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "19.12.0")
+
+Incorporating this line makes the Scrooge plugin available for use by SBT.
+Thrift files added to your project can now have code generated for them. By
+default the generated code will be Scala code intended for use with Finagle.
+It is common to place Thrift files in a namespaced directory under
+'src/main/thrift'. This location is configurable via the
+`scroogeThriftSourceFolder` plugin setting, and other common plugin settings are
+listed below.
+
+Code Dependency Additions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generated code will now be available to your project, however the generated
+code won't compile without adding a few additional dependencies to your
+project. These should be added to your project's `libraryDependencies` in
+either your `build.sbt` file or your `project/Build.scala` file, depending on
+how your project is set up.
+
+An example using a `build.sbt` file.
+
+::
+
+    lazy val root = (project in file("."))
+      .settings(
+        name := "Scrooge Demo",
+        libraryDependencies ++= Seq(
+          "org.apache.thrift" % "libthrift" % "0.10.0",
+          "com.twitter" %% "scrooge-core" % "19.12.0",
+          "com.twitter" %% "finagle-thrift" % "19.12.0",
+          scalaTest % Test
+        )
       )
-    )
 
-**Configuration Options**
+Scrooge SBT Configuration Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A full list of settings is in the (only) source file. Here are the ones you're
-most likely to want to edit:
+The Scrooge SBT plugin provides a multitude of settings to determine
+namespaces, dependencies, source file locations, output file locations,
+what languages to generate code for, and whether that code should be
+setup to use Finagle. A full list of the available settings is in the
+ScroogeSBT.scala file. Here are the ones that you'll most likely want to edit:
+
+- **scroogeLanguages: Seq[String]**
+
+  list of languages for which to generate code
+  (default: `Seq("scala")`)
 
 - **scroogeBuildOptions: Seq[String]**
 
   list of command-line arguments to pass to scrooge
-  (default: `Seq("--finagle", "--verbose")`)
+  (default: `Seq("WithFinagle")`)
 
 - **scroogeThriftDependencies: Seq[String]**
 
@@ -63,120 +85,25 @@ most likely to want to edit:
 - **scroogeThriftOutputFolder: File**
 
   where to put the generated scala files
-  (default: `target/<scala-ver>/src_managed/thrift`)
+  (default: `target/<scala-ver>/src_managed/main/thrift`)
 
+Scrooge SBT plugin settings can be modified by changing the value of an
+individual setting within the SBT project definition. Most likely you'll want to
+modify the Scrooge setting for the `Compiler` phase.
 
-Migrating from 3.x.x to 3.18.0
-------------------------------
-
-SBT 0.13.5 and above
-~~~~~~~~~~~~~~~~~~~~
-
-The Scrooge SBT plugin now uses SBT's `auto plugin system
-<https://www.scala-sbt.org/0.13/docs/Plugins.html>`_, which is only available
-for SBT 0.13.5 and later.
-
-Projects using  `build.sbt`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For 3.17.0 and earlier releases of the plugin, it was necessary to add the
-settings to your build configuration explicitly:
+An example of modifying a `build.sbt` file to change a project's settings to
+have Scrooge generate Java code.
 
 ::
 
-    import com.twitter.scrooge.ScroogeSBT
-
-    lazy val app = project.in(file("app"))
-      .settings(ScroogeSBT.newSettings: _*)
+    lazy val root = (project in file("."))
       .settings(
-        // more settings here
-      )
-
-This is no longer necessary, so the build above should look like this:
-
-::
-
-    lazy val app = project.in(file("app"))
-      .settings(
-        // more settings here
-      )
-
-
-The default settings are included automatically, by virtue of the auto plugin
-mechanism.
-
-The plugin's setting and task keys are also now brought into scope
-automatically, so the following:
-
-::
-
-    import com.twitter.scrooge.ScroogeSBT
-
-    lazy val app = project.in(file("app"))
-      .settings(ScroogeSBT.newSettings: _*)
-      .settings(
-        ScroogeSBT.scroogeThriftSourceFolder in Compile <<= baseDirectory {
-          base => base / "src/main/resources"
-        }
-      )
-
-becomes simply:
-
-::
-
-    lazy val app = project.in(file("app"))
-      .settings(
-        scroogeThriftSourceFolder in Compile <<= baseDirectory {
-          base => base / "src/main/resources"
-        }
-      )
-
-
-Using `Build.scala`
-~~~~~~~~~~~~~~~~~~~
-
-The big change here, in addition to the automatically injected settings, is
-that the location of the keys has changed. They are now under an object called
-`autoImport`. So this:
-
-::
-
-    import sbt._
-    import Keys._
-
-    import com.twitter.scrooge.ScroogeSBT._
-
-    object build extends Build {
-      lazy val app = Project(
-        id = "app",
-        settings = Project.defaultSettings ++ newSettings
-      ).settings(
-        scroogeThriftSourceFolder in Compile <<= baseDirectory {
-          base => base / "src/main/resources"
-        }
-      )
-    }
-
-becomes:
-
-::
-
-    import sbt._
-    import Keys._
-
-    import com.twitter.scrooge.ScroogeSBT.autoImport._
-
-    object build extends Build {
-
-      lazy val app = Project(
-        id = "app",
-        base = file("app"),
-        settings = Project.defaultSettings
-      ).settings(
-        scroogeThriftSourceFolder in Compile <<= baseDirectory {
-          base => base / "src/main/resources"
-        }
-      )
-    }
-
-That is to say: adjust the imports, and drop the settings injection.
+        name := "Scrooge Demo",
+        scroogeBuildOptions in Compile := Seq(),
+        scroogeLanguages in Compile := Seq("java"),
+        libraryDependencies ++= Seq(
+          "org.apache.thrift" % "libthrift" % "0.10.0",
+          "com.twitter" %% "scrooge-core" % "19.12.0",
+          "com.twitter" %% "finagle-thrift" % "19.12.0",
+          scalaTest % Test
+        )

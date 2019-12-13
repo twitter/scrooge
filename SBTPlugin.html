@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SBT Plugin &#8212; Scrooge 19.11.0 documentation</title>
+    <title>SBT Plugin &#8212; Scrooge 19.12.0 documentation</title>
     
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '19.11.0',
+        VERSION:     '19.12.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Scrooge 19.11.0 documentation" href="index.html" />
+    <link rel="top" title="Scrooge 19.12.0 documentation" href="index.html" />
     <link rel="next" title="Maven Plugin" href="MVNPlugin.html" />
     <link rel="prev" title="Namespaces" href="Namespaces.html" />
    
@@ -60,41 +60,62 @@
             
   <div class="section" id="sbt-plugin">
 <h1>SBT Plugin<a class="headerlink" href="#sbt-plugin" title="Permalink to this headline">¶</a></h1>
-<p>The scrooge-sbt-plugin is not published to Maven Central but published to <a class="reference external" href="https://bintray.com/twittercsl/sbt-plugins/scrooge-sbt-plugin/view">Bintray</a></p>
-<p>Add the following lines to your <cite>project/plugins.sbt</cite> file:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span> <span class="o">%</span> <span class="s">&quot;scrooge-sbt-plugin&quot;</span> <span class="o">%</span> <span class="s">&quot;4.5.0&quot;</span><span class="o">)</span>
+<p>Scrooge is capable of integrating with the Scala Build Tool (SBT). It works
+with either version 1.x or the older 0.13. It does so through an SBT plugin,
+aptly named &#8216;scrooge-sbt-plugin&#8217;. Unlike other Scrooge artifacts though, the
+scrooge-sbt-plugin is not published to Maven Central but published to
+<a class="reference external" href="https://bintray.com/twittercsl/sbt-plugins/scrooge-sbt-plugin/view">Bintray</a>.</p>
+<div class="section" id="plugin-addition">
+<h2>Plugin Addition<a class="headerlink" href="#plugin-addition" title="Permalink to this headline">¶</a></h2>
+<p>To use the scrooge-sbt-plugin, add the following lines to your
+<cite>project/plugins.sbt</cite> file:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span> <span class="o">%</span> <span class="s">&quot;scrooge-sbt-plugin&quot;</span> <span class="o">%</span> <span class="s">&quot;19.12.0&quot;</span><span class="o">)</span>
 </pre></div>
 </div>
-<p>In your <cite>build.sbt</cite> file:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="c1">// Exclusion rule required to evict the com.twitter libthrift library.</span>
-<span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
-  <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.9.2&quot;</span><span class="o">,</span>
-  <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;4.6.0&quot;</span> <span class="n">exclude</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span><span class="o">,</span> <span class="s">&quot;libthrift&quot;</span><span class="o">),</span>
-  <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;6.34.0&quot;</span> <span class="n">exclude</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span><span class="o">,</span> <span class="s">&quot;libthrift&quot;</span><span class="o">)</span>
-<span class="o">)</span>
-</pre></div>
+<p>Incorporating this line makes the Scrooge plugin available for use by SBT.
+Thrift files added to your project can now have code generated for them. By
+default the generated code will be Scala code intended for use with Finagle.
+It is common to place Thrift files in a namespaced directory under
+&#8216;src/main/thrift&#8217;. This location is configurable via the
+<cite>scroogeThriftSourceFolder</cite> plugin setting, and other common plugin settings are
+listed below.</p>
 </div>
-<p>or, in your <cite>project/Build.scala</cite> file:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">lazy</span> <span class="k">val</span> <span class="n">myProject</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">(</span>
-  <span class="n">id</span> <span class="k">=</span> <span class="s">&quot;my-project&quot;</span><span class="o">,</span>
-  <span class="n">base</span> <span class="k">=</span> <span class="n">file</span><span class="o">(</span><span class="s">&quot;my-project&quot;</span><span class="o">),</span>
-  <span class="n">settings</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">.</span><span class="n">defaultSettings</span>
-<span class="o">).</span><span class="n">settings</span><span class="o">(</span>
-  <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
-    <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.9.2&quot;</span><span class="o">,</span>
-    <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;4.6.0&quot;</span> <span class="n">exclude</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span><span class="o">,</span> <span class="s">&quot;libthrift&quot;</span><span class="o">),</span>
-    <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;6.34.0&quot;</span> <span class="n">exclude</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span><span class="o">,</span> <span class="s">&quot;libthrift&quot;</span><span class="o">)</span>
+<div class="section" id="code-dependency-additions">
+<h2>Code Dependency Additions<a class="headerlink" href="#code-dependency-additions" title="Permalink to this headline">¶</a></h2>
+<p>Generated code will now be available to your project, however the generated
+code won&#8217;t compile without adding a few additional dependencies to your
+project. These should be added to your project&#8217;s <cite>libraryDependencies</cite> in
+either your <cite>build.sbt</cite> file or your <cite>project/Build.scala</cite> file, depending on
+how your project is set up.</p>
+<p>An example using a <cite>build.sbt</cite> file.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">lazy</span> <span class="k">val</span> <span class="n">root</span> <span class="k">=</span> <span class="o">(</span><span class="n">project</span> <span class="n">in</span> <span class="n">file</span><span class="o">(</span><span class="s">&quot;.&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
+    <span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;Scrooge Demo&quot;</span><span class="o">,</span>
+    <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+      <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.10.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;19.12.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;19.12.0&quot;</span><span class="o">,</span>
+      <span class="n">scalaTest</span> <span class="o">%</span> <span class="nc">Test</span>
+    <span class="o">)</span>
   <span class="o">)</span>
-<span class="o">)</span>
 </pre></div>
 </div>
-<p><strong>Configuration Options</strong></p>
-<p>A full list of settings is in the (only) source file. Here are the ones you&#8217;re
-most likely to want to edit:</p>
+</div>
+<div class="section" id="scrooge-sbt-configuration-options">
+<h2>Scrooge SBT Configuration Options<a class="headerlink" href="#scrooge-sbt-configuration-options" title="Permalink to this headline">¶</a></h2>
+<p>The Scrooge SBT plugin provides a multitude of settings to determine
+namespaces, dependencies, source file locations, output file locations,
+what languages to generate code for, and whether that code should be
+setup to use Finagle. A full list of the available settings is in the
+ScroogeSBT.scala file. Here are the ones that you&#8217;ll most likely want to edit:</p>
 <ul>
+<li><p class="first"><strong>scroogeLanguages: Seq[String]</strong></p>
+<p>list of languages for which to generate code
+(default: <cite>Seq(&#8220;scala&#8221;)</cite>)</p>
+</li>
 <li><p class="first"><strong>scroogeBuildOptions: Seq[String]</strong></p>
 <p>list of command-line arguments to pass to scrooge
-(default: <cite>Seq(&#8220;&#8211;finagle&#8221;, &#8220;&#8211;verbose&#8221;)</cite>)</p>
+(default: <cite>Seq(&#8220;WithFinagle&#8221;)</cite>)</p>
 </li>
 <li><p class="first"><strong>scroogeThriftDependencies: Seq[String]</strong></p>
 <p>artifacts to extract and compile thrift files from</p>
@@ -109,104 +130,26 @@ most likely to want to edit:</p>
 </li>
 <li><p class="first"><strong>scroogeThriftOutputFolder: File</strong></p>
 <p>where to put the generated scala files
-(default: <cite>target/&lt;scala-ver&gt;/src_managed/thrift</cite>)</p>
+(default: <cite>target/&lt;scala-ver&gt;/src_managed/main/thrift</cite>)</p>
 </li>
 </ul>
-<div class="section" id="migrating-from-3-x-x-to-3-18-0">
-<h2>Migrating from 3.x.x to 3.18.0<a class="headerlink" href="#migrating-from-3-x-x-to-3-18-0" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="sbt-0-13-5-and-above">
-<h3>SBT 0.13.5 and above<a class="headerlink" href="#sbt-0-13-5-and-above" title="Permalink to this headline">¶</a></h3>
-<p>The Scrooge SBT plugin now uses SBT&#8217;s <a class="reference external" href="https://www.scala-sbt.org/0.13/docs/Plugins.html">auto plugin system</a>, which is only available
-for SBT 0.13.5 and later.</p>
-</div>
-<div class="section" id="projects-using-build-sbt">
-<h3>Projects using  <cite>build.sbt</cite><a class="headerlink" href="#projects-using-build-sbt" title="Permalink to this headline">¶</a></h3>
-<p>For 3.17.0 and earlier releases of the plugin, it was necessary to add the
-settings to your build configuration explicitly:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT</span>
-
-<span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
-  <span class="o">.</span><span class="n">settings</span><span class="o">(</span><span class="nc">ScroogeSBT</span><span class="o">.</span><span class="n">newSettings</span><span class="k">:</span> <span class="k">_</span><span class="kt">*</span><span class="o">)</span>
+<p>Scrooge SBT plugin settings can be modified by changing the value of an
+individual setting within the SBT project definition. Most likely you&#8217;ll want to
+modify the Scrooge setting for the <cite>Compiler</cite> phase.</p>
+<p>An example of modifying a <cite>build.sbt</cite> file to change a project&#8217;s settings to
+have Scrooge generate Java code.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">lazy</span> <span class="k">val</span> <span class="n">root</span> <span class="k">=</span> <span class="o">(</span><span class="n">project</span> <span class="n">in</span> <span class="n">file</span><span class="o">(</span><span class="s">&quot;.&quot;</span><span class="o">))</span>
   <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
-    <span class="c1">// more settings here</span>
-  <span class="o">)</span>
+    <span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;Scrooge Demo&quot;</span><span class="o">,</span>
+    <span class="n">scroogeBuildOptions</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">:=</span> <span class="nc">Seq</span><span class="o">(),</span>
+    <span class="n">scroogeLanguages</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">:=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">&quot;java&quot;</span><span class="o">),</span>
+    <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+      <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.10.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;19.12.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;19.12.0&quot;</span><span class="o">,</span>
+      <span class="n">scalaTest</span> <span class="o">%</span> <span class="nc">Test</span>
+    <span class="o">)</span>
 </pre></div>
-</div>
-<p>This is no longer necessary, so the build above should look like this:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
-  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
-    <span class="c1">// more settings here</span>
-  <span class="o">)</span>
-</pre></div>
-</div>
-<p>The default settings are included automatically, by virtue of the auto plugin
-mechanism.</p>
-<p>The plugin&#8217;s setting and task keys are also now brought into scope
-automatically, so the following:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT</span>
-
-<span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
-  <span class="o">.</span><span class="n">settings</span><span class="o">(</span><span class="nc">ScroogeSBT</span><span class="o">.</span><span class="n">newSettings</span><span class="k">:</span> <span class="k">_</span><span class="kt">*</span><span class="o">)</span>
-  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
-    <span class="nc">ScroogeSBT</span><span class="o">.</span><span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
-      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
-    <span class="o">}</span>
-  <span class="o">)</span>
-</pre></div>
-</div>
-<p>becomes simply:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="n">project</span><span class="o">.</span><span class="n">in</span><span class="o">(</span><span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">))</span>
-  <span class="o">.</span><span class="n">settings</span><span class="o">(</span>
-    <span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
-      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
-    <span class="o">}</span>
-  <span class="o">)</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="using-build-scala">
-<h3>Using <cite>Build.scala</cite><a class="headerlink" href="#using-build-scala" title="Permalink to this headline">¶</a></h3>
-<p>The big change here, in addition to the automatically injected settings, is
-that the location of the keys has changed. They are now under an object called
-<cite>autoImport</cite>. So this:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">sbt._</span>
-<span class="k">import</span> <span class="nn">Keys._</span>
-
-<span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT._</span>
-
-<span class="k">object</span> <span class="nc">build</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
-  <span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">(</span>
-    <span class="n">id</span> <span class="k">=</span> <span class="s">&quot;app&quot;</span><span class="o">,</span>
-    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">.</span><span class="n">defaultSettings</span> <span class="o">++</span> <span class="n">newSettings</span>
-  <span class="o">).</span><span class="n">settings</span><span class="o">(</span>
-    <span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
-      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
-    <span class="o">}</span>
-  <span class="o">)</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>becomes:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">sbt._</span>
-<span class="k">import</span> <span class="nn">Keys._</span>
-
-<span class="k">import</span> <span class="nn">com.twitter.scrooge.ScroogeSBT.autoImport._</span>
-
-<span class="k">object</span> <span class="nc">build</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
-
-  <span class="k">lazy</span> <span class="k">val</span> <span class="n">app</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">(</span>
-    <span class="n">id</span> <span class="k">=</span> <span class="s">&quot;app&quot;</span><span class="o">,</span>
-    <span class="n">base</span> <span class="k">=</span> <span class="n">file</span><span class="o">(</span><span class="s">&quot;app&quot;</span><span class="o">),</span>
-    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Project</span><span class="o">.</span><span class="n">defaultSettings</span>
-  <span class="o">).</span><span class="n">settings</span><span class="o">(</span>
-    <span class="n">scroogeThriftSourceFolder</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">&lt;&lt;=</span> <span class="n">baseDirectory</span> <span class="o">{</span>
-      <span class="n">base</span> <span class="k">=&gt;</span> <span class="n">base</span> <span class="o">/</span> <span class="s">&quot;src/main/resources&quot;</span>
-    <span class="o">}</span>
-  <span class="o">)</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>That is to say: adjust the imports, and drop the settings injection.</p>
 </div>
 </div>
 </div>
@@ -232,12 +175,9 @@ that the location of the keys has changed. They are now under an object called
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">SBT Plugin</a><ul>
-<li><a class="reference internal" href="#migrating-from-3-x-x-to-3-18-0">Migrating from 3.x.x to 3.18.0</a><ul>
-<li><a class="reference internal" href="#sbt-0-13-5-and-above">SBT 0.13.5 and above</a></li>
-<li><a class="reference internal" href="#projects-using-build-sbt">Projects using  <cite>build.sbt</cite></a></li>
-<li><a class="reference internal" href="#using-build-scala">Using <cite>Build.scala</cite></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#plugin-addition">Plugin Addition</a></li>
+<li><a class="reference internal" href="#code-dependency-additions">Code Dependency Additions</a></li>
+<li><a class="reference internal" href="#scrooge-sbt-configuration-options">Scrooge SBT Configuration Options</a></li>
 </ul>
 </li>
 </ul>
