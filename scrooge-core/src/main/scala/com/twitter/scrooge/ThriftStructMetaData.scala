@@ -115,7 +115,21 @@ final class ThriftStructMetaData[T <: ThriftStruct] private (
  * Companion of ThriftStructField that provides helper methods.
  */
 private object ThriftStructField {
-  protected def snakeCaseToCamelCase(str: String): String = {
+
+  /**
+   * Convert snake case to dromedary case. Dromedary case is when the
+   * first letter of the first word is lowercase, the first letter
+   * of following words are uppercase, but the rest are lowercase.
+   * In other words, it ensures lowercase between word boundaries, unlike
+   * [[com.twitter.conversions.StringOps.toCamelCase()]]. This method
+   * covers the following cases:
+   *  - "foo_bar" -> "fooBar"
+   *  - "FOO_BAR" -> "fooBar"
+   *  - "foo_BarBaz" -> "fooBarBaz"
+   * Handling these cases is specific to scrooge, which is
+   * why it lives here.
+   */
+  def toDromedaryCase(str: String): String = {
     str.takeWhile(_ == '_') + str
       .split('_')
       .filterNot(_.isEmpty)
@@ -145,7 +159,7 @@ abstract class ThriftStructField[T <: ThriftStruct](
   thriftStructClass: Class[T]) {
 
   val method: Method =
-    thriftStructClass.getMethod(ThriftStructField.snakeCaseToCamelCase(tfield.name))
+    thriftStructClass.getMethod(ThriftStructField.toDromedaryCase(tfield.name))
 
   /**
    * The TField field name, same as the method name on the ThriftStruct for the value.
