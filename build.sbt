@@ -9,7 +9,7 @@ import scoverage.ScoverageKeys
 val releaseVersion = "19.12.0"
 
 lazy val versions = new {
-  val slf4j = "1.7.21"
+  val slf4j = "1.7.30"
   val libthrift = "0.10.0"
 }
 
