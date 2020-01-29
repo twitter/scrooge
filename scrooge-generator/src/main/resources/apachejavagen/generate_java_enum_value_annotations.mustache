@@ -10,7 +10,7 @@ static {
     {
       Map<String, String> tmpFieldMap = new HashMap<String, String>();
       {{#value.annotations}}
-      tmpFieldMap.put("{{key}}", "{{value}}");
+      tmpFieldMap.put("{{key}}", "{{{value}}}");
       {{/value.annotations}}
       tmpMap.put({{value.name}}, Collections.unmodifiableMap(tmpFieldMap));
     }

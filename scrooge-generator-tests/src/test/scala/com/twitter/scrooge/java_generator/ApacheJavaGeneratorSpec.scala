@@ -256,7 +256,6 @@ class ApacheJavaGeneratorSpec extends Spec {
         result must be(List("No fields set for union type 'DeepValidationUnion'."))
       }
     }
-  }
 
   "passthrough fields" should {
     "passthroughStruct" in {
@@ -330,4 +329,11 @@ class ApacheJavaGeneratorSpec extends Spec {
 
   }
 
+    "generate correctly escaped field annotation" in {
+      val doc = generateDoc(getFileContents("test_thrift/annotations.thrift"))
+      val gen = getGenerator(doc)
+      val ctrl = new StructController(doc.structs(0), Set(), false, gen, doc.namespace("java"))
+      gen.renderMustache("struct.mustache", ctrl).trim must include ("tmpFieldMap.put(\"tag1\", \"\\\"value\\\"\")")
+    }
+  }
 }
