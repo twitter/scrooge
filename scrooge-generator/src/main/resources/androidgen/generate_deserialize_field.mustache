@@ -40,6 +40,6 @@ iprot.read{{field_type.get_type}}End();
 {{/field_type.is_base_type_or_binary}}
 
 {{#field_type.is_enum}}
-{{name}} = {{{field_type.type_name_in_container}}}.findByValue(iprot.readI32());
+{{name}} = {{{field_type.qualified_type_name}}}.findByValue(iprot.readI32());
 {{/field_type.is_enum}}
 {{/consolidate_newlines}}
