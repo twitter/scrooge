@@ -54,10 +54,10 @@ object LintRule {
 
       def findUnpersistedStructs(
         s: StructLike,
-        scopePrefix: Option[SimpleID] = None
+        scopePrefix: Option[Identifier] = None
       ): Seq[String] = {
         val current =
-          if (!isPersisted(s)) Seq(scopePrefix.map(_.name + ".").getOrElse("") + s.sid.name)
+          if (!isPersisted(s)) Seq(scopePrefix.map(_.fullName + ".").getOrElse("") + s.sid.name)
           else Seq.empty
         (current ++ findUnpersistedStructsFromFields(s.fields.map(_.fieldType))).distinct
       }

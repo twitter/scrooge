@@ -59,7 +59,7 @@ case class ResolvedDocument(document: Document, resolver: TypeResolver) {
   def qualifyName(name: NamedType, language: String, defaultNamespace: String): Identifier = {
     name.scopePrefix match {
       case Some(filename) =>
-        resolver.includeMap(filename.name).qualifySimpleID(name.sid, language, defaultNamespace)
+        resolver.includeMap(filename.fullName).qualifySimpleID(name.sid, language, defaultNamespace)
       case None =>
         qualifySimpleID(name.sid, language, defaultNamespace)
     }
@@ -141,7 +141,9 @@ case class TypeResolver(
           }
       }
       resolvedType.getOrElse(throw new TypeNotFoundException(sid.name, id))
-    case qid: QualifiedID => getResolver(qid.names.head, qid).resolveFieldType(qid.tail)
+    case qid: QualifiedID => qid.names match {
+      case head :+ tail => getResolver(head.mkString("."), qid).resolveFieldType(SimpleID(tail))
+    }
   }
 
   def resolveServiceParent(parent: ServiceParent): Service =
@@ -157,7 +159,9 @@ case class TypeResolver(
     case SimpleID(name, _) =>
       val const = constMap.getOrElse(name, throw new UndefinedConstantException(name, id))
       (const.fieldType, const.value)
-    case qid: QualifiedID => getResolver(qid.names.head).resolveConst(qid.tail)
+    case qid: QualifiedID => qid.names match {
+      case head :+ tail => getResolver(head.mkString("."), qid).resolveConst(SimpleID(tail))
+    }
   }
 
   /**
@@ -166,7 +170,7 @@ case class TypeResolver(
   def withInclude(inc: Include): TypeResolver = {
     val resolver = TypeResolver()
     val resolvedDocument = resolver(inc.document, Some(inc.prefix))
-    copy(includeMap = includeMap + (inc.prefix.name -> resolvedDocument))
+    copy(includeMap = includeMap + (inc.prefix.fullName -> resolvedDocument))
   }
 
   /**
@@ -190,7 +194,7 @@ case class TypeResolver(
     copy(serviceMap = serviceMap + (service.sid.name -> service))
   }
 
-  def withStructsFrom(doc: Document, scopePrefix: Option[SimpleID]): TypeResolver = {
+  def withStructsFrom(doc: Document, scopePrefix: Option[Identifier]): TypeResolver = {
     val toAdd = doc.defs.flatMap {
       case s: Struct => Some(s.sid.name -> StructType(s, scopePrefix))
       case _ => None
@@ -204,7 +208,7 @@ case class TypeResolver(
    *
    * @param scopePrefix the scope of the document if the document is an include
    */
-  def apply(doc: Document, scopePrefix: Option[SimpleID] = None): ResolvedDocument = {
+  def apply(doc: Document, scopePrefix: Option[Identifier] = None): ResolvedDocument = {
     var resolver = this
     val includes = doc.headers.collect { case i: Include => i }
     val defBuf = new ArrayBuffer[Definition](doc.defs.size)
@@ -234,7 +238,7 @@ case class TypeResolver(
    * typeMap, and then returns an updated TypeResolver with the new
    * definition bound, plus the resolved definition.
    */
-  def apply(definition: Definition, scopePrefix: Option[SimpleID]): ResolvedDefinition = {
+  def apply(definition: Definition, scopePrefix: Option[Identifier]): ResolvedDefinition = {
     definition match {
       case d: Typedef =>
         val resolved = apply(d.fieldType)

@@ -21,7 +21,7 @@ case class Include(filePath: String, document: Document) extends Header {
    * Then we can use type Bar like this:
    *    foo.Bar
    */
-  val prefix: SimpleID = SimpleID(filePath.split('/').last.split('.').head)
+  val prefix: Identifier = Identifier(filePath.split('/').last.split('.').dropRight(1).mkString("."))
 }
 
 case class CppInclude(file: String) extends Header
