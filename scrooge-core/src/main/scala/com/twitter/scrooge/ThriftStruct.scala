@@ -194,11 +194,10 @@ trait ThriftMethod {
   /** Contains success or thrift application exceptions */
   type Result <: ThriftResponse[SuccessType] with ThriftStruct
 
-  // Note there is some indirection here for `FunctionType`, `ServiceIfaceServiceType`,
-  // ServicePerEndpointServiceType, and ReqRepServicePerEndpointServiceType. This is
-  // because for Scala generated with Finagle bindings, these add dependencies on
-  // Twitter Util and Finagle. This indirection allows us to sidestep that and keep
-  // scrooge-core free of those dependencies.
+  // Note there is some indirection here for `FunctionType`, `ServicePerEndpointServiceType`,
+  // and `ReqRepServicePerEndpointServiceType`. This is because for Scala generated with
+  // Finagle bindings, these add dependencies on Twitter Util and Finagle.
+  // This indirection allows us to sidestep that and keep scrooge-core free of those dependencies.
 
   /**
    * The type of this method, as a function.
@@ -233,18 +232,6 @@ trait ThriftMethod {
    *
    * For Scala generated code without Finagle bindings, this will be `Nothing`.
    */
-  @deprecated("Use ServicePerEndpointServiceType", "2017-12-18")
-  type ServiceIfaceServiceType
-
-  /**
-   * The type of this method, as a Finagle `Service` from `Args` to
-   * `SuccessType`.
-   *
-   * For Scala generated code with Finagle bindings this will be roughly:
-   * `Service[Args, SuccessType]`.
-   *
-   * For Scala generated code without Finagle bindings, this will be `Nothing`.
-   */
   type ServicePerEndpointServiceType
 
   /**
@@ -257,15 +244,6 @@ trait ThriftMethod {
    * For Scala generated code without Finagle bindings, this will be `Nothing`.
    */
   type ReqRepServicePerEndpointServiceType
-
-  /**
-   * Convert a function implementation of this method into a
-   * ServiceIface `Service` implementation returning `SuccessType`.
-   *
-   * For Scala generated code without Finagle bindings, this will not implemented.
-   */
-  @deprecated("Use toServicePerEndpointService(f: FunctionType", "2017-12-18")
-  def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType
 
   /**
    * Convert a function implementation of this method into a

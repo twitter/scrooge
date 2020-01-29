@@ -350,14 +350,8 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
     type FunctionType = {{functionType}}
     type ReqRepFunctionType = {{reqRepFunctionType}}
 
-    type ServiceIfaceServiceType = _root_.com.twitter.finagle.Service[Args, SuccessType]
     type ServicePerEndpointServiceType = _root_.com.twitter.finagle.Service[Args, SuccessType]
     type ReqRepServicePerEndpointServiceType = _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[Args], _root_.com.twitter.scrooge.Response[SuccessType]]
-
-    def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType =
-      _root_.com.twitter.finagle.Service.mk { args: Args =>
-        f(args)
-      }
 
     def toServicePerEndpointService(f: FunctionType): ServicePerEndpointServiceType =
       _root_.com.twitter.finagle.Service.mk { args: Args =>
@@ -375,11 +369,9 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
     type ReqRepFunctionType = Nothing
     type ServiceType = Nothing
     type ReqRepServiceType = Nothing
-    type ServiceIfaceServiceType = Nothing
     type ServicePerEndpointServiceType = Nothing
     type ReqRepServicePerEndpointServiceType = Nothing
 
-    def toServiceIfaceService(f: FunctionType): ServiceIfaceServiceType = ???
     def toServicePerEndpointService(f: FunctionType): ServicePerEndpointServiceType = ???
     def toReqRepServicePerEndpointService(f: ReqRepFunctionType): ReqRepServicePerEndpointServiceType = ???
 {{/withFinagle}}

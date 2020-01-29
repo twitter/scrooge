@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-core: Remove deprecated `ServiceIfaceServiceType` and `toServiceIfaceService`.
+  ``PHAB_ID=D418999``
+
 19.12.0
 -------
 
