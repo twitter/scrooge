@@ -273,7 +273,7 @@ class ThriftParser(
     (opt(comments) ~ (opt("oneway") ~ functionType)) ~ (simpleID <~ "(") ~ (rep(
       field
     ) <~ ")") ~
-      (opt(throws) <~ opt(listSeparator)) ~ defaultedAnnotations ^^ {
+      opt(throws) ~ defaultedAnnotations <~ opt(listSeparator) ^^ {
       case comment ~ (oneway ~ ftype) ~ id ~ args ~ throws ~ annotations =>
         Function(
           id,
