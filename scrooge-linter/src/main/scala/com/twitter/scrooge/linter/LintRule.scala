@@ -1,7 +1,7 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.frontend.TypeResolver
+import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import scala.collection.mutable.ArrayBuffer
 
 trait LintRule extends (Document => Iterable[LintMessage]) {
@@ -47,10 +47,12 @@ object LintRule {
     def isPersisted(struct: StructLike): Boolean =
       struct.annotations.getOrElse("persisted", "false") == "true"
 
+    def isPersisted(enum: Enum): Boolean =
+      enum.annotations.getOrElse("persisted", "false") == "true"
+
     def apply(doc0: Document): Seq[LintMessage] = {
       // resolving ReferenceTypes
-      val resolver = TypeResolver()(doc0)
-      val doc = resolver.document
+      val ResolvedDocument(doc, resolver) = TypeResolver()(doc0)
 
       def findUnpersistedStructs(
         s: StructLike,
@@ -66,16 +68,32 @@ object LintRule {
         fieldTypes.flatMap {
           case StructType(s, scopePrefix) =>
             findUnpersistedStructs(s, scopePrefix) // includes Unions
-          case EnumType(_: Enum, _) => Seq.empty // enums don't have annotations
+          case e: EnumType =>
+            if (!isPersisted(e.enum)) Seq(e.sid.fullName)
+            else Seq.empty
           case MapType(keyType, valueType, _) =>
             findUnpersistedStructsFromFields(Seq(keyType, valueType))
           case SetType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
           case ListType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
+          case ReferenceType(id) =>
+            // self-referencing and mutually-recursive structs should exist in the
+            // top level type map. `resolveFieldType` will throw a `TypeNotFoundException` otherwise
+            // failing linting
+            resolver.resolveFieldType(id) match {
+              case s: StructType =>
+                if (!isPersisted(s.struct)) Seq(s.sid.fullName)
+                else Seq.empty
+              // Enums must also be persisted if referenced by a struct-like structure.
+              case e: EnumType =>
+                if (!isPersisted(e.enum)) Seq(e.sid.fullName)
+                else Seq.empty
+              case _ =>
+                // should not occur
+                throw new UnsupportedOperationException(
+                  s"All resolved ReferenceTypes after the TypeResolver should only be structs or enums. id $id")
+            }
+
           case _: BaseType => Seq.empty // primitive types
-          case _: ReferenceType => // ReferenceTypes have been resolved, this can not happen
-            throw new UnsupportedOperationException(
-              "There should be no ReferenceType anymore after type resolution"
-            )
         }
       }
 
@@ -85,7 +103,7 @@ object LintRule {
         structChild <- findUnpersistedStructs(struct)
       } yield
         LintMessage(
-          s"struct ${struct.originalName} with persisted annotation refers to struct $structChild that is not annotated persisted.",
+          s"struct ${struct.originalName} with persisted annotation refers to struct-like type $structChild that is not annotated persisted.",
           Error
         )
     }

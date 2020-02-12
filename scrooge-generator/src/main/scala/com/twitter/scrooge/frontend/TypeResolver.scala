@@ -112,8 +112,7 @@ case class TypeResolver(
   typeMap: Map[String, FieldType] = Map.empty,
   constMap: Map[String, ConstDefinition] = Map.empty,
   serviceMap: Map[String, Service] = Map.empty,
-  includeMap: Map[String, ResolvedDocument] = Map.empty,
-  structsMap: Map[String, StructType] = Map.empty) {
+  includeMap: Map[String, ResolvedDocument] = Map.empty) {
 
   protected def getResolver(
     includePath: String,
@@ -128,19 +127,7 @@ case class TypeResolver(
 
   def resolveFieldType(id: Identifier): FieldType = id match {
     case sid: SimpleID =>
-      val resolvedType = typeMap.get(sid.name) match {
-        case Some(fieldType) => Some(fieldType)
-        case None =>
-          // Here we recurse so we can first resolve the types that are depended on by this type,
-          // like an ersatz topological sort. However, this gets messy when we run into cycles,
-          // like when two structs depend on each other. In order to avoid this, we add the entry
-          // itself to the list of already resolved types when we recurse down, so that we don't
-          // loop infinitely.
-          structsMap.get(sid.name).flatMap { struct =>
-            withType(sid.name, struct).typeMap.get(sid.name)
-          }
-      }
-      resolvedType.getOrElse(throw new TypeNotFoundException(sid.name, id))
+      typeMap.getOrElse(sid.name, throw new TypeNotFoundException(sid.name, id))
     case qid: QualifiedID => getResolver(qid.names.head, qid).resolveFieldType(qid.tail)
   }
 
@@ -190,13 +177,16 @@ case class TypeResolver(
     copy(serviceMap = serviceMap + (service.sid.name -> service))
   }
 
+  /**
+   * Returns a new TypeResolver with the top level structs of `doc` added to the type map lazily.
+   */
   def withStructsFrom(doc: Document, scopePrefix: Option[SimpleID]): TypeResolver = {
     val toAdd = doc.defs.flatMap {
       case s: Struct => Some(s.sid.name -> StructType(s, scopePrefix))
       case _ => None
     }.toMap
 
-    copy(structsMap = structsMap ++ toAdd)
+    copy(typeMap = typeMap ++ toAdd)
   }
 
   /**
@@ -218,7 +208,10 @@ case class TypeResolver(
       }
     }
 
-    resolver = resolver.withStructsFrom(doc, scopePrefix)
+    // resolve the top level struct definitions first. This is important for mutually-recursive
+    // and self-referenced structs
+    resolver = resolver
+      .withStructsFrom(doc, scopePrefix)
 
     for (d <- doc.defs) {
       val ResolvedDefinition(d2, r2) = resolver(d, scopePrefix)
@@ -241,7 +234,7 @@ case class TypeResolver(
         ResolvedDefinition(d.copy(fieldType = resolved), withType(d.sid.name, resolved))
       case s: Struct =>
         // Do not allow Structs with the same name as a Typedef
-        val resolver = if (typeMap.contains(s.sid.name)) {
+        if (typeMap.contains(s.sid.name)) {
           val fieldType: FieldType = typeMap(s.sid.name)
           if (fieldType != StructType(s, scopePrefix))
             throw new DuplicatedIdentifierException(
@@ -249,14 +242,8 @@ case class TypeResolver(
                 s.sid.name)}",
               s
             )
-          else this // return the current TypeResolver as we've already resolved this type
-        } else {
-          // Add the current struct name to the scope to allow self referencing types
-          // TODO: Enforce optional with self referenced field.
-          // For now, we'll depend on the language compiler to error out in those cases.
-          withType(s.sid.name, StructType(s, scopePrefix))
         }
-        val resolved = s.copy(fields = s.fields.map(resolver.apply))
+        val resolved = s.copy(fields = s.fields.map(apply))
         ResolvedDefinition(resolved, withType(s.sid.name, StructType(resolved, scopePrefix)))
       case u: Union =>
         val resolved = u.copy(fields = u.fields.map(apply))

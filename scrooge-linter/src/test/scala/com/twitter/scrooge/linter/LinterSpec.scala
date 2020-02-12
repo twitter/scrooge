@@ -161,6 +161,76 @@ class LinterSpec extends WordSpec with MustMatchers {
       assert(error.contains("SomeOtherType"))
     }
 
+    "fail recursive TransitivePersistence" in {
+      val errors = LintRule
+        .TransitivePersistence(
+          Document(
+            Seq(),
+            Seq(
+              Enum(
+                SimpleID("T"),
+                Seq(EnumField(SimpleID("First"), 0, None)),
+                None
+              ),
+              struct(
+                "A",
+                Map(
+                  "t" -> ReferenceType(Identifier("T"))
+                ),
+                true
+              )
+            )
+          )
+        ).toSeq
+      errors.length must be(1)
+      val error = errors(0).msg
+      assert(error.contains("persisted"))
+      assert(error.contains("A"))
+      assert(error.contains("T"))
+    }
+
+    "pass recursive TransitivePersistence" in {
+      mustPass(
+        LintRule.TransitivePersistence(
+          Document(
+            Seq(),
+            Seq(
+              struct(
+                "A",
+                Map(
+                  "a" -> ReferenceType(Identifier("A"))
+                ),
+                true
+              )
+            )
+          )
+        )
+      )
+
+      mustPass(
+        LintRule.TransitivePersistence(
+          Document(
+            Seq(),
+            Seq(
+              Enum(
+                SimpleID("T"),
+                Seq(EnumField(SimpleID("First"), 0, None)),
+                None,
+                Map("persisted" -> "true")
+              ),
+              struct(
+                "A",
+                Map(
+                  "t" -> ReferenceType(Identifier("T"))
+                ),
+                true
+              )
+            )
+          )
+        )
+      )
+    }
+
     "pass TransitivePersistence" in {
       mustPass(
         LintRule.TransitivePersistence(
