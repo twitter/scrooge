@@ -1,6 +1,6 @@
 java_thrift_library(
     name = "thrift-scala",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     default_java_namespace = "bar",
     language = "scala",
@@ -8,7 +8,7 @@ java_thrift_library(
 
 java_thrift_library(
     name = "thrift-android",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     default_java_namespace = "android_bar",
     language = "android",

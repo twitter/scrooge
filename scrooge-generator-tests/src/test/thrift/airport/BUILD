@@ -1,13 +1,13 @@
 java_thrift_library(
     name = "thrift-scala",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
 )
 
 java_thrift_library(
     name = "thrift-android",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "android",
     dependencies = [
@@ -18,7 +18,7 @@ java_thrift_library(
 # namespaced and non-Finagle
 java_thrift_library(
     name = "thrift-namespace-scala",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
     namespace_map = {
@@ -30,7 +30,7 @@ java_thrift_library(
 
 java_thrift_library(
     name = "thrift-namespace-android",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "android",
     namespace_map = {
