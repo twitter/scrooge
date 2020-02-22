@@ -2,7 +2,7 @@
 # https://github.com/pantsbuild/pants/blob/e966210d85a42e25232c569b95ce88f024a851c8/contrib/scrooge/src/python/pants/contrib/scrooge/tasks/scrooge_gen.py#L159
 java_thrift_library(
     name = "thrift-scala",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
     namespace_map = {
@@ -29,7 +29,7 @@ java_thrift_library(
 
 java_thrift_library(
     name = "thrift-java",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "java",
     namespace_map = {

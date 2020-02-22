@@ -1,6 +1,6 @@
 java_thrift_library(
     name = "thrift-scala",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     include_paths = [
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2",
@@ -16,7 +16,7 @@ java_thrift_library(
 
 java_thrift_library(
     name = "thrift-android",
-    sources = rglobs("*.thrift"),
+    sources = ["**/*.thrift"],
     compiler = "scrooge",
     default_java_namespace = "android_thrift_default_namespace",
     include_paths = [
