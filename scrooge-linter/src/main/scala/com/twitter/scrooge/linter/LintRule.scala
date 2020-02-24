@@ -1,7 +1,7 @@
 package com.twitter.scrooge.linter
 
+import com.twitter.app.LoadService
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.frontend.{ResolvedDocument, TypeResolver}
 import scala.collection.mutable.ArrayBuffer
 
 trait LintRule extends (Document => Iterable[LintMessage]) {
@@ -25,112 +25,15 @@ object LintRule {
     CamelCase,
     RequiredFieldDefault,
     Keywords,
-    TransitivePersistence,
     FieldIndexGreaterThanZeroRule,
     MalformedDocstring,
     MapKeyType
-  )
+  ) ++ LoadService[LintRule]()
 
   val Rules: Seq[LintRule] = DefaultRules ++ Seq(
     // Add any optional rules here.
     // These can be enabled with enable-rule flag.
-    DocumentedPersisted
   )
-
-  /**
-   *  All structs annotated persisted = "true" refer only to structs that are persisted as well
-   */
-  object TransitivePersistence extends LintRule {
-
-    override def requiresIncludes: Boolean = true
-
-    def isPersisted(struct: StructLike): Boolean =
-      struct.annotations.getOrElse("persisted", "false") == "true"
-
-    def isPersisted(enum: Enum): Boolean =
-      enum.annotations.getOrElse("persisted", "false") == "true"
-
-    def apply(doc0: Document): Seq[LintMessage] = {
-      // resolving ReferenceTypes
-      val ResolvedDocument(doc, resolver) = TypeResolver()(doc0)
-
-      def findUnpersistedStructs(
-        s: StructLike,
-        scopePrefix: Option[SimpleID] = None
-      ): Seq[String] = {
-        val current =
-          if (!isPersisted(s)) Seq(scopePrefix.map(_.name + ".").getOrElse("") + s.sid.name)
-          else Seq.empty
-        (current ++ findUnpersistedStructsFromFields(s.fields.map(_.fieldType))).distinct
-      }
-
-      def findUnpersistedStructsFromFields(fieldTypes: Seq[FieldType]): Seq[String] = {
-        fieldTypes.flatMap {
-          case StructType(s, scopePrefix) =>
-            findUnpersistedStructs(s, scopePrefix) // includes Unions
-          case e: EnumType =>
-            if (!isPersisted(e.enum)) Seq(e.sid.fullName)
-            else Seq.empty
-          case MapType(keyType, valueType, _) =>
-            findUnpersistedStructsFromFields(Seq(keyType, valueType))
-          case SetType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
-          case ListType(eltType, _) => findUnpersistedStructsFromFields(Seq(eltType))
-          case ReferenceType(id) =>
-            // self-referencing and mutually-recursive structs should exist in the
-            // top level type map. `resolveFieldType` will throw a `TypeNotFoundException` otherwise
-            // failing linting
-            resolver.resolveFieldType(id) match {
-              case s: StructType =>
-                if (!isPersisted(s.struct)) Seq(s.sid.fullName)
-                else Seq.empty
-              // Enums must also be persisted if referenced by a struct-like structure.
-              case e: EnumType =>
-                if (!isPersisted(e.enum)) Seq(e.sid.fullName)
-                else Seq.empty
-              case _ =>
-                // should not occur
-                throw new UnsupportedOperationException(
-                  s"All resolved ReferenceTypes after the TypeResolver should only be structs or enums. id $id")
-            }
-
-          case _: BaseType => Seq.empty // primitive types
-        }
-      }
-
-      for {
-        struct <- doc.structs
-        if isPersisted(struct) // structs contains all StructLikes including Structs and Unions
-        structChild <- findUnpersistedStructs(struct)
-      } yield
-        LintMessage(
-          s"struct ${struct.originalName} with persisted annotation refers to struct-like type $structChild that is not annotated persisted.",
-          Error
-        )
-    }
-  }
-
-  /**
-   * all structs annotated (persisted = "true") must have their fields documented
-   */
-  object DocumentedPersisted extends LintRule {
-    def apply(doc: Document): Seq[LintMessage] = {
-      val persistedStructs = doc.structs.filter(TransitivePersistence.isPersisted)
-      val fieldsErrors = for {
-        s <- persistedStructs
-        field <- s.fields if field.docstring.isEmpty
-      } yield
-        LintMessage(
-          s"Missing documentation on field ${field.originalName} in struct ${s.originalName} annotated (persisted = 'true')."
-        )
-      val structErrors = for {
-        s <- persistedStructs if s.docstring.isEmpty
-      } yield
-        LintMessage(
-          s"Missing documentation on struct ${s.originalName} annotated (persisted = 'true')."
-        )
-      structErrors ++ fieldsErrors
-    }
-  }
 
   object Namespaces extends LintRule {
     // All IDLs have a scala and a java namespace

@@ -394,7 +394,10 @@ lazy val scroogeLinter = Project(
   sharedSettings
 ).settings(
   name := "scrooge-linter",
-  libraryDependencies += util("logging")
+  libraryDependencies ++= Seq(
+    util("logging"),
+    util("app"),
+  )
 ).dependsOn(scroogeGenerator)
 
 val benchThriftSettings: Seq[Setting[_]] = Seq(

@@ -7,6 +7,12 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-linter: Removed the `TransitivePersistence` and `DocumentedPersisted` lint rules,
+  as they aren't useful outside of Twitter. ``PHAB_ID=D433359``
+
+* scrooge-linter: Added the ability to load additional `LintRule` implementations dynamically
+  via `com.twitter.app.LoadService`.  ``PHAB_ID=D433359``
+
 20.2.0
 ------
 
