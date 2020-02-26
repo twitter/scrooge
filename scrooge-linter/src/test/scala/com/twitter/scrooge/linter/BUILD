@@ -1,6 +1,6 @@
 junit_tests(
     name = "scala",
-    sources = rglobs("*.scala"),
+    sources = ["**/*.scala"],
     compiler_option_sets = {"fatal_warnings"},
     dependencies = [
         "3rdparty/jvm/junit",

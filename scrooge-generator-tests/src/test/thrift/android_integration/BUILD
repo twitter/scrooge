@@ -1,6 +1,6 @@
 java_thrift_library(
     name = "thrift-android",
-    sources = globs("*.thrift"),
+    sources = ["*.thrift"],
     compiler = "scrooge",
     language = "android",
     dependencies = [
