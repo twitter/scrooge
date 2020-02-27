@@ -12,10 +12,10 @@ java_thrift_library(
 
 java_thrift_library(
     name = "thrift-android",
-    sources = rglobs(
-        "*.thrift",
-        "scrooge/scrooge-generator-tests/src/test/thrift/android_integration/*.thrift",
-    ),
+    sources = [
+        "**/*.thrift",
+        "scrooge/scrooge-generator-tests/src/test/thrift/android_integration/**/*.thrift",
+    ],
     compiler = "scrooge",
     language = "android",
     namespace_map = {
