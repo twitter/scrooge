@@ -1,8 +1,8 @@
 resources(
-    sources = rglobs(
-        "*",
-        exclude = [rglobs("BUILD*")],
-    ),
+    sources = [
+        "!BUILD*",
+        "**/*",
+    ],
 )
 
 java_thrift_library(
