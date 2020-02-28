@@ -97,6 +97,43 @@ class TypeResolverSpec extends Spec {
       resolve(input)
     }
 
+    "resolve non-struct types defined later" in {
+      val types = Seq(
+        """enum T {
+          |  First
+          |}
+        """.stripMargin,
+        "typedef i32 T",
+        """exception T {
+          |  1: i32 t
+          |}
+        """.stripMargin,
+        """union T {
+          |  1: i32 t
+          |}
+        """.stripMargin
+      )
+
+      for (rest <- types) {
+        val input =
+          """struct A {
+          |  1: T t
+          |}
+        """.stripMargin ++ rest
+        resolve(input)
+      }
+    }
+
+    "resolve consts defined later" in {
+      val input =
+        """struct A {
+          |  1: i32 t = T
+          |}
+          const i32 T = 1234;
+        """.stripMargin
+      resolve(input)
+    }
+
     "transform MapType" in {
       resolver(MapType(enumRef, structRef, None)) match {
         case MapType(enumType, structType, None) =>

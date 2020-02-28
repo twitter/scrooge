@@ -131,16 +131,16 @@ case class TypeResolver(
     case qid: QualifiedID => getResolver(qid.names.head, qid).resolveFieldType(qid.tail)
   }
 
-  def resolveServiceParent(parent: ServiceParent): Service =
+  protected def resolveServiceParent(parent: ServiceParent): Service =
     parent.filename match {
       case None => resolveService(parent.sid)
       case Some(filename) => getResolver(filename.name).resolveService(parent.sid)
     }
 
-  def resolveService(sid: SimpleID): Service =
+  private[scrooge] def resolveService(sid: SimpleID): Service =
     serviceMap.getOrElse(sid.name, throw new UndefinedSymbolException(sid.name, sid))
 
-  def resolveConst(id: Identifier): (FieldType, RHS) = id match {
+  protected def resolveConst(id: Identifier): (FieldType, RHS) = id match {
     case SimpleID(name, _) =>
       val const = constMap.getOrElse(name, throw new UndefinedConstantException(name, id))
       (const.fieldType, const.value)
@@ -150,7 +150,7 @@ case class TypeResolver(
   /**
    * Returns a new TypeResolver with the given include mapping added.
    */
-  def withInclude(inc: Include): TypeResolver = {
+  private[scrooge] def withInclude(inc: Include): TypeResolver = {
     val resolver = TypeResolver()
     val resolvedDocument = resolver(inc.document, Some(inc.prefix))
     copy(includeMap = includeMap + (inc.prefix.name -> resolvedDocument))
@@ -159,31 +159,46 @@ case class TypeResolver(
   /**
    * Returns a new TypeResolver with the given type mapping added.
    */
-  def withType(name: String, fieldType: FieldType): TypeResolver = {
+  private[scrooge] def withType(name: String, fieldType: FieldType): TypeResolver = {
     copy(typeMap = typeMap + (name -> fieldType))
   }
 
   /**
    * Returns a new TypeResolver with the given constant added.
    */
-  def withConst(const: ConstDefinition): TypeResolver = {
+  protected def withConst(const: ConstDefinition): TypeResolver = {
     copy(constMap = constMap + (const.sid.name -> const))
   }
 
   /**
    * Returns a new TypeResolver with the given service added.
    */
-  def withService(service: Service): TypeResolver = {
+  private[scrooge] def withService(service: Service): TypeResolver = {
     copy(serviceMap = serviceMap + (service.sid.name -> service))
   }
 
   /**
-   * Returns a new TypeResolver with the top level structs of `doc` added to the type map lazily.
+   * Returns a new TypeResolver with the top level consts of `doc` added to the type map lazily.
    */
-  def withStructsFrom(doc: Document, scopePrefix: Option[SimpleID]): TypeResolver = {
-    val toAdd = doc.defs.flatMap {
-      case s: Struct => Some(s.sid.name -> StructType(s, scopePrefix))
-      case _ => None
+  protected def withConstsFrom(doc: Document, scopePrefix: Option[SimpleID]): TypeResolver = {
+    val toAdd = doc.defs.collect {
+      case c: ConstDefinition => (c.sid.name -> c)
+    }.toMap
+
+    copy(constMap = constMap ++ toAdd)
+  }
+
+  /**
+   * Returns a new TypeResolver with the top level types of `doc` added to the type map lazily.
+   */
+  protected def withTypesFrom(doc: Document, scopePrefix: Option[SimpleID]): TypeResolver = {
+    val toAdd = doc.defs.collect {
+      case d: Typedef => (d.sid.name -> d.fieldType)
+      case s: Struct => (s.sid.name -> StructType(s, scopePrefix))
+      case u: Union => (u.sid.name -> StructType(u, scopePrefix))
+      case e: Exception_ => (e.sid.name -> StructType(e, scopePrefix))
+      case e: Enum => (e.sid.name -> EnumType(e, scopePrefix))
+      case s: Senum => (s.sid.name -> TString)
     }.toMap
 
     copy(typeMap = typeMap ++ toAdd)
@@ -208,10 +223,13 @@ case class TypeResolver(
       }
     }
 
+    // add all the consts lazily
+    resolver = resolver.withConstsFrom(doc, scopePrefix)
+
     // resolve the top level struct definitions first. This is important for mutually-recursive
-    // and self-referenced structs
-    resolver = resolver
-      .withStructsFrom(doc, scopePrefix)
+    // and self-referenced structs, as well as referencing names that were defined later in the file
+    // we expect that these will all end up being replaced by more concrete resolutions in a subsequent pass
+    resolver = resolver.withTypesFrom(doc, scopePrefix)
 
     for (d <- doc.defs) {
       val ResolvedDefinition(d2, r2) = resolver(d, scopePrefix)
