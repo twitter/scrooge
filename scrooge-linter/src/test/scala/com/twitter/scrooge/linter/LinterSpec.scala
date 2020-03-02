@@ -365,6 +365,17 @@ class LinterSpec extends WordSpec with MustMatchers {
       assertCompilerOptimizedMethodParamLimitMessage(warnings(0).msg)
     }
 
+    "don't warn on max union fields" in {
+      val warnings = LintRule
+        .CompilerOptimizedMethodParamLimit(
+          Document(
+            Seq(),
+            Seq(Union(SimpleID("SomeType"), "SomeType", genFields(100), None, Map.empty)))
+        )
+        .toSeq
+      assert(warnings.isEmpty)
+    }
+
     "warn on max service function fields" in {
       val warnings = LintRule
         .CompilerOptimizedMethodParamLimit(

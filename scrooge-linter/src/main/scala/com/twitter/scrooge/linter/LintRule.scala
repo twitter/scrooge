@@ -85,7 +85,7 @@ object LintRule {
 
       // struct fields are generated in an unapply function
       val structs = doc.defs.collect {
-        case s: StructLike if s.fields.length >= OptimalLimit =>
+        case s: StructLike if s.fields.length >= OptimalLimit & !s.isInstanceOf[Union] =>
           lintMessage("fields for thrift struct", s"${s.originalName} struct", s.fields.length)
       }
 
