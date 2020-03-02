@@ -35,10 +35,7 @@ junit_tests(
 
     # see comments above, we need to avoid 'owning' the LIB_SOURCES files
     # and instead 'depend' on them
-    sources = rglobs(
-        "*.scala",
-        exclude = LIB_SOURCES,
-    ),
+    sources = ["**/*.scala"] + exclude_globs(LIB_SOURCES),
     compiler_option_sets = {"fatal_warnings"},
     dependencies = [
         ":lib",
