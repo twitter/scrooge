@@ -32,6 +32,13 @@ jdk:
   - openjdk8
   - openjdk11
 
+matrix:
+  # Does not allow for assigning a build result if the non-'allow_failures' targets are complete
+  # because of https://travis-ci.community/t/receiving-too-many-emails/4888
+  fast_finish: false
+  allow_failures:
+    - scala: 2.13.1  
+
 notifications:
   slack:
     secure: Iyuxm9yOwUcT69bjgjqFnHTUQMRCIBAB3V0Xz2I2kir8gKYDsjjigKZgxFSAGMB9fF6KD72sAR0qwbIUt02jSM3qtkmKcAkaeqGQBKPJDiwWUGvgU5DVJuLH0huSvTePGNvPZ2YH60Y5KURJMF/0FtbqKL6Y+xfgAiZhrqvEAgw=
