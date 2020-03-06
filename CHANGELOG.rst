@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+20.3.0
+------
+
 * scrooge-generator: Add the ability to use a type in a file before you declare it.
   ``PHAB_ID=D441871``
 
