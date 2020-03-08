@@ -1,39 +1,26 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Namespaces &#8212; Scrooge 20.1.0 documentation</title>
-    
+    <meta charset="utf-8" />
+    <title>Namespaces &#8212; Scrooge 20.3.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '20.1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Scrooge 20.1.0 documentation" href="index.html" />
     <link rel="next" title="SBT Plugin" href="SBTPlugin.html" />
     <link rel="prev" title="Scrooge" href="index.html" />
    
   
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
 
-  </head>
-  <body role="document">
+  </head><body>
   
   
 
@@ -60,23 +47,23 @@
             
   <div class="section" id="namespaces">
 <h1>Namespaces<a class="headerlink" href="#namespaces" title="Permalink to this headline">¶</a></h1>
-<p>When generating with a target language of &#8220;scala&#8221; (the default), scrooge will
-first look for and use a &#8220;scala&#8221; namespace declaration.  If no scala  namespace
-is specified, scrooge will then fall back to any &#8220;java&#8221; namespace declaration,
-and lastly to the catch-all &#8220;*&#8221; namespace.</p>
-<p>Apache&#8217;s thrift generator, prior to version 0.9, will actually abort with a
-parse error if it encounters a &#8220;scala&#8221; namespace declaration (or for any
+<p>When generating with a target language of “scala” (the default), scrooge will
+first look for and use a “scala” namespace declaration.  If no scala  namespace
+is specified, scrooge will then fall back to any “java” namespace declaration,
+and lastly to the catch-all “*” namespace.</p>
+<p>Apache’s thrift generator, prior to version 0.9, will actually abort with a
+parse error if it encounters a “scala” namespace declaration (or for any
 language but a few known languages that it supports).  This means that adding a
-&#8220;scala&#8221;  namespace declaration to your thrift file, while optimal for scrooge
-users, will render your thrift file unparseable by many versions of apache&#8217;s
+“scala”  namespace declaration to your thrift file, while optimal for scrooge
+users, will render your thrift file unparseable by many versions of apache’s
 thrift generator.</p>
-<p>To allow for backwards-compatibility with Apache&#8217;s thrift generator, scrooge
-supports a special comment-based namespace declaration that Apache&#8217;s thrift
-generator will ignore. To use this syntax, use the line comment character &#8216;#&#8217;,
-immediately followed by &#8216;&#64;&#8217;.  Apache&#8217;s  thrift generator will treat the
+<p>To allow for backwards-compatibility with Apache’s thrift generator, scrooge
+supports a special comment-based namespace declaration that Apache’s thrift
+generator will ignore. To use this syntax, use the line comment character ‘#’,
+immediately followed by ‘&#64;’.  Apache’s  thrift generator will treat the
 remaining text as a line comment, but scrooge will interprent any following
 namespace declaration as if not commented-out.  For example:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">namespace</span> <span class="n">java</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">tweetservice</span><span class="o">.</span><span class="n">thriftjava</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">namespace</span> <span class="n">java</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">tweetservice</span><span class="o">.</span><span class="n">thriftjava</span>
 <span class="o">#</span><span class="nd">@namespace</span> <span class="n">scala</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">tweetservice</span><span class="o">.</span><span class="n">thriftscala</span>
 </pre></div>
 </div>
@@ -87,10 +74,7 @@ namespace declaration as if not commented-out.  For example:</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/scrooge.png" alt="Logo"/>
-            </a></p><a href="index.html"><h3>Scrooge</h3></a>
+        <div class="sphinxsidebarwrapper"><a href="index.html"><h3>Scrooge</h3></a>
 <p>
   Scrooge is a general purpose thrift parser/generator
 </p>
