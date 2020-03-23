@@ -17,6 +17,7 @@
 package com.twitter.scrooge.frontend
 
 import java.io.File
+import java.util.logging.Logger
 import java.util.zip.{ZipFile, ZipEntry}
 import scala.io.Source
 
@@ -27,7 +28,10 @@ case class FileContents(importer: Importer, data: String, thriftFilename: Option
 trait Importer extends (String => Option[FileContents]) {
   private[scrooge] def canonicalPaths: Seq[String] // for tests
   def lastModified(filename: String): Option[Long]
-  def +:(head: Importer): Importer = MultiImporter(Seq(head, this))
+  def +:(head: Importer): Importer = head match {
+    case MultiImporter(importers) => MultiImporter.deduped(head +: importers)
+    case _ => MultiImporter.deduped(Seq(head, this))
+  }
 
   /**
    * @param filename a filename to resolve.
@@ -37,6 +41,7 @@ trait Importer extends (String => Option[FileContents]) {
 }
 
 object Importer {
+  val logger: Logger = Logger.getLogger(getClass.getName)
 
   /**
    * @param path Path of a directory or a zip/jar file
@@ -67,7 +72,7 @@ object Importer {
   }
 
   def apply(paths: Seq[String]): Importer =
-    MultiImporter(paths map { Importer(_) })
+    MultiImporter.deduped(paths.map(Importer.apply))
 }
 
 case class DirImporter(dir: File) extends Importer {
@@ -93,10 +98,10 @@ case class DirImporter(dir: File) extends Importer {
   }
 
   def lastModified(filename: String): Option[Long] =
-    resolve(filename) map { case (file, _) => file.lastModified }
+    resolve(filename).map { case (file, _) => file.lastModified }
 
   def apply(filename: String): Option[FileContents] =
-    resolve(filename) map {
+    resolve(filename).map {
       case (file, importer) =>
         FileContents(importer, Source.fromFile(file, "UTF-8").mkString, Some(file.getName))
     }
@@ -104,6 +109,8 @@ case class DirImporter(dir: File) extends Importer {
   override private[scrooge] def getResolvedPath(filename: String): Option[String] = {
     resolve(filename).map { case (file, _) => file.getCanonicalPath }
   }
+
+  override def toString: String = s"DirImporter(${dir.getCanonicalPath})"
 }
 
 // jar files are just zip files, so this will work with both .jar and .zip files
@@ -117,12 +124,12 @@ case class ZipImporter(file: File) extends Importer {
 
   // uses the lastModified time of the zip/jar file
   def lastModified(filename: String): Option[Long] =
-    resolve(filename) map { _ =>
+    resolve(filename).map { _ =>
       file.lastModified
     }
 
   def apply(filename: String): Option[FileContents] =
-    resolve(filename) map { entry =>
+    resolve(filename).map { entry =>
       FileContents(
         this,
         Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString,
@@ -138,31 +145,84 @@ case class ZipImporter(file: File) extends Importer {
     else
       None
   }
+
+  override def toString: String = s"ZipImporter(${file.getCanonicalPath})"
 }
 
 case class MultiImporter(importers: Seq[Importer]) extends Importer {
-  lazy val canonicalPaths: Seq[String] = importers flatMap { _.canonicalPaths }
+  lazy val canonicalPaths: Seq[String] = importers.flatMap { _.canonicalPaths }
 
-  private def first[A](f: Importer => Option[A]): Option[A] =
-    importers.foldLeft[Option[A]](None) { (accum, next) =>
-      accum orElse f(next)
+  private def first[A](filename: String, f: Importer => Option[A]): Option[A] =
+    importers.flatMap { importer =>
+      f(importer).map((_, importer))
+    } match {
+      case Seq((resolved, _)) =>
+        Some(resolved)
+      case Seq() =>
+        None
+      case more =>
+        val count = more.size
+        val importers = more.map { case (_, importer) => importer.toString }.mkString(", ")
+        Importer.logger.warning(
+          s"Expected to find just 1 match for $filename, but found $count, in $importers"
+        )
+        Some(more.head._1)
     }
 
   def lastModified(filename: String): Option[Long] =
-    first[Long] { _.lastModified(filename) }
+    first[Long](filename, { _.lastModified(filename) })
 
   def apply(filename: String): Option[FileContents] =
-    first[FileContents] { _(filename) } map {
+    first[FileContents](filename, { _(filename) }).map {
       case FileContents(importer, data, thriftFilename) =>
         // take the importer that found the file and prepend it to importer list returned,
         // that way it is used first when finding relative imports
         FileContents(importer +: this, data, thriftFilename)
     }
 
-  override def +:(head: Importer): Importer = MultiImporter(head +: importers)
+  override def +:(head: Importer): Importer = head match {
+    case MultiImporter(others) => MultiImporter.deduped(others ++ importers)
+    case _ => MultiImporter.deduped(head +: importers)
+  }
 
   override private[scrooge] def getResolvedPath(filename: String): Option[String] =
-    first[String] { _.getResolvedPath(filename) }
+    first[String](filename, { _.getResolvedPath(filename) })
+
+  override def toString: String = s"MultiImporter(${importers.mkString(", ")})"
+}
+
+object MultiImporter {
+
+  // TODO: remove once we drop support for 2.11
+  // this is loosely copied from https://github.com/scala/scala/blob/ff662eb9ce08a0c33cbd148e094c690e9e8964ec/src/reflect/scala/reflect/internal/util/Collections.scala#L188
+  // this preserves order so that it behaves consistently
+  private[this] def distinctBy(importers: Seq[Importer], fn: Importer => String): Seq[Importer] = {
+    val seen = scala.collection.mutable.Set[String]()
+    val buffer = scala.collection.mutable.ListBuffer[Importer]()
+    importers.foreach { importer =>
+      val key = fn(importer)
+      val wasSeen = seen(key)
+      if (!wasSeen) {
+        seen += key
+        buffer += importer
+      }
+    }
+    buffer.toList
+  }
+
+  /**
+   * Ensures that we don't add multiple importers that are pointing to the same directory to the
+   * include path.
+   */
+  def deduped(importers: Seq[Importer]): MultiImporter = MultiImporter(
+    distinctBy(
+      importers, {
+        case ZipImporter(file) => file.getCanonicalPath
+        case DirImporter(file) => file.getCanonicalPath
+        case importer => importer.toString // should not happen, but just in case
+      }
+    )
+  )
 }
 
 object NullImporter extends Importer {
