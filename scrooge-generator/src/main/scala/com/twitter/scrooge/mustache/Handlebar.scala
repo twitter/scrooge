@@ -79,9 +79,7 @@ object Handlebar {
             if (reversed) {
               ""
             } else {
-              val contents = items.map { d =>
-                generate(indentLevel, document, d)
-              }
+              val contents = items.map { d => generate(indentLevel, document, d) }
               joiner map { join(contents, _) } getOrElse (contents.mkString)
             }
           case other =>

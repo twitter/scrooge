@@ -124,9 +124,7 @@ case class ZipImporter(file: File) extends Importer {
 
   // uses the lastModified time of the zip/jar file
   def lastModified(filename: String): Option[Long] =
-    resolve(filename).map { _ =>
-      file.lastModified
-    }
+    resolve(filename).map { _ => file.lastModified }
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename).map { entry =>
@@ -153,9 +151,7 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
   lazy val canonicalPaths: Seq[String] = importers.flatMap { _.canonicalPaths }
 
   private def first[A](filename: String, f: Importer => Option[A]): Option[A] =
-    importers.flatMap { importer =>
-      f(importer).map((_, importer))
-    } match {
+    importers.flatMap { importer => f(importer).map((_, importer)) } match {
       case Seq((resolved, _)) =>
         Some(resolved)
       case Seq() =>

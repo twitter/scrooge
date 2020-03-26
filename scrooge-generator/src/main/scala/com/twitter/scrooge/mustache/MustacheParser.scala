@@ -36,9 +36,7 @@ object MustacheAST {
 
 class ParserPool(size: Int = 10) {
   private[this] val queue = new java.util.concurrent.LinkedBlockingQueue[MustacheParser]()
-  (0 until size) foreach { _ =>
-    queue.offer(new MustacheParser)
-  }
+  (0 until size) foreach { _ => queue.offer(new MustacheParser) }
 
   def apply[T](f: MustacheParser => T): T = {
     val parser = queue.take()
@@ -61,9 +59,7 @@ class MustacheParser extends RegexParsers {
 
   override def skipWhitespace = false
 
-  def document: Parser[Template] = rep(directive | data) ^^ { x =>
-    Template(x.flatten)
-  }
+  def document: Parser[Template] = rep(directive | data) ^^ { x => Template(x.flatten) }
 
   def directive: Parser[Option[Segment]] = interpolation | section | comment | partial
 
@@ -87,13 +83,9 @@ class MustacheParser extends RegexParsers {
 
   def comment: Parser[None.type] = """\{\{!(.*?)}}""".r ^^^ None
 
-  def partial: Parser[Some[Partial]] = "{{>" ~> id <~ "}}" ^^ { x =>
-    Some(Partial(x))
-  }
+  def partial: Parser[Some[Partial]] = "{{>" ~> id <~ "}}" ^^ { x => Some(Partial(x)) }
 
-  def data: Parser[Option[Segment]] = """([^{]+|\{(?!\{)|\{(?=\{\{))+""".r ^^ { x =>
-    Some(Data(x))
-  }
+  def data: Parser[Option[Segment]] = """([^{]+|\{(?!\{)|\{(?=\{\{))+""".r ^^ { x => Some(Data(x)) }
 
   def id: Regex = """[A-Za-z0-9_\.]+""".r
 

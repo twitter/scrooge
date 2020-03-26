@@ -42,9 +42,7 @@ private[adapt] class AdaptTrackingDecoder[T <: ThriftStruct](
 
   private[this] val trackedCount = new AtomicInteger()
   private[this] val fieldAccessCounts: Map[Short, AtomicInteger] =
-    codec.metaData.fields.map { f =>
-      (f.id, new AtomicInteger(0))
-    }.toMap
+    codec.metaData.fields.map { f => (f.id, new AtomicInteger(0)) }.toMap
 
   def fieldAccessed(fieldId: Short): Unit =
     fieldAccessCounts(fieldId).getAndIncrement()

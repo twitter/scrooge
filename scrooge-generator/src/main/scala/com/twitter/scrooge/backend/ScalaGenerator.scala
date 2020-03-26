@@ -120,9 +120,7 @@ class ScalaGenerator(
     val listElemType = fieldType.map(_.asInstanceOf[ListType].eltType)
     val code =
       list.elems
-        .map { e =>
-          genConstant(e, listElemType).toData
-        }
+        .map { e => genConstant(e, listElemType).toData }
         .mkString(", ")
     v(s"Seq($code)")
   }
@@ -130,9 +128,7 @@ class ScalaGenerator(
   def genSet(set: SetRHS, fieldType: Option[FieldType] = None): CodeFragment = {
     val setElemType = fieldType.map(_.asInstanceOf[SetType].eltType)
     val code = set.elems
-      .map { e =>
-        genConstant(e, setElemType).toData
-      }
+      .map { e => genConstant(e, setElemType).toData }
       .mkString(", ")
     v(s"Set($code)")
   }
@@ -256,9 +252,7 @@ class ScalaGenerator(
         val nameAndType = genID(f.sid).toData + ": " + genFieldType(f).toData
         val defaultValue =
           genDefaultFieldValue(f)
-            .map { d =>
-              " = " + d.toData
-            }
+            .map { d => " = " + d.toData }
             .getOrElse {
               if (f.requiredness.isOptional) " = None"
               else ""

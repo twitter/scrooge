@@ -63,8 +63,7 @@ object Main {
       } text ("log verbose messages about progress")
 
       opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action {
-        (_, c) =>
-          c.copy(ignoreErrors = true)
+        (_, c) => c.copy(ignoreErrors = true)
       }
 
       opt[String]('n', "include-path").unbounded.valueName("<path>").action { (path, c) =>
@@ -98,8 +97,7 @@ object Main {
       } text ("rules to be disabled.")
 
       opt[Unit]('p', "ignore-parse-errors") text ("continue if parsing errors are found.") action {
-        (_, c) =>
-          c.copy(ignoreParseErrors = true)
+        (_, c) => c.copy(ignoreParseErrors = true)
       }
 
       opt[Unit]('w', "warnings") text ("show linter warnings (default = False)") action { (_, c) =>
@@ -107,8 +105,7 @@ object Main {
       }
 
       opt[Unit]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action {
-        (_, c) =>
-          c.copy(strict = false)
+        (_, c) => c.copy(strict = false)
       }
 
       opt[Unit]("fatal-warnings") text ("convert warnings to errors") action { (_, c) =>

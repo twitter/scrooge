@@ -352,15 +352,13 @@ class CocoaGenerator(
       case x: Include => x
     }
 
-    val enumsWithNamespace = doc.enums.map(
-      enum =>
-        Enum(
-          SimpleID(currentNamespace + enum.sid.name),
-          enum.values,
-          enum.docstring,
-          enum.annotations
-      )
-    )
+    val enumsWithNamespace = doc.enums.map(enum =>
+      Enum(
+        SimpleID(currentNamespace + enum.sid.name),
+        enum.values,
+        enum.docstring,
+        enum.annotations
+      ))
 
     if (!dryRun) {
       enumsWithNamespace.foreach { enum =>

@@ -154,12 +154,8 @@ class ApacheJavaGenerator(
     fileNamespaceOption: Option[Identifier] = None
   ): Identifier = {
     scopePrefixOption
-      .map { scopePrefix =>
-        sid.addScope(getIncludeNamespace(scopePrefix.name))
-      }.orElse {
-        fileNamespaceOption.map { fileNamespace =>
-          sid.addScope(fileNamespace)
-        }
+      .map { scopePrefix => sid.addScope(getIncludeNamespace(scopePrefix.name)) }.orElse {
+        fileNamespaceOption.map { fileNamespace => sid.addScope(fileNamespace) }
       }.getOrElse {
         sid
       }
@@ -201,7 +197,8 @@ class ApacheJavaGenerator(
             x match {
               case e: EnumType => "EnumSet"
               case _ => "HashSet"
-            } else "Set"
+            }
+          else "Set"
         prefix + (if (skipGeneric) "" else "<" + typeName(x, inContainer = true) + ">")
       case ListType(x, _) =>
         val prefix = if (inInit) "ArrayList" else "List"

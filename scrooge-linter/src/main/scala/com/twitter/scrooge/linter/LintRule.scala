@@ -13,9 +13,7 @@ object LintRule {
   def all(rules: Seq[LintRule]): LintRule =
     new LintRule {
       def apply(doc: Document): Seq[LintMessage] =
-        rules.flatMap { r =>
-          r(doc)
-        }
+        rules.flatMap { r => r(doc) }
     }
 
   val DefaultRules: Seq[LintRule] = Seq(
@@ -198,9 +196,8 @@ object LintRule {
 
           for {
             (lang, keywords) <- languageKeywords
-            fields = struct.fields.filter { f =>
-              keywords.contains(f.originalName)
-            } if fields.nonEmpty
+            fields = struct.fields.filter { f => keywords.contains(f.originalName) }
+            if fields.nonEmpty
             fieldNames = fields.map(_.originalName)
           } messages += LintMessage(
             s"Found field names that are $lang keywords: ${fieldNames.mkString(", ")}. " +
@@ -210,9 +207,8 @@ object LintRule {
         case service: Service =>
           for {
             (lang, keywords) <- languageKeywords
-            functions = service.functions.filter { f =>
-              keywords.contains(f.originalName)
-            } if functions.nonEmpty
+            functions = service.functions.filter { f => keywords.contains(f.originalName) }
+            if functions.nonEmpty
             functionNames = functions.map(_.originalName)
           } messages += LintMessage(
             s"Found function names that are $lang keywords: ${functionNames.mkString(", ")}. " +
@@ -602,9 +598,7 @@ object LintRule {
         case const: ConstDefinition => checkForMapKeyType(const.sid, const.fieldType).toSeq
         case typedef: Typedef => checkForMapKeyType(typedef.sid, typedef.fieldType).toSeq
         case struct: StructLike =>
-          struct.fields.flatMap { field =>
-            checkForMapKeyType(field.sid, field.fieldType)
-          }
+          struct.fields.flatMap { field => checkForMapKeyType(field.sid, field.fieldType) }
         case _ => Seq.empty
       }
     }

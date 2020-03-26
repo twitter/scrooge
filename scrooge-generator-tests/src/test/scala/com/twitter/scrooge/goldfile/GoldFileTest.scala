@@ -36,9 +36,10 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
           .getPath
       }
 
-      val args = Seq("--language", language, "--finagle", "--gen-adapt", "--dest", tempDir.getPath) ++
-        experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
-        inputThrifts
+      val args =
+        Seq("--language", language, "--finagle", "--gen-adapt", "--dest", tempDir.getPath) ++
+          experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
+          inputThrifts
 
       Main.main(args.toArray)
       generatedFiles = generatedFiles(tempDir)
@@ -70,9 +71,7 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
         buf :+ f
       } else {
         var bb = buf
-        f.listFiles.foreach { f2 =>
-          bb = accumulate(f2, bb)
-        }
+        f.listFiles.foreach { f2 => bb = accumulate(f2, bb) }
         bb
       }
     }

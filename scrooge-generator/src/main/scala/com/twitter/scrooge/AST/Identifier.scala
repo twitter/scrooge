@@ -62,9 +62,7 @@ object Identifier {
       .map {
         case (part, ind) =>
           val first = if (ind == 0 && !firstCharUp) part(0).toLower else part(0).toUpper
-          val isAllUpperCase = part.forall { c =>
-            c.isUpper || !c.isLetter
-          }
+          val isAllUpperCase = part.forall { c => c.isUpper || !c.isLetter }
           val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
           new mutable.StringBuilder(part.size).append(first).append(rest)
       }
@@ -73,7 +71,10 @@ object Identifier {
 }
 
 case class SimpleID(name: String, origName: Option[String] = None) extends Identifier {
-  assert(!name.contains(".") && !name.isEmpty, s"'$name' is not a valid SimpleID") // name is a simple string
+  assert(
+    !name.contains(".") && !name.isEmpty,
+    s"'$name' is not a valid SimpleID"
+  ) // name is a simple string
   val fullName: String = name
 
   val originalName: String = origName.getOrElse(fullName)

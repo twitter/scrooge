@@ -26,9 +26,7 @@ class StructController(
   }
   val fields: Seq[StructFieldController] = cleanup(allFields)
   val has_fields: Boolean = fields.size > 0
-  val sorted_fields: Seq[StructFieldController] = cleanup(allFields sortBy { f =>
-    f.index
-  })
+  val sorted_fields: Seq[StructFieldController] = cleanup(allFields sortBy { f => f.index })
 
   val non_nullable_fields: Seq[StructFieldController] = cleanup(allFields.filter { f =>
     !generator.isNullableType(f.fieldType)

@@ -393,9 +393,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           RichClientParam(serviceName = "ExceptionalService")
         )
 
-      "set service name" in { _ =>
-        client.serviceName must be("ExceptionalService")
-      }
+      "set service name" in { _ => client.serviceName must be("ExceptionalService") }
 
       "success" in { _ =>
         context.checking(new Expectations {

@@ -34,7 +34,8 @@ class DeepGeneratorController(
   val iterator_element_name: String = sourceNamePart1 + "_element"
   val result_element_name: String = s"${result_name}_${operation.name}"
   val field_type: FieldTypeController = new FieldTypeController(fieldType, generator)
-  val direct_copy: Boolean = field_type.is_base_type || field_type.is_enum || field_type.is_typedef || field_type.is_binary
+  val direct_copy: Boolean =
+    field_type.is_base_type || field_type.is_enum || field_type.is_typedef || field_type.is_binary
 
   def map_value: Any = {
     fieldType match {

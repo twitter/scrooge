@@ -157,13 +157,11 @@ class ScalaIntegrationTest extends FunSuite {
   ) {
     def mkPair(
       m: ThriftMethod
-    )(f: m.Args => Future[m.SuccessType]
+    )(
+      f: m.Args => Future[m.SuccessType]
     ): (ThriftMethod, Service[Request[_], Response[_]]) = {
-      val reqRep = { r: Request[m.Args] =>
-        f(r.args).map { x: m.SuccessType =>
-          Response(x)
-        }
-      }.asInstanceOf[m.ReqRepFunctionType]
+      val reqRep = { r: Request[m.Args] => f(r.args).map { x: m.SuccessType => Response(x) } }
+        .asInstanceOf[m.ReqRepFunctionType]
       m -> m
         .toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
     }
@@ -172,15 +170,9 @@ class ScalaIntegrationTest extends FunSuite {
       mkPair(ExtendedBarService.Triple) { a: ExtendedBarService.Triple.Args =>
         Future.value(a.z + a.z + a.z)
       },
-      mkPair(BarService.Echo) { a: BarService.Echo.Args =>
-        Future.value(a.x)
-      },
-      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args =>
-        Future.value(a.y + a.y)
-      },
-      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args =>
-        Future.Unit
-      }
+      mkPair(BarService.Echo) { a: BarService.Echo.Args => Future.value(a.x) },
+      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args => Future.value(a.y + a.y) },
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit }
       // Missing GetDuck
     )
 
@@ -192,13 +184,11 @@ class ScalaIntegrationTest extends FunSuite {
   test("construct a Thrift server from Map[ThiriftMethod, Service[Request[_],Response[_]]") {
     def mkPair(
       m: ThriftMethod
-    )(f: m.Args => Future[m.SuccessType]
+    )(
+      f: m.Args => Future[m.SuccessType]
     ): (ThriftMethod, Service[Request[_], Response[_]]) = {
-      val reqRep = { r: Request[m.Args] =>
-        f(r.args).map { x: m.SuccessType =>
-          Response(x)
-        }
-      }.asInstanceOf[m.ReqRepFunctionType]
+      val reqRep = { r: Request[m.Args] => f(r.args).map { x: m.SuccessType => Response(x) } }
+        .asInstanceOf[m.ReqRepFunctionType]
       m -> m
         .toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
     }
@@ -207,18 +197,10 @@ class ScalaIntegrationTest extends FunSuite {
       mkPair(ExtendedBarService.Triple) { a: ExtendedBarService.Triple.Args =>
         Future.value(a.z + a.z + a.z)
       },
-      mkPair(BarService.Echo) { a: BarService.Echo.Args =>
-        Future.value(a.x)
-      },
-      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args =>
-        Future.value(a.y + a.y)
-      },
-      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args =>
-        Future.Unit
-      },
-      mkPair(BarService.GetDuck) { a: BarService.GetDuck.Args =>
-        Future.value("Scrooge")
-      }
+      mkPair(BarService.Echo) { a: BarService.Echo.Args => Future.value(a.x) },
+      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args => Future.value(a.y + a.y) },
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit },
+      mkPair(BarService.GetDuck) { a: BarService.GetDuck.Args => Future.value("Scrooge") }
     )
 
     val extendedBarService = Thrift.server.serveIface(
@@ -243,13 +225,11 @@ class ScalaIntegrationTest extends FunSuite {
 
     def mkPair(
       m: ThriftMethod
-    )(f: m.Args => Future[m.SuccessType]
+    )(
+      f: m.Args => Future[m.SuccessType]
     ): (ThriftMethod, Service[Request[_], Response[_]]) = {
-      val reqRep = { r: Request[m.Args] =>
-        f(r.args).map { x: m.SuccessType =>
-          Response(x)
-        }
-      }.asInstanceOf[m.ReqRepFunctionType]
+      val reqRep = { r: Request[m.Args] => f(r.args).map { x: m.SuccessType => Response(x) } }
+        .asInstanceOf[m.ReqRepFunctionType]
       m -> m
         .toReqRepServicePerEndpointService(reqRep).asInstanceOf[Service[Request[_], Response[_]]]
     }
@@ -267,15 +247,9 @@ class ScalaIntegrationTest extends FunSuite {
       mkPair(ExtendedBarService.Triple) { a: ExtendedBarService.Triple.Args =>
         Future.value(a.z + a.z + a.z)
       },
-      mkPair(BarService.Echo) { a: BarService.Echo.Args =>
-        Future.value(a.x)
-      },
-      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args =>
-        Future.value(a.y + a.y)
-      },
-      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args =>
-        Future.Unit
-      },
+      mkPair(BarService.Echo) { a: BarService.Echo.Args => Future.value(a.x) },
+      mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args => Future.value(a.y + a.y) },
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit },
       BarService.GetDuck -> echoService
     )
 

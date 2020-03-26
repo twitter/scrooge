@@ -42,9 +42,7 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
     value match {
       case TraversableAnyRef(t) => {
         var newWriter = writer
-        t foreach { next =>
-          newWriter = iteration.next(newWriter, coerce(next), scopes)
-        }
+        t foreach { next => newWriter = iteration.next(newWriter, coerce(next), scopes) }
         newWriter
       }
       case n: Number =>

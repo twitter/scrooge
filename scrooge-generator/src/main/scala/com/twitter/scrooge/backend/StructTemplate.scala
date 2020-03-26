@@ -253,9 +253,7 @@ trait StructTemplate { self: TemplateGenerator =>
               case MapType(keyType, valueType, _) =>
                 List(v("(" + genType(keyType).toData + ", " + genType(valueType).toData + ")"))
               case _ => Nil
-            }) map { t =>
-              Dictionary("elementType" -> t)
-            }
+            }) map { t => Dictionary("elementType" -> t) }
           },
           "readFieldValueName" -> genID(field.sid.toTitleCase.prepend("read").append("Value")),
           "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
@@ -345,9 +343,7 @@ trait StructTemplate { self: TemplateGenerator =>
       }
       .orElse {
         // 2nd choice: the first string field
-        struct.fields.find { field =>
-          field.fieldType == TString
-        }
+        struct.fields.find { field => field.fieldType == TString }
       }
 
     msgField.map { _.sid }
@@ -370,9 +366,7 @@ trait StructTemplate { self: TemplateGenerator =>
       v("Nil")
     } else {
       val exceptions = result.exceptions
-        .map { field: Field =>
-          genID(field.sid).toData
-        }
+        .map { field: Field => genID(field.sid).toData }
         .mkString(", ")
       v(s"Seq($exceptions)")
     }
@@ -410,11 +404,9 @@ trait StructTemplate { self: TemplateGenerator =>
     val exceptionMsgField: Option[SimpleID] =
       if (isException) exceptionMsgFieldName(struct) else None
 
-    val nonOptionalFields = struct.fields.filter(
-      field =>
-        field.requiredness.isRequired || field.requiredness.isDefault || Generator
-          .isConstructionRequiredField(field)
-    )
+    val nonOptionalFields = struct.fields.filter(field =>
+      field.requiredness.isRequired || field.requiredness.isDefault || Generator
+        .isConstructionRequiredField(field))
     val nonOptionalFieldDictionaries = fieldsToDict(
       nonOptionalFields,
       if (isException) Seq("message") else Nil,

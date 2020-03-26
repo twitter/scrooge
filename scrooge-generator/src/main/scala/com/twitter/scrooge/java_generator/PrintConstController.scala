@@ -122,9 +122,7 @@ class PrintConstController(
           case enumValue: EnumRHS => enumValue.value.value
           case _ => throw new ScroogeInternalException("Invalid state for renderConstValue")
         }
-        val namedValue = enumValue.values filter { v =>
-          v.value == ordinalValue
-        }
+        val namedValue = enumValue.values filter { v => v.value == ordinalValue }
         if (namedValue.isEmpty) {
           throw new ScroogeInternalException("Enum value not found")
         } else {

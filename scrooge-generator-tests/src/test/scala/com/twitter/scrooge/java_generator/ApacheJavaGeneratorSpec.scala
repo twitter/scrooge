@@ -140,9 +140,7 @@ class ApacheJavaGeneratorSpec extends Spec {
       ): Unit = {
         val result = DeepValidationStruct.validateNewInstance(struct).asScala
         result must have size number
-        result.foreach { errorMessage =>
-          errorMessage must be(constructionRequiredErrorMessage)
-        }
+        result.foreach { errorMessage => errorMessage must be(constructionRequiredErrorMessage) }
       }
 
       def buildDeepValidationStruct(

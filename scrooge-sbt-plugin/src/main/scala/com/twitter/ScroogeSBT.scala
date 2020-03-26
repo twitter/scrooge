@@ -37,9 +37,7 @@ object ScroogeSBT extends AutoPlugin {
       val compiler = new Compiler()
       compiler.destFolder = outputDir.getPath
       thriftIncludes.map { compiler.includePaths += _.getPath }
-      namespaceMappings.map { e =>
-        compiler.namespaceMappings.put(e._1, e._2)
-      }
+      namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2) }
       compiler.flags ++= flags
       compiler.thriftFiles ++= thriftFiles.map(_.getPath())
       compiler.strict = !disableStrict
@@ -58,9 +56,7 @@ object ScroogeSBT extends AutoPlugin {
       val module = dep
         .get(AttributeKey[ModuleID]("module-id")).orElse(
           dep.get(AttributeKey[ModuleID]("moduleID")))
-      module.exists { m =>
-        whitelist.contains(m.name)
-      }
+      module.exists { m => whitelist.contains(m.name) }
     }
   }
 
@@ -224,8 +220,7 @@ object ScroogeSBT extends AutoPlugin {
       // figure out if we need to actually rebuild, based on mtimes.
       val allSourceDeps: Seq[File] =
         scroogeThriftSources.value ++ scroogeThriftIncludes.value.foldLeft(Seq[File]()) {
-          (files, dir) =>
-            files ++ (dir ** "*.thrift").get
+          (files, dir) => files ++ (dir ** "*.thrift").get
         }
       val sourcesLastModified: Seq[Long] = allSourceDeps.map(_.lastModified)
       val newestSource: Long =

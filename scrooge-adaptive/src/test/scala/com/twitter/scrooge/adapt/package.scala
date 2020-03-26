@@ -39,29 +39,28 @@ package object adapt {
       negativeField <- arbitrary[Boolean]
       snakeCase <- arbitrary[Boolean]
       endOffset <- arbitrary[Boolean]
-    } yield
-      TestStruct(
-        boolField,
-        byteField,
-        shortField,
-        intField,
-        longField,
-        doubleField,
-        stringField,
-        binaryField,
-        optionalField,
-        listField,
-        setField,
-        mapField,
-        annotatedId,
-        tpe,
-        klass,
-        optionalField2,
-        optionalFieldWithDefaultValue,
-        negativeField,
-        snakeCase,
-        endOffset
-      )
+    } yield TestStruct(
+      boolField,
+      byteField,
+      shortField,
+      intField,
+      longField,
+      doubleField,
+      stringField,
+      binaryField,
+      optionalField,
+      listField,
+      setField,
+      mapField,
+      annotatedId,
+      tpe,
+      klass,
+      optionalField2,
+      optionalFieldWithDefaultValue,
+      negativeField,
+      snakeCase,
+      endOffset
+    )
   }
 
   implicit val testNestedStructArbitrary: Arbitrary[TestNestedStruct] = Arbitrary {
@@ -73,16 +72,15 @@ package object adapt {
       seqField <- arbitrary[Seq[TestStruct]]
       setField <- arbitrary[Set[TestStruct]]
       mapField <- arbitrary[Map[TestStruct, TestStruct]]
-    } yield
-      TestNestedStruct(
-        field,
-        tpe,
-        klass,
-        optionalField,
-        seqField,
-        setField,
-        mapField
-      )
+    } yield TestNestedStruct(
+      field,
+      tpe,
+      klass,
+      optionalField,
+      seqField,
+      setField,
+      mapField
+    )
   }
 
   implicit val testEmptyStructArbitrary: Arbitrary[TestEmptyStruct] = Arbitrary {

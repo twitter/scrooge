@@ -157,10 +157,8 @@ class LazyTProtocolBenchmark {
 
   @Benchmark
   def timeReferenceRTBytes(state: AirportState): Seq[Array[Byte]] = {
-    airportBytes.map(
-      b =>
-        state.binaryThriftStructSerializer.toBytes(state.binaryThriftStructSerializer.fromBytes(b))
-    )
+    airportBytes.map(b =>
+      state.binaryThriftStructSerializer.toBytes(state.binaryThriftStructSerializer.fromBytes(b)))
   }
 
   // ========= Stateless benchmarks =========
@@ -188,9 +186,8 @@ class LazyTProtocolBenchmark {
 
   @Benchmark
   def timeStatelessRTBytes(state: AirportState): Seq[Array[Byte]] = {
-    airportBytes.map(
-      b => state.statelessLazySerializer.toBytes(state.statelessLazySerializer.fromBytes(b))
-    )
+    airportBytes.map(b =>
+      state.statelessLazySerializer.toBytes(state.statelessLazySerializer.fromBytes(b)))
   }
 
   // ========= Stateful benchmarks =========
@@ -218,9 +215,8 @@ class LazyTProtocolBenchmark {
 
   @Benchmark
   def timeStatefulRTBytes(state: AirportState): Seq[Array[Byte]] = {
-    airportBytes.map(
-      b => state.statefulLazySerializer.toBytes(state.statefulLazySerializer.fromBytes(b))
-    )
+    airportBytes.map(b =>
+      state.statefulLazySerializer.toBytes(state.statefulLazySerializer.fromBytes(b)))
   }
 
   // ========= Using the thread state, no built in thread safety =========
@@ -269,11 +265,9 @@ class LazyTProtocolBenchmark {
     state: AirportState,
     threadState: AirportThreadState
   ): Seq[Array[Byte]] = {
-    airportBytes.map(
-      b =>
-        threadState.threadUnsafeLazySerializer
-          .toBytes(threadState.threadUnsafeLazySerializer.fromBytes(b))
-    )
+    airportBytes.map(b =>
+      threadState.threadUnsafeLazySerializer
+        .toBytes(threadState.threadUnsafeLazySerializer.fromBytes(b)))
   }
 
 }

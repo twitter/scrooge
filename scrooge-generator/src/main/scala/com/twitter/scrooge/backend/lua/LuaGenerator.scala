@@ -137,9 +137,7 @@ class LuaGenerator(
   def genFieldParams(fields: Seq[Field], asVal: Boolean = false): CodeFragment =
     v(
       fields
-        .map { f =>
-          genID(f.sid).toData
-        }
+        .map { f => genID(f.sid).toData }
         .mkString(", ")
     )
 

@@ -41,15 +41,11 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
    */
   val BlankStructBytes = Array[Byte](TType.STOP)
 
-  val NoAccess: Accessor[Any] = Accessor("No access") { _ =>
-    ()
-  }
+  val NoAccess: Accessor[Any] = Accessor("No access") { _ => () }
 
   object TestStructAccessors {
     val RequiredFieldAccess: Accessor[TestStruct] =
-      Accessor("Required field") { t =>
-        t.boolField
-      }
+      Accessor("Required field") { t => t.boolField }
 
     val RequiredFieldsAccess: Accessor[TestStruct] =
       Accessor("Required fields") { t =>
@@ -130,7 +126,8 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
   def useAccessProp[T <: ThriftStruct](
     thriftCodec: ThriftStructCodec[T],
     use: T => Any
-  )(access: T => Any
+  )(
+    access: T => Any
   )(
     implicit arb: Arbitrary[T]
   ): Prop =
@@ -329,9 +326,7 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       "protocols when no field in adapt materialized"
   ) {
     check {
-      forAll { t: TestStruct =>
-        protocolDecodeTest(t, NoAccess)
-      }
+      forAll { t: TestStruct => protocolDecodeTest(t, NoAccess) }
     }
   }
 
@@ -340,9 +335,7 @@ class AdaptiveScroogeTest extends PropSpec with Checkers {
       "protocols when some fields in adapt materialized"
   ) {
     check {
-      forAll { t: TestStruct =>
-        protocolDecodeTest(t, TestStructAccessors.RequiredFieldsAccess)
-      }
+      forAll { t: TestStruct => protocolDecodeTest(t, TestStructAccessors.RequiredFieldsAccess) }
     }
   }
 

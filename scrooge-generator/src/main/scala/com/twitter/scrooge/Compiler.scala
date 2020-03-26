@@ -103,9 +103,7 @@ class Compiler {
           println("+ Generated %s".format(generatedFiles.mkString(", ")))
         }
         fileMapWriter.foreach { w =>
-          generatedFiles.foreach { path =>
-            w.write(inputFile + " -> " + path + "\n")
-          }
+          generatedFiles.foreach { path => w.write(inputFile + " -> " + path + "\n") }
         }
       } catch {
         case e: Throwable => throw new FileParseException(inputFile, e)

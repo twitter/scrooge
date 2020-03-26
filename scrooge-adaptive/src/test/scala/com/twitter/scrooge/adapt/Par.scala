@@ -33,9 +33,7 @@ object Par {
 
   def calcInParallel[T: ClassTag](parallelism: Int)(f: Int => T): Seq[T] = {
     val resultsAtomic = new AtomicReferenceArray[T](parallelism)
-    inParallel(parallelism) { i =>
-      resultsAtomic.set(i, f(i))
-    }
+    inParallel(parallelism) { i => resultsAtomic.set(i, f(i)) }
     val results = new Array[T](parallelism)
     for (i <- 0 until parallelism) {
       results(i) = resultsAtomic.get(i)

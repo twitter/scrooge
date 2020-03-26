@@ -196,7 +196,8 @@ abstract class ThriftStructField[T <: ThriftStruct](
 final class ThriftUnionFieldInfo[
   UnionFieldType <: ThriftUnion with ThriftStruct: ClassTag,
   ContainedType: ClassTag
-](val structFieldInfo: ThriftStructFieldInfo,
+](
+  val structFieldInfo: ThriftStructFieldInfo,
   fieldUnapply: UnionFieldType => scala.Option[ContainedType]) {
 
   /**
@@ -358,19 +359,18 @@ private object PopulateMetaDataWithReflection {
       Nil
     } else {
       metaDataUtil.structCodecClass.getMethods.toList
-        .filter { m =>
-          m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField]
-        }
+        .filter { m => m.getParameterTypes.length == 0 && m.getReturnType == classOf[TField] }
         .map { m =>
           val tfield = m.invoke(codec).asInstanceOf[TField]
-          val manifest: scala.Option[Manifest[_]] = try {
-            Some {
-              metaDataUtil.structCodecClass
-                .getMethod(m.getName + "Manifest")
-                .invoke(codec)
-                .asInstanceOf[Manifest[_]]
-            }
-          } catch { case _: Throwable => None }
+          val manifest: scala.Option[Manifest[_]] =
+            try {
+              Some {
+                metaDataUtil.structCodecClass
+                  .getMethod(m.getName + "Manifest")
+                  .invoke(codec)
+                  .asInstanceOf[Manifest[_]]
+              }
+            } catch { case _: Throwable => None }
           new ThriftStructField[T](tfield, manifest, metaDataUtil.thriftStructClass) {
             def getValue[R](struct: T): R = method.invoke(struct).asInstanceOf[R]
           }

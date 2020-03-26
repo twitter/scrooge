@@ -96,9 +96,7 @@ object GeneratorFactory {
       ) ++
         loadedGenerators
 
-    factories.map { g =>
-      (g.language -> g)
-    }.toMap
+    factories.map { g => (g.language -> g) }.toMap
   }
 
   def languages: Iterable[String] = factories.keys
@@ -210,9 +208,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   protected def getIncludeNamespace(includeFileName: String): Identifier =
     includeMap
       .get(includeFileName)
-      .map { doc: ResolvedDocument =>
-        getNamespace(doc.document)
-      }
+      .map { doc: ResolvedDocument => getNamespace(doc.document) }
       .getOrElse(SimpleID(defaultNamespace))
 
   def getNamespace(doc: Document): Identifier =
@@ -578,9 +574,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     val arity = fields.length
     if (arity >= 1 && arity <= 22) {
       val fieldTypes = fields
-        .map { f =>
-          genFieldType(f).toData
-        }
+        .map { f => genFieldType(f).toData }
         .mkString(", ")
       s"_root_.scala.Product$arity[$fieldTypes]"
     } else {
@@ -595,9 +589,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     val arity = fields.length
     if (arity >= 1 && arity <= 22) {
       val fieldTypes = fields
-        .map { f =>
-          genFieldType(f).toData
-        }
+        .map { f => genFieldType(f).toData }
         .mkString(", ")
       s"_root_.scala.Tuple$arity[$fieldTypes]"
     } else {

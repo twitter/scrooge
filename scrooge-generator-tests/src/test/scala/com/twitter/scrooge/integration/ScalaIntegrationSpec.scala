@@ -21,8 +21,12 @@ class ScalaIntegrationSpec extends Spec {
       scroogeStruct.message must be("howdy world")
       scroogeStruct.intThing must be(123)
       // test transferred names
-      scroogeGen.BonkStruct.MessageField.name must be(apacheStruct.fieldForId(1).getFieldName) // == "message"
-      scroogeGen.BonkStruct.IntThingField.name must be(apacheStruct.fieldForId(2).getFieldName) // == "int_thing"
+      scroogeGen.BonkStruct.MessageField.name must be(
+        apacheStruct.fieldForId(1).getFieldName
+      ) // == "message"
+      scroogeGen.BonkStruct.IntThingField.name must be(
+        apacheStruct.fieldForId(2).getFieldName
+      ) // == "int_thing"
     }
 
     "transfer union to Scrooge" in {
@@ -39,8 +43,12 @@ class ScalaIntegrationSpec extends Spec {
       scroogeStruct.bonk.intThing must be(123)
       // test transferred names
       scroogeGen.BonkOrBoolUnion.Union.name must be("bonk_or_bool_union")
-      scroogeGen.BonkOrBoolUnion.BonkField.name must be(apacheUnion.fieldForId(1).getFieldName) // == "bonk"
-      scroogeGen.BonkOrBoolUnion.BoolThingField.name must be(apacheUnion.fieldForId(2).getFieldName) // == "bool_thing"
+      scroogeGen.BonkOrBoolUnion.BonkField.name must be(
+        apacheUnion.fieldForId(1).getFieldName
+      ) // == "bonk"
+      scroogeGen.BonkOrBoolUnion.BoolThingField.name must be(
+        apacheUnion.fieldForId(2).getFieldName
+      ) // == "bool_thing"
 
     }
   }

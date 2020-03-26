@@ -33,9 +33,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
         Nil
       }
 
-    val argNames = function.args.map { field =>
-      genID(field.sid).toData
-    }
+    val argNames = function.args.map { field => genID(field.sid).toData }
 
     Dictionary(
       "generic" -> v(generic.map(v)),
@@ -46,13 +44,13 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "originalFuncName" -> v(function.originalName),
       "funcObjectName" -> genID(functionObjectName(function)),
       "typeName" -> genType(function.funcType),
-      "fieldParams" -> genFieldParams(function.args), // A list of parameters with types: (a: A, b: B...)
+      "fieldParams" -> genFieldParams(
+        function.args
+      ), // A list of parameters with types: (a: A, b: B...)
       "argNames" -> v(argNames.mkString(", ")),
       "argsFieldNames" -> {
         val code = argNames
-          .map { field =>
-            s"args.$field"
-          }
+          .map { field => s"args.$field" }
           .mkString(", ")
         v(code)
       },
@@ -62,16 +60,12 @@ trait ServiceTemplate { self: TemplateGenerator =>
           case singleArg :: Nil => genType(singleArg.fieldType)
           case args =>
             val typesString = args
-              .map { arg =>
-                genType(arg.fieldType)
-              }
+              .map { arg => genType(arg.fieldType) }
               .mkString(", ")
             v(s"($typesString)")
         }
       },
-      "args" -> v(function.args.map { arg =>
-        Dictionary("arg" -> genID(arg.sid))
-      }),
+      "args" -> v(function.args.map { arg => Dictionary("arg" -> genID(arg.sid)) }),
       "isVoid" -> v(function.funcType == Void || function.funcType == OnewayVoid),
       "is_oneway" -> v(function.funcType == OnewayVoid),
       "functionType" -> {
@@ -134,9 +128,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> v(service.docstring.getOrElse("")),
       "hasParent" -> v(service.parent.isDefined),
-      "parent" -> v(service.parent.map { p =>
-        genID(getServiceParentID(p))
-      }),
+      "parent" -> v(service.parent.map { p => genID(getServiceParentID(p)) }),
       "finagleClientParent" ->
         service.parent.map(getParentFinagleClient).getOrElse(v("")),
       "functions" -> v(service.functions.map { f =>
@@ -149,9 +141,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
           "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
           "argNames" -> {
             val code = f.args
-              .map { field =>
-                genID(field.sid).toData
-              }
+              .map { field => genID(field.sid).toData }
               .mkString(", ")
             v(code)
           }
@@ -180,9 +170,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
           "argNames" ->
             v(
               f.args
-                .map { field =>
-                  "args." + genID(field.sid).toData
-                }
+                .map { field => "args." + genID(field.sid).toData }
                 .mkString(", ")
             ),
           "typeName" -> genType(f.funcType),
@@ -206,9 +194,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       case 1 => "args"
       case _ =>
         (1 to arity)
-          .map { i =>
-            s"args._$i"
-          }
+          .map { i => s"args._$i" }
           .mkString(", ")
     }
 
@@ -265,12 +251,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "packageName" -> pkgName,
       "ServiceName" -> genID(service.sid.toTitleCase),
       "docstring" -> v(service.docstring.getOrElse("")),
-      "syncParent" -> v(service.parent.map { p =>
-        genID(getServiceParentID(p)).append(".Iface")
-      }),
-      "parent" -> v(service.parent.map { p =>
-        genQualifiedID(getServiceParentID(p), namespace)
-      }),
+      "syncParent" -> v(service.parent.map { p => genID(getServiceParentID(p)).append(".Iface") }),
+      "parent" -> v(service.parent.map { p => genQualifiedID(getServiceParentID(p), namespace) }),
       "methodPerEndpointParent" -> v(service.parent.map { p =>
         genQualifiedID(getServiceParentID(p), namespace).append(".MethodPerEndpoint")
       }),
@@ -278,19 +260,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
         genQualifiedID(getServiceParentID(p), namespace).append(".FutureIface")
       }),
       "genericParent" -> service.parent
-        .map { p =>
-          genID(getServiceParentID(p)).append("[MM]")
-        }
+        .map { p => genID(getServiceParentID(p)).append("[MM]") }
         .getOrElse(v("_root_.com.twitter.finagle.thrift.ThriftService")),
-      "syncFunctions" -> v(service.functions.map { f =>
-        functionDictionary(f, None)
-      }),
-      "asyncFunctions" -> v(service.functions.map { f =>
-        functionDictionary(f, Some("Future"))
-      }),
-      "genericFunctions" -> v(service.functions.map { f =>
-        functionDictionary(f, Some("MM"))
-      }),
+      "syncFunctions" -> v(service.functions.map { f => functionDictionary(f, None) }),
+      "asyncFunctions" -> v(service.functions.map { f => functionDictionary(f, Some("Future")) }),
+      "genericFunctions" -> v(service.functions.map { f => functionDictionary(f, Some("MM")) }),
       "struct" -> v(templates("struct")),
       "thriftFunctions" -> v(service.functions.map { f =>
         Dictionary(
@@ -356,9 +330,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
           "argNames" ->
             v(
               f.args
-                .map { field =>
-                  "args." + genID(field.sid).toData
-                }
+                .map { field => "args." + genID(field.sid).toData }
                 .mkString(", ")
             ),
           "typeName" -> genType(f.funcType),

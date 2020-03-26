@@ -34,14 +34,11 @@ object Main {
     }
     if (cmdLine.hasOption("t")) {
       FileUtils.getFiles(new File(cmdLine.getOptionValue("t")), "**/*.thrift", "").asScala.foreach {
-        s =>
-          compiler.thriftFiles += s.asInstanceOf[File].getAbsolutePath
+        s => compiler.thriftFiles += s.asInstanceOf[File].getAbsolutePath
       }
     }
     if (cmdLine.hasOption("f")) {
-      cmdLine.getOptionValues("f").foreach { f =>
-        compiler.thriftFiles += f
-      }
+      cmdLine.getOptionValues("f").foreach { f => compiler.thriftFiles += f }
     }
     compiler.run()
 

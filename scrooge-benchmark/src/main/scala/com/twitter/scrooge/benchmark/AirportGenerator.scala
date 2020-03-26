@@ -27,9 +27,7 @@ object AirportGenerator {
   }
 
   def buildAirports(rng: Random, num: Int): Array[Airport] =
-    (0 until num).map { _ =>
-      buildAirport(rng)
-    }.toArray
+    (0 until num).map { _ => buildAirport(rng) }.toArray
 
   def buildAirportsAndBytes(seed: Long, num: Int): (Array[Airport], Array[Array[Byte]]) = {
     val rng = new Random(seed)

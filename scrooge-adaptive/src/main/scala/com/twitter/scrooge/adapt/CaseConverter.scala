@@ -38,9 +38,7 @@ object CaseConverter {
         .map {
           case (part, ind) =>
             val first = if (ind == 0) part(0).toLower else part(0).toUpper
-            val isAllUpperCase = part.forall { c =>
-              c.isUpper || !c.isLetter
-            }
+            val isAllUpperCase = part.forall { c => c.isUpper || !c.isLetter }
             val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
             new mutable.StringBuilder(part.size).append(first).append(rest)
         }

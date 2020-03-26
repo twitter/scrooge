@@ -14,9 +14,7 @@ class NonFinagleSpec extends Spec {
         def fetchAirportsInBounds(nw: Location, se: Location) =
           Try {
             Seq(chicago, nyc)
-              .filter { airport =>
-                inRegion(airport.loc, nw, se)
-              }
+              .filter { airport => inRegion(airport.loc, nw, se) }
           }
         def hasWifi(a: Airport) =
           Try {

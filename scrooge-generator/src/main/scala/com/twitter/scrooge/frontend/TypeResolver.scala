@@ -275,9 +275,7 @@ case class TypeResolver(
         ResolvedDefinition(resolved, withConst(resolved))
       case s: Service =>
         // No need to modify Service, but check that we can resolve parent.
-        s.parent.foreach { serviceParent =>
-          resolveServiceParent(serviceParent)
-        }
+        s.parent.foreach { serviceParent => resolveServiceParent(serviceParent) }
         val resolved = s.copy(functions = s.functions.map(apply))
         ResolvedDefinition(resolved, withService(resolved))
       case e: Enum =>
@@ -297,9 +295,7 @@ case class TypeResolver(
 
   def apply(f: Field): Field = {
     val fieldType = apply(f.fieldType)
-    f.copy(fieldType = fieldType, default = f.default.map { const =>
-      apply(const, fieldType)
-    })
+    f.copy(fieldType = fieldType, default = f.default.map { const => apply(const, fieldType) })
   }
 
   def apply(t: FunctionType): FunctionType = t match {

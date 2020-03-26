@@ -35,9 +35,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
     "empty struct" should {
       // Specifically test empty struct due to previous bug in equals
       //   not checking the type
-      "not equals" in { _ =>
-        assert(EmptyStruct() != None)
-      }
+      "not equals" in { _ => assert(EmptyStruct() != None) }
     }
 
     "support included namespaces for constants" in { _ =>
@@ -245,9 +243,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         assert(union.newField == union.new_field)
       }
 
-      "be identified as an ENUM" in { _ =>
-        EnumStruct.NumberField.`type` must be(TType.ENUM)
-      }
+      "be identified as an ENUM" in { _ => EnumStruct.NumberField.`type` must be(TType.ENUM) }
 
       "be identified as an I32 on the wire for structs" in { _ =>
         val prot = new TBinaryProtocol(new TMemoryBuffer(64))
@@ -549,9 +545,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           "with no default value" in { cycle =>
             import cycle._
             val protocol = mock[TProtocol]
-            expecting { e =>
-              emptyRead(e, protocol)
-            }
+            expecting { e => emptyRead(e, protocol) }
 
             whenExecuting {
               intercept[TProtocolException] {
@@ -563,9 +557,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           "with default value" in { cycle =>
             import cycle._
             val protocol = mock[TProtocol]
-            expecting { e =>
-              emptyRead(e, protocol)
-            }
+            expecting { e => emptyRead(e, protocol) }
 
             whenExecuting {
               intercept[TProtocolException] {
@@ -808,17 +800,11 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
       }
 
       "with more than 22 fields" should {
-        "apply" in { _ =>
-          Biggie().num25 must be(25)
-        }
+        "apply" in { _ => Biggie().num25 must be(25) }
 
-        "two default object must be equal" in { _ =>
-          Biggie() must be(Biggie())
-        }
+        "two default object must be equal" in { _ => Biggie() must be(Biggie()) }
 
-        "copy and equals" in { _ =>
-          Biggie().copy(num10 = -5) must be(Biggie(num10 = -5))
-        }
+        "copy and equals" in { _ => Biggie().copy(num10 = -5) must be(Biggie(num10 = -5)) }
 
         "hashCode is the same for two similar objects" in { _ =>
           Biggie().hashCode must be(Biggie().hashCode)
@@ -867,9 +853,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         "read" in { cycle =>
           import cycle._
           val protocol = mock[TProtocol]
-          expecting { e =>
-            emptyRead(e, protocol)
-          }
+          expecting { e => emptyRead(e, protocol) }
 
           whenExecuting {
             intercept[TProtocolException] {
@@ -1024,9 +1008,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
       }
 
-      "default value" in { _ =>
-        Bird.Hummingbird() must be(Bird.Hummingbird("Calypte anna"))
-      }
+      "default value" in { _ => Bird.Hummingbird() must be(Bird.Hummingbird("Calypte anna")) }
 
       "primitive field type" in { _ =>
         import thrift.`def`.default._

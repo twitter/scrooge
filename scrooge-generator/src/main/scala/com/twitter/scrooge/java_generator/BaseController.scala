@@ -33,9 +33,7 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
     input.replaceAll("\n", "").trim
   }
 
-  val cap: Object with GFunction[String, String] = newHelper { input =>
-    input.capitalize
-  }
+  val cap: Object with GFunction[String, String] = newHelper { input => input.capitalize }
 
   val constant_name: Object with GFunction[String, String] = newHelper { input =>
     val constantName = new StringBuilder
@@ -56,13 +54,9 @@ class BaseController(generator: ApacheJavaGenerator, ns: Option[Identifier]) {
     "__" + fieldName.toUpperCase + "_ISSET_ID"
   }
 
-  def i_2: Object with GFunction[String, String] = newHelper { input =>
-    indent(input, 2)
-  }
+  def i_2: Object with GFunction[String, String] = newHelper { input => indent(input, 2) }
 
-  def i_4: Object with GFunction[String, String] = newHelper { input =>
-    indent(input, 4)
-  }
+  def i_4: Object with GFunction[String, String] = newHelper { input => indent(input, 4) }
 
   def indent(
     input: String,
