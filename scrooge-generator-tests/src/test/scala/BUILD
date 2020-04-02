@@ -84,6 +84,6 @@ junit_tests(
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-android",
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-java",
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-scala",
-        "util/util-core/src/main/scala",
+        "util/util-core:scala",
     ],
 )

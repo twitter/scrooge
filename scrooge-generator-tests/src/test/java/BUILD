@@ -11,6 +11,6 @@ junit_tests(
         "finagle/finagle-thriftmux",
         "scrooge/scrooge-core/src/main/scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/finagle_integration:thrift-java",
-        "util/util-core/src/main/scala",
+        "util/util-core:scala",
     ],
 )

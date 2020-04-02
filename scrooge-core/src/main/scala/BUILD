@@ -9,10 +9,10 @@ scala_library(
     dependencies = [
         "3rdparty/jvm/javax/annotation:javax.annotation-api",
         "3rdparty/jvm/org/apache/thrift:libthrift",
-        "util/util-core/src/main/scala",
+        "util/util-core:scala",
     ],
     exports = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
-        "util/util-core/src/main/scala",
+        "util/util-core:scala",
     ],
 )
