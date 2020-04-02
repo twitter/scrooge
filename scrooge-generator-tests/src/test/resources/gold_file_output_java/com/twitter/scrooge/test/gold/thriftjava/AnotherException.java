@@ -23,12 +23,14 @@ import org.apache.thrift.async.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
+
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
+import com.twitter.scrooge.ThriftStructIface;
 
 // No additional import required for struct/union.
 
-public class AnotherException extends AbstractFailureFlags<AnotherException> implements TBase<AnotherException, AnotherException._Fields>, java.io.Serializable, Cloneable {
+public class AnotherException extends AbstractFailureFlags<AnotherException> implements TBase<AnotherException, AnotherException._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("AnotherException");
 
   private static final TField ERROR_CODE_FIELD_DESC = new TField("errorCode", TType.I32, (short)1);

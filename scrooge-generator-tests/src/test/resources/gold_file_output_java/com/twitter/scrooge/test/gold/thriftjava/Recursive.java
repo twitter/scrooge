@@ -24,9 +24,11 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftStructIface;
+
 // No additional import required for struct/union.
 
-public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.Serializable, Cloneable {
+public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("Recursive");
 
   private static final TField ID_FIELD_DESC = new TField("id", TType.I64, (short)1);

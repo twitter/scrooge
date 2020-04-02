@@ -24,9 +24,11 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftStructIface;
+
 // No additional import required for struct/union.
 
-public class Response implements TBase<Response, Response._Fields>, java.io.Serializable, Cloneable {
+public class Response implements TBase<Response, Response._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("Response");
 
   private static final TField STATUS_CODE_FIELD_DESC = new TField("statusCode", TType.I32, (short)1);

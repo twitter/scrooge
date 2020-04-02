@@ -15,6 +15,6 @@ class ServiceController(service: Service, generator: ApacheJavaGenerator, ns: Op
       false
   }
   val functions: Seq[FunctionController] = service.functions map { f =>
-    new FunctionController(f, generator, ns)
+    new FunctionController(f, generator, ns, service.sid.fullName)
   }
 }

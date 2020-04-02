@@ -4,6 +4,8 @@ import com.twitter.scrooge.validation.Issue
 import org.apache.thrift.protocol.{TProtocol, TType}
 import scala.reflect.ClassTag
 
+trait ThriftStructIface
+
 object ThriftStruct {
   def ttypeToString(byte: Byte): String = {
     // from https://github.com/apache/thrift/blob/master/lib/java/src/org/apache/thrift/protocol/TType.java
@@ -27,7 +29,7 @@ object ThriftStruct {
   }
 }
 
-trait ThriftStruct {
+trait ThriftStruct extends ThriftStructIface {
   @throws(classOf[org.apache.thrift.TException])
   def write(oprot: TProtocol): Unit
 }
@@ -155,6 +157,18 @@ abstract class ThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec[T
 }
 
 /**
+ * Abstract `ThriftMethod` interface for Java thrift methods.
+ */
+abstract class ThriftMethodIface {
+
+  /** Thrift method name */
+  def name: String
+
+  /** Thrift service name. A thrift service is a list of methods. */
+  def serviceName: String
+}
+
+/**
  * Metadata for a method for a Thrift service.
  *
  * Comments below will use this example IDL:
@@ -167,7 +181,7 @@ abstract class ThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec[T
  * }
  * }}}
  */
-trait ThriftMethod {
+trait ThriftMethod extends ThriftMethodIface {
 
   /**
    * A struct wrapping method arguments
@@ -264,12 +278,6 @@ trait ThriftMethod {
 
   /** Thrift annotations (user-defined key-value metadata) on the method */
   def annotations: scala.collection.immutable.Map[String, String]
-
-  /** Thrift method name */
-  def name: String
-
-  /** Thrift service name. A thrift service is a list of methods. */
-  def serviceName: String
 
   /** Codec for the request args */
   def argsCodec: ThriftStructCodec3[Args]

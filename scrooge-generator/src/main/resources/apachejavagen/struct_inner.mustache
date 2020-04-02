@@ -1,4 +1,4 @@
-public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{name}} {{#is_exception}}extends AbstractFailureFlags<{{name}}> {{/is_exception}}implements TBase<{{name}}, {{name}}._Fields>, java.io.Serializable, Cloneable {
+public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{name}} {{#is_exception}}extends AbstractFailureFlags<{{name}}> {{/is_exception}}implements TBase<{{name}}, {{name}}._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   {{#i_2}}{{>generate_struct_desc}}{{/i_2}}
   {{#i_2}}{{>generate_field_descs}}{{/i_2}}
 

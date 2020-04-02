@@ -9,10 +9,12 @@ import com.google.common.base
 class FunctionController(
   function: TFunction,
   generator: ApacheJavaGenerator,
-  ns: Option[Identifier])
+  ns: Option[Identifier],
+  serviceName: String)
     extends BaseController(generator, ns) {
   val return_type: FieldTypeController = new FieldTypeController(function.funcType, generator)
   val name: String = function.funcName.name
+  val service_name: String = serviceName
   val argument_list: String = function.args map { a =>
     a.sid.name
   } mkString ", "

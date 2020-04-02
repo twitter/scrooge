@@ -24,6 +24,8 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftMethodIface;
+import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.util.Future;
@@ -780,7 +782,19 @@ public class GoldService {
     }
   }
 
-  public static class doGreatThings_args implements TBase<doGreatThings_args, doGreatThings_args._Fields>, java.io.Serializable, Cloneable {
+  public static class doGreatThings extends ThriftMethodIface {
+    @Override
+    public String name() {
+      return "doGreatThings";
+    }
+
+    @Override
+    public String serviceName() {
+      return "GoldService";
+    }
+  }
+
+  public static class doGreatThings_args implements TBase<doGreatThings_args, doGreatThings_args._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("doGreatThings_args");
 
   private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
@@ -1124,7 +1138,7 @@ public class GoldService {
 }
 
 
-  public static class doGreatThings_result implements TBase<doGreatThings_result, doGreatThings_result._Fields>, java.io.Serializable, Cloneable {
+  public static class doGreatThings_result implements TBase<doGreatThings_result, doGreatThings_result._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("doGreatThings_result");
 
   private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
@@ -1562,7 +1576,19 @@ public class GoldService {
 
 
 
-  public static class noExceptionCall_args implements TBase<noExceptionCall_args, noExceptionCall_args._Fields>, java.io.Serializable, Cloneable {
+  public static class noExceptionCall extends ThriftMethodIface {
+    @Override
+    public String name() {
+      return "noExceptionCall";
+    }
+
+    @Override
+    public String serviceName() {
+      return "GoldService";
+    }
+  }
+
+  public static class noExceptionCall_args implements TBase<noExceptionCall_args, noExceptionCall_args._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("noExceptionCall_args");
 
   private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
@@ -1906,7 +1932,7 @@ public class GoldService {
 }
 
 
-  public static class noExceptionCall_result implements TBase<noExceptionCall_result, noExceptionCall_result._Fields>, java.io.Serializable, Cloneable {
+  public static class noExceptionCall_result implements TBase<noExceptionCall_result, noExceptionCall_result._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("noExceptionCall_result");
 
   private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);

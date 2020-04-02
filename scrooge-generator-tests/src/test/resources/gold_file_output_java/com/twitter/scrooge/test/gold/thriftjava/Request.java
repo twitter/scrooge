@@ -24,9 +24,11 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftStructIface;
+
 // No additional import required for struct/union.
 
-public class Request implements TBase<Request, Request._Fields>, java.io.Serializable, Cloneable {
+public class Request implements TBase<Request, Request._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("Request");
 
   private static final TField A_LIST_FIELD_DESC = new TField("aList", TType.LIST, (short)1);

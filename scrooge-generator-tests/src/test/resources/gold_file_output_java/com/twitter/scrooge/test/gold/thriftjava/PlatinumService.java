@@ -24,6 +24,8 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftMethodIface;
+import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.util.Future;
@@ -545,7 +547,19 @@ public class PlatinumService {
     }
   }
 
-  public static class moreCoolThings_args implements TBase<moreCoolThings_args, moreCoolThings_args._Fields>, java.io.Serializable, Cloneable {
+  public static class moreCoolThings extends ThriftMethodIface {
+    @Override
+    public String name() {
+      return "moreCoolThings";
+    }
+
+    @Override
+    public String serviceName() {
+      return "PlatinumService";
+    }
+  }
+
+  public static class moreCoolThings_args implements TBase<moreCoolThings_args, moreCoolThings_args._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("moreCoolThings_args");
 
   private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
@@ -889,7 +903,7 @@ public class PlatinumService {
 }
 
 
-  public static class moreCoolThings_result implements TBase<moreCoolThings_result, moreCoolThings_result._Fields>, java.io.Serializable, Cloneable {
+  public static class moreCoolThings_result implements TBase<moreCoolThings_result, moreCoolThings_result._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("moreCoolThings_result");
 
   private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.I32, (short)0);

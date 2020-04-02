@@ -23,12 +23,14 @@ import org.apache.thrift.async.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
+
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
+import com.twitter.scrooge.ThriftStructIface;
 
 // No additional import required for struct/union.
 
-public class OverCapacityException extends AbstractFailureFlags<OverCapacityException> implements TBase<OverCapacityException, OverCapacityException._Fields>, java.io.Serializable, Cloneable {
+public class OverCapacityException extends AbstractFailureFlags<OverCapacityException> implements TBase<OverCapacityException, OverCapacityException._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("OverCapacityException");
 
   private static final TField CHILL_TIME_SECONDS_FIELD_DESC = new TField("chillTimeSeconds", TType.I32, (short)1);

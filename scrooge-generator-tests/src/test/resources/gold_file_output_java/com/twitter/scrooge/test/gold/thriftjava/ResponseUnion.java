@@ -24,6 +24,8 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftStructIface;
+
 // No additional import required for struct/union.
 
 public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> {

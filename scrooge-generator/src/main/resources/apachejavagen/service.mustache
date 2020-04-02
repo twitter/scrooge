@@ -2,7 +2,8 @@
 {{>package}}
 {{>type_imports}}
 {{>thrift_imports}}
-
+import com.twitter.scrooge.ThriftMethodIface;
+import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.util.Future;
@@ -690,6 +691,18 @@ public class {{name}} {
   }
 
   {{#functions}}
+  public static class {{name}} extends ThriftMethodIface {
+    @Override
+    public String name() {
+      return "{{name}}";
+    }
+
+    @Override
+    public String serviceName() {
+      return "{{service_name}}";
+    }
+  }
+
   {{{arg_struct}}}
 
   {{^is_oneway}}

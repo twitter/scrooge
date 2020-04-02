@@ -24,9 +24,11 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftStructIface;
+
 // No additional import required for struct/union.
 
-public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, java.io.Serializable, Cloneable {
+public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("CollectionId");
 
   private static final TField COLLECTION_LONG_ID_FIELD_DESC = new TField("collectionLongId", TType.I64, (short)1);
