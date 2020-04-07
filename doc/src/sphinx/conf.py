@@ -31,10 +31,10 @@ html_use_smartypants = True
 html_show_sphinx = False
 html_style = 'scrooge.css'
 
-project = u'Scrooge'
-description = u'A thrift code generator written in Scala'
-html_logo = u'scrooge.png'
-copyright = u'2013 Twitter, Inc'
+project = 'Scrooge'
+description = 'A thrift code generator written in Scala'
+html_logo = 'scrooge.png'
+copyright = '2013 Twitter, Inc'
 version = ''
 release = ''
 htmlhelp_basename = "scrooge"
@@ -54,12 +54,12 @@ pygments_style = 'flask_theme_support.FlaskyStyle'
 try:
     __import__('flask_theme_support')
 except ImportError as e:
-    print '-' * 74
-    print 'Warning: Flask themes unavailable.  Building with default theme'
-    print 'If you want the Flask themes, run this command and build again:'
-    print
-    print '  git submodule update --init'
-    print '-' * 74
+    print('-' * 74)
+    print('Warning: Flask themes unavailable.  Building with default theme')
+    print('If you want the Flask themes, run this command and build again:')
+    print()
+    print('  git submodule update --init')
+    print('-' * 74)
 
     pygments_style = 'tango'
     html_theme = 'default'
