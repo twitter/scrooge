@@ -27,6 +27,7 @@ import org.apache.thrift.protocol.*;
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -37,10 +38,11 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
 
 
   public int chillTimeSeconds;
+  private Map<Short, TFieldBlob> passThroughFields;
 
   private long _flags;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     CHILL_TIME_SECONDS((short)1, "chillTimeSeconds");
   
@@ -186,6 +188,7 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.chillTimeSeconds = other.chillTimeSeconds;
+    this.passThroughFields = other.passThroughFields;
     this._flags = other._flags;
   }
 
@@ -213,6 +216,7 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
   public void clear() {
     setChillTimeSecondsIsSet(false);
     this.chillTimeSeconds = 0;
+    this.passThroughFields = null;
     this._flags = JavaFailureFlags.EMPTY;
   }
 
@@ -284,6 +288,10 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
   }
 
   public boolean equals(OverCapacityException that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(OverCapacityException that) {
     if (that == null)
       return false;
     boolean this_present_chillTimeSeconds = true;
@@ -296,8 +304,18 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
     }
     if (this._flags != that._flags)
       return false;
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(OverCapacityException that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -357,7 +375,10 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -374,6 +395,11 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
     oprot.writeFieldBegin(CHILL_TIME_SECONDS_FIELD_DESC);
     oprot.writeI32(this.chillTimeSeconds);
     oprot.writeFieldEnd();
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }

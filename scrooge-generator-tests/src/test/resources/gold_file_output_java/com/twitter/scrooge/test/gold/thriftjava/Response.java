@@ -25,6 +25,7 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -37,8 +38,9 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
 
   public int statusCode;
   public ResponseUnion responseUnion;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     STATUS_CODE((short)1, "statusCode"),
     RESPONSE_UNION((short)2, "responseUnion");
@@ -184,6 +186,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
     if (other.isSetResponseUnion()) {
       this.responseUnion = new ResponseUnion(other.responseUnion);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(Response item) {
@@ -206,6 +209,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
     setStatusCodeIsSet(false);
     this.statusCode = 0;
     this.responseUnion = null;
+    this.passThroughFields = null;
   }
 
   public int getStatusCode() {
@@ -312,6 +316,10 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
   }
 
   public boolean equals(Response that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(Response that) {
     if (that == null)
       return false;
     boolean this_present_statusCode = true;
@@ -330,8 +338,18 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
       if (!this.responseUnion.equals(that.responseUnion))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(Response that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -409,7 +427,10 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -430,6 +451,11 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
       oprot.writeFieldBegin(RESPONSE_UNION_FIELD_DESC);
       this.responseUnion.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();

@@ -5,6 +5,9 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   {{#fields}}
   public {{{field_type.type_name}}} {{name}};
   {{/fields}}
+  {{#is_passthrough_struct}}
+  private Map<Short, TFieldBlob> passThroughFields;
+  {{/is_passthrough_struct}}
 {{#is_exception}}
 
   private long _flags;
@@ -88,6 +91,10 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{/field_type.nullable}}
 
     {{/fields}}
+
+    {{#is_passthrough_struct}}
+    this.passThroughFields = other.passThroughFields;
+    {{/is_passthrough_struct}}
 
     {{#is_exception}}
     this._flags = other._flags;
@@ -178,6 +185,9 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     {{/field.default}}
     {{/consolidate_newlines}}
     {{/fields}}
+    {{#is_passthrough_struct}}
+    this.passThroughFields = null;
+    {{/is_passthrough_struct}}
     {{#is_exception}}
     this._flags = JavaFailureFlags.EMPTY;
     {{/is_exception}}
@@ -334,6 +344,10 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   public boolean equals({{struct_type_name}} that) {
+    return equalsWithoutPassthrough(that){{#is_passthrough_struct}} && passthroughFieldsAreEqual(that){{/is_passthrough_struct}};
+  }
+
+  private boolean equalsWithoutPassthrough({{struct_type_name}} that) {
     if (that == null)
       return false;
     {{#fields}}
@@ -362,9 +376,21 @@ this.{{name}} != that.{{name}}
     if (this._flags != that._flags)
       return false;
     {{/is_exception}}
-
     return true;
   }
+
+  {{#is_passthrough_struct}}
+  private boolean passthroughFieldsAreEqual({{struct_type_name}} that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
+  }
+  {{/is_passthrough_struct}}
 
   @java.lang.Override
   public int hashCode() {
@@ -447,7 +473,15 @@ this.{{name}} != that.{{name}}
           break;
         {{/fields}}
         default:
+          {{#is_passthrough_struct}}
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
+          {{/is_passthrough_struct}}
+          {{^is_passthrough_struct}}
           TProtocolUtil.skip(iprot, field.type);
+          {{/is_passthrough_struct}}
       }
       iprot.readFieldEnd();
     }
@@ -477,6 +511,13 @@ this.{{name}} != that.{{name}}
       oprot.writeFieldEnd();
     {{#last}}}{{/last}}
     {{/fields}}
+    {{#is_passthrough_struct}}
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
+    }
+    {{/is_passthrough_struct}}
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
@@ -514,6 +555,14 @@ this.{{name}} != that.{{name}}
     }
     {{/field_type.nullable}}
     {{/sorted_fields}}
+
+    {{#is_passthrough_struct}}
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
+    }
+    {{/is_passthrough_struct}}
 
     oprot.writeFieldStop();
     oprot.writeStructEnd();

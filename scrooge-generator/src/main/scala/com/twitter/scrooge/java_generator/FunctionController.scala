@@ -5,9 +5,11 @@ import com.twitter.scrooge.ast.Field
 import com.twitter.scrooge.ast.SimpleID
 import com.twitter.scrooge.ast.Struct
 import com.google.common.base
+import com.twitter.scrooge.backend.ServiceOption
 
 class FunctionController(
   function: TFunction,
+  serviceOptions: Set[ServiceOption],
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
   serviceName: String)
@@ -62,7 +64,7 @@ class FunctionController(
     }
     val structName = function.funcName.name + "_args"
     val struct = Struct(SimpleID(structName), structName, args, function.docstring, Map.empty)
-    val controller = new StructController(struct, true, generator, ns)
+    val controller = new StructController(struct, serviceOptions, true, generator, ns)
     generator.renderMustache("struct_inner.mustache", controller)
   }
 
@@ -89,7 +91,8 @@ class FunctionController(
       None,
       Map.empty
     )
-    val controller = new StructController(struct, true, generator, ns, is_result = true)
+    val controller =
+      new StructController(struct, serviceOptions, true, generator, ns, is_result = true)
     generator.renderMustache("struct_inner.mustache", controller)
   }
 }

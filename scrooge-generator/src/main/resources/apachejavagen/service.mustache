@@ -6,6 +6,9 @@ import com.twitter.scrooge.ThriftMethodIface;
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
+{{#is_passthrough_service}}
+import com.twitter.scrooge.TFieldBlob;
+{{/is_passthrough_service}}
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;

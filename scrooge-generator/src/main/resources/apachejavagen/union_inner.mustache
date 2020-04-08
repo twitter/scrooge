@@ -89,6 +89,15 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
             return null;
           }
         {{/fields}}
+        {{#is_passthrough_union}}
+        case UNKNOWN_PASSTHROUGH:
+          if (field.type != TType.STOP) {
+            return TFieldBlob.extractBlob(field, iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        {{/is_passthrough_union}}
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -107,6 +116,12 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
         {{{serialize_field}}}
         return;
       {{/fields}}
+      {{#is_passthrough_union}}
+      case UNKNOWN_PASSTHROUGH:
+        TFieldBlob tFieldBlob = (TFieldBlob)value_;
+        tFieldBlob.writeWithoutFieldMeta(oprot);
+        return;
+      {{/is_passthrough_union}}
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -129,6 +144,11 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
       case {{#constant_name}}{{name}}{{/constant_name}}:
         return {{#constant_name}}{{name}}{{/constant_name}}_FIELD_DESC;
       {{/fields}}
+      {{#is_passthrough_union}}
+      case UNKNOWN_PASSTHROUGH:
+        TFieldBlob tFieldBlob = (TFieldBlob)value_;
+        return tFieldBlob.field();
+      {{/is_passthrough_union}}
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -213,6 +233,11 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
       }
       {{/field_type.is_enum}}
       {{/fields}}
+      {{#is_passthrough_union}}
+      if (_Fields.UNKNOWN_PASSTHROUGH._thriftId == thriftFieldId) {
+        hashCode = 31 * hashCode + ((TFieldBlob)value).hashCode();
+      }
+      {{/is_passthrough_union}}
     }
     return hashCode;
   {{/gen_hash_code}}

@@ -291,20 +291,22 @@ class ApacheJavaGenerator(
     }
 
     doc.enums.foreach { enum =>
-      generatedFiles += renderFile("enum.mustache", new EnumController(enum, this, Some(namespace)))
+      generatedFiles += renderFile(
+        "enum.mustache",
+        new EnumController(enum, serviceOptions, this, Some(namespace)))
     }
 
     doc.structs.foreach { struct =>
       generatedFiles += renderFile(
         "struct.mustache",
-        new StructController(struct, false, this, Some(namespace))
+        new StructController(struct, serviceOptions, false, this, Some(namespace))
       )
     }
 
     doc.services.foreach { service =>
       generatedFiles += renderFile(
         "service.mustache",
-        new ServiceController(service, this, Some(namespace))
+        new ServiceController(service, serviceOptions, this, Some(namespace))
       )
     }
 

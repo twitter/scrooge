@@ -25,6 +25,7 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -35,8 +36,9 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
 
 
   public long collectionLongId;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     COLLECTION_LONG_ID((short)1, "collectionLongId");
   
@@ -172,6 +174,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.collectionLongId = other.collectionLongId;
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(CollectionId item) {
@@ -192,6 +195,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   public void clear() {
     setCollectionLongIdIsSet(false);
     this.collectionLongId = 0;
+    this.passThroughFields = null;
   }
 
   public long getCollectionLongId() {
@@ -262,6 +266,10 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   }
 
   public boolean equals(CollectionId that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(CollectionId that) {
     if (that == null)
       return false;
     boolean this_present_collectionLongId = true;
@@ -272,8 +280,18 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
       if (this.collectionLongId != that.collectionLongId)
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(CollectionId that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -330,7 +348,10 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -350,6 +371,11 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     oprot.writeFieldBegin(COLLECTION_LONG_ID_FIELD_DESC);
     oprot.writeI64(this.collectionLongId);
     oprot.writeFieldEnd();
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }

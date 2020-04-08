@@ -13,10 +13,11 @@ import java.util.EnumMap;
 import org.apache.thrift.TEnum;
 
 public enum RequestType implements TEnum {
+  UnknownPassThrough(-1),
   Create(1),
   Read(2);
 
-  private final int value;
+  private int value;
 
   private RequestType(int value) {
     this.value = value;
@@ -30,6 +31,13 @@ public enum RequestType implements TEnum {
   }
 
   /**
+   * Set the integer value of this enum value. Used in passthrough
+   */
+  private void setValue(int value) {
+    this.value = value;
+  }
+
+  /**
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
@@ -40,7 +48,8 @@ public enum RequestType implements TEnum {
       case 2:
         return Read;
       default:
-        return null;
+        UnknownPassThrough.setValue(value);
+        return UnknownPassThrough;
     }
   }
 

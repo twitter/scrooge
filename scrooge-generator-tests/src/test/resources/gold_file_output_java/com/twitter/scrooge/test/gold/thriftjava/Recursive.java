@@ -25,6 +25,7 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -37,8 +38,9 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
 
   public long id;
   public Request recRequest;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     ID((short)1, "id"),
     REC_REQUEST((short)2, "recRequest");
@@ -182,6 +184,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
     if (other.isSetRecRequest()) {
       this.recRequest = new Request(other.recRequest);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(Recursive item) {
@@ -204,6 +207,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
     setIdIsSet(false);
     this.id = 0;
     this.recRequest = null;
+    this.passThroughFields = null;
   }
 
   public long getId() {
@@ -310,6 +314,10 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
   }
 
   public boolean equals(Recursive that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(Recursive that) {
     if (that == null)
       return false;
     boolean this_present_id = true;
@@ -328,8 +336,18 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
       if (!this.recRequest.equals(that.recRequest))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(Recursive that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -407,7 +425,10 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -429,6 +450,11 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
         oprot.writeFieldBegin(REC_REQUEST_FIELD_DESC);
         this.recRequest.write(oprot);
         oprot.writeFieldEnd();
+      }
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
       }
     }
     oprot.writeFieldStop();

@@ -1150,6 +1150,24 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         checkInside(PassThrough6.withoutPassthroughFields(pt6)) must be(true)
       }
 
+      "passthroughUnion" in { _ =>
+        val pthu3 = PassThroughUnion3.F2(PassThrough2(1, PassThroughStruct(), PassThroughStruct()))
+
+        val pthu2 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pthu3.write(protocol)
+          PassThroughUnion2.decode(protocol)
+        }
+
+        val pthu3roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pthu2.write(protocol)
+          PassThroughUnion3.decode(protocol)
+        }
+
+        pthu3roundTripped must be(pthu3)
+      }
+
       "be able to add more" in { _ =>
         val pt1 = PassThrough(1)
         val pt2 = PassThrough2(1, PassThroughStruct(), null)

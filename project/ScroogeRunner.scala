@@ -217,7 +217,7 @@ object ScroogeRunner {
       runScrooge(Seq(Scala), files)
       runScrooge(
         Seq(ApacheJava, Android),
-        s"$base/src/test/thrift/standalone/constructorRequired.thrift $base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift"
+        s"$base/src/test/thrift/standalone/constructorRequired.thrift $base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift $base/src/test/thrift/standalone/passthrough.thrift"
       )
     }
 

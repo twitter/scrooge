@@ -1,12 +1,13 @@
 package com.twitter.scrooge.java_generator
 
 import com.twitter.scrooge.ast.{Field, _}
-import com.twitter.scrooge.backend.Generator
+import com.twitter.scrooge.backend.{Generator, ServiceOption, WithJavaPassThrough}
 import java.util.{Map => JMap, Set => JSet}
 import scala.collection.JavaConverters._
 
 class StructController(
   struct: StructLike,
+  serviceOptions: Set[ServiceOption],
   val in_class: Boolean,
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
@@ -20,6 +21,10 @@ class StructController(
   val is_exception: Boolean = struct.isInstanceOf[Exception_]
 
   val is_union: Boolean = struct.isInstanceOf[Union]
+
+  val is_passthrough_union: Boolean = is_union && serviceOptions.contains(WithJavaPassThrough)
+
+  val is_passthrough_struct: Boolean = serviceOptions.contains(WithJavaPassThrough)
 
   val allFields: Seq[Field] = struct.fields
 

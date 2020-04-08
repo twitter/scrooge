@@ -36,10 +36,16 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
           .getPath
       }
 
-      val args =
-        Seq("--language", language, "--finagle", "--gen-adapt", "--dest", tempDir.getPath) ++
-          experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
-          inputThrifts
+      val args = Seq(
+        "--language",
+        language,
+        "--finagle",
+        "--java-passthrough",
+        "--gen-adapt",
+        "--dest",
+        tempDir.getPath) ++
+        experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
+        inputThrifts
 
       Main.main(args.toArray)
       generatedFiles = generatedFiles(tempDir)
@@ -116,14 +122,14 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
            |Expected string is ${expected.length} characters long
            |
            |$diff
-           |
+           |ScalaGeneratorSpec.scala
            |Compare the output in stdout to the gold file and
            |either fix the generator or update the gold file to match.
            |
            |To regenerate file automatically first remove all the existing files:
            |rm -r $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/*
            |Then regenerate data by passing these arguments into scrooge
-           |--language $language --finagle --gen-adapt --dest $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/ $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
+           |--language $language --finagle --java-passthrough --gen-adapt --dest $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_output_$language/ $$SCROOGE_ROOT/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
            |
          """.stripMargin
       println(msg)

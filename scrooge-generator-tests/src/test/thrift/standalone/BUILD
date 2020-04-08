@@ -26,8 +26,10 @@ java_thrift_library(
         "constructorRequired.thrift",
         "enumSet.thrift",
         "exception_fields.thrift",
+        "passthrough.thrift",
     ],
     compiler = "scrooge",
+    compiler_args = ["--java-passthrough"],
     default_java_namespace = "apache_java_thrift",
     language = "java",
     namespace_map = {

@@ -25,6 +25,7 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -63,8 +64,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public String requiredField;
   public long constructionRequiredField;
   public byte anInt8;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     A_LIST((short)1, "aList"),
     A_SET((short)2, "aSet"),
@@ -365,6 +367,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     this.constructionRequiredField = other.constructionRequiredField;
     this.anInt8 = other.anInt8;
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(Request item) {
@@ -426,6 +429,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.constructionRequiredField = 0;
     setAnInt8IsSet(false);
     this.anInt8 = 0;
+    this.passThroughFields = null;
   }
 
   public int getAListSize() {
@@ -1050,6 +1054,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   }
 
   public boolean equals(Request that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(Request that) {
     if (that == null)
       return false;
     boolean this_present_aList = true && this.isSetAList();
@@ -1172,8 +1180,18 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (this.anInt8 != that.anInt8)
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(Request that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -1561,7 +1579,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -1682,6 +1703,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeFieldBegin(AN_INT8_FIELD_DESC);
       oprot.writeByte(this.anInt8);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();

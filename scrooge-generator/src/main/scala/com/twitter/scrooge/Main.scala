@@ -16,7 +16,7 @@
 
 package com.twitter.scrooge
 
-import com.twitter.scrooge.backend.{GeneratorFactory, WithFinagle}
+import com.twitter.scrooge.backend.{GeneratorFactory, WithFinagle, WithJavaPassThrough}
 import java.io.File
 import java.util.Properties
 import scopt.OptionParser
@@ -199,6 +199,13 @@ object Main {
           c
         }
         .text("Generate code for adaptive decoding for scala.")
+
+      opt[Unit]("java-passthrough")
+        .action { (_, c) =>
+          c.flags += WithJavaPassThrough
+          c
+        }
+        .text("Generate Java code with PassThrough")
 
       arg[String]("<files...>")
         .unbounded()

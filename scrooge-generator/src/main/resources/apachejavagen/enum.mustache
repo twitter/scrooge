@@ -8,11 +8,19 @@ import java.util.EnumMap;
 import org.apache.thrift.TEnum;
 
 public enum {{name}} implements TEnum {
+  {{#is_passthrough_enum}}
+  UnknownPassThrough(-1),
+  {{/is_passthrough_enum}}
   {{#constants}}
   {{name}}({{value}}){{#last}};{{/last}}{{^last}},{{/last}}
   {{/constants}}
 
+  {{#is_passthrough_enum}}
+  private int value;
+  {{/is_passthrough_enum}}
+  {{^is_passthrough_enum}}
   private final int value;
+  {{/is_passthrough_enum}}
 
   private {{name}}(int value) {
     this.value = value;
@@ -25,6 +33,15 @@ public enum {{name}} implements TEnum {
     return value;
   }
 
+  {{#is_passthrough_enum}}
+  /**
+   * Set the integer value of this enum value. Used in passthrough
+   */
+  private void setValue(int value) {
+    this.value = value;
+  }
+  {{/is_passthrough_enum}}
+
   /**
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
@@ -36,7 +53,13 @@ public enum {{name}} implements TEnum {
         return {{name}};
     {{/constants}}
       default:
+        {{#is_passthrough_enum}}
+        UnknownPassThrough.setValue(value);
+        return UnknownPassThrough;
+        {{/is_passthrough_enum}}
+        {{^is_passthrough_enum}}
         return null;
+        {{/is_passthrough_enum}}
     }
   }
 

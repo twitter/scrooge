@@ -25,6 +25,7 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -34,8 +35,9 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   private static final TField ID_FIELD_DESC = new TField("id", TType.I64, (short)1);
   private static final TField DETAILS_FIELD_DESC = new TField("details", TType.STRING, (short)2);
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
+    UNKNOWN_PASSTHROUGH((short)-1, "unknown_passthrough"),
     ID((short)1, "id"),
     DETAILS((short)2, "details");
   
@@ -48,7 +50,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
     }
   
     /**
-     * Find the _Fields constant that matches fieldId, or null if its not found.
+     * Find the _Fields constant that matches fieldId, or unknown passthrough if its not found.
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
@@ -57,7 +59,8 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
         case 2: // DETAILS
           return DETAILS;
         default:
-          return null;
+          UNKNOWN_PASSTHROUGH._thriftId = (short)fieldId;
+          return UNKNOWN_PASSTHROUGH;
       }
     }
   
@@ -78,7 +81,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
       return byName.get(name);
     }
   
-    private final short _thriftId;
+    private short _thriftId;
     private final String _fieldName;
   
     _Fields(short thriftId, String fieldName) {
@@ -231,6 +234,13 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
             TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case UNKNOWN_PASSTHROUGH:
+          if (field.type != TType.STOP) {
+            return TFieldBlob.extractBlob(field, iprot);
+          } else {
+            TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -252,6 +262,10 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
         String details = (String)value_;
         oprot.writeString(details);
 
+        return;
+      case UNKNOWN_PASSTHROUGH:
+        TFieldBlob tFieldBlob = (TFieldBlob)value_;
+        tFieldBlob.writeWithoutFieldMeta(oprot);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -275,6 +289,9 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
         return ID_FIELD_DESC;
       case DETAILS:
         return DETAILS_FIELD_DESC;
+      case UNKNOWN_PASSTHROUGH:
+        TFieldBlob tFieldBlob = (TFieldBlob)value_;
+        return tFieldBlob.field();
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -357,6 +374,9 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
       }
       if (2 == thriftFieldId && (isSet(_Fields.DETAILS))) {
         hashCode = 31 * hashCode + ((String)value).hashCode();
+      }
+      if (_Fields.UNKNOWN_PASSTHROUGH._thriftId == thriftFieldId) {
+        hashCode = 31 * hashCode + ((TFieldBlob)value).hashCode();
       }
     }
     return hashCode;

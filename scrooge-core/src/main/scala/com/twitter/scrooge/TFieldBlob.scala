@@ -10,6 +10,11 @@ object TFieldBlob {
   def apply(field: TField, data: Array[Byte]): TFieldBlob =
     TFieldBlob(field, Buf.ByteArray.Owned(data))
 
+  // Java Friendly method
+  def extractBlob(field: TField, iprot: TProtocol): TFieldBlob = {
+    read(field, iprot)
+  }
+
   def read(field: TField, iprot: TProtocol): TFieldBlob = {
     capture(field) { ThriftUtil.transfer(_, iprot, field.`type`) }
   }
@@ -58,6 +63,12 @@ case class TFieldBlob(field: TField, content: Buf) {
     oprot.writeFieldBegin(field)
     ThriftUtil.transfer(oprot, read, field.`type`)
     oprot.writeFieldEnd()
+  }
+
+  // This is Required for PassThrough implementation Of Union in Java
+  // TUnion already writes the Begin and End Fields
+  def writeWithoutFieldMeta(oprot: TProtocol): Unit = {
+    ThriftUtil.transfer(oprot, read, field.`type`)
   }
 
   /**

@@ -30,6 +30,7 @@ import scala.collection.mutable
 abstract sealed class ServiceOption
 
 case object WithFinagle extends ServiceOption
+case object WithJavaPassThrough extends ServiceOption
 case object WithAsClosable extends ServiceOption {
   val AsClosableMethodName: String = "asClosable"
 }

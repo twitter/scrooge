@@ -28,6 +28,7 @@ import com.twitter.scrooge.ThriftMethodIface;
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
+import com.twitter.scrooge.TFieldBlob;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -566,8 +567,9 @@ public class PlatinumService {
 
 
   public Request request;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     REQUEST((short)1, "request");
   
@@ -700,6 +702,7 @@ public class PlatinumService {
     if (other.isSetRequest()) {
       this.request = new Request(other.request);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(moreCoolThings_args item) {
@@ -720,6 +723,7 @@ public class PlatinumService {
   @java.lang.Override
   public void clear() {
     this.request = null;
+    this.passThroughFields = null;
   }
 
   public Request getRequest() {
@@ -791,6 +795,10 @@ public class PlatinumService {
   }
 
   public boolean equals(moreCoolThings_args that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(moreCoolThings_args that) {
     if (that == null)
       return false;
     boolean this_present_request = true && this.isSetRequest();
@@ -801,8 +809,18 @@ public class PlatinumService {
       if (!this.request.equals(that.request))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(moreCoolThings_args that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -859,7 +877,10 @@ public class PlatinumService {
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -877,6 +898,11 @@ public class PlatinumService {
       oprot.writeFieldBegin(REQUEST_FIELD_DESC);
       this.request.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
@@ -914,8 +940,9 @@ public class PlatinumService {
   public int success;
   public AnotherException ax;
   public OverCapacityException oce;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     SUCCESS((short)0, "success"),
     AX((short)1, "ax"),
@@ -1071,6 +1098,7 @@ public class PlatinumService {
     if (other.isSetOce()) {
       this.oce = new OverCapacityException(other.oce);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(moreCoolThings_result item) {
@@ -1099,6 +1127,7 @@ public class PlatinumService {
     this.success = 0;
     this.ax = null;
     this.oce = null;
+    this.passThroughFields = null;
   }
 
   public int getSuccess() {
@@ -1241,6 +1270,10 @@ public class PlatinumService {
   }
 
   public boolean equals(moreCoolThings_result that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(moreCoolThings_result that) {
     if (that == null)
       return false;
     boolean this_present_success = true;
@@ -1267,8 +1300,18 @@ public class PlatinumService {
       if (!this.oce.equals(that.oce))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(moreCoolThings_result that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -1367,7 +1410,10 @@ public class PlatinumService {
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -1391,6 +1437,11 @@ public class PlatinumService {
       oprot.writeFieldBegin(OCE_FIELD_DESC);
       this.oce.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();

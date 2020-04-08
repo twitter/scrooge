@@ -1,5 +1,8 @@
-/** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+/** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
 public enum _Fields implements TFieldIdEnum {
+  {{#is_passthrough_union}}
+  UNKNOWN_PASSTHROUGH((short)-1, "unknown_passthrough"),
+  {{/is_passthrough_union}}
   {{#fields}}
   {{#constant_name}}{{name}}{{/constant_name}}((short){{key}}, "{{name}}"){{#last}};{{/last}}{{^last}},{{/last}}
   {{/fields}}
@@ -16,7 +19,7 @@ public enum _Fields implements TFieldIdEnum {
   }
 
   /**
-   * Find the _Fields constant that matches fieldId, or null if its not found.
+   * Find the _Fields constant that matches fieldId, or {{#is_passthrough_union}}unknown passthrough{{/is_passthrough_union}}{{^is_passthrough_union}}null{{/is_passthrough_union}} if its not found.
    */
   public static _Fields findByThriftId(int fieldId) {
     switch(fieldId) {
@@ -25,7 +28,13 @@ public enum _Fields implements TFieldIdEnum {
         return {{#constant_name}}{{name}}{{/constant_name}};
       {{/fields}}
       default:
+      {{#is_passthrough_union}}
+        UNKNOWN_PASSTHROUGH._thriftId = (short)fieldId;
+        return UNKNOWN_PASSTHROUGH;
+      {{/is_passthrough_union}}
+      {{^is_passthrough_union}}
         return null;
+      {{/is_passthrough_union}}
     }
   }
 
@@ -46,7 +55,7 @@ public enum _Fields implements TFieldIdEnum {
     return byName.get(name);
   }
 
-  private final short _thriftId;
+  private {{^is_passthrough_union}}final {{/is_passthrough_union}}short _thriftId;
   private final String _fieldName;
 
   _Fields(short thriftId, String fieldName) {

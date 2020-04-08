@@ -28,6 +28,7 @@ import com.twitter.scrooge.ThriftMethodIface;
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
+import com.twitter.scrooge.TFieldBlob;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -801,8 +802,9 @@ public class GoldService {
 
 
   public Request request;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     REQUEST((short)1, "request");
   
@@ -935,6 +937,7 @@ public class GoldService {
     if (other.isSetRequest()) {
       this.request = new Request(other.request);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(doGreatThings_args item) {
@@ -955,6 +958,7 @@ public class GoldService {
   @java.lang.Override
   public void clear() {
     this.request = null;
+    this.passThroughFields = null;
   }
 
   public Request getRequest() {
@@ -1026,6 +1030,10 @@ public class GoldService {
   }
 
   public boolean equals(doGreatThings_args that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(doGreatThings_args that) {
     if (that == null)
       return false;
     boolean this_present_request = true && this.isSetRequest();
@@ -1036,8 +1044,18 @@ public class GoldService {
       if (!this.request.equals(that.request))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(doGreatThings_args that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -1094,7 +1112,10 @@ public class GoldService {
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -1112,6 +1133,11 @@ public class GoldService {
       oprot.writeFieldBegin(REQUEST_FIELD_DESC);
       this.request.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
@@ -1147,8 +1173,9 @@ public class GoldService {
 
   public Response success;
   public OverCapacityException ex;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     SUCCESS((short)0, "success"),
     EX((short)1, "ex");
@@ -1291,6 +1318,7 @@ public class GoldService {
     if (other.isSetEx()) {
       this.ex = new OverCapacityException(other.ex);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(doGreatThings_result item) {
@@ -1317,6 +1345,7 @@ public class GoldService {
   public void clear() {
     this.success = null;
     this.ex = null;
+    this.passThroughFields = null;
   }
 
   public Response getSuccess() {
@@ -1424,6 +1453,10 @@ public class GoldService {
   }
 
   public boolean equals(doGreatThings_result that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(doGreatThings_result that) {
     if (that == null)
       return false;
     boolean this_present_success = true && this.isSetSuccess();
@@ -1442,8 +1475,18 @@ public class GoldService {
       if (!this.ex.equals(that.ex))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(doGreatThings_result that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -1521,7 +1564,10 @@ public class GoldService {
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -1541,6 +1587,11 @@ public class GoldService {
       oprot.writeFieldBegin(EX_FIELD_DESC);
       this.ex.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
@@ -1595,8 +1646,9 @@ public class GoldService {
 
 
   public Request request;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     REQUEST((short)1, "request");
   
@@ -1729,6 +1781,7 @@ public class GoldService {
     if (other.isSetRequest()) {
       this.request = new Request(other.request);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(noExceptionCall_args item) {
@@ -1749,6 +1802,7 @@ public class GoldService {
   @java.lang.Override
   public void clear() {
     this.request = null;
+    this.passThroughFields = null;
   }
 
   public Request getRequest() {
@@ -1820,6 +1874,10 @@ public class GoldService {
   }
 
   public boolean equals(noExceptionCall_args that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(noExceptionCall_args that) {
     if (that == null)
       return false;
     boolean this_present_request = true && this.isSetRequest();
@@ -1830,8 +1888,18 @@ public class GoldService {
       if (!this.request.equals(that.request))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(noExceptionCall_args that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -1888,7 +1956,10 @@ public class GoldService {
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -1906,6 +1977,11 @@ public class GoldService {
       oprot.writeFieldBegin(REQUEST_FIELD_DESC);
       this.request.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
@@ -1939,8 +2015,9 @@ public class GoldService {
 
 
   public Response success;
+  private Map<Short, TFieldBlob> passThroughFields;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     SUCCESS((short)0, "success");
   
@@ -2073,6 +2150,7 @@ public class GoldService {
     if (other.isSetSuccess()) {
       this.success = new Response(other.success);
     }
+    this.passThroughFields = other.passThroughFields;
   }
 
   public static List<String> validateNewInstance(noExceptionCall_result item) {
@@ -2093,6 +2171,7 @@ public class GoldService {
   @java.lang.Override
   public void clear() {
     this.success = null;
+    this.passThroughFields = null;
   }
 
   public Response getSuccess() {
@@ -2164,6 +2243,10 @@ public class GoldService {
   }
 
   public boolean equals(noExceptionCall_result that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(noExceptionCall_result that) {
     if (that == null)
       return false;
     boolean this_present_success = true && this.isSetSuccess();
@@ -2174,8 +2257,18 @@ public class GoldService {
       if (!this.success.equals(that.success))
         return false;
     }
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(noExceptionCall_result that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -2232,7 +2325,10 @@ public class GoldService {
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -2248,6 +2344,11 @@ public class GoldService {
       oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
       this.success.write(oprot);
       oprot.writeFieldEnd();
+    }
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
     }
     oprot.writeFieldStop();
     oprot.writeStructEnd();

@@ -27,6 +27,7 @@ import org.apache.thrift.protocol.*;
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.TFieldBlob;
 
 // No additional import required for struct/union.
 
@@ -37,10 +38,11 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
 
 
   public int errorCode;
+  private Map<Short, TFieldBlob> passThroughFields;
 
   private long _flags;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     ERROR_CODE((short)1, "errorCode");
   
@@ -178,6 +180,7 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.errorCode = other.errorCode;
+    this.passThroughFields = other.passThroughFields;
     this._flags = other._flags;
   }
 
@@ -205,6 +208,7 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
   public void clear() {
     setErrorCodeIsSet(false);
     this.errorCode = 0;
+    this.passThroughFields = null;
     this._flags = JavaFailureFlags.EMPTY;
   }
 
@@ -276,6 +280,10 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
   }
 
   public boolean equals(AnotherException that) {
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+  }
+
+  private boolean equalsWithoutPassthrough(AnotherException that) {
     if (that == null)
       return false;
     boolean this_present_errorCode = true;
@@ -288,8 +296,18 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
     }
     if (this._flags != that._flags)
       return false;
-
     return true;
+  }
+
+  private boolean passthroughFieldsAreEqual(AnotherException that) {
+    if (that == null)
+      return false;
+    if (this.passThroughFields == null && that.passThroughFields != null)
+      return false;
+    if (this.passThroughFields == that.passThroughFields
+        || this.passThroughFields.equals(that.passThroughFields))
+      return true;
+    return false;
   }
 
   @java.lang.Override
@@ -349,7 +367,10 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          if (this.passThroughFields == null) {
+            this.passThroughFields = new HashMap<Short, TFieldBlob>();
+          }
+          this.passThroughFields.put(field.id, TFieldBlob.extractBlob(field, iprot));
       }
       iprot.readFieldEnd();
     }
@@ -366,6 +387,11 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
     oprot.writeFieldBegin(ERROR_CODE_FIELD_DESC);
     oprot.writeI32(this.errorCode);
     oprot.writeFieldEnd();
+    if (this.passThroughFields != null) {
+      for (TFieldBlob field : this.passThroughFields.values()) {
+        field.write(oprot);
+      }
+    }
     oprot.writeFieldStop();
     oprot.writeStructEnd();
   }
