@@ -213,12 +213,12 @@ object ScroogeRunner {
     }
 
     section("standalone/") {
-      val files = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
-      runScrooge(Seq(Scala), files)
-      runScrooge(
-        Seq(ApacheJava, Android),
+      val scalaFiles = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
+      val javaFiles =
         s"$base/src/test/thrift/standalone/constructorRequired.thrift $base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift $base/src/test/thrift/standalone/passthrough.thrift"
-      )
+      runScrooge(Seq(Scala), scalaFiles)
+      runScrooge(Seq(Android), javaFiles)
+      runScrooge(Seq(ApacheJava), s"--java-passthrough $javaFiles")
     }
 
     section("scala/") {
