@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Respect the proper order of separators in function declarations.
+  ``PHAB_ID=D467476``
+
 20.4.0
 ------
 

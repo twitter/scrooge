@@ -472,7 +472,7 @@ enum Foo
       val code = """
         /** cold hard cache */
         service Cache {
-          void put(1: string name, 2: binary value);
+          void put(1: string name, 2: binary value) (mode="LRU");
           binary get(1: string name) throws (1: NotFoundException ex);
         }
                  """
@@ -490,7 +490,8 @@ enum Foo
                 Field(2, SimpleID("value"), "value", TBinary, None, Requiredness.Default)
               ),
               Seq(),
-              None
+              None,
+              Map("mode" -> "LRU")
             ),
             Function(
               SimpleID("get"),
