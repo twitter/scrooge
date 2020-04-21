@@ -33,9 +33,9 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("Response")
   val StatusCodeField: TField = new TField("statusCode", TType.I32, 1)
-  val StatusCodeFieldManifest: Manifest[Int] = implicitly[Manifest[Int]]
+  val StatusCodeFieldManifest: Manifest[Int] = manifest[Int]
   val ResponseUnionField: TField = new TField("responseUnion", TType.STRUCT, 2)
-  val ResponseUnionFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]]
+  val ResponseUnionFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] = manifest[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
 
   /**
    * Field information in declaration order.
@@ -65,33 +65,32 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     )
   )
 
-  lazy val structAnnotations: immutable$Map[String, String] =
+
+  val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
-  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
     classTag[Int].asInstanceOf[ClassTag[_]],
     classTag[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion].asInstanceOf[ClassTag[_]]
   )
 
-  private[this] val structFields: Seq[ThriftStructField[Response]] = {
-    Seq(
-      new ThriftStructField[Response](
-        StatusCodeField,
-        _root_.scala.Some(StatusCodeFieldManifest),
-        classOf[Response]) {
-          def getValue[R](struct: Response): R = struct.statusCode.asInstanceOf[R]
-      },
-      new ThriftStructField[Response](
-        ResponseUnionField,
-        _root_.scala.Some(ResponseUnionFieldManifest),
-        classOf[Response]) {
-          def getValue[R](struct: Response): R = struct.responseUnion.asInstanceOf[R]
-      }
-    )
-  }
+  private[this] val structFields: Seq[ThriftStructField[Response]] = Seq[ThriftStructField[Response]](
+    new ThriftStructField[Response](
+      StatusCodeField,
+      _root_.scala.Some(StatusCodeFieldManifest),
+      classOf[Response]) {
+        def getValue[R](struct: Response): R = struct.statusCode.asInstanceOf[R]
+    },
+    new ThriftStructField[Response](
+      ResponseUnionField,
+      _root_.scala.Some(ResponseUnionFieldManifest),
+      classOf[Response]) {
+        def getValue[R](struct: Response): R = struct.responseUnion.asInstanceOf[R]
+    }
+  )
 
   override lazy val metaData: ThriftStructMetaData[Response] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
@@ -113,11 +112,7 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
 
   def withoutPassthroughFields(original: Response): Response =
     new Immutable(
-      statusCode =
-        {
-          val field = original.statusCode
-          field
-        },
+      statusCode = original.statusCode,
       responseUnion =
         {
           val field = original.responseUnion
@@ -145,7 +140,7 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     val adaptContext = _iprot.adaptContext
     val reloadRequired = adaptContext.shouldReloadDecoder
     synchronized {
-      if (adaptiveDecoder == null || reloadRequired) {
+      if ((adaptiveDecoder eq null) || reloadRequired) {
         adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
       }
     }
@@ -180,48 +175,41 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     val _start_offset = _iprot.offset
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I32 =>
-    
-                statusCode = readStatusCodeValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.I32
-                throw new TProtocolException(
-                  "Received wrong type for field 'statusCode' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I32) {
+              statusCode = readStatusCodeValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'statusCode' (expected=%s, actual=%s).",
+                TType.I32,
+                _fieldType
+              )
             }
           case 2 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-    
-                responseUnion = readResponseUnionValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'responseUnion' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              responseUnion = readResponseUnionValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'responseUnion' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     new LazyImmutable(
@@ -231,19 +219,22 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
       _iprot.offset,
       statusCode,
       responseUnion,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
     )
   }
 
-  override def decode(_iprot: TProtocol): Response =
-    _iprot match {
-      case i: AdaptTProtocol => adaptiveDecode(i)
-      case i: LazyTProtocol => lazyDecode(i)
-      case i => eagerDecode(i)
+  override def decode(_iprot: TProtocol): Response = {
+    if (_iprot.isInstanceOf[LazyTProtocol]) {
+      lazyDecode(_iprot.asInstanceOf[LazyTProtocol])
+    } else if (_iprot.isInstanceOf[AdaptTProtocol]) {
+      adaptiveDecode(_iprot.asInstanceOf[AdaptTProtocol])
+    } else {
+      eagerDecode(_iprot)
     }
+  }
 
   private[thriftscala] def eagerDecode(_iprot: TProtocol): Response = {
     var statusCode: Int = 0
@@ -252,52 +243,47 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     var _done = false
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I32 =>
-                statusCode = readStatusCodeValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.I32
-                throw new TProtocolException(
-                  "Received wrong type for field 'statusCode' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I32) {
+              statusCode = readStatusCodeValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'statusCode' (expected=%s, actual=%s).",
+                TType.I32,
+                _fieldType
+              )
             }
           case 2 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-                responseUnion = readResponseUnionValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'responseUnion' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              responseUnion = readResponseUnionValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'responseUnion' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     new Immutable(
       statusCode,
       responseUnion,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
@@ -386,9 +372,10 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     extends Response {
 
     override def write(_oprot: TProtocol): Unit = {
-      _oprot match {
-        case i: LazyTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-        case _ => super.write(_oprot)
+      if (_oprot.isInstanceOf[LazyTProtocol]) {
+        _oprot.asInstanceOf[LazyTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      } else {
+        super.write(_oprot)
       }
     }
 
@@ -404,7 +391,7 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
      * With the class private and the contract that we throw away our mutable references
      * having the hash code lazy here is safe.
      */
-    override lazy val hashCode = super.hashCode
+    override lazy val hashCode: Int = super.hashCode
   }
 
   /**
@@ -440,12 +427,11 @@ trait Response
   def _1: Int = statusCode
   def _2: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = responseUnion
 
-  def toTuple: _root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] = {
-    (
+  def toTuple: _root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion] =
+    _root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion](
       statusCode,
       responseUnion
     )
-  }
 
 
   /**
@@ -454,44 +440,40 @@ trait Response
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
-    lazy val _buff = new TMemoryBuffer(32)
-    lazy val _oprot = new TCompactProtocol(_buff)
-    _passthroughFields.get(_fieldId) match {
-      case blob: _root_.scala.Some[TFieldBlob] => blob
-      case _root_.scala.None => {
-        val _fieldOpt: _root_.scala.Option[TField] =
-          _fieldId match {
-            case 1 =>
-              if (true) {
-                writeStatusCodeValue(statusCode, _oprot)
-                _root_.scala.Some(Response.StatusCodeField)
-              } else {
-                _root_.scala.None
-              }
-            case 2 =>
-              if (responseUnion ne null) {
-                writeResponseUnionValue(responseUnion, _oprot)
-                _root_.scala.Some(Response.ResponseUnionField)
-              } else {
-                _root_.scala.None
-              }
-            case _ => _root_.scala.None
-          }
-        _fieldOpt match {
-          case _root_.scala.Some(_field) =>
-            _root_.scala.Some(TFieldBlob(_field, Buf.ByteArray.Owned(_buff.getArray())))
-          case _root_.scala.None =>
+    val passedthroughValue = _passthroughFields.get(_fieldId)
+    if (passedthroughValue.isDefined) {
+      passedthroughValue
+    } else {
+      val _buff = new TMemoryBuffer(32)
+      val _oprot = new TCompactProtocol(_buff)
+
+      val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
+        case 1 =>
+            writeStatusCodeValue(statusCode, _oprot)
+            _root_.scala.Some(Response.StatusCodeField)
+        case 2 =>
+          if (responseUnion ne null) {
+            writeResponseUnionValue(responseUnion, _oprot)
+            _root_.scala.Some(Response.ResponseUnionField)
+          } else {
             _root_.scala.None
-        }
+          }
+        case _ => _root_.scala.None
+      }
+      if (_fieldOpt.isDefined) {
+        _root_.scala.Some(TFieldBlob(_fieldOpt.get, Buf.ByteArray.Owned(_buff.getArray)))
+      } else {
+        _root_.scala.None
       }
     }
   }
+
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
    */
   def getFieldBlobs(ids: TraversableOnce[Short]): immutable$Map[Short, TFieldBlob] =
-    (ids flatMap { id => getFieldBlob(id) map { id -> _ } }).toMap
+    (ids.flatMap { id => getFieldBlob(id).map { fieldBlob => (id, fieldBlob) } }).toMap
 
   /**
    * Sets a field using a TCompactProtocol-encoded binary blob.  If the field is a known
@@ -508,7 +490,7 @@ trait Response
         statusCode = readStatusCodeValue(_blob.read)
       case 2 =>
         responseUnion = readResponseUnionValue(_blob.read)
-      case _ => _passthroughFields += (_blob.id -> _blob)
+      case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new Immutable(
       statusCode,
@@ -575,29 +557,19 @@ trait Response
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Response]
 
-  private def _equals(x: Response, y: Response): Boolean =
-      x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator) &&
-      x._passthroughFields == y._passthroughFields
+  private[this] def _equals(other: Response): Boolean =
+      this.productArity == other.productArity &&
+      this.productIterator.sameElements(other.productIterator) &&
+      this._passthroughFields == other._passthroughFields
 
   override def equals(other: Any): Boolean =
-    canEqual(other) &&
-      _equals(this, other.asInstanceOf[Response])
+    canEqual(other) && _equals(other.asInstanceOf[Response])
 
   override def hashCode: Int = {
     _root_.scala.runtime.ScalaRunTime._hashCode(this)
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
-  override def productArity: Int = 2
-
-  override def productElement(n: Int): Any = n match {
-    case 0 => this.statusCode
-    case 1 => this.responseUnion
-    case _ => throw new IndexOutOfBoundsException(n.toString)
-  }
 
   override def productPrefix: String = "Response"
 
@@ -609,21 +581,22 @@ trait Response
 private[thriftscala] class ResponseStructBuilder(instance: _root_.scala.Option[Response], fieldTypes: IndexedSeq[ClassTag[_]])
     extends StructBuilder[Response](fieldTypes) {
 
-  def build(): Response = instance match {
-    case _root_.scala.Some(i) =>
+  def build(): Response = {
+    val _fieldArray = fieldArray // shadow variable
+    if (instance.isDefined) {
+      val instanceValue = instance.get
       Response(
-        (if (fieldArray(0) == null) i.statusCode else fieldArray(0)).asInstanceOf[Int],
-        (if (fieldArray(1) == null) i.responseUnion else fieldArray(1)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+        if (_fieldArray(0) == null) instanceValue.statusCode else _fieldArray(0).asInstanceOf[Int],
+        if (_fieldArray(1) == null) instanceValue.responseUnion else _fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
       )
-    case _root_.scala.None =>
-      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Response"))
-      else {
-        Response(
-          fieldArray(0).asInstanceOf[Int],
-          fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
-        )
-      }
+    } else {
+      if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Response"))
+      Response(
+        _fieldArray(0).asInstanceOf[Int],
+        _fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+      )
     }
+  }
 }
 
 private class Response__AdaptDecoder {
@@ -647,59 +620,63 @@ private class Response__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(2)
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
+      val _fieldType = _field.`type`
       if (_field.`type` == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 => {
-            _field.`type` match {
-              case TType.I32 =>
-                AdaptTProtocol.usedStartMarker(1)
-                statusCode = Response.readStatusCodeValue(_iprot)
-                AdaptTProtocol.usedEndMarker(1)
-                AdaptTProtocol.unusedStartMarker(1)
-                _iprot.offsetSkipI32()
-                AdaptTProtocol.unusedEndMarker(1)
-              case _actualType =>
-                val _expectedType = TType.I32
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "statusCode")
+            if (_fieldType == TType.I32) {
+              AdaptTProtocol.usedStartMarker(1)
+              statusCode = Response.readStatusCodeValue(_iprot)
+              AdaptTProtocol.usedEndMarker(1)
+              AdaptTProtocol.unusedStartMarker(1)
+              _iprot.offsetSkipI32()
+              AdaptTProtocol.unusedEndMarker(1)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I32,
+                _fieldType,
+                "statusCode"
+              )
             }
             AdaptTProtocol.usedStartMarker(1)
             adapt.set_statusCode(statusCode)
             AdaptTProtocol.usedEndMarker(1)
           }
           case 2 => {
-            _field.`type` match {
-              case TType.STRUCT =>
-                AdaptTProtocol.usedStartMarker(2)
-                responseUnion = Response.readResponseUnionValue(_iprot)
-                AdaptTProtocol.usedEndMarker(2)
-                AdaptTProtocol.unusedStartMarker(2)
-                _iprot.offsetSkipStruct()
-                AdaptTProtocol.unusedEndMarker(2)
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "responseUnion")
+            if (_fieldType == TType.STRUCT) {
+              AdaptTProtocol.usedStartMarker(2)
+              responseUnion = Response.readResponseUnionValue(_iprot)
+              AdaptTProtocol.usedEndMarker(2)
+              AdaptTProtocol.unusedStartMarker(2)
+              _iprot.offsetSkipStruct()
+              AdaptTProtocol.unusedEndMarker(2)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRUCT,
+                _fieldType,
+                "responseUnion"
+              )
             }
             AdaptTProtocol.usedStartMarker(2)
             adapt.set_responseUnion(responseUnion)
             AdaptTProtocol.usedEndMarker(2)
           }
-
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     adapt.set__endOffset(_iprot.offset)
-    if (_passthroughFields != null) {
+    if (_passthroughFields ne null) {
       adapt.set__passthroughFields(_passthroughFields.result())
     }
     adapt
@@ -740,7 +717,7 @@ private class Response__Adapt(
 
 
   private[this] var _end_offset: Int = _
-  def set__endOffset(offset: Int) = _end_offset = offset
+  def set__endOffset(offset: Int): Unit = _end_offset = offset
 
   private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = Response.NoPassthroughFields
   def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
@@ -762,9 +739,10 @@ private class Response__Adapt(
   override lazy val hashCode: Int = super.hashCode
 
   override def write(_oprot: TProtocol): Unit = {
-    _oprot match {
-      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-      case _ => super.write(_oprot)
+    if (_oprot.isInstanceOf[AdaptTProtocol]) {
+      _oprot.asInstanceOf[AdaptTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+    } else {
+      super.write(_oprot)
     }
   }
 }

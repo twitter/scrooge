@@ -57,7 +57,7 @@ class {{ServiceName}}$FinagleClient(
       oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
       args.write(oprot)
       oprot.writeMessageEnd()
-      oprot.getTransport().flush()
+      oprot.getTransport.flush()
       val bytes = _root_.java.util.Arrays.copyOfRange(
         memoryBuffer.getArray(),
         0,
@@ -79,12 +79,8 @@ class {{ServiceName}}$FinagleClient(
     val msg = iprot.readMessageBegin()
     try {
       if (msg.`type` == TMessageType.EXCEPTION) {
-        val exception = TApplicationException.readFrom(iprot) match {
-          case sourced: _root_.com.twitter.finagle.SourcedException =>
-            if (serviceName != "") sourced.serviceName = serviceName
-            sourced
-          case e => e
-        }
+        val exception = TApplicationException.readFrom(iprot)
+        setServiceName(exception)
         throw exception
       } else {
         codec.decode(iprot)
@@ -94,23 +90,9 @@ class {{ServiceName}}$FinagleClient(
     }
   }
 
-  protected def missingResult(name: String): TApplicationException = {
-    new TApplicationException(
-      TApplicationException.MISSING_RESULT,
-      name + " failed: unknown result"
-    )
+  protected def setServiceName(ex: Throwable): Throwable = {
+    _root_.com.twitter.finagle.SourcedException.setServiceName(ex, serviceName)
   }
-
-  protected def setServiceName(ex: Throwable): Throwable =
-    if (this.serviceName == "") ex
-    else {
-      ex match {
-        case se: _root_.com.twitter.finagle.SourcedException =>
-          se.serviceName = this.serviceName
-          se
-        case _ => ex
-      }
-    }
 
   // ----- end boilerplate.
 

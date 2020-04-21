@@ -9,17 +9,19 @@ val {{methodSvcNameForCompile}}: finagle$Filter[(TProtocol, Int), Array[Byte], {
       val iprot = request._1
       val seqid = request._2
       val res = service(request)
-      res.transform {
-        case _root_.com.twitter.util.Throw(e: TProtocolException) =>
+      res.transform(resTry => {
+        if (resTry.isThrow && resTry.throwable.isInstanceOf[TProtocolException]) {
+          val underlyingException = resTry.throwable
           iprot.readMessageEnd()
           Future.value(
             ProtocolExceptionResponse(
               null,
-              exception("{{methodSvcNameForWire}}", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
-              new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
-        case _ =>
+              exception("{{methodSvcNameForWire}}", seqid, TApplicationException.PROTOCOL_ERROR, underlyingException.getMessage),
+              new TApplicationException(TApplicationException.PROTOCOL_ERROR, underlyingException.getMessage)))
+        } else {
           res
-      }
+        }
+      })
     }
   }
 
@@ -34,33 +36,35 @@ val {{methodSvcNameForCompile}}: finagle$Filter[(TProtocol, Int), Array[Byte], {
       val args = {{funcObjectName}}.Args.decode(iprot)
       iprot.readMessageEnd()
       _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
-      val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+      _root_.com.twitter.finagle.context.Contexts.local.let(
         _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
         _root_.com.twitter.finagle.thrift.MethodMetadata({{funcObjectName}})) {
         service(args)
-      }
-      res.transform {
-        case _root_.com.twitter.util.Return(value) =>
+      }.transform(resTry => {
+        if (resTry.isReturn) {
           val methodResult = {{funcObjectName}}.Result({{resultNamedArg}})
           Future.value(
             SuccessfulResponse(
               args,
               reply("{{methodSvcNameForWire}}", seqid, methodResult),
               methodResult))
+        } else { // Throw[_]
+{{#hasExceptions}}
+          val underlyingException = resTry.throwable
 {{#exceptions}}
-        case _root_.com.twitter.util.Throw(e: {{exceptionType}}) => {
-          Future.value(
-            ThriftExceptionResponse(
-              args,
-              reply("{{methodSvcNameForWire}}", seqid, {{funcObjectName}}.Result({{fieldName}} = Some(e))),
-              e))
-        }
+          {{^first}}else {{/first}}if (underlyingException.isInstanceOf[{{exceptionType}}])
+            Future.value(
+              ThriftExceptionResponse(
+                args,
+                reply("{{methodSvcNameForWire}}", seqid, {{funcObjectName}}.Result({{fieldName}} = Some(underlyingException.asInstanceOf[{{exceptionType}}]))),
+                underlyingException.asInstanceOf[{{exceptionType}}]))
 {{/exceptions}}
-        case t @ _root_.com.twitter.util.Throw(_) =>
-          Future.const(t.cast[RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]])
-      }
+          else
+{{/hasExceptions}}
+            Future.const(resTry.asInstanceOf[Throw[RichResponse[{{funcObjectName}}.Args, {{funcObjectName}}.Result]]])
+        }
+      })
     }
   }
-
   statsFilter.andThen(protocolExnFilter).andThen(serdeFilter)
 }

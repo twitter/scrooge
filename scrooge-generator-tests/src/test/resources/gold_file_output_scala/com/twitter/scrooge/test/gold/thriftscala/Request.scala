@@ -35,35 +35,35 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("Request")
   val AListField: TField = new TField("aList", TType.LIST, 1)
-  val AListFieldManifest: Manifest[_root_.scala.collection.Seq[String]] = implicitly[Manifest[_root_.scala.collection.Seq[String]]]
+  val AListFieldManifest: Manifest[_root_.scala.collection.Seq[String]] = manifest[_root_.scala.collection.Seq[String]]
   val ASetField: TField = new TField("aSet", TType.SET, 2)
-  val ASetFieldManifest: Manifest[_root_.scala.collection.Set[Int]] = implicitly[Manifest[_root_.scala.collection.Set[Int]]]
+  val ASetFieldManifest: Manifest[_root_.scala.collection.Set[Int]] = manifest[_root_.scala.collection.Set[Int]]
   val AMapField: TField = new TField("aMap", TType.MAP, 3)
-  val AMapFieldManifest: Manifest[_root_.scala.collection.Map[Long, Long]] = implicitly[Manifest[_root_.scala.collection.Map[Long, Long]]]
+  val AMapFieldManifest: Manifest[_root_.scala.collection.Map[Long, Long]] = manifest[_root_.scala.collection.Map[Long, Long]]
   val ARequestField: TField = new TField("aRequest", TType.STRUCT, 4)
-  val ARequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  val ARequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
   val SubRequestsField: TField = new TField("subRequests", TType.LIST, 5)
-  val SubRequestsFieldManifest: Manifest[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]] = implicitly[Manifest[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]]
+  val SubRequestsFieldManifest: Manifest[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]] = manifest[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]
   val HasDefaultField: TField = new TField("hasDefault", TType.STRING, 6)
-  val HasDefaultFieldManifest: Manifest[String] = implicitly[Manifest[String]]
+  val HasDefaultFieldManifest: Manifest[String] = manifest[String]
   val NoCommentField: TField = new TField("noComment", TType.I64, 7)
-  val NoCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val NoCommentFieldManifest: Manifest[Long] = manifest[Long]
   val DoubleSlashCommentField: TField = new TField("doubleSlashComment", TType.I64, 8)
-  val DoubleSlashCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val DoubleSlashCommentFieldManifest: Manifest[Long] = manifest[Long]
   val HashtagCommentField: TField = new TField("hashtagComment", TType.I64, 9)
-  val HashtagCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val HashtagCommentFieldManifest: Manifest[Long] = manifest[Long]
   val SingleAsteriskCommentField: TField = new TField("singleAsteriskComment", TType.I64, 10)
-  val SingleAsteriskCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val SingleAsteriskCommentFieldManifest: Manifest[Long] = manifest[Long]
   val DocStringCommentField: TField = new TField("docStringComment", TType.I64, 11)
-  val DocStringCommentFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val DocStringCommentFieldManifest: Manifest[Long] = manifest[Long]
   val RecRequestField: TField = new TField("recRequest", TType.STRUCT, 12)
-  val RecRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive]]
+  val RecRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive] = manifest[com.twitter.scrooge.test.gold.thriftscala.Recursive]
   val RequiredFieldField: TField = new TField("requiredField", TType.STRING, 13)
-  val RequiredFieldFieldManifest: Manifest[String] = implicitly[Manifest[String]]
+  val RequiredFieldFieldManifest: Manifest[String] = manifest[String]
   val ConstructionRequiredFieldField: TField = new TField("constructionRequiredField", TType.I64, 14)
-  val ConstructionRequiredFieldFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val ConstructionRequiredFieldFieldManifest: Manifest[Long] = manifest[Long]
   val AnInt8Field: TField = new TField("anInt8", TType.BYTE, 15)
-  val AnInt8FieldManifest: Manifest[Byte] = implicitly[Manifest[Byte]]
+  val AnInt8FieldManifest: Manifest[Byte] = manifest[Byte]
 
   /**
    * Field information in declaration order.
@@ -75,7 +75,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       false,
       AListFieldManifest,
       _root_.scala.None,
-      _root_.scala.Some(implicitly[Manifest[String]]),
+      _root_.scala.Some(manifest[String]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
@@ -86,7 +86,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       false,
       ASetFieldManifest,
       _root_.scala.None,
-      _root_.scala.Some(implicitly[Manifest[Int]]),
+      _root_.scala.Some(manifest[Int]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
@@ -96,8 +96,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       false,
       false,
       AMapFieldManifest,
-      _root_.scala.Some(implicitly[Manifest[Long]]),
-      _root_.scala.Some(implicitly[Manifest[Long]]),
+      _root_.scala.Some(manifest[Long]),
+      _root_.scala.Some(manifest[Long]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
@@ -119,7 +119,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       false,
       SubRequestsFieldManifest,
       _root_.scala.None,
-      _root_.scala.Some(implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]),
+      _root_.scala.Some(manifest[com.twitter.scrooge.test.gold.thriftscala.Request]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None
@@ -165,8 +165,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map(
-        "a.b.c" -> "ignored"
+      immutable$Map.apply[String, String](
+        ("a.b.c", "ignored")
       ),
       None
     ),
@@ -178,9 +178,9 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map(
-        "s.field.annotation.one" -> "a",
-        "two" -> "b"
+      immutable$Map.apply[String, String](
+        ("s.field.annotation.one", "a"),
+        ("two", "b")
       ),
       None
     ),
@@ -225,8 +225,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map(
-        "construction_required" -> "true"
+      immutable$Map.apply[String, String](
+        ("construction_required", "true")
       ),
       None
     ),
@@ -243,13 +243,14 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     )
   )
 
+
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](
-        "s.annotation.one" -> "something",
-        "s.annotation.two" -> "other"
+        ("s.annotation.one", "something"),
+        ("s.annotation.two", "other")
     )
 
-  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
     classTag[_root_.scala.collection.Seq[String]].asInstanceOf[ClassTag[_]],
     classTag[_root_.scala.collection.Set[Int]].asInstanceOf[ClassTag[_]],
     classTag[_root_.scala.collection.Map[Long, Long]].asInstanceOf[ClassTag[_]],
@@ -267,109 +268,107 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     classTag[_root_.scala.Option[Byte]].asInstanceOf[ClassTag[_]]
   )
 
-  private[this] val structFields: Seq[ThriftStructField[Request]] = {
-    Seq(
-      new ThriftStructField[Request](
-        AListField,
-        _root_.scala.Some(AListFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.aList.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        ASetField,
-        _root_.scala.Some(ASetFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.aSet.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        AMapField,
-        _root_.scala.Some(AMapFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.aMap.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        ARequestField,
-        _root_.scala.Some(ARequestFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.aRequest.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        SubRequestsField,
-        _root_.scala.Some(SubRequestsFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.subRequests.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        HasDefaultField,
-        _root_.scala.Some(HasDefaultFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.hasDefault.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        NoCommentField,
-        _root_.scala.Some(NoCommentFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.noComment.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        DoubleSlashCommentField,
-        _root_.scala.Some(DoubleSlashCommentFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.doubleSlashComment.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        HashtagCommentField,
-        _root_.scala.Some(HashtagCommentFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.hashtagComment.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        SingleAsteriskCommentField,
-        _root_.scala.Some(SingleAsteriskCommentFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.singleAsteriskComment.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        DocStringCommentField,
-        _root_.scala.Some(DocStringCommentFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.docStringComment.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        RecRequestField,
-        _root_.scala.Some(RecRequestFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.recRequest.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        RequiredFieldField,
-        _root_.scala.Some(RequiredFieldFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.requiredField.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        ConstructionRequiredFieldField,
-        _root_.scala.Some(ConstructionRequiredFieldFieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.constructionRequiredField.asInstanceOf[R]
-      },
-      new ThriftStructField[Request](
-        AnInt8Field,
-        _root_.scala.Some(AnInt8FieldManifest),
-        classOf[Request]) {
-          def getValue[R](struct: Request): R = struct.anInt8.asInstanceOf[R]
-      }
-    )
-  }
+  private[this] val structFields: Seq[ThriftStructField[Request]] = Seq[ThriftStructField[Request]](
+    new ThriftStructField[Request](
+      AListField,
+      _root_.scala.Some(AListFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.aList.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      ASetField,
+      _root_.scala.Some(ASetFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.aSet.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      AMapField,
+      _root_.scala.Some(AMapFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.aMap.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      ARequestField,
+      _root_.scala.Some(ARequestFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.aRequest.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      SubRequestsField,
+      _root_.scala.Some(SubRequestsFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.subRequests.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      HasDefaultField,
+      _root_.scala.Some(HasDefaultFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.hasDefault.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      NoCommentField,
+      _root_.scala.Some(NoCommentFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.noComment.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      DoubleSlashCommentField,
+      _root_.scala.Some(DoubleSlashCommentFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.doubleSlashComment.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      HashtagCommentField,
+      _root_.scala.Some(HashtagCommentFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.hashtagComment.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      SingleAsteriskCommentField,
+      _root_.scala.Some(SingleAsteriskCommentFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.singleAsteriskComment.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      DocStringCommentField,
+      _root_.scala.Some(DocStringCommentFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.docStringComment.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      RecRequestField,
+      _root_.scala.Some(RecRequestFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.recRequest.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      RequiredFieldField,
+      _root_.scala.Some(RequiredFieldFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.requiredField.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      ConstructionRequiredFieldField,
+      _root_.scala.Some(ConstructionRequiredFieldFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.constructionRequiredField.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      AnInt8Field,
+      _root_.scala.Some(AnInt8FieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.anInt8.asInstanceOf[R]
+    }
+  )
 
   override lazy val metaData: ThriftStructMetaData[Request] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
    */
   def validate(_item: Request): Unit = {
-    if (_item.requiredField == null) throw new TProtocolException("Required field requiredField cannot be null")
+    if (_item.requiredField eq null) throw new TProtocolException("Required field requiredField cannot be null")
   }
 
   /**
@@ -391,7 +390,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     buf ++= validateField(item.singleAsteriskComment)
     buf ++= validateField(item.docStringComment)
     buf ++= validateField(item.recRequest)
-    if (item.requiredField == null)
+    if (item.requiredField eq null)
       buf += com.twitter.scrooge.validation.MissingRequiredField(fieldInfos.apply(12))
     buf ++= validateField(item.requiredField)
     if (item.constructionRequiredField.isEmpty)
@@ -405,39 +404,9 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
   def withoutPassthroughFields(original: Request): Request =
     new Immutable(
-      aList =
-        {
-          val field = original.aList
-          field.map { field =>
-            field
-          }
-        },
-      aSet =
-        {
-          val field = original.aSet
-          field.map { field =>
-            field
-          }
-        },
-      aMap =
-        {
-          val field = original.aMap
-          field.map { case (key, value) =>
-              val newKey = {
-              val field = key
-              field
-            }
-  
-          
-              val newValue = {
-              val field = value
-              field
-            }
-  
-          
-            newKey -> newValue
-          }
-        },
+      aList = original.aList,
+      aSet = original.aSet,
+      aMap = original.aMap,
       aRequest =
         {
           val field = original.aRequest
@@ -452,46 +421,12 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
             com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
           }
         },
-      hasDefault =
-        {
-          val field = original.hasDefault
-          field
-        },
-      noComment =
-        {
-          val field = original.noComment
-          field.map { field =>
-            field
-          }
-        },
-      doubleSlashComment =
-        {
-          val field = original.doubleSlashComment
-          field.map { field =>
-            field
-          }
-        },
-      hashtagComment =
-        {
-          val field = original.hashtagComment
-          field.map { field =>
-            field
-          }
-        },
-      singleAsteriskComment =
-        {
-          val field = original.singleAsteriskComment
-          field.map { field =>
-            field
-          }
-        },
-      docStringComment =
-        {
-          val field = original.docStringComment
-          field.map { field =>
-            field
-          }
-        },
+      hasDefault = original.hasDefault,
+      noComment = original.noComment,
+      doubleSlashComment = original.doubleSlashComment,
+      hashtagComment = original.hashtagComment,
+      singleAsteriskComment = original.singleAsteriskComment,
+      docStringComment = original.docStringComment,
       recRequest =
         {
           val field = original.recRequest
@@ -499,25 +434,9 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
             com.twitter.scrooge.test.gold.thriftscala.Recursive.withoutPassthroughFields(field)
           }
         },
-      requiredField =
-        {
-          val field = original.requiredField
-          field
-        },
-      constructionRequiredField =
-        {
-          val field = original.constructionRequiredField
-          field.map { field =>
-            field
-          }
-        },
-      anInt8 =
-        {
-          val field = original.anInt8
-          field.map { field =>
-            field
-          }
-        }
+      requiredField = original.requiredField,
+      constructionRequiredField = original.constructionRequiredField,
+      anInt8 = original.anInt8
     )
 
   def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.None, fieldTypes)
@@ -540,7 +459,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     val adaptContext = _iprot.adaptContext
     val reloadRequired = adaptContext.shouldReloadDecoder
     synchronized {
-      if (adaptiveDecoder == null || reloadRequired) {
+      if ((adaptiveDecoder eq null) || reloadRequired) {
         adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
       }
     }
@@ -641,231 +560,172 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     val _start_offset = _iprot.offset
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.LIST =>
-    
-                aList = readAListValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.LIST
-                throw new TProtocolException(
-                  "Received wrong type for field 'aList' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.LIST) {
+              aList = readAListValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aList' (expected=%s, actual=%s).",
+                TType.LIST,
+                _fieldType
+              )
             }
           case 2 =>
-            _field.`type` match {
-              case TType.SET =>
-    
-                aSet = readASetValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.SET
-                throw new TProtocolException(
-                  "Received wrong type for field 'aSet' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.SET) {
+              aSet = readASetValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aSet' (expected=%s, actual=%s).",
+                TType.SET,
+                _fieldType
+              )
             }
           case 3 =>
-            _field.`type` match {
-              case TType.MAP =>
-    
-                aMap = readAMapValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.MAP
-                throw new TProtocolException(
-                  "Received wrong type for field 'aMap' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.MAP) {
+              aMap = readAMapValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aMap' (expected=%s, actual=%s).",
+                TType.MAP,
+                _fieldType
+              )
             }
           case 4 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-    
-                aRequest = Some(readARequestValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'aRequest' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              aRequest = Some(readARequestValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aRequest' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case 5 =>
-            _field.`type` match {
-              case TType.LIST =>
-    
-                subRequests = readSubRequestsValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.LIST
-                throw new TProtocolException(
-                  "Received wrong type for field 'subRequests' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.LIST) {
+              subRequests = readSubRequestsValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'subRequests' (expected=%s, actual=%s).",
+                TType.LIST,
+                _fieldType
+              )
             }
           case 6 =>
-            _field.`type` match {
-              case TType.STRING =>
-                hasDefaultOffset = _iprot.offsetSkipString
-    
-              case _actualType =>
-                val _expectedType = TType.STRING
-                throw new TProtocolException(
-                  "Received wrong type for field 'hasDefault' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRING) {
+              hasDefaultOffset = _iprot.offsetSkipString()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'hasDefault' (expected=%s, actual=%s).",
+                TType.STRING,
+                _fieldType
+              )
             }
           case 7 =>
-            _field.`type` match {
-              case TType.I64 =>
-                noCommentOffset = _iprot.offsetSkipI64
-    
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'noComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              noCommentOffset = _iprot.offsetSkipI64()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'noComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 8 =>
-            _field.`type` match {
-              case TType.I64 =>
-                doubleSlashCommentOffset = _iprot.offsetSkipI64
-    
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'doubleSlashComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              doubleSlashCommentOffset = _iprot.offsetSkipI64()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'doubleSlashComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 9 =>
-            _field.`type` match {
-              case TType.I64 =>
-                hashtagCommentOffset = _iprot.offsetSkipI64
-    
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'hashtagComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              hashtagCommentOffset = _iprot.offsetSkipI64()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'hashtagComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 10 =>
-            _field.`type` match {
-              case TType.I64 =>
-                singleAsteriskCommentOffset = _iprot.offsetSkipI64
-    
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'singleAsteriskComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              singleAsteriskCommentOffset = _iprot.offsetSkipI64()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'singleAsteriskComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 11 =>
-            _field.`type` match {
-              case TType.I64 =>
-                docStringCommentOffset = _iprot.offsetSkipI64
-    
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              docStringCommentOffset = _iprot.offsetSkipI64()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 12 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-    
-                recRequest = Some(readRecRequestValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'recRequest' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              recRequest = Some(readRecRequestValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'recRequest' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case 13 =>
-            _field.`type` match {
-              case TType.STRING =>
-                requiredFieldOffset = _iprot.offsetSkipString
-    
-                _got_requiredField = true
-              case _actualType =>
-                val _expectedType = TType.STRING
-                throw new TProtocolException(
-                  "Received wrong type for field 'requiredField' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRING) {
+              requiredFieldOffset = _iprot.offsetSkipString()
+              _got_requiredField = true
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'requiredField' (expected=%s, actual=%s).",
+                TType.STRING,
+                _fieldType
+              )
             }
           case 14 =>
-            _field.`type` match {
-              case TType.I64 =>
-                constructionRequiredFieldOffset = _iprot.offsetSkipI64
-    
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'constructionRequiredField' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              constructionRequiredFieldOffset = _iprot.offsetSkipI64()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'constructionRequiredField' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 15 =>
-            _field.`type` match {
-              case TType.BYTE =>
-                anInt8Offset = _iprot.offsetSkipByte
-    
-              case _actualType =>
-                val _expectedType = TType.BYTE
-                throw new TProtocolException(
-                  "Received wrong type for field 'anInt8' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.BYTE) {
+              anInt8Offset = _iprot.offsetSkipByte()
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'anInt8' (expected=%s, actual=%s).",
+                TType.BYTE,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     if (!_got_requiredField) throw new TProtocolException("Required field 'requiredField' was not found in serialized data for struct Request")
@@ -889,19 +749,22 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredFieldOffset,
       constructionRequiredFieldOffset,
       anInt8Offset,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
     )
   }
 
-  override def decode(_iprot: TProtocol): Request =
-    _iprot match {
-      case i: AdaptTProtocol => adaptiveDecode(i)
-      case i: LazyTProtocol => lazyDecode(i)
-      case i => eagerDecode(i)
+  override def decode(_iprot: TProtocol): Request = {
+    if (_iprot.isInstanceOf[LazyTProtocol]) {
+      lazyDecode(_iprot.asInstanceOf[LazyTProtocol])
+    } else if (_iprot.isInstanceOf[AdaptTProtocol]) {
+      adaptiveDecode(_iprot.asInstanceOf[AdaptTProtocol])
+    } else {
+      eagerDecode(_iprot)
     }
+  }
 
   private[thriftscala] def eagerDecode(_iprot: TProtocol): Request = {
     var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
@@ -924,216 +787,172 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     var _done = false
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.LIST =>
-                aList = readAListValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.LIST
-                throw new TProtocolException(
-                  "Received wrong type for field 'aList' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.LIST) {
+              aList = readAListValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aList' (expected=%s, actual=%s).",
+                TType.LIST,
+                _fieldType
+              )
             }
           case 2 =>
-            _field.`type` match {
-              case TType.SET =>
-                aSet = readASetValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.SET
-                throw new TProtocolException(
-                  "Received wrong type for field 'aSet' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.SET) {
+              aSet = readASetValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aSet' (expected=%s, actual=%s).",
+                TType.SET,
+                _fieldType
+              )
             }
           case 3 =>
-            _field.`type` match {
-              case TType.MAP =>
-                aMap = readAMapValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.MAP
-                throw new TProtocolException(
-                  "Received wrong type for field 'aMap' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.MAP) {
+              aMap = readAMapValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aMap' (expected=%s, actual=%s).",
+                TType.MAP,
+                _fieldType
+              )
             }
           case 4 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-                aRequest = _root_.scala.Some(readARequestValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'aRequest' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              aRequest = _root_.scala.Some(readARequestValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'aRequest' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case 5 =>
-            _field.`type` match {
-              case TType.LIST =>
-                subRequests = readSubRequestsValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.LIST
-                throw new TProtocolException(
-                  "Received wrong type for field 'subRequests' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.LIST) {
+              subRequests = readSubRequestsValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'subRequests' (expected=%s, actual=%s).",
+                TType.LIST,
+                _fieldType
+              )
             }
           case 6 =>
-            _field.`type` match {
-              case TType.STRING =>
-                hasDefault = readHasDefaultValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.STRING
-                throw new TProtocolException(
-                  "Received wrong type for field 'hasDefault' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRING) {
+              hasDefault = readHasDefaultValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'hasDefault' (expected=%s, actual=%s).",
+                TType.STRING,
+                _fieldType
+              )
             }
           case 7 =>
-            _field.`type` match {
-              case TType.I64 =>
-                noComment = _root_.scala.Some(readNoCommentValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'noComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              noComment = _root_.scala.Some(readNoCommentValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'noComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 8 =>
-            _field.`type` match {
-              case TType.I64 =>
-                doubleSlashComment = _root_.scala.Some(readDoubleSlashCommentValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'doubleSlashComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              doubleSlashComment = _root_.scala.Some(readDoubleSlashCommentValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'doubleSlashComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 9 =>
-            _field.`type` match {
-              case TType.I64 =>
-                hashtagComment = _root_.scala.Some(readHashtagCommentValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'hashtagComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              hashtagComment = _root_.scala.Some(readHashtagCommentValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'hashtagComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 10 =>
-            _field.`type` match {
-              case TType.I64 =>
-                singleAsteriskComment = _root_.scala.Some(readSingleAsteriskCommentValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'singleAsteriskComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              singleAsteriskComment = _root_.scala.Some(readSingleAsteriskCommentValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'singleAsteriskComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 11 =>
-            _field.`type` match {
-              case TType.I64 =>
-                docStringComment = _root_.scala.Some(readDocStringCommentValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              docStringComment = _root_.scala.Some(readDocStringCommentValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'docStringComment' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 12 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-                recRequest = _root_.scala.Some(readRecRequestValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'recRequest' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              recRequest = _root_.scala.Some(readRecRequestValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'recRequest' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case 13 =>
-            _field.`type` match {
-              case TType.STRING =>
-                requiredField = readRequiredFieldValue(_iprot)
-                _got_requiredField = true
-              case _actualType =>
-                val _expectedType = TType.STRING
-                throw new TProtocolException(
-                  "Received wrong type for field 'requiredField' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRING) {
+              requiredField = readRequiredFieldValue(_iprot)
+              _got_requiredField = true
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'requiredField' (expected=%s, actual=%s).",
+                TType.STRING,
+                _fieldType
+              )
             }
           case 14 =>
-            _field.`type` match {
-              case TType.I64 =>
-                constructionRequiredField = _root_.scala.Some(readConstructionRequiredFieldValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'constructionRequiredField' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              constructionRequiredField = _root_.scala.Some(readConstructionRequiredFieldValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'constructionRequiredField' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 15 =>
-            _field.`type` match {
-              case TType.BYTE =>
-                anInt8 = _root_.scala.Some(readAnInt8Value(_iprot))
-              case _actualType =>
-                val _expectedType = TType.BYTE
-                throw new TProtocolException(
-                  "Received wrong type for field 'anInt8' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.BYTE) {
+              anInt8 = _root_.scala.Some(readAnInt8Value(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'anInt8' (expected=%s, actual=%s).",
+                TType.BYTE,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     if (!_got_requiredField) throw new TProtocolException("Required field 'requiredField' was not found in serialized data for struct Request")
@@ -1153,7 +972,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredField,
       constructionRequiredField,
       anInt8,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
@@ -1206,12 +1025,12 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     } else {
       val _rv = new _root_.scala.collection.mutable.ArrayBuffer[String](_list.size)
       var _i = 0
-      while (_i < _list.size) {
+      do {
         _rv += {
           _iprot.readString()
         }
         _i += 1
-      }
+      } while (_i < _list.size)
       _iprot.readListEnd()
       _rv
     }
@@ -1225,19 +1044,18 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
   @inline private def writeAListValue(aList_item: _root_.scala.collection.Seq[String], _oprot: TProtocol): Unit = {
     _oprot.writeListBegin(new TList(TType.STRING, aList_item.size))
-    aList_item match {
-      case _: IndexedSeq[_] =>
-        var _i = 0
-        val _size = aList_item.size
-        while (_i < _size) {
-          val aList_item_element = aList_item(_i)
-          _oprot.writeString(aList_item_element)
-          _i += 1
-        }
-      case _ =>
-        aList_item.foreach { aList_item_element =>
-          _oprot.writeString(aList_item_element)
-        }
+    if (aList_item.isInstanceOf[IndexedSeq[_]]) {
+      var _i = 0
+      val _size = aList_item.size
+      while (_i < _size) {
+        val aList_item_element = aList_item(_i)
+        _oprot.writeString(aList_item_element)
+        _i += 1
+      }
+    } else {
+      aList_item.foreach { aList_item_element =>
+        _oprot.writeString(aList_item_element)
+      }
     }
     _oprot.writeListEnd()
   }
@@ -1250,12 +1068,12 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     } else {
       val _rv = new _root_.scala.collection.mutable.HashSet[Int]
       var _i = 0
-      while (_i < _set.size) {
+      do {
         _rv += {
           _iprot.readI32()
         }
         _i += 1
-      }
+      } while (_i < _set.size)
       _iprot.readSetEnd()
       _rv
     }
@@ -1283,7 +1101,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     } else {
       val _rv = new _root_.scala.collection.mutable.HashMap[Long, Long]
       var _i = 0
-      while (_i < _map.size) {
+      do {
         val _key = {
           _iprot.readI64()
         }
@@ -1292,7 +1110,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         }
         _rv(_key) = _value
         _i += 1
-      }
+      } while (_i < _map.size)
       _iprot.readMapEnd()
       _rv
     }
@@ -1335,12 +1153,12 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     } else {
       val _rv = new _root_.scala.collection.mutable.ArrayBuffer[com.twitter.scrooge.test.gold.thriftscala.Request](_list.size)
       var _i = 0
-      while (_i < _list.size) {
+      do {
         _rv += {
           com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
         }
         _i += 1
-      }
+      } while (_i < _list.size)
       _iprot.readListEnd()
       _rv
     }
@@ -1354,19 +1172,18 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
   @inline private def writeSubRequestsValue(subRequests_item: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], _oprot: TProtocol): Unit = {
     _oprot.writeListBegin(new TList(TType.STRUCT, subRequests_item.size))
-    subRequests_item match {
-      case _: IndexedSeq[_] =>
-        var _i = 0
-        val _size = subRequests_item.size
-        while (_i < _size) {
-          val subRequests_item_element = subRequests_item(_i)
-          subRequests_item_element.write(_oprot)
-          _i += 1
-        }
-      case _ =>
-        subRequests_item.foreach { subRequests_item_element =>
-          subRequests_item_element.write(_oprot)
-        }
+    if (subRequests_item.isInstanceOf[IndexedSeq[_]]) {
+      var _i = 0
+      val _size = subRequests_item.size
+      while (_i < _size) {
+        val subRequests_item_element = subRequests_item(_i)
+        subRequests_item_element.write(_oprot)
+        _i += 1
+      }
+    } else {
+      subRequests_item.foreach { subRequests_item_element =>
+        subRequests_item_element.write(_oprot)
+      }
     }
     _oprot.writeListEnd()
   }
@@ -1674,9 +1491,10 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     extends Request {
 
     override def write(_oprot: TProtocol): Unit = {
-      _oprot match {
-        case i: LazyTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-        case _ => super.write(_oprot)
+      if (_oprot.isInstanceOf[LazyTProtocol]) {
+        _oprot.asInstanceOf[LazyTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      } else {
+        super.write(_oprot)
       }
     }
 
@@ -1746,7 +1564,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
      * With the class private and the contract that we throw away our mutable references
      * having the hash code lazy here is safe.
      */
-    override lazy val hashCode = super.hashCode
+    override lazy val hashCode: Int = super.hashCode
   }
 
   /**
@@ -1827,8 +1645,8 @@ trait Request
   def _14: _root_.scala.Option[Long] = constructionRequiredField
   def _15: _root_.scala.Option[Byte] = anInt8
 
-  def toTuple: _root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]] = {
-    (
+  def toTuple: _root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]] =
+    _root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]](
       aList,
       aSet,
       aMap,
@@ -1845,7 +1663,6 @@ trait Request
       constructionRequiredField,
       anInt8
     )
-  }
 
 
   /**
@@ -1854,135 +1671,135 @@ trait Request
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
-    lazy val _buff = new TMemoryBuffer(32)
-    lazy val _oprot = new TCompactProtocol(_buff)
-    _passthroughFields.get(_fieldId) match {
-      case blob: _root_.scala.Some[TFieldBlob] => blob
-      case _root_.scala.None => {
-        val _fieldOpt: _root_.scala.Option[TField] =
-          _fieldId match {
-            case 1 =>
-              if (aList ne null) {
-                writeAListValue(aList, _oprot)
-                _root_.scala.Some(Request.AListField)
-              } else {
-                _root_.scala.None
-              }
-            case 2 =>
-              if (aSet ne null) {
-                writeASetValue(aSet, _oprot)
-                _root_.scala.Some(Request.ASetField)
-              } else {
-                _root_.scala.None
-              }
-            case 3 =>
-              if (aMap ne null) {
-                writeAMapValue(aMap, _oprot)
-                _root_.scala.Some(Request.AMapField)
-              } else {
-                _root_.scala.None
-              }
-            case 4 =>
-              if (aRequest.isDefined) {
-                writeARequestValue(aRequest.get, _oprot)
-                _root_.scala.Some(Request.ARequestField)
-              } else {
-                _root_.scala.None
-              }
-            case 5 =>
-              if (subRequests ne null) {
-                writeSubRequestsValue(subRequests, _oprot)
-                _root_.scala.Some(Request.SubRequestsField)
-              } else {
-                _root_.scala.None
-              }
-            case 6 =>
-              if (hasDefault ne null) {
-                writeHasDefaultValue(hasDefault, _oprot)
-                _root_.scala.Some(Request.HasDefaultField)
-              } else {
-                _root_.scala.None
-              }
-            case 7 =>
-              if (noComment.isDefined) {
-                writeNoCommentValue(noComment.get, _oprot)
-                _root_.scala.Some(Request.NoCommentField)
-              } else {
-                _root_.scala.None
-              }
-            case 8 =>
-              if (doubleSlashComment.isDefined) {
-                writeDoubleSlashCommentValue(doubleSlashComment.get, _oprot)
-                _root_.scala.Some(Request.DoubleSlashCommentField)
-              } else {
-                _root_.scala.None
-              }
-            case 9 =>
-              if (hashtagComment.isDefined) {
-                writeHashtagCommentValue(hashtagComment.get, _oprot)
-                _root_.scala.Some(Request.HashtagCommentField)
-              } else {
-                _root_.scala.None
-              }
-            case 10 =>
-              if (singleAsteriskComment.isDefined) {
-                writeSingleAsteriskCommentValue(singleAsteriskComment.get, _oprot)
-                _root_.scala.Some(Request.SingleAsteriskCommentField)
-              } else {
-                _root_.scala.None
-              }
-            case 11 =>
-              if (docStringComment.isDefined) {
-                writeDocStringCommentValue(docStringComment.get, _oprot)
-                _root_.scala.Some(Request.DocStringCommentField)
-              } else {
-                _root_.scala.None
-              }
-            case 12 =>
-              if (recRequest.isDefined) {
-                writeRecRequestValue(recRequest.get, _oprot)
-                _root_.scala.Some(Request.RecRequestField)
-              } else {
-                _root_.scala.None
-              }
-            case 13 =>
-              if (requiredField ne null) {
-                writeRequiredFieldValue(requiredField, _oprot)
-                _root_.scala.Some(Request.RequiredFieldField)
-              } else {
-                _root_.scala.None
-              }
-            case 14 =>
-              if (constructionRequiredField.isDefined) {
-                writeConstructionRequiredFieldValue(constructionRequiredField.get, _oprot)
-                _root_.scala.Some(Request.ConstructionRequiredFieldField)
-              } else {
-                _root_.scala.None
-              }
-            case 15 =>
-              if (anInt8.isDefined) {
-                writeAnInt8Value(anInt8.get, _oprot)
-                _root_.scala.Some(Request.AnInt8Field)
-              } else {
-                _root_.scala.None
-              }
-            case _ => _root_.scala.None
-          }
-        _fieldOpt match {
-          case _root_.scala.Some(_field) =>
-            _root_.scala.Some(TFieldBlob(_field, Buf.ByteArray.Owned(_buff.getArray())))
-          case _root_.scala.None =>
+    val passedthroughValue = _passthroughFields.get(_fieldId)
+    if (passedthroughValue.isDefined) {
+      passedthroughValue
+    } else {
+      val _buff = new TMemoryBuffer(32)
+      val _oprot = new TCompactProtocol(_buff)
+
+      val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
+        case 1 =>
+          if (aList ne null) {
+            writeAListValue(aList, _oprot)
+            _root_.scala.Some(Request.AListField)
+          } else {
             _root_.scala.None
-        }
+          }
+        case 2 =>
+          if (aSet ne null) {
+            writeASetValue(aSet, _oprot)
+            _root_.scala.Some(Request.ASetField)
+          } else {
+            _root_.scala.None
+          }
+        case 3 =>
+          if (aMap ne null) {
+            writeAMapValue(aMap, _oprot)
+            _root_.scala.Some(Request.AMapField)
+          } else {
+            _root_.scala.None
+          }
+        case 4 =>
+          if (aRequest.isDefined) {
+            writeARequestValue(aRequest.get, _oprot)
+            _root_.scala.Some(Request.ARequestField)
+          } else {
+            _root_.scala.None
+          }
+        case 5 =>
+          if (subRequests ne null) {
+            writeSubRequestsValue(subRequests, _oprot)
+            _root_.scala.Some(Request.SubRequestsField)
+          } else {
+            _root_.scala.None
+          }
+        case 6 =>
+          if (hasDefault ne null) {
+            writeHasDefaultValue(hasDefault, _oprot)
+            _root_.scala.Some(Request.HasDefaultField)
+          } else {
+            _root_.scala.None
+          }
+        case 7 =>
+          if (noComment.isDefined) {
+            writeNoCommentValue(noComment.get, _oprot)
+            _root_.scala.Some(Request.NoCommentField)
+          } else {
+            _root_.scala.None
+          }
+        case 8 =>
+          if (doubleSlashComment.isDefined) {
+            writeDoubleSlashCommentValue(doubleSlashComment.get, _oprot)
+            _root_.scala.Some(Request.DoubleSlashCommentField)
+          } else {
+            _root_.scala.None
+          }
+        case 9 =>
+          if (hashtagComment.isDefined) {
+            writeHashtagCommentValue(hashtagComment.get, _oprot)
+            _root_.scala.Some(Request.HashtagCommentField)
+          } else {
+            _root_.scala.None
+          }
+        case 10 =>
+          if (singleAsteriskComment.isDefined) {
+            writeSingleAsteriskCommentValue(singleAsteriskComment.get, _oprot)
+            _root_.scala.Some(Request.SingleAsteriskCommentField)
+          } else {
+            _root_.scala.None
+          }
+        case 11 =>
+          if (docStringComment.isDefined) {
+            writeDocStringCommentValue(docStringComment.get, _oprot)
+            _root_.scala.Some(Request.DocStringCommentField)
+          } else {
+            _root_.scala.None
+          }
+        case 12 =>
+          if (recRequest.isDefined) {
+            writeRecRequestValue(recRequest.get, _oprot)
+            _root_.scala.Some(Request.RecRequestField)
+          } else {
+            _root_.scala.None
+          }
+        case 13 =>
+          if (requiredField ne null) {
+            writeRequiredFieldValue(requiredField, _oprot)
+            _root_.scala.Some(Request.RequiredFieldField)
+          } else {
+            _root_.scala.None
+          }
+        case 14 =>
+          if (constructionRequiredField.isDefined) {
+            writeConstructionRequiredFieldValue(constructionRequiredField.get, _oprot)
+            _root_.scala.Some(Request.ConstructionRequiredFieldField)
+          } else {
+            _root_.scala.None
+          }
+        case 15 =>
+          if (anInt8.isDefined) {
+            writeAnInt8Value(anInt8.get, _oprot)
+            _root_.scala.Some(Request.AnInt8Field)
+          } else {
+            _root_.scala.None
+          }
+        case _ => _root_.scala.None
+      }
+      if (_fieldOpt.isDefined) {
+        _root_.scala.Some(TFieldBlob(_fieldOpt.get, Buf.ByteArray.Owned(_buff.getArray)))
+      } else {
+        _root_.scala.None
       }
     }
   }
+
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
    */
   def getFieldBlobs(ids: TraversableOnce[Short]): immutable$Map[Short, TFieldBlob] =
-    (ids flatMap { id => getFieldBlob(id) map { id -> _ } }).toMap
+    (ids.flatMap { id => getFieldBlob(id).map { fieldBlob => (id, fieldBlob) } }).toMap
 
   /**
    * Sets a field using a TCompactProtocol-encoded binary blob.  If the field is a known
@@ -2038,7 +1855,7 @@ trait Request
         constructionRequiredField = _root_.scala.Some(readConstructionRequiredFieldValue(_blob.read))
       case 15 =>
         anInt8 = _root_.scala.Some(readAnInt8Value(_blob.read))
-      case _ => _passthroughFields += (_blob.id -> _blob)
+      case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new Immutable(
       aList,
@@ -2262,42 +2079,19 @@ trait Request
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Request]
 
-  private def _equals(x: Request, y: Request): Boolean =
-      x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator) &&
-      x._passthroughFields == y._passthroughFields
+  private[this] def _equals(other: Request): Boolean =
+      this.productArity == other.productArity &&
+      this.productIterator.sameElements(other.productIterator) &&
+      this._passthroughFields == other._passthroughFields
 
   override def equals(other: Any): Boolean =
-    canEqual(other) &&
-      _equals(this, other.asInstanceOf[Request])
+    canEqual(other) && _equals(other.asInstanceOf[Request])
 
   override def hashCode: Int = {
     _root_.scala.runtime.ScalaRunTime._hashCode(this)
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
-  override def productArity: Int = 15
-
-  override def productElement(n: Int): Any = n match {
-    case 0 => this.aList
-    case 1 => this.aSet
-    case 2 => this.aMap
-    case 3 => this.aRequest
-    case 4 => this.subRequests
-    case 5 => this.hasDefault
-    case 6 => this.noComment
-    case 7 => this.doubleSlashComment
-    case 8 => this.hashtagComment
-    case 9 => this.singleAsteriskComment
-    case 10 => this.docStringComment
-    case 11 => this.recRequest
-    case 12 => this.requiredField
-    case 13 => this.constructionRequiredField
-    case 14 => this.anInt8
-    case _ => throw new IndexOutOfBoundsException(n.toString)
-  }
 
   override def productPrefix: String = "Request"
 
@@ -2309,47 +2103,48 @@ trait Request
 private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Request], fieldTypes: IndexedSeq[ClassTag[_]])
     extends StructBuilder[Request](fieldTypes) {
 
-  def build(): Request = instance match {
-    case _root_.scala.Some(i) =>
+  def build(): Request = {
+    val _fieldArray = fieldArray // shadow variable
+    if (instance.isDefined) {
+      val instanceValue = instance.get
       Request(
-        (if (fieldArray(0) == null) i.aList else fieldArray(0)).asInstanceOf[_root_.scala.collection.Seq[String]],
-        (if (fieldArray(1) == null) i.aSet else fieldArray(1)).asInstanceOf[_root_.scala.collection.Set[Int]],
-        (if (fieldArray(2) == null) i.aMap else fieldArray(2)).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
-        (if (fieldArray(3) == null) i.aRequest else fieldArray(3)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        (if (fieldArray(4) == null) i.subRequests else fieldArray(4)).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        (if (fieldArray(5) == null) i.hasDefault else fieldArray(5)).asInstanceOf[String],
-        (if (fieldArray(6) == null) i.noComment else fieldArray(6)).asInstanceOf[_root_.scala.Option[Long]],
-        (if (fieldArray(7) == null) i.doubleSlashComment else fieldArray(7)).asInstanceOf[_root_.scala.Option[Long]],
-        (if (fieldArray(8) == null) i.hashtagComment else fieldArray(8)).asInstanceOf[_root_.scala.Option[Long]],
-        (if (fieldArray(9) == null) i.singleAsteriskComment else fieldArray(9)).asInstanceOf[_root_.scala.Option[Long]],
-        (if (fieldArray(10) == null) i.docStringComment else fieldArray(10)).asInstanceOf[_root_.scala.Option[Long]],
-        (if (fieldArray(11) == null) i.recRequest else fieldArray(11)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
-        (if (fieldArray(12) == null) i.requiredField else fieldArray(12)).asInstanceOf[String],
-        (if (fieldArray(13) == null) i.constructionRequiredField.get else fieldArray(13)).asInstanceOf[Long],
-        (if (fieldArray(14) == null) i.anInt8 else fieldArray(14)).asInstanceOf[_root_.scala.Option[Byte]]
+        if (_fieldArray(0) == null) instanceValue.aList else _fieldArray(0).asInstanceOf[_root_.scala.collection.Seq[String]],
+        if (_fieldArray(1) == null) instanceValue.aSet else _fieldArray(1).asInstanceOf[_root_.scala.collection.Set[Int]],
+        if (_fieldArray(2) == null) instanceValue.aMap else _fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
+        if (_fieldArray(3) == null) instanceValue.aRequest else _fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        if (_fieldArray(4) == null) instanceValue.subRequests else _fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        if (_fieldArray(5) == null) instanceValue.hasDefault else _fieldArray(5).asInstanceOf[String],
+        if (_fieldArray(6) == null) instanceValue.noComment else _fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
+        if (_fieldArray(7) == null) instanceValue.doubleSlashComment else _fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
+        if (_fieldArray(8) == null) instanceValue.hashtagComment else _fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],
+        if (_fieldArray(9) == null) instanceValue.singleAsteriskComment else _fieldArray(9).asInstanceOf[_root_.scala.Option[Long]],
+        if (_fieldArray(10) == null) instanceValue.docStringComment else _fieldArray(10).asInstanceOf[_root_.scala.Option[Long]],
+        if (_fieldArray(11) == null) instanceValue.recRequest else _fieldArray(11).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
+        if (_fieldArray(12) == null) instanceValue.requiredField else _fieldArray(12).asInstanceOf[String],
+        if (_fieldArray(13) == null) instanceValue.constructionRequiredField.get else _fieldArray(13).asInstanceOf[Long],
+        if (_fieldArray(14) == null) instanceValue.anInt8 else _fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]]
       )
-    case _root_.scala.None =>
-      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Request"))
-      else {
-        Request(
-          fieldArray(0).asInstanceOf[_root_.scala.collection.Seq[String]],
-          fieldArray(1).asInstanceOf[_root_.scala.collection.Set[Int]],
-          fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
-          fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
-          fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
-          fieldArray(5).asInstanceOf[String],
-          fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
-          fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
-          fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],
-          fieldArray(9).asInstanceOf[_root_.scala.Option[Long]],
-          fieldArray(10).asInstanceOf[_root_.scala.Option[Long]],
-          fieldArray(11).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
-          fieldArray(12).asInstanceOf[String],
-          fieldArray(13).asInstanceOf[Long],
-          fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]]
-        )
-      }
+    } else {
+      if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Request"))
+      Request(
+        _fieldArray(0).asInstanceOf[_root_.scala.collection.Seq[String]],
+        _fieldArray(1).asInstanceOf[_root_.scala.collection.Set[Int]],
+        _fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
+        _fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        _fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        _fieldArray(5).asInstanceOf[String],
+        _fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
+        _fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
+        _fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],
+        _fieldArray(9).asInstanceOf[_root_.scala.Option[Long]],
+        _fieldArray(10).asInstanceOf[_root_.scala.Option[Long]],
+        _fieldArray(11).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
+        _fieldArray(12).asInstanceOf[String],
+        _fieldArray(13).asInstanceOf[Long],
+        _fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]]
+      )
     }
+  }
 }
 
 private class Request__AdaptDecoder {
@@ -2454,282 +2249,312 @@ private class Request__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(15)
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
+      val _fieldType = _field.`type`
       if (_field.`type` == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 => {
-            _field.`type` match {
-              case TType.LIST =>
-                AdaptTProtocol.usedStartMarker(1)
-                aList = Request.readAListValue(_iprot)
-                AdaptTProtocol.usedEndMarker(1)
-                AdaptTProtocol.unusedStartMarker(1)
-                _iprot.offsetSkipList()
-                AdaptTProtocol.unusedEndMarker(1)
-              case _actualType =>
-                val _expectedType = TType.LIST
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aList")
+            if (_fieldType == TType.LIST) {
+              AdaptTProtocol.usedStartMarker(1)
+              aList = Request.readAListValue(_iprot)
+              AdaptTProtocol.usedEndMarker(1)
+              AdaptTProtocol.unusedStartMarker(1)
+              _iprot.offsetSkipList()
+              AdaptTProtocol.unusedEndMarker(1)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.LIST,
+                _fieldType,
+                "aList"
+              )
             }
             AdaptTProtocol.usedStartMarker(1)
             adapt.set_aList(aList)
             AdaptTProtocol.usedEndMarker(1)
           }
           case 2 => {
-            _field.`type` match {
-              case TType.SET =>
-                AdaptTProtocol.usedStartMarker(2)
-                aSet = Request.readASetValue(_iprot)
-                AdaptTProtocol.usedEndMarker(2)
-                AdaptTProtocol.unusedStartMarker(2)
-                _iprot.offsetSkipSet()
-                AdaptTProtocol.unusedEndMarker(2)
-              case _actualType =>
-                val _expectedType = TType.SET
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aSet")
+            if (_fieldType == TType.SET) {
+              AdaptTProtocol.usedStartMarker(2)
+              aSet = Request.readASetValue(_iprot)
+              AdaptTProtocol.usedEndMarker(2)
+              AdaptTProtocol.unusedStartMarker(2)
+              _iprot.offsetSkipSet()
+              AdaptTProtocol.unusedEndMarker(2)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.SET,
+                _fieldType,
+                "aSet"
+              )
             }
             AdaptTProtocol.usedStartMarker(2)
             adapt.set_aSet(aSet)
             AdaptTProtocol.usedEndMarker(2)
           }
           case 3 => {
-            _field.`type` match {
-              case TType.MAP =>
-                AdaptTProtocol.usedStartMarker(3)
-                aMap = Request.readAMapValue(_iprot)
-                AdaptTProtocol.usedEndMarker(3)
-                AdaptTProtocol.unusedStartMarker(3)
-                _iprot.offsetSkipMap()
-                AdaptTProtocol.unusedEndMarker(3)
-              case _actualType =>
-                val _expectedType = TType.MAP
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aMap")
+            if (_fieldType == TType.MAP) {
+              AdaptTProtocol.usedStartMarker(3)
+              aMap = Request.readAMapValue(_iprot)
+              AdaptTProtocol.usedEndMarker(3)
+              AdaptTProtocol.unusedStartMarker(3)
+              _iprot.offsetSkipMap()
+              AdaptTProtocol.unusedEndMarker(3)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.MAP,
+                _fieldType,
+                "aMap"
+              )
             }
             AdaptTProtocol.usedStartMarker(3)
             adapt.set_aMap(aMap)
             AdaptTProtocol.usedEndMarker(3)
           }
           case 4 => {
-            _field.`type` match {
-              case TType.STRUCT =>
-                AdaptTProtocol.usedStartMarker(4)
-                aRequest = _root_.scala.Some(Request.readARequestValue(_iprot))
-                AdaptTProtocol.usedEndMarker(4)
-                AdaptTProtocol.unusedStartMarker(4)
-                _iprot.offsetSkipStruct()
-                AdaptTProtocol.unusedEndMarker(4)
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "aRequest")
+            if (_fieldType == TType.STRUCT) {
+              AdaptTProtocol.usedStartMarker(4)
+              aRequest = _root_.scala.Some(Request.readARequestValue(_iprot))
+              AdaptTProtocol.usedEndMarker(4)
+              AdaptTProtocol.unusedStartMarker(4)
+              _iprot.offsetSkipStruct()
+              AdaptTProtocol.unusedEndMarker(4)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRUCT,
+                _fieldType,
+                "aRequest"
+              )
             }
             AdaptTProtocol.usedStartMarker(4)
             adapt.set_aRequest(aRequest)
             AdaptTProtocol.usedEndMarker(4)
           }
           case 5 => {
-            _field.`type` match {
-              case TType.LIST =>
-                AdaptTProtocol.usedStartMarker(5)
-                subRequests = Request.readSubRequestsValue(_iprot)
-                AdaptTProtocol.usedEndMarker(5)
-                AdaptTProtocol.unusedStartMarker(5)
-                _iprot.offsetSkipList()
-                AdaptTProtocol.unusedEndMarker(5)
-              case _actualType =>
-                val _expectedType = TType.LIST
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "subRequests")
+            if (_fieldType == TType.LIST) {
+              AdaptTProtocol.usedStartMarker(5)
+              subRequests = Request.readSubRequestsValue(_iprot)
+              AdaptTProtocol.usedEndMarker(5)
+              AdaptTProtocol.unusedStartMarker(5)
+              _iprot.offsetSkipList()
+              AdaptTProtocol.unusedEndMarker(5)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.LIST,
+                _fieldType,
+                "subRequests"
+              )
             }
             AdaptTProtocol.usedStartMarker(5)
             adapt.set_subRequests(subRequests)
             AdaptTProtocol.usedEndMarker(5)
           }
           case 6 => {
-            _field.`type` match {
-              case TType.STRING =>
-                AdaptTProtocol.usedStartMarker(6)
-                hasDefault = Request.readHasDefaultValue(_iprot)
-                AdaptTProtocol.usedEndMarker(6)
-                AdaptTProtocol.unusedStartMarker(6)
-                _iprot.offsetSkipString()
-                AdaptTProtocol.unusedEndMarker(6)
-              case _actualType =>
-                val _expectedType = TType.STRING
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "hasDefault")
+            if (_fieldType == TType.STRING) {
+              AdaptTProtocol.usedStartMarker(6)
+              hasDefault = Request.readHasDefaultValue(_iprot)
+              AdaptTProtocol.usedEndMarker(6)
+              AdaptTProtocol.unusedStartMarker(6)
+              _iprot.offsetSkipString()
+              AdaptTProtocol.unusedEndMarker(6)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRING,
+                _fieldType,
+                "hasDefault"
+              )
             }
             AdaptTProtocol.usedStartMarker(6)
             adapt.set_hasDefault(hasDefault)
             AdaptTProtocol.usedEndMarker(6)
           }
           case 7 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(7)
-                noComment = _root_.scala.Some(Request.readNoCommentValue(_iprot))
-                AdaptTProtocol.usedEndMarker(7)
-                AdaptTProtocol.unusedStartMarker(7)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(7)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "noComment")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(7)
+              noComment = _root_.scala.Some(Request.readNoCommentValue(_iprot))
+              AdaptTProtocol.usedEndMarker(7)
+              AdaptTProtocol.unusedStartMarker(7)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(7)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "noComment"
+              )
             }
             AdaptTProtocol.usedStartMarker(7)
             adapt.set_noComment(noComment)
             AdaptTProtocol.usedEndMarker(7)
           }
           case 8 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(8)
-                doubleSlashComment = _root_.scala.Some(Request.readDoubleSlashCommentValue(_iprot))
-                AdaptTProtocol.usedEndMarker(8)
-                AdaptTProtocol.unusedStartMarker(8)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(8)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "doubleSlashComment")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(8)
+              doubleSlashComment = _root_.scala.Some(Request.readDoubleSlashCommentValue(_iprot))
+              AdaptTProtocol.usedEndMarker(8)
+              AdaptTProtocol.unusedStartMarker(8)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(8)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "doubleSlashComment"
+              )
             }
             AdaptTProtocol.usedStartMarker(8)
             adapt.set_doubleSlashComment(doubleSlashComment)
             AdaptTProtocol.usedEndMarker(8)
           }
           case 9 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(9)
-                hashtagComment = _root_.scala.Some(Request.readHashtagCommentValue(_iprot))
-                AdaptTProtocol.usedEndMarker(9)
-                AdaptTProtocol.unusedStartMarker(9)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(9)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "hashtagComment")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(9)
+              hashtagComment = _root_.scala.Some(Request.readHashtagCommentValue(_iprot))
+              AdaptTProtocol.usedEndMarker(9)
+              AdaptTProtocol.unusedStartMarker(9)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(9)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "hashtagComment"
+              )
             }
             AdaptTProtocol.usedStartMarker(9)
             adapt.set_hashtagComment(hashtagComment)
             AdaptTProtocol.usedEndMarker(9)
           }
           case 10 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(10)
-                singleAsteriskComment = _root_.scala.Some(Request.readSingleAsteriskCommentValue(_iprot))
-                AdaptTProtocol.usedEndMarker(10)
-                AdaptTProtocol.unusedStartMarker(10)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(10)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "singleAsteriskComment")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(10)
+              singleAsteriskComment = _root_.scala.Some(Request.readSingleAsteriskCommentValue(_iprot))
+              AdaptTProtocol.usedEndMarker(10)
+              AdaptTProtocol.unusedStartMarker(10)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(10)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "singleAsteriskComment"
+              )
             }
             AdaptTProtocol.usedStartMarker(10)
             adapt.set_singleAsteriskComment(singleAsteriskComment)
             AdaptTProtocol.usedEndMarker(10)
           }
           case 11 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(11)
-                docStringComment = _root_.scala.Some(Request.readDocStringCommentValue(_iprot))
-                AdaptTProtocol.usedEndMarker(11)
-                AdaptTProtocol.unusedStartMarker(11)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(11)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "docStringComment")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(11)
+              docStringComment = _root_.scala.Some(Request.readDocStringCommentValue(_iprot))
+              AdaptTProtocol.usedEndMarker(11)
+              AdaptTProtocol.unusedStartMarker(11)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(11)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "docStringComment"
+              )
             }
             AdaptTProtocol.usedStartMarker(11)
             adapt.set_docStringComment(docStringComment)
             AdaptTProtocol.usedEndMarker(11)
           }
           case 12 => {
-            _field.`type` match {
-              case TType.STRUCT =>
-                AdaptTProtocol.usedStartMarker(12)
-                recRequest = _root_.scala.Some(Request.readRecRequestValue(_iprot))
-                AdaptTProtocol.usedEndMarker(12)
-                AdaptTProtocol.unusedStartMarker(12)
-                _iprot.offsetSkipStruct()
-                AdaptTProtocol.unusedEndMarker(12)
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "recRequest")
+            if (_fieldType == TType.STRUCT) {
+              AdaptTProtocol.usedStartMarker(12)
+              recRequest = _root_.scala.Some(Request.readRecRequestValue(_iprot))
+              AdaptTProtocol.usedEndMarker(12)
+              AdaptTProtocol.unusedStartMarker(12)
+              _iprot.offsetSkipStruct()
+              AdaptTProtocol.unusedEndMarker(12)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRUCT,
+                _fieldType,
+                "recRequest"
+              )
             }
             AdaptTProtocol.usedStartMarker(12)
             adapt.set_recRequest(recRequest)
             AdaptTProtocol.usedEndMarker(12)
           }
           case 13 => {
-            _field.`type` match {
-              case TType.STRING =>
-                AdaptTProtocol.usedStartMarker(13)
-                requiredField = Request.readRequiredFieldValue(_iprot)
-                AdaptTProtocol.usedEndMarker(13)
-                AdaptTProtocol.unusedStartMarker(13)
-                _iprot.offsetSkipString()
-                AdaptTProtocol.unusedEndMarker(13)
-                _got_requiredField = true
-              case _actualType =>
-                val _expectedType = TType.STRING
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "requiredField")
+            if (_fieldType == TType.STRING) {
+              AdaptTProtocol.usedStartMarker(13)
+              requiredField = Request.readRequiredFieldValue(_iprot)
+              AdaptTProtocol.usedEndMarker(13)
+              AdaptTProtocol.unusedStartMarker(13)
+              _iprot.offsetSkipString()
+              AdaptTProtocol.unusedEndMarker(13)
+              _got_requiredField = true
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRING,
+                _fieldType,
+                "requiredField"
+              )
             }
             AdaptTProtocol.usedStartMarker(13)
             adapt.set_requiredField(requiredField)
             AdaptTProtocol.usedEndMarker(13)
           }
           case 14 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(14)
-                constructionRequiredField = _root_.scala.Some(Request.readConstructionRequiredFieldValue(_iprot))
-                AdaptTProtocol.usedEndMarker(14)
-                AdaptTProtocol.unusedStartMarker(14)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(14)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "constructionRequiredField")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(14)
+              constructionRequiredField = _root_.scala.Some(Request.readConstructionRequiredFieldValue(_iprot))
+              AdaptTProtocol.usedEndMarker(14)
+              AdaptTProtocol.unusedStartMarker(14)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(14)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "constructionRequiredField"
+              )
             }
             AdaptTProtocol.usedStartMarker(14)
             adapt.set_constructionRequiredField(constructionRequiredField)
             AdaptTProtocol.usedEndMarker(14)
           }
           case 15 => {
-            _field.`type` match {
-              case TType.BYTE =>
-                AdaptTProtocol.usedStartMarker(15)
-                anInt8 = _root_.scala.Some(Request.readAnInt8Value(_iprot))
-                AdaptTProtocol.usedEndMarker(15)
-                AdaptTProtocol.unusedStartMarker(15)
-                _iprot.offsetSkipBool()
-                AdaptTProtocol.unusedEndMarker(15)
-              case _actualType =>
-                val _expectedType = TType.BYTE
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "anInt8")
+            if (_fieldType == TType.BYTE) {
+              AdaptTProtocol.usedStartMarker(15)
+              anInt8 = _root_.scala.Some(Request.readAnInt8Value(_iprot))
+              AdaptTProtocol.usedEndMarker(15)
+              AdaptTProtocol.unusedStartMarker(15)
+              _iprot.offsetSkipBool()
+              AdaptTProtocol.unusedEndMarker(15)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.BYTE,
+                _fieldType,
+                "anInt8"
+              )
             }
             AdaptTProtocol.usedStartMarker(15)
             adapt.set_anInt8(anInt8)
             AdaptTProtocol.usedEndMarker(15)
           }
-
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     if (!_got_requiredField) throw new TProtocolException("Required field 'requiredField' was not found in serialized data for struct Request")
     adapt.set__endOffset(_iprot.offset)
-    if (_passthroughFields != null) {
+    if (_passthroughFields ne null) {
       adapt.set__passthroughFields(_passthroughFields.result())
     }
     adapt
@@ -2861,7 +2686,7 @@ private class Request__Adapt(
 
 
   private[this] var _end_offset: Int = _
-  def set__endOffset(offset: Int) = _end_offset = offset
+  def set__endOffset(offset: Int): Unit = _end_offset = offset
 
   private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = Request.NoPassthroughFields
   def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
@@ -2883,9 +2708,10 @@ private class Request__Adapt(
   override lazy val hashCode: Int = super.hashCode
 
   override def write(_oprot: TProtocol): Unit = {
-    _oprot match {
-      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-      case _ => super.write(_oprot)
+    if (_oprot.isInstanceOf[AdaptTProtocol]) {
+      _oprot.asInstanceOf[AdaptTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+    } else {
+      super.write(_oprot)
     }
   }
 }

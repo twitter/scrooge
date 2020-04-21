@@ -33,9 +33,9 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("Recursive")
   val IdField: TField = new TField("id", TType.I64, 1)
-  val IdFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val IdFieldManifest: Manifest[Long] = manifest[Long]
   val RecRequestField: TField = new TField("recRequest", TType.STRUCT, 2)
-  val RecRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+  val RecRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
 
   /**
    * Field information in declaration order.
@@ -65,33 +65,32 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     )
   )
 
-  lazy val structAnnotations: immutable$Map[String, String] =
+
+  val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
-  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
     classTag[Long].asInstanceOf[ClassTag[_]],
     classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]].asInstanceOf[ClassTag[_]]
   )
 
-  private[this] val structFields: Seq[ThriftStructField[Recursive]] = {
-    Seq(
-      new ThriftStructField[Recursive](
-        IdField,
-        _root_.scala.Some(IdFieldManifest),
-        classOf[Recursive]) {
-          def getValue[R](struct: Recursive): R = struct.id.asInstanceOf[R]
-      },
-      new ThriftStructField[Recursive](
-        RecRequestField,
-        _root_.scala.Some(RecRequestFieldManifest),
-        classOf[Recursive]) {
-          def getValue[R](struct: Recursive): R = struct.recRequest.asInstanceOf[R]
-      }
-    )
-  }
+  private[this] val structFields: Seq[ThriftStructField[Recursive]] = Seq[ThriftStructField[Recursive]](
+    new ThriftStructField[Recursive](
+      IdField,
+      _root_.scala.Some(IdFieldManifest),
+      classOf[Recursive]) {
+        def getValue[R](struct: Recursive): R = struct.id.asInstanceOf[R]
+    },
+    new ThriftStructField[Recursive](
+      RecRequestField,
+      _root_.scala.Some(RecRequestFieldManifest),
+      classOf[Recursive]) {
+        def getValue[R](struct: Recursive): R = struct.recRequest.asInstanceOf[R]
+    }
+  )
 
   override lazy val metaData: ThriftStructMetaData[Recursive] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
@@ -113,11 +112,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
 
   def withoutPassthroughFields(original: Recursive): Recursive =
     new Immutable(
-      id =
-        {
-          val field = original.id
-          field
-        },
+      id = original.id,
       recRequest =
         {
           val field = original.recRequest
@@ -147,7 +142,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     val adaptContext = _iprot.adaptContext
     val reloadRequired = adaptContext.shouldReloadDecoder
     synchronized {
-      if (adaptiveDecoder == null || reloadRequired) {
+      if ((adaptiveDecoder eq null) || reloadRequired) {
         adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
       }
     }
@@ -182,48 +177,41 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     val _start_offset = _iprot.offset
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I64 =>
-    
-                id = readIdValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'id' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              id = readIdValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'id' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 2 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-    
-                recRequest = Some(readRecRequestValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'recRequest' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              recRequest = Some(readRecRequestValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'recRequest' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     new LazyImmutable(
@@ -233,19 +221,22 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
       _iprot.offset,
       id,
       recRequest,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
     )
   }
 
-  override def decode(_iprot: TProtocol): Recursive =
-    _iprot match {
-      case i: AdaptTProtocol => adaptiveDecode(i)
-      case i: LazyTProtocol => lazyDecode(i)
-      case i => eagerDecode(i)
+  override def decode(_iprot: TProtocol): Recursive = {
+    if (_iprot.isInstanceOf[LazyTProtocol]) {
+      lazyDecode(_iprot.asInstanceOf[LazyTProtocol])
+    } else if (_iprot.isInstanceOf[AdaptTProtocol]) {
+      adaptiveDecode(_iprot.asInstanceOf[AdaptTProtocol])
+    } else {
+      eagerDecode(_iprot)
     }
+  }
 
   private[thriftscala] def eagerDecode(_iprot: TProtocol): Recursive = {
     var id: Long = 0L
@@ -254,52 +245,47 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     var _done = false
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I64 =>
-                id = readIdValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'id' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              id = readIdValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'id' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case 2 =>
-            _field.`type` match {
-              case TType.STRUCT =>
-                recRequest = _root_.scala.Some(readRecRequestValue(_iprot))
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw new TProtocolException(
-                  "Received wrong type for field 'recRequest' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.STRUCT) {
+              recRequest = _root_.scala.Some(readRecRequestValue(_iprot))
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'recRequest' (expected=%s, actual=%s).",
+                TType.STRUCT,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     new Immutable(
       id,
       recRequest,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
@@ -388,9 +374,10 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     extends Recursive {
 
     override def write(_oprot: TProtocol): Unit = {
-      _oprot match {
-        case i: LazyTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-        case _ => super.write(_oprot)
+      if (_oprot.isInstanceOf[LazyTProtocol]) {
+        _oprot.asInstanceOf[LazyTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      } else {
+        super.write(_oprot)
       }
     }
 
@@ -406,7 +393,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
      * With the class private and the contract that we throw away our mutable references
      * having the hash code lazy here is safe.
      */
-    override lazy val hashCode = super.hashCode
+    override lazy val hashCode: Int = super.hashCode
   }
 
   /**
@@ -442,12 +429,11 @@ trait Recursive
   def _1: Long = id
   def _2: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = recRequest
 
-  def toTuple: _root_.scala.Tuple2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]] = {
-    (
+  def toTuple: _root_.scala.Tuple2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]] =
+    _root_.scala.Tuple2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]](
       id,
       recRequest
     )
-  }
 
 
   /**
@@ -456,44 +442,40 @@ trait Recursive
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
-    lazy val _buff = new TMemoryBuffer(32)
-    lazy val _oprot = new TCompactProtocol(_buff)
-    _passthroughFields.get(_fieldId) match {
-      case blob: _root_.scala.Some[TFieldBlob] => blob
-      case _root_.scala.None => {
-        val _fieldOpt: _root_.scala.Option[TField] =
-          _fieldId match {
-            case 1 =>
-              if (true) {
-                writeIdValue(id, _oprot)
-                _root_.scala.Some(Recursive.IdField)
-              } else {
-                _root_.scala.None
-              }
-            case 2 =>
-              if (recRequest.isDefined) {
-                writeRecRequestValue(recRequest.get, _oprot)
-                _root_.scala.Some(Recursive.RecRequestField)
-              } else {
-                _root_.scala.None
-              }
-            case _ => _root_.scala.None
-          }
-        _fieldOpt match {
-          case _root_.scala.Some(_field) =>
-            _root_.scala.Some(TFieldBlob(_field, Buf.ByteArray.Owned(_buff.getArray())))
-          case _root_.scala.None =>
+    val passedthroughValue = _passthroughFields.get(_fieldId)
+    if (passedthroughValue.isDefined) {
+      passedthroughValue
+    } else {
+      val _buff = new TMemoryBuffer(32)
+      val _oprot = new TCompactProtocol(_buff)
+
+      val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
+        case 1 =>
+            writeIdValue(id, _oprot)
+            _root_.scala.Some(Recursive.IdField)
+        case 2 =>
+          if (recRequest.isDefined) {
+            writeRecRequestValue(recRequest.get, _oprot)
+            _root_.scala.Some(Recursive.RecRequestField)
+          } else {
             _root_.scala.None
-        }
+          }
+        case _ => _root_.scala.None
+      }
+      if (_fieldOpt.isDefined) {
+        _root_.scala.Some(TFieldBlob(_fieldOpt.get, Buf.ByteArray.Owned(_buff.getArray)))
+      } else {
+        _root_.scala.None
       }
     }
   }
+
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
    */
   def getFieldBlobs(ids: TraversableOnce[Short]): immutable$Map[Short, TFieldBlob] =
-    (ids flatMap { id => getFieldBlob(id) map { id -> _ } }).toMap
+    (ids.flatMap { id => getFieldBlob(id).map { fieldBlob => (id, fieldBlob) } }).toMap
 
   /**
    * Sets a field using a TCompactProtocol-encoded binary blob.  If the field is a known
@@ -510,7 +492,7 @@ trait Recursive
         id = readIdValue(_blob.read)
       case 2 =>
         recRequest = _root_.scala.Some(readRecRequestValue(_blob.read))
-      case _ => _passthroughFields += (_blob.id -> _blob)
+      case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new Immutable(
       id,
@@ -577,29 +559,19 @@ trait Recursive
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Recursive]
 
-  private def _equals(x: Recursive, y: Recursive): Boolean =
-      x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator) &&
-      x._passthroughFields == y._passthroughFields
+  private[this] def _equals(other: Recursive): Boolean =
+      this.productArity == other.productArity &&
+      this.productIterator.sameElements(other.productIterator) &&
+      this._passthroughFields == other._passthroughFields
 
   override def equals(other: Any): Boolean =
-    canEqual(other) &&
-      _equals(this, other.asInstanceOf[Recursive])
+    canEqual(other) && _equals(other.asInstanceOf[Recursive])
 
   override def hashCode: Int = {
     _root_.scala.runtime.ScalaRunTime._hashCode(this)
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
-  override def productArity: Int = 2
-
-  override def productElement(n: Int): Any = n match {
-    case 0 => this.id
-    case 1 => this.recRequest
-    case _ => throw new IndexOutOfBoundsException(n.toString)
-  }
 
   override def productPrefix: String = "Recursive"
 
@@ -611,21 +583,22 @@ trait Recursive
 private[thriftscala] class RecursiveStructBuilder(instance: _root_.scala.Option[Recursive], fieldTypes: IndexedSeq[ClassTag[_]])
     extends StructBuilder[Recursive](fieldTypes) {
 
-  def build(): Recursive = instance match {
-    case _root_.scala.Some(i) =>
+  def build(): Recursive = {
+    val _fieldArray = fieldArray // shadow variable
+    if (instance.isDefined) {
+      val instanceValue = instance.get
       Recursive(
-        (if (fieldArray(0) == null) i.id else fieldArray(0)).asInstanceOf[Long],
-        (if (fieldArray(1) == null) i.recRequest else fieldArray(1)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
+        if (_fieldArray(0) == null) instanceValue.id else _fieldArray(0).asInstanceOf[Long],
+        if (_fieldArray(1) == null) instanceValue.recRequest else _fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
       )
-    case _root_.scala.None =>
-      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Recursive"))
-      else {
-        Recursive(
-          fieldArray(0).asInstanceOf[Long],
-          fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
-        )
-      }
+    } else {
+      if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Recursive"))
+      Recursive(
+        _fieldArray(0).asInstanceOf[Long],
+        _fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]]
+      )
     }
+  }
 }
 
 private class Recursive__AdaptDecoder {
@@ -651,59 +624,63 @@ private class Recursive__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(2)
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
+      val _fieldType = _field.`type`
       if (_field.`type` == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(1)
-                id = Recursive.readIdValue(_iprot)
-                AdaptTProtocol.usedEndMarker(1)
-                AdaptTProtocol.unusedStartMarker(1)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(1)
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "id")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(1)
+              id = Recursive.readIdValue(_iprot)
+              AdaptTProtocol.usedEndMarker(1)
+              AdaptTProtocol.unusedStartMarker(1)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(1)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "id"
+              )
             }
             AdaptTProtocol.usedStartMarker(1)
             adapt.set_id(id)
             AdaptTProtocol.usedEndMarker(1)
           }
           case 2 => {
-            _field.`type` match {
-              case TType.STRUCT =>
-                AdaptTProtocol.usedStartMarker(2)
-                recRequest = _root_.scala.Some(Recursive.readRecRequestValue(_iprot))
-                AdaptTProtocol.usedEndMarker(2)
-                AdaptTProtocol.unusedStartMarker(2)
-                _iprot.offsetSkipStruct()
-                AdaptTProtocol.unusedEndMarker(2)
-              case _actualType =>
-                val _expectedType = TType.STRUCT
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "recRequest")
+            if (_fieldType == TType.STRUCT) {
+              AdaptTProtocol.usedStartMarker(2)
+              recRequest = _root_.scala.Some(Recursive.readRecRequestValue(_iprot))
+              AdaptTProtocol.usedEndMarker(2)
+              AdaptTProtocol.unusedStartMarker(2)
+              _iprot.offsetSkipStruct()
+              AdaptTProtocol.unusedEndMarker(2)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRUCT,
+                _fieldType,
+                "recRequest"
+              )
             }
             AdaptTProtocol.usedStartMarker(2)
             adapt.set_recRequest(recRequest)
             AdaptTProtocol.usedEndMarker(2)
           }
-
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     adapt.set__endOffset(_iprot.offset)
-    if (_passthroughFields != null) {
+    if (_passthroughFields ne null) {
       adapt.set__passthroughFields(_passthroughFields.result())
     }
     adapt
@@ -744,7 +721,7 @@ private class Recursive__Adapt(
 
 
   private[this] var _end_offset: Int = _
-  def set__endOffset(offset: Int) = _end_offset = offset
+  def set__endOffset(offset: Int): Unit = _end_offset = offset
 
   private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = Recursive.NoPassthroughFields
   def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
@@ -766,9 +743,10 @@ private class Recursive__Adapt(
   override lazy val hashCode: Int = super.hashCode
 
   override def write(_oprot: TProtocol): Unit = {
-    _oprot match {
-      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-      case _ => super.write(_oprot)
+    if (_oprot.isInstanceOf[AdaptTProtocol]) {
+      _oprot.asInstanceOf[AdaptTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+    } else {
+      super.write(_oprot)
     }
   }
 }

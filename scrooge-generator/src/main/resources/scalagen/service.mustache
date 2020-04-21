@@ -56,7 +56,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 {{#annotations}}
   val annotations: immutable$Map[String, String] = immutable$Map(
 {{#pairs}}
-    "{{key}}" -> "{{value}}"
+    ("{{key}}", "{{value}}")
 {{/pairs|,}}
   )
 {{/annotations}}
@@ -236,9 +236,10 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 
   def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = {
 {{#inheritedFunctions}}
-    val {{dedupedFuncName}} = methods.get({{ParentServiceName}}.{{funcObjectName}}) match {
-      case Some(impl) => impl.asInstanceOf[{{ParentServiceName}}.{{funcObjectName}}.ReqRepServicePerEndpointServiceType]
-      case _ => throw new IllegalArgumentException(s"No implementation found for method {{funcObjectName}} in ${methods.keySet}")
+    val {{dedupedFuncName}} = {
+      val {{dedupedFuncName}}Opt = methods.get({{ParentServiceName}}.{{funcObjectName}})
+      if ({{dedupedFuncName}}Opt.isEmpty) throw new IllegalArgumentException(_root_.java.lang.String.format("No implementation found for method {{funcObjectName}} in %s", methods.keySet))
+      {{dedupedFuncName}}Opt.get.asInstanceOf[{{ParentServiceName}}.{{funcObjectName}}.ReqRepServicePerEndpointServiceType]
     }
 {{/inheritedFunctions}}
 
@@ -442,7 +443,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
         def {{funcName}}({{fieldParams}}): Future[{{typeName}}] = {
           val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.{{funcObjectName}}.Args({{argNames}}))
-          servicePerEndpoint.{{dedupedFuncName}}(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_)){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
+          servicePerEndpoint.{{dedupedFuncName}}(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
         }
 {{/ownFunctions}}
 
@@ -571,7 +572,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
         oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid))
         x.write(oprot)
         oprot.writeMessageEnd()
-        oprot.getTransport().flush()
+        oprot.getTransport.flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
         Buf.ByteArray.Shared(memoryBuffer.getArray(), 0, memoryBuffer.length())
@@ -581,7 +582,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
     }
 
 {{#hasThriftFunctions}}
-    private def reply(name: String, seqid: Int, result: ThriftStruct): Buf = {
+    private[this] def reply(name: String, seqid: Int, result: ThriftStruct): Buf = {
       val memoryBuffer = tlReusableBuffer.get()
       try {
         val oprot = protocolFactory.getProtocol(memoryBuffer)
@@ -590,7 +591,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
         result.write(oprot)
         oprot.writeMessageEnd()
         _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
-        oprot.getTransport().flush()
+        oprot.getTransport.flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
         Buf.ByteArray.Shared(memoryBuffer.getArray(), 0, memoryBuffer.length())
@@ -600,43 +601,17 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
     }
 {{/hasThriftFunctions}}
 
-    private def missingResult(name: String): TApplicationException = {
-      new TApplicationException(
-        TApplicationException.MISSING_RESULT,
-        name + " failed: unknown result"
-      )
-    }
-
-    private def setServiceName(ex: Throwable): Throwable =
-      if (this.serviceName == "") ex
-      else {
-        ex match {
-          case se: _root_.com.twitter.finagle.SourcedException =>
-            se.serviceName = this.serviceName
-            se
-          case _ => ex
-        }
-      }
-
-    private def recordRequest(methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
-      methodStats.requestsCounter.incr()
-    }
-
-    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
+    private[this] def recordResponse(reqRep: ctfs.ReqRep, methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
       ServerToReqRep.setCtx(reqRep)
-      val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
-      responseClass match {
-        case ctfs.ResponseClass.Ignorable => // Do nothing.
-        case ctfs.ResponseClass.Successful(_) =>
-          methodStats.successCounter.incr()
-        case ctfs.ResponseClass.Failed(_) =>
-          methodStats.failuresCounter.incr()
-          reqRep.response match {
-            case Throw(ex) =>
-              methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
-            case _ =>
-          }
-      }
+      val classified = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
+      if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
+        methodStats.successCounter.incr()
+      } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
+        methodStats.failuresCounter.incr()
+        if (reqRep.response.isThrow) {
+          methodStats.failuresScope.counter(Throwables.mkString(reqRep.response.throwable): _*).incr()
+        }
+      } // Last ResponseClass is Ignorable, which we do not need to record
     }
 
     final protected def perMethodStatsFilter(
@@ -653,25 +628,30 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
           req: (TProtocol, Int),
           service: finagle$Service[(TProtocol, Int), RichResponse[method.Args, method.Result]]
         ): Future[Array[Byte]] = {
-          recordRequest(methodStats)
-          service(req).transform {
-            case Return(value) =>
-              value match {
-                case SuccessfulResponse(args, _, result) =>
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Return(result.successField.get)), methodStats)
-                case ProtocolExceptionResponse(args, _, exp) =>
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(exp)), methodStats)
-                case ThriftExceptionResponse(args, _, ex) =>
-                  val rep = ex match {
-                    case exp: ThriftException => setServiceName(exp)
-                    case _ => missingResult(serviceName)
-                  }
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(rep)), methodStats)
+          methodStats.requestsCounter.incr()
+          service(req).transform { response =>
+            if (response.isReturn) {
+              val value = response.apply()
+              if (value.isInstanceOf[SuccessfulResponse[method.Args, method.Result]]) {
+                val succResp = value.asInstanceOf[SuccessfulResponse[method.Args, method.Result]]
+                recordResponse(ctfs.ReqRep(succResp.input, _root_.com.twitter.util.Return(succResp.result.successField.get)), methodStats)
+              } else if (value.isInstanceOf[ProtocolExceptionResponse[method.Args, method.Result]]) {
+                val protExResp = value.asInstanceOf[ProtocolExceptionResponse[method.Args, method.Result]]
+                recordResponse(ctfs.ReqRep(protExResp.input, _root_.com.twitter.util.Throw(protExResp.exception)), methodStats)
+              } else if (value.isInstanceOf[ThriftExceptionResponse[method.Args, method.Result]]) {
+                val thriftExResp = value.asInstanceOf[ThriftExceptionResponse[method.Args, method.Result]]
+                val rep: Throwable = if (thriftExResp.ex.isInstanceOf[ThriftException]) {
+                  _root_.com.twitter.finagle.SourcedException.setServiceName(thriftExResp.ex, serviceName)
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult(serviceName)
+                }
+                recordResponse(ctfs.ReqRep(thriftExResp.input, _root_.com.twitter.util.Throw(rep)), methodStats)
               }
               Future.value(Buf.ByteArray.Owned.extract(value.response))
-            case t @ Throw(_) =>
-              recordResponse(ctfs.ReqRep(req, t), methodStats)
-              Future.const(t.cast[Array[Byte]])
+            } else { // Throw[_]
+              recordResponse(ctfs.ReqRep(req, response), methodStats)
+              Future.const(response.asInstanceOf[Throw[Array[Byte]]])
+            }
           }
         }
       }

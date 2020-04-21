@@ -48,7 +48,7 @@ class PlatinumService$FinagleService(
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
   override def serviceName: String = serverParam.serviceName
-  private[this] val filters = new Filter(serverParam)
+  private[this] val filters: Filter = new Filter(serverParam)
 
   // ---- end boilerplate.
 

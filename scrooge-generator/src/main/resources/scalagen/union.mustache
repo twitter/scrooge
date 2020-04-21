@@ -27,6 +27,7 @@ private object {{StructName}}Decoder {
     var _result: {{StructName}} = null
     _iprot.readStructBegin()
     val _field = _iprot.readFieldBegin()
+    val _fieldType = _field.`type`
     _field.id match {
 {{#fields}}
 {{#readWriteInfo}}
@@ -34,33 +35,33 @@ private object {{StructName}}Decoder {
 {{/readWriteInfo}}
 {{/fields}}
       case _ =>
-        if (_field.`type` != TType.STOP) {
+        if (_fieldType != TType.STOP) {
           _result = newUnknown(TFieldBlob.read(_field, _iprot))
         } else {
-          TProtocolUtil.skip(_iprot, _field.`type`)
+          TProtocolUtil.skip(_iprot, _fieldType)
         }
     }
-    if (_field.`type` != TType.STOP) {
+    if (_fieldType != TType.STOP) {
       _iprot.readFieldEnd()
       var _done = false
       var _moreThanOne = false
-      while (!_done) {
-        val _field = _iprot.readFieldBegin()
-        if (_field.`type` == TType.STOP)
+      do {
+        val _newField = _iprot.readFieldBegin()
+        if (_newField.`type` == TType.STOP)
           _done = true
         else {
           _moreThanOne = true
-          TProtocolUtil.skip(_iprot, _field.`type`)
+          TProtocolUtil.skip(_iprot, _newField.`type`)
           _iprot.readFieldEnd()
         }
-      }
+      } while (!_done)
       if (_moreThanOne) {
         _iprot.readStructEnd()
         throw new TProtocolException("Cannot read a TUnion with more than one set value!")
       }
     }
     _iprot.readStructEnd()
-    if (_result == null)
+    if (_result eq null)
       throw new TProtocolException("Cannot read a TUnion with no set value!")
     _result
   }
@@ -72,12 +73,17 @@ object {{StructName}}Aliases {
   type {{FieldName}}Alias = {{fieldType}}
 
   def withoutPassthroughFields_{{FieldName}}(obj: {{StructName}}.{{FieldName}}): {{StructName}}.{{FieldName}} = {
+{{#hasPassthroughFields}}
     val field = obj.{{fieldName}}
 {{#passthroughFields}}
     {{StructName}}.{{FieldName}}(
       {{>withoutPassthrough}}
     )
 {{/passthroughFields}}
+{{/hasPassthroughFields}}
+{{^hasPassthroughFields}}
+    {{StructName}}.{{FieldName}}(obj.{{fieldName}})
+{{/hasPassthroughFields}}
   }
 
 {{#hasDefaultValue}}
@@ -85,7 +91,7 @@ object {{StructName}}Aliases {
 {{/hasDefaultValue}}
 {{#fieldKeyType}}
   val {{FieldName}}KeyTypeManifest: _root_.scala.Option[Manifest[{{fieldKeyType}}]] =
-    _root_.scala.Some(implicitly[Manifest[{{fieldKeyType}}]])
+    _root_.scala.Some(manifest[{{fieldKeyType}}])
 {{/fieldKeyType}}
 {{^fieldKeyType}}
   val {{FieldName}}KeyTypeManifest: _root_.scala.Option[Manifest[_]] = _root_.scala.None
@@ -93,7 +99,7 @@ object {{StructName}}Aliases {
 
 {{#fieldValueType}}
   val {{FieldName}}ValueTypeManifest: _root_.scala.Option[Manifest[{{fieldValueType}}]] =
-    _root_.scala.Some(implicitly[Manifest[{{fieldValueType}}]])
+    _root_.scala.Some(manifest[{{fieldValueType}}])
 {{/fieldValueType}}
 {{^fieldValueType}}
   val {{FieldName}}ValueTypeManifest: _root_.scala.Option[Manifest[_]] = _root_.scala.None
@@ -108,16 +114,16 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{#fields}}
   val {{fieldConst}}: TField = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
 {{#isEnum}}
-  private[this] val {{fieldConst}}I32 = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
+  private[this] val {{fieldConst}}I32: TField = new TField("{{fieldNameForWire}}", TType.I32, {{id}})
 {{/isEnum}}
-  val {{fieldConst}}Manifest: Manifest[{{FieldName}}] = implicitly[Manifest[{{FieldName}}]]
+  val {{fieldConst}}Manifest: Manifest[{{FieldName}}] = manifest[{{FieldName}}]
 {{/fields}}
 
-  lazy val structAnnotations: immutable$Map[java.lang.String, java.lang.String] =
+  {{#structAnnotations}}lazy {{/structAnnotations}}val structAnnotations: immutable$Map[java.lang.String, java.lang.String] =
 {{#structAnnotations}}
     immutable$Map[java.lang.String, java.lang.String](
 {{#pairs}}
-        "{{key}}" -> "{{value}}"
+        ("{{key}}", "{{value}}")
 {{/pairs|,}}
     )
 {{/structAnnotations}}
@@ -128,7 +134,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
   /**
    * Field information in declaration order.
    */
-  lazy val fieldInfos: scala.List[ThriftUnionFieldInfo[_ <: {{StructName}}, _]] = scala.List(
+  {{#hasFields}}lazy {{/hasFields}}val fieldInfos: scala.List[ThriftUnionFieldInfo[_ <: {{StructName}}, _]] = scala.List(
 {{#fields}}
     new ThriftUnionFieldInfo[{{FieldName}}, {{StructName}}Aliases.{{FieldName}}Alias](
       {{FieldName}}.fieldInfo,
@@ -139,8 +145,8 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 
   override lazy val metaData = new ThriftStructMetaData(
     this,
-    Seq(),
-    Seq(),
+    Nil,
+    Nil,
     fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion with _root_.com.twitter.scrooge.ThriftStruct, _]]],
     structAnnotations)
 
@@ -148,19 +154,22 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
     _item.write(_oprot)
 
   override def decode(_iprot: TProtocol): {{StructName}} =
-    {{StructName}}Decoder(_iprot, UnknownUnionField(_))
+    {{StructName}}Decoder(_iprot, UnknownUnionField.apply)
 
   def apply(_iprot: TProtocol): {{StructName}} = decode(_iprot)
 
   import {{StructName}}Aliases._
 
   def withoutPassthroughFields(struct: {{StructName}}): {{StructName}} = {
-    struct match {
+{{#hasFields}}
 {{#fields}}
-      case obj: {{FieldName}} => withoutPassthroughFields_{{FieldName}}(obj)
+    {{^first}}else {{/first}}if (struct.isInstanceOf[{{FieldName}}]) withoutPassthroughFields_{{FieldName}}(struct.asInstanceOf[{{FieldName}}])
 {{/fields}}
-      case unknown: UnknownUnionField => unknown // by definition pass-through
-    }
+    else struct //This is an UnknownUnionField, by definition passthrough
+{{/hasFields}}
+{{^hasFields}}
+    struct
+{{/hasFields}}
   }
 
 {{#fields}}
@@ -179,7 +188,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{#fieldTypeAnnotations}}
         immutable$Map(
 {{#pairs}}
-          "{{key}}" -> "{{value}}"
+          ("{{key}}", "{{value}}")
 {{/pairs|,}}
         ),
 {{/fieldTypeAnnotations}}
@@ -189,7 +198,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{#fieldFieldAnnotations}}
         immutable$Map(
 {{#pairs}}
-          "{{key}}" -> "{{value}}"
+          ("{{key}}", "{{value}}")
 {{/pairs|,}}
         )
 {{/fieldFieldAnnotations}}
@@ -216,7 +225,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 
     override def write(_oprot: TProtocol): Unit = {
 {{^isPrimitive}}
-      if ({{fieldName}} == null)
+      if ({{fieldName}} eq null)
         throw new TProtocolException("Cannot write a TUnion with no set value!")
 {{/isPrimitive}}
       _oprot.writeStructBegin(Union)

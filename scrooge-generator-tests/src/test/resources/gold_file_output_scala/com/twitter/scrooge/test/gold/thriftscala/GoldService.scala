@@ -51,7 +51,7 @@ trait GoldService[+MM[_]] extends _root_.com.twitter.finagle.thrift.ThriftServic
 object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map(
-    "an.annotation" -> "true"
+    ("an.annotation", "true")
   )
 
   val methods: immutable$Set[ThriftMethod] = immutable$Set(
@@ -200,13 +200,15 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   }
 
   def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = {
-    val doGreatThings = methods.get(self.DoGreatThings) match {
-      case Some(impl) => impl.asInstanceOf[self.DoGreatThings.ReqRepServicePerEndpointServiceType]
-      case _ => throw new IllegalArgumentException(s"No implementation found for method DoGreatThings in ${methods.keySet}")
+    val doGreatThings = {
+      val doGreatThingsOpt = methods.get(self.DoGreatThings)
+      if (doGreatThingsOpt.isEmpty) throw new IllegalArgumentException(_root_.java.lang.String.format("No implementation found for method DoGreatThings in %s", methods.keySet))
+      doGreatThingsOpt.get.asInstanceOf[self.DoGreatThings.ReqRepServicePerEndpointServiceType]
     }
-    val noExceptionCall = methods.get(self.NoExceptionCall) match {
-      case Some(impl) => impl.asInstanceOf[self.NoExceptionCall.ReqRepServicePerEndpointServiceType]
-      case _ => throw new IllegalArgumentException(s"No implementation found for method NoExceptionCall in ${methods.keySet}")
+    val noExceptionCall = {
+      val noExceptionCallOpt = methods.get(self.NoExceptionCall)
+      if (noExceptionCallOpt.isEmpty) throw new IllegalArgumentException(_root_.java.lang.String.format("No implementation found for method NoExceptionCall in %s", methods.keySet))
+      noExceptionCallOpt.get.asInstanceOf[self.NoExceptionCall.ReqRepServicePerEndpointServiceType]
     }
 
     ReqRepServicePerEndpoint(doGreatThings, noExceptionCall)
@@ -289,7 +291,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct: TStruct = new TStruct("doGreatThings_args")
       val RequestField: TField = new TField("request", TType.STRUCT, 1)
-      val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+      val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
     
       /**
        * Field information in declaration order.
@@ -308,26 +310,25 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         )
       )
     
-      lazy val structAnnotations: immutable$Map[String, String] =
+    
+      val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
     
-      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
         classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
       )
     
-      private[this] val structFields: Seq[ThriftStructField[Args]] = {
-        Seq(
-          new ThriftStructField[Args](
-            RequestField,
-            _root_.scala.Some(RequestFieldManifest),
-            classOf[Args]) {
-              def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
-          }
-        )
-      }
+      private[this] val structFields: Seq[ThriftStructField[Args]] = Seq[ThriftStructField[Args]](
+        new ThriftStructField[Args](
+          RequestField,
+          _root_.scala.Some(RequestFieldManifest),
+          classOf[Args]) {
+            def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
+        }
+      )
     
       override lazy val metaData: ThriftStructMetaData[Args] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -368,38 +369,36 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         var _done = false
     
         _iprot.readStructBegin()
-        while (!_done) {
+        do {
           val _field = _iprot.readFieldBegin()
-          if (_field.`type` == TType.STOP) {
+          val _fieldType = _field.`type`
+          if (_fieldType == TType.STOP) {
             _done = true
           } else {
             _field.id match {
               case 1 =>
-                _field.`type` match {
-                  case TType.STRUCT =>
-                    request = readRequestValue(_iprot)
-                  case _actualType =>
-                    val _expectedType = TType.STRUCT
-                    throw new TProtocolException(
-                      "Received wrong type for field 'request' (expected=%s, actual=%s).".format(
-                        ttypeToString(_expectedType),
-                        ttypeToString(_actualType)
-                      )
-                    )
+                if (_fieldType == TType.STRUCT) {
+                  request = readRequestValue(_iprot)
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                    "Received wrong type for field 'request' (expected=%s, actual=%s).",
+                    TType.STRUCT,
+                    _fieldType
+                  )
                 }
               case _ =>
-                if (_passthroughFields == null)
+                if (_passthroughFields eq null)
                   _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-                _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+                _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
             }
             _iprot.readFieldEnd()
           }
-        }
+        } while (!_done)
         _iprot.readStructEnd()
     
         new Args(
           request,
-          if (_passthroughFields == null)
+          if (_passthroughFields eq null)
             NoPassthroughFields
           else
             _passthroughFields.result()
@@ -476,28 +475,19 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
-      private def _equals(x: Args, y: Args): Boolean =
-          x.productArity == y.productArity &&
-          x.productIterator.sameElements(y.productIterator) &&
-          x._passthroughFields == y._passthroughFields
+      private[this] def _equals(other: Args): Boolean =
+          this.productArity == other.productArity &&
+          this.productIterator.sameElements(other.productIterator) &&
+          this._passthroughFields == other._passthroughFields
     
       override def equals(other: Any): Boolean =
-        canEqual(other) &&
-          _equals(this, other.asInstanceOf[Args])
+        canEqual(other) && _equals(other.asInstanceOf[Args])
     
       override def hashCode: Int = {
         _root_.scala.runtime.ScalaRunTime._hashCode(this)
       }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-    
-    
-      override def productArity: Int = 1
-    
-      override def productElement(n: Int): Any = n match {
-        case 0 => this.request
-        case _ => throw new IndexOutOfBoundsException(n.toString)
-      }
     
       override def productPrefix: String = "Args"
     
@@ -509,19 +499,20 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     private[thriftscala] class ArgsStructBuilder(instance: _root_.scala.Option[Args], fieldTypes: IndexedSeq[ClassTag[_]])
         extends StructBuilder[Args](fieldTypes) {
     
-      def build(): Args = instance match {
-        case _root_.scala.Some(i) =>
+      def build(): Args = {
+        val _fieldArray = fieldArray // shadow variable
+        if (instance.isDefined) {
+          val instanceValue = instance.get
           Args(
-            (if (fieldArray(0) == null) i.request else fieldArray(0)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            if (_fieldArray(0) == null) instanceValue.request else _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
           )
-        case _root_.scala.None =>
-          if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
-          else {
-            Args(
-              fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
-            )
-          }
+        } else {
+          if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
+          Args(
+            _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+          )
         }
+      }
     }
 
     type SuccessType = com.twitter.scrooge.test.gold.thriftscala.Response
@@ -530,9 +521,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct: TStruct = new TStruct("doGreatThings_result")
       val SuccessField: TField = new TField("success", TType.STRUCT, 0)
-      val SuccessFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Response] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
+      val SuccessFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Response] = manifest[com.twitter.scrooge.test.gold.thriftscala.Response]
       val ExField: TField = new TField("ex", TType.STRUCT, 1)
-      val ExFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+      val ExFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = manifest[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]
     
       /**
        * Field information in declaration order.
@@ -562,33 +553,32 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         )
       )
     
-      lazy val structAnnotations: immutable$Map[String, String] =
+    
+      val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
     
-      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]].asInstanceOf[ClassTag[_]],
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]].asInstanceOf[ClassTag[_]]
       )
     
-      private[this] val structFields: Seq[ThriftStructField[Result]] = {
-        Seq(
-          new ThriftStructField[Result](
-            SuccessField,
-            _root_.scala.Some(SuccessFieldManifest),
-            classOf[Result]) {
-              def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
-          },
-          new ThriftStructField[Result](
-            ExField,
-            _root_.scala.Some(ExFieldManifest),
-            classOf[Result]) {
-              def getValue[R](struct: Result): R = struct.ex.asInstanceOf[R]
-          }
-        )
-      }
+      private[this] val structFields: Seq[ThriftStructField[Result]] = Seq[ThriftStructField[Result]](
+        new ThriftStructField[Result](
+          SuccessField,
+          _root_.scala.Some(SuccessFieldManifest),
+          classOf[Result]) {
+            def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
+        },
+        new ThriftStructField[Result](
+          ExField,
+          _root_.scala.Some(ExFieldManifest),
+          classOf[Result]) {
+            def getValue[R](struct: Result): R = struct.ex.asInstanceOf[R]
+        }
+      )
     
       override lazy val metaData: ThriftStructMetaData[Result] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -640,52 +630,47 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         var _done = false
     
         _iprot.readStructBegin()
-        while (!_done) {
+        do {
           val _field = _iprot.readFieldBegin()
-          if (_field.`type` == TType.STOP) {
+          val _fieldType = _field.`type`
+          if (_fieldType == TType.STOP) {
             _done = true
           } else {
             _field.id match {
               case 0 =>
-                _field.`type` match {
-                  case TType.STRUCT =>
-                    success = _root_.scala.Some(readSuccessValue(_iprot))
-                  case _actualType =>
-                    val _expectedType = TType.STRUCT
-                    throw new TProtocolException(
-                      "Received wrong type for field 'success' (expected=%s, actual=%s).".format(
-                        ttypeToString(_expectedType),
-                        ttypeToString(_actualType)
-                      )
-                    )
+                if (_fieldType == TType.STRUCT) {
+                  success = _root_.scala.Some(readSuccessValue(_iprot))
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                    "Received wrong type for field 'success' (expected=%s, actual=%s).",
+                    TType.STRUCT,
+                    _fieldType
+                  )
                 }
               case 1 =>
-                _field.`type` match {
-                  case TType.STRUCT =>
-                    ex = _root_.scala.Some(readExValue(_iprot))
-                  case _actualType =>
-                    val _expectedType = TType.STRUCT
-                    throw new TProtocolException(
-                      "Received wrong type for field 'ex' (expected=%s, actual=%s).".format(
-                        ttypeToString(_expectedType),
-                        ttypeToString(_actualType)
-                      )
-                    )
+                if (_fieldType == TType.STRUCT) {
+                  ex = _root_.scala.Some(readExValue(_iprot))
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                    "Received wrong type for field 'ex' (expected=%s, actual=%s).",
+                    TType.STRUCT,
+                    _fieldType
+                  )
                 }
               case _ =>
-                if (_passthroughFields == null)
+                if (_passthroughFields eq null)
                   _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-                _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+                _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
             }
             _iprot.readFieldEnd()
           }
-        }
+        } while (!_done)
         _iprot.readStructEnd()
     
         new Result(
           success,
           ex,
-          if (_passthroughFields == null)
+          if (_passthroughFields eq null)
             NoPassthroughFields
           else
             _passthroughFields.result()
@@ -758,12 +743,11 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       def _1: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
       def _2: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = ex
     
-      def toTuple: _root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]] = {
-        (
+      def toTuple: _root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]] =
+        _root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]](
           success,
           ex
         )
-      }
     
       def successField: Option[com.twitter.scrooge.test.gold.thriftscala.Response] = success
       def exceptionFields: Iterable[Option[com.twitter.scrooge.ThriftException]] = Seq(ex)
@@ -794,29 +778,19 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     
-      private def _equals(x: Result, y: Result): Boolean =
-          x.productArity == y.productArity &&
-          x.productIterator.sameElements(y.productIterator) &&
-          x._passthroughFields == y._passthroughFields
+      private[this] def _equals(other: Result): Boolean =
+          this.productArity == other.productArity &&
+          this.productIterator.sameElements(other.productIterator) &&
+          this._passthroughFields == other._passthroughFields
     
       override def equals(other: Any): Boolean =
-        canEqual(other) &&
-          _equals(this, other.asInstanceOf[Result])
+        canEqual(other) && _equals(other.asInstanceOf[Result])
     
       override def hashCode: Int = {
         _root_.scala.runtime.ScalaRunTime._hashCode(this)
       }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-    
-    
-      override def productArity: Int = 2
-    
-      override def productElement(n: Int): Any = n match {
-        case 0 => this.success
-        case 1 => this.ex
-        case _ => throw new IndexOutOfBoundsException(n.toString)
-      }
     
       override def productPrefix: String = "Result"
     
@@ -828,21 +802,22 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     private[thriftscala] class ResultStructBuilder(instance: _root_.scala.Option[Result], fieldTypes: IndexedSeq[ClassTag[_]])
         extends StructBuilder[Result](fieldTypes) {
     
-      def build(): Result = instance match {
-        case _root_.scala.Some(i) =>
+      def build(): Result = {
+        val _fieldArray = fieldArray // shadow variable
+        if (instance.isDefined) {
+          val instanceValue = instance.get
           Result(
-            (if (fieldArray(0) == null) i.success else fieldArray(0)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]],
-            (if (fieldArray(1) == null) i.ex else fieldArray(1)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+            if (_fieldArray(0) == null) instanceValue.success else _fieldArray(0).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]],
+            if (_fieldArray(1) == null) instanceValue.ex else _fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
           )
-        case _root_.scala.None =>
-          if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Result"))
-          else {
-            Result(
-              fieldArray(0).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]],
-              fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
-            )
-          }
+        } else {
+          if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Result"))
+          Result(
+            _fieldArray(0).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]],
+            _fieldArray(1).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]
+          )
         }
+      }
     }
 
     val annotations: immutable$Map[String, String] = immutable$Map(
@@ -886,7 +861,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct: TStruct = new TStruct("noExceptionCall_args")
       val RequestField: TField = new TField("request", TType.STRUCT, 1)
-      val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Request]]
+      val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
     
       /**
        * Field information in declaration order.
@@ -905,26 +880,25 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         )
       )
     
-      lazy val structAnnotations: immutable$Map[String, String] =
+    
+      val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
     
-      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
         classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
       )
     
-      private[this] val structFields: Seq[ThriftStructField[Args]] = {
-        Seq(
-          new ThriftStructField[Args](
-            RequestField,
-            _root_.scala.Some(RequestFieldManifest),
-            classOf[Args]) {
-              def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
-          }
-        )
-      }
+      private[this] val structFields: Seq[ThriftStructField[Args]] = Seq[ThriftStructField[Args]](
+        new ThriftStructField[Args](
+          RequestField,
+          _root_.scala.Some(RequestFieldManifest),
+          classOf[Args]) {
+            def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
+        }
+      )
     
       override lazy val metaData: ThriftStructMetaData[Args] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -965,38 +939,36 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         var _done = false
     
         _iprot.readStructBegin()
-        while (!_done) {
+        do {
           val _field = _iprot.readFieldBegin()
-          if (_field.`type` == TType.STOP) {
+          val _fieldType = _field.`type`
+          if (_fieldType == TType.STOP) {
             _done = true
           } else {
             _field.id match {
               case 1 =>
-                _field.`type` match {
-                  case TType.STRUCT =>
-                    request = readRequestValue(_iprot)
-                  case _actualType =>
-                    val _expectedType = TType.STRUCT
-                    throw new TProtocolException(
-                      "Received wrong type for field 'request' (expected=%s, actual=%s).".format(
-                        ttypeToString(_expectedType),
-                        ttypeToString(_actualType)
-                      )
-                    )
+                if (_fieldType == TType.STRUCT) {
+                  request = readRequestValue(_iprot)
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                    "Received wrong type for field 'request' (expected=%s, actual=%s).",
+                    TType.STRUCT,
+                    _fieldType
+                  )
                 }
               case _ =>
-                if (_passthroughFields == null)
+                if (_passthroughFields eq null)
                   _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-                _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+                _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
             }
             _iprot.readFieldEnd()
           }
-        }
+        } while (!_done)
         _iprot.readStructEnd()
     
         new Args(
           request,
-          if (_passthroughFields == null)
+          if (_passthroughFields eq null)
             NoPassthroughFields
           else
             _passthroughFields.result()
@@ -1073,28 +1045,19 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
-      private def _equals(x: Args, y: Args): Boolean =
-          x.productArity == y.productArity &&
-          x.productIterator.sameElements(y.productIterator) &&
-          x._passthroughFields == y._passthroughFields
+      private[this] def _equals(other: Args): Boolean =
+          this.productArity == other.productArity &&
+          this.productIterator.sameElements(other.productIterator) &&
+          this._passthroughFields == other._passthroughFields
     
       override def equals(other: Any): Boolean =
-        canEqual(other) &&
-          _equals(this, other.asInstanceOf[Args])
+        canEqual(other) && _equals(other.asInstanceOf[Args])
     
       override def hashCode: Int = {
         _root_.scala.runtime.ScalaRunTime._hashCode(this)
       }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-    
-    
-      override def productArity: Int = 1
-    
-      override def productElement(n: Int): Any = n match {
-        case 0 => this.request
-        case _ => throw new IndexOutOfBoundsException(n.toString)
-      }
     
       override def productPrefix: String = "Args"
     
@@ -1106,19 +1069,20 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     private[thriftscala] class ArgsStructBuilder(instance: _root_.scala.Option[Args], fieldTypes: IndexedSeq[ClassTag[_]])
         extends StructBuilder[Args](fieldTypes) {
     
-      def build(): Args = instance match {
-        case _root_.scala.Some(i) =>
+      def build(): Args = {
+        val _fieldArray = fieldArray // shadow variable
+        if (instance.isDefined) {
+          val instanceValue = instance.get
           Args(
-            (if (fieldArray(0) == null) i.request else fieldArray(0)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            if (_fieldArray(0) == null) instanceValue.request else _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
           )
-        case _root_.scala.None =>
-          if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
-          else {
-            Args(
-              fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
-            )
-          }
+        } else {
+          if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
+          Args(
+            _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+          )
         }
+      }
     }
 
     type SuccessType = com.twitter.scrooge.test.gold.thriftscala.Response
@@ -1127,7 +1091,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
       val Struct: TStruct = new TStruct("noExceptionCall_result")
       val SuccessField: TField = new TField("success", TType.STRUCT, 0)
-      val SuccessFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Response] = implicitly[Manifest[com.twitter.scrooge.test.gold.thriftscala.Response]]
+      val SuccessFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Response] = manifest[com.twitter.scrooge.test.gold.thriftscala.Response]
     
       /**
        * Field information in declaration order.
@@ -1146,26 +1110,25 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         )
       )
     
-      lazy val structAnnotations: immutable$Map[String, String] =
+    
+      val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
     
-      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+      private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
         classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]].asInstanceOf[ClassTag[_]]
       )
     
-      private[this] val structFields: Seq[ThriftStructField[Result]] = {
-        Seq(
-          new ThriftStructField[Result](
-            SuccessField,
-            _root_.scala.Some(SuccessFieldManifest),
-            classOf[Result]) {
-              def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
-          }
-        )
-      }
+      private[this] val structFields: Seq[ThriftStructField[Result]] = Seq[ThriftStructField[Result]](
+        new ThriftStructField[Result](
+          SuccessField,
+          _root_.scala.Some(SuccessFieldManifest),
+          classOf[Result]) {
+            def getValue[R](struct: Result): R = struct.success.asInstanceOf[R]
+        }
+      )
     
       override lazy val metaData: ThriftStructMetaData[Result] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -1208,38 +1171,36 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         var _done = false
     
         _iprot.readStructBegin()
-        while (!_done) {
+        do {
           val _field = _iprot.readFieldBegin()
-          if (_field.`type` == TType.STOP) {
+          val _fieldType = _field.`type`
+          if (_fieldType == TType.STOP) {
             _done = true
           } else {
             _field.id match {
               case 0 =>
-                _field.`type` match {
-                  case TType.STRUCT =>
-                    success = _root_.scala.Some(readSuccessValue(_iprot))
-                  case _actualType =>
-                    val _expectedType = TType.STRUCT
-                    throw new TProtocolException(
-                      "Received wrong type for field 'success' (expected=%s, actual=%s).".format(
-                        ttypeToString(_expectedType),
-                        ttypeToString(_actualType)
-                      )
-                    )
+                if (_fieldType == TType.STRUCT) {
+                  success = _root_.scala.Some(readSuccessValue(_iprot))
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                    "Received wrong type for field 'success' (expected=%s, actual=%s).",
+                    TType.STRUCT,
+                    _fieldType
+                  )
                 }
               case _ =>
-                if (_passthroughFields == null)
+                if (_passthroughFields eq null)
                   _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-                _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+                _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
             }
             _iprot.readFieldEnd()
           }
-        }
+        } while (!_done)
         _iprot.readStructEnd()
     
         new Result(
           success,
-          if (_passthroughFields == null)
+          if (_passthroughFields eq null)
             NoPassthroughFields
           else
             _passthroughFields.result()
@@ -1318,28 +1279,19 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     
-      private def _equals(x: Result, y: Result): Boolean =
-          x.productArity == y.productArity &&
-          x.productIterator.sameElements(y.productIterator) &&
-          x._passthroughFields == y._passthroughFields
+      private[this] def _equals(other: Result): Boolean =
+          this.productArity == other.productArity &&
+          this.productIterator.sameElements(other.productIterator) &&
+          this._passthroughFields == other._passthroughFields
     
       override def equals(other: Any): Boolean =
-        canEqual(other) &&
-          _equals(this, other.asInstanceOf[Result])
+        canEqual(other) && _equals(other.asInstanceOf[Result])
     
       override def hashCode: Int = {
         _root_.scala.runtime.ScalaRunTime._hashCode(this)
       }
     
       override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-    
-    
-      override def productArity: Int = 1
-    
-      override def productElement(n: Int): Any = n match {
-        case 0 => this.success
-        case _ => throw new IndexOutOfBoundsException(n.toString)
-      }
     
       override def productPrefix: String = "Result"
     
@@ -1351,19 +1303,20 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     private[thriftscala] class ResultStructBuilder(instance: _root_.scala.Option[Result], fieldTypes: IndexedSeq[ClassTag[_]])
         extends StructBuilder[Result](fieldTypes) {
     
-      def build(): Result = instance match {
-        case _root_.scala.Some(i) =>
+      def build(): Result = {
+        val _fieldArray = fieldArray // shadow variable
+        if (instance.isDefined) {
+          val instanceValue = instance.get
           Result(
-            (if (fieldArray(0) == null) i.success else fieldArray(0)).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]]
+            if (_fieldArray(0) == null) instanceValue.success else _fieldArray(0).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]]
           )
-        case _root_.scala.None =>
-          if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("Result"))
-          else {
-            Result(
-              fieldArray(0).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]]
-            )
-          }
+        } else {
+          if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Result"))
+          Result(
+            _fieldArray(0).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]]
+          )
         }
+      }
     }
 
     val annotations: immutable$Map[String, String] = immutable$Map.empty
@@ -1443,12 +1396,12 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
           val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.DoGreatThings.Args(request))
-          servicePerEndpoint.doGreatThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
+          servicePerEndpoint.doGreatThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult)
         }
         def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
           val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
           val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.NoExceptionCall.Args(request))
-          servicePerEndpoint.noExceptionCall(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult(_))
+          servicePerEndpoint.noExceptionCall(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult)
         }
 
         override def asClosable: _root_.com.twitter.util.Closable =
@@ -1572,7 +1525,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         oprot.writeMessageBegin(new TMessage(name, TMessageType.EXCEPTION, seqid))
         x.write(oprot)
         oprot.writeMessageEnd()
-        oprot.getTransport().flush()
+        oprot.getTransport.flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
         Buf.ByteArray.Shared(memoryBuffer.getArray(), 0, memoryBuffer.length())
@@ -1581,7 +1534,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       }
     }
 
-    private def reply(name: String, seqid: Int, result: ThriftStruct): Buf = {
+    private[this] def reply(name: String, seqid: Int, result: ThriftStruct): Buf = {
       val memoryBuffer = tlReusableBuffer.get()
       try {
         val oprot = protocolFactory.getProtocol(memoryBuffer)
@@ -1590,7 +1543,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         result.write(oprot)
         oprot.writeMessageEnd()
         _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
-        oprot.getTransport().flush()
+        oprot.getTransport.flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
         Buf.ByteArray.Shared(memoryBuffer.getArray(), 0, memoryBuffer.length())
@@ -1599,43 +1552,17 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       }
     }
 
-    private def missingResult(name: String): TApplicationException = {
-      new TApplicationException(
-        TApplicationException.MISSING_RESULT,
-        name + " failed: unknown result"
-      )
-    }
-
-    private def setServiceName(ex: Throwable): Throwable =
-      if (this.serviceName == "") ex
-      else {
-        ex match {
-          case se: _root_.com.twitter.finagle.SourcedException =>
-            se.serviceName = this.serviceName
-            se
-          case _ => ex
-        }
-      }
-
-    private def recordRequest(methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
-      methodStats.requestsCounter.incr()
-    }
-
-    private def recordResponse(reqRep: ctfs.ReqRep, methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
+    private[this] def recordResponse(reqRep: ctfs.ReqRep, methodStats: _root_.com.twitter.finagle.thrift.ThriftMethodStats): Unit = {
       ServerToReqRep.setCtx(reqRep)
-      val responseClass = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
-      responseClass match {
-        case ctfs.ResponseClass.Ignorable => // Do nothing.
-        case ctfs.ResponseClass.Successful(_) =>
-          methodStats.successCounter.incr()
-        case ctfs.ResponseClass.Failed(_) =>
-          methodStats.failuresCounter.incr()
-          reqRep.response match {
-            case Throw(ex) =>
-              methodStats.failuresScope.counter(Throwables.mkString(ex): _*).incr()
-            case _ =>
-          }
-      }
+      val classified = responseClassifier.applyOrElse(reqRep, ctfs.ResponseClassifier.Default)
+      if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
+        methodStats.successCounter.incr()
+      } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
+        methodStats.failuresCounter.incr()
+        if (reqRep.response.isThrow) {
+          methodStats.failuresScope.counter(Throwables.mkString(reqRep.response.throwable): _*).incr()
+        }
+      } // Last ResponseClass is Ignorable, which we do not need to record
     }
 
     final protected def perMethodStatsFilter(
@@ -1652,25 +1579,30 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           req: (TProtocol, Int),
           service: finagle$Service[(TProtocol, Int), RichResponse[method.Args, method.Result]]
         ): Future[Array[Byte]] = {
-          recordRequest(methodStats)
-          service(req).transform {
-            case Return(value) =>
-              value match {
-                case SuccessfulResponse(args, _, result) =>
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Return(result.successField.get)), methodStats)
-                case ProtocolExceptionResponse(args, _, exp) =>
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(exp)), methodStats)
-                case ThriftExceptionResponse(args, _, ex) =>
-                  val rep = ex match {
-                    case exp: ThriftException => setServiceName(exp)
-                    case _ => missingResult(serviceName)
-                  }
-                  recordResponse(ctfs.ReqRep(args, _root_.com.twitter.util.Throw(rep)), methodStats)
+          methodStats.requestsCounter.incr()
+          service(req).transform { response =>
+            if (response.isReturn) {
+              val value = response.apply()
+              if (value.isInstanceOf[SuccessfulResponse[method.Args, method.Result]]) {
+                val succResp = value.asInstanceOf[SuccessfulResponse[method.Args, method.Result]]
+                recordResponse(ctfs.ReqRep(succResp.input, _root_.com.twitter.util.Return(succResp.result.successField.get)), methodStats)
+              } else if (value.isInstanceOf[ProtocolExceptionResponse[method.Args, method.Result]]) {
+                val protExResp = value.asInstanceOf[ProtocolExceptionResponse[method.Args, method.Result]]
+                recordResponse(ctfs.ReqRep(protExResp.input, _root_.com.twitter.util.Throw(protExResp.exception)), methodStats)
+              } else if (value.isInstanceOf[ThriftExceptionResponse[method.Args, method.Result]]) {
+                val thriftExResp = value.asInstanceOf[ThriftExceptionResponse[method.Args, method.Result]]
+                val rep: Throwable = if (thriftExResp.ex.isInstanceOf[ThriftException]) {
+                  _root_.com.twitter.finagle.SourcedException.setServiceName(thriftExResp.ex, serviceName)
+                } else {
+                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult(serviceName)
+                }
+                recordResponse(ctfs.ReqRep(thriftExResp.input, _root_.com.twitter.util.Throw(rep)), methodStats)
               }
               Future.value(Buf.ByteArray.Owned.extract(value.response))
-            case t @ Throw(_) =>
-              recordResponse(ctfs.ReqRep(req, t), methodStats)
-              Future.const(t.cast[Array[Byte]])
+            } else { // Throw[_]
+              recordResponse(ctfs.ReqRep(req, response), methodStats)
+              Future.const(response.asInstanceOf[Throw[Array[Byte]]])
+            }
           }
         }
       }
@@ -1688,17 +1620,19 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val iprot = request._1
           val seqid = request._2
           val res = service(request)
-          res.transform {
-            case _root_.com.twitter.util.Throw(e: TProtocolException) =>
+          res.transform(resTry => {
+            if (resTry.isThrow && resTry.throwable.isInstanceOf[TProtocolException]) {
+              val underlyingException = resTry.throwable
               iprot.readMessageEnd()
               Future.value(
                 ProtocolExceptionResponse(
                   null,
-                  exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
-                  new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
-            case _ =>
+                  exception("doGreatThings", seqid, TApplicationException.PROTOCOL_ERROR, underlyingException.getMessage),
+                  new TApplicationException(TApplicationException.PROTOCOL_ERROR, underlyingException.getMessage)))
+            } else {
               res
-          }
+            }
+          })
         }
       }
     
@@ -1713,32 +1647,32 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val args = DoGreatThings.Args.decode(iprot)
           iprot.readMessageEnd()
           _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
-          val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+          _root_.com.twitter.finagle.context.Contexts.local.let(
             _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
             _root_.com.twitter.finagle.thrift.MethodMetadata(DoGreatThings)) {
             service(args)
-          }
-          res.transform {
-            case _root_.com.twitter.util.Return(value) =>
-              val methodResult = DoGreatThings.Result(success = Some(value))
+          }.transform(resTry => {
+            if (resTry.isReturn) {
+              val methodResult = DoGreatThings.Result(success = Some(resTry.apply()))
               Future.value(
                 SuccessfulResponse(
                   args,
                   reply("doGreatThings", seqid, methodResult),
                   methodResult))
-            case _root_.com.twitter.util.Throw(e: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException) => {
-              Future.value(
-                ThriftExceptionResponse(
-                  args,
-                  reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(e))),
-                  e))
+            } else { // Throw[_]
+              val underlyingException = resTry.throwable
+              if (underlyingException.isInstanceOf[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException])
+                Future.value(
+                  ThriftExceptionResponse(
+                    args,
+                    reply("doGreatThings", seqid, DoGreatThings.Result(ex = Some(underlyingException.asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]))),
+                    underlyingException.asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]))
+              else
+                Future.const(resTry.asInstanceOf[Throw[RichResponse[DoGreatThings.Args, DoGreatThings.Result]]])
             }
-            case t @ _root_.com.twitter.util.Throw(_) =>
-              Future.const(t.cast[RichResponse[DoGreatThings.Args, DoGreatThings.Result]])
-          }
+          })
         }
       }
-    
       statsFilter.andThen(protocolExnFilter).andThen(serdeFilter)
     }
     val noExceptionCall: finagle$Filter[(TProtocol, Int), Array[Byte], NoExceptionCall.Args, NoExceptionCall.SuccessType] = {
@@ -1752,17 +1686,19 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val iprot = request._1
           val seqid = request._2
           val res = service(request)
-          res.transform {
-            case _root_.com.twitter.util.Throw(e: TProtocolException) =>
+          res.transform(resTry => {
+            if (resTry.isThrow && resTry.throwable.isInstanceOf[TProtocolException]) {
+              val underlyingException = resTry.throwable
               iprot.readMessageEnd()
               Future.value(
                 ProtocolExceptionResponse(
                   null,
-                  exception("noExceptionCall", seqid, TApplicationException.PROTOCOL_ERROR, e.getMessage),
-                  new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage)))
-            case _ =>
+                  exception("noExceptionCall", seqid, TApplicationException.PROTOCOL_ERROR, underlyingException.getMessage),
+                  new TApplicationException(TApplicationException.PROTOCOL_ERROR, underlyingException.getMessage)))
+            } else {
               res
-          }
+            }
+          })
         }
       }
     
@@ -1777,25 +1713,24 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val args = NoExceptionCall.Args.decode(iprot)
           iprot.readMessageEnd()
           _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
-          val res = _root_.com.twitter.finagle.context.Contexts.local.let(
+          _root_.com.twitter.finagle.context.Contexts.local.let(
             _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
             _root_.com.twitter.finagle.thrift.MethodMetadata(NoExceptionCall)) {
             service(args)
-          }
-          res.transform {
-            case _root_.com.twitter.util.Return(value) =>
-              val methodResult = NoExceptionCall.Result(success = Some(value))
+          }.transform(resTry => {
+            if (resTry.isReturn) {
+              val methodResult = NoExceptionCall.Result(success = Some(resTry.apply()))
               Future.value(
                 SuccessfulResponse(
                   args,
                   reply("noExceptionCall", seqid, methodResult),
                   methodResult))
-            case t @ _root_.com.twitter.util.Throw(_) =>
-              Future.const(t.cast[RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]])
-          }
+            } else { // Throw[_]
+                Future.const(resTry.asInstanceOf[Throw[RichResponse[NoExceptionCall.Args, NoExceptionCall.Result]]])
+            }
+          })
         }
       }
-    
       statsFilter.andThen(protocolExnFilter).andThen(serdeFilter)
     }
   }

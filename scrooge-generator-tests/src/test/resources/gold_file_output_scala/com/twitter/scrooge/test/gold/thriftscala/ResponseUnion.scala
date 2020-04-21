@@ -32,51 +32,48 @@ private object ResponseUnionDecoder {
     var _result: ResponseUnion = null
     _iprot.readStructBegin()
     val _field = _iprot.readFieldBegin()
+    val _fieldType = _field.`type`
     _field.id match {
       case 1 => // id
-        _field.`type` match {
-          case TType.I64 =>
-            _result = ResponseUnion.Id({
-              _iprot.readI64()
-            })
-          case _ => TProtocolUtil.skip(_iprot, _field.`type`)
-        }
+        if (_fieldType == TType.I64) {
+          _result = ResponseUnion.Id({
+            _iprot.readI64()
+          })
+        } else TProtocolUtil.skip(_iprot, _fieldType)
       case 2 => // details
-        _field.`type` match {
-          case TType.STRING =>
-            _result = ResponseUnion.Details({
-              _iprot.readString()
-            })
-          case _ => TProtocolUtil.skip(_iprot, _field.`type`)
-        }
+        if (_fieldType == TType.STRING) {
+          _result = ResponseUnion.Details({
+            _iprot.readString()
+          })
+        } else TProtocolUtil.skip(_iprot, _fieldType)
       case _ =>
-        if (_field.`type` != TType.STOP) {
+        if (_fieldType != TType.STOP) {
           _result = newUnknown(TFieldBlob.read(_field, _iprot))
         } else {
-          TProtocolUtil.skip(_iprot, _field.`type`)
+          TProtocolUtil.skip(_iprot, _fieldType)
         }
     }
-    if (_field.`type` != TType.STOP) {
+    if (_fieldType != TType.STOP) {
       _iprot.readFieldEnd()
       var _done = false
       var _moreThanOne = false
-      while (!_done) {
-        val _field = _iprot.readFieldBegin()
-        if (_field.`type` == TType.STOP)
+      do {
+        val _newField = _iprot.readFieldBegin()
+        if (_newField.`type` == TType.STOP)
           _done = true
         else {
           _moreThanOne = true
-          TProtocolUtil.skip(_iprot, _field.`type`)
+          TProtocolUtil.skip(_iprot, _newField.`type`)
           _iprot.readFieldEnd()
         }
-      }
+      } while (!_done)
       if (_moreThanOne) {
         _iprot.readStructEnd()
         throw new TProtocolException("Cannot read a TUnion with more than one set value!")
       }
     }
     _iprot.readStructEnd()
-    if (_result == null)
+    if (_result eq null)
       throw new TProtocolException("Cannot read a TUnion with no set value!")
     _result
   }
@@ -87,10 +84,7 @@ object ResponseUnionAliases {
   type IdAlias = Long
 
   def withoutPassthroughFields_Id(obj: ResponseUnion.Id): ResponseUnion.Id = {
-    val field = obj.id
-    ResponseUnion.Id(
-      field
-    )
+    ResponseUnion.Id(obj.id)
   }
 
   val IdKeyTypeManifest: _root_.scala.Option[Manifest[_]] = _root_.scala.None
@@ -100,10 +94,7 @@ object ResponseUnionAliases {
   type DetailsAlias = String
 
   def withoutPassthroughFields_Details(obj: ResponseUnion.Details): ResponseUnion.Details = {
-    val field = obj.details
-    ResponseUnion.Details(
-      field
-    )
+    ResponseUnion.Details(obj.details)
   }
 
   val DetailsKeyTypeManifest: _root_.scala.Option[Manifest[_]] = _root_.scala.None
@@ -116,13 +107,13 @@ object ResponseUnionAliases {
 object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
   val Union: TStruct = new TStruct("ResponseUnion")
   val IdField: TField = new TField("id", TType.I64, 1)
-  val IdFieldManifest: Manifest[Id] = implicitly[Manifest[Id]]
+  val IdFieldManifest: Manifest[Id] = manifest[Id]
   val DetailsField: TField = new TField("details", TType.STRING, 2)
-  val DetailsFieldManifest: Manifest[Details] = implicitly[Manifest[Details]]
+  val DetailsFieldManifest: Manifest[Details] = manifest[Details]
 
   lazy val structAnnotations: immutable$Map[java.lang.String, java.lang.String] =
     immutable$Map[java.lang.String, java.lang.String](
-        "u.annotation" -> "y"
+        ("u.annotation", "y")
     )
 
   /**
@@ -141,8 +132,8 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
 
   override lazy val metaData = new ThriftStructMetaData(
     this,
-    Seq(),
-    Seq(),
+    Nil,
+    Nil,
     fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion with _root_.com.twitter.scrooge.ThriftStruct, _]]],
     structAnnotations)
 
@@ -150,18 +141,16 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
     _item.write(_oprot)
 
   override def decode(_iprot: TProtocol): ResponseUnion =
-    ResponseUnionDecoder(_iprot, UnknownUnionField(_))
+    ResponseUnionDecoder(_iprot, UnknownUnionField.apply)
 
   def apply(_iprot: TProtocol): ResponseUnion = decode(_iprot)
 
   import ResponseUnionAliases._
 
   def withoutPassthroughFields(struct: ResponseUnion): ResponseUnion = {
-    struct match {
-      case obj: Id => withoutPassthroughFields_Id(obj)
-      case obj: Details => withoutPassthroughFields_Details(obj)
-      case unknown: UnknownUnionField => unknown // by definition pass-through
-    }
+    if (struct.isInstanceOf[Id]) withoutPassthroughFields_Id(struct.asInstanceOf[Id])
+    else if (struct.isInstanceOf[Details]) withoutPassthroughFields_Details(struct.asInstanceOf[Details])
+    else struct //This is an UnknownUnionField, by definition passthrough
   }
 
   object Id extends (IdAlias => Id) {
@@ -194,12 +183,10 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
 
     override def write(_oprot: TProtocol): Unit = {
       _oprot.writeStructBegin(Union)
-      if (true) {
         val id_item = id
         _oprot.writeFieldBegin(IdField)
         _oprot.writeI64(id_item)
         _oprot.writeFieldEnd()
-      }
       _oprot.writeFieldStop()
       _oprot.writeStructEnd()
     }
@@ -219,7 +206,7 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
         DetailsValueTypeManifest,
         immutable$Map.empty[java.lang.String, java.lang.String],
         immutable$Map(
-          "u.field.annotation" -> "x"
+          ("u.field.annotation", "x")
         )
       )
   }
@@ -236,7 +223,7 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
       _root_.scala.Some(Details.fieldInfo)
 
     override def write(_oprot: TProtocol): Unit = {
-      if (details == null)
+      if (details eq null)
         throw new TProtocolException("Cannot write a TUnion with no set value!")
       _oprot.writeStructBegin(Union)
       if (details ne null) {

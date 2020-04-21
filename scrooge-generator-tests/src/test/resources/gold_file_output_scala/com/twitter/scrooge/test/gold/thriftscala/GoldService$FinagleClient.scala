@@ -56,7 +56,7 @@ class GoldService$FinagleClient(
       oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
       args.write(oprot)
       oprot.writeMessageEnd()
-      oprot.getTransport().flush()
+      oprot.getTransport.flush()
       val bytes = _root_.java.util.Arrays.copyOfRange(
         memoryBuffer.getArray(),
         0,
@@ -78,12 +78,8 @@ class GoldService$FinagleClient(
     val msg = iprot.readMessageBegin()
     try {
       if (msg.`type` == TMessageType.EXCEPTION) {
-        val exception = TApplicationException.readFrom(iprot) match {
-          case sourced: _root_.com.twitter.finagle.SourcedException =>
-            if (serviceName != "") sourced.serviceName = serviceName
-            sourced
-          case e => e
-        }
+        val exception = TApplicationException.readFrom(iprot)
+        setServiceName(exception)
         throw exception
       } else {
         codec.decode(iprot)
@@ -93,23 +89,9 @@ class GoldService$FinagleClient(
     }
   }
 
-  protected def missingResult(name: String): TApplicationException = {
-    new TApplicationException(
-      TApplicationException.MISSING_RESULT,
-      name + " failed: unknown result"
-    )
+  protected def setServiceName(ex: Throwable): Throwable = {
+    _root_.com.twitter.finagle.SourcedException.setServiceName(ex, serviceName)
   }
-
-  protected def setServiceName(ex: Throwable): Throwable =
-    if (this.serviceName == "") ex
-    else {
-      ex match {
-        case se: _root_.com.twitter.finagle.SourcedException =>
-          se.serviceName = this.serviceName
-          se
-        case _ => ex
-      }
-    }
 
   // ----- end boilerplate.
 
@@ -118,21 +100,21 @@ class GoldService$FinagleClient(
 
   private[this] val scopedStats: StatsReceiver = if (serviceName != "") stats.scope(serviceName) else stats
   private[this] object __stats_doGreatThings {
-    val RequestsCounter = scopedStats.scope("doGreatThings").counter("requests")
-    val SuccessCounter = scopedStats.scope("doGreatThings").counter("success")
-    val FailuresCounter = scopedStats.scope("doGreatThings").counter("failures")
-    val FailuresScope = scopedStats.scope("doGreatThings").scope("failures")
+    val RequestsCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("doGreatThings").counter("requests")
+    val SuccessCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("doGreatThings").counter("success")
+    val FailuresCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("doGreatThings").counter("failures")
+    val FailuresScope: StatsReceiver = scopedStats.scope("doGreatThings").scope("failures")
   }
   val doGreatThingsGoldServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] = {
     response: Array[Byte] => {
-      val result = decodeResponse(response, DoGreatThings.Result)
-  
-      result.firstException() match {
-        case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
-        case _ => result.successField match {
-          case Some(success) => _root_.com.twitter.util.Return(success)
-          case _ => _root_.com.twitter.util.Throw(missingResult("doGreatThings"))
-        }
+      val result: DoGreatThings.Result = decodeResponse(response, DoGreatThings.Result)
+      val firstException = result.firstException()
+      if (firstException.isDefined) {
+        _root_.com.twitter.util.Throw(setServiceName(firstException.get))
+      } else if (result.successField.isDefined) {
+        _root_.com.twitter.util.Return(result.successField.get)
+      } else {
+        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("doGreatThings"))
       }
     }
   }
@@ -155,42 +137,38 @@ class GoldService$FinagleClient(
       this.service(serialized).flatMap { response =>
         Future.const(serdeCtx.deserialize(response))
       }.respond { response =>
-        val responseClass = responseClassifier.applyOrElse(
+        val classified = responseClassifier.applyOrElse(
           ctfs.ReqRep(inputArgs, response),
           ctfs.ResponseClassifier.Default)
-        responseClass match {
-          case ctfs.ResponseClass.Ignorable => // Do nothing.
-          case ctfs.ResponseClass.Successful(_) =>
-            __stats_doGreatThings.SuccessCounter.incr()
-          case ctfs.ResponseClass.Failed(_) =>
-            __stats_doGreatThings.FailuresCounter.incr()
-            response match {
-              case _root_.com.twitter.util.Throw(ex) =>
-                setServiceName(ex)
-                __stats_doGreatThings.FailuresScope.counter(
-                  _root_.com.twitter.util.Throwables.mkString(ex): _*).incr()
-              case _ =>
-            }
-        }
+        if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
+          __stats_doGreatThings.SuccessCounter.incr()
+        } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
+          __stats_doGreatThings.FailuresCounter.incr()
+          if (response.isThrow) {
+            setServiceName(response.throwable)
+            __stats_doGreatThings.FailuresScope.counter(
+              _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
+          }
+        } // Last ResponseClass is Ignorable, which we do not need to record
       }
     }
   }
   private[this] object __stats_noExceptionCall {
-    val RequestsCounter = scopedStats.scope("noExceptionCall").counter("requests")
-    val SuccessCounter = scopedStats.scope("noExceptionCall").counter("success")
-    val FailuresCounter = scopedStats.scope("noExceptionCall").counter("failures")
-    val FailuresScope = scopedStats.scope("noExceptionCall").scope("failures")
+    val RequestsCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("noExceptionCall").counter("requests")
+    val SuccessCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("noExceptionCall").counter("success")
+    val FailuresCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("noExceptionCall").counter("failures")
+    val FailuresScope: StatsReceiver = scopedStats.scope("noExceptionCall").scope("failures")
   }
   val noExceptionCallGoldServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] = {
     response: Array[Byte] => {
-      val result = decodeResponse(response, NoExceptionCall.Result)
-  
-      result.firstException() match {
-        case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
-        case _ => result.successField match {
-          case Some(success) => _root_.com.twitter.util.Return(success)
-          case _ => _root_.com.twitter.util.Throw(missingResult("noExceptionCall"))
-        }
+      val result: NoExceptionCall.Result = decodeResponse(response, NoExceptionCall.Result)
+      val firstException = result.firstException()
+      if (firstException.isDefined) {
+        _root_.com.twitter.util.Throw(setServiceName(firstException.get))
+      } else if (result.successField.isDefined) {
+        _root_.com.twitter.util.Return(result.successField.get)
+      } else {
+        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("noExceptionCall"))
       }
     }
   }
@@ -213,23 +191,19 @@ class GoldService$FinagleClient(
       this.service(serialized).flatMap { response =>
         Future.const(serdeCtx.deserialize(response))
       }.respond { response =>
-        val responseClass = responseClassifier.applyOrElse(
+        val classified = responseClassifier.applyOrElse(
           ctfs.ReqRep(inputArgs, response),
           ctfs.ResponseClassifier.Default)
-        responseClass match {
-          case ctfs.ResponseClass.Ignorable => // Do nothing.
-          case ctfs.ResponseClass.Successful(_) =>
-            __stats_noExceptionCall.SuccessCounter.incr()
-          case ctfs.ResponseClass.Failed(_) =>
-            __stats_noExceptionCall.FailuresCounter.incr()
-            response match {
-              case _root_.com.twitter.util.Throw(ex) =>
-                setServiceName(ex)
-                __stats_noExceptionCall.FailuresScope.counter(
-                  _root_.com.twitter.util.Throwables.mkString(ex): _*).incr()
-              case _ =>
-            }
-        }
+        if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
+          __stats_noExceptionCall.SuccessCounter.incr()
+        } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
+          __stats_noExceptionCall.FailuresCounter.incr()
+          if (response.isThrow) {
+            setServiceName(response.throwable)
+            __stats_noExceptionCall.FailuresScope.counter(
+              _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
+          }
+        } // Last ResponseClass is Ignorable, which we do not need to record
       }
     }
   }

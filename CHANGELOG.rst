@@ -10,6 +10,9 @@ Unreleased
 * scrooge-generator: Respect the proper order of separators in function declarations.
   ``PHAB_ID=D467476``
 
+* scrooge-generator: Optimized generated Scala code for compile time and smaller bytecode.
+  Companion objects for thrift enum traits are no longer case objects. ``PHAB_ID=D454297``
+
 20.4.0
 ------
 

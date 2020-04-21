@@ -5,12 +5,12 @@ import scala.collection.immutable.{Map => immutable$Map}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{EnumName}}] {
+object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{EnumName}}] {
 
 {{#annotations}}
   val annotations: immutable$Map[String, String] = immutable$Map(
 {{#pairs}}
-    "{{key}}" -> "{{value}}"
+    ("{{key}}", "{{value}}")
 {{/pairs|,}}
   )
 {{/annotations}}
@@ -27,7 +27,7 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
 {{#annotations}}
     val annotations: immutable$Map[String, String] = immutable$Map(
 {{#pairs}}
-      "{{key}}" -> "{{value}}"
+      ("{{key}}", "{{value}}")
 {{/pairs|,}}
     )
 {{/annotations}}
@@ -36,7 +36,7 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
 {{/annotations}}
   }
 
-  private[this] val _Some{{name}} = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})
+  private[this] val _Some{{name}}: _root_.scala.Some[{{package}}.{{EnumName}}] = _root_.scala.Some({{package}}.{{EnumName}}.{{name}})
 {{/values}}
 
   case class EnumUnknown{{EnumName}}(value: Int)
@@ -47,7 +47,7 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
 {{#annotations}}
     val annotations: immutable$Map[String, String] = immutable$Map(
   {{#pairs}}
-    "{{key}}" -> "{{value}}"
+    ("{{key}}", "{{value}}")
   {{/pairs|,}}  )
 {{/annotations}}
 {{^annotations}}
@@ -58,13 +58,14 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
   /**
    * Find the enum by its integer value, as defined in the Thrift IDL.
    */
-  def apply(value: Int): {{package}}.{{EnumName}} =
-    value match {
-{{#values}}
-      case {{value}} => {{package}}.{{EnumName}}.{{name}}
-{{/values}}
-      case _ => throw new NoSuchElementException(value.toString)
+  def apply(value: Int): {{package}}.{{EnumName}} = {
+    val enumOpt = get(value)
+    if (enumOpt.isDefined) {
+      enumOpt.get
+    } else {
+      throw new NoSuchElementException(_root_.java.lang.Integer.toString(value))
     }
+  }
 
   /**
    * Find the enum by its integer value, as defined in the Thrift IDL.
@@ -72,11 +73,14 @@ case object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{E
    * In particular this allows ignoring new values added to an enum
    * in the IDL on the producer side when the consumer was not updated.
    */
-  def getOrUnknown(value: Int): {{package}}.{{EnumName}} =
-    get(value) match {
-      case _root_.scala.Some(e) => e
-      case _root_.scala.None => EnumUnknown{{EnumName}}(value)
+  def getOrUnknown(value: Int): {{package}}.{{EnumName}} = {
+    val enumOpt = get(value)
+    if (enumOpt.isDefined) {
+      enumOpt.get
+    } else {
+      EnumUnknown{{EnumName}}(value)
     }
+  }
 
   /**
    * Find the enum by its integer value, as defined in the Thrift IDL.

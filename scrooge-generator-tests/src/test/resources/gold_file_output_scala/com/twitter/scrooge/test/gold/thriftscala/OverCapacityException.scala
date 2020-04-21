@@ -30,7 +30,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("OverCapacityException")
   val ChillTimeSecondsField: TField = new TField("chillTimeSeconds", TType.I32, 1)
-  val ChillTimeSecondsFieldManifest: Manifest[Int] = implicitly[Manifest[Int]]
+  val ChillTimeSecondsFieldManifest: Manifest[Int] = manifest[Int]
 
   /**
    * Field information in declaration order.
@@ -44,35 +44,34 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map(
-        "e.field.annotation" -> "false"
+      immutable$Map.apply[String, String](
+        ("e.field.annotation", "false")
       ),
       None
     )
   )
 
+
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](
-        "e.annotation" -> "true"
+        ("e.annotation", "true")
     )
 
-  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
     classTag[Int].asInstanceOf[ClassTag[_]]
   )
 
-  private[this] val structFields: Seq[ThriftStructField[OverCapacityException]] = {
-    Seq(
-      new ThriftStructField[OverCapacityException](
-        ChillTimeSecondsField,
-        _root_.scala.Some(ChillTimeSecondsFieldManifest),
-        classOf[OverCapacityException]) {
-          def getValue[R](struct: OverCapacityException): R = struct.chillTimeSeconds.asInstanceOf[R]
-      }
-    )
-  }
+  private[this] val structFields: Seq[ThriftStructField[OverCapacityException]] = Seq[ThriftStructField[OverCapacityException]](
+    new ThriftStructField[OverCapacityException](
+      ChillTimeSecondsField,
+      _root_.scala.Some(ChillTimeSecondsFieldManifest),
+      classOf[OverCapacityException]) {
+        def getValue[R](struct: OverCapacityException): R = struct.chillTimeSeconds.asInstanceOf[R]
+    }
+  )
 
   override lazy val metaData: ThriftStructMetaData[OverCapacityException] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
@@ -93,11 +92,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
 
   def withoutPassthroughFields(original: OverCapacityException): OverCapacityException =
     new OverCapacityException(
-      chillTimeSeconds =
-        {
-          val field = original.chillTimeSeconds
-          field
-        }
+      chillTimeSeconds = original.chillTimeSeconds
     )
 
   def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.None, fieldTypes)
@@ -113,38 +108,36 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
     var _done = false
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I32 =>
-                chillTimeSeconds = readChillTimeSecondsValue(_iprot)
-              case _actualType =>
-                val _expectedType = TType.I32
-                throw new TProtocolException(
-                  "Received wrong type for field 'chillTimeSeconds' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I32) {
+              chillTimeSeconds = readChillTimeSecondsValue(_iprot)
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'chillTimeSeconds' (expected=%s, actual=%s).",
+                TType.I32,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     new OverCapacityException(
       chillTimeSeconds,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
@@ -220,37 +213,33 @@ class OverCapacityException(
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
-    lazy val _buff = new TMemoryBuffer(32)
-    lazy val _oprot = new TCompactProtocol(_buff)
-    _passthroughFields.get(_fieldId) match {
-      case blob: _root_.scala.Some[TFieldBlob] => blob
-      case _root_.scala.None => {
-        val _fieldOpt: _root_.scala.Option[TField] =
-          _fieldId match {
-            case 1 =>
-              if (true) {
-                writeChillTimeSecondsValue(chillTimeSeconds, _oprot)
-                _root_.scala.Some(OverCapacityException.ChillTimeSecondsField)
-              } else {
-                _root_.scala.None
-              }
-            case _ => _root_.scala.None
-          }
-        _fieldOpt match {
-          case _root_.scala.Some(_field) =>
-            _root_.scala.Some(TFieldBlob(_field, Buf.ByteArray.Owned(_buff.getArray())))
-          case _root_.scala.None =>
-            _root_.scala.None
-        }
+    val passedthroughValue = _passthroughFields.get(_fieldId)
+    if (passedthroughValue.isDefined) {
+      passedthroughValue
+    } else {
+      val _buff = new TMemoryBuffer(32)
+      val _oprot = new TCompactProtocol(_buff)
+
+      val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
+        case 1 =>
+            writeChillTimeSecondsValue(chillTimeSeconds, _oprot)
+            _root_.scala.Some(OverCapacityException.ChillTimeSecondsField)
+        case _ => _root_.scala.None
+      }
+      if (_fieldOpt.isDefined) {
+        _root_.scala.Some(TFieldBlob(_fieldOpt.get, Buf.ByteArray.Owned(_buff.getArray)))
+      } else {
+        _root_.scala.None
       }
     }
   }
+
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
    */
   def getFieldBlobs(ids: TraversableOnce[Short]): immutable$Map[Short, TFieldBlob] =
-    (ids flatMap { id => getFieldBlob(id) map { id -> _ } }).toMap
+    (ids.flatMap { id => getFieldBlob(id).map { fieldBlob => (id, fieldBlob) } }).toMap
 
   /**
    * Sets a field using a TCompactProtocol-encoded binary blob.  If the field is a known
@@ -264,7 +253,7 @@ class OverCapacityException(
     _blob.id match {
       case 1 =>
         chillTimeSeconds = readChillTimeSecondsValue(_blob.read)
-      case _ => _passthroughFields += (_blob.id -> _blob)
+      case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new OverCapacityException(
       chillTimeSeconds,
@@ -321,15 +310,14 @@ class OverCapacityException(
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[OverCapacityException]
 
-  private def _equals(x: OverCapacityException, y: OverCapacityException): Boolean =
-      x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator) &&
-      x.flags == y.flags &&
-      x._passthroughFields == y._passthroughFields
+  private[this] def _equals(other: OverCapacityException): Boolean =
+      this.productArity == other.productArity &&
+      this.productIterator.sameElements(other.productIterator) &&
+      this.flags == other.flags &&
+      this._passthroughFields == other._passthroughFields
 
   override def equals(other: Any): Boolean =
-    canEqual(other) &&
-      _equals(this, other.asInstanceOf[OverCapacityException])
+    canEqual(other) && _equals(other.asInstanceOf[OverCapacityException])
 
   override def hashCode: Int = {
     31 * _root_.scala.runtime.ScalaRunTime._hashCode(this) +
@@ -337,14 +325,6 @@ class OverCapacityException(
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
-  override def productArity: Int = 1
-
-  override def productElement(n: Int): Any = n match {
-    case 0 => this.chillTimeSeconds
-    case _ => throw new IndexOutOfBoundsException(n.toString)
-  }
 
   override def productPrefix: String = "OverCapacityException"
 
@@ -363,18 +343,19 @@ class OverCapacityException(
 private[thriftscala] class OverCapacityExceptionStructBuilder(instance: _root_.scala.Option[OverCapacityException], fieldTypes: IndexedSeq[ClassTag[_]])
     extends StructBuilder[OverCapacityException](fieldTypes) {
 
-  def build(): OverCapacityException = instance match {
-    case _root_.scala.Some(i) =>
+  def build(): OverCapacityException = {
+    val _fieldArray = fieldArray // shadow variable
+    if (instance.isDefined) {
+      val instanceValue = instance.get
       OverCapacityException(
-        (if (fieldArray(0) == null) i.chillTimeSeconds else fieldArray(0)).asInstanceOf[Int]
+        if (_fieldArray(0) == null) instanceValue.chillTimeSeconds else _fieldArray(0).asInstanceOf[Int]
       )
-    case _root_.scala.None =>
-      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("OverCapacityException"))
-      else {
-        OverCapacityException(
-          fieldArray(0).asInstanceOf[Int]
-        )
-      }
+    } else {
+      if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("OverCapacityException"))
+      OverCapacityException(
+        _fieldArray(0).asInstanceOf[Int]
+      )
     }
+  }
 }
 

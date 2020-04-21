@@ -33,7 +33,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
   val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
   val Struct: TStruct = new TStruct("CollectionId")
   val CollectionLongIdField: TField = new TField("collectionLongId", TType.I64, 1)
-  val CollectionLongIdFieldManifest: Manifest[Long] = implicitly[Manifest[Long]]
+  val CollectionLongIdFieldManifest: Manifest[Long] = manifest[Long]
 
   /**
    * Field information in declaration order.
@@ -52,26 +52,25 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     )
   )
 
-  lazy val structAnnotations: immutable$Map[String, String] =
+
+  val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
-  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq(
+  private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
     classTag[Long].asInstanceOf[ClassTag[_]]
   )
 
-  private[this] val structFields: Seq[ThriftStructField[CollectionId]] = {
-    Seq(
-      new ThriftStructField[CollectionId](
-        CollectionLongIdField,
-        _root_.scala.Some(CollectionLongIdFieldManifest),
-        classOf[CollectionId]) {
-          def getValue[R](struct: CollectionId): R = struct.collectionLongId.asInstanceOf[R]
-      }
-    )
-  }
+  private[this] val structFields: Seq[ThriftStructField[CollectionId]] = Seq[ThriftStructField[CollectionId]](
+    new ThriftStructField[CollectionId](
+      CollectionLongIdField,
+      _root_.scala.Some(CollectionLongIdFieldManifest),
+      classOf[CollectionId]) {
+        def getValue[R](struct: CollectionId): R = struct.collectionLongId.asInstanceOf[R]
+    }
+  )
 
   override lazy val metaData: ThriftStructMetaData[CollectionId] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Seq(), structAnnotations)
+    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
@@ -92,11 +91,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
 
   def withoutPassthroughFields(original: CollectionId): CollectionId =
     new Immutable(
-      collectionLongId =
-        {
-          val field = original.collectionLongId
-          field
-        }
+      collectionLongId = original.collectionLongId
     )
 
   def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.None, fieldTypes)
@@ -119,7 +114,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     val adaptContext = _iprot.adaptContext
     val reloadRequired = adaptContext.shouldReloadDecoder
     synchronized {
-      if (adaptiveDecoder == null || reloadRequired) {
+      if ((adaptiveDecoder eq null) || reloadRequired) {
         adaptiveDecoder = adaptContext.buildDecoder(this, fallbackDecoder, accessRecordingDecoderBuilder)
       }
     }
@@ -150,35 +145,32 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     val _start_offset = _iprot.offset
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I64 =>
-    
-                collectionLongId = readCollectionLongIdValue(_iprot)
-                _got_collectionLongId = true
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              collectionLongId = readCollectionLongIdValue(_iprot)
+              _got_collectionLongId = true
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
@@ -188,19 +180,22 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
       _start_offset,
       _iprot.offset,
       collectionLongId,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
     )
   }
 
-  override def decode(_iprot: TProtocol): CollectionId =
-    _iprot match {
-      case i: AdaptTProtocol => adaptiveDecode(i)
-      case i: LazyTProtocol => lazyDecode(i)
-      case i => eagerDecode(i)
+  override def decode(_iprot: TProtocol): CollectionId = {
+    if (_iprot.isInstanceOf[LazyTProtocol]) {
+      lazyDecode(_iprot.asInstanceOf[LazyTProtocol])
+    } else if (_iprot.isInstanceOf[AdaptTProtocol]) {
+      adaptiveDecode(_iprot.asInstanceOf[AdaptTProtocol])
+    } else {
+      eagerDecode(_iprot)
     }
+  }
 
   private[thriftscala] def eagerDecode(_iprot: TProtocol): CollectionId = {
     var collectionLongId: Long = 0L
@@ -209,40 +204,38 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     var _done = false
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
-      if (_field.`type` == TType.STOP) {
+      val _fieldType = _field.`type`
+      if (_fieldType == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 =>
-            _field.`type` match {
-              case TType.I64 =>
-                collectionLongId = readCollectionLongIdValue(_iprot)
-                _got_collectionLongId = true
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw new TProtocolException(
-                  "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).".format(
-                    ttypeToString(_expectedType),
-                    ttypeToString(_actualType)
-                  )
-                )
+            if (_fieldType == TType.I64) {
+              collectionLongId = readCollectionLongIdValue(_iprot)
+              _got_collectionLongId = true
+            } else {
+              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
+                "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).",
+                TType.I64,
+                _fieldType
+              )
             }
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
     new Immutable(
       collectionLongId,
-      if (_passthroughFields == null)
+      if (_passthroughFields eq null)
         NoPassthroughFields
       else
         _passthroughFields.result()
@@ -311,9 +304,10 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     extends CollectionId {
 
     override def write(_oprot: TProtocol): Unit = {
-      _oprot match {
-        case i: LazyTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-        case _ => super.write(_oprot)
+      if (_oprot.isInstanceOf[LazyTProtocol]) {
+        _oprot.asInstanceOf[LazyTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+      } else {
+        super.write(_oprot)
       }
     }
 
@@ -329,7 +323,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
      * With the class private and the contract that we throw away our mutable references
      * having the hash code lazy here is safe.
      */
-    override lazy val hashCode = super.hashCode
+    override lazy val hashCode: Int = super.hashCode
   }
 
   /**
@@ -369,37 +363,33 @@ trait CollectionId
    * is known and not optional and set to None, then the field is serialized and returned.
    */
   def getFieldBlob(_fieldId: Short): _root_.scala.Option[TFieldBlob] = {
-    lazy val _buff = new TMemoryBuffer(32)
-    lazy val _oprot = new TCompactProtocol(_buff)
-    _passthroughFields.get(_fieldId) match {
-      case blob: _root_.scala.Some[TFieldBlob] => blob
-      case _root_.scala.None => {
-        val _fieldOpt: _root_.scala.Option[TField] =
-          _fieldId match {
-            case 1 =>
-              if (true) {
-                writeCollectionLongIdValue(collectionLongId, _oprot)
-                _root_.scala.Some(CollectionId.CollectionLongIdField)
-              } else {
-                _root_.scala.None
-              }
-            case _ => _root_.scala.None
-          }
-        _fieldOpt match {
-          case _root_.scala.Some(_field) =>
-            _root_.scala.Some(TFieldBlob(_field, Buf.ByteArray.Owned(_buff.getArray())))
-          case _root_.scala.None =>
-            _root_.scala.None
-        }
+    val passedthroughValue = _passthroughFields.get(_fieldId)
+    if (passedthroughValue.isDefined) {
+      passedthroughValue
+    } else {
+      val _buff = new TMemoryBuffer(32)
+      val _oprot = new TCompactProtocol(_buff)
+
+      val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
+        case 1 =>
+            writeCollectionLongIdValue(collectionLongId, _oprot)
+            _root_.scala.Some(CollectionId.CollectionLongIdField)
+        case _ => _root_.scala.None
+      }
+      if (_fieldOpt.isDefined) {
+        _root_.scala.Some(TFieldBlob(_fieldOpt.get, Buf.ByteArray.Owned(_buff.getArray)))
+      } else {
+        _root_.scala.None
       }
     }
   }
+
 
   /**
    * Collects TCompactProtocol-encoded field values according to `getFieldBlob` into a map.
    */
   def getFieldBlobs(ids: TraversableOnce[Short]): immutable$Map[Short, TFieldBlob] =
-    (ids flatMap { id => getFieldBlob(id) map { id -> _ } }).toMap
+    (ids.flatMap { id => getFieldBlob(id).map { fieldBlob => (id, fieldBlob) } }).toMap
 
   /**
    * Sets a field using a TCompactProtocol-encoded binary blob.  If the field is a known
@@ -413,7 +403,7 @@ trait CollectionId
     _blob.id match {
       case 1 =>
         collectionLongId = readCollectionLongIdValue(_blob.read)
-      case _ => _passthroughFields += (_blob.id -> _blob)
+      case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new Immutable(
       collectionLongId,
@@ -470,28 +460,19 @@ trait CollectionId
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[CollectionId]
 
-  private def _equals(x: CollectionId, y: CollectionId): Boolean =
-      x.productArity == y.productArity &&
-      x.productIterator.sameElements(y.productIterator) &&
-      x._passthroughFields == y._passthroughFields
+  private[this] def _equals(other: CollectionId): Boolean =
+      this.productArity == other.productArity &&
+      this.productIterator.sameElements(other.productIterator) &&
+      this._passthroughFields == other._passthroughFields
 
   override def equals(other: Any): Boolean =
-    canEqual(other) &&
-      _equals(this, other.asInstanceOf[CollectionId])
+    canEqual(other) && _equals(other.asInstanceOf[CollectionId])
 
   override def hashCode: Int = {
     _root_.scala.runtime.ScalaRunTime._hashCode(this)
   }
 
   override def toString: String = _root_.scala.runtime.ScalaRunTime._toString(this)
-
-
-  override def productArity: Int = 1
-
-  override def productElement(n: Int): Any = n match {
-    case 0 => this.collectionLongId
-    case _ => throw new IndexOutOfBoundsException(n.toString)
-  }
 
   override def productPrefix: String = "CollectionId"
 
@@ -503,19 +484,20 @@ trait CollectionId
 private[thriftscala] class CollectionIdStructBuilder(instance: _root_.scala.Option[CollectionId], fieldTypes: IndexedSeq[ClassTag[_]])
     extends StructBuilder[CollectionId](fieldTypes) {
 
-  def build(): CollectionId = instance match {
-    case _root_.scala.Some(i) =>
+  def build(): CollectionId = {
+    val _fieldArray = fieldArray // shadow variable
+    if (instance.isDefined) {
+      val instanceValue = instance.get
       CollectionId(
-        (if (fieldArray(0) == null) i.collectionLongId else fieldArray(0)).asInstanceOf[Long]
+        if (_fieldArray(0) == null) instanceValue.collectionLongId else _fieldArray(0).asInstanceOf[Long]
       )
-    case _root_.scala.None =>
-      if (fieldArray.contains(null)) throw new InvalidFieldsException(structBuildError("CollectionId"))
-      else {
-        CollectionId(
-          fieldArray(0).asInstanceOf[Long]
-        )
-      }
+    } else {
+      if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("CollectionId"))
+      CollectionId(
+        _fieldArray(0).asInstanceOf[Long]
+      )
     }
+  }
 }
 
 private class CollectionId__AdaptDecoder {
@@ -536,44 +518,46 @@ private class CollectionId__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(1)
 
     _iprot.readStructBegin()
-    while (!_done) {
+    do {
       val _field = _iprot.readFieldBegin()
+      val _fieldType = _field.`type`
       if (_field.`type` == TType.STOP) {
         _done = true
       } else {
         _field.id match {
           case 1 => {
-            _field.`type` match {
-              case TType.I64 =>
-                AdaptTProtocol.usedStartMarker(1)
-                collectionLongId = CollectionId.readCollectionLongIdValue(_iprot)
-                AdaptTProtocol.usedEndMarker(1)
-                AdaptTProtocol.unusedStartMarker(1)
-                _iprot.offsetSkipI64()
-                AdaptTProtocol.unusedEndMarker(1)
-                _got_collectionLongId = true
-              case _actualType =>
-                val _expectedType = TType.I64
-                throw AdaptTProtocol.unexpectedTypeException(_expectedType, _actualType, "collectionLongId")
+            if (_fieldType == TType.I64) {
+              AdaptTProtocol.usedStartMarker(1)
+              collectionLongId = CollectionId.readCollectionLongIdValue(_iprot)
+              AdaptTProtocol.usedEndMarker(1)
+              AdaptTProtocol.unusedStartMarker(1)
+              _iprot.offsetSkipI64()
+              AdaptTProtocol.unusedEndMarker(1)
+              _got_collectionLongId = true
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.I64,
+                _fieldType,
+                "collectionLongId"
+              )
             }
             AdaptTProtocol.usedStartMarker(1)
             adapt.set_collectionLongId(collectionLongId)
             AdaptTProtocol.usedEndMarker(1)
           }
-
           case _ =>
-            if (_passthroughFields == null)
+            if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += (_field.id -> TFieldBlob.read(_field, _iprot))
+            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
         }
         _iprot.readFieldEnd()
       }
-    }
+    } while (!_done)
     _iprot.readStructEnd()
 
     if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
     adapt.set__endOffset(_iprot.offset)
-    if (_passthroughFields != null) {
+    if (_passthroughFields ne null) {
       adapt.set__passthroughFields(_passthroughFields.result())
     }
     adapt
@@ -607,7 +591,7 @@ private class CollectionId__Adapt(
 
 
   private[this] var _end_offset: Int = _
-  def set__endOffset(offset: Int) = _end_offset = offset
+  def set__endOffset(offset: Int): Unit = _end_offset = offset
 
   private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = CollectionId.NoPassthroughFields
   def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
@@ -629,9 +613,10 @@ private class CollectionId__Adapt(
   override lazy val hashCode: Int = super.hashCode
 
   override def write(_oprot: TProtocol): Unit = {
-    _oprot match {
-      case i: AdaptTProtocol => i.writeRaw(_buf, _start_offset, _end_offset - _start_offset)
-      case _ => super.write(_oprot)
+    if (_oprot.isInstanceOf[AdaptTProtocol]) {
+      _oprot.asInstanceOf[AdaptTProtocol].writeRaw(_buf, _start_offset, _end_offset - _start_offset)
+    } else {
+      super.write(_oprot)
     }
   }
 }

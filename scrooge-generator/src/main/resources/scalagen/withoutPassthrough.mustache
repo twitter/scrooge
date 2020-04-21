@@ -8,21 +8,21 @@ field.map { field =>
 {{/ptIter}}
 {{#ptMap}}
 field.map { case (key, value) =>
-  {{#ptKey}}
+{{#ptKey}}
   val newKey = {
     val field = key
     {{>withoutPassthrough}}
   }
-  {{/ptKey}}
+{{/ptKey}}
 
-  {{#ptValue}}
+{{#ptValue}}
   val newValue = {
     val field = value
     {{>withoutPassthrough}}
   }
-  {{/ptValue}}
+{{/ptValue}}
 
-  newKey -> newValue
+  (newKey, newValue)
 }
 {{/ptMap}}
 {{#ptStruct}}

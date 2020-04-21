@@ -51,7 +51,7 @@ class GoldService$FinagleService(
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
   def serviceName: String = serverParam.serviceName
-  private[this] val filters = new Filter(serverParam)
+  private[this] val filters: Filter = new Filter(serverParam)
 
   private[this] def protocolFactory: TProtocolFactory = serverParam.restrictedProtocolFactory
 
@@ -63,24 +63,26 @@ class GoldService$FinagleService(
   }
 
   final def apply(request: Array[Byte]): Future[Array[Byte]] = {
-    val inputTransport = new TMemoryInputTransport(request)
-    val iprot = protocolFactory.getProtocol(inputTransport)
+    val iprot = protocolFactory.getProtocol(new TMemoryInputTransport(request))
 
     try {
       val msg = iprot.readMessageBegin()
-      val service = serviceMap.get(msg.name)
-      service match {
-        case _root_.scala.Some(svc) =>
-          svc((iprot, msg.seqid))
-        case _ =>
-          TProtocolUtil.skip(iprot, TType.STRUCT)
-          Future.value(Buf.ByteArray.Owned.extract(
-            filters.exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD,
-              "Invalid method name: '" + msg.name + "'")))
+      val svcOpt = serviceMap.get(msg.name)
+      if (svcOpt.isDefined) {
+        svcOpt.get.apply((iprot, msg.seqid))
+      } else {
+        TProtocolUtil.skip(iprot, TType.STRUCT)
+        invalidMethodNameFuture(msg)
       }
     } catch {
       case e: Exception => Future.exception(e)
     }
+  }
+
+  private[this] def invalidMethodNameFuture(msg: TMessage): Future[Array[Byte]] = {
+     Future.value(Buf.ByteArray.Owned.extract(
+       filters.exception(msg.name, msg.seqid, TApplicationException.UNKNOWN_METHOD,
+         "Invalid method name: '" + msg.name + "'")))
   }
   // ---- end boilerplate.
 

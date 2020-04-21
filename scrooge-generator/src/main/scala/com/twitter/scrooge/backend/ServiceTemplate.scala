@@ -176,13 +176,18 @@ trait ServiceTemplate { self: TemplateGenerator =>
           "typeName" -> genType(f.funcType),
           "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
           "resultNamedArg" ->
-            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(value)" else ""),
-          "exceptions" -> v(f.throws map { t =>
-            Dictionary(
-              "exceptionType" -> genType(t.fieldType),
-              "fieldName" -> genID(t.sid)
-            )
-          })
+            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(resTry.apply())"
+            else ""),
+          "exceptions" -> v(f.throws.zipWithIndex map {
+            case (t, index) =>
+              Dictionary(
+                "exceptionType" -> genType(t.fieldType),
+                "fieldName" -> genID(t.sid),
+                "first" -> v(index == 0),
+                "last" -> v(index == f.throws.size - 1)
+              )
+          }),
+          "hasExceptions" -> v(f.throws.nonEmpty)
         )
       }),
       "hasMethodServices" -> v(service.functions.nonEmpty)
@@ -335,13 +340,18 @@ trait ServiceTemplate { self: TemplateGenerator =>
             ),
           "typeName" -> genType(f.funcType),
           "resultNamedArg" ->
-            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(value)" else ""),
-          "exceptions" -> v(f.throws map { t =>
-            Dictionary(
-              "exceptionType" -> genType(t.fieldType),
-              "fieldName" -> genID(t.sid)
-            )
-          })
+            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(resTry.apply())"
+            else ""),
+          "exceptions" -> v(f.throws.zipWithIndex map {
+            case (t, index) =>
+              Dictionary(
+                "exceptionType" -> genType(t.fieldType),
+                "fieldName" -> genID(t.sid),
+                "first" -> v(index == 0),
+                "last" -> v(index == f.throws.size - 1)
+              )
+          }),
+          "hasExceptions" -> v(f.throws.nonEmpty)
         )
       })
     )

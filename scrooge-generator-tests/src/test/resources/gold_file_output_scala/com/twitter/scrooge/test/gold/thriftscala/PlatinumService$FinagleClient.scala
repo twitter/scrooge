@@ -44,21 +44,21 @@ class PlatinumService$FinagleClient(
 
   private[this] val scopedStats: StatsReceiver = if (serviceName != "") stats.scope(serviceName) else stats
   private[this] object __stats_moreCoolThings {
-    val RequestsCounter = scopedStats.scope("moreCoolThings").counter("requests")
-    val SuccessCounter = scopedStats.scope("moreCoolThings").counter("success")
-    val FailuresCounter = scopedStats.scope("moreCoolThings").counter("failures")
-    val FailuresScope = scopedStats.scope("moreCoolThings").scope("failures")
+    val RequestsCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("moreCoolThings").counter("requests")
+    val SuccessCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("moreCoolThings").counter("success")
+    val FailuresCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("moreCoolThings").counter("failures")
+    val FailuresScope: StatsReceiver = scopedStats.scope("moreCoolThings").scope("failures")
   }
   val moreCoolThingsPlatinumServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[Int] = {
     response: Array[Byte] => {
-      val result = decodeResponse(response, MoreCoolThings.Result)
-  
-      result.firstException() match {
-        case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
-        case _ => result.successField match {
-          case Some(success) => _root_.com.twitter.util.Return(success)
-          case _ => _root_.com.twitter.util.Throw(missingResult("moreCoolThings"))
-        }
+      val result: MoreCoolThings.Result = decodeResponse(response, MoreCoolThings.Result)
+      val firstException = result.firstException()
+      if (firstException.isDefined) {
+        _root_.com.twitter.util.Throw(setServiceName(firstException.get))
+      } else if (result.successField.isDefined) {
+        _root_.com.twitter.util.Return(result.successField.get)
+      } else {
+        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("moreCoolThings"))
       }
     }
   }
@@ -81,23 +81,19 @@ class PlatinumService$FinagleClient(
       this.service(serialized).flatMap { response =>
         Future.const(serdeCtx.deserialize(response))
       }.respond { response =>
-        val responseClass = responseClassifier.applyOrElse(
+        val classified = responseClassifier.applyOrElse(
           ctfs.ReqRep(inputArgs, response),
           ctfs.ResponseClassifier.Default)
-        responseClass match {
-          case ctfs.ResponseClass.Ignorable => // Do nothing.
-          case ctfs.ResponseClass.Successful(_) =>
-            __stats_moreCoolThings.SuccessCounter.incr()
-          case ctfs.ResponseClass.Failed(_) =>
-            __stats_moreCoolThings.FailuresCounter.incr()
-            response match {
-              case _root_.com.twitter.util.Throw(ex) =>
-                setServiceName(ex)
-                __stats_moreCoolThings.FailuresScope.counter(
-                  _root_.com.twitter.util.Throwables.mkString(ex): _*).incr()
-              case _ =>
-            }
-        }
+        if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
+          __stats_moreCoolThings.SuccessCounter.incr()
+        } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
+          __stats_moreCoolThings.FailuresCounter.incr()
+          if (response.isThrow) {
+            setServiceName(response.throwable)
+            __stats_moreCoolThings.FailuresScope.counter(
+              _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
+          }
+        } // Last ResponseClass is Ignorable, which we do not need to record
       }
     }
   }

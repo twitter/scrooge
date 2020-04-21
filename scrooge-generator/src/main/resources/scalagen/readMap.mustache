@@ -5,7 +5,7 @@ if (_map.size == 0) {
 } else {
   val _rv = new _root_.scala.collection.mutable.HashMap[{{keyType}}, {{valueType}}]
   var _i = 0
-  while (_i < _map.size) {
+  do {
     val _key = {
 {{#keyReadWriteInfo}}
       {{>readValue}}
@@ -18,7 +18,7 @@ if (_map.size == 0) {
     }
     _rv(_key) = _value
     _i += 1
-  }
+  } while (_i < _map.size)
   _iprot.readMapEnd()
   _rv
 }

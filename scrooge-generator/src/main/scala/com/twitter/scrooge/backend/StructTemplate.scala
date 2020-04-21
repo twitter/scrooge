@@ -198,6 +198,7 @@ trait StructTemplate { self: TemplateGenerator =>
             case _ => false
           }),
           "isNamedType" -> v(field.fieldType.isInstanceOf[NamedType]),
+          "hasPassthroughFields" -> v(!canCallWithoutPassthroughFields(field.fieldType)),
           "passthroughFields" -> {
             val insides = buildPassthroughFields(field.fieldType)
             if (field.requiredness.isOptional) {
@@ -335,6 +336,34 @@ trait StructTemplate { self: TemplateGenerator =>
     v(basePassthrough + overrides)
   }
 
+  /**
+   * Returns whether the fieldType is such that it cannot possibly contain passthrough fields.
+   *
+   * Examples - primitive types, Strings do not contain pass through.
+   * Collections containing only primitive elements also cannot.
+   *
+   * @param fieldType Field type being checked
+   * @return
+   */
+  private def canCallWithoutPassthroughFields(fieldType: FieldType): Boolean = {
+    fieldType match {
+      case t if isPrimitive(t) =>
+        true
+      case TBinary | TString =>
+        true
+      case _: EnumType =>
+        true
+      case ListType(eltType, _) =>
+        canCallWithoutPassthroughFields(eltType)
+      case SetType(eltType, _) =>
+        canCallWithoutPassthroughFields(eltType)
+      case MapType(keyType, valueType, _) =>
+        canCallWithoutPassthroughFields(keyType) && canCallWithoutPassthroughFields(valueType)
+      case _ =>
+        false
+    }
+  }
+
   private def exceptionMsgFieldName(struct: StructLike): Option[SimpleID] = {
     val msgField: Option[Field] = struct.fields
       .find { field =>
@@ -458,6 +487,7 @@ trait StructTemplate { self: TemplateGenerator =>
       "arity0" -> v(arity == 0),
       "arity1" -> v(if (arity == 1) fieldDictionaries.take(1) else Nil),
       "arityN" -> v(arity > 1 && arity <= 22),
+      "arity1ThroughN" -> v(arity >= 1 && arity <= 22),
       "withFieldGettersAndSetters" -> v(isStruct || isException),
       "withTrait" -> v(isStruct),
       "adapt" -> v(genAdapt),

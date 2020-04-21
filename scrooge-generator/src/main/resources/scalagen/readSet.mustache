@@ -5,14 +5,14 @@ if (_set.size == 0) {
 } else {
   val _rv = new _root_.scala.collection.mutable.HashSet[{{eltType}}]
   var _i = 0
-  while (_i < _set.size) {
+  do {
     _rv += {
 {{#eltReadWriteInfo}}
       {{>readValue}}
 {{/eltReadWriteInfo}}
     }
     _i += 1
-  }
+  } while (_i < _set.size)
   _iprot.readSetEnd()
   _rv
 }

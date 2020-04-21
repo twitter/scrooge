@@ -1,20 +1,20 @@
 private[this] object {{__stats_name}} {
-  val RequestsCounter = scopedStats.scope("{{clientFuncNameForWire}}").counter("requests")
-  val SuccessCounter = scopedStats.scope("{{clientFuncNameForWire}}").counter("success")
-  val FailuresCounter = scopedStats.scope("{{clientFuncNameForWire}}").counter("failures")
-  val FailuresScope = scopedStats.scope("{{clientFuncNameForWire}}").scope("failures")
+  val RequestsCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("{{clientFuncNameForWire}}").counter("requests")
+  val SuccessCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("{{clientFuncNameForWire}}").counter("success")
+  val FailuresCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("{{clientFuncNameForWire}}").counter("failures")
+  val FailuresScope: StatsReceiver = scopedStats.scope("{{clientFuncNameForWire}}").scope("failures")
 }
 {{#functionInfo}}
 val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[{{typeName}}] = {
   response: Array[Byte] => {
-    val result = decodeResponse(response, {{funcObjectName}}.Result)
-
-    result.firstException() match {
-      case Some(exception) => _root_.com.twitter.util.Throw(setServiceName(exception))
-      case _ => result.successField match {
-        case Some(success) => _root_.com.twitter.util.Return(success)
-        case _ => _root_.com.twitter.util.Throw(missingResult("{{clientFuncNameForWire}}"))
-      }
+    val result: {{funcObjectName}}.Result = decodeResponse(response, {{funcObjectName}}.Result)
+    val firstException = result.firstException()
+    if (firstException.isDefined) {
+      _root_.com.twitter.util.Throw(setServiceName(firstException.get))
+    } else if (result.successField.isDefined) {
+      _root_.com.twitter.util.Return(result.successField.get)
+    } else {
+      _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("{{clientFuncNameForWire}}"))
     }
   }
 }
@@ -36,23 +36,19 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
     this.service(serialized).flatMap { response =>
       Future.const(serdeCtx.deserialize(response))
     }.respond { response =>
-      val responseClass = responseClassifier.applyOrElse(
+      val classified = responseClassifier.applyOrElse(
         ctfs.ReqRep(inputArgs, response),
         ctfs.ResponseClassifier.Default)
-      responseClass match {
-        case ctfs.ResponseClass.Ignorable => // Do nothing.
-        case ctfs.ResponseClass.Successful(_) =>
-          {{__stats_name}}.SuccessCounter.incr()
-        case ctfs.ResponseClass.Failed(_) =>
-          {{__stats_name}}.FailuresCounter.incr()
-          response match {
-            case _root_.com.twitter.util.Throw(ex) =>
-              setServiceName(ex)
-              {{__stats_name}}.FailuresScope.counter(
-                _root_.com.twitter.util.Throwables.mkString(ex): _*).incr()
-            case _ =>
-          }
-      }
+      if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
+        {{__stats_name}}.SuccessCounter.incr()
+      } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
+        {{__stats_name}}.FailuresCounter.incr()
+        if (response.isThrow) {
+          setServiceName(response.throwable)
+          {{__stats_name}}.FailuresScope.counter(
+            _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
+        }
+      } // Last ResponseClass is Ignorable, which we do not need to record
     }
   }
 }
