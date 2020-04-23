@@ -383,7 +383,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
    */
   def qualifyNamedType(t: NamedType, namespace: Option[Identifier] = None): Identifier =
     t.scopePrefix match {
-      case Some(scope) => t.sid.addScope(getIncludeNamespace(scope.name))
+      case Some(scope) => t.sid.addScope(getIncludeNamespace(scope.fullName))
       case None if namespace.isDefined => t.sid.addScope(namespace.get)
       case None => t.sid
     }

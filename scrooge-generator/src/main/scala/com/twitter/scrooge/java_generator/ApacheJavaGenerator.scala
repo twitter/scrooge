@@ -150,11 +150,11 @@ class ApacheJavaGenerator(
    */
   def qualifyNamedType(
     sid: SimpleID,
-    scopePrefixOption: Option[SimpleID],
+    scopePrefixOption: Option[Identifier],
     fileNamespaceOption: Option[Identifier] = None
   ): Identifier = {
     scopePrefixOption
-      .map { scopePrefix => sid.addScope(getIncludeNamespace(scopePrefix.name)) }.orElse {
+      .map { scopePrefix => sid.addScope(getIncludeNamespace(scopePrefix.fullName)) }.orElse {
         fileNamespaceOption.map { fileNamespace => sid.addScope(fileNamespace) }
       }.getOrElse {
         sid

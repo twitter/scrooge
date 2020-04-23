@@ -262,7 +262,7 @@ class CocoaGenerator(
 
   override def qualifyNamedType(t: NamedType, namespace: Option[Identifier] = None): Identifier =
     t.scopePrefix match {
-      case Some(scope) => t.sid.prepend(getIncludeNamespace(scope.name).fullName)
+      case Some(scope) => t.sid.prepend(getIncludeNamespace(scope.fullName).fullName)
       case None => t.sid.prepend(currentNamespace)
     }
 

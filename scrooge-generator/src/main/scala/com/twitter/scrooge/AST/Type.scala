@@ -27,15 +27,16 @@ sealed trait NamedType extends FieldType {
   def sid: SimpleID
 
   /** Filename of the containing file if the type is included from another file */
-  def scopePrefix: Option[SimpleID]
+  def scopePrefix: Option[Identifier]
 }
 
-case class StructType(struct: StructLike, scopePrefix: Option[SimpleID] = None) extends NamedType {
+case class StructType(struct: StructLike, scopePrefix: Option[Identifier] = None)
+    extends NamedType {
   val sid: SimpleID = struct.sid
   override def toString: String = "Struct(?)"
 }
 
-case class EnumType(enum: Enum, scopePrefix: Option[SimpleID] = None) extends NamedType {
+case class EnumType(enum: Enum, scopePrefix: Option[Identifier] = None) extends NamedType {
   val sid: SimpleID = enum.sid
   override def toString: String = "Enum(?)"
 }
