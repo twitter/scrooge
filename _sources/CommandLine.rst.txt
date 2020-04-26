@@ -78,6 +78,7 @@ A complete command line help menu for scrooge-generator:
   --scala-warn-on-java-ns-fallback          Print a warning when the scala generator falls back to the java namespace
   --finagle                                 generate finagle classes
   --gen-adapt                               Generate code for adaptive decoding for scala.
+  --java-passthrough                        Enable java passthrough
   <files...>                                thrift files to compile
 
 scrooge-linter
