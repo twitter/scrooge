@@ -256,78 +256,85 @@ class ApacheJavaGeneratorSpec extends Spec {
         result must be(List("No fields set for union type 'DeepValidationUnion'."))
       }
     }
+
+    "passthrough fields" should {
+      "passthroughStruct" in {
+        val pt2 = new PassThrough2(1, new PassThroughStruct(), new PassThroughStruct())
+
+        val pt1 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pt2.write(protocol)
+          val temp = new PassThrough()
+          temp.read(protocol)
+          temp
+        }
+
+        val pt2roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pt1.write(protocol)
+          val temp = new PassThrough2()
+          temp.read(protocol)
+          temp
+        }
+
+        pt2roundTripped must be(pt2)
+      }
+
+      "passthroughEnum" in {
+        val pt8 = new PassThrough8(TwoEnum.Two)
+
+        val pt7 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pt8.write(protocol)
+          val temp = new PassThrough7()
+          temp.read(protocol)
+          temp
+        }
+
+        val pt8roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pt7.write(protocol)
+          val temp = new PassThrough8()
+          temp.read(protocol)
+          temp
+        }
+        pt8roundTripped must be(pt8)
+      }
+
+      "passthroughUnion" in {
+        val pthu3 = {
+          val temp = new PassThroughUnion3()
+          temp.setF2(new PassThrough2(1, new PassThroughStruct(), new PassThroughStruct()))
+          temp
+        }
+
+        val pthu2 = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pthu3.write(protocol)
+          val temp = new PassThroughUnion2()
+          temp.read(protocol)
+          temp
+        }
+
+        val pthu3roundTripped = {
+          val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
+          pthu2.write(protocol)
+          val temp = new PassThroughUnion3()
+          temp.read(protocol)
+          temp
+        }
+
+        pthu3roundTripped must be(pthu3)
+      }
+
+    }
+
+    "generate correctly escaped field annotation" in {
+      val doc = generateDoc(getFileContents("test_thrift/annotations.thrift"))
+      val gen = getGenerator(doc)
+      val ctrl = new StructController(doc.structs(0), Set(), false, gen, doc.namespace("java"))
+      gen.renderMustache("struct.mustache", ctrl).trim must include(
+        "tmpFieldMap.put(\"tag1\", \"\\\"value\\\"\")")
+    }
   }
-
-  "passthrough fields" should {
-    "passthroughStruct" in {
-      val pt2 = new PassThrough2(1, new PassThroughStruct(), new PassThroughStruct())
-
-      val pt1 = {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
-        pt2.write(protocol)
-        val temp = new PassThrough()
-        temp.read(protocol)
-        temp
-      }
-
-      val pt2roundTripped = {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
-        pt1.write(protocol)
-        val temp = new PassThrough2()
-        temp.read(protocol)
-        temp
-      }
-
-      pt2roundTripped must be(pt2)
-    }
-
-    "passthroughEnum" in {
-      val pt8 = new PassThrough8(TwoEnum.Two)
-
-      val pt7 = {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
-        pt8.write(protocol)
-        val temp = new PassThrough7()
-        temp.read(protocol)
-        temp
-      }
-
-      val pt8roundTripped = {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
-        pt7.write(protocol)
-        val temp = new PassThrough8()
-        temp.read(protocol)
-        temp
-      }
-      pt8roundTripped must be(pt8)
-    }
-
-    "passthroughUnion" in {
-      val pthu3 = {
-        val temp = new PassThroughUnion3()
-        temp.setF2(new PassThrough2(1, new PassThroughStruct(), new PassThroughStruct()))
-        temp
-      }
-
-      val pthu2 = {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
-        pthu3.write(protocol)
-        val temp = new PassThroughUnion2()
-        temp.read(protocol)
-        temp
-      }
-
-      val pthu3roundTripped = {
-        val protocol = new TBinaryProtocol(new TMemoryBuffer(256))
-        pthu2.write(protocol)
-        val temp = new PassThroughUnion3()
-        temp.read(protocol)
-        temp
-      }
-
-      pthu3roundTripped must be(pthu3)
-    }
-
-  }
-
 }
