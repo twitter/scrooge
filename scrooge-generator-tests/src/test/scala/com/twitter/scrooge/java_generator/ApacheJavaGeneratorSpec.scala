@@ -336,5 +336,14 @@ class ApacheJavaGeneratorSpec extends Spec {
       gen.renderMustache("struct.mustache", ctrl).trim must include(
         "tmpFieldMap.put(\"tag1\", \"\\\"value\\\"\")")
     }
+
+    "generate enum with fully-qualified class name" in {
+      val doc =
+        generateDoc(getFileContents("test_thrift/struct_field_with_same_name_and_type.thrift"))
+      val gen = getGenerator(doc)
+      val ctrl = new StructController(doc.structs(0), Set(), false, gen, doc.namespace("java"))
+      gen.renderMustache("struct.mustache", ctrl).trim must include(
+        "test_enum.OrganizationType.findByValue(iprot.readI32())")
+    }
   }
 }
