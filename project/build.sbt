@@ -5,3 +5,4 @@ scalacOptions ++= Seq(
   "-encoding",
   "utf8"
 )
+Resolver.typesafeIvyRepo("releases")

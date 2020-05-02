@@ -164,8 +164,7 @@ val sharedSettingsWithoutScalaVersion = Seq(
       s"name=${name.value}\nversion=${version.value}\nbuild_revision=$buildRev\nbuild_name=$buildName"
     IO.write(file, contents)
     Seq(file)
-  },
-  resolvers += Resolver.typesafeIvyRepo("releases")
+  }
 )
 
 // settings for projects that are scala 2.10
