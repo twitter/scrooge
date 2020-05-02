@@ -58,20 +58,20 @@ jobs:
         run: |
           ./sbt ++${{ matrix.scala }} clean test
       - name: test/generator-tests
-          if: ${{ matrix.java != 'openjdk@1.8' }}
-          shell: bash
-          run: |
-            ./sbt ++${{ matrix.scala }} clean scrooge-generator-tests/test
+        if: ${{ matrix.java != 'openjdk@1.8' }}
+        shell: bash
+        run: |
+          ./sbt ++${{ matrix.scala }} clean scrooge-generator-tests/test
       - name: test/with-coverage
         if: ${{ matrix.java == 'openjdk@1.8' }}
         shell: bash
         run: |
           ./sbt ++${{ matrix.scala }} clean coverage test coverageReport
       - name: test/with-coverage/generator-tests
-          if: ${{ matrix.java != 'openjdk@1.8' }}
-          shell: bash
-          run: |
-            ./sbt ++${{ matrix.scala }} clean "project scrooge-generator-tests" coverage test coverageReport
+        if: ${{ matrix.java != 'openjdk@1.8' }}
+        shell: bash
+        run: |
+          ./sbt ++${{ matrix.scala }} clean "project scrooge-generator-tests" coverage test coverageReport
       - name: test/coverage-report/generate
         if: ${{ matrix.java == 'openjdk@1.8' }}
         shell: bash
