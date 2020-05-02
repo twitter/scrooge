@@ -131,3 +131,8 @@ jobs:
         shell: bash
         run: |
           ./sbt ++${{ matrix.scala }} clean test
+      - name: test/generator-tests
+          if: ${{ matrix.java != 'openjdk@1.8' }}
+          shell: bash
+          run: |
+            ./sbt ++${{ matrix.scala }} project scrooge-generator-tests/test
