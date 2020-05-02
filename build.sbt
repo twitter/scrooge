@@ -105,7 +105,8 @@ val sharedSettingsWithoutScalaVersion = Seq(
   version := releaseVersion,
   organization := "com.twitter",
   resolvers ++= Seq(
-    "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
+    "sonatype-public" at "https://oss.sonatype.org/content/groups/public",
+    Resolver.typesafeIvyRepo("releases")
   ),
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "3.0.8" % "test",
