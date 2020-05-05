@@ -28,6 +28,8 @@ case class FileContents(importer: Importer, data: String, thriftFilename: Option
 trait Importer extends (String => Option[FileContents]) {
   private[scrooge] def canonicalPaths: Seq[String] // for tests
   def lastModified(filename: String): Option[Long]
+
+  // Note: Deduplicates based on the equality of `Importer`s.
   def +:(head: Importer): Importer = head match {
     case MultiImporter(importers) => MultiImporter.deduped(head +: importers)
     case _ => MultiImporter.deduped(Seq(head, this))
@@ -75,7 +77,7 @@ object Importer {
     MultiImporter.deduped(paths.map(Importer.apply))
 }
 
-case class DirImporter(dir: File) extends Importer {
+final case class DirImporter(dir: File) extends Importer {
   private[scrooge] def canonicalPaths = Seq(dir.getCanonicalPath) // for test
 
   private[this] def resolve(filename: String): Option[(File, Importer)] = {
@@ -111,10 +113,22 @@ case class DirImporter(dir: File) extends Importer {
   }
 
   override def toString: String = s"DirImporter(${dir.getCanonicalPath})"
+
+  // We override equals and hashCode because
+  // the default equality for File does not have the semantics we want.
+  override def equals(other: Any): Boolean = {
+    other match {
+      case that: DirImporter =>
+        this.dir.getCanonicalPath == that.dir.getCanonicalPath
+      case _ => false
+    }
+  }
+
+  override def hashCode: Int = this.dir.getCanonicalPath.hashCode
 }
 
 // jar files are just zip files, so this will work with both .jar and .zip files
-case class ZipImporter(file: File) extends Importer {
+final case class ZipImporter(file: File) extends Importer {
   private[this] val zipFile = new ZipFile(file)
 
   lazy val canonicalPaths: Seq[String] = Seq(file.getCanonicalPath)
@@ -145,6 +159,19 @@ case class ZipImporter(file: File) extends Importer {
   }
 
   override def toString: String = s"ZipImporter(${file.getCanonicalPath})"
+
+  // We override equals and hashCode because
+  // the default equality for File does not have the semantics we want.
+  override def equals(other: Any): Boolean = {
+    other match {
+      case that: ZipImporter =>
+        this.file.getCanonicalPath == that.file.getCanonicalPath
+      case _ => false
+    }
+  }
+
+  override def hashCode: Int = this.file.getCanonicalPath.hashCode
+
 }
 
 case class MultiImporter(importers: Seq[Importer]) extends Importer {
@@ -189,36 +216,11 @@ case class MultiImporter(importers: Seq[Importer]) extends Importer {
 
 object MultiImporter {
 
-  // TODO: remove once we drop support for 2.11
-  // this is loosely copied from https://github.com/scala/scala/blob/ff662eb9ce08a0c33cbd148e094c690e9e8964ec/src/reflect/scala/reflect/internal/util/Collections.scala#L188
-  // this preserves order so that it behaves consistently
-  private[this] def distinctBy(importers: Seq[Importer], fn: Importer => String): Seq[Importer] = {
-    val seen = scala.collection.mutable.Set[String]()
-    val buffer = scala.collection.mutable.ListBuffer[Importer]()
-    importers.foreach { importer =>
-      val key = fn(importer)
-      val wasSeen = seen(key)
-      if (!wasSeen) {
-        seen += key
-        buffer += importer
-      }
-    }
-    buffer.toList
-  }
-
   /**
    * Ensures that we don't add multiple importers that are pointing to the same directory to the
-   * include path.
+   * include path, while preserving importer order.
    */
-  def deduped(importers: Seq[Importer]): MultiImporter = MultiImporter(
-    distinctBy(
-      importers, {
-        case ZipImporter(file) => file.getCanonicalPath
-        case DirImporter(file) => file.getCanonicalPath
-        case importer => importer.toString // should not happen, but just in case
-      }
-    )
-  )
+  def deduped(importers: Seq[Importer]): MultiImporter = MultiImporter(importers.distinct)
 }
 
 object NullImporter extends Importer {

@@ -78,4 +78,59 @@ class ImporterSpec extends Spec {
       importer.getResolvedPath("f2/a.thrift") must be(None)
     }
   }
+
+  "DirImporter" should {
+    val testFolder = TempDirectory.create(None)
+
+    "have equality defined according to path" in {
+      val aImporter = DirImporter(new File(testFolder, "a"))
+      val anotherAImporter = DirImporter(new File(testFolder, "a"))
+      val bImporter = DirImporter(new File(testFolder, "b"))
+
+      aImporter must not equal bImporter
+      aImporter must equal(anotherAImporter)
+    }
+  }
+
+  "ZipImporter" should {
+    val testFolder = TempDirectory.create(None)
+    val stubZipContent = "\120\113\005\006" + ("\000" * 18)
+
+    "have equality defined according to path" in {
+      val aZip = new File(testFolder, "a.zip")
+      val bZip = new File(testFolder, "b.zip")
+
+      Seq(aZip, bZip).foreach(zip => {
+        val f = new FileOutputStream(zip)
+        f.write(stubZipContent.getBytes)
+        f.close()
+      })
+
+      val aImporter = ZipImporter(aZip)
+      val anotherAImporter = ZipImporter(aZip)
+      val bImporter = ZipImporter(bZip)
+
+      aImporter must not equal bImporter
+      aImporter must equal(anotherAImporter)
+    }
+  }
+
+  "MultiImporter" should {
+    val testFolder = TempDirectory.create(None)
+
+    "deduplicate importers that are equal" in {
+      val aImporter = DirImporter(new File(testFolder, "a"))
+      val anotherAImporter = DirImporter(new File(testFolder, "a"))
+
+      val multiImporter = MultiImporter.deduped(Seq(aImporter, anotherAImporter))
+      multiImporter.importers.length must equal(1)
+    }
+
+    "not deduplicate importers that are not equal, but maintain order" in {
+      val importers =
+        Seq(DirImporter(new File(testFolder, "b")), DirImporter(new File(testFolder, "a")))
+      val multiImporter = MultiImporter.deduped(importers)
+      multiImporter.importers must equal(importers)
+    }
+  }
 }
