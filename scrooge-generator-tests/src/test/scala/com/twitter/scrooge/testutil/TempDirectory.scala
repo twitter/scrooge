@@ -22,7 +22,7 @@ object TempDirectory {
     if (deleteAtExit)
       Runtime
         .getRuntime().addShutdownHook(new Thread {
-          override def run() {
+          override def run(): Unit = {
             Files.delete(file)
           }
         })

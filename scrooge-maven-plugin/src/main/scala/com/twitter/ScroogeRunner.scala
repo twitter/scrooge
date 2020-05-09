@@ -33,7 +33,7 @@ class ScroogeRunner {
     namespaceMappings: Map[String, String],
     language: String,
     flags: Set[String]
-  ) {
+  ): Unit = {
 
     val compiler = new Compiler()
     compiler.destFolder = outputDir.getPath

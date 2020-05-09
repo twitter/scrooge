@@ -10,7 +10,7 @@ object Utils extends MustMatchers {
     actual: String,
     expected: String,
     assertionMessage: String = "The contents did not match"
-  ) {
+  ): Unit = {
     val actualItems = normalizeHeaders(actual).split("\n")
     val expectedItems = normalizeHeaders(expected).split("\n")
     for (i <- 0 until actualItems.size) {

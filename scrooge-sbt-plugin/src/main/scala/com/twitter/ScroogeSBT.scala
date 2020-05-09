@@ -22,7 +22,7 @@ object ScroogeSBT extends AutoPlugin {
     disableStrict: Boolean,
     scalaWarnOnJavaNSFallback: Boolean,
     defaultNamespace: String
-  ) {
+  ): Unit = {
 
     val originalLoader: Option[ClassLoader] =
       // We have to change the class loader so Mustache resolver can see resources.
