@@ -53,7 +53,8 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
   val is_base_type_or_enum: Boolean = is_base_type || fieldType.isInstanceOf[EnumType]
   val is_base_type_or_binary: Boolean = is_base_type || fieldType == TBinary
   val is_base_type_not_string: Boolean = is_base_type && fieldType != TString
-  val is_struct: Boolean = fieldType.isInstanceOf[StructType] // this can be a struct or an exception
+  val is_struct: Boolean =
+    fieldType.isInstanceOf[StructType] // this can be a struct or an exception
   val is_struct_or_enum: Boolean = is_struct || fieldType.isInstanceOf[EnumType]
   val is_void: Boolean = fieldType == Void || fieldType == OnewayVoid
   val has_struct_at_leaf: Boolean = hasStructAtLeaf(fieldType)

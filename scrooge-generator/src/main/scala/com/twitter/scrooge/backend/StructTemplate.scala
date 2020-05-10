@@ -409,7 +409,8 @@ trait StructTemplate { self: TemplateGenerator =>
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
-    toplevel: Boolean = false // True if this struct is defined in its own file. False for internal structs.
+    toplevel: Boolean =
+      false // True if this struct is defined in its own file. False for internal structs.
   ): Dictionary = {
     val fullyQualifiedThriftExn = "_root_.com.twitter.scrooge.ThriftException"
     val fullyQualifiedSourcedExn = "_root_.com.twitter.finagle.SourcedException"

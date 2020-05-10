@@ -1404,7 +1404,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           defaultRequirednessField = 4
         )
         val copiedStruct = struct.copyChangingConstructionRequiredFields(
-          )
+        )
         copiedStruct must be(struct)
       }
 
@@ -1417,7 +1417,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           _passthroughFields = Map.empty[Short, TFieldBlob]
         )
         val copiedStruct = struct.copyChangingConstructionRequiredFields(
-          )
+        )
         copiedStruct must be(struct)
       }
 

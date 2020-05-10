@@ -323,7 +323,8 @@ private final class ThriftStructMetaDataUtil[T <: ThriftStruct](codec: ThriftStr
   /**
    * The fully qualified name of the ThriftStruct subclass.
    */
-  val thriftStructSubClassName: String = structCodecClass.getName.dropRight(1) // drop '$' from object name
+  val thriftStructSubClassName: String =
+    structCodecClass.getName.dropRight(1) // drop '$' from object name
 
   /**
    * Gets the unqualified name of the struct.

@@ -275,14 +275,14 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
       ((buf(off + 3) & 0xff))
 
   override def decodeI64(buf: Array[Byte], off: Int): Long =
-    ((buf(off) & 0xFFL) << 56) |
-      ((buf(off + 1) & 0xFFL) << 48) |
-      ((buf(off + 2) & 0xFFL) << 40) |
-      ((buf(off + 3) & 0xFFL) << 32) |
-      ((buf(off + 4) & 0xFFL) << 24) |
-      ((buf(off + 5) & 0xFFL) << 16) |
-      ((buf(off + 6) & 0xFFL) << 8) |
-      ((buf(off + 7) & 0xFFL))
+    ((buf(off) & 0xffL) << 56) |
+      ((buf(off + 1) & 0xffL) << 48) |
+      ((buf(off + 2) & 0xffL) << 40) |
+      ((buf(off + 3) & 0xffL) << 32) |
+      ((buf(off + 4) & 0xffL) << 24) |
+      ((buf(off + 5) & 0xffL) << 16) |
+      ((buf(off + 6) & 0xffL) << 8) |
+      ((buf(off + 7) & 0xffL))
 
   override def decodeDouble(buf: Array[Byte], off: Int): Double =
     java.lang.Double.longBitsToDouble(decodeI64(buf, off))

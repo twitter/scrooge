@@ -192,10 +192,12 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
         )
 
         val retryPolicy =
-          RetryPolicy.tries[Try[Int]](3, {
-            case Throw(ex) if ex.getMessage == "Try again" =>
-              true
-          })
+          RetryPolicy.tries[Try[Int]](
+            3,
+            {
+              case Throw(ex) if ex.getMessage == "Try again" =>
+                true
+            })
 
         val retriedDeliveryService =
           new RetryExceptionsFilter(retryPolicy, new JavaTimer(true)) andThen
@@ -338,7 +340,8 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
         }
 
         eventually {
-          statsReceiver.counters(Seq("client", "ExceptionalService", "deliver", "requests")) must be(
+          statsReceiver.counters(
+            Seq("client", "ExceptionalService", "deliver", "requests")) must be(
             1
           )
         }

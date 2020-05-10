@@ -104,12 +104,13 @@ class ApacheJavaGenerator(
 
   def renderMustache(template: String, controller: Any = this): String = {
     val sw = new StringWriter()
-    val mustache = templateCache.getOrElseUpdate(template, {
-      val mf = new DefaultMustacheFactory("apachejavagen/")
-      mf.setObjectHandler(new ScalaObjectHandler)
-      val m = mf.compile(template)
-      m
-    })
+    val mustache = templateCache.getOrElseUpdate(
+      template, {
+        val mf = new DefaultMustacheFactory("apachejavagen/")
+        mf.setObjectHandler(new ScalaObjectHandler)
+        val m = mf.compile(template)
+        m
+      })
     mustache.execute(sw, controller).flush()
     sw.toString
   }
@@ -190,7 +191,9 @@ class ApacheJavaGenerator(
         val prefix = if (inInit) "HashMap" else "Map"
         prefix + (if (skipGeneric) ""
                   else
-                    "<" + typeName(k, inContainer = true) + "," + typeName(v, inContainer = true) + ">")
+                    "<" + typeName(k, inContainer = true) + "," + typeName(
+                      v,
+                      inContainer = true) + ">")
       case SetType(x, _) =>
         val prefix =
           if (inInit)

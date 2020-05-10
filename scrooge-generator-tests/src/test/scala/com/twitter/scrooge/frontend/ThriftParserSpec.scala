@@ -444,7 +444,9 @@ enum Foo
       parser.parse("exception NoParams { }", parser.definition) must be(
         Exception_(SimpleID("NoParams"), "NoParams", Seq(), None)
       )
-      parser.parse("/** doc rivers */ exception wellDocumentedException { }", parser.definition) must be(
+      parser.parse(
+        "/** doc rivers */ exception wellDocumentedException { }",
+        parser.definition) must be(
         Exception_(
           SimpleID("wellDocumentedException"),
           "wellDocumentedException",

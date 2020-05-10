@@ -304,7 +304,8 @@ class ThriftParser(
     }
 
   lazy val typedef: Parser[Typedef] =
-    (opt(comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ~ defaultedAnnotations ^^ {
+    (opt(
+      comments) ~ "typedef") ~> fieldType ~ defaultedAnnotations ~ simpleID ~ defaultedAnnotations ^^ {
       case dtype ~ referentAnnotations ~ sid ~ aliasAnnotations =>
         Typedef(sid, dtype, referentAnnotations, aliasAnnotations)
     }
@@ -341,9 +342,12 @@ class ThriftParser(
     (("senum" ~> simpleID) <~ "{") ~ (rep(stringLiteral <~ opt(listSeparator)) <~
       "}") ~ defaultedAnnotations ^^ {
       case sid ~ items ~ annotations =>
-        Senum(sid, items.map {
-          _.value
-        }, annotations)
+        Senum(
+          sid,
+          items.map {
+            _.value
+          },
+          annotations)
     }
 
   def structLike(

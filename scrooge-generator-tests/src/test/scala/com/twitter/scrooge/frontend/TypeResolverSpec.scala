@@ -378,29 +378,29 @@ class TypeResolverSpec extends Spec {
         case struct: Struct => {
           struct.fields(0) match {
             case Field(
-                1,
-                _,
-                _,
-                ListType(StructType(_, Some(SimpleID("typedef1", _))), None),
-                _,
-                _,
-                _,
-                _,
-                _
+                  1,
+                  _,
+                  _,
+                  ListType(StructType(_, Some(SimpleID("typedef1", _))), None),
+                  _,
+                  _,
+                  _,
+                  _,
+                  _
                 ) => // pass
             case _ => fail()
           }
           struct.fields(1) match {
             case Field(
-                2,
-                _,
-                _,
-                SetType(StructType(_, Some(SimpleID("typedef1", _))), None),
-                _,
-                _,
-                _,
-                _,
-                _
+                  2,
+                  _,
+                  _,
+                  SetType(StructType(_, Some(SimpleID("typedef1", _))), None),
+                  _,
+                  _,
+                  _,
+                  _,
+                  _
                 ) => // pass
             case _ => fail()
           }

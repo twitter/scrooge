@@ -62,7 +62,9 @@ object Main {
         c.copy(verbose = true)
       } text ("log verbose messages about progress")
 
-      opt[Unit]('i', "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action {
+      opt[Unit](
+        'i',
+        "ignore-errors") text ("return 0 if linter errors are found. If not set, linter returns 1.") action {
         (_, c) => c.copy(ignoreErrors = true)
       }
 
@@ -87,8 +89,8 @@ object Main {
           val rule = findRule(ruleName);
           if (c.enabledRules.contains(rule)) c else c.copy(enabledRules = c.enabledRules :+ rule)
         }
-      } text (s"rules to be enabled.\n  Available: ${ruleList(LintRule.Rules)}\n  Default: ${ruleList(
-        LintRule.DefaultRules)}")
+      } text (s"rules to be enabled.\n  Available: ${ruleList(
+        LintRule.Rules)}\n  Default: ${ruleList(LintRule.DefaultRules)}")
 
       opt[String]('d', "disable-rule").unbounded.valueName("<rule-name>").action { (ruleName, c) =>
         {
@@ -104,7 +106,8 @@ object Main {
         c.copy(showWarnings = true)
       }
 
-      opt[Unit]("disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action {
+      opt[Unit](
+        "disable-strict") text ("issue warnings on non-severe parse errors instead of aborting") action {
         (_, c) => c.copy(strict = false)
       }
 
