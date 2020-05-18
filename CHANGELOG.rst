@@ -11,6 +11,8 @@ Unreleased
   variables `BINTRAY_USER` and `BINTRAY_PASS` for username and password credentials
   respectively. ``PHAB_ID=D478276``
 
+* scrooge-generator: Close open files in Importer. ``PHAB_ID=D485588``
+
 20.4.1
 ------
 

@@ -105,7 +105,12 @@ final case class DirImporter(dir: File) extends Importer {
   def apply(filename: String): Option[FileContents] =
     resolve(filename).map {
       case (file, importer) =>
-        FileContents(importer, Source.fromFile(file, "UTF-8").mkString, Some(file.getName))
+        val fileSource = Source.fromFile(file, "UTF-8")
+        try {
+          FileContents(importer, fileSource.mkString, Some(file.getName))
+        } finally {
+          fileSource.close()
+        }
     }
 
   override private[scrooge] def getResolvedPath(filename: String): Option[String] = {
@@ -142,11 +147,12 @@ final case class ZipImporter(file: File) extends Importer {
 
   def apply(filename: String): Option[FileContents] =
     resolve(filename).map { entry =>
-      FileContents(
-        this,
-        Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8").mkString,
-        Some(entry.getName)
-      )
+      val zipFileSource = Source.fromInputStream(zipFile.getInputStream(entry), "UTF-8")
+      try {
+        FileContents(this, zipFileSource.mkString, Some(entry.getName))
+      } finally {
+        zipFileSource.close()
+      }
     }
 
   private[this] def canResolve(filename: String): Boolean = resolve(filename).isDefined
