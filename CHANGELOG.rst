@@ -7,6 +7,11 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+20.5.0
+------
+
+No Changes
+
 * scrooge: Update `sbt-bintray` plugin to 0.5.6 which supports passing environment 
   variables `BINTRAY_USER` and `BINTRAY_PASS` for username and password credentials
   respectively. ``PHAB_ID=D478276``
