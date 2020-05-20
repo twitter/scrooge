@@ -1542,7 +1542,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid))
         result.write(oprot)
         oprot.writeMessageEnd()
-        _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
+        val trace = _root_.com.twitter.finagle.tracing.Trace()
+        if (trace.isActivelyTracing) {
+          trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
+        }
         oprot.getTransport.flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
@@ -1646,7 +1649,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val start = System.nanoTime
           val args = DoGreatThings.Args.decode(iprot)
           iprot.readMessageEnd()
-          _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
+          val trace = _root_.com.twitter.finagle.tracing.Trace()
+          if (trace.isActivelyTracing) {
+            trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
+          }
           _root_.com.twitter.finagle.context.Contexts.local.let(
             _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
             _root_.com.twitter.finagle.thrift.MethodMetadata(DoGreatThings)) {
@@ -1712,7 +1718,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           val start = System.nanoTime
           val args = NoExceptionCall.Args.decode(iprot)
           iprot.readMessageEnd()
-          _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
+          val trace = _root_.com.twitter.finagle.tracing.Trace()
+          if (trace.isActivelyTracing) {
+            trace.recordBinary("srv/request_deserialization_ns", System.nanoTime - start)
+          }
           _root_.com.twitter.finagle.context.Contexts.local.let(
             _root_.com.twitter.finagle.thrift.MethodMetadata.Key,
             _root_.com.twitter.finagle.thrift.MethodMetadata(NoExceptionCall)) {

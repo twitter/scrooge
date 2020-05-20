@@ -590,7 +590,10 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
         oprot.writeMessageBegin(new TMessage(name, TMessageType.REPLY, seqid))
         result.write(oprot)
         oprot.writeMessageEnd()
-        _root_.com.twitter.finagle.tracing.Trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
+        val trace = _root_.com.twitter.finagle.tracing.Trace()
+        if (trace.isActivelyTracing) {
+          trace.recordBinary("srv/response_serialization_ns", System.nanoTime - start)
+        }
         oprot.getTransport.flush()
 
         // make a copy of the array of bytes to construct a new buffer because memoryBuffer is reusable
