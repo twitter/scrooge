@@ -129,6 +129,7 @@ val sharedSettingsWithoutScalaVersion = Seq(
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
+  publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
   pomExtra :=
     <url>https://github.com/twitter/scrooge</url>
     <licenses>
