@@ -220,10 +220,10 @@ val jmockSettings = Seq(
   )
 )
 
+// this omits scrooge-generator, since it needs special treatment for 2.10.x
 lazy val publishedProjects = Seq[sbt.ProjectReference](
   scroogeAdaptive,
   scroogeCore,
-  scroogeGenerator,
   scroogeLinter,
   scroogeSerializer)
 
