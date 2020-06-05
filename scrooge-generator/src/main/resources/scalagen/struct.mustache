@@ -85,11 +85,12 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
       immutable$Map.empty[String, String],
 {{/fieldFieldAnnotations}}
 {{#hasDefaultFieldValueForFieldInfo}}
-      Some[{{fieldType}}]({{defaultFieldValueForFieldInfo}})
+      Some[{{fieldType}}]({{defaultFieldValueForFieldInfo}}),
 {{/hasDefaultFieldValueForFieldInfo}}
 {{^hasDefaultFieldValueForFieldInfo}}
-      None
+      None,
 {{/hasDefaultFieldValueForFieldInfo}}
+      _root_.scala.Option({{unsafeEmptyReadValue}})
     )
 {{/fields|,}}
   )
@@ -180,6 +181,24 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 {{/hasPassthroughFields}}
 {{/fields|,}}
     )
+
+  lazy val unsafeEmpty: {{StructName}} = {
+{{#fields}}
+{{#optional}}
+    val {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
+{{/optional}}
+{{^optional}}
+    val {{fieldName}}: {{fieldType}} = {{unsafeEmptyReadValue}}
+{{/optional}}
+{{/fields}}
+
+    new {{InstanceClassName}}(
+{{#fields}}
+      {{fieldName}},
+{{/fields}}
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[{{StructName}}] = new {{StructName}}StructBuilder(_root_.scala.None, fieldTypes)
 

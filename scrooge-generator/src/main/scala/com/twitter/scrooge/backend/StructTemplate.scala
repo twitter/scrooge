@@ -212,6 +212,7 @@ trait StructTemplate { self: TemplateGenerator =>
             }
           },
           "isEnum" -> v(field.fieldType.isInstanceOf[EnumType]),
+          "isStruct" -> v(field.fieldType.isInstanceOf[StructType]),
           // "qualifiedFieldType" is used to generate qualified type name even if it's not
           // imported, in case other same-named entities are generated in the same file.
           "qualifiedFieldType" -> v(templates("qualifiedFieldType")),
@@ -232,6 +233,7 @@ trait StructTemplate { self: TemplateGenerator =>
           "defaultFieldValueForFieldInfo" -> genDefaultFieldValueForFieldInfo(field)
             .getOrElse(NoValue),
           "defaultReadValue" -> genDefaultReadValue(field),
+          "unsafeEmptyReadValue" -> genUnsafeEmptyReadValue(field),
           "hasGetter" -> v(!blacklist.contains(field.sid.name)),
           "hasIsDefined" -> v(
             field.requiredness.isOptional || (!field.requiredness.isRequired && !isPrimitive(
@@ -448,6 +450,10 @@ trait StructTemplate { self: TemplateGenerator =>
       if (isException) Seq("message") else Nil,
       namespace
     )
+    val firstFieldName =
+      if (struct.fields.nonEmpty) genID(struct.fields.head.sid.toTitleCase) else v("")
+    val firstFieldValue =
+      if (struct.fields.nonEmpty) genUnsafeEmptyReadValue(struct.fields.head) else v("null")
 
     val structName = if (toplevel) genID(struct.sid.toTitleCase) else genID(struct.sid)
 
@@ -460,6 +466,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "packageName" -> pkgName,
       "docstring" -> v(struct.docstring.getOrElse("")),
       "parentType" -> v(parentType),
+      "firstFieldName" -> firstFieldName,
+      "firstFieldValue" -> firstFieldValue,
       "fields" -> v(fieldDictionaries),
       "hasFields" -> v(fieldDictionaries.nonEmpty),
       "nonOptionalFields" -> v(nonOptionalFieldDictionaries),

@@ -47,7 +47,8 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
       immutable$Map.apply[String, String](
         ("e.field.annotation", "false")
       ),
-      None
+      None,
+      _root_.scala.Option(0)
     )
   )
 
@@ -94,6 +95,15 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
     new OverCapacityException(
       chillTimeSeconds = original.chillTimeSeconds
     )
+
+  lazy val unsafeEmpty: OverCapacityException = {
+    val chillTimeSeconds: Int = 0
+
+    new OverCapacityException(
+      chillTimeSeconds,
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.None, fieldTypes)
 

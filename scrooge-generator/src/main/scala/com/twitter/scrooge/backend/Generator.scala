@@ -322,6 +322,23 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     v(code)
   }
 
+  /**
+   * The default value for the unsafe empty value case.
+   * These predefined values will be used to create field blob.
+   * For String, null is not valid value for required field.
+   */
+  def genUnsafeEmptyValue(fieldType: FieldType): CodeFragment = {
+    val code = fieldType match {
+      case TBool => "false"
+      case TByte | TI16 | TI32 => "0"
+      case TDouble => "0.0"
+      case TI64 => "0"
+      case TString => "\"empty\""
+      case _ => "null"
+    }
+    v(code)
+  }
+
   def genDefaultFieldValueForFieldInfo(f: Field): Option[CodeFragment] = {
     if (f.requiredness.isOptional) {
       None
@@ -352,6 +369,15 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       }
     }
   }
+
+  def genUnsafeEmptyReadValue(f: Field): CodeFragment =
+    // unsafeEmptyBuild() generates an empty object for either a struct or an enum type
+    // for the types that are not struct nor enum, set to predefined values
+    if (f.fieldType.isInstanceOf[StructType] || f.fieldType.isInstanceOf[EnumType]) {
+      v(genType(f.fieldType) + ".unsafeEmpty")
+    } else {
+      genDefaultFieldValue(f).getOrElse(genUnsafeEmptyValue(f.fieldType))
+    }
 
   def genDefaultReadValue(f: Field): CodeFragment =
     genDefaultFieldValue(f).getOrElse(genDefaultValue(f.fieldType))

@@ -97,6 +97,9 @@ object RequestType extends _root_.com.twitter.scrooge.ThriftEnumObject[RequestTy
     com.twitter.scrooge.test.gold.thriftscala.RequestType.Create,
     com.twitter.scrooge.test.gold.thriftscala.RequestType.Read
   )
+
+  lazy val unsafeEmpty: com.twitter.scrooge.test.gold.thriftscala.RequestType =
+    EnumUnknownRequestType(0)
 }
 
 

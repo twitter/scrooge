@@ -50,7 +50,8 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       ResponseUnionField,
@@ -61,7 +62,8 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.ResponseUnion.unsafeEmpty)
     )
   )
 
@@ -119,6 +121,17 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
           com.twitter.scrooge.test.gold.thriftscala.ResponseUnion.withoutPassthroughFields(field)
         }
     )
+
+  lazy val unsafeEmpty: Response = {
+    val statusCode: Int = 0
+    val responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = com.twitter.scrooge.test.gold.thriftscala.ResponseUnion.unsafeEmpty
+
+    new Immutable(
+      statusCode,
+      responseUnion,
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.None, fieldTypes)
 

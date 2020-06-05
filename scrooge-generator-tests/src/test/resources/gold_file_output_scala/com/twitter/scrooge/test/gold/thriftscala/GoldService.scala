@@ -306,7 +306,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty)
         )
       )
     
@@ -355,6 +356,15 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
               com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
             }
         )
+    
+      lazy val unsafeEmpty: Args = {
+        val request: com.twitter.scrooge.test.gold.thriftscala.Request = com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty
+    
+        new Args(
+          request,
+          NoPassthroughFields
+        )
+      }
     
       def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.None, fieldTypes)
     
@@ -538,7 +548,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Response.unsafeEmpty)
         ),
         new ThriftStructFieldInfo(
           ExField,
@@ -549,7 +560,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.unsafeEmpty)
         )
       )
     
@@ -615,6 +627,17 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
               }
             }
         )
+    
+      lazy val unsafeEmpty: Result = {
+        val success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
+        val ex: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = _root_.scala.None
+    
+        new Result(
+          success,
+          ex,
+          NoPassthroughFields
+        )
+      }
     
       def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.None, fieldTypes)
     
@@ -876,7 +899,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty)
         )
       )
     
@@ -925,6 +949,15 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
               com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
             }
         )
+    
+      lazy val unsafeEmpty: Args = {
+        val request: com.twitter.scrooge.test.gold.thriftscala.Request = com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty
+    
+        new Args(
+          request,
+          NoPassthroughFields
+        )
+      }
     
       def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.None, fieldTypes)
     
@@ -1106,7 +1139,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Response.unsafeEmpty)
         )
       )
     
@@ -1157,6 +1191,15 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
               }
             }
         )
+    
+      lazy val unsafeEmpty: Result = {
+        val success: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response] = _root_.scala.None
+    
+        new Result(
+          success,
+          NoPassthroughFields
+        )
+      }
     
       def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.None, fieldTypes)
     

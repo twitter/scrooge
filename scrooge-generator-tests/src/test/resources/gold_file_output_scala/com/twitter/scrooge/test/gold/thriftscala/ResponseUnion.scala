@@ -166,7 +166,9 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
         IdKeyTypeManifest,
         IdValueTypeManifest,
         immutable$Map.empty[java.lang.String, java.lang.String],
-        immutable$Map.empty[java.lang.String, java.lang.String]
+        immutable$Map.empty[java.lang.String, java.lang.String],
+        _root_.scala.None,
+        _root_.scala.Option(0)
       )
   }
 
@@ -180,6 +182,11 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
       _root_.scala.Some(Id.fieldInfo)
+
+    def writeFieldValue(_oprot: TProtocol): Unit = {
+      val id_item = id
+      _oprot.writeI64(id_item)
+    }
 
     override def write(_oprot: TProtocol): Unit = {
       _oprot.writeStructBegin(Union)
@@ -207,7 +214,9 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
         immutable$Map.empty[java.lang.String, java.lang.String],
         immutable$Map(
           ("u.field.annotation", "x")
-        )
+        ),
+        _root_.scala.None,
+        _root_.scala.Option("empty")
       )
   }
 
@@ -221,6 +230,11 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
       _root_.scala.Some(Details.fieldInfo)
+
+    def writeFieldValue(_oprot: TProtocol): Unit = {
+      val details_item = details
+      _oprot.writeString(details_item)
+    }
 
     override def write(_oprot: TProtocol): Unit = {
       if (details eq null)
@@ -254,6 +268,8 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
       _oprot.writeStructEnd()
     }
   }
+
+  lazy val unsafeEmpty: ResponseUnion = Id(0)
 
  /**
   * Checks that the struct is a valid as a new instance. If there are any missing required or

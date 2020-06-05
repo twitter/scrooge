@@ -48,7 +48,8 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     )
   )
 
@@ -93,6 +94,15 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     new Immutable(
       collectionLongId = original.collectionLongId
     )
+
+  lazy val unsafeEmpty: CollectionId = {
+    val collectionLongId: Long = 0
+
+    new Immutable(
+      collectionLongId,
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.None, fieldTypes)
 

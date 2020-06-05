@@ -339,7 +339,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty)
         )
       )
     
@@ -388,6 +389,15 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
               com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
             }
         )
+    
+      lazy val unsafeEmpty: Args = {
+        val request: com.twitter.scrooge.test.gold.thriftscala.Request = com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty
+    
+        new Args(
+          request,
+          NoPassthroughFields
+        )
+      }
     
       def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.None, fieldTypes)
     
@@ -573,7 +583,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(0)
         ),
         new ThriftStructFieldInfo(
           AxField,
@@ -584,7 +595,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.AnotherException.unsafeEmpty)
         ),
         new ThriftStructFieldInfo(
           OceField,
@@ -595,7 +607,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _root_.scala.None,
           immutable$Map.empty[String, String],
           immutable$Map.empty[String, String],
-          None
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.unsafeEmpty)
         )
       )
     
@@ -670,6 +683,19 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
               }
             }
         )
+    
+      lazy val unsafeEmpty: Result = {
+        val success: _root_.scala.Option[Int] = _root_.scala.None
+        val ax: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException] = _root_.scala.None
+        val oce: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = _root_.scala.None
+    
+        new Result(
+          success,
+          ax,
+          oce,
+          NoPassthroughFields
+        )
+      }
     
       def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.None, fieldTypes)
     

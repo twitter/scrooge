@@ -200,11 +200,13 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{#pairs}}
           ("{{key}}", "{{value}}")
 {{/pairs|,}}
-        )
+        ),
 {{/fieldFieldAnnotations}}
 {{^fieldFieldAnnotations}}
-        immutable$Map.empty[java.lang.String, java.lang.String]
+        immutable$Map.empty[java.lang.String, java.lang.String],
 {{/fieldFieldAnnotations}}
+        _root_.scala.None,
+        _root_.scala.Option({{unsafeEmptyReadValue}})
       )
   }
 
@@ -222,6 +224,13 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 
     def unionStructFieldInfo: _root_.scala.Option[ThriftStructFieldInfo] =
       _root_.scala.Some({{FieldName}}.fieldInfo)
+
+    def writeFieldValue(_oprot: TProtocol): Unit = {
+{{#readWriteInfo}}
+      val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
+      {{>writeValue}}
+{{/readWriteInfo}}
+    }
 
     override def write(_oprot: TProtocol): Unit = {
 {{^isPrimitive}}
@@ -255,6 +264,8 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
       _oprot.writeStructEnd()
     }
   }
+
+  lazy val unsafeEmpty: {{StructName}} = {{firstFieldName}}({{firstFieldValue}})
 
  /**
   * Checks that the struct is a valid as a new instance. If there are any missing required or

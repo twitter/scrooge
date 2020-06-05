@@ -45,7 +45,8 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     )
   )
 
@@ -90,6 +91,15 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
     new AnotherException(
       errorCode = original.errorCode
     )
+
+  lazy val unsafeEmpty: AnotherException = {
+    val errorCode: Int = 0
+
+    new AnotherException(
+      errorCode,
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.None, fieldTypes)
 

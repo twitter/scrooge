@@ -78,7 +78,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.Some(manifest[String]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(_root_.scala.collection.immutable.Nil)
     ),
     new ThriftStructFieldInfo(
       ASetField,
@@ -89,7 +90,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.Some(manifest[Int]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(_root_.scala.collection.immutable.Set.empty)
     ),
     new ThriftStructFieldInfo(
       AMapField,
@@ -100,7 +102,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.Some(manifest[Long]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(_root_.scala.collection.immutable.Map.empty)
     ),
     new ThriftStructFieldInfo(
       ARequestField,
@@ -111,7 +114,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty)
     ),
     new ThriftStructFieldInfo(
       SubRequestsField,
@@ -122,7 +126,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.Some(manifest[com.twitter.scrooge.test.gold.thriftscala.Request]),
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(_root_.scala.collection.immutable.Nil)
     ),
     new ThriftStructFieldInfo(
       HasDefaultField,
@@ -133,7 +138,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      Some[String]("the_default")
+      Some[String]("the_default"),
+      _root_.scala.Option("the_default")
     ),
     new ThriftStructFieldInfo(
       NoCommentField,
@@ -144,7 +150,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       DoubleSlashCommentField,
@@ -155,7 +162,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       HashtagCommentField,
@@ -168,7 +176,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       immutable$Map.apply[String, String](
         ("a.b.c", "ignored")
       ),
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       SingleAsteriskCommentField,
@@ -182,7 +191,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         ("s.field.annotation.one", "a"),
         ("two", "b")
       ),
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       DocStringCommentField,
@@ -193,7 +203,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       RecRequestField,
@@ -204,7 +215,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Recursive.unsafeEmpty)
     ),
     new ThriftStructFieldInfo(
       RequiredFieldField,
@@ -215,7 +227,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option("empty")
     ),
     new ThriftStructFieldInfo(
       ConstructionRequiredFieldField,
@@ -228,7 +241,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       immutable$Map.apply[String, String](
         ("construction_required", "true")
       ),
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       AnInt8Field,
@@ -239,7 +253,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     )
   )
 
@@ -438,6 +453,43 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       constructionRequiredField = original.constructionRequiredField,
       anInt8 = original.anInt8
     )
+
+  lazy val unsafeEmpty: Request = {
+    val aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
+    val aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
+    val aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
+    val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
+    val subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
+    val hasDefault: String = "the_default"
+    val noComment: _root_.scala.Option[Long] = _root_.scala.None
+    val doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None
+    val hashtagComment: _root_.scala.Option[Long] = _root_.scala.None
+    val singleAsteriskComment: _root_.scala.Option[Long] = _root_.scala.None
+    val docStringComment: _root_.scala.Option[Long] = _root_.scala.None
+    val recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None
+    val requiredField: String = "empty"
+    val constructionRequiredField: _root_.scala.Option[Long] = _root_.scala.None
+    val anInt8: _root_.scala.Option[Byte] = _root_.scala.None
+
+    new Immutable(
+      aList,
+      aSet,
+      aMap,
+      aRequest,
+      subRequests,
+      hasDefault,
+      noComment,
+      doubleSlashComment,
+      hashtagComment,
+      singleAsteriskComment,
+      docStringComment,
+      recRequest,
+      requiredField,
+      constructionRequiredField,
+      anInt8,
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.None, fieldTypes)
 

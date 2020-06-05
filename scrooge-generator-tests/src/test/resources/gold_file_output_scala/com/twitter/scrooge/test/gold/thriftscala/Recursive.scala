@@ -50,7 +50,8 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(0)
     ),
     new ThriftStructFieldInfo(
       RecRequestField,
@@ -61,7 +62,8 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
       _root_.scala.None,
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
-      None
+      None,
+      _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty)
     )
   )
 
@@ -121,6 +123,17 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
           }
         }
     )
+
+  lazy val unsafeEmpty: Recursive = {
+    val id: Long = 0
+    val recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
+
+    new Immutable(
+      id,
+      recRequest,
+      NoPassthroughFields
+    )
+  }
 
   def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.None, fieldTypes)
 

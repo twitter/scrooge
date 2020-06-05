@@ -58,9 +58,17 @@ struct EnumStruct {
   1: NumberID number
 }
 
+struct EnumStructContainer {
+  1: EnumStruct enumMember
+}
+
 union EnumUnion {
   1: NumberID number
   2: string text
+}
+
+struct UnionStruct {
+  1: EnumUnion aUnion
 }
 
 struct EnumCollections {

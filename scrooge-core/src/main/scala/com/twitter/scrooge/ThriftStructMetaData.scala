@@ -224,6 +224,17 @@ final class ThriftUnionFieldInfo[
 /**
  * Field information to be embedded in a generated struct's companion class.
  * Allows for reflection on field types.
+ *
+ * @param tfield Metadata associated with the field
+ * @param isOptional The field is optional
+ * @param isRequired The field is required
+ * @param manifest The opaque type descriptor for the field type
+ * @param keyManifest The opaque type descriptor for the field key type
+ * @param valueManifest The opaque type descriptor for the field value type
+ * @param typeAnnotations Annotations associated with the type
+ * @param fieldAnnotations Annotations associated with the value
+ * @param defaultValue Default value if specified
+ * @param unsafeEmptyValue Temporary use only. please do not rely on this field
  */
 final class ThriftStructFieldInfo(
   val tfield: TField,
@@ -234,7 +245,8 @@ final class ThriftStructFieldInfo(
   val valueManifest: scala.Option[Manifest[_]],
   val typeAnnotations: Map[String, String],
   val fieldAnnotations: Map[String, String],
-  val defaultValue: Option[Any]) {
+  val defaultValue: Option[Any],
+  val unsafeEmptyValue: Option[Any]) {
 
   /**
    * Provide backwards compatibility for older scrooge-generator that does not generate the defaultValue field
@@ -258,6 +270,7 @@ final class ThriftStructFieldInfo(
       valueManifest,
       typeAnnotations,
       fieldAnnotations,
+      None,
       None
     )
 
@@ -281,6 +294,7 @@ final class ThriftStructFieldInfo(
     valueManifest,
     typeAnnotations,
     fieldAnnotations,
+    None,
     None
   )
 
@@ -304,6 +318,7 @@ final class ThriftStructFieldInfo(
       valueManifest,
       Map.empty[String, String],
       Map.empty[String, String],
+      None,
       None
     )
 }

@@ -23,6 +23,7 @@ import org.apache.thrift.transport.TMemoryBuffer
 import org.jmock.AbstractExpectations.returnValue
 import scala.collection.Map
 import scrooge.test.annotations.thriftscala.AnnoEnum
+import thrift.test.NumberID.EnumUnknownNumberID
 import thrift.test._
 import thrift.test1._
 import thrift.test2._
@@ -715,6 +716,47 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
       }
 
+      "unsafeEmpty field" should {
+        "enum type field generates pointer to an empty child object" in { _ =>
+          val enumStruct = EnumStruct
+          val enumMember =
+            enumStruct.fieldInfos.filter(_.tfield.name.equals("number")).head
+          enumMember.unsafeEmptyValue must be(Some(EnumUnknownNumberID(0)))
+        }
+
+        "struct ThriftStructFieldInfo has struct unsafeEmptyValue" in { _ =>
+          val nested = NestedXtruct
+          val x1 = nested.fieldInfos.filter(_.tfield.name.equals("x1")).head
+          val empty1: Xtruct = x1.unsafeEmptyValue.get.asInstanceOf[Xtruct]
+          empty1.stringThing must be("empty")
+
+          val x2 = nested.fieldInfos.filter(_.tfield.name.equals("x2")).head
+          val empty2: Xtruct2 = x2.unsafeEmptyValue.get.asInstanceOf[Xtruct2]
+          empty2.byteThing must be(0)
+        }
+
+        "non-struct ThriftStructFieldInfo has default unsafeEmptyValue" in { _ =>
+          val nested = Xtruct
+          nested.fieldInfos.filter(_.tfield.`type` != TType.STRUCT).foreach { field =>
+            val empty = field.unsafeEmptyValue.get
+            if (field.tfield.`type` == TType.STRING)
+              empty must be("empty")
+            else if (field.tfield.`type` == TType.BYTE)
+              empty must be(0)
+            else if (field.tfield.`type` == TType.I32)
+              empty must be(0)
+            else if (field.tfield.`type` == TType.I64)
+              empty must be(0)
+          }
+        }
+
+        "union member unsafeEmptyValue" in { _ =>
+          val empty = UnionStruct.unsafeEmpty
+          empty must not be (None)
+          empty.aUnion.unionStructFieldInfo.nonEmpty must be(true)
+        }
+      }
+
       "nested" should {
         "read" in { cycle =>
           import cycle._
@@ -926,6 +968,16 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         }
 
         // no write test because it's not possible
+      }
+
+      "writeFieldBlob" should {
+        "creates FieldBlob" in { _ =>
+          val unionObject = EnumUnion.Text("hello")
+          val _buff = new TMemoryBuffer(32)
+          val oprot = new TCompactProtocol(_buff)
+          unionObject.writeFieldValue(oprot)
+          oprot.readString() must be("hello")
+        }
       }
 
       "nested struct" should {

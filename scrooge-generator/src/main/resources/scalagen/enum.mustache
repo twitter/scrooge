@@ -107,6 +107,9 @@ object {{EnumName}} extends _root_.com.twitter.scrooge.ThriftEnumObject[{{EnumNa
     {{package}}.{{EnumName}}.{{name}}
 {{/values|,}}
   )
+
+  lazy val unsafeEmpty: {{package}}.{{EnumName}} =
+    EnumUnknown{{EnumName}}(0)
 }
 
 
