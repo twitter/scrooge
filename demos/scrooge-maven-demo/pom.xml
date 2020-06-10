@@ -15,11 +15,23 @@
       <artifactId>scala-library</artifactId>
       <version>2.12.8</version>
     </dependency>
+    <!--#dependencies-->
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.10.0</version>
     </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>scrooge-core_2.12</artifactId>
+      <version>20.6.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>finagle-thrift_2.12</artifactId>
+      <version>20.6.0-SNAPSHOT</version>
+    </dependency>
+    <!--#dependencies-->
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>util-core_2.12</artifactId>
@@ -33,16 +45,6 @@
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>finagle-core_2.12</artifactId>
-      <version>20.6.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>finagle-thrift_2.12</artifactId>
-      <version>20.6.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>scrooge-core_2.12</artifactId>
       <version>20.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -123,6 +125,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--#plugin-->
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
@@ -158,6 +161,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--#plugin-->
     </plugins>
   </build>
   <repositories>

@@ -1,76 +1,40 @@
 Maven Plugin
 ============
 
-Depending on the options used to generate the code, a few dependencies
-need to be declared.
+In addition to `SBT <https://twitter.github.io/scrooge/SBTPlugin.html>`_,
+Scrooge is also capable of integrating with `Apache Maven
+<https://maven.apache.org>`_.
 
-::
+Code Dependency Additions
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    <dependency>
-      <groupId>org.apache.thrift</groupId>
-      <artifactId>libthrift</artifactId>
-      <version>0.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>scrooge-core_2.9.2</artifactId>
-      <version>3.3.2</version>
-    </dependency>
-    <!-- needed if the "--finagle" flag is provided -->
-    <dependency>
-      <groupId>com.twitter</groupId>
-      <artifactId>finagle-thrift_2.9.2</artifactId>
-      <version>6.5.1</version>
-    </dependency>
+To add Scrooge to an existing Maven project, add the following dependencies
+to the project's 'pom.xml' file:
 
+* Apache Thrift
+* Scrooge Core
+* Finagle Thrift (Required if using Finagle)
 
-In order to generate code with the maven plugin the following plugin
-configuration will need to be added to the build/plugins section of your
-pom.xml file.
+.. includecode:: ../../../demos/scrooge-maven-demo/pom.xml#dependencies
+   :comment: <!--
+   :endcomment: -->
 
-::
+Plugin Addition
+~~~~~~~~~~~~~~~
 
-    <plugin>
-      <groupId>com.twitter</groupId>
-      <artifactId>scrooge-maven-plugin</artifactId>
-      <version>3.14.1</version>
-      <configuration>
-        <thriftNamespaceMappings>
-          <thriftNamespaceMapping>
-            <from>com.twitter.demo</from>
-            <to>com.twitter.mydemo.renamed</to>
-          </thriftNamespaceMapping>
-        </thriftNamespaceMappings>
-        <language>scala</language> <!-- default is scala -->
-        <thriftOpts>
-          <!-- add other Scrooge command line options using thriftOpts -->
-          <thriftOpt>--finagle</thriftOpt>
-        </thriftOpts>
-        <!-- tell scrooge to not to build the extracted thrift files (defaults to true) -->
-        <buildExtractedThrift>false</buildExtractedThrift>
-      </configuration>
-      <executions>
-        <execution>
-          <id>thrift-sources</id>
-          <phase>generate-sources</phase>
-          <goals>
-            <goal>compile</goal>
-          </goals>
-        </execution>
-        <execution>
-          <id>thrift-test-sources</id>
-          <phase>generate-test-sources</phase>
-          <goals>
-            <goal>testCompile</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
+Then add the 'scrooge-maven-plugin' itself to the 'build/plugins' section
+of the project's 'pom.xml' file.
 
+.. includecode:: ../../../demos/scrooge-maven-demo/pom.xml#plugin
+   :comment: <!--
+   :endcomment: -->
 
-Upgrading from scrooge-maven-plugin 3.16.0 to 3.17.0
-----------------------------------------------------
+Scrooge Maven Plugin Configuration Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Maven plugin 3.17.0 is backward compatible with the configuration defined for 3.16.0
-The configuration parameter '<dependencyIncludes>' is deprecated and ignored in this version.
-If your pom.xml contains this attribute, please remove it.
+In the 'build/plugin' section, the behavior of the 'scrooge-maven-plugin'
+can be modified by adding additional `Scrooge command line options
+<https://twitter.github.io/scrooge/CommandLine.html#scrooge-generator>`_ to
+the 'thriftOpts' section, as indicated above by '--finagle'. For reference,
+a working example is provided in `scrooge-maven-demo
+<https://github.com/twitter/scrooge/tree/master/demos/scrooge-maven-demo>`_.
