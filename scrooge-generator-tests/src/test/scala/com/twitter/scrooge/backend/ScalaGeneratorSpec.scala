@@ -22,6 +22,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
 import org.jmock.AbstractExpectations.returnValue
 import scala.collection.Map
+import scala.collection.immutable
 import scrooge.test.annotations.thriftscala.AnnoEnum
 import thrift.test.NumberID.EnumUnknownNumberID
 import thrift.test._
@@ -1401,7 +1402,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           constructionRequiredField = 3,
           defaultRequirednessField = 4,
           validateNewInstance = None,
-          _passthroughFields = Map.empty[Short, TFieldBlob]
+          _passthroughFields = immutable.Map.empty[Short, TFieldBlob]
         )
         struct.constructionRequiredField must be(Some(3))
       }
@@ -1418,7 +1419,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           "test2",
           7,
           validateNewInstance = None,
-          Map.empty[Short, TFieldBlob]
+          immutable.Map.empty[Short, TFieldBlob]
         )
         val expected = ConstructorRequiredStruct(
           optionalField = Some(5),
@@ -1466,7 +1467,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           requiredField = "test",
           constructionRequiredField = None,
           defaultRequirednessField = 4,
-          _passthroughFields = Map.empty[Short, TFieldBlob]
+          _passthroughFields = immutable.Map.empty[Short, TFieldBlob]
         )
         val copiedStruct = struct.copyChangingConstructionRequiredFields(
         )
@@ -1479,7 +1480,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           requiredField = "test",
           constructionRequiredField = None,
           defaultRequirednessField = 4,
-          _passthroughFields = Map.empty[Short, TFieldBlob]
+          _passthroughFields = immutable.Map.empty[Short, TFieldBlob]
         )
         val copiedStruct = struct.copyChangingConstructionRequiredFields(
           constructionRequiredField = Some(3)
@@ -1650,7 +1651,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         requiredField = "test",
         constructionRequiredField = None,
         defaultRequirednessField = 4,
-        _passthroughFields = Map.empty[Short, TFieldBlob]
+        _passthroughFields = immutable.Map.empty[Short, TFieldBlob]
       )
 
       val requiredField =
@@ -1692,7 +1693,7 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           validInstance,
           Map(validInstance -> "value"),
           Map("key" -> validInstance),
-          Map(
+          immutable.Map(
             Set(Seq(validInstance)) ->
               Set(Seq(validInstance))
           )
