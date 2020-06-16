@@ -1489,7 +1489,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   trait FutureIface
-    extends GoldService[Future] {
+    extends MethodPerEndpoint
+    with GoldService[Future] {
     /** Hello, I'm a comment. */
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
     
