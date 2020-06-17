@@ -1060,7 +1060,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   trait FutureIface
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.FutureIface
-    with MethodPerEndpoint
     with PlatinumService[Future] {
     
     def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int]
