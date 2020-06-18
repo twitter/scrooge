@@ -1694,8 +1694,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           Map(validInstance -> "value"),
           Map("key" -> validInstance),
           immutable.Map(
-            Set(Seq(validInstance)) ->
-              Set(Seq(validInstance))
+            scala.collection.Set(scala.collection.Seq(validInstance)) -> 
+              scala.collection.Set(scala.collection.Seq(validInstance).toSeq)
           )
         )
         val result = DeepValidationStruct.validateNewInstance(struct)
@@ -1753,8 +1753,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           val struct = DeepValidationStruct(
             requiredConstructorRequiredStruct = validInstance,
             crazyEmbedding = Map(
-              Set(Seq(missingConstructionRequiredFieldInstance)) ->
-                Set(Seq(missingConstructionRequiredFieldInstance))
+              scala.collection.Set(scala.collection.Seq(missingConstructionRequiredFieldInstance)) ->
+                scala.collection.Set(scala.collection.Seq(missingConstructionRequiredFieldInstance))
             )
           )
           validateMissingConstructionRequiredField(struct, 2)

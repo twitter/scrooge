@@ -35,7 +35,7 @@ class ThriftStructMetaDataSpec extends Spec {
     f2.name must be("a_list")
     f2.id must be(2)
     f2.`type` must be(TType.LIST)
-    f2.manifest must be(Some(implicitly[Manifest[Seq[String]]]))
+    f2.manifest must be(Some(implicitly[Manifest[scala.collection.Seq[String]]]))
     f2.getValue[Seq[String]](s) must be(Seq("test"))
 
     f3.name must be("a_set")
@@ -65,7 +65,7 @@ class ThriftStructMetaDataSpec extends Spec {
           info.keyManifest must be(Some(implicitly[Manifest[Int]]))
           info.valueManifest must be(Some(implicitly[Manifest[Long]]))
         case 2 =>
-          info.manifest must be(implicitly[Manifest[Seq[String]]])
+          info.manifest must be(implicitly[Manifest[scala.collection.Seq[String]]])
           info.keyManifest must be(None)
           info.valueManifest must be(Some(implicitly[Manifest[String]]))
         case 3 =>
@@ -282,7 +282,7 @@ class ThriftStructMetaDataSpec extends Spec {
       info.tfield.id must be(2: Short)
       info.typeAnnotations must be(Map.empty[String, String])
       info.fieldAnnotations must be(Map.empty[String, String])
-      info.manifest must be(manifest[Seq[MatchingStructList]])
+      info.manifest must be(manifest[scala.collection.Seq[MatchingStructList]])
       info.isOptional must be(false)
       info.keyManifest must be(None)
       info.valueManifest must be(Some(manifest[MatchingStructList]))
