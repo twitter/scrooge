@@ -22,6 +22,7 @@ import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import org.scalatest.concurrent.Eventually
 import scala.language.reflectiveCalls
+import scala.collection
 
 class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
@@ -47,8 +48,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
           arg1: Int,
           arg2: Option[Int],
           arg3: Int,
-          arg4: Seq[Int],
-          arg5: Option[Seq[Int]],
+          arg4: collection.Seq[Int],
+          arg5: Option[collection.Seq[Int]],
           arg6: Boolean
         ): Future[Int] = Future.value(arg2.getOrElse(-1))
       }

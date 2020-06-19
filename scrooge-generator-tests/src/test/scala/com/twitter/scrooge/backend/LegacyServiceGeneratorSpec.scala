@@ -10,6 +10,7 @@ import java.net.{InetAddress, InetSocketAddress}
 import org.scalatest.concurrent.Eventually
 import _root_.thrift.test.ExceptionalService._
 import _root_.thrift.test._
+import scala.collection
 
 // deprecated just so that it doesn't trigger deprecation warnings
 @deprecated("", "")
@@ -30,8 +31,8 @@ class LegacyServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventual
           arg1: Int,
           arg2: Option[Int],
           arg3: Int,
-          arg4: Seq[Int],
-          arg5: Option[Seq[Int]],
+          arg4: collection.Seq[Int],
+          arg5: Option[collection.Seq[Int]],
           arg6: Boolean
         ): Future[Int] = Future.value(arg2.getOrElse(-1))
       }

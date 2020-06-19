@@ -8,6 +8,7 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.{
   Filter => _,
+  Service => _,
   thrift => _,
   _
 }

@@ -94,7 +94,7 @@ class ImporterSpec extends Spec {
 
   "ZipImporter" should {
     val testFolder = TempDirectory.create(None)
-    val stubZipContent = "\120\113\005\006" + ("\000" * 18)
+    val stubZipContent = "\u0050\u004b\u0005\u0006" + ("\u0000" * 18)
 
     "have equality defined according to path" in {
       val aZip = new File(testFolder, "a.zip")
