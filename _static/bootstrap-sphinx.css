@@ -1,0 +1,42 @@
+/*
+* bootstrap-sphinx.css
+* ~~~~~~~~~~~~~~~~~~~~
+*
+* Sphinx stylesheet -- Twitter Bootstrap theme.
+*/
+
+.navbar-inverse .brand {
+  color: #FFF;
+}
+
+
+@media (min-width: 980px) {
+  .navbar h3 a, .navbar .brand {
+    background: transparent url("scrooge.png") no-repeat 22px 3px;
+    padding-left: 62px;
+  }
+}
+
+table {
+  border: 0;
+}
+
+body {
+  font-family:  "ff-meta-serif-web-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 30px;
+  margin-bottom: 27px;
+}
+
+h1, h2, h3, h4 {
+  font-family:  "proxima-nova-condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+a.brand {
+  font-family:  "proxima-nova-condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+li {
+  line-height: 30px;
+}

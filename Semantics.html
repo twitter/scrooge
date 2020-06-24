@@ -1,0 +1,299 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Implementation Semantics &#8212; Scrooge 20.6.0 documentation</title>
+    <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '20.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scrooge thrift linter" href="Linter.html" />
+    <link rel="prev" title="Generated Scala Code Usage" href="GeneratedCodeUsage.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Linter.html" title="Scrooge thrift linter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="GeneratedCodeUsage.html" title="Generated Scala Code Usage"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="implementation-semantics">
+<h1>Implementation Semantics<a class="headerlink" href="#implementation-semantics" title="Permalink to this headline">¶</a></h1>
+<p>Thrift is severely underspecified with respect to the handling of
+required/optional/unspecified-requiredness and default values in various cases
+such as serialization, deserialization, and new instance creation, and
+different implementations do different things (see
+<a class="reference external" href="https://lionet.livejournal.com/66899.html">here</a> for a good analysis).</p>
+<p>Scrooge attempts to be as rigorous as possible in this regard with
+consistently applied and, hopefully, easy-to-understand rules.</p>
+<ol class="arabic simple">
+<li>If neither “required” nor “optional” is declared for a field, it then has
+the default requiredness of “optional-in/required-out”, or “optInReqOut”
+for short.</li>
+<li>It is invalid for a required field to be null and an exception will be
+thrown if you attempt to serialize a struct with a null required field.</li>
+<li>It is invalid for a required field to be missing during deserialization,
+and an exception will be thrown in this case.</li>
+<li>Optional fields can be set or unset, and the set-state is meaningful state
+of the struct that should be preserved by serialization/deserialization.
+Un-set fields are not present in the serialized representation of the
+struct.</li>
+<li>Declared default values will be assigned to any non-required fields that
+are missing during deserialization. If no default is declared for a field,
+a default value appropriate for the type will be used (see below).</li>
+<li>#4 and #5 imply that optional-with-default-value is not a tenable
+combination, and will be treated as if “optional” was not specified
+(optInReqOut-with-default-value).</li>
+</ol>
+<div class="section" id="default-values-by-type">
+<h2>Default values by type<a class="headerlink" href="#default-values-by-type" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>bool = false</li>
+<li>byte/i16/i32/i64/double = 0</li>
+<li>string/struct/enum = null</li>
+<li>list = Seq()</li>
+<li>set = Set()</li>
+<li>map = Map()</li>
+</ul>
+</div>
+<div class="section" id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Permalink to this headline">¶</a></h2>
+<p>The following “matrix” defines all the scenarios where a value may not be
+present and how that case is handled:</p>
+<p><strong>required, no declared default value:</strong></p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>missing in deserialization:</dt>
+<dd><ul class="first last">
+<li>throws TProtocolException</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>null in serialization:</dt>
+<dd><ul class="first last">
+<li>throws TProtocolException</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>immutable instance instantiation:</dt>
+<dd><ul class="first last">
+<li>must be explicitly provided</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>required, with declared default value:</strong></p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>missing in deserialization:</dt>
+<dd><ul class="first last">
+<li>throws TProtocolException</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>null in serialization:</dt>
+<dd><ul class="first last">
+<li>throws TProtocolException</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>immutable instance instantiation:</dt>
+<dd><ul class="first last">
+<li>declared default value</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>optInReqOut, no declared default value:</strong></p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>missing in deserialization:</dt>
+<dd><ul class="first last">
+<li>default value for type</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>null in serialization:</dt>
+<dd><ul class="first last">
+<li>throws TProtocolException</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>immutable instance instantiation:</dt>
+<dd><ul class="first last">
+<li>must be explicitly provided</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>optInReqOut, with declared default value:</strong></p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>missing in deserialization:</dt>
+<dd><ul class="first last">
+<li>declared default value</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>null in serialization:</dt>
+<dd><ul class="first last">
+<li>throws TProtocolException</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>immutable instance instantiation:</dt>
+<dd><ul class="first last">
+<li>declared default value</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>optional, no declared default value:</strong></p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>missing in deserialization:</dt>
+<dd><ul class="first last">
+<li>None</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>None in serialization:</dt>
+<dd><ul class="first last">
+<li>omitted</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>immutable instance instantiation:</dt>
+<dd><ul class="first last">
+<li>None</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>optional, with declared default value:</strong></p>
+<ul class="simple">
+<li>case not valid, treated as optInReqOut with declared default value</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/scrooge.png" alt="Logo"/>
+            </a></p><a href="index.html"><h3>Scrooge</h3></a>
+<p>
+  Scrooge is a general purpose thrift parser/generator
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
+  <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
+</ul>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Implementation Semantics</a><ul>
+<li><a class="reference internal" href="#default-values-by-type">Default values by type</a></li>
+<li><a class="reference internal" href="#missing-values">Missing values</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="GeneratedCodeUsage.html" title="previous chapter">Generated Scala Code Usage</a></li>
+      <li>Next: <a href="Linter.html" title="next chapter">Scrooge thrift linter</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Search the contents of this site.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013 Twitter, Inc.
+    Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

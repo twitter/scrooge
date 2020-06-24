@@ -1,0 +1,150 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Scrooge thrift linter &#8212; Scrooge 20.6.0 documentation</title>
+    <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '20.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scrooge Changelog" href="changelog.html" />
+    <link rel="prev" title="Implementation Semantics" href="Semantics.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="changelog.html" title="Scrooge Changelog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Semantics.html" title="Implementation Semantics"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="scrooge-thrift-linter">
+<h1>Scrooge thrift linter<a class="headerlink" href="#scrooge-thrift-linter" title="Permalink to this headline">¶</a></h1>
+<p>Scrooge thrift linter enforces usage guidelines for thrift files. These guidelines make sharing thrift files between projects easy.</p>
+<div class="section" id="running-the-linter">
+<h2>Running the linter<a class="headerlink" href="#running-the-linter" title="Permalink to this headline">¶</a></h2>
+<p>To run the thrift linter with sbt:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main --help&#39;</span>
+
+$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main /path/to/thrift/file.thrift&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-of-rules">
+<h2>List of rules<a class="headerlink" href="#list-of-rules" title="Permalink to this headline">¶</a></h2>
+<p>The linter produces warnings and errors. By default, only the errors are shown. Use the ‘-w’ flag to display linter warnings.</p>
+<p>The error-level linter rules are:</p>
+<ol class="arabic">
+<li><p class="first">Each thrift file must have a scala and a java namespace.</p>
+</li>
+<li><p class="first">No relative includes ouside the current directory, i.e. no ‘..’ in included paths.</p>
+<p>Absolute paths are preferred. Including files in the subdirectories is fine.</p>
+</li>
+<li><p class="first">No default values for required fields.</p>
+</li>
+</ol>
+<p>The warning-level rules are:</p>
+<ol class="arabic">
+<li><p class="first">Struct names must be UpperCamelCase.</p>
+<p>Field names must be lowerCamelCase.</p>
+</li>
+<li><p class="first">Struct, field, and function names must not be keywords in Scala, Java, Ruby, Python, PHP, Javascript, and Go</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/scrooge.png" alt="Logo"/>
+            </a></p><a href="index.html"><h3>Scrooge</h3></a>
+<p>
+  Scrooge is a general purpose thrift parser/generator
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
+  <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
+</ul>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Scrooge thrift linter</a><ul>
+<li><a class="reference internal" href="#running-the-linter">Running the linter</a></li>
+<li><a class="reference internal" href="#list-of-rules">List of rules</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="Semantics.html" title="previous chapter">Implementation Semantics</a></li>
+      <li>Next: <a href="changelog.html" title="next chapter">Scrooge Changelog</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Search the contents of this site.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013 Twitter, Inc.
+    Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>
