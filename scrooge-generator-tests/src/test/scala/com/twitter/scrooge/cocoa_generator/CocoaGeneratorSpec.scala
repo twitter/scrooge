@@ -26,7 +26,8 @@ class CocoaGeneratorSpec extends Spec {
       case input: InputStream => input
     }
     val br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))
-    CharStreams.toString(br)
+    try CharStreams.toString(br)
+    finally br.close()
   }
 
   def getListOfFiles(d: File): List[File] = {
