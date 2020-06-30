@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Removed experiment-flag argument and replaced it with
+  language-flag. Updated GeneratorFactory object and trait to match. ``PHAB_ID=D508950``
+
 20.6.0
 ------
 
@@ -17,7 +20,7 @@ No Changes
 
 No Changes
 
-* scrooge: Update `sbt-bintray` plugin to 0.5.6 which supports passing environment 
+* scrooge: Update `sbt-bintray` plugin to 0.5.6 which supports passing environment
   variables `BINTRAY_USER` and `BINTRAY_PASS` for username and password credentials
   respectively. ``PHAB_ID=D478276``
 
@@ -81,7 +84,7 @@ No Changes
 
 * scrooge-generator: Use wrapper class valueOf in apachejavagen's getFieldValue. ``PHAB_ID=D374413``
 
-* scrooge-linter: Warn when function names are reserved words. Add support for reserved 
+* scrooge-linter: Warn when function names are reserved words. Add support for reserved
   words in Javascript and Go. ``PHAB_ID=D379008``
 
 * scrooge-core: Add annotations method to `c.t.scrooge.ThriftEnum` to make the
@@ -1265,4 +1268,3 @@ Dependencies:
 * Correctly resolving enum constants and Const values.
 * Title-casing enum value names.
 * Added support for namespace renaming from the command line.
-

@@ -15,7 +15,7 @@ object CocoaGeneratorFactory extends GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator = new CocoaGenerator(
     doc,
     defaultNamespace,
@@ -36,7 +36,7 @@ class CocoaGenerator(
   val fileExtension = ".m"
   val headerExtension = ".h"
   val templateDirName = "/cocoagen/"
-  val experimentFlags: Seq[String] = Seq.empty[String]
+  val languageFlags: Seq[String] = Seq.empty[String]
 
   // Namespace for the current thrift file is not avaialbe when we construct the code generator.
   // It will only be available when we call the apply method.

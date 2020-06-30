@@ -15,7 +15,7 @@ object ApacheJavaGeneratorFactory extends GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator = new ApacheJavaGenerator(doc, defaultNamespace, templateCache)
 }
 

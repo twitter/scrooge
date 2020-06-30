@@ -10,11 +10,11 @@ class TestGeneratorFactory extends GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator = new ScalaGenerator(
     doc,
     defaultNamespace,
-    experimentFlags,
+    languageFlags,
     new HandlebarLoader("/scalagen/", ".mustache")
   )
 }

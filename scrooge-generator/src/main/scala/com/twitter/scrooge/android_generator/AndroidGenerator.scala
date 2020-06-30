@@ -22,7 +22,7 @@ object AndroidGeneratorFactory extends GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator = new AndroidGenerator(doc, defaultNamespace, templateCache)
 }
 

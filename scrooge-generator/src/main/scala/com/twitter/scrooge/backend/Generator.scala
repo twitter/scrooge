@@ -106,9 +106,9 @@ object GeneratorFactory {
     lan: String,
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator = factories.get(lan) match {
-    case Some(factory) => factory(doc, defaultNamespace, experimentFlags)
+    case Some(factory) => factory(doc, defaultNamespace, languageFlags)
     case None => throw new Exception("Generator for language \"%s\" not found".format(lan))
   }
 }
@@ -122,7 +122,7 @@ trait GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator
 }
 
@@ -200,7 +200,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
    * Map from included file names to the namespaces defined in those files.
    */
   val defaultNamespace: String
-  val experimentFlags: Seq[String]
+  val languageFlags: Seq[String]
 
   /******************** helper functions ************************/
   protected def namespacedFolder(destFolder: File, namespace: String, dryRun: Boolean): File =

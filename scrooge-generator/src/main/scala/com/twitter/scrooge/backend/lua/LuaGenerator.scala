@@ -27,7 +27,7 @@ object LuaGeneratorFactory extends GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
+    languageFlags: Seq[String]
   ): Generator = new LuaGenerator(
     doc,
     defaultNamespace,
@@ -45,7 +45,7 @@ class LuaGenerator(
 
   val namespaceLanguage = "lua"
   val fileExtension = ".lua"
-  val experimentFlags: Seq[String] = Seq.empty[String]
+  val languageFlags: Seq[String] = Seq.empty[String]
 
   def templates: HandlebarLoader = templateLoader
 

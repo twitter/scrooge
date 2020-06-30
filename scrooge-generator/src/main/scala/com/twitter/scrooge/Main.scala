@@ -168,15 +168,15 @@ object Main {
         }
         .text("Encode a thrift enum as o.a.t.p.TType.ENUM instead of TType.I32")
 
-      opt[String]("experiment-flag")
+      opt[String]("language-flag")
         .valueName("<flag>")
         .unbounded()
         .action { (flag, c) =>
-          c.experimentFlags += flag
+          c.languageFlags += flag
           c
         }
         .text(
-          "[EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking"
+          "Pass arguments to supported language generators"
         )
 
       opt[Unit]("scala-warn-on-java-ns-fallback")

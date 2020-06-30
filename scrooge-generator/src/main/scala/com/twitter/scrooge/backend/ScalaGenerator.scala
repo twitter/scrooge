@@ -28,14 +28,14 @@ object ScalaGeneratorFactory extends GeneratorFactory {
   def apply(
     doc: ResolvedDocument,
     defaultNamespace: String,
-    experimentFlags: Seq[String]
-  ): Generator = new ScalaGenerator(doc, defaultNamespace, experimentFlags, handlebarLoader)
+    languageFlags: Seq[String]
+  ): Generator = new ScalaGenerator(doc, defaultNamespace, languageFlags, handlebarLoader)
 }
 
 class ScalaGenerator(
   override val resolvedDoc: ResolvedDocument,
   val defaultNamespace: String,
-  val experimentFlags: Seq[String],
+  val languageFlags: Seq[String],
   val templatesLoader: HandlebarLoader)
     extends TemplateGenerator(resolvedDoc) {
   def templates: HandlebarLoader = templatesLoader

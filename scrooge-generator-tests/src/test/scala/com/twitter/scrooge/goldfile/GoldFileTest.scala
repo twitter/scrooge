@@ -44,7 +44,7 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
         "--gen-adapt",
         "--dest",
         tempDir.getPath) ++
-        experimentFlags.flatMap(flag => Seq("--experiment-flag", flag)) ++
+        languageFlags.flatMap(flag => Seq("--language-flag", flag)) ++
         inputThrifts
 
       Main.main(args.toArray)
@@ -67,7 +67,7 @@ abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
     }
   }
 
-  protected def experimentFlags: Seq[String] = Seq.empty
+  protected def languageFlags: Seq[String] = Seq.empty
   protected def language: String
   protected def deleteTempFiles: Boolean = true
 

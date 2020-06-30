@@ -40,7 +40,7 @@ class Compiler {
   var strict = true
   var genAdapt = false
   var skipUnchanged = false
-  var experimentFlags = new mutable.ListBuffer[String]
+  var languageFlags = new mutable.ListBuffer[String]
   var fileMapPath: scala.Option[String] = None
   var fileMapWriter: scala.Option[FileWriter] = None
   var dryRun: Boolean = false
@@ -83,7 +83,7 @@ class Compiler {
         if (verbose) println("+ Compiling %s".format(inputFile))
         val resolvedDoc = TypeResolver()(doc)
         val generator =
-          GeneratorFactory(language, resolvedDoc, defaultNamespace, experimentFlags.toSeq)
+          GeneratorFactory(language, resolvedDoc, defaultNamespace, languageFlags.toSeq)
 
         generator match {
           case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback
