@@ -1,12 +1,12 @@
 java_thrift_library(
-    name = "thrift-scala",
+    name = "thrift-all-scala",
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
 )
 
 java_thrift_library(
-    name = "thrift-android",
+    name = "thrift-bazel-workaround-android",
     sources = [
         "constructorRequired.thrift",
         "enumSet.thrift",

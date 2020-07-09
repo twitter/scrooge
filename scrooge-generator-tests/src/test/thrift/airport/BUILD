@@ -6,7 +6,8 @@ java_thrift_library(
 )
 
 java_thrift_library(
-    name = "thrift-android",
+    # Renamed longer to assist bazel migration
+    name = "thrift-bazel-workaround-android",
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "android",
@@ -29,7 +30,8 @@ java_thrift_library(
 )
 
 java_thrift_library(
-    name = "thrift-namespace-android",
+    # Renamed longer to assist bazel migration
+    name = "thrift-namespace-bazel-workaround-android",
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "android",

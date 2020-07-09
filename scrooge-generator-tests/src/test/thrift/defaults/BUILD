@@ -1,19 +1,14 @@
-java_thrift_library(
-    name = "thrift-scala",
+create_thrift_libraries(
+    base_name = "thrift",
     sources = ["**/*.thrift"],
-    compiler = "scrooge",
-    language = "scala",
+    generate_languages = [
+        "java",
+        "scala",
+    ],
 )
 
 java_thrift_library(
-    name = "thrift-java",
-    sources = ["**/*.thrift"],
-    compiler = "scrooge",
-    language = "java",
-)
-
-java_thrift_library(
-    name = "thrift-android",
+    name = "thrift-bazel-workaround-android",
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     default_java_namespace = "apache_java_thrift",

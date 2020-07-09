@@ -13,7 +13,7 @@ java_thrift_library(
 )
 
 java_thrift_library(
-    name = "constant-sets-thrift-android",
+    name = "constant-sets-thrift-bazel-workaround-android",
     sources = ["constant_sets.thrift"],
     compiler = "scrooge",
     default_java_namespace = "android_thrift_default_namespace",

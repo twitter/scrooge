@@ -1,7 +1,7 @@
 # todo: do we need --disable-strict support?
 # https://github.com/pantsbuild/pants/blob/e966210d85a42e25232c569b95ce88f024a851c8/contrib/scrooge/src/python/pants/contrib/scrooge/tasks/scrooge_gen.py#L159
 java_thrift_library(
-    name = "thrift-scala",
+    name = "thrift-bazel-workaround-1-scala",
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
@@ -11,7 +11,7 @@ java_thrift_library(
 )
 
 java_thrift_library(
-    name = "thrift-android",
+    name = "thrift-bazel-workaround-android",
     sources = [
         "**/*.thrift",
         "scrooge/scrooge-generator-tests/src/test/thrift/android_integration/**/*.thrift",
