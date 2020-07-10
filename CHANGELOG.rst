@@ -7,6 +7,11 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-core: `c.t.scrooge.ThriftStructMetaData` has been changed from a concrete
+  class to an abstract class with different implementations. To construct an object
+  of `ThriftStructMetaData`, please now use one of the `apply` methods in the
+  `ThrifStructMetaData` companion object. ``PHAB_ID=D514638``
+
 * scrooge-generator: Removed experiment-flag argument and replaced it with
   language-flag. Updated GeneratorFactory object and trait to match. ``PHAB_ID=D508950``
 

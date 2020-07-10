@@ -126,7 +126,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
   )
 
   override lazy val metaData: ThriftStructMetaData[{{StructName}}] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

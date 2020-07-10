@@ -130,7 +130,7 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
     )
   )
 
-  override lazy val metaData = new ThriftStructMetaData(
+  override lazy val metaData = ThriftStructMetaData(
     this,
     Nil,
     Nil,

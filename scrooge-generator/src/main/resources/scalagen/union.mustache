@@ -143,7 +143,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 {{/fields|,}}
   )
 
-  override lazy val metaData = new ThriftStructMetaData(
+  override lazy val metaData = ThriftStructMetaData(
     this,
     Nil,
     Nil,

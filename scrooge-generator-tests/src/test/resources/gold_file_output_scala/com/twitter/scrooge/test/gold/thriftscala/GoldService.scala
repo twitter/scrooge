@@ -329,7 +329,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       )
     
       override lazy val metaData: ThriftStructMetaData[Args] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+        ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -590,7 +590,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       )
     
       override lazy val metaData: ThriftStructMetaData[Result] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+        ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -922,7 +922,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       )
     
       override lazy val metaData: ThriftStructMetaData[Args] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+        ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.
@@ -1162,7 +1162,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       )
     
       override lazy val metaData: ThriftStructMetaData[Result] =
-        new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+        ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
     
       /**
        * Checks that all required fields are non-null.

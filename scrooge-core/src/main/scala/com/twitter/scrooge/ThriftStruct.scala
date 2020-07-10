@@ -95,7 +95,7 @@ trait ThriftStructCodec[T <: ThriftStruct] {
   @throws(classOf[org.apache.thrift.TException])
   def decode(iprot: TProtocol): T
 
-  lazy val metaData: ThriftStructMetaData[T] = new ThriftStructMetaData(this)
+  lazy val metaData: ThriftStructMetaData[T] = ThriftStructMetaData(this)
 }
 
 abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec3[T] {

@@ -68,7 +68,7 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
   )
 
   override lazy val metaData: ThriftStructMetaData[AnotherException] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

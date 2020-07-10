@@ -71,7 +71,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
   )
 
   override lazy val metaData: ThriftStructMetaData[CollectionId] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

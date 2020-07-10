@@ -92,7 +92,7 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
   )
 
   override lazy val metaData: ThriftStructMetaData[Response] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

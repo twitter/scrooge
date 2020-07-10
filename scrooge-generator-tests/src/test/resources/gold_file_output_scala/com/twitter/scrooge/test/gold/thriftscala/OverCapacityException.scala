@@ -72,7 +72,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
   )
 
   override lazy val metaData: ThriftStructMetaData[OverCapacityException] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

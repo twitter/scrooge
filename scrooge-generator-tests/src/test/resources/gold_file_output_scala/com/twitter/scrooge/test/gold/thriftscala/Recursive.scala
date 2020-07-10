@@ -92,7 +92,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
   )
 
   override lazy val metaData: ThriftStructMetaData[Recursive] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.

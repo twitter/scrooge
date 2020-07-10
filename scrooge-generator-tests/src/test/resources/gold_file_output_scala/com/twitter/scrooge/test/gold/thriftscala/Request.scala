@@ -377,7 +377,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
   )
 
   override lazy val metaData: ThriftStructMetaData[Request] =
-    new ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
+    ThriftStructMetaData(this, structFields, fieldInfos, Nil, structAnnotations)
 
   /**
    * Checks that all required fields are non-null.
