@@ -110,9 +110,9 @@ val sharedSettingsWithoutScalaVersion = Seq(
   libraryDependencies ++= Seq(
     "junit" % "junit" % "4.12" % "test",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "test",
-    "org.scalatest" %% "scalatest" % "3.1.1" % "test",
-    "org.scalatestplus" %% "junit" % "3.1.2.0" % "test",
-    "org.scalatestplus" %% "mockito-1-10" % "3.1.1.0" % "test",
+    "org.scalatest" %% "scalatest" % "3.1.2" % "test",
+    "org.scalatestplus" %% "junit-4-12" % "3.1.2.0" % "test",
+    "org.scalatestplus" %% "mockito-1-10" % "3.1.0.0" % "test",
     "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % "test"
   ),
   ScoverageKeys.coverageHighlighting := true,
@@ -214,12 +214,13 @@ val sharedSettings =
 
 val jmockSettings = Seq(
   libraryDependencies ++= Seq(
+    "cglib" % "cglib" % "3.2.8" % "test",
     "org.jmock" % "jmock" % "2.9.0" % "test",
     "org.jmock" % "jmock-legacy" % "2.9.0" % "test",
-    "cglib" % "cglib" % "3.2.8" % "test",
-    "org.ow2.asm" % "asm" % "6.2.1" % "test",
+    "org.mockito" % "mockito-core" % "1.9.5" % "test",
     "org.objenesis" % "objenesis" % "1.1" % "test",
-    "org.mockito" % "mockito-core" % "1.9.5" % "test"
+    "org.ow2.asm" % "asm" % "6.2.1" % "test",
+    "org.scalatestplus" %% "jmock-2-8" % "3.1.2.0" % "test"
   )
 )
 
