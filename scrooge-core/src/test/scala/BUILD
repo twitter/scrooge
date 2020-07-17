@@ -6,6 +6,8 @@ junit_tests(
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/scalacheck",
         "3rdparty/jvm/org/scalatest",
+        "3rdparty/jvm/org/scalatestplus:junit",
+        "3rdparty/jvm/org/scalatestplus:scalacheck",
         "scrooge/scrooge-core",
     ],
 )

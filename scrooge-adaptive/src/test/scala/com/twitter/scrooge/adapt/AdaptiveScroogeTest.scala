@@ -17,8 +17,8 @@ import org.junit.runner.RunWith
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Prop}
 import org.scalatest.PropSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.prop.Checkers
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.scalacheck.Checkers
 
 object Accessor {
   def apply[T](suppliedName: String)(f: T => Any) = new Accessor[T] {

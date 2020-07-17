@@ -108,9 +108,12 @@ val sharedSettingsWithoutScalaVersion = Seq(
     "sonatype-public" at "https://oss.sonatype.org/content/groups/public"
   ),
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % "3.0.8" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.14.0" % "test",
-    "junit" % "junit" % "4.12" % "test"
+    "junit" % "junit" % "4.12" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.14.3" % "test",
+    "org.scalatest" %% "scalatest" % "3.1.1" % "test",
+    "org.scalatestplus" %% "junit" % "3.1.2.0" % "test",
+    "org.scalatestplus" %% "mockito-1-10" % "3.1.1.0" % "test",
+    "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % "test"
   ),
   ScoverageKeys.coverageHighlighting := true,
   fork in Test := true, // We have to fork to get the JavaOptions

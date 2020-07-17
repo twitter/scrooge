@@ -6,7 +6,7 @@ import com.twitter.scrooge.serializer.thriftscala.SerializerSetTest
 import com.twitter.scrooge.serializer.thriftscala.SerializerMapTest
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.apache.thrift.TException
 
 @RunWith(classOf[JUnitRunner])

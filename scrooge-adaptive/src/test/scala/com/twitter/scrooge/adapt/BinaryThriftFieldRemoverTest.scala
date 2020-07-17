@@ -8,8 +8,8 @@ import org.junit.runner.RunWith
 import org.scalacheck.Prop
 import org.scalacheck.Prop.forAll
 import org.scalatest.PropSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.prop.Checkers
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.scalacheck.Checkers
 
 @RunWith(classOf[JUnitRunner])
 class BinaryThriftFieldRemoverTest extends PropSpec with Checkers {

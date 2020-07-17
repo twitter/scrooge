@@ -3,7 +3,7 @@ package com.twitter.scrooge
 import com.twitter.scrooge.serializer.thriftscala.SerializerTest
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ThriftStructSerializerTest extends FunSuite {
