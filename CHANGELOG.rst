@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+20.7.0
+------
+
 * scrooge-core: `c.t.scrooge.ThriftStructMetaData` has been changed from a concrete
   class to an abstract class with different implementations. To construct an object
   of `ThriftStructMetaData`, please now use one of the `apply` methods in the
