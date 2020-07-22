@@ -74,7 +74,7 @@ A complete command line help menu for scrooge-generator:
   -s, --skip-unchanged                      Don't re-generate if the target is newer than the input
   -l, --language <value>                    name of language to generate code in (currently supported languages: java, lua, scala, cocoa, android)
   --java-ser-enum-type                      Encode a thrift enum as o.a.t.p.TType.ENUM instead of TType.I32
-  --experiment-flag <flag>                  [EXPERIMENTAL] DO NOT USE FOR PRODUCTION. This is meant only for enabling/disabling features for benchmarking
+  --language-flag <flag>                    Pass arguments to supported language generators
   --scala-warn-on-java-ns-fallback          Print a warning when the scala generator falls back to the java namespace
   --finagle                                 generate finagle classes
   --gen-adapt                               Generate code for adaptive decoding for scala.
