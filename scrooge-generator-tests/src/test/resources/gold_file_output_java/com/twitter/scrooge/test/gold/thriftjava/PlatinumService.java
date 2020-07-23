@@ -471,7 +471,7 @@ public class PlatinumService {
     private void setReqRepContext(Object req, com.twitter.util.Try<Object> rep) {
       scala.Option<ServerToReqRep> serdeCtx = com.twitter.finagle.context.Contexts.local().get(ServerToReqRep.Key());
       if (serdeCtx.nonEmpty()) {
-        serdeCtx.get().setReqRep(new com.twitter.finagle.service.ReqRep(req, rep));
+        serdeCtx.get().setReqRep(com.twitter.finagle.service.ReqRep.apply(req, rep));
       }
     }
 
