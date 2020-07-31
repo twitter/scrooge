@@ -5,12 +5,12 @@ import com.twitter.scrooge.serializer.thriftscala.SerializerListTest
 import com.twitter.scrooge.serializer.thriftscala.SerializerSetTest
 import com.twitter.scrooge.serializer.thriftscala.SerializerMapTest
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
 import org.apache.thrift.TException
 
 @RunWith(classOf[JUnitRunner])
-class ThriftBadDataTest extends FunSuite {
+class ThriftBadDataTest extends AnyFunSuite {
 
   private[this] def encodeI32(buf: Array[Byte], offset: Int, i32: Int): Unit = {
     buf(offset + 0) = (0xff & (i32 >> 24)).toByte

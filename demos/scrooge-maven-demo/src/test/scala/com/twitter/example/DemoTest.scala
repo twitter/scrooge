@@ -4,9 +4,9 @@ import com.twitter.conversions.DurationOps._
 import com.twitter.mydemo.renamed.User
 import com.twitter.util.{Future, Await}
 import java.net.{InetSocketAddress, SocketAddress}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class DemoTest extends FunSuite {
+class DemoTest extends AnyFunSuite {
   def printUser(user: User): Unit = println("User %s, id %d".format(user.name, user.id))
 
   def await[A](f: Future[A]): A = Await.result(f, 5.seconds)

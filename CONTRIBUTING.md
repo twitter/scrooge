@@ -61,7 +61,7 @@ the maintainers will help out during code review.
 We've standardized on using the [ScalaTest testing framework][scalatest].
 Because ScalaTest has such a big surface area, we use a restricted subset of it
 in our tests to keep them easy to read.  We've chosen the `assert` API, not the
-`Matchers` one, and we use the [`FunSuite` mixin][funsuite], which supports
+`Matchers` one, and we use the [`AnyFunSuite` mixin][funsuite], which supports
 xUnit-like semantics.
 
 Note that while you will see a [Travis CI][travis-ci] status message in your

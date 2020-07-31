@@ -5,12 +5,12 @@ import org.apache.thrift.transport.TMemoryBuffer
 import org.junit.runner.RunWith
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Prop.forAll
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatestplus.scalacheck.Checkers
 
 @RunWith(classOf[JUnitRunner])
-class ThriftUtilSpec extends FunSuite with Checkers {
+class ThriftUtilSpec extends AnyFunSuite with Checkers {
   val recognizedTypeCodes =
     Set(
       TType.VOID,

@@ -9,9 +9,9 @@ import com.twitter.scrooge.finagle_integration.thriftscala.ExtendedBarService.Tr
 import com.twitter.util.{Await, Awaitable, Duration, Future}
 import java.net.{InetAddress, InetSocketAddress}
 import org.apache.thrift.TApplicationException
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ScalaIntegrationTest extends FunSuite {
+class ScalaIntegrationTest extends AnyFunSuite {
 
   def await[T](a: Awaitable[T], d: Duration = 5.seconds): T =
     Await.result(a, d)

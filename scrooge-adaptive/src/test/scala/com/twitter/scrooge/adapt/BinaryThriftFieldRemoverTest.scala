@@ -7,12 +7,12 @@ import org.apache.thrift.protocol.TProtocolException
 import org.junit.runner.RunWith
 import org.scalacheck.Prop
 import org.scalacheck.Prop.forAll
-import org.scalatest.PropSpec
+import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatestplus.scalacheck.Checkers
 
 @RunWith(classOf[JUnitRunner])
-class BinaryThriftFieldRemoverTest extends PropSpec with Checkers {
+class BinaryThriftFieldRemoverTest extends AnyPropSpec with Checkers {
   def removeField[T <: ThriftStruct](t: T, codec: ThriftStructCodec[T], fieldId: Short): T = {
     val ser = BinaryThriftStructSerializer(codec)
     val bytes = ser.toBytes(t)
