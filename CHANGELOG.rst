@@ -7,6 +7,8 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge: replace deprecated ScalaTest 3.0 API with ScalaTest 3.1/3.2 API. ``PHAB_ID=D525860``
+
 20.7.0
 ------
 

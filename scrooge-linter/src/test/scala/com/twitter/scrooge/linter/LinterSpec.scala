@@ -17,9 +17,10 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast._
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class LinterSpec extends WordSpec with MustMatchers {
+class LinterSpec extends AnyWordSpec with Matchers {
 
   def mustPass(errors: Iterable[LintMessage]) =
     errors.size must equal(0)

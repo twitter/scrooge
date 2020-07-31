@@ -3,9 +3,9 @@ package com.twitter.scrooge.testutil
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import java.io.{BufferedReader, InputStreamReader}
-import org.scalatest.MustMatchers
+import org.scalatest.matchers.must.Matchers
 
-object Utils extends MustMatchers {
+object Utils extends Matchers {
   def verify(
     actual: String,
     expected: String,

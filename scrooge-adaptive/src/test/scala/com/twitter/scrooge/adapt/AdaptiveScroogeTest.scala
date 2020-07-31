@@ -16,7 +16,7 @@ import org.apache.thrift.protocol.{TProtocolException, TType}
 import org.junit.runner.RunWith
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Prop}
-import org.scalatest.PropSpec
+import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatestplus.scalacheck.Checkers
 
@@ -33,7 +33,7 @@ trait Accessor[-T] extends ((T) => Any) {
 }
 
 @RunWith(classOf[JUnitRunner])
-class AdaptiveScroogeTest extends PropSpec with Checkers {
+class AdaptiveScroogeTest extends AnyPropSpec with Checkers {
 
   /**
    * Bytes of thrift struct with no fields set, it's still a valid thrift object.

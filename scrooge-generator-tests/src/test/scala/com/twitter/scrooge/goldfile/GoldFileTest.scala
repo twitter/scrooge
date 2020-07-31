@@ -4,7 +4,8 @@ import com.twitter.io.Files
 import com.twitter.scrooge.Main
 import com.twitter.scrooge.testutil.{Utils, TempDirectory}
 import java.io.{ByteArrayInputStream, File, InputStream}
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funsuite.AnyFunSuite
 import scala.io.Source
 
 /**
@@ -15,7 +16,7 @@ import scala.io.Source
  * intentional due to the corresponding changes in the generator code or
  * templates.
  */
-abstract class GoldFileTest extends FunSuite with BeforeAndAfterAll {
+abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
 
   private var tempDir: File = _
   protected var generatedFiles: Seq[File] = _
