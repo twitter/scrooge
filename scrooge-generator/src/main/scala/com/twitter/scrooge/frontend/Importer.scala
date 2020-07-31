@@ -78,7 +78,9 @@ object Importer {
 }
 
 final case class DirImporter(dir: File) extends Importer {
-  private[scrooge] def canonicalPaths = Seq(dir.getCanonicalPath) // for test
+  private lazy val dirCanonicalPath = dir.getCanonicalPath
+
+  private[scrooge] def canonicalPaths = Seq(dirCanonicalPath) // for test
 
   private[this] def resolve(filename: String): Option[(File, Importer)] = {
     val file = {
@@ -91,7 +93,7 @@ final case class DirImporter(dir: File) extends Importer {
     if (file.canRead) {
       // if the file does not exactly locate in dir, we need to add a new relative path
       val importer =
-        if (file.getParentFile.getCanonicalPath == dir.getCanonicalPath)
+        if (file.getParentFile.getCanonicalPath == dirCanonicalPath)
           this
         else
           Importer(file.getParentFile) +: this
@@ -117,19 +119,19 @@ final case class DirImporter(dir: File) extends Importer {
     resolve(filename).map { case (file, _) => file.getCanonicalPath }
   }
 
-  override def toString: String = s"DirImporter(${dir.getCanonicalPath})"
+  override def toString: String = s"DirImporter($dirCanonicalPath)"
 
   // We override equals and hashCode because
   // the default equality for File does not have the semantics we want.
   override def equals(other: Any): Boolean = {
     other match {
       case that: DirImporter =>
-        this.dir.getCanonicalPath == that.dir.getCanonicalPath
+        this.dirCanonicalPath == that.dirCanonicalPath
       case _ => false
     }
   }
 
-  override def hashCode: Int = this.dir.getCanonicalPath.hashCode
+  override def hashCode: Int = this.dirCanonicalPath.hashCode
 }
 
 // jar files are just zip files, so this will work with both .jar and .zip files
