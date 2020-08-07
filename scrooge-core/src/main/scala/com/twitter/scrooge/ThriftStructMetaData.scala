@@ -1,9 +1,9 @@
 package com.twitter.scrooge
 
 /**
- * An abstract class for generic introspection on ThriftStruct classes.
+ * A trait for generic introspection on ThriftStruct classes.
  */
-abstract class ThriftStructMetaData[T <: ThriftStruct] {
+trait ThriftStructMetaData[T <: ThriftStruct] {
 
   /**
    * The '(en)coder-decoder', hence 'codec', which knows

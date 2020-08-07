@@ -9,6 +9,9 @@ Unreleased
 
 * scrooge: replace deprecated ScalaTest 3.0 API with ScalaTest 3.1/3.2 API. ``PHAB_ID=D525860``
 
+* scrooge-core: Change `c.t.scrooge.ThriftStructMetaData` from an abstract class to a trait
+  to allow for mixin to classes that already extend other classes. ``PHAB_ID=D529101``
+
 20.7.0
 ------
 
