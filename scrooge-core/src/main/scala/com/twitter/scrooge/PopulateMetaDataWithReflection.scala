@@ -1,5 +1,6 @@
 package com.twitter.scrooge
 
+import com.twitter.scrooge.internal.ThriftStructMetaDataUtil
 import org.apache.thrift.protocol.TField
 
 /**

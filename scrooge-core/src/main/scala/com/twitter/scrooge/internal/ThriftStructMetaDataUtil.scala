@@ -1,11 +1,17 @@
-package com.twitter.scrooge
+package com.twitter.scrooge.internal
+
+import com.twitter.scrooge.{ThriftStruct, ThriftStructCodec, ThriftUnion}
 
 /**
- * A simple class for introspecting a ThriftStruct to get its name and class
- * information. It utilizes reflection to get the required information from the
- * codec so usage should be avoided as much as possible.
+ * A class for introspecting a [[ThriftStruct]] to get its name and class
+ * information. It uses reflection to get the required information from the
+ * codec, so use should be avoided as much as possible.
+ *
+ * @note This class is public but within the `com.twitter.scrooge.internal`
+ * namespace, and thus should only be used within scrooge or from generated
+ * code.
  */
-private[scrooge] final class ThriftStructMetaDataUtil[T <: ThriftStruct](
+final class ThriftStructMetaDataUtil[T <: ThriftStruct](
   codec: ThriftStructCodec[T]) {
 
   /**

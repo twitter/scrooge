@@ -1,5 +1,7 @@
 package com.twitter.scrooge
 
+import com.twitter.scrooge.internal.ThriftStructMetaDataUtil
+
 /**
  * An implmentation of [[ThriftStructMetaData]] where much of the information
  * is provided via its constructor.
