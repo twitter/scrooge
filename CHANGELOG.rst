@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Fixed a bug in the Java generated code where responses were
+  often deserialized twice. ``PHAB_ID=D526316``
+
 20.8.0
 ------
 

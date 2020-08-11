@@ -9,6 +9,9 @@ import com.twitter.scrooge.TReusableMemoryTransport;
 {{#is_passthrough_service}}
 import com.twitter.scrooge.TFieldBlob;
 {{/is_passthrough_service}}
+{{^is_oneway_or_void}}
+import com.twitter.util.ConstFuture;
+{{/is_oneway_or_void}}
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -280,12 +283,12 @@ public class {{name}} {
                   TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
                   try {
                     {{#is_oneway_or_void}}
-                    (new Client(__prot__)).recv_{{name}}();
+                    serdeCtx.deserialize(__buffer__).get();
                     return Future.value(null);
                     {{/is_oneway_or_void}}
                     {{^is_oneway_or_void}}
-                    return Future.value((new Client(__prot__)).recv_{{name}}());
-                   {{/is_oneway_or_void}}
+                    return new ConstFuture(serdeCtx.deserialize(__buffer__));
+                    {{/is_oneway_or_void}}
                   } catch (Exception e) {
                     return Future.exception(e);
                   }

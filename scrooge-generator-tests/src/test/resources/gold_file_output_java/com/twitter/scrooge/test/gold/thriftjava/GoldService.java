@@ -29,6 +29,7 @@ import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.util.ConstFuture;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -314,7 +315,7 @@ public class GoldService {
                   TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
                   TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
                   try {
-                    return Future.value((new Client(__prot__)).recv_doGreatThings());
+                    return new ConstFuture(serdeCtx.deserialize(__buffer__));
                   } catch (Exception e) {
                     return Future.exception(e);
                   }
@@ -370,7 +371,7 @@ public class GoldService {
                   TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
                   TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
                   try {
-                    return Future.value((new Client(__prot__)).recv_noExceptionCall());
+                    return new ConstFuture(serdeCtx.deserialize(__buffer__));
                   } catch (Exception e) {
                     return Future.exception(e);
                   }

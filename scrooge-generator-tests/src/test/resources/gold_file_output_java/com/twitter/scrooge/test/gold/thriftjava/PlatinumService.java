@@ -29,6 +29,7 @@ import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.util.ConstFuture;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
 import com.twitter.util.Function2;
@@ -248,7 +249,7 @@ public class PlatinumService {
                   TMemoryInputTransport __memoryTransport__ = new TMemoryInputTransport(__buffer__);
                   TProtocol __prot__ = ServiceToClient.this.protocolFactory.getProtocol(__memoryTransport__);
                   try {
-                    return Future.value((new Client(__prot__)).recv_moreCoolThings());
+                    return new ConstFuture(serdeCtx.deserialize(__buffer__));
                   } catch (Exception e) {
                     return Future.exception(e);
                   }
