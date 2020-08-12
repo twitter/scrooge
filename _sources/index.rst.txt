@@ -45,14 +45,14 @@ Maven users need to add the following to the pom.xml file:
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>scrooge-core_2.12</artifactId>
-      <version>20.7.0</version>
+      <version>20.8.0</version>
     </dependency>
 
 SBT users need this:
 
 ::
 
-    val scroogeCore = "com.twitter" %% "scrooge-core" % "20.7.0"
+    val scroogeCore = "com.twitter" %% "scrooge-core" % "20.8.0"
 
 Building Scrooge
 ----------------
