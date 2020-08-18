@@ -39,6 +39,7 @@ import com.twitter.util.Throw;
 import com.twitter.finagle.thrift.ClientDeserializeCtx;
 import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
+import com.twitter.finagle.thrift.AbstractThriftService;
 
 public class GoldService {
   public interface Iface {
@@ -51,7 +52,7 @@ public class GoldService {
     public void noExceptionCall(Request request, AsyncMethodCallback<Response> resultHandler) throws TException;
   }
 
-  public interface ServiceIface {
+  public interface ServiceIface extends AbstractThriftService {
     public Future<Response> doGreatThings(Request request);
     public Future<Response> noExceptionCall(Request request);
   }

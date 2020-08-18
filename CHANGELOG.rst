@@ -10,10 +10,11 @@ Unreleased
 * scrooge-generator: Fixed a bug in the Java generated code where responses were
   often deserialized twice. ``PHAB_ID=D526316``
 
+* scrooge-generator: Java-generated `ServiceIface` interfaces now extend
+  `c.t.f.thrift.AbstractThriftService`. ``PHAB_ID=D528659``
+
 20.8.0
 ------
-
-No Changes
 
 * scrooge: replace deprecated ScalaTest 3.0 API with ScalaTest 3.1/3.2 API. ``PHAB_ID=D525860``
 

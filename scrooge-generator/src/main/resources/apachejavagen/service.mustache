@@ -21,6 +21,9 @@ import com.twitter.util.Throw;
 import com.twitter.finagle.thrift.ClientDeserializeCtx;
 import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
+{{^extends_iface}}
+import com.twitter.finagle.thrift.AbstractThriftService;
+{{/extends_iface}}
 
 public class {{name}} {
   public interface Iface{{#extends_iface}} extends {{parent_name}}.Iface{{/extends_iface}} {
@@ -35,7 +38,7 @@ public class {{name}} {
     {{/functions}}
   }
 
-  public interface ServiceIface{{#extends_iface}} extends {{parent_name}}.ServiceIface{{/extends_iface}} {
+  public interface ServiceIface extends {{#extends_iface}}{{parent_name}}.ServiceIface{{/extends_iface}}{{^extends_iface}}AbstractThriftService{{/extends_iface}} {
     {{#functions}}
     public Future<{{{return_type.type_name_in_container}}}> {{name}}({{{argument_list_with_types}}});
     {{/functions}}

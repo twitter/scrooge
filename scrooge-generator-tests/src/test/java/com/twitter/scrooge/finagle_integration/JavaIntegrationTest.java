@@ -9,28 +9,31 @@ import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Names;
 import com.twitter.finagle.ThriftMux;
+import com.twitter.finagle.thrift.AbstractThriftService;
 import com.twitter.scrooge.finagle_integration.thriftjava.BarService;
 import com.twitter.scrooge.finagle_integration.thriftjava.InvalidQueryException;
 import com.twitter.util.Await;
 import com.twitter.util.Duration;
 import com.twitter.util.Future;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class JavaIntegrationTest {
 
   @Test
   public void test() throws Exception {
+    BarService.ServiceIface serverImpl = new BarServiceImpl();
     ListeningServer server =
-        ThriftMux.server().serveIface("localhost:*", new BarServiceImpl());
+        ThriftMux.server().serveIface("localhost:*", serverImpl);
 
     BarService.ServiceIface client =
         ThriftMux.client().build(
             Names.bound(Addresses.newInetAddress((InetSocketAddress) server.boundAddress())),
             "a_client",
             BarService.ServiceIface.class);
+
+    assertTrue(serverImpl instanceof AbstractThriftService);
+    assertTrue(client instanceof AbstractThriftService);
     assertEquals(Await.result(client.echo("echo"), Duration.fromSeconds(5)), "echo");
     assertEquals(Await.result(client.duplicate("double"), Duration.fromSeconds(5)), "doubledouble");
     assertEquals(Await.result(client.getDuck(10L), Duration.fromSeconds(5)), "Scrooge");
