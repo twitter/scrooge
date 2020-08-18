@@ -6,7 +6,7 @@ if ({{fieldName}}.isDefined) {
 if ({{fieldName}} ne null) {
 {{/nullable}}
 {{/optional}}
-  val {{valueVariableName}} = {{fieldName}}{{#optional}}.get{{/optional}}
+  val _value = {{fieldName}}{{#optional}}.get{{/optional}}
   _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
   {{>writeValue}}
   _oprot.writeFieldEnd()

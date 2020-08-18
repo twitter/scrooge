@@ -27,7 +27,8 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object AnotherException extends ValidatingThriftStructCodec3[AnotherException] with StructBuilderFactory[AnotherException] {
-  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+
   val Struct: TStruct = new TStruct("AnotherException")
   val ErrorCodeField: TField = new TField("errorCode", TType.I32, 1)
   val ErrorCodeFieldManifest: Manifest[Int] = manifest[Int]
@@ -97,7 +98,7 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
 
     new AnotherException(
       errorCode,
-      NoPassthroughFields
+      _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
     )
   }
 
@@ -109,7 +110,12 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
 
 
   override def decode(_iprot: TProtocol): AnotherException = {
+    decodeInternal(_iprot, false)
+  }
+
+  private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): AnotherException = {
     var errorCode: Int = 0
+
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -122,31 +128,23 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
       } else {
         _field.id match {
           case 1 =>
-            if (_fieldType == TType.I32) {
-              errorCode = readErrorCodeValue(_iprot)
-            } else {
-              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                "Received wrong type for field 'errorCode' (expected=%s, actual=%s).",
-                TType.I32,
-                _fieldType
-              )
-            }
+            _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.I32, _fieldType, "errorCode")
+            errorCode = _iprot.readI32()
           case _ =>
-            if (_passthroughFields eq null)
-              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
+            _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
         }
         _iprot.readFieldEnd()
       }
     } while (!_done)
     _iprot.readStructEnd()
 
+
+    val _passthroughFieldsResult =
+      if (_passthroughFields eq null) _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
+      else _passthroughFields.result()
     new AnotherException(
       errorCode,
-      if (_passthroughFields eq null)
-        NoPassthroughFields
-      else
-        _passthroughFields.result()
+      _passthroughFieldsResult
     )
   }
 
@@ -159,20 +157,6 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
 
   def unapply(_item: AnotherException): _root_.scala.Option[Int] = _root_.scala.Some(_item.errorCode)
 
-
-  @inline private[thriftscala] def readErrorCodeValue(_iprot: TProtocol): Int = {
-    _iprot.readI32()
-  }
-
-  @inline private def writeErrorCodeField(errorCode_item: Int, _oprot: TProtocol): Unit = {
-    _oprot.writeFieldBegin(ErrorCodeField)
-    writeErrorCodeValue(errorCode_item, _oprot)
-    _oprot.writeFieldEnd()
-  }
-
-  @inline private def writeErrorCodeValue(errorCode_item: Int, _oprot: TProtocol): Unit = {
-    _oprot.writeI32(errorCode_item)
-  }
 
 
 }
@@ -223,12 +207,13 @@ class AnotherException(
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
+      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
       val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
         case 1 =>
-            writeErrorCodeValue(errorCode, _oprot)
+            _oprot.writeI32(errorCode)
             _root_.scala.Some(AnotherException.ErrorCodeField)
         case _ => _root_.scala.None
       }
@@ -254,11 +239,13 @@ class AnotherException(
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): AnotherException = {
+    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var errorCode: Int = this.errorCode
     var _passthroughFields = this._passthroughFields
+    val _iprot = _blob.read 
     _blob.id match {
       case 1 =>
-        errorCode = readErrorCodeValue(_blob.read)
+        errorCode = _iprot.readI32()
       case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new AnotherException(
@@ -296,13 +283,12 @@ class AnotherException(
 
   override def write(_oprot: TProtocol): Unit = {
     AnotherException.validate(this)
+    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
-    writeErrorCodeField(errorCode, _oprot)
-    if (_passthroughFields.nonEmpty) {
-      _passthroughFields.values.foreach { _.write(_oprot) }
-    }
-    _oprot.writeFieldStop()
-    _oprot.writeStructEnd()
+    _oprot.writeFieldBegin(ErrorCodeField)
+    _oprot.writeI32(errorCode)
+    _oprot.writeFieldEnd()
+    _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
   }
 
   def copy(

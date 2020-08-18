@@ -5,7 +5,7 @@ if (_fieldType == TType.I32 || _fieldType == TType.ENUM) {
 if (_fieldType == TType.{{constType}}) {
 {{/isEnum}}
   AdaptTProtocol.usedStartMarker({{id}})
-  {{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{StructName}}.{{readFieldValueName}}(_iprot){{#optional}}){{/optional}}
+  {{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueOrMethod}}{{#optional}}){{/optional}}
   AdaptTProtocol.usedEndMarker({{id}})
   AdaptTProtocol.unusedStartMarker({{id}})
 {{#readWriteInfo}}

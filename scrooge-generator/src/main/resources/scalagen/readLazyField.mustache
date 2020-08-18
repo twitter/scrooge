@@ -1,22 +1,23 @@
 {{#isEnum}}
-if (_fieldType == TType.I32 || _fieldType == TType.ENUM) {
+_root_.com.twitter.scrooge.internal.TProtocols.validateEnumFieldType(_fieldType, "{{fieldName}}")
 {{/isEnum}}
 {{^isEnum}}
-if (_fieldType == TType.{{constType}}) {
+_root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.{{constType}}, _fieldType, "{{fieldName}}")
 {{/isEnum}}
+{{#withTrait}}
 {{#isLazyReadEnabled}}
-  {{fieldNameForWire}}Offset = _iprot.{{offsetSkipProtocol}}()
+if (lazily)
+  {{fieldNameForWire}}Offset = _iprot.asInstanceOf[LazyTProtocol].{{offsetSkipProtocol}}()
+else
+  {{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueOrMethod}}{{#optional}}){{/optional}}
 {{/isLazyReadEnabled}}
 {{^isLazyReadEnabled}}
-  {{fieldName}} = {{#optional}}Some({{/optional}}{{readFieldValueName}}(_iprot){{#optional}}){{/optional}}
+{{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueOrMethod}}{{#optional}}){{/optional}}
 {{/isLazyReadEnabled}}
+{{/withTrait}}
+{{^withTrait}}
+{{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueOrMethod}}{{#optional}}){{/optional}}
+{{/withTrait}}
 {{#required}}
-  {{gotName}} = true
+{{gotName}} = true
 {{/required}}
-} else {
-  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-    "Received wrong type for field '{{fieldName}}' (expected=%s, actual=%s).",
-    TType.{{#isEnum}}ENUM{{/isEnum}}{{^isEnum}}{{constType}}{{/isEnum}},
-    _fieldType
-  )
-}

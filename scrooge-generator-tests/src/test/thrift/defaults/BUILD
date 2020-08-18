@@ -4,6 +4,7 @@ create_thrift_libraries(
     generate_languages = [
         "java",
         "scala",
+        "scala-adaptive",
     ],
 )
 

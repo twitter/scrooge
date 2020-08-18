@@ -30,7 +30,8 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with StructBuilderFactory[CollectionId] {
-  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+
   val Struct: TStruct = new TStruct("CollectionId")
   val CollectionLongIdField: TField = new TField("collectionLongId", TType.I64, 1)
   val CollectionLongIdFieldManifest: Manifest[Long] = manifest[Long]
@@ -100,7 +101,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
 
     new Immutable(
       collectionLongId,
-      NoPassthroughFields
+      _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
     )
   }
 
@@ -114,11 +115,11 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
 
   private[this] val accessRecordingDecoderBuilder: AccessRecorder => Decoder[CollectionId] = { accessRecorder =>
     new Decoder[CollectionId] {
-      def apply(prot: AdaptTProtocol): CollectionId = new AccessRecordingWrapper(lazyDecode(prot), accessRecorder)
+      def apply(prot: AdaptTProtocol): CollectionId = new AccessRecordingWrapper(decodeInternal(prot, true), accessRecorder)
     }
   }
   private[this] val fallbackDecoder = new Decoder[CollectionId] {
-    def apply(prot: AdaptTProtocol): CollectionId = lazyDecode(prot)
+    def apply(prot: AdaptTProtocol): CollectionId = decodeInternal(prot, true)
   }
   private[this] def adaptiveDecode(_iprot: AdaptTProtocol): CollectionId = {
     val adaptContext = _iprot.adaptContext
@@ -145,73 +146,27 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
   }
 
-  private[this] def lazyDecode(_iprot: LazyTProtocol): CollectionId = {
-
-    var collectionLongId: Long = 0L
-    var _got_collectionLongId = false
-
-    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
-    var _done = false
-    val _start_offset = _iprot.offset
-
-    _iprot.readStructBegin()
-    do {
-      val _field = _iprot.readFieldBegin()
-      val _fieldType = _field.`type`
-      if (_fieldType == TType.STOP) {
-        _done = true
-      } else {
-        _field.id match {
-          case 1 =>
-            if (_fieldType == TType.I64) {
-              collectionLongId = readCollectionLongIdValue(_iprot)
-              _got_collectionLongId = true
-            } else {
-              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).",
-                TType.I64,
-                _fieldType
-              )
-            }
-          case _ =>
-            if (_passthroughFields eq null)
-              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
-        }
-        _iprot.readFieldEnd()
-      }
-    } while (!_done)
-    _iprot.readStructEnd()
-
-    if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
-    new LazyImmutable(
-      _iprot,
-      _iprot.buffer,
-      _start_offset,
-      _iprot.offset,
-      collectionLongId,
-      if (_passthroughFields eq null)
-        NoPassthroughFields
-      else
-        _passthroughFields.result()
-    )
-  }
-
   override def decode(_iprot: TProtocol): CollectionId = {
     if (_iprot.isInstanceOf[LazyTProtocol]) {
-      lazyDecode(_iprot.asInstanceOf[LazyTProtocol])
+      decodeInternal(_iprot, true)
     } else if (_iprot.isInstanceOf[AdaptTProtocol]) {
       adaptiveDecode(_iprot.asInstanceOf[AdaptTProtocol])
     } else {
-      eagerDecode(_iprot)
+      decodeInternal(_iprot, false)
     }
   }
 
   private[thriftscala] def eagerDecode(_iprot: TProtocol): CollectionId = {
+    decodeInternal(_iprot, false)
+  }
+
+  private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): CollectionId = {
     var collectionLongId: Long = 0L
     var _got_collectionLongId = false
+
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
+    val _start_offset = if (lazily) _iprot.asInstanceOf[LazyTProtocol].offset else -1
 
     _iprot.readStructBegin()
     do {
@@ -222,34 +177,38 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
       } else {
         _field.id match {
           case 1 =>
-            if (_fieldType == TType.I64) {
-              collectionLongId = readCollectionLongIdValue(_iprot)
-              _got_collectionLongId = true
-            } else {
-              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                "Received wrong type for field 'collectionLongId' (expected=%s, actual=%s).",
-                TType.I64,
-                _fieldType
-              )
-            }
+            _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.I64, _fieldType, "collectionLongId")
+            collectionLongId = _iprot.readI64()
+            _got_collectionLongId = true
           case _ =>
-            if (_passthroughFields eq null)
-              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
+            _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
         }
         _iprot.readFieldEnd()
       }
     } while (!_done)
     _iprot.readStructEnd()
 
-    if (!_got_collectionLongId) throw new TProtocolException("Required field 'collectionLongId' was not found in serialized data for struct CollectionId")
-    new Immutable(
-      collectionLongId,
-      if (_passthroughFields eq null)
-        NoPassthroughFields
-      else
-        _passthroughFields.result()
-    )
+    if (!_got_collectionLongId) _root_.com.twitter.scrooge.internal.TProtocols.throwMissingRequiredField("CollectionId", "collectionLongId")
+
+    val _passthroughFieldsResult =
+      if (_passthroughFields eq null) _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
+      else _passthroughFields.result()
+    if (lazily) {
+      val _lazyProt = _iprot.asInstanceOf[LazyTProtocol]
+      new LazyImmutable(
+        _lazyProt,
+        _lazyProt.buffer,
+        _start_offset,
+        _lazyProt.offset,
+        collectionLongId,
+        _passthroughFieldsResult
+      )
+    } else {
+      new Immutable(
+        collectionLongId,
+        _passthroughFieldsResult
+      )
+    }
   }
 
   def apply(
@@ -261,20 +220,6 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
 
   def unapply(_item: CollectionId): _root_.scala.Option[Long] = _root_.scala.Some(_item.collectionLongId)
 
-
-  @inline private[thriftscala] def readCollectionLongIdValue(_iprot: TProtocol): Long = {
-    _iprot.readI64()
-  }
-
-  @inline private def writeCollectionLongIdField(collectionLongId_item: Long, _oprot: TProtocol): Unit = {
-    _oprot.writeFieldBegin(CollectionLongIdField)
-    writeCollectionLongIdValue(collectionLongId_item, _oprot)
-    _oprot.writeFieldEnd()
-  }
-
-  @inline private def writeCollectionLongIdValue(collectionLongId_item: Long, _oprot: TProtocol): Unit = {
-    _oprot.writeI64(collectionLongId_item)
-  }
 
 
   object Immutable extends ThriftStructCodec3[CollectionId] {
@@ -377,12 +322,13 @@ trait CollectionId
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
+      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
       val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
         case 1 =>
-            writeCollectionLongIdValue(collectionLongId, _oprot)
+            _oprot.writeI64(collectionLongId)
             _root_.scala.Some(CollectionId.CollectionLongIdField)
         case _ => _root_.scala.None
       }
@@ -408,11 +354,13 @@ trait CollectionId
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): CollectionId = {
+    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var collectionLongId: Long = this.collectionLongId
     var _passthroughFields = this._passthroughFields
+    val _iprot = _blob.read 
     _blob.id match {
       case 1 =>
-        collectionLongId = readCollectionLongIdValue(_blob.read)
+        collectionLongId = _iprot.readI64()
       case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new Immutable(
@@ -450,13 +398,12 @@ trait CollectionId
 
   override def write(_oprot: TProtocol): Unit = {
     CollectionId.validate(this)
+    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
-    writeCollectionLongIdField(collectionLongId, _oprot)
-    if (_passthroughFields.nonEmpty) {
-      _passthroughFields.values.foreach { _.write(_oprot) }
-    }
-    _oprot.writeFieldStop()
-    _oprot.writeStructEnd()
+    _oprot.writeFieldBegin(CollectionLongIdField)
+    _oprot.writeI64(collectionLongId)
+    _oprot.writeFieldEnd()
+    _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
   }
 
   def copy(
@@ -513,6 +460,8 @@ private[thriftscala] class CollectionIdStructBuilder(instance: _root_.scala.Opti
 private class CollectionId__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): CollectionId = {
+    import CollectionId._
+    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset
@@ -538,7 +487,7 @@ private class CollectionId__AdaptDecoder {
           case 1 => {
             if (_fieldType == TType.I64) {
               AdaptTProtocol.usedStartMarker(1)
-              collectionLongId = CollectionId.readCollectionLongIdValue(_iprot)
+              collectionLongId = _iprot.readI64()
               AdaptTProtocol.usedEndMarker(1)
               AdaptTProtocol.unusedStartMarker(1)
               _iprot.offsetSkipI64()
@@ -603,7 +552,7 @@ private class CollectionId__Adapt(
   private[this] var _end_offset: Int = _
   def set__endOffset(offset: Int): Unit = _end_offset = offset
 
-  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = CollectionId.NoPassthroughFields
+  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
   def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
     __passthroughFields = passthroughFields
 

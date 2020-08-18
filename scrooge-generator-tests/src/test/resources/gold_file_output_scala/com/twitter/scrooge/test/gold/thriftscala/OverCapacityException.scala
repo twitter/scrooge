@@ -27,7 +27,8 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityException] with StructBuilderFactory[OverCapacityException] {
-  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+
   val Struct: TStruct = new TStruct("OverCapacityException")
   val ChillTimeSecondsField: TField = new TField("chillTimeSeconds", TType.I32, 1)
   val ChillTimeSecondsFieldManifest: Manifest[Int] = manifest[Int]
@@ -101,7 +102,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
 
     new OverCapacityException(
       chillTimeSeconds,
-      NoPassthroughFields
+      _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
     )
   }
 
@@ -113,7 +114,12 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
 
 
   override def decode(_iprot: TProtocol): OverCapacityException = {
+    decodeInternal(_iprot, false)
+  }
+
+  private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): OverCapacityException = {
     var chillTimeSeconds: Int = 0
+
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
 
@@ -126,31 +132,23 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
       } else {
         _field.id match {
           case 1 =>
-            if (_fieldType == TType.I32) {
-              chillTimeSeconds = readChillTimeSecondsValue(_iprot)
-            } else {
-              _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                "Received wrong type for field 'chillTimeSeconds' (expected=%s, actual=%s).",
-                TType.I32,
-                _fieldType
-              )
-            }
+            _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.I32, _fieldType, "chillTimeSeconds")
+            chillTimeSeconds = _iprot.readI32()
           case _ =>
-            if (_passthroughFields eq null)
-              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
+            _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
         }
         _iprot.readFieldEnd()
       }
     } while (!_done)
     _iprot.readStructEnd()
 
+
+    val _passthroughFieldsResult =
+      if (_passthroughFields eq null) _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
+      else _passthroughFields.result()
     new OverCapacityException(
       chillTimeSeconds,
-      if (_passthroughFields eq null)
-        NoPassthroughFields
-      else
-        _passthroughFields.result()
+      _passthroughFieldsResult
     )
   }
 
@@ -163,20 +161,6 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
 
   def unapply(_item: OverCapacityException): _root_.scala.Option[Int] = _root_.scala.Some(_item.chillTimeSeconds)
 
-
-  @inline private[thriftscala] def readChillTimeSecondsValue(_iprot: TProtocol): Int = {
-    _iprot.readI32()
-  }
-
-  @inline private def writeChillTimeSecondsField(chillTimeSeconds_item: Int, _oprot: TProtocol): Unit = {
-    _oprot.writeFieldBegin(ChillTimeSecondsField)
-    writeChillTimeSecondsValue(chillTimeSeconds_item, _oprot)
-    _oprot.writeFieldEnd()
-  }
-
-  @inline private def writeChillTimeSecondsValue(chillTimeSeconds_item: Int, _oprot: TProtocol): Unit = {
-    _oprot.writeI32(chillTimeSeconds_item)
-  }
 
 
 }
@@ -227,12 +211,13 @@ class OverCapacityException(
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
+      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
       val _fieldOpt: _root_.scala.Option[TField] = _fieldId match {
         case 1 =>
-            writeChillTimeSecondsValue(chillTimeSeconds, _oprot)
+            _oprot.writeI32(chillTimeSeconds)
             _root_.scala.Some(OverCapacityException.ChillTimeSecondsField)
         case _ => _root_.scala.None
       }
@@ -258,11 +243,13 @@ class OverCapacityException(
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): OverCapacityException = {
+    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var chillTimeSeconds: Int = this.chillTimeSeconds
     var _passthroughFields = this._passthroughFields
+    val _iprot = _blob.read 
     _blob.id match {
       case 1 =>
-        chillTimeSeconds = readChillTimeSecondsValue(_blob.read)
+        chillTimeSeconds = _iprot.readI32()
       case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new OverCapacityException(
@@ -300,13 +287,12 @@ class OverCapacityException(
 
   override def write(_oprot: TProtocol): Unit = {
     OverCapacityException.validate(this)
+    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
-    writeChillTimeSecondsField(chillTimeSeconds, _oprot)
-    if (_passthroughFields.nonEmpty) {
-      _passthroughFields.values.foreach { _.write(_oprot) }
-    }
-    _oprot.writeFieldStop()
-    _oprot.writeStructEnd()
+    _oprot.writeFieldBegin(ChillTimeSecondsField)
+    _oprot.writeI32(chillTimeSeconds)
+    _oprot.writeFieldEnd()
+    _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
   }
 
   def copy(

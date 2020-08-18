@@ -32,7 +32,10 @@ import scala.reflect.{ClassTag, classTag}
 {{/public}}
 {{docstring}}
 object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with StructBuilderFactory[{{StructName}}] {
-  val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+{{#hasFields}}
+  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+{{/hasFields}}
+
   val Struct: TStruct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}}: TField = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
@@ -196,7 +199,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 {{#fields}}
       {{fieldName}},
 {{/fields}}
-      NoPassthroughFields
+      _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
     )
   }
 
@@ -212,11 +215,11 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 
   private[this] val accessRecordingDecoderBuilder: AccessRecorder => Decoder[{{StructName}}] = { accessRecorder =>
     new Decoder[{{StructName}}] {
-      def apply(prot: AdaptTProtocol): {{StructName}} = new AccessRecordingWrapper(lazyDecode(prot), accessRecorder)
+      def apply(prot: AdaptTProtocol): {{StructName}} = new AccessRecordingWrapper(decodeInternal(prot, true), accessRecorder)
     }
   }
   private[this] val fallbackDecoder = new Decoder[{{StructName}}] {
-    def apply(prot: AdaptTProtocol): {{StructName}} = lazyDecode(prot)
+    def apply(prot: AdaptTProtocol): {{StructName}} = decodeInternal(prot, true)
   }
   private[this] def adaptiveDecode(_iprot: AdaptTProtocol): {{StructName}} = {
     val adaptContext = _iprot.adaptContext
@@ -248,80 +251,15 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 {{/adapt}}
 
 {{#withTrait}}
-  private[this] def lazyDecode(_iprot: LazyTProtocol): {{StructName}} = {
-
-{{#fields}}
-{{#isLazyReadEnabled}}
-    var {{fieldNameForWire}}Offset: Int = -1
-{{/isLazyReadEnabled}}
-{{^isLazyReadEnabled}}
-{{#optional}}
-    var {{fieldName}}: Option[{{fieldType}}] = None
-{{/optional}}
-{{^optional}}
-    var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
-{{/optional}}
-{{/isLazyReadEnabled}}
-{{#required}}
-    var {{gotName}} = false
-{{/required}}
-{{/fields}}
-
-    var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
-    var _done = false
-    val _start_offset = _iprot.offset
-
-    _iprot.readStructBegin()
-    do {
-      val _field = _iprot.readFieldBegin()
-      val _fieldType = _field.`type`
-      if (_fieldType == TType.STOP) {
-        _done = true
-      } else {
-        _field.id match {
-{{#fields}}
-          case {{id}} =>
-            {{>readLazyField}}
-{{/fields}}
-          case _ =>
-            if (_passthroughFields eq null)
-              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
-        }
-        _iprot.readFieldEnd()
-      }
-    } while (!_done)
-    _iprot.readStructEnd()
-
-{{#fields}}
-{{#required}}
-    if (!{{gotName}}) throw new TProtocolException("Required field '{{fieldName}}' was not found in serialized data for struct {{StructName}}")
-{{/required}}
-{{/fields}}
-    new Lazy{{InstanceClassName}}(
-      _iprot,
-      _iprot.buffer,
-      _start_offset,
-      _iprot.offset,
-{{#fields}}
-      {{#isLazyReadEnabled}}{{fieldNameForWire}}Offset{{/isLazyReadEnabled}}{{^isLazyReadEnabled}}{{fieldName}}{{/isLazyReadEnabled}},
-{{/fields}}
-      if (_passthroughFields eq null)
-        NoPassthroughFields
-      else
-        _passthroughFields.result()
-    )
-  }
-
   override def decode(_iprot: TProtocol): {{StructName}} = {
     if (_iprot.isInstanceOf[LazyTProtocol]) {
-      lazyDecode(_iprot.asInstanceOf[LazyTProtocol])
+      decodeInternal(_iprot, true)
 {{#adapt}}
     } else if (_iprot.isInstanceOf[AdaptTProtocol]) {
       adaptiveDecode(_iprot.asInstanceOf[AdaptTProtocol])
 {{/adapt}}
     } else {
-      eagerDecode(_iprot)
+      decodeInternal(_iprot, false)
     }
   }
 
@@ -330,19 +268,32 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 {{^withTrait}}
   override def decode(_iprot: TProtocol): {{StructName}} = {
 {{/withTrait}}
+    decodeInternal(_iprot, false)
+  }
+
+  private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): {{StructName}} = {
 {{#fields}}
+{{#withTrait}}
+{{#isLazyReadEnabled}}
+    var {{fieldNameForWire}}Offset: Int = -1
+{{/isLazyReadEnabled}}
+{{/withTrait}}
 {{#optional}}
-    var {{fieldName}}: _root_.scala.Option[{{fieldType}}] = _root_.scala.None
+    var {{fieldName}}: Option[{{fieldType}}] = None
 {{/optional}}
 {{^optional}}
     var {{fieldName}}: {{fieldType}} = {{defaultReadValue}}
+{{/optional}}
 {{#required}}
     var {{gotName}} = false
 {{/required}}
-{{/optional}}
 {{/fields}}
+
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
+{{#withTrait}}
+    val _start_offset = if (lazily) _iprot.asInstanceOf[LazyTProtocol].offset else -1
+{{/withTrait}}
 
     _iprot.readStructBegin()
     do {
@@ -355,15 +306,14 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
         _field.id match {
 {{#fields}}
           case {{id}} =>
-            {{>readField}}
+            {{>readLazyField}}
 {{/fields}}
           case _ =>
-{{/hasFields}}
-            if (_passthroughFields eq null)
-              _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-            _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
-{{#hasFields}}
+            _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
         }
+{{/hasFields}}
+{{^hasFields}}{{! it is common to see structs without fields where everything is a passthrough }}
+        _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
 {{/hasFields}}
         _iprot.readFieldEnd()
       }
@@ -372,18 +322,43 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 
 {{#fields}}
 {{#required}}
-    if (!{{gotName}}) throw new TProtocolException("Required field '{{fieldName}}' was not found in serialized data for struct {{StructName}}")
+    if (!{{gotName}}) _root_.com.twitter.scrooge.internal.TProtocols.throwMissingRequiredField("{{StructName}}", "{{fieldName}}")
 {{/required}}
 {{/fields}}
+
+    val _passthroughFieldsResult =
+      if (_passthroughFields eq null) _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
+      else _passthroughFields.result()
+{{#withTrait}}
+    if (lazily) {
+      val _lazyProt = _iprot.asInstanceOf[LazyTProtocol]
+      new Lazy{{InstanceClassName}}(
+        _lazyProt,
+        _lazyProt.buffer,
+        _start_offset,
+        _lazyProt.offset,
+{{#fields}}
+        {{#isLazyReadEnabled}}{{fieldNameForWire}}Offset{{/isLazyReadEnabled}}{{^isLazyReadEnabled}}{{fieldName}}{{/isLazyReadEnabled}},
+{{/fields}}
+        _passthroughFieldsResult
+      )
+    } else {
+      new {{InstanceClassName}}(
+{{#fields}}
+        {{fieldName}},
+{{/fields}}
+        _passthroughFieldsResult
+      )
+    }
+{{/withTrait}}
+{{^withTrait}}
     new {{InstanceClassName}}(
 {{#fields}}
       {{fieldName}},
 {{/fields}}
-      if (_passthroughFields eq null)
-        NoPassthroughFields
-      else
-        _passthroughFields.result()
+      _passthroughFieldsResult
     )
+{{/withTrait}}
   }
 
   def apply(
@@ -409,26 +384,18 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 
 
 {{#fields}}
-  @inline private[{{packageName}}] def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
 {{#readWriteInfo}}
+{{#isCollection}}
+  private[{{packageName}}] def {{readFieldValueName}}(_iprot: TProtocol): {{fieldType}} = {
     {{>readValue}}
-{{/readWriteInfo}}
   }
 
-  @inline private def {{writeFieldName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
-{{#readWriteInfo}}
-    _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
-    {{writeFieldValueName}}({{valueVariableName}}, _oprot)
-    _oprot.writeFieldEnd()
-{{/readWriteInfo}}
-  }
-
-  @inline private def {{writeFieldValueName}}({{valueVariableName}}: {{fieldType}}, _oprot: TProtocol): Unit = {
-{{#readWriteInfo}}
+  private def {{writeFieldValueName}}(_oprot: TProtocol, _value: {{fieldType}}): Unit = {
     {{>writeValue}}
-{{/readWriteInfo}}
   }
 
+{{/isCollection}}
+{{/readWriteInfo}}
 {{/fields}}
 
 {{#withTrait}}
@@ -672,6 +639,7 @@ class {{StructName}}(
       passedthroughValue
     } else {
 {{#hasFields}}
+      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -687,7 +655,7 @@ class {{StructName}}(
           if ({{fieldName}} ne null) {
 {{/nullable}}
 {{/optional}}
-            {{writeFieldValueName}}({{fieldName}}{{#optional}}.get{{/optional}}, _oprot)
+            {{writeValueOrMethod}}
             _root_.scala.Some({{StructName}}.{{fieldConst}})
 {{#optional}}
           } else {
@@ -731,19 +699,23 @@ class {{StructName}}(
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): {{StructName}} = {
+{{#hasFields}}
+    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+{{/hasFields}}
 {{#fields}}
     var {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
 {{/fields}}
     var _passthroughFields = this._passthroughFields
+    val _iprot = _blob.read {{! alias the TProtocol to the expected field name }}
     _blob.id match {
 {{#fields}}
 {{#readWriteInfo}}
       case {{id}} =>
 {{#optional}}
-        {{fieldName}} = _root_.scala.Some({{readFieldValueName}}(_blob.read))
+        {{fieldName}} = _root_.scala.Some({{readFieldValueOrMethod}})
 {{/optional}}
 {{^optional}}
-        {{fieldName}} = {{readFieldValueName}}(_blob.read)
+        {{fieldName}} = {{readFieldValueOrMethod}}
 {{/optional}}
 {{/readWriteInfo}}
 {{/fields}}
@@ -802,27 +774,34 @@ class {{StructName}}(
 
   override def write(_oprot: TProtocol): Unit = {
     {{StructName}}.validate(this)
+    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
 {{#fields}}
 {{#readWriteInfo}}
 {{#optional}}
-    if ({{fieldName}}.isDefined) {{writeFieldName}}({{fieldName}}.get, _oprot)
+    if ({{fieldName}}.isDefined) {
+      _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
+      {{writeValueOrMethod}}
+      _oprot.writeFieldEnd()
+    }
 {{/optional}}
 {{^optional}}
 {{#nullable}}
-    if ({{fieldName}} ne null) {{writeFieldName}}({{fieldName}}, _oprot)
+    if ({{fieldName}} ne null) {
+      _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
+      {{writeValueOrMethod}}
+      _oprot.writeFieldEnd()
+    }
 {{/nullable}}
 {{^nullable}}
-    {{writeFieldName}}({{fieldName}}, _oprot)
+    _oprot.writeFieldBegin({{fieldConst}}{{#isEnum}}I32{{/isEnum}})
+    {{writeValueOrMethod}}
+    _oprot.writeFieldEnd()
 {{/nullable}}
 {{/optional}}
 {{/readWriteInfo}}
 {{/fields}}
-    if (_passthroughFields.nonEmpty) {
-      _passthroughFields.values.foreach { _.write(_oprot) }
-    }
-    _oprot.writeFieldStop()
-    _oprot.writeStructEnd()
+    _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
   }
 
   def copy(
@@ -968,6 +947,8 @@ private[{{packageName}}] class {{StructName}}StructBuilder(instance: _root_.scal
 private class {{StructName}}__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): {{StructName}} = {
+    import {{StructName}}._
+    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset
@@ -1066,7 +1047,7 @@ private class {{StructName}}__Adapt(
   private[this] var _end_offset: Int = _
   def set__endOffset(offset: Int): Unit = _end_offset = offset
 
-  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = {{StructName}}.NoPassthroughFields
+  private[this] var __passthroughFields: immutable$Map[Short, TFieldBlob] = _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
   def set__passthroughFields(passthroughFields: immutable$Map[Short, TFieldBlob]): Unit =
     __passthroughFields = passthroughFields
 

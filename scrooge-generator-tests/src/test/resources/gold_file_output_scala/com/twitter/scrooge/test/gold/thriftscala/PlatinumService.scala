@@ -321,7 +321,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   object MoreCoolThings extends ThriftMethod {
     
     object Args extends ValidatingThriftStructCodec3[Args] with StructBuilderFactory[Args] {
-      val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+      private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+    
       val Struct: TStruct = new TStruct("moreCoolThings_args")
       val RequestField: TField = new TField("request", TType.STRUCT, 1)
       val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
@@ -395,7 +396,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
         new Args(
           request,
-          NoPassthroughFields
+          _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
         )
       }
     
@@ -407,7 +408,12 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
     
       override def decode(_iprot: TProtocol): Args = {
+        decodeInternal(_iprot, false)
+      }
+    
+      private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): Args = {
         var request: com.twitter.scrooge.test.gold.thriftscala.Request = null
+    
         var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
         var _done = false
     
@@ -420,31 +426,23 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           } else {
             _field.id match {
               case 1 =>
-                if (_fieldType == TType.STRUCT) {
-                  request = readRequestValue(_iprot)
-                } else {
-                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                    "Received wrong type for field 'request' (expected=%s, actual=%s).",
-                    TType.STRUCT,
-                    _fieldType
-                  )
-                }
+                _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRUCT, _fieldType, "request")
+                request = com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
               case _ =>
-                if (_passthroughFields eq null)
-                  _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-                _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
+                _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
             }
             _iprot.readFieldEnd()
           }
         } while (!_done)
         _iprot.readStructEnd()
     
+    
+        val _passthroughFieldsResult =
+          if (_passthroughFields eq null) _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
+          else _passthroughFields.result()
         new Args(
           request,
-          if (_passthroughFields eq null)
-            NoPassthroughFields
-          else
-            _passthroughFields.result()
+          _passthroughFieldsResult
         )
       }
     
@@ -457,20 +455,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
     
-    
-      @inline private[thriftscala] def readRequestValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.Request = {
-        com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
-      }
-    
-      @inline private def writeRequestField(request_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
-        _oprot.writeFieldBegin(RequestField)
-        writeRequestValue(request_item, _oprot)
-        _oprot.writeFieldEnd()
-      }
-    
-      @inline private def writeRequestValue(request_item: com.twitter.scrooge.test.gold.thriftscala.Request, _oprot: TProtocol): Unit = {
-        request_item.write(_oprot)
-      }
     
     
     }
@@ -498,13 +482,14 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       override def write(_oprot: TProtocol): Unit = {
         Args.validate(this)
+        val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
         _oprot.writeStructBegin(Struct)
-        if (request ne null) writeRequestField(request, _oprot)
-        if (_passthroughFields.nonEmpty) {
-          _passthroughFields.values.foreach { _.write(_oprot) }
+        if (request ne null) {
+          _oprot.writeFieldBegin(RequestField)
+          request.write(_oprot)
+          _oprot.writeFieldEnd()
         }
-        _oprot.writeFieldStop()
-        _oprot.writeStructEnd()
+        _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
       }
     
       def copy(
@@ -561,7 +546,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     type SuccessType = Int
     
     object Result extends ValidatingThriftStructCodec3[Result] with StructBuilderFactory[Result] {
-      val NoPassthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty[Short, TFieldBlob]
+      private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
+    
       val Struct: TStruct = new TStruct("moreCoolThings_result")
       val SuccessField: TField = new TField("success", TType.I32, 0)
       val SuccessFieldManifest: Manifest[Int] = manifest[Int]
@@ -693,7 +679,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           success,
           ax,
           oce,
-          NoPassthroughFields
+          _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
         )
       }
     
@@ -705,9 +691,14 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
     
       override def decode(_iprot: TProtocol): Result = {
-        var success: _root_.scala.Option[Int] = _root_.scala.None
-        var ax: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException] = _root_.scala.None
-        var oce: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = _root_.scala.None
+        decodeInternal(_iprot, false)
+      }
+    
+      private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): Result = {
+        var success: Option[Int] = None
+        var ax: Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException] = None
+        var oce: Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException] = None
+    
         var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
         var _done = false
     
@@ -720,53 +711,31 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           } else {
             _field.id match {
               case 0 =>
-                if (_fieldType == TType.I32) {
-                  success = _root_.scala.Some(readSuccessValue(_iprot))
-                } else {
-                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                    "Received wrong type for field 'success' (expected=%s, actual=%s).",
-                    TType.I32,
-                    _fieldType
-                  )
-                }
+                _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.I32, _fieldType, "success")
+                success = _root_.scala.Some(_iprot.readI32())
               case 1 =>
-                if (_fieldType == TType.STRUCT) {
-                  ax = _root_.scala.Some(readAxValue(_iprot))
-                } else {
-                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                    "Received wrong type for field 'ax' (expected=%s, actual=%s).",
-                    TType.STRUCT,
-                    _fieldType
-                  )
-                }
+                _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRUCT, _fieldType, "ax")
+                ax = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.AnotherException.decode(_iprot))
               case 2 =>
-                if (_fieldType == TType.STRUCT) {
-                  oce = _root_.scala.Some(readOceValue(_iprot))
-                } else {
-                  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-                    "Received wrong type for field 'oce' (expected=%s, actual=%s).",
-                    TType.STRUCT,
-                    _fieldType
-                  )
-                }
+                _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRUCT, _fieldType, "oce")
+                oce = _root_.scala.Some(com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.decode(_iprot))
               case _ =>
-                if (_passthroughFields eq null)
-                  _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
-                _passthroughFields += _root_.scala.Tuple2(_field.id, TFieldBlob.read(_field, _iprot))
+                _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
             }
             _iprot.readFieldEnd()
           }
         } while (!_done)
         _iprot.readStructEnd()
     
+    
+        val _passthroughFieldsResult =
+          if (_passthroughFields eq null) _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
+          else _passthroughFields.result()
         new Result(
           success,
           ax,
           oce,
-          if (_passthroughFields eq null)
-            NoPassthroughFields
-          else
-            _passthroughFields.result()
+          _passthroughFieldsResult
         )
       }
     
@@ -783,48 +752,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       def unapply(_item: Result): _root_.scala.Option[_root_.scala.Tuple3[Option[Int], Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
     
-    
-      @inline private[thriftscala] def readSuccessValue(_iprot: TProtocol): Int = {
-        _iprot.readI32()
-      }
-    
-      @inline private def writeSuccessField(success_item: Int, _oprot: TProtocol): Unit = {
-        _oprot.writeFieldBegin(SuccessField)
-        writeSuccessValue(success_item, _oprot)
-        _oprot.writeFieldEnd()
-      }
-    
-      @inline private def writeSuccessValue(success_item: Int, _oprot: TProtocol): Unit = {
-        _oprot.writeI32(success_item)
-      }
-    
-      @inline private[thriftscala] def readAxValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.AnotherException = {
-        com.twitter.scrooge.test.gold.thriftscala.AnotherException.decode(_iprot)
-      }
-    
-      @inline private def writeAxField(ax_item: com.twitter.scrooge.test.gold.thriftscala.AnotherException, _oprot: TProtocol): Unit = {
-        _oprot.writeFieldBegin(AxField)
-        writeAxValue(ax_item, _oprot)
-        _oprot.writeFieldEnd()
-      }
-    
-      @inline private def writeAxValue(ax_item: com.twitter.scrooge.test.gold.thriftscala.AnotherException, _oprot: TProtocol): Unit = {
-        ax_item.write(_oprot)
-      }
-    
-      @inline private[thriftscala] def readOceValue(_iprot: TProtocol): com.twitter.scrooge.test.gold.thriftscala.OverCapacityException = {
-        com.twitter.scrooge.test.gold.thriftscala.OverCapacityException.decode(_iprot)
-      }
-    
-      @inline private def writeOceField(oce_item: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException, _oprot: TProtocol): Unit = {
-        _oprot.writeFieldBegin(OceField)
-        writeOceValue(oce_item, _oprot)
-        _oprot.writeFieldEnd()
-      }
-    
-      @inline private def writeOceValue(oce_item: com.twitter.scrooge.test.gold.thriftscala.OverCapacityException, _oprot: TProtocol): Unit = {
-        oce_item.write(_oprot)
-      }
     
     
     }
@@ -869,15 +796,24 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       override def write(_oprot: TProtocol): Unit = {
         Result.validate(this)
+        val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
         _oprot.writeStructBegin(Struct)
-        if (success.isDefined) writeSuccessField(success.get, _oprot)
-        if (ax.isDefined) writeAxField(ax.get, _oprot)
-        if (oce.isDefined) writeOceField(oce.get, _oprot)
-        if (_passthroughFields.nonEmpty) {
-          _passthroughFields.values.foreach { _.write(_oprot) }
+        if (success.isDefined) {
+          _oprot.writeFieldBegin(SuccessField)
+          _oprot.writeI32(success.get)
+          _oprot.writeFieldEnd()
         }
-        _oprot.writeFieldStop()
-        _oprot.writeStructEnd()
+        if (ax.isDefined) {
+          _oprot.writeFieldBegin(AxField)
+          ax.get.write(_oprot)
+          _oprot.writeFieldEnd()
+        }
+        if (oce.isDefined) {
+          _oprot.writeFieldBegin(OceField)
+          oce.get.write(_oprot)
+          _oprot.writeFieldEnd()
+        }
+        _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
       }
     
       def copy(

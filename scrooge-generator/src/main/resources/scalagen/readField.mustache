@@ -1,17 +1,10 @@
 {{#isEnum}}
-if (_fieldType == TType.I32 || _fieldType == TType.ENUM) {
+_root_.com.twitter.scrooge.internal.TProtocols.validateEnumFieldType(_fieldType, "{{fieldName}}")
 {{/isEnum}}
 {{^isEnum}}
-if (_fieldType == TType.{{constType}}) {
+_root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.{{constType}}, _fieldType, "{{fieldName}}")
 {{/isEnum}}
-  {{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueName}}(_iprot){{#optional}}){{/optional}}
+{{fieldName}} = {{#optional}}_root_.scala.Some({{/optional}}{{readFieldValueOrMethod}}{{#optional}}){{/optional}}
 {{#required}}
-  {{gotName}} = true
+{{gotName}} = true
 {{/required}}
-} else {
-  _root_.com.twitter.scrooge.internal.ApplicationExceptions.throwWrongFieldTypeException(
-    "Received wrong type for field '{{fieldName}}' (expected=%s, actual=%s).",
-    TType.{{#isEnum}}ENUM{{/isEnum}}{{^isEnum}}{{constType}}{{/isEnum}},
-    _fieldType
-  )
-}

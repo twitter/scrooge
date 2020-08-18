@@ -13,6 +13,8 @@ Unreleased
 * scrooge-generator: Java-generated `ServiceIface` interfaces now extend
   `c.t.f.thrift.AbstractThriftService`. ``PHAB_ID=D528659``
 
+* scrooge-generator: Reduced the size of generated Scala code.
+
 20.8.0
 ------
 

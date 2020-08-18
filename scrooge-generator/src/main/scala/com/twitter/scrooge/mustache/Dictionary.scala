@@ -31,6 +31,7 @@ object Dictionary {
     def children: Seq[Dictionary] = Nil
     override def toString: String = toData
     def append(suffix: String): CodeFragment = CodeFragment(data + suffix)
+    def append(suffix: CodeFragment): CodeFragment = append(suffix.data)
   }
 
   case class BooleanValue(data: Boolean) extends Value {

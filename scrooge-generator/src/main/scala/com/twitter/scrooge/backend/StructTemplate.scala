@@ -32,7 +32,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "isMap" -> v(false),
       "isStruct" -> v(false),
       "isEnum" -> v(false),
-      "isBase" -> v(false)
+      "isBase" -> v(false),
+      "isCollection" -> v(false)
     )
 
   def genWireConstType(t: FunctionType): CodeFragment = t match {
@@ -46,6 +47,7 @@ trait StructTemplate { self: TemplateGenerator =>
         val elt = sid.append("_element")
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
+          "isCollection" -> v(true),
           "isList" -> v(
             Dictionary(
               "name" -> genID(sid),
@@ -61,6 +63,7 @@ trait StructTemplate { self: TemplateGenerator =>
         val elt = sid.append("_element")
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
+          "isCollection" -> v(true),
           "isSet" -> v(
             Dictionary(
               "name" -> genID(sid),
@@ -78,6 +81,7 @@ trait StructTemplate { self: TemplateGenerator =>
         val value = sid.append("_value")
         TypeTemplate + Dictionary(
           "fieldType" -> genType(t),
+          "isCollection" -> v(true),
           "isMap" -> v(
             Dictionary(
               "name" -> genID(sid),
@@ -131,8 +135,193 @@ trait StructTemplate { self: TemplateGenerator =>
             )
           )
         )
-      case t: ReferenceType =>
+      case _: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should have been resolved by now")
+    }
+  }
+
+  /**
+   * Generates code that reads the fieldType from a TProtocol variable of name `protoName`
+   * and a TProtocols instance named `_protos`.
+   *
+   * For an i32: "readI32($protoName)"
+   *
+   * For a list<string>:
+   * "readList($protoName, TProtocols.readStringFn)
+   *
+   * For a set<list<i32>>:
+   * "readSet($protoName, proto => { readList(proto, TProtocols.readI32Fn) })"
+   */
+  private[this] def genReadValue(fieldType: FieldType, protoName: String): CodeFragment = {
+    fieldType match {
+      case TBool => v(s"$protoName.readBool()")
+      case TByte => v(s"$protoName.readByte()")
+      case TI16 => v(s"$protoName.readI16()")
+      case TI32 => v(s"$protoName.readI32()")
+      case TI64 => v(s"$protoName.readI64()")
+      case TDouble => v(s"$protoName.readDouble()")
+      case TString => v(s"$protoName.readString()")
+      case TBinary => v(s"$protoName.readBinary()")
+      case _: StructType => genType(fieldType).append(s".decode($protoName)")
+      case _: EnumType => genType(fieldType).append(s".getOrUnknown($protoName.readI32())")
+      case t: SetType =>
+        val readElement = genReadValueFn1(t.eltType)
+        v(s"_protos.readSet($protoName, $readElement)")
+      case t: ListType =>
+        val readElement = genReadValueFn1(t.eltType)
+        v(s"_protos.readList($protoName, $readElement)")
+      case t: MapType =>
+        val readKey = genReadValueFn1(t.keyType)
+        val readVal = genReadValueFn1(t.valueType)
+        v(s"_protos.readMap($protoName, $readKey, $readVal)")
+      case _ => throw new IllegalArgumentException(s"Unsupported FieldType: $fieldType")
+    }
+  }
+
+  /**
+   * Similar to [[genReadValue]]. However, for collections it will delegate
+   * to a generated function for reading the value.
+   *
+   * @note This is done to share code across struct's lazyDecode and eagerDecode
+   *       implementations.
+   */
+  private[this] def genReadValueOrMethod(
+    simpleID: SimpleID,
+    fieldType: FieldType,
+    protoName: String
+  ): CodeFragment = {
+    fieldType match {
+      case _: ContainerType =>
+        genID(simpleID.toTitleCase.prepend("read").append(s"Value($protoName)"))
+      case _ =>
+        genReadValue(fieldType, protoName)
+    }
+  }
+
+  /**
+   * Generates code that is a `Function1[TProtocol, T]`.
+   * This is code that typically be used by `TProtocols` to read a single
+   * instance of a `Field`.
+   *
+   * For an i32:
+   * "TProtocols.readI32Fn"
+   *
+   * For a list<string>:
+   * "proto => { readList(proto, TProtocols.readStringFn }"
+   *
+   * For a set<list<i32>>:
+   * "proto => { readSet(proto => { readList(protocol, TProtocols.readStringFn) }}}"
+   */
+  private[this] def genReadValueFn1(fieldType: FieldType): CodeFragment = {
+    fieldType match {
+      case TBool => v("_root_.com.twitter.scrooge.internal.TProtocols.readBoolFn")
+      case TByte => v("_root_.com.twitter.scrooge.internal.TProtocols.readByteFn")
+      case TI16 => v("_root_.com.twitter.scrooge.internal.TProtocols.readI16Fn")
+      case TI32 => v("_root_.com.twitter.scrooge.internal.TProtocols.readI32Fn")
+      case TI64 => v("_root_.com.twitter.scrooge.internal.TProtocols.readI64Fn")
+      case TDouble => v("_root_.com.twitter.scrooge.internal.TProtocols.readDoubleFn")
+      case TString => v("_root_.com.twitter.scrooge.internal.TProtocols.readStringFn")
+      case TBinary => v("_root_.com.twitter.scrooge.internal.TProtocols.readBinaryFn")
+      case _: StructType => genType(fieldType).append(s".decode _")
+      case _ =>
+        val readElem = genReadValue(fieldType, "proto")
+        v(s"proto => { $readElem }")
+    }
+  }
+
+  private[this] def genWriteValueFn2(fieldType: FieldType): CodeFragment = {
+    fieldType match {
+      case TBool =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeBoolFn")
+      case TByte =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeByteFn")
+      case TI16 =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeI16Fn")
+      case TI32 =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeI32Fn")
+      case TI64 =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeI64Fn")
+      case TDouble =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeDoubleFn")
+      case TString =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeStringFn")
+      case TBinary =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeBinaryFn")
+      case _: EnumType =>
+        v("_root_.com.twitter.scrooge.internal.TProtocols.writeEnumFn")
+      case _: StructType =>
+        val structType = genType(fieldType)
+        v(s"(proto, elem: $structType) => elem.write(proto)")
+      case _: ContainerType =>
+        val fieldName = v("elem")
+        val elemType = fieldType match {
+          case _: EnumType => v("Int")
+          case _ => genType(fieldType)
+        }
+        val writeElem = genWriteValue(fieldName, fieldType, "proto")
+        v(s"(proto, elem: $elemType) => { $writeElem }")
+      case _ => throw new IllegalArgumentException(s"Unsupported FieldType: $fieldType")
+    }
+  }
+
+  private[this] def genWriteValue(
+    fieldName: CodeFragment,
+    fieldType: FieldType,
+    protoName: String
+  ): CodeFragment = {
+    fieldType match {
+      case TBool =>
+        v(s"$protoName.writeBool($fieldName)")
+      case TByte =>
+        v(s"$protoName.writeByte($fieldName)")
+      case TI16 =>
+        v(s"$protoName.writeI16($fieldName)")
+      case TI32 =>
+        v(s"$protoName.writeI32($fieldName)")
+      case TI64 =>
+        v(s"$protoName.writeI64($fieldName)")
+      case TDouble =>
+        v(s"$protoName.writeDouble($fieldName)")
+      case TString =>
+        v(s"$protoName.writeString($fieldName)")
+      case TBinary =>
+        v(s"$protoName.writeBinary($fieldName)")
+      case _: EnumType =>
+        v(s"$protoName.writeI32($fieldName.value)")
+      case _: StructType =>
+        v(s"$fieldName.write($protoName)")
+      case t: SetType =>
+        val elemFieldType = s"TType.${genConstType(t.eltType)}"
+        val writeElement = genWriteValueFn2(t.eltType)
+        v(s"_protos.writeSet($protoName, $fieldName, $elemFieldType, $writeElement)")
+      case t: ListType =>
+        val elemFieldType = s"TType.${genConstType(t.eltType)}"
+        val writeElement = genWriteValueFn2(t.eltType)
+        v(s"_protos.writeList($protoName, $fieldName, $elemFieldType, $writeElement)")
+      case t: MapType =>
+        val keyType = s"TType.${genConstType(t.keyType)}"
+        val valType = s"TType.${genConstType(t.valueType)}"
+        val writeKey = genWriteValueFn2(t.keyType)
+        val writeVal = genWriteValueFn2(t.valueType)
+        v(s"_protos.writeMap($protoName, $fieldName, $keyType, $writeKey, $valType, $writeVal)")
+      case _ => throw new IllegalArgumentException(s"Unsupported FieldType: $fieldType")
+    }
+  }
+
+  private[this] def genWriteValueOrMethod(
+    fieldName: CodeFragment,
+    fieldType: FieldType,
+    isOptional: Boolean,
+    protoName: String
+  ): CodeFragment = {
+    val dereferencedName =
+      if (isOptional) fieldName.append(".get") else fieldName
+    fieldType match {
+      case _: ContainerType =>
+        val titleCase = Identifier.toTitleCase(fieldName.toData)
+        v(s"write${titleCase}Value($protoName, $dereferencedName)")
+      case _ =>
+        genWriteValue(dereferencedName, fieldType, protoName)
     }
   }
 
@@ -258,9 +447,17 @@ trait StructTemplate { self: TemplateGenerator =>
               case _ => Nil
             }) map { t => Dictionary("elementType" -> t) }
           },
+          "readFieldValue" -> genReadValue(field.fieldType, "_iprot"),
+          "readFieldValueOrMethod" -> genReadValueOrMethod(field.sid, field.fieldType, "_iprot"),
           "readFieldValueName" -> genID(field.sid.toTitleCase.prepend("read").append("Value")),
           "writeFieldName" -> genID(field.sid.toTitleCase.prepend("write").append("Field")),
           "writeFieldValueName" -> genID(field.sid.toTitleCase.prepend("write").append("Value")),
+          "writeFieldValue" -> genWriteValue(v("_value"), field.fieldType, "_oprot"),
+          "writeValueOrMethod" -> genWriteValueOrMethod(
+            genID(field.sid),
+            field.fieldType,
+            field.requiredness.isOptional,
+            "_oprot"),
           "readField" -> v(templates("readField")),
           "decodeProtocol" -> genDecodeProtocolMethod(field.fieldType),
           "offsetSkipProtocol" -> genOffsetSkipProtocolMethod(field.fieldType),
