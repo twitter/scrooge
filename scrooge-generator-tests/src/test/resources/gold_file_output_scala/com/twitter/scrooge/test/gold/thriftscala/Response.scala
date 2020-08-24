@@ -69,8 +69,10 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
   )
 
 
-  val structAnnotations: immutable$Map[String, String] =
-    immutable$Map.empty[String, String]
+  lazy val structAnnotations: immutable$Map[String, String] =
+    immutable$Map[String, String](
+        ("com.twitter.scrooge.scala.generateStructProxy", "true")
+    )
 
   private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
     classTag[Int].asInstanceOf[ClassTag[_]],

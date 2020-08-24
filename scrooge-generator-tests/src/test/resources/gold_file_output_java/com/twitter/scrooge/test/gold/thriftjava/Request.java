@@ -244,6 +244,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     Map<String, String> tmpMap = new HashMap<String, String>();
     tmpMap.put("s.annotation.one", "something");
     tmpMap.put("s.annotation.two", "other");
+    tmpMap.put("com.twitter.scrooge.scala.generateStructProxy", "true");
     structAnnotations = Collections.unmodifiableMap(tmpMap);
   }
 

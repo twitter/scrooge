@@ -69,12 +69,14 @@ struct Request {
   13: required string requiredField
   14: optional i64 constructionRequiredField (construction_required = "true")
   15: optional i8 anInt8
-} (s.annotation.one = "something", s.annotation.two = "other")
+} (s.annotation.one = "something",
+  s.annotation.two = "other",
+  com.twitter.scrooge.scala.generateStructProxy = "true")
 
 struct Response {
   1: i32 statusCode,
   2: ResponseUnion responseUnion
-}
+} (com.twitter.scrooge.scala.generateStructProxy = "true")
 
 service GoldService {
 

@@ -263,7 +263,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](
         ("s.annotation.one", "something"),
-        ("s.annotation.two", "other")
+        ("s.annotation.two", "other"),
+        ("com.twitter.scrooge.scala.generateStructProxy", "true")
     )
 
   private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](

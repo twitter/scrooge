@@ -281,16 +281,6 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     override lazy val hashCode: Int = super.hashCode
   }
 
-  /**
-   * This Proxy trait allows you to extend the CollectionId trait with additional state or
-   * behavior and implement the read-only methods from CollectionId using an underlying
-   * instance.
-   */
-  trait Proxy extends CollectionId {
-    protected def _underlying_CollectionId: CollectionId
-    override def collectionLongId: Long = _underlying_CollectionId.collectionLongId
-    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_CollectionId._passthroughFields
-  }
 }
 
 /**

@@ -7,7 +7,7 @@ struct PassThroughStruct {
 
 struct PassThrough {
   1: i32 f1
-}
+} (com.twitter.scrooge.scala.generateStructProxy = "true")
 
 struct PassThrough2 {
   1: i32 f1

@@ -46,3 +46,48 @@ Note that you must use the provided extractors when pattern matching against uni
       case User(id, name) => name
       case s: String => s
     }
+
+Optional functionality
+----------------------
+
+For `struct`\s, you can opt into generating
+`proxy classes <https://en.wikipedia.org/wiki/Proxy_pattern>`_. The generated code
+delegates to another instance. These may be useful for tests and otherwise.
+
+Given the IDL:
+
+::
+
+    struct User {
+      1: i64 id
+      2: string name
+    }
+
+Add the annotation.
+
+::
+
+    struct User {
+      1: i64 id
+      2: string name
+    } (com.twitter.scrooge.scala.generateStructProxy = "true")
+
+Which generates the following code on the companion `User` object,
+
+::
+
+    trait Proxy extends User {
+      protected def _underlying_User: User
+      override def id: Long = _underlying_User.id
+      override def name: String = _underlying_User.name
+      override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_User._passthroughFields
+    }
+
+Then, for example, `Proxy` can then be used in the following manner,
+
+::
+
+    val alwaysFifty: User = new User.Proxy {
+      protected def _underlying_User: User = aUserInstance
+      override def id: Long = 50
+    }

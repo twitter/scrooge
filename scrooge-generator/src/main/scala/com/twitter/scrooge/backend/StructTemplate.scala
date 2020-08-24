@@ -673,6 +673,9 @@ trait StructTemplate { self: TemplateGenerator =>
         struct.fields.exists(_.requiredness.isOptional)
           && struct.fields.exists(_.requiredness.isDefault)
       ),
+      "generateStructProxy" -> v(
+        struct.annotations
+          .getOrElse("com.twitter.scrooge.scala.generateStructProxy", "false") == "true"),
       "hasConstructionRequiredFields" -> v(
         struct.fields.exists(Generator.isConstructionRequiredField)
       ),

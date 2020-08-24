@@ -325,17 +325,6 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     override lazy val hashCode: Int = super.hashCode
   }
 
-  /**
-   * This Proxy trait allows you to extend the Recursive trait with additional state or
-   * behavior and implement the read-only methods from Recursive using an underlying
-   * instance.
-   */
-  trait Proxy extends Recursive {
-    protected def _underlying_Recursive: Recursive
-    override def id: Long = _underlying_Recursive.id
-    override def recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Recursive.recRequest
-    override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_Recursive._passthroughFields
-  }
 }
 
 /**

@@ -139,7 +139,9 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
    */
   public static final Map<String, String> structAnnotations;
   static {
-    structAnnotations = Collections.emptyMap();
+    Map<String, String> tmpMap = new HashMap<String, String>();
+    tmpMap.put("com.twitter.scrooge.scala.generateStructProxy", "true");
+    structAnnotations = Collections.unmodifiableMap(tmpMap);
   }
 
   /**

@@ -518,6 +518,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
     override lazy val hashCode: Int = super.hashCode
   }
 
+{{#generateStructProxy}}
   /**
    * This Proxy trait allows you to extend the {{StructName}} trait with additional state or
    * behavior and implement the read-only methods from {{StructName}} using an underlying
@@ -530,6 +531,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
 {{/fields}}
     override def _passthroughFields: immutable$Map[Short, TFieldBlob] = {{underlyingStructName}}._passthroughFields
   }
+{{/generateStructProxy}}
 {{/withTrait}}
 }
 

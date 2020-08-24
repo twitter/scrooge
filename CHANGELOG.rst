@@ -7,13 +7,20 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: The Scala generator no longer generates `Proxy` classes
+  on structs by default. These can be opted into on a struct-by-struct
+  basis by adding a Thrift annotation to a struct,
+  `(com.twitter.scrooge.scala.generateStructProxy = "true")`. See `struct Request`
+  in `scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift`
+  for an example. ``PHAB_ID=D535795``
+
 * scrooge-generator: Fixed a bug in the Java generated code where responses were
   often deserialized twice. ``PHAB_ID=D526316``
 
 * scrooge-generator: Java-generated `ServiceIface` interfaces now extend
   `c.t.f.thrift.AbstractThriftService`. ``PHAB_ID=D528659``
 
-* scrooge-generator: Reduced the size of generated Scala code.
+* scrooge-generator: Reduced the size of generated Scala code. ``PHAB_ID=D527920``
 
 20.8.0
 ------
