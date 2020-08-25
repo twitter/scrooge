@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+20.8.1
+------
+
 * scrooge-generator: The Scala generator no longer generates `Proxy` classes
   on structs by default. These can be opted into on a struct-by-struct
   basis by adding a Thrift annotation to a struct,
