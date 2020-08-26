@@ -6,7 +6,7 @@ import scoverage.ScoverageKeys
 // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
 
 // All Twitter library releases are date versioned as YY.MM.patch
-val releaseVersion = "20.8.1"
+val releaseVersion = "20.9.0-SNAPSHOT"
 
 lazy val versions = new {
   val slf4j = "1.7.30"
