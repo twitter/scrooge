@@ -71,7 +71,7 @@
 {
 {{#fields}}
     if (_{{fieldNameCamelCase}}IsSet) {
-        [encoder {{encodeMethod}}:_{{fieldNameCamelCase}} forKey:@"{{id}}"];
+        [encoder {{encodeMethod}}:{{#isEnum}}(int32_t){{/isEnum}}_{{fieldNameCamelCase}} forKey:@"{{id}}"];
     }
 {{/fields}}
 }

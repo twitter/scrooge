@@ -144,7 +144,7 @@
         [encoder encodeInt32:_notACamel forKey:@"8"];
     }
     if (_anEnumIsSet) {
-        [encoder encodeInt32:_anEnum forKey:@"9"];
+        [encoder encodeInt32:(int32_t)_anEnum forKey:@"9"];
     }
     if (_shortNumIsSet) {
         [encoder encodeInt32:_shortNum forKey:@"10"];
@@ -498,7 +498,7 @@
     if (_anEnumIsSet) {
         [outProtocol writeFieldBeginWithName:@"anEnum" type:TType_I32 fieldID:9];
         TFNTwitterThriftScribeTestEnum anEnum_item = _anEnum;
-        [outProtocol writeI32:anEnum_item];
+        [outProtocol writeI32:(int32_t)anEnum_item];
         [outProtocol writeFieldEnd];
     }
     if (_shortNumIsSet) {
