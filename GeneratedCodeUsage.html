@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Generated Scala Code Usage &#8212; Scrooge 20.8.0 documentation</title>
+    <title>Generated Scala Code Usage &#8212; Scrooge 20.8.1 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '20.8.0',
+        VERSION:     '20.8.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -101,6 +101,42 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="optional-functionality">
+<h2>Optional functionality<a class="headerlink" href="#optional-functionality" title="Permalink to this headline">¶</a></h2>
+<p>For <cite>struct</cite>s, you can opt into generating
+<a class="reference external" href="https://en.wikipedia.org/wiki/Proxy_pattern">proxy classes</a>. The generated code
+delegates to another instance. These may be useful for tests and otherwise.</p>
+<p>Given the IDL:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
+  <span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span>
+  <span class="mi">2</span><span class="k">:</span> <span class="kt">string</span> <span class="kt">name</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Add the annotation.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
+  <span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span>
+  <span class="mi">2</span><span class="k">:</span> <span class="kt">string</span> <span class="kt">name</span>
+<span class="o">}</span> <span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">scrooge</span><span class="o">.</span><span class="n">scala</span><span class="o">.</span><span class="n">generateStructProxy</span> <span class="k">=</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Which generates the following code on the companion <cite>User</cite> object,</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">trait</span> <span class="nc">Proxy</span> <span class="k">extends</span> <span class="nc">User</span> <span class="o">{</span>
+  <span class="k">protected</span> <span class="k">def</span> <span class="nc">_underlying_User</span><span class="k">:</span> <span class="kt">User</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="nc">_underlying_User</span><span class="o">.</span><span class="n">id</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="nc">_underlying_User</span><span class="o">.</span><span class="n">name</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="nc">_passthroughFields</span><span class="k">:</span> <span class="kt">immutable$Map</span><span class="o">[</span><span class="kt">Short</span>, <span class="kt">TFieldBlob</span><span class="o">]</span> <span class="k">=</span> <span class="nc">_underlying_User</span><span class="o">.</span><span class="nc">_passthroughFields</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Then, for example, <cite>Proxy</cite> can then be used in the following manner,</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">alwaysFifty</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">User</span><span class="o">.</span><span class="nc">Proxy</span> <span class="o">{</span>
+  <span class="k">protected</span> <span class="k">def</span> <span class="nc">_underlying_User</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="n">aUserInstance</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -125,6 +161,7 @@
   <ul>
 <li><a class="reference internal" href="#">Generated Scala Code Usage</a><ul>
 <li><a class="reference internal" href="#unions">Unions</a></li>
+<li><a class="reference internal" href="#optional-functionality">Optional functionality</a></li>
 </ul>
 </li>
 </ul>
