@@ -20,6 +20,9 @@ jvm_binary(
     main = "org.openjdk.jmh.Main",
     dependencies = [
         ":scala",
-        "3rdparty/jvm/org/slf4j:slf4j-nop",
+        scoped(
+            "3rdparty/jvm/org/slf4j:slf4j-nop",
+            scope = "runtime",
+        ),
     ],
 )

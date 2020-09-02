@@ -6,7 +6,10 @@ junit_tests(
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/scalatest",
         "3rdparty/jvm/org/scalatestplus:junit",
-        "3rdparty/jvm/org/slf4j:slf4j-nop",
+        scoped(
+            "3rdparty/jvm/org/slf4j:slf4j-nop",
+            scope = "runtime",
+        ),
         "scrooge/scrooge-core/src/main/scala",
         "scrooge/scrooge-serializer",
         "scrooge/scrooge-serializer/src/test/thrift:thrift-scala",

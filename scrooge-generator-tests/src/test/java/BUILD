@@ -5,7 +5,10 @@ junit_tests(
         "3rdparty/jvm/junit",
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/scalatestplus:junit",
-        "3rdparty/jvm/org/slf4j:slf4j-nop",
+        scoped(
+            "3rdparty/jvm/org/slf4j:slf4j-nop",
+            scope = "runtime",
+        ),
         "finagle/finagle-core/src/main",
         "finagle/finagle-core/src/main/java",
         "finagle/finagle-thrift",
