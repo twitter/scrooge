@@ -1,6 +1,6 @@
 package com.twitter.scrooge.java_generator.test
 
-import com.twitter.scrooge.Compiler
+import com.twitter.scrooge.{Compiler, ScroogeConfig}
 import org.codehaus.plexus.util.FileUtils
 import java.io._
 import scala.collection.JavaConverters._
@@ -25,21 +25,29 @@ object Main {
 
     val destDir = cmdLine.getOptionValue("d")
     FileUtils.cleanDirectory(destDir)
-    val compiler = new Compiler()
-    compiler.destFolder = destDir
-    compiler.language = "java"
 
+    var includePaths: List[String] = List()
     if (cmdLine.hasOption("i")) {
-      compiler.includePaths += cmdLine.getOptionValue("i")
+      includePaths = cmdLine.getOptionValue("i") +: includePaths
     }
+    var thriftFiles: List[String] = List()
     if (cmdLine.hasOption("t")) {
       FileUtils.getFiles(new File(cmdLine.getOptionValue("t")), "**/*.thrift", "").asScala.foreach {
-        s => compiler.thriftFiles += s.asInstanceOf[File].getAbsolutePath
+        s => thriftFiles = thriftFiles :+ s.asInstanceOf[File].getAbsolutePath
       }
     }
     if (cmdLine.hasOption("f")) {
-      cmdLine.getOptionValues("f").foreach { f => compiler.thriftFiles += f }
+      cmdLine.getOptionValues("f").foreach { f => thriftFiles = thriftFiles :+ f }
     }
+
+    val config = ScroogeConfig(
+      destFolder = destDir,
+      language = "java",
+      includePaths = includePaths,
+      thriftFiles = thriftFiles)
+
+    val compiler = new Compiler(config)
+
     compiler.run()
 
     val newGenMap = new mutable.HashMap[String, File]
@@ -48,7 +56,7 @@ object Main {
       println("Wrong number of files generated")
       sys.exit(1)
     }
-    FileUtils.getFiles(new File(compiler.destFolder), "**/*.java", "").asScala.foreach { s =>
+    FileUtils.getFiles(new File(compiler.config.destFolder), "**/*.java", "").asScala.foreach { s =>
       val file = s.asInstanceOf[File]
       newGenMap.put(file.getName, file)
     }

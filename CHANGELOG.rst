@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge: Make options parser a separate class. All fields of `com.twitter.scrooge.Compiler` class
+  are changed to immutable types. ``PHAB_ID=D561738``
+
 20.10.0
 -------
 

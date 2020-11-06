@@ -5,6 +5,7 @@ import Keys._
 import Path.relativeTo
 import com.twitter.scrooge.backend.{ServiceOption, WithFinagle}
 import java.io.File
+import scala.collection.immutable
 
 object ScroogeSBT extends AutoPlugin {
 
@@ -33,17 +34,20 @@ object ScroogeSBT extends AutoPlugin {
         Some(original)
       } else None
 
+    val cfg = ScroogeConfig(
+      destFolder = outputDir.getPath,
+      includePaths = thriftIncludes.map(_.getPath).toList,
+      thriftFiles = thriftFiles.map(_.getPath).toList,
+      flags = flags,
+      namespaceMappings = namespaceMappings,
+      strict = !disableStrict,
+      scalaWarnOnJavaNSFallback = scalaWarnOnJavaNSFallback,
+      defaultNamespace = defaultNamespace,
+      language = language.toLowerCase
+    )
+
     try {
-      val compiler = new Compiler()
-      compiler.destFolder = outputDir.getPath
-      thriftIncludes.map { compiler.includePaths += _.getPath }
-      namespaceMappings.map { e => compiler.namespaceMappings.put(e._1, e._2) }
-      compiler.flags ++= flags
-      compiler.thriftFiles ++= thriftFiles.map(_.getPath())
-      compiler.strict = !disableStrict
-      compiler.scalaWarnOnJavaNSFallback = scalaWarnOnJavaNSFallback
-      compiler.defaultNamespace = defaultNamespace
-      compiler.language = language.toLowerCase
+      val compiler = new Compiler(cfg)
       compiler.run()
     } finally {
       originalLoader.foreach(Thread.currentThread.setContextClassLoader)

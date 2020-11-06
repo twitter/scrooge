@@ -17,89 +17,75 @@
 package com.twitter.scrooge
 
 import com.twitter.scrooge.ast.Document
-import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator, ServiceOption}
+import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator}
 import com.twitter.scrooge.frontend.{FileParseException, TypeResolver, ThriftParser, Importer}
 import com.twitter.scrooge.java_generator.ApacheJavaGenerator
 import java.io.{File, FileWriter}
 import scala.collection.concurrent.TrieMap
-import scala.collection.mutable
 
 object CompilerDefaults {
-  var language: String = "scala"
-  var defaultNamespace: String = "thrift"
+  val language: String = "scala"
+  val defaultNamespace: String = "thrift"
 }
 
-class Compiler {
-  val defaultDestFolder = "."
-  var destFolder: String = defaultDestFolder
-  val includePaths: mutable.ListBuffer[String] = new mutable.ListBuffer[String]
-  val thriftFiles: mutable.ListBuffer[String] = new mutable.ListBuffer[String]
-  val flags: mutable.HashSet[ServiceOption] = new mutable.HashSet[ServiceOption]
-  val namespaceMappings: mutable.HashMap[String, String] = new mutable.HashMap[String, String]
-  var verbose = false
-  var strict = true
-  var genAdapt = false
-  var skipUnchanged = false
-  var languageFlags = new mutable.ListBuffer[String]
-  var fileMapPath: scala.Option[String] = None
+class Compiler(val config: ScroogeConfig) {
   var fileMapWriter: scala.Option[FileWriter] = None
-  var dryRun: Boolean = false
-  var language: String = CompilerDefaults.language
-  var defaultNamespace: String = CompilerDefaults.defaultNamespace
-  var scalaWarnOnJavaNSFallback: Boolean = false
-  var javaSerEnumType: Boolean = false
 
   def run(): Unit = {
     // if --gen-file-map is specified, prepare the map file.
-    fileMapWriter = fileMapPath.map { path =>
+    fileMapWriter = config.fileMapPath.map { path =>
       val file = new File(path)
       val dir = file.getParentFile
       if (dir != null && !dir.exists()) {
         dir.mkdirs()
       }
-      if (verbose) {
+      if (config.verbose) {
         println("+ Writing file mapping to %s".format(path))
       }
       new FileWriter(file)
     }
 
-    val importer = Importer(new File(".")) +: Importer(includePaths.toSeq)
+    val importer = Importer(new File(".")) +: Importer(config.includePaths.toSeq)
 
-    val isJava = language.equals("java")
+    val isJava = config.language.equals("java")
     val documentCache = new TrieMap[String, Document]
 
     // compile
-    for (inputFile <- thriftFiles) {
+    for (inputFile <- config.thriftFiles) {
       try {
         val parser = new ThriftParser(
           importer,
-          strict,
+          config.strict,
           defaultOptional = isJava,
           skipIncludes = false,
           documentCache
         )
-        val doc = parser.parseFile(inputFile).mapNamespaces(namespaceMappings.toMap)
+        val doc = parser.parseFile(inputFile).mapNamespaces(config.namespaceMappings)
 
-        if (verbose) println("+ Compiling %s".format(inputFile))
+        if (config.verbose) println("+ Compiling %s".format(inputFile))
         val resolvedDoc = TypeResolver()(doc)
         val generator =
-          GeneratorFactory(language, resolvedDoc, defaultNamespace, languageFlags.toSeq)
+          GeneratorFactory(
+            config.language,
+            resolvedDoc,
+            config.defaultNamespace,
+            config.languageFlags)
 
         generator match {
-          case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = scalaWarnOnJavaNSFallback
-          case g: ApacheJavaGenerator => g.serEnumType = javaSerEnumType
+          case g: ScalaGenerator => g.warnOnJavaNamespaceFallback = config.scalaWarnOnJavaNSFallback
+          case g: ApacheJavaGenerator => g.serEnumType = config.javaSerEnumType
           case _ => ()
         }
 
         val generatedFiles = generator(
-          flags.toSet,
-          new File(destFolder),
-          dryRun,
-          genAdapt
+          config.flags,
+          new File(config.destFolder),
+          config.dryRun,
+          config.genAdapt
         ).map {
           _.getPath
         }
-        if (verbose) {
+        if (config.verbose) {
           println("+ Generated %s".format(generatedFiles.mkString(", ")))
         }
         fileMapWriter.foreach { w =>
