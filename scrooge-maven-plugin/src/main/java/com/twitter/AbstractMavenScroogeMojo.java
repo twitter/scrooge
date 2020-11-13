@@ -286,7 +286,6 @@ abstract class AbstractMavenScroogeMojo extends AbstractMojo {
           }
 
           runner.compile(
-                  getLog(),
                   includeOutputDirectoryNamespace ? new File(outputDirectory, "scrooge") : outputDirectory,
                   thriftFiles,
                   includes,

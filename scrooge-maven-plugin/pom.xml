@@ -189,7 +189,7 @@
           </execution>
         </executions>
         <configuration>
-          <scalaVersion>2.10.4</scalaVersion>
+          <scalaVersion>2.10.7</scalaVersion>
         </configuration>
       </plugin>
       <plugin>

@@ -16,17 +16,14 @@
 
 package com.twitter
 
-import org.apache.maven.plugin.logging.Log
+import com.twitter.scrooge.{Compiler, ScroogeConfig, ScroogeOptionParser}
 import java.io.File
 import java.util.{Map, Set}
 import scala.collection.JavaConverters._
-import scrooge.{Main, Compiler}
-import org.apache.maven.plugin.MojoExecutionException
 
 class ScroogeRunner {
 
   def compile(
-    log: Log,
     outputDir: File,
     thriftFiles: Set[File],
     thriftIncludes: Set[File],
@@ -34,14 +31,23 @@ class ScroogeRunner {
     language: String,
     flags: Set[String]
   ): Unit = {
+    val args = flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath }
+    val optConfig: Option[ScroogeConfig] = ScroogeOptionParser.parseOptions(
+      args,
+      defaultConfig = ScroogeConfig(
+        destFolder = outputDir.getPath,
+        includePaths = thriftIncludes.asScala.map { _.getPath }.toList,
+        namespaceMappings = namespaceMappings.asScala.toMap,
+        language = language.toLowerCase
+      )
+    )
 
-    val compiler = new Compiler()
-    compiler.destFolder = outputDir.getPath
-    compiler.includePaths ++= thriftIncludes.asScala.map { _.getPath }
-    compiler.namespaceMappings ++= namespaceMappings.asScala
-
-    Main.parseOptions(compiler, flags.asScala.toSeq ++ thriftFiles.asScala.map { _.getPath })
-    compiler.language = language.toLowerCase
-    compiler.run()
+    optConfig match {
+      case Some(cfg) =>
+        val compiler = new Compiler(cfg)
+        compiler.run()
+      case _ =>
+        throw new IllegalArgumentException(s"Failed to parse compiler args: ${args.mkString(",")}")
+    }
   }
 }
