@@ -38,8 +38,8 @@ No Changes
 
 * scrooge-generator: Reduced the size of generated Scala code. ``PHAB_ID=D527920``
 
-20.8.0
-------
+20.8.0 (DO NOT USE)
+-------------------
 
 * scrooge: replace deprecated ScalaTest 3.0 API with ScalaTest 3.1/3.2 API. ``PHAB_ID=D525860``
 
@@ -82,8 +82,8 @@ No Changes
 * scrooge-generator: Optimized generated Scala code for compile time and smaller bytecode.
   Companion objects for thrift enum traits are no longer case objects. ``PHAB_ID=D454297``
 
-20.4.0
-------
+20.4.0 (DO NOT USE)
+-------------------
 
 No Changes
 
