@@ -29,6 +29,7 @@ import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 import com.twitter.util.ConstFuture;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
@@ -1106,12 +1107,9 @@ public class GoldService {
       }
       switch (field.id) {
         case 1: // REQUEST
-          if (field.type == TType.STRUCT) {
-            this.request = new Request();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "request");
+          this.request = new Request();
             this.request.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {
@@ -1550,20 +1548,14 @@ public class GoldService {
       }
       switch (field.id) {
         case 0: // SUCCESS
-          if (field.type == TType.STRUCT) {
-            this.success = new Response();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "success");
+          this.success = new Response();
             this.success.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 1: // EX
-          if (field.type == TType.STRUCT) {
-            this.ex = new OverCapacityException();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "ex");
+          this.ex = new OverCapacityException();
             this.ex.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {
@@ -1950,12 +1942,9 @@ public class GoldService {
       }
       switch (field.id) {
         case 1: // REQUEST
-          if (field.type == TType.STRUCT) {
-            this.request = new Request();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "request");
+          this.request = new Request();
             this.request.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {
@@ -2319,12 +2308,9 @@ public class GoldService {
       }
       switch (field.id) {
         case 0: // SUCCESS
-          if (field.type == TType.STRUCT) {
-            this.success = new Response();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "success");
+          this.success = new Response();
             this.success.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {

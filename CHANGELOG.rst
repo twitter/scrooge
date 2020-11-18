@@ -10,6 +10,9 @@ Unreleased
 * scrooge: Make options parser a separate class. All fields of `com.twitter.scrooge.Compiler` class
   are changed to immutable types. ``PHAB_ID=D561738``
 
+* scrooge-generator: Java throws an exception when encountering incorrect field
+  types in a struct while deserializing. ``PHAB_ID=D565373``
+
 20.10.0
 -------
 

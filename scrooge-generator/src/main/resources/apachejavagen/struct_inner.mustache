@@ -458,18 +458,15 @@ this.{{name}} != that.{{name}}
         {{#fields}}
         case {{key}}: // {{#constant_name}}{{name}}{{/constant_name}}
           {{#field_type.is_enum}}
-          if (field.type == {{field_type.to_enum}} || field.type == TType.ENUM) {
+          TProtocols.validateEnumFieldType(field.type, "{{name}}");
           {{/field_type.is_enum}}
           {{^field_type.is_enum}}
-          if (field.type == {{field_type.to_enum}}) {
+          TProtocols.validateFieldType({{field_type.to_enum}}, field.type, "{{name}}");
           {{/field_type.is_enum}}
-            {{#consolidate_newlines}}
-            {{{deserialize_field}}}
-            {{>generate_isset_set}}
-            {{/consolidate_newlines}}
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          {{#consolidate_newlines}}
+          {{{deserialize_field}}}
+          {{>generate_isset_set}}
+          {{/consolidate_newlines}}
           break;
         {{/fields}}
         default:

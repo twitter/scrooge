@@ -28,6 +28,7 @@ import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 
 // No additional import required for struct/union.
 
@@ -367,12 +368,9 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
       }
       switch (field.id) {
         case 1: // CHILL_TIME_SECONDS
-          if (field.type == TType.I32) {
-            this.chillTimeSeconds = iprot.readI32();
-            setChillTimeSecondsIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I32, field.type, "chillTimeSeconds");
+          this.chillTimeSeconds = iprot.readI32();
+          setChillTimeSecondsIsSet(true);
           break;
         default:
           if (this.passThroughFields == null) {

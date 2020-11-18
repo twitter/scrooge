@@ -28,6 +28,7 @@ import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 
 // No additional import required for struct/union.
 
@@ -359,12 +360,9 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
       }
       switch (field.id) {
         case 1: // ERROR_CODE
-          if (field.type == TType.I32) {
-            this.errorCode = iprot.readI32();
-            setErrorCodeIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I32, field.type, "errorCode");
+          this.errorCode = iprot.readI32();
+          setErrorCodeIsSet(true);
           break;
         default:
           if (this.passThroughFields == null) {

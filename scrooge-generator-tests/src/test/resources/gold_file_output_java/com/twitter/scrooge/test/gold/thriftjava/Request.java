@@ -26,6 +26,7 @@ import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 
 // No additional import required for struct/union.
 
@@ -1423,8 +1424,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       switch (field.id) {
         case 1: // A_LIST
-          if (field.type == TType.LIST) {
-            {
+          TProtocols.validateFieldType(TType.LIST, field.type, "aList");
+          {
             TList _list0 = iprot.readListBegin();
             this.aList = new ArrayList<String>(_list0.size);
             for (int _i1 = 0; _i1 < _list0.size; ++_i1)
@@ -1435,13 +1436,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             }
             iprot.readListEnd();
             }
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 2: // A_SET
-          if (field.type == TType.SET) {
-            {
+          TProtocols.validateFieldType(TType.SET, field.type, "aSet");
+          {
             TSet _set3 = iprot.readSetBegin();
             this.aSet = new HashSet<Integer>(2*_set3.size);
             for (int _i4 = 0; _i4 < _set3.size; ++_i4)
@@ -1452,13 +1450,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             }
             iprot.readSetEnd();
             }
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 3: // A_MAP
-          if (field.type == TType.MAP) {
-            {
+          TProtocols.validateFieldType(TType.MAP, field.type, "aMap");
+          {
             TMap _map6 = iprot.readMapBegin();
             this.aMap = new HashMap<Long,Long>(2*_map6.size);
             for (int _i7 = 0; _i7 < _map6.size; ++_i7)
@@ -1471,21 +1466,15 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             }
             iprot.readMapEnd();
             }
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 4: // A_REQUEST
-          if (field.type == TType.STRUCT) {
-            this.aRequest = new Request();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "aRequest");
+          this.aRequest = new Request();
             this.aRequest.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 5: // SUB_REQUESTS
-          if (field.type == TType.LIST) {
-            {
+          TProtocols.validateFieldType(TType.LIST, field.type, "subRequests");
+          {
             TList _list10 = iprot.readListBegin();
             this.subRequests = new ArrayList<Request>(_list10.size);
             for (int _i11 = 0; _i11 < _list10.size; ++_i11)
@@ -1497,87 +1486,54 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             }
             iprot.readListEnd();
             }
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 6: // HAS_DEFAULT
-          if (field.type == TType.STRING) {
-            this.hasDefault = iprot.readString();
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.STRING, field.type, "hasDefault");
+          this.hasDefault = iprot.readString();
           break;
         case 7: // NO_COMMENT
-          if (field.type == TType.I64) {
-            this.noComment = iprot.readI64();
-            setNoCommentIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "noComment");
+          this.noComment = iprot.readI64();
+          setNoCommentIsSet(true);
           break;
         case 8: // DOUBLE_SLASH_COMMENT
-          if (field.type == TType.I64) {
-            this.doubleSlashComment = iprot.readI64();
-            setDoubleSlashCommentIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "doubleSlashComment");
+          this.doubleSlashComment = iprot.readI64();
+          setDoubleSlashCommentIsSet(true);
           break;
         case 9: // HASHTAG_COMMENT
-          if (field.type == TType.I64) {
-            this.hashtagComment = iprot.readI64();
-            setHashtagCommentIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "hashtagComment");
+          this.hashtagComment = iprot.readI64();
+          setHashtagCommentIsSet(true);
           break;
         case 10: // SINGLE_ASTERISK_COMMENT
-          if (field.type == TType.I64) {
-            this.singleAsteriskComment = iprot.readI64();
-            setSingleAsteriskCommentIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "singleAsteriskComment");
+          this.singleAsteriskComment = iprot.readI64();
+          setSingleAsteriskCommentIsSet(true);
           break;
         case 11: // DOC_STRING_COMMENT
-          if (field.type == TType.I64) {
-            this.docStringComment = iprot.readI64();
-            setDocStringCommentIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "docStringComment");
+          this.docStringComment = iprot.readI64();
+          setDocStringCommentIsSet(true);
           break;
         case 12: // REC_REQUEST
-          if (field.type == TType.STRUCT) {
-            this.recRequest = new Recursive();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "recRequest");
+          this.recRequest = new Recursive();
             this.recRequest.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 13: // REQUIRED_FIELD
-          if (field.type == TType.STRING) {
-            this.requiredField = iprot.readString();
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.STRING, field.type, "requiredField");
+          this.requiredField = iprot.readString();
           break;
         case 14: // CONSTRUCTION_REQUIRED_FIELD
-          if (field.type == TType.I64) {
-            this.constructionRequiredField = iprot.readI64();
-            setConstructionRequiredFieldIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "constructionRequiredField");
+          this.constructionRequiredField = iprot.readI64();
+          setConstructionRequiredFieldIsSet(true);
           break;
         case 15: // AN_INT8
-          if (field.type == TType.BYTE) {
-            this.anInt8 = iprot.readByte();
-            setAnInt8IsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.BYTE, field.type, "anInt8");
+          this.anInt8 = iprot.readByte();
+          setAnInt8IsSet(true);
           break;
         default:
           if (this.passThroughFields == null) {

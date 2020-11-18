@@ -9,6 +9,7 @@ import com.twitter.scrooge.TReusableMemoryTransport;
 {{#is_passthrough_service}}
 import com.twitter.scrooge.TFieldBlob;
 {{/is_passthrough_service}}
+import com.twitter.scrooge.internal.TProtocols;
 {{^is_oneway_or_void}}
 import com.twitter.util.ConstFuture;
 {{/is_oneway_or_void}}

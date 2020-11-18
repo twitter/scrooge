@@ -26,6 +26,7 @@ import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 
 // No additional import required for struct/union.
 
@@ -409,20 +410,14 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
       }
       switch (field.id) {
         case 1: // ID
-          if (field.type == TType.I64) {
-            this.id = iprot.readI64();
-            setIdIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I64, field.type, "id");
+          this.id = iprot.readI64();
+          setIdIsSet(true);
           break;
         case 2: // REC_REQUEST
-          if (field.type == TType.STRUCT) {
-            this.recRequest = new Request();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "recRequest");
+          this.recRequest = new Request();
             this.recRequest.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {

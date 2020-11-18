@@ -26,6 +26,7 @@ import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 
 // No additional import required for struct/union.
 
@@ -413,20 +414,14 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
       }
       switch (field.id) {
         case 1: // STATUS_CODE
-          if (field.type == TType.I32) {
-            this.statusCode = iprot.readI32();
-            setStatusCodeIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I32, field.type, "statusCode");
+          this.statusCode = iprot.readI32();
+          setStatusCodeIsSet(true);
           break;
         case 2: // RESPONSE_UNION
-          if (field.type == TType.STRUCT) {
-            this.responseUnion = new ResponseUnion();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "responseUnion");
+          this.responseUnion = new ResponseUnion();
             this.responseUnion.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {

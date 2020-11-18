@@ -2,7 +2,7 @@ package com.twitter.scrooge.goldfile
 
 import com.twitter.io.Files
 import com.twitter.scrooge.Main
-import com.twitter.scrooge.testutil.{Utils, TempDirectory}
+import com.twitter.scrooge.testutil.{TempDirectory, Utils}
 import java.io.{ByteArrayInputStream, File, InputStream}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite

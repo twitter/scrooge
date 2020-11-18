@@ -29,6 +29,7 @@ import com.twitter.scrooge.ThriftStructIface;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.scrooge.TFieldBlob;
+import com.twitter.scrooge.internal.TProtocols;
 import com.twitter.util.ConstFuture;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
@@ -870,12 +871,9 @@ public class PlatinumService {
       }
       switch (field.id) {
         case 1: // REQUEST
-          if (field.type == TType.STRUCT) {
-            this.request = new Request();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "request");
+          this.request = new Request();
             this.request.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {
@@ -1387,28 +1385,19 @@ public class PlatinumService {
       }
       switch (field.id) {
         case 0: // SUCCESS
-          if (field.type == TType.I32) {
-            this.success = iprot.readI32();
-            setSuccessIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.I32, field.type, "success");
+          this.success = iprot.readI32();
+          setSuccessIsSet(true);
           break;
         case 1: // AX
-          if (field.type == TType.STRUCT) {
-            this.ax = new AnotherException();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "ax");
+          this.ax = new AnotherException();
             this.ax.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         case 2: // OCE
-          if (field.type == TType.STRUCT) {
-            this.oce = new OverCapacityException();
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "oce");
+          this.oce = new OverCapacityException();
             this.oce.read(iprot);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
           break;
         default:
           if (this.passThroughFields == null) {

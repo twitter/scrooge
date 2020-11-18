@@ -8,7 +8,7 @@ import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.Utils.getFileContents
 import com.twitter.util.Try
 import java.util.{EnumSet, List => JList, Map => JMap, Set => JSet}
-import org.apache.thrift.protocol.{TBinaryProtocol, TProtocolException}
+import org.apache.thrift.protocol.{TBinaryProtocol, TField, TProtocolException, TStruct, TType}
 import org.apache.thrift.transport.TMemoryBuffer
 import scala.collection.JavaConverters._
 import scala.collection.concurrent.TrieMap
@@ -342,6 +342,28 @@ class ApacheJavaGeneratorSpec extends Spec {
       val ctrl = new StructController(doc.structs(0), Set(), false, gen, doc.namespace("java"))
       gen.renderMustache("struct.mustache", ctrl).trim must include(
         "test_enum.OrganizationType.findByValue(iprot.readI32())")
+    }
+  }
+
+  "Structs" should {
+    "throw an error when the read field type is incorrect" in {
+      val prot = new TBinaryProtocol(new TMemoryBuffer(10000))
+
+      prot.writeStructBegin(new TStruct("ConstructorRequiredStruct"))
+      prot.writeFieldBegin(new TField("requiredField", TType.I64, 2))
+      prot.writeI64(4000)
+      prot.writeFieldEnd()
+      prot.writeFieldStop()
+      prot.writeStructEnd()
+
+      val ex = intercept[TProtocolException] {
+        val readStruct = new ConstructorRequiredStruct()
+        readStruct.read(prot)
+      }
+
+      ex.toString.contains("requiredField") must be(true)
+      ex.toString.contains("actual=I64") must be(true)
+      ex.toString.contains("expected=STRING") must be(true)
     }
   }
 }
