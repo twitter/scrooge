@@ -13,6 +13,11 @@ Unreleased
 * scrooge-generator: Java throws an exception when encountering incorrect field
   types in a struct while deserializing. ``PHAB_ID=D565373``
 
+* scrooge-generator: Scrooge no longer fails to parse Thrift IDL when annotations are used
+  on the individual components of a 'container type' (e.g. list, set, map). Those types of
+  annotations are not currently used by scrooge, instead they are skipped over and discarded,
+  but the IDL no longer fails to parse when they are encountered. ``PHAB_ID=D583284``
+
 20.10.0
 -------
 

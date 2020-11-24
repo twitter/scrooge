@@ -96,17 +96,40 @@ struct MyStruct {}
       parser.parse("binary", parser.fieldType) must be(TBinary)
     }
 
-    "compound types" in {
+    "list types" in {
       parser.parse("list<i64>", parser.fieldType) must be(ListType(TI64, None))
       parser.parse("list<list<string>>", parser.fieldType) must be(
         ListType(ListType(TString, None), None)
       )
-      parser.parse("map<string, list<bool>>", parser.fieldType) must be(
-        MapType(TString, ListType(TBool, None), None)
+      // Annotations within container type definitions are parsed properly, but thrown away
+      parser.parse("list < i64 (something = \"else\") >", parser.fieldType) must be(
+        ListType(TI64, None))
+      parser.parse("list<list<string (a = \"b\")>(c = \"d\")>", parser.fieldType) must be(
+        ListType(ListType(TString, None), None)
       )
+    }
+
+    "set types" in {
       parser.parse("set<Monster>", parser.fieldType) must be(
         SetType(ReferenceType(Identifier("Monster")), None)
       )
+      parser.parse("set<bool (hello = \"goodbye\")>", parser.fieldType) must be(
+        SetType(TBool, None)
+      )
+    }
+
+    "map types" in {
+      parser.parse("map<string, list<bool>>", parser.fieldType) must be(
+        MapType(TString, ListType(TBool, None), None)
+      )
+      parser.parse(
+        "map<string (a=\"b\"), list<bool (c=\"d\")> (e=\"f\")>",
+        parser.fieldType) must be(
+        MapType(TString, ListType(TBool, None), None)
+      )
+    }
+
+    "compound types" in {
       parser.parse("Monster", parser.fieldType) must be(ReferenceType(Identifier("Monster")))
     }
 
@@ -833,8 +856,17 @@ enum Foo
         )
       )
 
-      // TODO(CSL-4127): support annotations on nested types
-      // parser.parse("""typedef list< double ( cpp.fixed_point = "16" ) > tiny_float_list""", parser.typedef) must be()
+      parser.parse(
+        """typedef list< double ( cpp.fixed_point = "16" ) > tiny_float_list""",
+        parser.typedef
+      ) must be(
+        Typedef(
+          SimpleID("tiny_float_list", None),
+          ListType(TDouble, None),
+          Map(),
+          Map()
+        )
+      )
 
       parser.parse(
         """

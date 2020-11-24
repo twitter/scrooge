@@ -201,18 +201,25 @@ class ThriftParser(
 
   lazy val containerType: Parser[ContainerType] = mapType | setType | listType
 
+  // Annotations within container types are parsed correctly, but currently thrown away
   lazy val mapType: Parser[MapType] =
-    ("map" ~> opt(cppType) <~ "<") ~ (fieldType <~ ",") ~ (fieldType <~ ">") ^^ {
+    ("map" ~> opt(cppType) <~ "<") ~
+      (fieldType <~ defaultedAnnotations <~ ",") ~
+      (fieldType <~ defaultedAnnotations <~ ">") ^^ {
       case cpp ~ key ~ value => MapType(key, value, cpp)
     }
 
-  lazy val setType: Parser[SetType] = ("set" ~> opt(cppType)) ~ ("<" ~> fieldType <~ ">") ^^ {
-    case cpp ~ t => SetType(t, cpp)
-  }
+  // Annotations within container types are parsed correctly, but currently thrown away
+  lazy val setType: Parser[SetType] =
+    ("set" ~> opt(cppType)) ~ ("<" ~> fieldType <~ defaultedAnnotations <~ ">") ^^ {
+      case cpp ~ t => SetType(t, cpp)
+    }
 
-  lazy val listType: Parser[ListType] = ("list" ~ "<") ~> (fieldType <~ ">") ~ opt(cppType) ^^ {
-    case t ~ cpp => ListType(t, cpp)
-  }
+  // Annotations within container types are parsed correctly, but currently thrown away
+  lazy val listType: Parser[ListType] =
+    ("list" ~ "<") ~> (fieldType <~ defaultedAnnotations <~ ">") ~ opt(cppType) ^^ {
+      case t ~ cpp => ListType(t, cpp)
+    }
 
   // FFS. i'm very close to removing this and forcably breaking old thrift files.
   lazy val cppType: Parser[String] = "cpp_type" ~> stringLiteral ^^ { literal => literal.value }
