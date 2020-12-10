@@ -17,7 +17,7 @@ To allow for backwards-compatibility with Apache's thrift generator, scrooge
 supports a special comment-based namespace declaration that Apache's thrift
 generator will ignore. To use this syntax, use the line comment character '#',
 immediately followed by '@'.  Apache's  thrift generator will treat the
-remaining text as a line comment, but scrooge will interprent any following
+remaining text as a line comment, but scrooge will interpret any following
 namespace declaration as if not commented-out.  For example:
 
 ::
