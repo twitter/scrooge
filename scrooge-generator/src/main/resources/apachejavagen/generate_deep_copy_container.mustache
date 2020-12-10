@@ -1,5 +1,18 @@
 {{#consolidate_newlines}}
+
+{{#field_type.is_preallocatable}}
+{{#field_type.is_map_or_set}}
+int {{result_name}}_size = (int) ((float) {{source_name}}.size() / 0.75F + 1.0F);
+{{/field_type.is_map_or_set}}
+{{^field_type.is_map_or_set}}
+int {{result_name}}_size = {{source_name}}.size();
+{{/field_type.is_map_or_set}}
+{{{field_type.type_name_in_container}}} {{result_name}} = {{{field_type.init_container_field_prelude}}}({{result_name}}_size);
+{{/field_type.is_preallocatable}}
+{{^field_type.is_preallocatable}}
 {{{field_type.type_name_in_container}}} {{result_name}} = {{{field_type.init_field}}};
+{{/field_type.is_preallocatable}}
+
 {{#map_value}}
 for (Map.Entry<{{{key_type.type_name_in_container}}}, {{{val_type.type_name_in_container}}}> {{iterator_element_name}} : {{source_name}}.entrySet()) {
   {{{key_type.type_name_in_container}}} {{iterator_element_name}}_key = {{iterator_element_name}}.getKey();

@@ -319,21 +319,24 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     if (other.isSetAList()) {
-      List<String> __this__aList = new ArrayList<String>();
+      int __this__aList_size = other.aList.size();
+      List<String> __this__aList = new ArrayList<String>(__this__aList_size);
       for (String other_element : other.aList) {
         __this__aList.add(other_element);
       }
       this.aList = __this__aList;
     }
     if (other.isSetASet()) {
-      Set<Integer> __this__aSet = new HashSet<Integer>();
+      int __this__aSet_size = (int) ((float) other.aSet.size() / 0.75F + 1.0F);
+      Set<Integer> __this__aSet = new HashSet<Integer>(__this__aSet_size);
       for (Integer other_element : other.aSet) {
         __this__aSet.add(other_element);
       }
       this.aSet = __this__aSet;
     }
     if (other.isSetAMap()) {
-      Map<Long,Long> __this__aMap = new HashMap<Long,Long>();
+      int __this__aMap_size = (int) ((float) other.aMap.size() / 0.75F + 1.0F);
+      Map<Long,Long> __this__aMap = new HashMap<Long,Long>(__this__aMap_size);
       for (Map.Entry<Long, Long> other_element : other.aMap.entrySet()) {
         Long other_element_key = other_element.getKey();
         Long other_element_value = other_element.getValue();
@@ -347,7 +350,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       this.aRequest = new Request(other.aRequest);
     }
     if (other.isSetSubRequests()) {
-      List<Request> __this__subRequests = new ArrayList<Request>();
+      int __this__subRequests_size = other.subRequests.size();
+      List<Request> __this__subRequests = new ArrayList<Request>(__this__subRequests_size);
       for (Request other_element : other.subRequests) {
         __this__subRequests.add(new Request(other_element));
       }

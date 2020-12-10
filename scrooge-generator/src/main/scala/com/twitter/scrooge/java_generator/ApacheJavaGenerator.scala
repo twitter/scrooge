@@ -222,6 +222,11 @@ class ApacheJavaGenerator(
     }
   }
 
+  def initContainerFieldPrelude(fieldType: FunctionType): String = {
+    val tName = typeName(fieldType, inInit = true)
+    s"new ${tName}"
+  }
+
   def getTypeString(fieldType: FunctionType): String = {
     fieldType match {
       case TString => "TType.STRING"

@@ -21,6 +21,9 @@ Unreleased
   annotations are not currently used by scrooge, instead they are skipped over and discarded,
   but the IDL no longer fails to parse when they are encountered. ``PHAB_ID=D583284``
 
+* scrooge-generator: Scrooge preallocates containers to the correct size on the deepCopy
+  operation to improve performance in Java. ``PHAB_ID=D590776``
+
 20.10.0
 -------
 

@@ -19,6 +19,7 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
     case _ => false
   }
   def init_field: String = generator.initField(fieldType)
+  def init_container_field_prelude: String = generator.initContainerFieldPrelude(fieldType)
   val nullable: Boolean = generator.isNullableType(fieldType)
   val double: Boolean = fieldType == TDouble
   val boolean: Boolean = fieldType == TBool
@@ -26,6 +27,11 @@ class FieldTypeController(fieldType: FunctionType, generator: ApacheJavaGenerato
     case _: MapType | _: SetType | _: ListType => true
     case _ => false
   }
+  val is_map_or_set: Boolean = fieldType match {
+    case _: MapType | _: SetType => true
+    case _ => false
+  }
+  def is_preallocatable: Boolean = is_container && !is_enum_set
   val is_enum: Boolean = fieldType.isInstanceOf[EnumType]
   // is the field value effectively an i32
   val base_int_type: Boolean = fieldType != TDouble && fieldType != TBool
