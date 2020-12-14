@@ -90,8 +90,10 @@ class GoldService$FinagleService(
   addService("doGreatThings", {
     val methodService = new _root_.com.twitter.finagle.Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
-        if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
-          _root_.com.twitter.finagle.tracing.Trace.recordRpc("doGreatThings")
+        val trace = _root_.com.twitter.finagle.tracing.Trace()
+        if (trace.isActivelyTracing) {
+          trace.recordRpc("doGreatThings")
+          trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.GoldService#doGreatThings()")
         }
         iface.doGreatThings(args.request)
       }
@@ -102,8 +104,10 @@ class GoldService$FinagleService(
   addService("noExceptionCall", {
     val methodService = new _root_.com.twitter.finagle.Service[NoExceptionCall.Args, NoExceptionCall.SuccessType] {
       def apply(args: NoExceptionCall.Args): Future[NoExceptionCall.SuccessType] = {
-        if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
-          _root_.com.twitter.finagle.tracing.Trace.recordRpc("noExceptionCall")
+        val trace = _root_.com.twitter.finagle.tracing.Trace()
+        if (trace.isActivelyTracing) {
+          trace.recordRpc("noExceptionCall")
+          trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.GoldService#noExceptionCall()")
         }
         iface.noExceptionCall(args.request)
       }

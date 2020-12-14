@@ -56,8 +56,10 @@ class PlatinumService$FinagleService(
   addService("moreCoolThings", {
     val methodService = new _root_.com.twitter.finagle.Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
-        if (_root_.com.twitter.finagle.tracing.Trace.isActivelyTracing) {
-          _root_.com.twitter.finagle.tracing.Trace.recordRpc("moreCoolThings")
+        val trace = _root_.com.twitter.finagle.tracing.Trace()
+        if (trace.isActivelyTracing) {
+          trace.recordRpc("moreCoolThings")
+          trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.PlatinumService#moreCoolThings()")
         }
         iface.moreCoolThings(args.request)
       }
