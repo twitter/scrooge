@@ -1431,7 +1431,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           TProtocols.validateFieldType(TType.LIST, field.type, "aList");
           {
             TList _list0 = iprot.readListBegin();
-            this.aList = new ArrayList<String>(_list0.size);
+            int _list0_size = _list0.size;
+            this.aList = new ArrayList<String>(_list0_size);
             for (int _i1 = 0; _i1 < _list0.size; ++_i1)
             {
               String _elem2;
@@ -1445,7 +1446,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           TProtocols.validateFieldType(TType.SET, field.type, "aSet");
           {
             TSet _set3 = iprot.readSetBegin();
-            this.aSet = new HashSet<Integer>(2*_set3.size);
+            int _set3_size = (int) ((float) _set3.size / 0.75F + 1.0F);
+            this.aSet = new HashSet<Integer>(_set3_size);
             for (int _i4 = 0; _i4 < _set3.size; ++_i4)
             {
               int _elem5;
@@ -1459,7 +1461,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           TProtocols.validateFieldType(TType.MAP, field.type, "aMap");
           {
             TMap _map6 = iprot.readMapBegin();
-            this.aMap = new HashMap<Long,Long>(2*_map6.size);
+            int _map6_size = (int) ((float) _map6.size / 0.75F + 1.0F);
+            this.aMap = new HashMap<Long,Long>(_map6_size);
             for (int _i7 = 0; _i7 < _map6.size; ++_i7)
             {
               long _key8;
@@ -1480,7 +1483,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           TProtocols.validateFieldType(TType.LIST, field.type, "subRequests");
           {
             TList _list10 = iprot.readListBegin();
-            this.subRequests = new ArrayList<Request>(_list10.size);
+            int _list10_size = _list10.size;
+            this.subRequests = new ArrayList<Request>(_list10_size);
             for (int _i11 = 0; _i11 < _list10.size; ++_i11)
             {
               Request _elem12;
