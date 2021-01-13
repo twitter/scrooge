@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+21.1.0
+------
+
 * scrooge: Scrooge uses better size estimate for Map/Set containers in read()
   to improve performance in Java. ``PHAB_ID=D599495``
 
@@ -27,7 +30,7 @@ Unreleased
 * scrooge-generator: Scrooge preallocates containers to the correct size on the deepCopy
   operation to improve performance in Java. ``PHAB_ID=D590776``
 
-20.10.0
+  20.10.0
 -------
 
 No Changes
