@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Scrooge Changelog &#8212; Scrooge 20.12.0 documentation</title>
+    <title>Scrooge Changelog &#8212; Scrooge 21.1.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '20.12.0',
+        VERSION:     '21.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -63,20 +63,32 @@
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="id1">
-<h2>20.12.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>21.1.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>scrooge: Make options parser a separate class. All fields of <cite>com.twitter.scrooge.Compiler</cite> class
-are changed to immutable types. <code class="docutils literal"><span class="pre">PHAB_ID=D561738</span></code></li>
-<li>scrooge-generator: Java throws an exception when encountering incorrect field
-types in a struct while deserializing. <code class="docutils literal"><span class="pre">PHAB_ID=D565373</span></code></li>
-<li>scrooge-generator: Scrooge no longer fails to parse Thrift IDL when annotations are used
-on the individual components of a ‘container type’ (e.g. list, set, map). Those types of
-annotations are not currently used by scrooge, instead they are skipped over and discarded,
-but the IDL no longer fails to parse when they are encountered. <code class="docutils literal"><span class="pre">PHAB_ID=D583284</span></code></li>
+<li>scrooge: Scrooge uses better size estimate for Map/Set containers in read()
+to improve performance in Java. <code class="docutils literal"><span class="pre">PHAB_ID=D599495</span></code></li>
 </ul>
 </div>
 <div class="section" id="id2">
-<h2>20.10.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>20.12.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">scrooge: Make options parser a separate class. All fields of <cite>com.twitter.scrooge.Compiler</cite> class
+are changed to immutable types. <code class="docutils literal"><span class="pre">PHAB_ID=D561738</span></code></p>
+</li>
+<li><p class="first">scrooge-generator: Java throws an exception when encountering incorrect field
+types in a struct while deserializing. <code class="docutils literal"><span class="pre">PHAB_ID=D565373</span></code></p>
+</li>
+<li><p class="first">scrooge-generator: Scrooge no longer fails to parse Thrift IDL when annotations are used
+on the individual components of a ‘container type’ (e.g. list, set, map). Those types of
+annotations are not currently used by scrooge, instead they are skipped over and discarded,
+but the IDL no longer fails to parse when they are encountered. <code class="docutils literal"><span class="pre">PHAB_ID=D583284</span></code></p>
+</li>
+<li><p class="first">scrooge-generator: Scrooge preallocates containers to the correct size on the deepCopy
+operation to improve performance in Java. <code class="docutils literal"><span class="pre">PHAB_ID=D590776</span></code></p>
+<p>20.10.0</p>
+</li>
+</ul>
+<hr class="docutils" />
 <p>No Changes</p>
 </div>
 <div class="section" id="id3">
@@ -1457,8 +1469,8 @@ thrift files were not resolved properly.</li>
   <ul>
 <li><a class="reference internal" href="#">Scrooge Changelog</a><ul>
 <li><a class="reference internal" href="#unreleased">Unreleased</a></li>
-<li><a class="reference internal" href="#id1">20.12.0</a></li>
-<li><a class="reference internal" href="#id2">20.10.0</a></li>
+<li><a class="reference internal" href="#id1">21.1.0</a></li>
+<li><a class="reference internal" href="#id2">20.12.0</a></li>
 <li><a class="reference internal" href="#id3">20.9.0</a></li>
 <li><a class="reference internal" href="#id4">20.8.1</a></li>
 <li><a class="reference internal" href="#do-not-use">20.8.0 (DO NOT USE)</a></li>
