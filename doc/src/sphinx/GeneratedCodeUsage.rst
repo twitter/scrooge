@@ -37,7 +37,7 @@ Because new fields can be added to unions, Scrooge provides UnknownUnionField wh
     val displayName = v match {
       case Visitor.GuestName(name) => "guest " + name
       case Visitor.User(u) => u.name
-      case Visitor.UnknownUnionField => "unknown visitor"
+      case Visitor.UnknownUnionField(_) => "unknown visitor"
     }
 
 Note that you must use the provided extractors when pattern matching against unions; you cannot use the constructors for structs themselves. The following will fail with a MatchError::
