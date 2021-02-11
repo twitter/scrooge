@@ -4,23 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Command Line &#8212; Scrooge 21.1.0 documentation</title>
+    <title>Command Line &#8212; Scrooge 21.2.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '21.1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Finagle Integration" href="Finagle.html" />
@@ -29,8 +22,7 @@
   
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
 
-  </head>
-  <body>
+  </head><body>
   
   
 
@@ -63,7 +55,7 @@ from the command line. One way to do so is to run the main files of the
 requires having the Scrooge project available locally.</p>
 <p>To start, clone the Scrooge repository from GitHub, change into
 the Scrooge directory, and checkout the master branch:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git clone https://github.com/twitter/scrooge.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/twitter/scrooge.git
 $ <span class="nb">cd</span> scrooge
 $ git checkout master
 </pre></div>
@@ -76,27 +68,27 @@ released version of Scrooge.</p>
 files into generated code. Running it from the command line requires
 running the ‘com.twitter.scrooge.Main’ object.</p>
 <p>To get command line help:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main --help&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main --help&#39;</span>
 </pre></div>
 </div>
 <p>To generate source with content written to the current directory:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
 </pre></div>
 </div>
 <p>To generate source with content written to a specified directory, using
 extra include paths, rebuilding only those files that have changed:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d &lt;target-dir&gt; -i &lt;include-path&gt; -s &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d &lt;target-dir&gt; -i &lt;include-path&gt; -s &lt;thrift-file1&gt; [&lt;thrift-file2&gt; ...]&#39;</span>
 </pre></div>
 </div>
 <p>As an example, to generate Scala code for the ‘user.thrift’ file from the
 ‘scrooge-maven-demo’, you can run the following command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d generated -i demos/scrooge-maven-demo/src/main/thrift -s user.thrift&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d generated -i demos/scrooge-maven-demo/src/main/thrift -s user.thrift&#39;</span>
 </pre></div>
 </div>
 <p>This will output the ‘User.scala’ and ‘UserService.scala’ files in namespaced
 directories underneath the ‘generated’ directory.</p>
 <p>A complete command line help menu for scrooge-generator:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Usage: scrooge [options] &lt;files...&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: scrooge [options] &lt;files...&gt;
 
 --help                                    show this help screen
 -V, --version                             print version and quit
@@ -128,20 +120,20 @@ IDL file complies with Scrooge’s understanding of the Thrift grammar. It
 can be useful when making modifications to Thrift files to check it via
 the ‘scrooge-linter’ without running the full on ‘scrooge-generator’.</p>
 <p>To get command line help:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main --help&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main --help&#39;</span>
 </pre></div>
 </div>
 <p>To lint a specific file (or files):</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main &lt;files...&gt;&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main &lt;files...&gt;&#39;</span>
 </pre></div>
 </div>
 <p>As an example, to lint the ‘user.thrift’ file from the ‘scrooge-maven-demo’, you
 can run the following command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main -n demos/scrooge-maven-demo/src/main/thrift user.thrift&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./sbt <span class="s1">&#39;scrooge-linter/runMain com.twitter.scrooge.linter.Main -n demos/scrooge-maven-demo/src/main/thrift user.thrift&#39;</span>
 </pre></div>
 </div>
 <p>A complete command line help menu for scrooge-linter:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Usage: scrooge-linter [options] &lt;files...&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: scrooge-linter [options] &lt;files...&gt;
 
 --help                                 show this help screen
 -V, --version                          print version and quit
@@ -180,7 +172,7 @@ can run the following command:</p>
   <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
   <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
 </ul>
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Command Line</a><ul>
 <li><a class="reference internal" href="#scrooge-generator">scrooge-generator</a></li>

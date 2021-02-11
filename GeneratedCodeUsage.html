@@ -4,23 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Generated Scala Code Usage &#8212; Scrooge 21.1.0 documentation</title>
+    <title>Generated Scala Code Usage &#8212; Scrooge 21.2.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '21.1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Implementation Semantics" href="Semantics.html" />
@@ -29,8 +22,7 @@
   
   <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
 
-  </head>
-  <body>
+  </head><body>
   
   
 
@@ -61,7 +53,7 @@
 <div class="section" id="unions">
 <h2>Unions<a class="headerlink" href="#unions" title="Permalink to this headline">¶</a></h2>
 <p>Scrooge generates Scala case classes that can be used to construct union instances. Consider the following union which may have a string value or a User struct value:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
     <span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span>
     <span class="mi">2</span><span class="k">:</span> <span class="kt">string</span> <span class="kt">name</span>
 <span class="o">}</span>
@@ -73,12 +65,12 @@
 </pre></div>
 </div>
 <p>To create an instance of Visitor, use the case classes named for each field:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Alice&quot;</span><span class="o">)</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Alice&quot;</span><span class="o">)</span>
 <span class="nc">Visitor</span><span class="o">.</span><span class="nc">User</span><span class="o">(</span><span class="nc">User</span><span class="o">(</span><span class="mi">123L</span><span class="o">,</span> <span class="s">&quot;Bob&quot;</span><span class="o">))</span>
 </pre></div>
 </div>
 <p>The case classes for union fields can be used to access values in a typesafe way via pattern matching:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">v</span><span class="k">:</span> <span class="kt">Visitor</span> <span class="o">=</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Erica&quot;</span><span class="o">)</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">v</span><span class="k">:</span> <span class="kt">Visitor</span> <span class="o">=</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="s">&quot;Erica&quot;</span><span class="o">)</span>
 <span class="k">val</span> <span class="n">displayName</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="s">&quot;guest &quot;</span> <span class="o">+</span> <span class="n">name</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">User</span><span class="o">(</span><span class="n">u</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">u</span><span class="o">.</span><span class="n">name</span>
@@ -86,15 +78,15 @@
 </pre></div>
 </div>
 <p>Because new fields can be added to unions, Scrooge provides UnknownUnionField which should be used for compatibility with newer versions:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">displayName</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">displayName</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">GuestName</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="s">&quot;guest &quot;</span> <span class="o">+</span> <span class="n">name</span>
   <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">User</span><span class="o">(</span><span class="n">u</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">u</span><span class="o">.</span><span class="n">name</span>
-  <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">UnknownUnionField</span> <span class="k">=&gt;</span> <span class="s">&quot;unknown visitor&quot;</span>
+  <span class="k">case</span> <span class="nc">Visitor</span><span class="o">.</span><span class="nc">UnknownUnionField</span><span class="o">(</span><span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="s">&quot;unknown visitor&quot;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 <p>Note that you must use the provided extractors when pattern matching against unions; you cannot use the constructors for structs themselves. The following will fail with a MatchError:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">userVisitor</span> <span class="k">match</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">userVisitor</span> <span class="k">match</span> <span class="o">{</span>
   <span class="k">case</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">name</span>
   <span class="k">case</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span> <span class="n">s</span>
 <span class="o">}</span>
@@ -107,21 +99,21 @@
 <a class="reference external" href="https://en.wikipedia.org/wiki/Proxy_pattern">proxy classes</a>. The generated code
 delegates to another instance. These may be useful for tests and otherwise.</p>
 <p>Given the IDL:</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
   <span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span>
   <span class="mi">2</span><span class="k">:</span> <span class="kt">string</span> <span class="kt">name</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 <p>Add the annotation.</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">struct</span> <span class="nc">User</span> <span class="o">{</span>
   <span class="mi">1</span><span class="k">:</span> <span class="kt">i64</span> <span class="kt">id</span>
   <span class="mi">2</span><span class="k">:</span> <span class="kt">string</span> <span class="kt">name</span>
 <span class="o">}</span> <span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">scrooge</span><span class="o">.</span><span class="n">scala</span><span class="o">.</span><span class="n">generateStructProxy</span> <span class="k">=</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
 </pre></div>
 </div>
 <p>Which generates the following code on the companion <cite>User</cite> object,</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">trait</span> <span class="nc">Proxy</span> <span class="k">extends</span> <span class="nc">User</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">trait</span> <span class="nc">Proxy</span> <span class="k">extends</span> <span class="nc">User</span> <span class="o">{</span>
   <span class="k">protected</span> <span class="k">def</span> <span class="nc">_underlying_User</span><span class="k">:</span> <span class="kt">User</span>
   <span class="k">override</span> <span class="k">def</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="nc">_underlying_User</span><span class="o">.</span><span class="n">id</span>
   <span class="k">override</span> <span class="k">def</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="nc">_underlying_User</span><span class="o">.</span><span class="n">name</span>
@@ -130,7 +122,7 @@ delegates to another instance. These may be useful for tests and otherwise.</p>
 </pre></div>
 </div>
 <p>Then, for example, <cite>Proxy</cite> can then be used in the following manner,</p>
-<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">alwaysFifty</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">User</span><span class="o">.</span><span class="nc">Proxy</span> <span class="o">{</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">alwaysFifty</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">User</span><span class="o">.</span><span class="nc">Proxy</span> <span class="o">{</span>
   <span class="k">protected</span> <span class="k">def</span> <span class="nc">_underlying_User</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span> <span class="n">aUserInstance</span>
   <span class="k">override</span> <span class="k">def</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="o">}</span>
@@ -157,7 +149,7 @@ delegates to another instance. These may be useful for tests and otherwise.</p>
   <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
   <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
 </ul>
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Generated Scala Code Usage</a><ul>
 <li><a class="reference internal" href="#unions">Unions</a></li>
