@@ -14,5 +14,6 @@ scala_library(
     ],
     exports = [
         "scrooge/scrooge-core",
+        "util/util-codec",
     ],
 )
