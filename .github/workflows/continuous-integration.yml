@@ -3,7 +3,6 @@ name: continuous integration
 env:
   JAVA_OPTS: "-Dsbt.log.noformat=true"
   TRAVIS: "true" # pretend we're TravisCI
-  UPLOAD_COVERAGE: false
 
 defaults:
   run:
@@ -38,6 +37,7 @@ jobs:
           cache-name: cache-build-deps
         with:
           path: |
+            ~/.dodo
             ~/.ivy2/cache
             ~/.ivy2/local/com.twitter
             ~/.sbt
@@ -50,6 +50,14 @@ jobs:
           if [ -f ~/.sbt ]; then
             find ~/.sbt         -name "*.lock"               -delete
           fi
+      - name: build dependencies
+        uses: twitter/dodo-build@v3
+        with:
+          branch: develop
+          project: scrooge
+          no-test: true
+          publish-m2: true
+          verbose: true
       - name: test
         run: ${{ format('./sbt ++{0} clean coverage test coverageReport', matrix.scala) }}
       - name: scrooge-generator test
