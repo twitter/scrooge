@@ -1,6 +1,6 @@
 # Scrooge
 
-[![Build status](https://travis-ci.com/twitter/scrooge.svg?branch=develop)](https://travis-ci.com/twitter/scrooge)
+[![Build Status](https://github.com/twitter/scrooge/workflows/continuous%20integration/badge.svg?branch=develop)](https://github.com/twitter/scrooge/actions?query=workflow%3A%22continuous+integration%22+branch%3Adevelop)
 [![Codecov](https://codecov.io/gh/twitter/scrooge/branch/develop/graph/badge.svg)](https://codecov.io/gh/twitter/scrooge)
 [![Project status](https://img.shields.io/badge/status-active-brightgreen.svg)](#status)
 [![Gitter](https://badges.gitter.im/twitter/finagle.svg)](https://gitter.im/twitter/finagle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
