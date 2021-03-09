@@ -674,7 +674,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
   }
 
-  /** Returns true if field corresponding to field is set (has been asigned a value) and false otherwise */
+  /** Returns true if field corresponding to field is set (has been assigned a value) and false otherwise */
   public boolean isSet(_Fields field) {
     switch (field) {
     case A_LIST:

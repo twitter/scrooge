@@ -205,7 +205,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
     }
   }
 
-  /** Returns true if field corresponding to field is set (has been asigned a value) and false otherwise */
+  /** Returns true if field corresponding to field is set (has been assigned a value) and false otherwise */
   public boolean isSet(_Fields field) {
     switch (field) {
     case ID:
