@@ -41,7 +41,9 @@ case class ScroogeConfig(
   language: String = CompilerDefaults.language,
   defaultNamespace: String = CompilerDefaults.defaultNamespace,
   scalaWarnOnJavaNSFallback: Boolean = false,
-  javaSerEnumType: Boolean = false)
+  javaSerEnumType: Boolean = false,
+  addRootDirImporter: Boolean = true
+)
 
 object ScroogeOptionParser {
 

@@ -13,7 +13,6 @@ object ScroogeSBT extends AutoPlugin {
     if (language.endsWith("java")) "*.java" else "*.scala"
 
   private[this] def compile(
-    log: Logger,
     outputDir: File,
     thriftFiles: Set[File],
     thriftIncludes: Set[File],
@@ -22,7 +21,8 @@ object ScroogeSBT extends AutoPlugin {
     flags: Set[ServiceOption],
     disableStrict: Boolean,
     scalaWarnOnJavaNSFallback: Boolean,
-    defaultNamespace: String
+    defaultNamespace: String,
+    addRootDirImporter: Boolean
   ): Unit = {
 
     val originalLoader: Option[ClassLoader] =
@@ -43,7 +43,8 @@ object ScroogeSBT extends AutoPlugin {
       strict = !disableStrict,
       scalaWarnOnJavaNSFallback = scalaWarnOnJavaNSFallback,
       defaultNamespace = defaultNamespace,
-      language = language.toLowerCase
+      language = language.toLowerCase,
+      addRootDirImporter = addRootDirImporter
     )
 
     try {
@@ -103,6 +104,11 @@ object ScroogeSBT extends AutoPlugin {
     val scroogeThriftIncludes = TaskKey[Seq[File]](
       "scrooge-thrift-includes",
       "complete list of folders to search for thrift 'include' directives"
+    )
+
+    val scroogeThriftIncludeRoot = SettingKey[Boolean](
+      "scrooge-thrift-include-root",
+      "If true scrooge will always search the project root for script files"
     )
 
     val scroogeThriftNamespaceMap = SettingKey[Map[String, String]](
@@ -187,6 +193,7 @@ object ScroogeSBT extends AutoPlugin {
     scroogeThriftSources := (scroogeThriftSourceFolder.value ** "*.thrift").get,
     // complete list of include directories
     scroogeThriftIncludes := scroogeThriftIncludeFolders.value ++ scroogeUnpackDeps.value,
+    scroogeThriftIncludeRoot := true,
     // unpack thrift files from all dependencies in the `thrift` configuration
     //
     // returns Seq[File] - directories that include thrift files
@@ -259,12 +266,12 @@ object ScroogeSBT extends AutoPlugin {
       val disableStrict = scroogeDisableStrict.value
       val warnOnFallBack = scroogeScalaWarnOnJavaNSFallback.value
       val javaNamespace = scroogeDefaultJavaNamespace.value
+      val addRootDirImporter = scroogeThriftIncludeRoot.value
       // for some reason, sbt sometimes calls us multiple times, often with no source files.
       if (scroogeIsDirty.value && thriftSources.nonEmpty) {
         streamValue.log.info(s"Generating scrooge thrift for ${thriftSources.mkString(", ")} ...")
         scroogeLangs.foreach { language =>
           compile(
-            streamValue.log,
             outputFolder,
             thriftSources.toSet,
             thriftIncludes.toSet,
@@ -273,7 +280,8 @@ object ScroogeSBT extends AutoPlugin {
             buildOptions.toSet,
             disableStrict,
             warnOnFallBack,
-            javaNamespace
+            javaNamespace,
+            addRootDirImporter
           )
         }
       }
