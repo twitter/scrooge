@@ -7,6 +7,12 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+Breaking API Changes
+~~~~~~~~~~~~~~~~~~~~
+
+* scrooge: Builds are now only supported for Scala 2.12+ ``PHAB_ID=D631091``
+
+
 21.2.0
 ------
 

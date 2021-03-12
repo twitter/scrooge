@@ -196,7 +196,7 @@ val sharedSettings =
   sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.12.8",
-      crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.1"),
+      crossScalaVersions := Seq("2.12.8", "2.13.1"),
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
