@@ -18,8 +18,15 @@ package com.twitter.scrooge
 
 import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator}
-import com.twitter.scrooge.frontend.{FileParseException, TypeResolver, ThriftParser, Importer}
+import com.twitter.scrooge.frontend.{
+  FileParseException,
+  Importer,
+  NullImporter,
+  ThriftParser,
+  TypeResolver
+}
 import com.twitter.scrooge.java_generator.ApacheJavaGenerator
+
 import java.io.{File, FileWriter}
 import scala.collection.concurrent.TrieMap
 
@@ -45,7 +52,12 @@ class Compiler(val config: ScroogeConfig) {
       new FileWriter(file)
     }
 
-    val importer = Importer(new File(".")) +: Importer(config.includePaths.toSeq)
+    val importer = {
+      val rootImporter =
+        if (config.addRootDirImporter) Importer(new File("."))
+        else NullImporter
+      rootImporter +: Importer(config.includePaths.toSeq)
+    }
 
     val isJava = config.language.equals("java")
     val documentCache = new TrieMap[String, Document]
