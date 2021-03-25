@@ -317,10 +317,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 {{/generateServiceIface}}
 {{^generateServiceIface}}
   // Skipped ServiceIface generation because this thrift service contains more than 254 methods.
-  //
-  // scalac 2.11 fails to compile classes with more than 254 method arguments
-  // due to https://issues.scala-lang.org/browse/SI-7324.
-
+  // see https://issues.scala-lang.org/browse/SI-7324
   def unsafeBuildFromMethods(methods: immutable$Map[ThriftMethod,  _root_.com.twitter.finagle.Service[_root_.com.twitter.scrooge.Request[_], _root_.com.twitter.scrooge.Response[_]]]): ReqRepServicePerEndpoint = ???
 {{/generateServiceIface}}
 

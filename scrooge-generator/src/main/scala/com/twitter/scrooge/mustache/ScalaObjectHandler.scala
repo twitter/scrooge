@@ -24,7 +24,7 @@ private[scrooge] class ScalaObjectHandler extends ReflectionObjectHandler {
   override def coerce(value: AnyRef): Object = {
     value match {
       case m: scala.collection.Map[_, _] =>
-        // TODO: when we stop supporting scala 2.11, use JavaConverters.mapAsJavaMap
+        // TODO: when we stop supporting scala 2.10, use JavaConverters.mapAsJavaMap
         m.asJava
       case u: BoxedUnit => null
       case Some(some: AnyRef) => coerce(some)

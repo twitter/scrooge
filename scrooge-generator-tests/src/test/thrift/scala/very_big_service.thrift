@@ -1,8 +1,8 @@
 #@namespace scala collisions.big.thriftscala
 namespace java collisions.big.thriftjava
 
-# scalac 2.11 fails to compile classes with more than 254 method arguments.
 # We skip generation of ServiceIfaces for thrift services with 255+ methods.
+# see https://issues.scala-lang.org/browse/SI-7324
 service VeryBigService {
   i32 getNumber1(1: string someInput)
   i32 getNumber2(1: string someInput)
