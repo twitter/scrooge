@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>SBT Plugin &#8212; Scrooge 21.2.0 documentation</title>
+    <title>SBT Plugin &#8212; Scrooge 21.3.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -58,7 +58,7 @@ scrooge-sbt-plugin is not published to Maven Central but published to
 <h2>Plugin Addition<a class="headerlink" href="#plugin-addition" title="Permalink to this headline">¶</a></h2>
 <p>To use the scrooge-sbt-plugin, add the following lines to your
 <cite>project/plugins.sbt</cite> file:</p>
-<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span> <span class="o">%</span> <span class="s">&quot;scrooge-sbt-plugin&quot;</span> <span class="o">%</span> <span class="s">&quot;21.2.0&quot;</span><span class="o">)</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.twitter&quot;</span> <span class="o">%</span> <span class="s">&quot;scrooge-sbt-plugin&quot;</span> <span class="o">%</span> <span class="s">&quot;21.3.0&quot;</span><span class="o">)</span>
 </pre></div>
 </div>
 <p>Incorporating this line makes the Scrooge plugin available for use by SBT.
@@ -82,8 +82,8 @@ how your project is set up.</p>
     <span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;Scrooge Demo&quot;</span><span class="o">,</span>
     <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
       <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.10.0&quot;</span><span class="o">,</span>
-      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;21.2.0&quot;</span><span class="o">,</span>
-      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;21.2.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;21.3.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;21.3.0&quot;</span><span class="o">,</span>
       <span class="n">scalaTest</span> <span class="o">%</span> <span class="nc">Test</span>
     <span class="o">)</span>
   <span class="o">)</span>
@@ -134,8 +134,8 @@ have Scrooge generate Java code.</p>
     <span class="n">scroogeLanguages</span> <span class="n">in</span> <span class="nc">Compile</span> <span class="o">:=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">&quot;java&quot;</span><span class="o">),</span>
     <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
       <span class="s">&quot;org.apache.thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;libthrift&quot;</span> <span class="o">%</span> <span class="s">&quot;0.10.0&quot;</span><span class="o">,</span>
-      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;21.2.0&quot;</span><span class="o">,</span>
-      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;21.2.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;21.3.0&quot;</span><span class="o">,</span>
+      <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;finagle-thrift&quot;</span> <span class="o">%</span> <span class="s">&quot;21.3.0&quot;</span><span class="o">,</span>
       <span class="n">scalaTest</span> <span class="o">%</span> <span class="nc">Test</span>
     <span class="o">)</span>
 </pre></div>
