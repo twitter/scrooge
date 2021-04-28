@@ -363,7 +363,6 @@ lazy val scroogeSbtPlugin = Project(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.twitter",
     sbtPlugin := true,
-    licenses += (("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))),
     resolvers += Resolver.typesafeIvyRepo("releases")
   ).dependsOn(scroogeGenerator)
 
