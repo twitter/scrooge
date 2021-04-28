@@ -352,26 +352,11 @@ lazy val scroogeAdaptive = Project(
     )
   ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
-// Remove the `publishTo` SettingsKey when not publishing a snapshot because the sbt-bintray plugin
-// already sets it, and setting it again breaks the plugin.
-def scroogeSbtPluginSettings = {
-  if (!releaseVersion.trim.endsWith("SNAPSHOT")) {
-    settingsWithTwoTen
-      .filter(_.key.key.label != "publishTo") ++
-      Seq(
-        bintrayRepository := "sbt-plugins",
-        bintrayOrganization := Some("twittercsl"),
-        publishMavenStyle := false
-      )
-  } else {
-    settingsWithTwoTen
-  }
-}
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin).settings(
-    scroogeSbtPluginSettings: _*
+    settingsWithTwoTen: _*
   ).settings(
     scalaVersion := "2.10.7",
     crossSbtVersions := Seq("0.13.18", "1.3.10"),
