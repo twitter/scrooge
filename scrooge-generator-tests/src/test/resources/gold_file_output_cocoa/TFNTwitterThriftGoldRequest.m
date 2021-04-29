@@ -23,8 +23,8 @@
     [ms appendFormat:@"%@ ", _aRequest];
     [ms appendString:@"subRequests:"];
     [ms appendFormat:@"%@ ", _subRequests];
-    [ms appendString:@"hasDefault:"];
-    [ms appendFormat:@"%@ ", _hasDefault];
+    [ms appendString:@"default_:"];
+    [ms appendFormat:@"%@ ", _default_];
     [ms appendString:@"noComment:"];
     [ms appendFormat:@"%@ ", @(_noComment)];
     [ms appendString:@"doubleSlashComment:"];
@@ -47,14 +47,14 @@
     return [NSString stringWithString:ms];
 }
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests default_:(NSString *)default_ requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField
 {
     if (self = [super init]) {
         [self setAList:aList];
         [self setASet:aSet];
         [self setAMap:aMap];
         [self setSubRequests:subRequests];
-        [self setHasDefault:hasDefault];
+        [self setDefault_:default_];
         [self setRequiredField:requiredField];
         [self setConstructionRequiredField:constructionRequiredField];
     }
@@ -62,9 +62,9 @@
     return self;
 }
 
-+ (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests hasDefault:(NSString *)hasDefault requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error
++ (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests default_:(NSString *)default_ requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error
 {
-    TFNTwitterThriftGoldRequest *instance = [[TFNTwitterThriftGoldRequest alloc] initWithAList:aList aSet:aSet aMap:aMap subRequests:subRequests hasDefault:hasDefault requiredField:requiredField constructionRequiredField:constructionRequiredField];
+    TFNTwitterThriftGoldRequest *instance = [[TFNTwitterThriftGoldRequest alloc] initWithAList:aList aSet:aSet aMap:aMap subRequests:subRequests default_:default_ requiredField:requiredField constructionRequiredField:constructionRequiredField];
     if (error) {
         NSArray *invalidFields = [instance validateNonOptionalFields];
         if (invalidFields.count > 0) {
@@ -94,7 +94,7 @@
             [self setSubRequests:(NSArray *)[decoder decodeObjectForKey:@"5"]];
         }
         if ([decoder containsValueForKey:@"6"]) {
-            [self setHasDefault:(NSString *)[decoder decodeObjectForKey:@"6"]];
+            [self setDefault_:(NSString *)[decoder decodeObjectForKey:@"6"]];
         }
         if ([decoder containsValueForKey:@"7"]) {
             [self setNoComment:(int64_t)[decoder decodeInt64ForKey:@"7"]];
@@ -144,8 +144,8 @@
     if (_subRequestsIsSet) {
         [encoder encodeObject:_subRequests forKey:@"5"];
     }
-    if (_hasDefaultIsSet) {
-        [encoder encodeObject:_hasDefault forKey:@"6"];
+    if (_default_IsSet) {
+        [encoder encodeObject:_default_ forKey:@"6"];
     }
     if (_noCommentIsSet) {
         [encoder encodeInt64:_noComment forKey:@"7"];
@@ -206,10 +206,10 @@
     _subRequestsIsSet = subRequests != nil;
 }
 
-- (void)setHasDefault:(NSString *)hasDefault
+- (void)setDefault_:(NSString *)default_
 {
-    _hasDefault = [hasDefault copy];
-    _hasDefaultIsSet = hasDefault != nil;
+    _default_ = [default_ copy];
+    _default_IsSet = default_ != nil;
 }
 
 - (void)setNoComment:(int64_t)noComment
@@ -375,9 +375,9 @@
                 break;
             case 6:
                 if (fieldType == TType_STRING) {
-                    NSString * hasDefault_item;
-                    hasDefault_item = [inProtocol readString];
-                    [self setHasDefault:hasDefault_item];
+                    NSString * default_item;
+                    default_item = [inProtocol readString];
+                    [self setDefault_:default_item];
                 } else {
                     NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -543,10 +543,10 @@
         [outProtocol writeListEnd];
         [outProtocol writeFieldEnd];
     }
-    if (_hasDefaultIsSet) {
-        [outProtocol writeFieldBeginWithName:@"hasDefault" type:TType_STRING fieldID:6];
-        NSString * hasDefault_item = _hasDefault;
-        [outProtocol writeString:hasDefault_item];
+    if (_default_IsSet) {
+        [outProtocol writeFieldBeginWithName:@"default" type:TType_STRING fieldID:6];
+        NSString * default_item = _default_;
+        [outProtocol writeString:default_item];
         [outProtocol writeFieldEnd];
     }
     if (_noCommentIsSet) {
@@ -629,8 +629,8 @@
     if (!_subRequestsIsSet) {
         [invalidFields addObject:@"subRequests"];
     }
-    if (!_hasDefaultIsSet) {
-        [invalidFields addObject:@"hasDefault"];
+    if (!_default_IsSet) {
+        [invalidFields addObject:@"default_"];
     }
     if (!_requiredFieldIsSet) {
         [invalidFields addObject:@"requiredField"];

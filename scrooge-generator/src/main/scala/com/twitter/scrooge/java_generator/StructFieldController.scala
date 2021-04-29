@@ -1,5 +1,6 @@
 package com.twitter.scrooge.java_generator
 
+import com.twitter.scrooge.JavaKeywords
 import com.twitter.scrooge.ast.{Field, Identifier}
 import com.twitter.scrooge.ast.FieldType
 
@@ -15,7 +16,7 @@ class StructFieldController(
   val fieldType: FieldType = f.fieldType
   val field_type: FieldTypeController = field.field_type
   val optional_or_nullable: Boolean = field.optional || field_type.nullable
-  val name: String = f.sid.name
+  val name: String = modifyKeyword(f.sid.name)
   val deepCopyIndentLevel: Int = if (field_type.nullable) 6 else 4
 
   val generate_deep_copy_container: String =
@@ -49,4 +50,10 @@ class StructFieldController(
     )
   def last: Boolean = i == total - 1
   def first: Boolean = i == 0
+
+  def modifyKeyword(str: String): String =
+    if (JavaKeywords.contains(str))
+      "_" + str
+    else
+      str
 }

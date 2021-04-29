@@ -41,7 +41,7 @@ struct Request {
   3: map<i64, i64> aMap,
   4: optional Request aRequest,
   5: list<Request> subRequests,
-  6: string hasDefault = "the_default"
+  6: string default = "the_default"
 
   7: optional i64 noComment
 

@@ -7,6 +7,9 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+* scrooge-generator: Modify struct field names when they match Java keywords by adding
+an underscore prefix to the field name. ``PHAB_ID=D659870``
+
 21.4.0
 ------
 

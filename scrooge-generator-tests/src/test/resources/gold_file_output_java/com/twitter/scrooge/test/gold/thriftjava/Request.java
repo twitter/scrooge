@@ -38,7 +38,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField A_MAP_FIELD_DESC = new TField("aMap", TType.MAP, (short)3);
   private static final TField A_REQUEST_FIELD_DESC = new TField("aRequest", TType.STRUCT, (short)4);
   private static final TField SUB_REQUESTS_FIELD_DESC = new TField("subRequests", TType.LIST, (short)5);
-  private static final TField HAS_DEFAULT_FIELD_DESC = new TField("hasDefault", TType.STRING, (short)6);
+  private static final TField _DEFAULT_FIELD_DESC = new TField("_default", TType.STRING, (short)6);
   private static final TField NO_COMMENT_FIELD_DESC = new TField("noComment", TType.I64, (short)7);
   private static final TField DOUBLE_SLASH_COMMENT_FIELD_DESC = new TField("doubleSlashComment", TType.I64, (short)8);
   private static final TField HASHTAG_COMMENT_FIELD_DESC = new TField("hashtagComment", TType.I64, (short)9);
@@ -55,7 +55,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public Map<Long,Long> aMap;
   public Request aRequest;
   public List<Request> subRequests;
-  public String hasDefault;
+  public String _default;
   public long noComment;
   public long doubleSlashComment;
   public long hashtagComment;
@@ -74,7 +74,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     A_MAP((short)3, "aMap"),
     A_REQUEST((short)4, "aRequest"),
     SUB_REQUESTS((short)5, "subRequests"),
-    HAS_DEFAULT((short)6, "hasDefault"),
+    _DEFAULT((short)6, "_default"),
     NO_COMMENT((short)7, "noComment"),
     DOUBLE_SLASH_COMMENT((short)8, "doubleSlashComment"),
     HASHTAG_COMMENT((short)9, "hashtagComment"),
@@ -108,8 +108,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return A_REQUEST;
         case 5: // SUB_REQUESTS
           return SUB_REQUESTS;
-        case 6: // HAS_DEFAULT
-          return HAS_DEFAULT;
+        case 6: // _DEFAULT
+          return _DEFAULT;
         case 7: // NO_COMMENT
           return NO_COMMENT;
         case 8: // DOUBLE_SLASH_COMMENT
@@ -210,7 +210,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     tmpMap.put(_Fields.SUB_REQUESTS, new FieldMetaData("subRequests", TFieldRequirementType.DEFAULT,
       new ListMetaData(TType.LIST,
                 new StructMetaData(TType.STRUCT, Request.class))));
-    tmpMap.put(_Fields.HAS_DEFAULT, new FieldMetaData("hasDefault", TFieldRequirementType.DEFAULT,
+    tmpMap.put(_Fields._DEFAULT, new FieldMetaData("_default", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.STRING)));
     tmpMap.put(_Fields.NO_COMMENT, new FieldMetaData("noComment", TFieldRequirementType.OPTIONAL,
       new FieldValueMetaData(TType.I64)));
@@ -283,13 +283,13 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public static final Set<_Fields> hasDefaultValue;
   static {
     Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
-    tmp.add(_Fields.HAS_DEFAULT);
+    tmp.add(_Fields.DEFAULT);
     hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 
 
   public Request() {
-    this.hasDefault = "the_default";
+    this._default = "the_default";
   }
 
   public Request(
@@ -297,7 +297,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     Set<Integer> aSet,
     Map<Long,Long> aMap,
     List<Request> subRequests,
-    String hasDefault,
+    String _default,
     String requiredField,
     long constructionRequiredField)
   {
@@ -306,7 +306,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.aSet = aSet;
     this.aMap = aMap;
     this.subRequests = subRequests;
-    this.hasDefault = hasDefault;
+    this._default = _default;
     this.requiredField = requiredField;
     this.constructionRequiredField = constructionRequiredField;
     setConstructionRequiredFieldIsSet(true);
@@ -357,8 +357,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       this.subRequests = __this__subRequests;
     }
-    if (other.isSetHasDefault()) {
-      this.hasDefault = other.hasDefault;
+    if (other.isSet_default()) {
+      this._default = other._default;
     }
     this.noComment = other.noComment;
     this.doubleSlashComment = other.doubleSlashComment;
@@ -418,7 +418,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.aMap = null;
     this.aRequest = null;
     this.subRequests = null;
-    this.hasDefault = "the_default";
+    this._default = "the_default";
     setNoCommentIsSet(false);
     this.noComment = 0;
     setDoubleSlashCommentIsSet(false);
@@ -619,28 +619,28 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
   }
 
-  public String getHasDefault() {
-    return this.hasDefault;
+  public String get_default() {
+    return this._default;
   }
 
-  public Request setHasDefault(String hasDefault) {
-    this.hasDefault = hasDefault;
+  public Request set_default(String _default) {
+    this._default = _default;
     
     return this;
   }
 
-  public void unsetHasDefault() {
-    this.hasDefault = null;
+  public void unset_default() {
+    this._default = null;
   }
 
-  /** Returns true if field hasDefault is set (has been assigned a value) and false otherwise */
-  public boolean isSetHasDefault() {
-    return this.hasDefault != null;
+  /** Returns true if field _default is set (has been assigned a value) and false otherwise */
+  public boolean isSet_default() {
+    return this._default != null;
   }
 
-  public void setHasDefaultIsSet(boolean value) {
+  public void set_defaultIsSet(boolean value) {
     if (!value) {
-      this.hasDefault = null;
+      this._default = null;
     }
   }
 
@@ -900,11 +900,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         setSubRequests((List<Request>)value);
       }
       break;
-    case HAS_DEFAULT:
+    case _DEFAULT:
       if (value == null) {
-        unsetHasDefault();
+        unset_default();
       } else {
-        setHasDefault((String)value);
+        set_default((String)value);
       }
       break;
     case NO_COMMENT:
@@ -985,8 +985,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return getARequest();
     case SUB_REQUESTS:
       return getSubRequests();
-    case HAS_DEFAULT:
-      return getHasDefault();
+    case _DEFAULT:
+      return get_default();
     case NO_COMMENT:
       return Long.valueOf(getNoComment());
     case DOUBLE_SLASH_COMMENT:
@@ -1026,8 +1026,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return isSetARequest();
     case SUB_REQUESTS:
       return isSetSubRequests();
-    case HAS_DEFAULT:
-      return isSetHasDefault();
+    case _DEFAULT:
+      return isSet_default();
     case NO_COMMENT:
       return isSetNoComment();
     case DOUBLE_SLASH_COMMENT:
@@ -1106,12 +1106,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!this.subRequests.equals(that.subRequests))
         return false;
     }
-    boolean this_present_hasDefault = true && this.isSetHasDefault();
-    boolean that_present_hasDefault = true && that.isSetHasDefault();
-    if (this_present_hasDefault || that_present_hasDefault) {
-      if (!(this_present_hasDefault && that_present_hasDefault))
+    boolean this_present__default = true && this.isSet_default();
+    boolean that_present__default = true && that.isSet_default();
+    if (this_present__default || that_present__default) {
+      if (!(this_present__default && that_present__default))
         return false;
-      if (!this.hasDefault.equals(that.hasDefault))
+      if (!this._default.equals(that._default))
         return false;
     }
     boolean this_present_noComment = true && this.isSetNoComment();
@@ -1218,8 +1218,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     if (isSetSubRequests()) {
       hashCode = 31 * hashCode + subRequests.hashCode();
     }
-    if (isSetHasDefault()) {
-      hashCode = 31 * hashCode + hasDefault.hashCode();
+    if (isSet_default()) {
+      hashCode = 31 * hashCode + _default.hashCode();
     }
     if (isSetNoComment()) {
       hashCode = 31 * hashCode + ((Long)noComment).hashCode();
@@ -1309,12 +1309,12 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetHasDefault()).compareTo(typedOther.isSetHasDefault());
+    lastComparison = Boolean.valueOf(isSet_default()).compareTo(typedOther.isSet_default());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetHasDefault()) {
-      lastComparison = TBaseHelper.compareTo(this.hasDefault, typedOther.hasDefault);
+    if (isSet_default()) {
+      lastComparison = TBaseHelper.compareTo(this._default, typedOther._default);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1495,9 +1495,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
             iprot.readListEnd();
             }
           break;
-        case 6: // HAS_DEFAULT
-          TProtocols.validateFieldType(TType.STRING, field.type, "hasDefault");
-          this.hasDefault = iprot.readString();
+        case 6: // _DEFAULT
+          TProtocols.validateFieldType(TType.STRING, field.type, "_default");
+          this._default = iprot.readString();
           break;
         case 7: // NO_COMMENT
           TProtocols.validateFieldType(TType.I64, field.type, "noComment");
@@ -1617,9 +1617,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       oprot.writeFieldEnd();
     }
-    if (this.hasDefault != null) {
-      oprot.writeFieldBegin(HAS_DEFAULT_FIELD_DESC);
-      oprot.writeString(this.hasDefault);
+    if (this._default != null) {
+      oprot.writeFieldBegin(_DEFAULT_FIELD_DESC);
+      oprot.writeString(this._default);
       oprot.writeFieldEnd();
     }
     if (isSetNoComment()) {
@@ -1724,11 +1724,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("hasDefault:");
-    if (this.hasDefault == null) {
+    sb.append("_default:");
+    if (this._default == null) {
       sb.append("null");
     } else {
-      sb.append(this.hasDefault);
+      sb.append(this._default);
     }
     first = false;
     if (isSetNoComment()) {
