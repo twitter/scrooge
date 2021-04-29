@@ -3,9 +3,7 @@ SBT Plugin
 
 Scrooge is capable of integrating with the Scala Build Tool (SBT). It works
 with either version 1.x or the older 0.13. It does so through an SBT plugin,
-aptly named 'scrooge-sbt-plugin'. Unlike other Scrooge artifacts though, the
-scrooge-sbt-plugin is not published to Maven Central but published to
-`Bintray <https://bintray.com/twittercsl/sbt-plugins/scrooge-sbt-plugin/view>`_.
+aptly named 'scrooge-sbt-plugin'.
 
 Plugin Addition
 ~~~~~~~~~~~~~~~
