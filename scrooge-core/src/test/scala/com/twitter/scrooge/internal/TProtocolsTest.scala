@@ -9,11 +9,11 @@ import org.apache.thrift.protocol.{
   TType
 }
 import org.apache.thrift.transport.TMemoryBuffer
-import org.scalatest.FunSuite
 import org.scalatestplus.mockito.MockitoSugar
 import scala.collection.immutable
+import org.scalatest.funsuite.AnyFunSuite
 
-class TProtocolsTest extends FunSuite with MockitoSugar {
+class TProtocolsTest extends AnyFunSuite with MockitoSugar {
 
   test("writeSet and readSet") {
     val set = Set(1, 2, 3)
