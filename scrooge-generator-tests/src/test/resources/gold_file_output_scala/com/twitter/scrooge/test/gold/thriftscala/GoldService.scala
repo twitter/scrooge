@@ -234,6 +234,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
   implicit object ServicePerEndpointBuilder
     extends _root_.com.twitter.finagle.thrift.service.ServicePerEndpointBuilder[ServicePerEndpoint] {
+      override def serviceClass: Class[ServicePerEndpoint] = classOf[ServicePerEndpoint]
       def servicePerEndpoint(
         thriftService: _root_.com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
         clientParam: RichClientParam
@@ -254,6 +255,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
   implicit object ReqRepServicePerEndpointBuilder
     extends _root_.com.twitter.finagle.thrift.service.ReqRepServicePerEndpointBuilder[ReqRepServicePerEndpoint] {
+      override def serviceClass: Class[ReqRepServicePerEndpoint] = classOf[ReqRepServicePerEndpoint]
       def servicePerEndpoint(
         thriftService: _root_.com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
         clientParam: RichClientParam
@@ -267,6 +269,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   @deprecated("Use ServicePerEndpointBuilder", "2017-11-07")
   implicit object ServiceIfaceBuilder
     extends com.twitter.finagle.thrift.ServiceIfaceBuilder[ServiceIface] {
+      override def serviceClass: Class[ServiceIface] = classOf[ServiceIface]
       def newServiceIface(
         binaryService: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
         clientParam: RichClientParam
