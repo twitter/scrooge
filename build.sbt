@@ -1,6 +1,9 @@
 import scala.language.reflectiveCalls
 import scoverage.ScoverageKeys
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+Global / excludeLintKeys += scalacOptions
+
 // Please use dodo to build the dependencies for the scrooge develop branch.  If
 // you would like to instead do it manually, you need to publish util, and finagle locally:
 // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
@@ -23,7 +26,7 @@ val dumpClasspath = TaskKey[File]("dump-classpath", "generate a file containing 
 val dumpClasspathSettings: Seq[Setting[_]] = Seq(
   dumpClasspath := {
     val base = baseDirectory.value
-    val cp = (fullClasspath in Runtime).value
+    val cp = (Runtime / fullClasspath).value
     val file = new File((base / ".classpath.txt").getAbsolutePath)
     val out = new java.io.FileWriter(file)
     try out.write(cp.files.absString)
@@ -33,12 +36,12 @@ val dumpClasspathSettings: Seq[Setting[_]] = Seq(
 )
 
 val testThriftSettings: Seq[Setting[_]] = Seq(
-  sourceGenerators in Test += ScroogeRunner.genTestThrift,
+  Test / sourceGenerators += ScroogeRunner.genTestThrift,
   ScroogeRunner.genTestThriftTask
 )
 
 val adaptiveScroogeTestThriftSettings = Seq(
-  sourceGenerators in Test += ScroogeRunner.genAdaptiveScroogeTestThrift,
+  Test / sourceGenerators += ScroogeRunner.genAdaptiveScroogeTestThrift,
   ScroogeRunner.genAdaptiveScroogeTestThriftTask
 )
 
@@ -116,19 +119,19 @@ val sharedSettingsWithoutScalaVersion = Seq(
     "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % "test"
   ),
   ScoverageKeys.coverageHighlighting := true,
-  fork in Test := true, // We have to fork to get the JavaOptions
-  parallelExecution in Test := false,
+  Test / fork := true, // We have to fork to get the JavaOptions
+  Test / parallelExecution := false,
   javaOptions ++= Seq(
     "-Djava.net.preferIPv4Stack=true",
     "-XX:+AggressiveOpts",
     "-server"
   ),
   javaOptions ++= gcJavaOptions,
-  javaOptions in Test ++= travisTestJavaOptions,
+  Test / javaOptions ++= travisTestJavaOptions,
   // -a: print stack traces for failing asserts
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
   // Sonatype publishing
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
@@ -159,8 +162,8 @@ val sharedSettingsWithoutScalaVersion = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  resourceGenerators in Compile += Def.task {
-    val dir = (resourceManaged in Compile).value
+  Compile / resourceGenerators += Def.task {
+    val dir = (Compile / resourceManaged).value
     val file = dir / "com" / "twitter" / name.value / "build.properties"
     val buildRev = scala.sys.process.Process("git" :: "rev-parse" :: "HEAD" :: Nil).!!.trim
     val buildName = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date)
@@ -178,18 +181,18 @@ val settingsWithTwoTen =
       scalaVersion := "2.10.7",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      javacOptions in doc := Seq("-source", "1.8")
+      doc / javacOptions := Seq("-source", "1.8")
     )
 
 // settings for projects that are cross compiled with scala 2.10
 val settingsCrossCompiledWithTwoTen =
   sharedSettingsWithoutScalaVersion ++
     Seq(
-      crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.12", "2.13.1"),
+      crossScalaVersions := Seq("2.10.7", "2.12.12", "2.13.1"),
       scalaVersion := "2.12.12",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      javacOptions in doc := Seq("-source", "1.8")
+      doc / javacOptions := Seq("-source", "1.8")
     )
 
 val sharedSettings =
@@ -209,7 +212,7 @@ val sharedSettings =
         "40"
       ),
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      javacOptions in doc := Seq("-source", "1.8")
+      doc / javacOptions := Seq("-source", "1.8")
     )
 
 val jmockSettings = Seq(
@@ -277,8 +280,8 @@ lazy val scroogeGenerator = Project(
         Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2")
       case _ => Nil
     }),
-    test in assembly := {}, // Skip tests when running assembly.
-    mainClass in assembly := Some("com.twitter.scrooge.Main")
+    assembly / test := {}, // Skip tests when running assembly.
+    assembly / mainClass := Some("com.twitter.scrooge.Main")
   )
 
 lazy val scroogeGeneratorTests = Project(
@@ -296,7 +299,7 @@ lazy val scroogeGeneratorTests = Project(
       finagle("thrift") % "test",
       finagle("thriftmux") % "test"
     ),
-    test in assembly := {}, // Skip tests when running assembly.
+    assembly / test := {}, // Skip tests when running assembly.
     publishArtifact := false
   ).dependsOn(scroogeCore, scroogeGenerator)
 
@@ -315,7 +318,7 @@ lazy val scroogeCore = Project(
   )
 
 val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
-  sourceGenerators in Test += ScroogeRunner.genSerializerTestThrift,
+  Test / sourceGenerators += ScroogeRunner.genSerializerTestThrift,
   ScroogeRunner.genSerializerTestThriftTask
 )
 
@@ -359,7 +362,7 @@ lazy val scroogeSbtPlugin = Project(
     settingsWithTwoTen: _*
   ).settings(
     scalaVersion := "2.10.7",
-    crossSbtVersions := Seq("0.13.18", "1.3.10"),
+    crossSbtVersions := Seq("0.13.18", "1.5.3"),
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.twitter",
     sbtPlugin := true,
@@ -380,7 +383,7 @@ lazy val scroogeLinter = Project(
   ).dependsOn(scroogeGenerator)
 
 val benchThriftSettings: Seq[Setting[_]] = Seq(
-  sourceGenerators in Compile += ScroogeRunner.genBenchmarkThrift,
+  Compile / sourceGenerators += ScroogeRunner.genBenchmarkThrift,
   ScroogeRunner.genBenchmarkThriftTask
 )
 
@@ -412,15 +415,15 @@ lazy val scroogeDoc = Project(
   ).settings(
     sharedSettings,
     Seq(
-      scalacOptions in doc ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
-      includeFilter in Sphinx := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
+      doc / scalacOptions ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
+      Sphinx / includeFilter := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
     )
   ).configs(DocTest).settings(
     inConfig(DocTest)(Defaults.testSettings): _*
   ).settings(
-    unmanagedSourceDirectories in DocTest += baseDirectory.value / "src/sphinx/code",
+    DocTest / unmanagedSourceDirectories += baseDirectory.value / "src/sphinx/code",
     // Make the "test" command run both, test and doctest:test
-    test := Seq(test in Test, test in DocTest).dependOn.value
+    test := Seq(Test / test, DocTest / test).dependOn.value
   )
 
 /* Test Configuration for running tests on doc sources */
