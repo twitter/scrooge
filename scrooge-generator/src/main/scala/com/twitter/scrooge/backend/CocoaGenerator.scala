@@ -325,7 +325,7 @@ class CocoaGenerator(
   def getParentFinagleClient(p: ServiceParent): CodeFragment =
     throw new Exception("not implemented")
 
-  private[this] def writeFile(file: File, fileHeader: String, fileContent: String): Unit = {
+  override protected def writeFile(file: File, fileHeader: String, fileContent: String): Unit = {
     val stream = new FileOutputStream(file)
     val writer = new OutputStreamWriter(stream, "UTF-8")
     try {
