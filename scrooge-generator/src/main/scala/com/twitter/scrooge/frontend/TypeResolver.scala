@@ -121,18 +121,21 @@ case class TypeResolver(
     }
   ): TypeResolver = {
     includeMap
-      .getOrElse(includePath, throw new QualifierNotFoundException(includePath, pos))
+      .getOrElse(includePath, throw QualifierNotFoundException(includePath, pos))
       .resolver
   }
 
-  def resolveFieldType(id: Identifier): FieldType = id match {
-    case sid: SimpleID =>
-      typeMap.getOrElse(sid.name, throw new TypeNotFoundException(sid.name, id))
-    case qid: QualifiedID =>
-      qid.names match {
-        case head :+ tail => getResolver(head.mkString("."), qid).resolveFieldType(SimpleID(tail))
-      }
-  }
+  def resolveFieldType(id: Identifier, scopePrefix: Option[Identifier] = None): FieldType =
+    id match {
+      case sid: SimpleID if scopePrefix.isDefined =>
+        getResolver(scopePrefix.get.fullName).resolveFieldType(sid)
+      case sid: SimpleID =>
+        typeMap.getOrElse(sid.name, throw TypeNotFoundException(sid.name, id))
+      case qid: QualifiedID =>
+        qid.names match {
+          case head :+ tail => getResolver(head.mkString("."), qid).resolveFieldType(SimpleID(tail))
+        }
+    }
 
   protected def resolveServiceParent(parent: ServiceParent): Service =
     parent.filename match {
@@ -141,11 +144,11 @@ case class TypeResolver(
     }
 
   private[scrooge] def resolveService(sid: SimpleID): Service =
-    serviceMap.getOrElse(sid.name, throw new UndefinedSymbolException(sid.name, sid))
+    serviceMap.getOrElse(sid.name, throw UndefinedSymbolException(sid.name, sid))
 
   protected def resolveConst(id: Identifier): (FieldType, RHS) = id match {
     case SimpleID(name, _) =>
-      val const = constMap.getOrElse(name, throw new UndefinedConstantException(name, id))
+      val const = constMap.getOrElse(name, throw UndefinedConstantException(name, id))
       (const.fieldType, const.value)
     case qid: QualifiedID =>
       qid.names match {
@@ -261,7 +264,7 @@ case class TypeResolver(
         if (typeMap.contains(s.sid.name)) {
           val fieldType: FieldType = typeMap(s.sid.name)
           if (fieldType != StructType(s, scopePrefix))
-            throw new DuplicatedIdentifierException(
+            throw DuplicatedIdentifierException(
               s"Detected a duplicated identifier [${s.sid.name}] for differing types: Struct, ${typeMap(
                 s.sid.name)}",
               s
@@ -327,7 +330,7 @@ case class TypeResolver(
       fieldType match {
         case ListType(eltType, _) => l.copy(elems = elems.map(e => apply(e, eltType)))
         case SetType(eltType, _) => SetRHS(elems.map(e => apply(e, eltType)).toSet)
-        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + l, c)
+        case _ => throw TypeMismatchException("Expecting " + fieldType + ", found " + l, c)
       }
     case m @ MapRHS(elems) =>
       fieldType match {
@@ -344,7 +347,7 @@ case class TypeResolver(
             case (fieldName: String, values: Seq[(String, RHS)]) if values.length == 1 =>
               values.head
             case (fieldName: String, _: Seq[(String, RHS)]) =>
-              throw new TypeMismatchException(
+              throw TypeMismatchException(
                 s"Duplicate default values for $fieldName found for $fieldType",
                 m
               )
@@ -358,12 +361,12 @@ case class TypeResolver(
                   (field, fieldMap(field.sid.name))
               }
               if (definedFields.isEmpty)
-                throw new UndefinedConstantException(
+                throw UndefinedConstantException(
                   s"Constant value missing for union ${u.originalName}",
                   m
                 )
               if (definedFields.length > 1)
-                throw new UndefinedConstantException(
+                throw UndefinedConstantException(
                   s"Multiple constant values for union ${u.originalName}",
                   m
                 )
@@ -380,12 +383,12 @@ case class TypeResolver(
                   val resolvedRhs = apply(fieldMap(fieldName), field.fieldType)
                   structMap += field -> resolvedRhs
                 } else if (!field.requiredness.isOptional && field.default.isEmpty) {
-                  throw new TypeMismatchException(s"Value required for $fieldName in $fieldType", m)
+                  throw TypeMismatchException(s"Value required for $fieldName in $fieldType", m)
                 }
               }
               StructRHS(sid = st.sid, elems = structMap.result())
           }
-        case _ => throw new TypeMismatchException("Expecting " + fieldType + ", found " + m, m)
+        case _ => throw TypeMismatchException("Expecting " + fieldType + ", found " + m, m)
       }
     case i @ IdRHS(id) =>
       val (constFieldType, constRHS) = id match {
@@ -399,13 +402,13 @@ case class TypeResolver(
               val resolvedFieldType = resolveFieldType(qid.qualifier)
               val value = enum.values
                 .find(_.sid.name == names.last)
-                .getOrElse(throw new UndefinedSymbolException(qid.fullName, qid))
+                .getOrElse(throw UndefinedSymbolException(qid.fullName, qid))
               (resolvedFieldType, EnumRHS(enum, value))
             case t => resolveConst(qid)
           }
       }
       if (constFieldType != fieldType)
-        throw new TypeMismatchException(
+        throw TypeMismatchException(
           s"Type mismatch: Expecting $fieldType, found ${id.fullName}: $constFieldType",
           id
         )
