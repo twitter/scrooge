@@ -11,7 +11,7 @@ Unreleased
 ------
 
 * scrooge-generator: Modify struct field names when they match Java keywords by adding
-an underscore prefix to the field name. ``PHAB_ID=D659870``
+  an underscore prefix to the field name. ``PHAB_ID=D659871``
 
 21.4.0
 ------
