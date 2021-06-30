@@ -112,7 +112,6 @@ val sharedSettingsWithoutScalaVersion = Seq(
   ),
   libraryDependencies ++= Seq(
     "junit" % "junit" % "4.12" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.14.3" % "test",
     "org.scalatest" %% "scalatest" % "3.1.2" % "test",
     "org.scalatestplus" %% "junit-4-12" % "3.1.2.0" % "test",
     "org.scalatestplus" %% "mockito-1-10" % "3.1.0.0" % "test",
@@ -181,7 +180,10 @@ val settingsWithTwoTen =
       scalaVersion := "2.10.7",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      doc / javacOptions := Seq("-source", "1.8")
+      doc / javacOptions := Seq("-source", "1.8"),
+      libraryDependencies ++= Seq(
+        "org.scalacheck" %% "scalacheck" % "1.14.3" % "test"
+      )
     )
 
 // settings for projects that are cross compiled with scala 2.10
@@ -192,7 +194,10 @@ val settingsCrossCompiledWithTwoTen =
       scalaVersion := "2.13.6",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      doc / javacOptions := Seq("-source", "1.8")
+      doc / javacOptions := Seq("-source", "1.8"),
+      libraryDependencies ++= Seq(
+        "org.scalacheck" %% "scalacheck" % "1.14.3" % "test"
+      )
     )
 
 val sharedSettings =
@@ -212,7 +217,10 @@ val sharedSettings =
         "40"
       ),
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      doc / javacOptions := Seq("-source", "1.8")
+      doc / javacOptions := Seq("-source", "1.8"),
+      libraryDependencies ++= Seq(
+        "org.scalacheck" %% "scalacheck" % "1.15.4" % "test"
+      )
     )
 
 val jmockSettings = Seq(
