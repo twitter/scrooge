@@ -10,7 +10,7 @@ Unreleased
 Runtime Behavior Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-* scrooge: Update Scalatest to version 1.15.4. scrooge-sbt-plugin and
+* scrooge: Update ScalaCheck to version 1.15.4. scrooge-sbt-plugin and
   scrooge-generator still use the older version 1.14.3 because they compile
   with Scala 2.10  ``PHAB_ID=D691691``
 
