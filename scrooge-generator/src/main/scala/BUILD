@@ -6,6 +6,7 @@ scala_library(
         name = "scrooge-generator",
         repo = artifactory,
     ),
+    tags = ["bazel-compatible"],
     dependencies = [
         "3rdparty/jvm/com/github/scopt",
         "3rdparty/jvm/com/github/spullara/mustache/java",

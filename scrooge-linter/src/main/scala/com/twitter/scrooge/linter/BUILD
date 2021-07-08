@@ -6,6 +6,7 @@ scala_library(
         name = "scrooge-linter",
         repo = artifactory,
     ),
+    tags = ["bazel-compatible"],
     dependencies = [
         "3rdparty/jvm/com/github/scopt",
         "3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators",

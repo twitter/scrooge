@@ -6,6 +6,7 @@ scala_library(
         name = "scrooge-adaptive",
         repo = artifactory,
     ),
+    tags = ["bazel-compatible"],
     dependencies = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/ow2/asm",
