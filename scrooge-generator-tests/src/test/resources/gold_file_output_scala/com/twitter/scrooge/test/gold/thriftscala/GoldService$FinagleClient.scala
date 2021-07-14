@@ -71,27 +71,8 @@ class GoldService$FinagleClient(
   protected def decodeResponse[T <: _root_.com.twitter.scrooge.ThriftStruct](
     resBytes: Array[Byte],
     codec: _root_.com.twitter.scrooge.ThriftStructCodec[T]
-  ): T = {
-    val iprot = protocolFactory.getProtocol(
-      new org.apache.thrift.transport.TMemoryInputTransport(resBytes)
-    )
-    val msg = iprot.readMessageBegin()
-    try {
-      if (msg.`type` == TMessageType.EXCEPTION) {
-        val exception = TApplicationException.readFrom(iprot)
-        setServiceName(exception)
-        throw exception
-      } else {
-        codec.decode(iprot)
-      }
-    } finally {
-      iprot.readMessageEnd()
-    }
-  }
-
-  protected def setServiceName(ex: Throwable): Throwable = {
-    _root_.com.twitter.finagle.SourcedException.setServiceName(ex, serviceName)
-  }
+  ): _root_.com.twitter.util.Try[T] =
+    _root_.com.twitter.finagle.thrift.service.ThriftCodec.decodeResponse(resBytes, codec, protocolFactory, serviceName)
 
   // ----- end boilerplate.
 
@@ -107,14 +88,15 @@ class GoldService$FinagleClient(
   }
   val doGreatThingsGoldServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] = {
     response: Array[Byte] => {
-      val result: DoGreatThings.Result = decodeResponse(response, DoGreatThings.Result)
-      val firstException = result.firstException()
-      if (firstException.isDefined) {
-        _root_.com.twitter.util.Throw(setServiceName(firstException.get))
-      } else if (result.successField.isDefined) {
-        _root_.com.twitter.util.Return(result.successField.get)
-      } else {
-        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("doGreatThings"))
+      decodeResponse(response, DoGreatThings.Result).flatMap { result: DoGreatThings.Result =>
+        val firstException = result.firstException()
+        if (firstException.isDefined) {
+          _root_.com.twitter.util.Throw(_root_.com.twitter.finagle.SourcedException.setServiceName(firstException.get, serviceName))
+        } else if (result.successField.isDefined) {
+          _root_.com.twitter.util.Return(result.successField.get)
+        } else {
+          _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("doGreatThings"))
+        }
       }
     }
   }
@@ -145,7 +127,7 @@ class GoldService$FinagleClient(
         } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
           __stats_doGreatThings.FailuresCounter.incr()
           if (response.isThrow) {
-            setServiceName(response.throwable)
+            _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
             __stats_doGreatThings.FailuresScope.counter(
               _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
           }
@@ -161,14 +143,15 @@ class GoldService$FinagleClient(
   }
   val noExceptionCallGoldServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[com.twitter.scrooge.test.gold.thriftscala.Response] = {
     response: Array[Byte] => {
-      val result: NoExceptionCall.Result = decodeResponse(response, NoExceptionCall.Result)
-      val firstException = result.firstException()
-      if (firstException.isDefined) {
-        _root_.com.twitter.util.Throw(setServiceName(firstException.get))
-      } else if (result.successField.isDefined) {
-        _root_.com.twitter.util.Return(result.successField.get)
-      } else {
-        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("noExceptionCall"))
+      decodeResponse(response, NoExceptionCall.Result).flatMap { result: NoExceptionCall.Result =>
+        val firstException = result.firstException()
+        if (firstException.isDefined) {
+          _root_.com.twitter.util.Throw(_root_.com.twitter.finagle.SourcedException.setServiceName(firstException.get, serviceName))
+        } else if (result.successField.isDefined) {
+          _root_.com.twitter.util.Return(result.successField.get)
+        } else {
+          _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("noExceptionCall"))
+        }
       }
     }
   }
@@ -199,7 +182,7 @@ class GoldService$FinagleClient(
         } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
           __stats_noExceptionCall.FailuresCounter.incr()
           if (response.isThrow) {
-            setServiceName(response.throwable)
+            _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
             __stats_noExceptionCall.FailuresScope.counter(
               _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
           }

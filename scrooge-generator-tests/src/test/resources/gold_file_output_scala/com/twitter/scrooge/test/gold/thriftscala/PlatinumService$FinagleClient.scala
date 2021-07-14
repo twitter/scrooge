@@ -51,14 +51,15 @@ class PlatinumService$FinagleClient(
   }
   val moreCoolThingsPlatinumServiceReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[Int] = {
     response: Array[Byte] => {
-      val result: MoreCoolThings.Result = decodeResponse(response, MoreCoolThings.Result)
-      val firstException = result.firstException()
-      if (firstException.isDefined) {
-        _root_.com.twitter.util.Throw(setServiceName(firstException.get))
-      } else if (result.successField.isDefined) {
-        _root_.com.twitter.util.Return(result.successField.get)
-      } else {
-        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("moreCoolThings"))
+      decodeResponse(response, MoreCoolThings.Result).flatMap { result: MoreCoolThings.Result =>
+        val firstException = result.firstException()
+        if (firstException.isDefined) {
+          _root_.com.twitter.util.Throw(_root_.com.twitter.finagle.SourcedException.setServiceName(firstException.get, serviceName))
+        } else if (result.successField.isDefined) {
+          _root_.com.twitter.util.Return(result.successField.get)
+        } else {
+          _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("moreCoolThings"))
+        }
       }
     }
   }
@@ -89,7 +90,7 @@ class PlatinumService$FinagleClient(
         } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
           __stats_moreCoolThings.FailuresCounter.incr()
           if (response.isThrow) {
-            setServiceName(response.throwable)
+            _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
             __stats_moreCoolThings.FailuresScope.counter(
               _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
           }

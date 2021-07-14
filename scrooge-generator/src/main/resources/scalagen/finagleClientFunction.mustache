@@ -7,14 +7,15 @@ private[this] object {{__stats_name}} {
 {{#functionInfo}}
 val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _root_.com.twitter.util.Try[{{typeName}}] = {
   response: Array[Byte] => {
-    val result: {{funcObjectName}}.Result = decodeResponse(response, {{funcObjectName}}.Result)
-    val firstException = result.firstException()
-    if (firstException.isDefined) {
-      _root_.com.twitter.util.Throw(setServiceName(firstException.get))
-    } else if (result.successField.isDefined) {
-      _root_.com.twitter.util.Return(result.successField.get)
-    } else {
-      _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("{{clientFuncNameForWire}}"))
+    decodeResponse(response, {{funcObjectName}}.Result).flatMap { result: {{funcObjectName}}.Result =>
+      val firstException = result.firstException()
+      if (firstException.isDefined) {
+        _root_.com.twitter.util.Throw(_root_.com.twitter.finagle.SourcedException.setServiceName(firstException.get, serviceName))
+      } else if (result.successField.isDefined) {
+        _root_.com.twitter.util.Return(result.successField.get)
+      } else {
+        _root_.com.twitter.util.Throw(_root_.com.twitter.scrooge.internal.ApplicationExceptions.missingResult("{{clientFuncNameForWire}}"))
+      }
     }
   }
 }
@@ -44,7 +45,7 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
       } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
         {{__stats_name}}.FailuresCounter.incr()
         if (response.isThrow) {
-          setServiceName(response.throwable)
+          _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
           {{__stats_name}}.FailuresScope.counter(
             _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
         }

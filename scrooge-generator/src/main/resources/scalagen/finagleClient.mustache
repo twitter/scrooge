@@ -72,27 +72,8 @@ class {{ServiceName}}$FinagleClient(
   protected def decodeResponse[T <: _root_.com.twitter.scrooge.ThriftStruct](
     resBytes: Array[Byte],
     codec: _root_.com.twitter.scrooge.ThriftStructCodec[T]
-  ): T = {
-    val iprot = protocolFactory.getProtocol(
-      new org.apache.thrift.transport.TMemoryInputTransport(resBytes)
-    )
-    val msg = iprot.readMessageBegin()
-    try {
-      if (msg.`type` == TMessageType.EXCEPTION) {
-        val exception = TApplicationException.readFrom(iprot)
-        setServiceName(exception)
-        throw exception
-      } else {
-        codec.decode(iprot)
-      }
-    } finally {
-      iprot.readMessageEnd()
-    }
-  }
-
-  protected def setServiceName(ex: Throwable): Throwable = {
-    _root_.com.twitter.finagle.SourcedException.setServiceName(ex, serviceName)
-  }
+  ): _root_.com.twitter.util.Try[T] =
+    _root_.com.twitter.finagle.thrift.service.ThriftCodec.decodeResponse(resBytes, codec, protocolFactory, serviceName)
 
   // ----- end boilerplate.
 
