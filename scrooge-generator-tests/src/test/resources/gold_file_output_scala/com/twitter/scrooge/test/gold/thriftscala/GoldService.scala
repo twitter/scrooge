@@ -423,7 +423,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           request
         )
     
-      def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
+      def unapply(_item: Args): _root_.scala.Some[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
     
     
     
@@ -688,7 +688,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           ex
         )
     
-      def unapply(_item: Result): _root_.scala.Option[_root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
+      def unapply(_item: Result): _root_.scala.Some[_root_.scala.Tuple2[Option[com.twitter.scrooge.test.gold.thriftscala.Response], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
     
     
     
@@ -969,7 +969,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           request
         )
     
-      def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
+      def unapply(_item: Args): _root_.scala.Some[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
     
     
     
@@ -1196,7 +1196,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           success
         )
     
-      def unapply(_item: Result): _root_.scala.Option[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]] = _root_.scala.Some(_item.success)
+      def unapply(_item: Result): _root_.scala.Some[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]] = _root_.scala.Some(_item.success)
     
     
     

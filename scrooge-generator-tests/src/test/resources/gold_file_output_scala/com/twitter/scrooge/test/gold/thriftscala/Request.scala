@@ -810,7 +810,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       anInt8
     )
 
-  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Request): _root_.scala.Some[_root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]]] = _root_.scala.Some(_item.toTuple)
 
 
   private[thriftscala] def readAListValue(_iprot: TProtocol): _root_.scala.collection.Seq[String] = {

@@ -258,7 +258,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
       recRequest
     )
 
-  def unapply(_item: Recursive): _root_.scala.Option[_root_.scala.Tuple2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Recursive): _root_.scala.Some[_root_.scala.Tuple2[Long, Option[com.twitter.scrooge.test.gold.thriftscala.Request]]] = _root_.scala.Some(_item.toTuple)
 
 
 
