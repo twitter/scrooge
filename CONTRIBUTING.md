@@ -35,6 +35,11 @@ If you have any questions or run into any problems, please create
 an issue here, chat with us in [gitter](https://gitter.im/twitter/finagle), or email
 the Finaglers [mailing list](https://groups.google.com/forum/#!forum/finaglers).
 
+### 3rd party upgrades
+
+We upgrade the following 3rd party libraries/tools at least once every 3 months:
+* [sbt](https://github.com/sbt/sbt)
+
 ## Workflow
 
 The workflow that we support:
