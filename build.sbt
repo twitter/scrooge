@@ -321,7 +321,8 @@ lazy val scroogeCore = Project(
     libraryDependencies ++= Seq(
       "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
       "javax.annotation" % "javax.annotation-api" % "1.3.2",
-      util("core")
+      util("core"),
+      util("validator")
     )
   )
 

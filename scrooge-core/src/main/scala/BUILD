@@ -11,6 +11,7 @@ scala_library(
         "3rdparty/jvm/javax/annotation:javax.annotation-api",
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "util/util-core:scala",
+        "util/util-validator/src/main/scala/com/twitter/util/validation",
     ],
     exports = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
