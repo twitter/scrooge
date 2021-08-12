@@ -9,8 +9,7 @@ import java.lang.annotation.Annotation
 import org.hibernate.validator.constraints._
 import scala.collection.mutable
 
-// making it private for now
-private[scrooge] object ThriftValidator {
+object ThriftValidator {
 
   private case class ConstraintMetadata(
     annotationType: Class[_ <: Annotation],
@@ -110,8 +109,7 @@ private[scrooge] object ThriftValidator {
  *                                  from [[customAnnotations]] is
  *                                  already defined by the framework.
  */
-// making it private for now
-private[scrooge] class ThriftValidator(
+class ThriftValidator(
   customAnnotations: Map[String, ThriftConstraintValidator[_, _]],
   underlying: ScalaValidator) {
 

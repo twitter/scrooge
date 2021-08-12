@@ -169,6 +169,20 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
     buf.toList
   }
 
+  /**
+   * Validate that all validation annotations on the struct meet the criteria defined in the
+   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   */
+  def validateInstanceValue(item: {{StructName}}): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
+    val thriftValidator = com.twitter.scrooge.ThriftValidator()
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
+{{#fields}}
+    val fieldInfo{{index}} = fieldInfos.apply({{index}})
+    violations ++= validateFieldValue(fieldInfo{{index}}.tfield.name, item.{{fieldName}}, fieldInfo{{index}}.fieldAnnotations, thriftValidator)
+{{/fields}}
+    violations.toSet
+  }
+
   def withoutPassthroughFields(original: {{StructName}}): {{StructName}} =
     new {{InstanceClassName}}(
 {{#fields}}

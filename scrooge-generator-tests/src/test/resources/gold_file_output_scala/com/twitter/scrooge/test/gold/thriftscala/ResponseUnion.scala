@@ -260,4 +260,17 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
   ): scala.Seq[com.twitter.scrooge.validation.Issue] = {
     validateField(item.containedValue())
   }
+
+  /**
+   * Validate that all validation annotations on the struct meet the criteria defined in the
+   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   */
+  override def validateInstanceValue(item: ResponseUnion): Set[com.twitter.scrooge.validation.ThriftValidationViolation] =
+    item.unionStructFieldInfo match {
+      case _root_.scala.Some(fieldInfo) =>
+        val thriftValidator = com.twitter.scrooge.ThriftValidator()
+        validateFieldValue(fieldInfo.tfield.name, item.containedValue(), fieldInfo.fieldAnnotations, thriftValidator)
+      case _ =>
+        Set.empty
+    }
 }

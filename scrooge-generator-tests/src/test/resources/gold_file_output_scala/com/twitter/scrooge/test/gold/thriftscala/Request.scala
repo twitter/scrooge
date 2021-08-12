@@ -419,6 +419,46 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     buf.toList
   }
 
+  /**
+   * Validate that all validation annotations on the struct meet the criteria defined in the
+   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   */
+  def validateInstanceValue(item: Request): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
+    val thriftValidator = com.twitter.scrooge.ThriftValidator()
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
+    val fieldInfo0 = fieldInfos.apply(0)
+    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.aList, fieldInfo0.fieldAnnotations, thriftValidator)
+    val fieldInfo1 = fieldInfos.apply(1)
+    violations ++= validateFieldValue(fieldInfo1.tfield.name, item.aSet, fieldInfo1.fieldAnnotations, thriftValidator)
+    val fieldInfo2 = fieldInfos.apply(2)
+    violations ++= validateFieldValue(fieldInfo2.tfield.name, item.aMap, fieldInfo2.fieldAnnotations, thriftValidator)
+    val fieldInfo3 = fieldInfos.apply(3)
+    violations ++= validateFieldValue(fieldInfo3.tfield.name, item.aRequest, fieldInfo3.fieldAnnotations, thriftValidator)
+    val fieldInfo4 = fieldInfos.apply(4)
+    violations ++= validateFieldValue(fieldInfo4.tfield.name, item.subRequests, fieldInfo4.fieldAnnotations, thriftValidator)
+    val fieldInfo5 = fieldInfos.apply(5)
+    violations ++= validateFieldValue(fieldInfo5.tfield.name, item.default, fieldInfo5.fieldAnnotations, thriftValidator)
+    val fieldInfo6 = fieldInfos.apply(6)
+    violations ++= validateFieldValue(fieldInfo6.tfield.name, item.noComment, fieldInfo6.fieldAnnotations, thriftValidator)
+    val fieldInfo7 = fieldInfos.apply(7)
+    violations ++= validateFieldValue(fieldInfo7.tfield.name, item.doubleSlashComment, fieldInfo7.fieldAnnotations, thriftValidator)
+    val fieldInfo8 = fieldInfos.apply(8)
+    violations ++= validateFieldValue(fieldInfo8.tfield.name, item.hashtagComment, fieldInfo8.fieldAnnotations, thriftValidator)
+    val fieldInfo9 = fieldInfos.apply(9)
+    violations ++= validateFieldValue(fieldInfo9.tfield.name, item.singleAsteriskComment, fieldInfo9.fieldAnnotations, thriftValidator)
+    val fieldInfo10 = fieldInfos.apply(10)
+    violations ++= validateFieldValue(fieldInfo10.tfield.name, item.docStringComment, fieldInfo10.fieldAnnotations, thriftValidator)
+    val fieldInfo11 = fieldInfos.apply(11)
+    violations ++= validateFieldValue(fieldInfo11.tfield.name, item.recRequest, fieldInfo11.fieldAnnotations, thriftValidator)
+    val fieldInfo12 = fieldInfos.apply(12)
+    violations ++= validateFieldValue(fieldInfo12.tfield.name, item.requiredField, fieldInfo12.fieldAnnotations, thriftValidator)
+    val fieldInfo13 = fieldInfos.apply(13)
+    violations ++= validateFieldValue(fieldInfo13.tfield.name, item.constructionRequiredField, fieldInfo13.fieldAnnotations, thriftValidator)
+    val fieldInfo14 = fieldInfos.apply(14)
+    violations ++= validateFieldValue(fieldInfo14.tfield.name, item.anInt8, fieldInfo14.fieldAnnotations, thriftValidator)
+    violations.toSet
+  }
+
   def withoutPassthroughFields(original: Request): Request =
     new Immutable(
       aList = original.aList,

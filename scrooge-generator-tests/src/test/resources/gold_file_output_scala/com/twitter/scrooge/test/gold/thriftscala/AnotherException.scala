@@ -88,6 +88,18 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
     buf.toList
   }
 
+  /**
+   * Validate that all validation annotations on the struct meet the criteria defined in the
+   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   */
+  def validateInstanceValue(item: AnotherException): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
+    val thriftValidator = com.twitter.scrooge.ThriftValidator()
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
+    val fieldInfo0 = fieldInfos.apply(0)
+    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.errorCode, fieldInfo0.fieldAnnotations, thriftValidator)
+    violations.toSet
+  }
+
   def withoutPassthroughFields(original: AnotherException): AnotherException =
     new AnotherException(
       errorCode = original.errorCode

@@ -115,6 +115,20 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     buf.toList
   }
 
+  /**
+   * Validate that all validation annotations on the struct meet the criteria defined in the
+   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   */
+  def validateInstanceValue(item: Response): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
+    val thriftValidator = com.twitter.scrooge.ThriftValidator()
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
+    val fieldInfo0 = fieldInfos.apply(0)
+    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.statusCode, fieldInfo0.fieldAnnotations, thriftValidator)
+    val fieldInfo1 = fieldInfos.apply(1)
+    violations ++= validateFieldValue(fieldInfo1.tfield.name, item.responseUnion, fieldInfo1.fieldAnnotations, thriftValidator)
+    violations.toSet
+  }
+
   def withoutPassthroughFields(original: Response): Response =
     new Immutable(
       statusCode = original.statusCode,
