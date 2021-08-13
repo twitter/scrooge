@@ -7,20 +7,15 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
-21.8.0
-------
-
-No Changes
-
-21.7.0 (No Release)
--------------------
+21.8.0 (No 21.7.0 Release)
+--------------------------
 
 Runtime Behavior Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 * scrooge: Update ScalaCheck to version 1.15.4. scrooge-sbt-plugin and
   scrooge-generator still use the older version 1.14.3 because they compile
-  with Scala 2.10  ``PHAB_ID=D691691``
+  with Scala 2.10.  ``PHAB_ID=D691691``
 
 21.6.0
 ------
