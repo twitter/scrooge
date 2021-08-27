@@ -27,6 +27,8 @@ import org.apache.thrift.protocol.*;
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.ThriftValidator;
+import com.twitter.scrooge.validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -199,6 +201,13 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
     final List<String> buf = new ArrayList<String>();
 
     return buf;
+  }
+
+  public static Set<ThriftValidationViolation> validateInstanceValue(AnotherException item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+
+    return violations;
   }
 
   public AnotherException deepCopy() {

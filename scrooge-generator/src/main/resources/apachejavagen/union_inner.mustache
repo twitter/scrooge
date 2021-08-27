@@ -28,7 +28,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
 {{#field_type.has_struct_at_leaf}}
 {{#consolidate_newlines}}
       if ({{key}} == thriftFieldId && (item.isSet(_Fields.{{#constant_name}}{{name}}{{/constant_name}}))) {
-        {{{field_type.type_name_in_container}}} _{{name}} = ({{{field_type.type_name_in_container}}})item.getFieldValue();;
+        {{{field_type.type_name_in_container}}} _{{name}} = ({{{field_type.type_name_in_container}}})item.getFieldValue();
 {{#field_type.is_container}}
         {{{generate_deep_validate_container}}}
 {{/field_type.is_container}}
@@ -44,6 +44,23 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
       buf.add("No fields set for union type '{{struct_type_name}}'.");
     }
     return buf;
+  }
+
+  public static Set<ThriftValidationViolation> validateInstanceValue({{name}} item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+
+    _Fields field = item.getSetField();
+    Map<String, String> annotations = fieldAnnotations.get(field);
+    if (annotations != null) {
+      violations.addAll(thriftValidator.validateField(field.getFieldName(), item.getFieldValue(), annotations));
+    }
+{{#field_type.is_struct}}
+{{!Use a fully qualified name here in case there is a field with the same name as this type}}
+    violations.addAll({{{field_type.qualified_type_name}}}.validateInstanceValue(field{{name}}));
+{{/field_type.is_struct}}
+
+    return violations;
   }
 
   public {{name}} deepCopy() {

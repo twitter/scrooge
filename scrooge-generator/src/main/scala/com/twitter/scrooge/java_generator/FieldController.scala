@@ -12,6 +12,7 @@ class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Ident
   val optional: Boolean = f.requiredness.isOptional
   val required: Boolean = f.requiredness.isRequired
   val constructionRequired: Boolean = Generator.isConstructionRequiredField(f)
+  val has_annotations: Boolean = f.fieldAnnotations.nonEmpty
 
   val field_type: FieldTypeController = new FieldTypeController(f.fieldType, generator)
 

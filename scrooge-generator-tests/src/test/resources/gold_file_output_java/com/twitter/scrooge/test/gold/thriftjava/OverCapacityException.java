@@ -27,6 +27,8 @@ import org.apache.thrift.protocol.*;
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.ThriftValidator;
+import com.twitter.scrooge.validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -207,6 +209,14 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
     final List<String> buf = new ArrayList<String>();
 
     return buf;
+  }
+
+  public static Set<ThriftValidationViolation> validateInstanceValue(OverCapacityException item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    violations.addAll(thriftValidator.validateField("chillTimeSeconds", item.chillTimeSeconds, fieldAnnotations.get(_Fields.CHILL_TIME_SECONDS)));
+
+    return violations;
   }
 
   public OverCapacityException deepCopy() {

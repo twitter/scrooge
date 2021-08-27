@@ -8,6 +8,7 @@ import jakarta.validation.constraints._
 import java.lang.annotation.Annotation
 import org.hibernate.validator.constraints._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 object ThriftValidator {
 
@@ -140,6 +141,9 @@ class ThriftValidator(
    * @return A set of [[ThriftValidationViolation]]s for violated
    *         constraints. Return an empty set if all validations
    *         passed.
+   * @note See a Java-friendly version of [[validateField]] that takes
+   *       fieldAnnotations as a [[java.util.Map]], and return a set of
+   *       [[ThriftValidationViolation]]s as [[java.util.Set]].
    */
   def validateField[T](
     fieldName: String,
@@ -150,6 +154,19 @@ class ThriftValidator(
       fieldAnnotations.partition { case (k, _) => DefaultConstraints.contains(k) }
     validateDefaultConstraints[T](fieldName, fieldValue, defaultAnnotations) ++
       validateCustomConstraints[T](fieldName, fieldValue, customAnnotations)
+  }
+
+  /**
+   * A Java-friendly version of [[validateField]], that takes fieldAnnotations
+   * as a [[java.util.Map]], and return a set of [[ThriftValidationViolation]]s
+   * as [[java.util.Set]].
+   */
+  def validateField[T](
+    fieldName: String,
+    fieldValue: T,
+    fieldAnnotations: java.util.Map[String, String]
+  ): java.util.Set[ThriftValidationViolation] = {
+    validateField(fieldName, fieldValue, fieldAnnotations.asScala.toMap).asJava
   }
 
   // For default constraint validations, we invoke ScalaValidator.validateFieldValue

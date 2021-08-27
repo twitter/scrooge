@@ -154,6 +154,24 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
     return buf;
   }
 
+  public static Set<ThriftValidationViolation> validateInstanceValue({{name}} item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+{{#fields}}
+{{#field.has_annotations}}
+    violations.addAll(thriftValidator.validateField("{{name}}", item.{{name}}, fieldAnnotations.get(_Fields.{{#constant_name}}{{name}}{{/constant_name}})));
+{{/field.has_annotations}}
+{{#consolidate_newlines}}
+{{#field_type.is_struct}}
+{{!Use a fully qualified name here in case there is a field with the same name as this type}}
+    violations.addAll({{{field_type.qualified_type_name}}}.validateInstanceValue(item.{{name}}));
+{{/field_type.is_struct}}
+{{/consolidate_newlines}}
+{{/fields}}
+
+    return violations;
+  }
+
   public {{name}} deepCopy() {
     return new {{name}}(this);
   }

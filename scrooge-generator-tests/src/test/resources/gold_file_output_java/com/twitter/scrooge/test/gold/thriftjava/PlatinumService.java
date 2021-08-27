@@ -26,10 +26,12 @@ import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftMethodIface;
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.ThriftValidator;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
+import com.twitter.scrooge.validation.ThriftValidationViolation;
 import com.twitter.util.ConstFuture;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
@@ -718,6 +720,14 @@ public class PlatinumService {
     return buf;
   }
 
+  public static Set<ThriftValidationViolation> validateInstanceValue(moreCoolThings_args item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateInstanceValue(item.request));
+
+    return violations;
+  }
+
   public moreCoolThings_args deepCopy() {
     return new moreCoolThings_args(this);
   }
@@ -1114,6 +1124,15 @@ public class PlatinumService {
     }
 
     return buf;
+  }
+
+  public static Set<ThriftValidationViolation> validateInstanceValue(moreCoolThings_result item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    violations.addAll(com.twitter.scrooge.test.gold.thriftjava.AnotherException.validateInstanceValue(item.ax));
+    violations.addAll(com.twitter.scrooge.test.gold.thriftjava.OverCapacityException.validateInstanceValue(item.oce));
+
+    return violations;
   }
 
   public moreCoolThings_result deepCopy() {

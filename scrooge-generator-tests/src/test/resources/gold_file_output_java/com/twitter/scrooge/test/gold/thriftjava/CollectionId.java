@@ -25,6 +25,8 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.ThriftValidator;
+import com.twitter.scrooge.validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -186,6 +188,13 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
     }
 
     return buf;
+  }
+
+  public static Set<ThriftValidationViolation> validateInstanceValue(CollectionId item) {
+    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+
+    return violations;
   }
 
   public CollectionId deepCopy() {
