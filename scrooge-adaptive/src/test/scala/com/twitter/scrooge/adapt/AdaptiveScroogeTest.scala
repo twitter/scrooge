@@ -66,7 +66,7 @@ class AdaptiveScroogeTest extends AnyPropSpec with Checkers {
       Accessor("Required field named using reserved word") { _.`type` }
 
     val OptionalReservedWordFieldAccess: Accessor[TestStruct] =
-      Accessor("Optional field named using reserved word") { _.`class` }
+      Accessor("Optional field named using reserved word") { _.`clazz` }
 
     val OptionalWithDefaultFieldAccess: Accessor[TestStruct] =
       Accessor("Optional field with default value") {
@@ -107,7 +107,7 @@ class AdaptiveScroogeTest extends AnyPropSpec with Checkers {
       Accessor("Nested required struct named using reserved word") { _.`type` }
 
     val OptionalReservedWordFieldAccess: Accessor[TestNestedStruct] =
-      Accessor("Nested optional struct named using reserved word") { _.`class` }
+      Accessor("Nested optional struct named using reserved word") { _.`clazz` }
 
     val All = List(
       RequiredFieldAccess,

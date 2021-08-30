@@ -15,7 +15,7 @@ struct TestStruct {
   12: required map<bool,bool> mapField;
   13: required i64 annotatedId (test.space = "User", test.name = "annotated" );
   14: required string type;
-  15: optional string class;
+  15: optional string clazz;
   16: optional string optionalField2;
   17: optional string optionalFieldWithDefaultValue = "default_value";
 
@@ -27,7 +27,7 @@ struct TestStruct {
 struct TestNestedStruct {
   1: required TestStruct field;
   2: required TestStruct type;
-  3: optional TestStruct class;
+  3: optional TestStruct clazz;
   4: optional TestStruct optionalField;
   5: required list<TestStruct> seqField;
   6: required set<TestStruct> setField;

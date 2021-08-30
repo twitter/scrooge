@@ -1310,8 +1310,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "generate inherited services correctly" in { _ =>
       val dddService = Ddd.ServicePerEndpoint(
-        delete = new Service[Ddd.Delete.Args, Ddd.Delete.SuccessType] {
-          def apply(args: Ddd.Delete.Args) = Future.value(args.input)
+        remove = new Service[Ddd.Remove.Args, Ddd.Remove.SuccessType] {
+          def apply(args: Ddd.Remove.Args) = Future.value(args.input)
         },
         iiii = new Service[CccExtended.Iiii.Args, CccExtended.Iiii.SuccessType] {
           def apply(args: CccExtended.Iiii.Args) = Future.value(345)
@@ -1332,8 +1332,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "generate inherited services with ServicePerEndpoint correctly" in { _ =>
       val dddService = Ddd.ServicePerEndpoint(
-        delete = new Service[Ddd.Delete.Args, Ddd.Delete.SuccessType] {
-          def apply(args: Ddd.Delete.Args) = Future.value(args.input)
+        remove = new Service[Ddd.Remove.Args, Ddd.Remove.SuccessType] {
+          def apply(args: Ddd.Remove.Args) = Future.value(args.input)
         },
         iiii = new Service[CccExtended.Iiii.Args, CccExtended.Iiii.SuccessType] {
           def apply(args: CccExtended.Iiii.Args) = Future.value(345)
@@ -1354,8 +1354,8 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "generate inherited services with ReqRepServicePerEndpoint correctly" in { _ =>
       val dddService = Ddd.ReqRepServicePerEndpoint(
-        delete = new Service[Request[Ddd.Delete.Args], Response[Ddd.Delete.SuccessType]] {
-          def apply(request: Request[Ddd.Delete.Args]) = Future.value(Response(request.args.input))
+        remove = new Service[Request[Ddd.Remove.Args], Response[Ddd.Remove.SuccessType]] {
+          def apply(request: Request[Ddd.Remove.Args]) = Future.value(Response(request.args.input))
         },
         iiii = new Service[Request[CccExtended.Iiii.Args], Response[CccExtended.Iiii.SuccessType]] {
           def apply(request: Request[CccExtended.Iiii.Args]) = Future.value(Response(345))

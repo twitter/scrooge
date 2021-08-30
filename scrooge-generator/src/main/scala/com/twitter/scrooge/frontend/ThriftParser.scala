@@ -100,39 +100,9 @@ class ThriftParser(
   val identifierRegex: Regex = "[A-Za-z_][A-Za-z0-9\\._]*".r
   lazy val identifier: Parser[Identifier] = positioned(identifierRegex ^^ { x => Identifier(x) })
 
-  private[this] val thriftKeywords = Set[String](
-    "async",
-    "const",
-    "enum",
-    "exception",
-    "extends",
-    "include",
-    "namespace",
-    "optional",
-    "required",
-    "service",
-    "struct",
-    "throws",
-    "typedef",
-    "union",
-    "void",
-    // Built-in types are also keywords.
-    "binary",
-    "bool",
-    "byte",
-    "double",
-    "i16",
-    "i32",
-    "i64",
-    "list",
-    "map",
-    "set",
-    "string"
-  )
-
   lazy val simpleIDRegex: Regex = "[A-Za-z_][A-Za-z0-9_]*".r
   lazy val simpleID: Parser[SimpleID] = positioned(simpleIDRegex ^^ { x =>
-    if (thriftKeywords.contains(x))
+    if (ThriftKeywords.contains(x))
       failOrWarn(new KeywordException(x))
 
     SimpleID(x)

@@ -103,7 +103,7 @@ enum NamespaceCollisions
   Iterable,
   Unit,
   Nothing,
-  protected
+  Protected
 }
 
 /** doc, ignored */

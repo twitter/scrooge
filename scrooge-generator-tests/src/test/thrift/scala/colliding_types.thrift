@@ -6,20 +6,20 @@ struct Result {
   1: bool success
 }
 
-struct Args {
+struct Args_ {
   1: bool success
 }
 
 service MyService {
   Result getMethod()
   i32 setMethod(1: Result result)
-  Args anotherMethod(1: Args a)
+  Args_ anotherMethod(1: Args_ a)
 }
 
 
 service ServiceWithCollections {
-  list<Result> query(Args args)
-  map<Args, list<Result>> nested()
-  set<Result> moreNested(set<list<Args>> args)
+  list<Result> query(Args_ a)
+  map<Args_, list<Result>> nested()
+  set<Result> moreNested(set<list<Args_>> a)
 }
 

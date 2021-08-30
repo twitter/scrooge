@@ -4,5 +4,5 @@ namespace java inheritance.thriftjava.ddd
 include "ccc.thrift"
 
 service Ddd extends ccc.CccExtended {
-  i32 delete(i32 input)
+  i32 remove(i32 input)
 }

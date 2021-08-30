@@ -6,13 +6,13 @@ union Result {
   i32 errorCode
 }
 
-union Args {
+union Args_ {
   i32 why
-  i64 not
+  i64 why_not
 }
 
 service ServiceWithCollections {
-  list<Result> query(Args args)
-  map<Args, list<Result>> nested()
-  set<Result> moreNested(set<list<Args>> args)
+  list<Result> query(Args_ a)
+  map<Args_, list<Result>> nested()
+  set<Result> moreNested(set<list<Args_>> a)
 }

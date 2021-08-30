@@ -7,6 +7,13 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+Breaking API Changes
+~~~~~~~~~~~~~~~~~~~~
+
+* scrooge-generator: Add reserved keywords to ThriftParser. If your field names match
+these keywords, you may need to modify them. This change should not affect backwards 
+and forwards compatiblility if using binary protocol for serde. ``PHAB_ID=D707116`` 
+
 21.8.0 (No 21.7.0 Release)
 --------------------------
 

@@ -8,7 +8,7 @@ class NamingConventionSpec extends Spec {
     "follow naming conventions" in {
       import thrift.`def`.default._
       Constants.`val` must be(10)
-      Constants.`try` must be(123)
+      Constants.`_try` must be(123)
 
       val naughty = Naughty("car", 100)
       naughty.`type` must be("car")
