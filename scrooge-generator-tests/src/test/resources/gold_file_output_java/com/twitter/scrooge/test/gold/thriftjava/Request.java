@@ -285,7 +285,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public static final Set<_Fields> hasDefaultValue;
   static {
     Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
-    tmp.add(_Fields.DEFAULT);
+    tmp.add(_Fields._DEFAULT);
     hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 

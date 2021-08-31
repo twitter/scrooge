@@ -45,8 +45,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
   val ARequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
   val SubRequestsField: TField = new TField("subRequests", TType.LIST, 5)
   val SubRequestsFieldManifest: Manifest[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]] = manifest[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]]
-  val DefaultField: TField = new TField("default", TType.STRING, 6)
-  val DefaultFieldManifest: Manifest[String] = manifest[String]
+  val _DefaultField: TField = new TField("_default", TType.STRING, 6)
+  val _DefaultFieldManifest: Manifest[String] = manifest[String]
   val NoCommentField: TField = new TField("noComment", TType.I64, 7)
   val NoCommentFieldManifest: Manifest[Long] = manifest[Long]
   val DoubleSlashCommentField: TField = new TField("doubleSlashComment", TType.I64, 8)
@@ -131,10 +131,10 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.Option(_root_.scala.collection.immutable.Nil)
     ),
     new ThriftStructFieldInfo(
-      DefaultField,
+      _DefaultField,
       false,
       false,
-      DefaultFieldManifest,
+      _DefaultFieldManifest,
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
@@ -317,10 +317,10 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         def getValue[R](struct: Request): R = struct.subRequests.asInstanceOf[R]
     },
     new ThriftStructField[Request](
-      DefaultField,
-      _root_.scala.Some(DefaultFieldManifest),
+      _DefaultField,
+      _root_.scala.Some(_DefaultFieldManifest),
       classOf[Request]) {
-        def getValue[R](struct: Request): R = struct.default.asInstanceOf[R]
+        def getValue[R](struct: Request): R = struct._default.asInstanceOf[R]
     },
     new ThriftStructField[Request](
       NoCommentField,
@@ -400,7 +400,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     buf ++= validateField(item.aMap)
     buf ++= validateField(item.aRequest)
     buf ++= validateField(item.subRequests)
-    buf ++= validateField(item.default)
+    buf ++= validateField(item._default)
     buf ++= validateField(item.noComment)
     buf ++= validateField(item.doubleSlashComment)
     buf ++= validateField(item.hashtagComment)
@@ -437,7 +437,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     val fieldInfo4 = fieldInfos.apply(4)
     violations ++= validateFieldValue(fieldInfo4.tfield.name, item.subRequests, fieldInfo4.fieldAnnotations, thriftValidator)
     val fieldInfo5 = fieldInfos.apply(5)
-    violations ++= validateFieldValue(fieldInfo5.tfield.name, item.default, fieldInfo5.fieldAnnotations, thriftValidator)
+    violations ++= validateFieldValue(fieldInfo5.tfield.name, item._default, fieldInfo5.fieldAnnotations, thriftValidator)
     val fieldInfo6 = fieldInfos.apply(6)
     violations ++= validateFieldValue(fieldInfo6.tfield.name, item.noComment, fieldInfo6.fieldAnnotations, thriftValidator)
     val fieldInfo7 = fieldInfos.apply(7)
@@ -478,7 +478,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
             com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
           }
         },
-      default = original.default,
+      _default = original._default,
       noComment = original.noComment,
       doubleSlashComment = original.doubleSlashComment,
       hashtagComment = original.hashtagComment,
@@ -502,7 +502,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     val aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
     val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
     val subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
-    val default: String = "the_default"
+    val _default: String = "the_default"
     val noComment: _root_.scala.Option[Long] = _root_.scala.None
     val doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None
     val hashtagComment: _root_.scala.Option[Long] = _root_.scala.None
@@ -519,7 +519,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -585,9 +585,9 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       accessRecorder.fieldAccessed(5)
       underlying.subRequests
     }
-    override def default: String = {
+    override def _default: String = {
       accessRecorder.fieldAccessed(6)
-      underlying.default
+      underlying._default
     }
     override def noComment: _root_.scala.Option[Long] = {
       accessRecorder.fieldAccessed(7)
@@ -650,8 +650,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
     var aRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Request] = None
     var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
-    var defaultOffset: Int = -1
-    var default: String = "the_default"
+    var _defaultOffset: Int = -1
+    var _default: String = "the_default"
     var noCommentOffset: Int = -1
     var noComment: Option[Long] = None
     var doubleSlashCommentOffset: Int = -1
@@ -699,11 +699,11 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
             _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.LIST, _fieldType, "subRequests")
             subRequests = readSubRequestsValue(_iprot)
           case 6 =>
-            _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRING, _fieldType, "default")
+            _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRING, _fieldType, "_default")
             if (lazily)
-              defaultOffset = _iprot.asInstanceOf[LazyTProtocol].offsetSkipString()
+              _defaultOffset = _iprot.asInstanceOf[LazyTProtocol].offsetSkipString()
             else
-              default = _iprot.readString()
+              _default = _iprot.readString()
           case 7 =>
             _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.I64, _fieldType, "noComment")
             if (lazily)
@@ -781,7 +781,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         aMap,
         aRequest,
         subRequests,
-        defaultOffset,
+        _defaultOffset,
         noCommentOffset,
         doubleSlashCommentOffset,
         hashtagCommentOffset,
@@ -800,7 +800,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         aMap,
         aRequest,
         subRequests,
-        default,
+        _default,
         noComment,
         doubleSlashComment,
         hashtagComment,
@@ -821,7 +821,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty,
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
     subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil,
-    default: String = "the_default",
+    _default: String = "the_default",
     noComment: _root_.scala.Option[Long] = _root_.scala.None,
     doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
     hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
@@ -838,7 +838,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -903,7 +903,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       val aMap: _root_.scala.collection.Map[Long, Long],
       val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       val subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
-      val default: String,
+      val _default: String,
       val noComment: _root_.scala.Option[Long],
       val doubleSlashComment: _root_.scala.Option[Long],
       val hashtagComment: _root_.scala.Option[Long],
@@ -921,7 +921,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap: _root_.scala.collection.Map[Long, Long],
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
-      default: String,
+      _default: String,
       noComment: _root_.scala.Option[Long],
       doubleSlashComment: _root_.scala.Option[Long],
       hashtagComment: _root_.scala.Option[Long],
@@ -937,7 +937,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -955,7 +955,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty,
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
       subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil,
-      default: String = "the_default",
+      _default: String = "the_default",
       noComment: _root_.scala.Option[Long] = _root_.scala.None,
       doubleSlashComment: _root_.scala.Option[Long] = _root_.scala.None,
       hashtagComment: _root_.scala.Option[Long] = _root_.scala.None,
@@ -971,7 +971,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -989,7 +989,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap: _root_.scala.collection.Map[Long, Long],
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
-      default: String,
+      _default: String,
       noComment: _root_.scala.Option[Long],
       doubleSlashComment: _root_.scala.Option[Long],
       hashtagComment: _root_.scala.Option[Long],
@@ -1006,7 +1006,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -1034,7 +1034,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       val aMap: _root_.scala.collection.Map[Long, Long],
       val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request],
       val subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request],
-      defaultOffset: Int,
+      _defaultOffset: Int,
       noCommentOffset: Int,
       doubleSlashCommentOffset: Int,
       hashtagCommentOffset: Int,
@@ -1055,11 +1055,11 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       }
     }
 
-    lazy val default: String =
-      if (defaultOffset == -1)
+    lazy val _default: String =
+      if (_defaultOffset == -1)
         "the_default"
       else {
-        _proto.decodeString(_buf, defaultOffset)
+        _proto.decodeString(_buf, _defaultOffset)
       }
     lazy val noComment: _root_.scala.Option[Long] =
       if (noCommentOffset == -1)
@@ -1136,7 +1136,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     override def aMap: _root_.scala.collection.Map[Long, Long] = _underlying_Request.aMap
     override def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.aRequest
     override def subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _underlying_Request.subRequests
-    override def default: String = _underlying_Request.default
+    override def _default: String = _underlying_Request._default
     override def noComment: _root_.scala.Option[Long] = _underlying_Request.noComment
     override def doubleSlashComment: _root_.scala.Option[Long] = _underlying_Request.doubleSlashComment
     override def hashtagComment: _root_.scala.Option[Long] = _underlying_Request.hashtagComment
@@ -1167,7 +1167,7 @@ trait Request
   def aMap: _root_.scala.collection.Map[Long, Long]
   def aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]
   def subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]
-  def default: String
+  def _default: String
   def noComment: _root_.scala.Option[Long]
   def doubleSlashComment: _root_.scala.Option[Long]
   def hashtagComment: _root_.scala.Option[Long]
@@ -1191,7 +1191,7 @@ trait Request
   def _3: _root_.scala.collection.Map[Long, Long] = aMap
   def _4: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = aRequest
   def _5: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = subRequests
-  def _6: String = default
+  def _6: String = _default
   def _7: _root_.scala.Option[Long] = noComment
   def _8: _root_.scala.Option[Long] = doubleSlashComment
   def _9: _root_.scala.Option[Long] = hashtagComment
@@ -1209,7 +1209,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -1273,9 +1273,9 @@ trait Request
             _root_.scala.None
           }
         case 6 =>
-          if (default ne null) {
-            _oprot.writeString(default)
-            _root_.scala.Some(Request.DefaultField)
+          if (_default ne null) {
+            _oprot.writeString(_default)
+            _root_.scala.Some(Request._DefaultField)
           } else {
             _root_.scala.None
           }
@@ -1372,7 +1372,7 @@ trait Request
     var aMap: _root_.scala.collection.Map[Long, Long] = this.aMap
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
     var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
-    var default: String = this.default
+    var _default: String = this._default
     var noComment: _root_.scala.Option[Long] = this.noComment
     var doubleSlashComment: _root_.scala.Option[Long] = this.doubleSlashComment
     var hashtagComment: _root_.scala.Option[Long] = this.hashtagComment
@@ -1396,7 +1396,7 @@ trait Request
       case 5 =>
         subRequests = readSubRequestsValue(_iprot)
       case 6 =>
-        default = _iprot.readString()
+        _default = _iprot.readString()
       case 7 =>
         noComment = _root_.scala.Some(_iprot.readI64())
       case 8 =>
@@ -1423,7 +1423,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -1448,7 +1448,7 @@ trait Request
     var aMap: _root_.scala.collection.Map[Long, Long] = this.aMap
     var aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest
     var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests
-    var default: String = this.default
+    var _default: String = this._default
     var noComment: _root_.scala.Option[Long] = this.noComment
     var doubleSlashComment: _root_.scala.Option[Long] = this.doubleSlashComment
     var hashtagComment: _root_.scala.Option[Long] = this.hashtagComment
@@ -1471,7 +1471,7 @@ trait Request
       case 5 =>
         subRequests = _root_.scala.collection.immutable.Nil
       case 6 =>
-        default = "the_default"
+        _default = "the_default"
       case 7 =>
         noComment = _root_.scala.None
       case 8 =>
@@ -1498,7 +1498,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -1527,7 +1527,7 @@ trait Request
 
   def unsetSubRequests: Request = unsetField(5)
 
-  def unsetDefault: Request = unsetField(6)
+  def unset_Default: Request = unsetField(6)
 
   def unsetNoComment: Request = unsetField(7)
 
@@ -1577,9 +1577,9 @@ trait Request
       writeSubRequestsValue(_oprot, subRequests)
       _oprot.writeFieldEnd()
     }
-    if (default ne null) {
-      _oprot.writeFieldBegin(DefaultField)
-      _oprot.writeString(default)
+    if (_default ne null) {
+      _oprot.writeFieldBegin(_DefaultField)
+      _oprot.writeString(_default)
       _oprot.writeFieldEnd()
     }
     if (noComment.isDefined) {
@@ -1636,7 +1636,7 @@ trait Request
     aMap: _root_.scala.collection.Map[Long, Long] = this.aMap,
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.aRequest,
     subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = this.subRequests,
-    default: String = this.default,
+    _default: String = this._default,
     noComment: _root_.scala.Option[Long] = this.noComment,
     doubleSlashComment: _root_.scala.Option[Long] = this.doubleSlashComment,
     hashtagComment: _root_.scala.Option[Long] = this.hashtagComment,
@@ -1653,7 +1653,7 @@ trait Request
       aMap,
       aRequest,
       subRequests,
-      default,
+      _default,
       noComment,
       doubleSlashComment,
       hashtagComment,
@@ -1681,7 +1681,7 @@ trait Request
       this.aMap,
       this.aRequest,
       this.subRequests,
-      this.default,
+      this._default,
       this.noComment,
       this.doubleSlashComment,
       this.hashtagComment,
@@ -1730,7 +1730,7 @@ private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Re
         if (_fieldArray(2) == null) instanceValue.aMap else _fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
         if (_fieldArray(3) == null) instanceValue.aRequest else _fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
         if (_fieldArray(4) == null) instanceValue.subRequests else _fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        if (_fieldArray(5) == null) instanceValue.default else _fieldArray(5).asInstanceOf[String],
+        if (_fieldArray(5) == null) instanceValue._default else _fieldArray(5).asInstanceOf[String],
         if (_fieldArray(6) == null) instanceValue.noComment else _fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
         if (_fieldArray(7) == null) instanceValue.doubleSlashComment else _fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
         if (_fieldArray(8) == null) instanceValue.hashtagComment else _fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],
@@ -1809,9 +1809,9 @@ private class Request__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(5)
 
     AdaptTProtocol.usedStartMarker(6)
-    var default: String = "the_default"
+    var _default: String = "the_default"
 
-    adapt.set_default(default)
+    adapt.set__default(_default)
     AdaptTProtocol.usedEndMarker(6)
 
     AdaptTProtocol.usedStartMarker(7)
@@ -1973,7 +1973,7 @@ private class Request__AdaptDecoder {
           case 6 => {
             if (_fieldType == TType.STRING) {
               AdaptTProtocol.usedStartMarker(6)
-              default = _iprot.readString()
+              _default = _iprot.readString()
               AdaptTProtocol.usedEndMarker(6)
               AdaptTProtocol.unusedStartMarker(6)
               _iprot.offsetSkipString()
@@ -1982,11 +1982,11 @@ private class Request__AdaptDecoder {
               throw AdaptTProtocol.unexpectedTypeException(
                 TType.STRING,
                 _fieldType,
-                "default"
+                "_default"
               )
             }
             AdaptTProtocol.usedStartMarker(6)
-            adapt.set_default(default)
+            adapt.set__default(_default)
             AdaptTProtocol.usedEndMarker(6)
           }
           case 7 => {
@@ -2233,12 +2233,12 @@ private class Request__Adapt(
   // This will be removed by ASM if field is used otherwise renamed to subRequests.
   def delegated_subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = delegate.subRequests
 
-  private[this] var m_default: String = _
-  def set_default(default: String): Unit = m_default = default
+  private[this] var m__default: String = _
+  def set__default(_default: String): Unit = m__default = _default
   // This will be removed by ASM if field is unused.
-  def default: String = m_default
-  // This will be removed by ASM if field is used otherwise renamed to default.
-  def delegated_default: String = delegate.default
+  def _default: String = m__default
+  // This will be removed by ASM if field is used otherwise renamed to _default.
+  def delegated__default: String = delegate._default
 
   private[this] var m_noComment: _root_.scala.Option[Long] = _
   def set_noComment(noComment: _root_.scala.Option[Long]): Unit = m_noComment = noComment

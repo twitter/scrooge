@@ -27,7 +27,7 @@ Request.fields[2] = { name = 'aSet', required = true, ttype = 'set', value = 'i3
 Request.fields[3] = { name = 'aMap', required = true, ttype = 'map', key = 'i64', value = 'i64', }
 Request.fields[4] = { name = 'aRequest', ttype = 'struct', fields = Request.fields, }
 Request.fields[5] = { name = 'subRequests', required = true, ttype = 'list', value = Request, }
-Request.fields[6] = { name = 'default', required = true, ttype = 'string', }
+Request.fields[6] = { name = '_default', required = true, ttype = 'string', }
 Request.fields[7] = { name = 'noComment', ttype = 'i64', }
 Request.fields[8] = { name = 'doubleSlashComment', ttype = 'i64', }
 Request.fields[9] = { name = 'hashtagComment', ttype = 'i64', }

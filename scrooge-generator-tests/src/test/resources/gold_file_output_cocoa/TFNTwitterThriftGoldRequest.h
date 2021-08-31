@@ -26,8 +26,8 @@
 @property (nonatomic, copy) NSArray * subRequests;
 @property (nonatomic, readonly) BOOL subRequestsIsSet;
 
-@property (nonatomic, copy) NSString * default_;
-@property (nonatomic, readonly) BOOL default_IsSet;
+@property (nonatomic, copy) NSString * _default;
+@property (nonatomic, readonly) BOOL _defaultIsSet;
 
 @property (nonatomic) int64_t noComment;
 @property (nonatomic, readonly) BOOL noCommentIsSet;
@@ -57,8 +57,8 @@
 @property (nonatomic, readonly) BOOL anInt8IsSet;
 
 
-- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests default_:(NSString *)default_ requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField;
-+ (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests default_:(NSString *)default_ requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error;
+- (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests _default:(NSString *)_default requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField;
++ (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests _default:(NSString *)_default requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error;
 - (void)read:(id<TProtocol>)inProtocol;
 - (void)write:(id<TProtocol>)outProtocol;
 
