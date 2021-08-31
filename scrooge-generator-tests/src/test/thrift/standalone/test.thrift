@@ -584,8 +584,8 @@ service CamelCaseSnakeCaseService {
   string bazQux(1: string baz_Qux)
 }
 
-/* A service for testing reserved method asCloasble */
-service closableService {
+/* A service for testing reserved method asClosable */
+service TestClosableService {
   string close()
   string asClosable()
 }

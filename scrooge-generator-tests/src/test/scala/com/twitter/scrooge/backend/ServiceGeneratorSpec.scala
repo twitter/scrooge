@@ -558,13 +558,13 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "user can define close method and their own asClosable method" in { _ =>
         val closableService = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new ClosableService[Future] {
+          new TestClosableService[Future] {
             def close() = Future.value("close")
             def asClosable() = Future.value("asClosable")
           }
         )
 
-        val closableClient = Thrift.client.build[ClosableService.MethodPerEndpoint](
+        val closableClient = Thrift.client.build[TestClosableService.MethodPerEndpoint](
           Name.bound(Address(closableService.boundAddress.asInstanceOf[InetSocketAddress])),
           "closableClient"
         )
