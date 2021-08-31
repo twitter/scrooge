@@ -174,11 +174,10 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
    * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
    */
   def validateInstanceValue(item: {{StructName}}): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-    val thriftValidator = com.twitter.scrooge.ThriftValidator()
+    val thriftValidator = {{validator}}
     val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
 {{#fields}}
-    val fieldInfo{{index}} = fieldInfos.apply({{index}})
-    violations ++= validateFieldValue(fieldInfo{{index}}.tfield.name, item.{{fieldName}}, fieldInfo{{index}}.fieldAnnotations, thriftValidator)
+    violations ++= validateFieldValue("{{fieldNameForWire}}", item.{{fieldName}}, fieldInfos.apply({{index}}).fieldAnnotations, thriftValidator);
 {{/fields}}
     violations.toSet
   }

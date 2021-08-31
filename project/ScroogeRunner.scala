@@ -215,7 +215,12 @@ object ScroogeRunner {
     section("standalone/") {
       val scalaFiles = filesInDir(s"$base/src/test/thrift/standalone") mkString " "
       val javaFiles =
-        s"$base/src/test/thrift/standalone/constructorRequired.thrift $base/src/test/thrift/standalone/enumSet.thrift $base/src/test/thrift/standalone/exception_fields.thrift $base/src/test/thrift/standalone/passthrough.thrift"
+        s"$base/src/test/thrift/standalone/constructorRequired.thrift " +
+          s"$base/src/test/thrift/standalone/enumSet.thrift " +
+          s"$base/src/test/thrift/standalone/exception_fields.thrift " +
+          s"$base/src/test/thrift/standalone/passthrough.thrift " +
+          s"$base/src/test/thrift/standalone/validations.thrift " +
+          s"$base/src/test/thrift/standalone/customJavaValidations.thrift"
       runScrooge(Seq(Scala), scalaFiles)
       runScrooge(Seq(Android), javaFiles)
       runScrooge(Seq(ApacheJava), s"--java-passthrough $javaFiles")

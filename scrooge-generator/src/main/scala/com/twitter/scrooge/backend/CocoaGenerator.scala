@@ -161,7 +161,8 @@ class CocoaGenerator(
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
-    toplevel: Boolean = false
+    toplevel: Boolean = false,
+    validator: Option[Identifier]
   ): Dictionary = {
     val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     dictionary("headers") = getDependentHeaders(struct)

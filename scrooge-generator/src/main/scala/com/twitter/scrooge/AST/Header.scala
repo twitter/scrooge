@@ -30,3 +30,13 @@ case class Include(filePath: String, document: Document) extends Header {
 case class CppInclude(file: String) extends Header
 
 case class Namespace(language: String, id: Identifier) extends Header
+
+/**
+ * The path that returns a custom `com.twitter.scrooge.ThriftValidator`.
+ *
+ * @param path the fully qualified name of the custom `ThriftValidator`.
+ *
+ * @note if the validator can not be created from [[path]], a compile
+ *       time error will be thrown.
+ */
+case class Validator(path: Identifier) extends Header

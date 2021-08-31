@@ -11,6 +11,7 @@ class StructController(
   val in_class: Boolean,
   generator: ApacheJavaGenerator,
   ns: Option[Identifier],
+  validatorOpt: Option[Identifier] = None,
   val is_result: Boolean = false)
     extends TypeController(struct, generator, ns) {
 
@@ -70,4 +71,7 @@ class StructController(
   val has_field_annotations: Boolean = !field_annotations.isEmpty
 
   val has_default_value: Seq[Field] = allFields.filter(_.default.nonEmpty)
+
+  val validator: String =
+    validatorOpt.map(_.fullName).getOrElse("ThriftValidator.newBuilder().build()")
 }

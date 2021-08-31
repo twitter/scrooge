@@ -20,6 +20,11 @@ LIB_SOURCES = [
     "com/twitter/scrooge/testutil/TempDirectory.scala",
 ]
 
+CUSTOM_VALIDATORS = [
+    "com/twitter/scrooge/CustomValidator.scala",
+    "com/twitter/scrooge/JCustomValidator.java",
+]
+
 java_library(
     name = "lib",
     sources = LIB_SOURCES,
@@ -31,11 +36,19 @@ java_library(
     ],
 )
 
+scala_library(
+    name = "custom_validator",
+    sources = CUSTOM_VALIDATORS,
+    dependencies = [
+        "scrooge/scrooge-core/src/main/scala",
+    ],
+)
+
 junit_tests(
 
     # see comments above, we need to avoid 'owning' the LIB_SOURCES files
     # and instead 'depend' on them
-    sources = ["**/*.scala"] + exclude_globs(LIB_SOURCES),
+    sources = ["**/*.scala"] + exclude_globs(LIB_SOURCES) + exclude_globs(CUSTOM_VALIDATORS),
     compiler_option_sets = ["fatal_warnings"],
     dependencies = [
         ":lib",

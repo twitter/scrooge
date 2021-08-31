@@ -265,6 +265,7 @@ class ApacheJavaGenerator(
   }
   protected val doc: Document = resolvedDoc.document
   val namespace: Identifier = getNamespace(doc)
+  val validator: Option[Identifier] = doc.validator
 
   // main entry
   def apply(
@@ -307,7 +308,7 @@ class ApacheJavaGenerator(
     doc.structs.foreach { struct =>
       generatedFiles += renderFile(
         "struct.mustache",
-        new StructController(struct, serviceOptions, false, this, Some(namespace))
+        new StructController(struct, serviceOptions, false, this, Some(namespace), validator)
       )
     }
 

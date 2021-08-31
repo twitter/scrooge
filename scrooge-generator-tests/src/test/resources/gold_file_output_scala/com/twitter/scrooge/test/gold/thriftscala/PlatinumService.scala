@@ -392,8 +392,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       def validateInstanceValue(item: Args): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
         val thriftValidator = com.twitter.scrooge.ThriftValidator()
         val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-        val fieldInfo0 = fieldInfos.apply(0)
-        violations ++= validateFieldValue(fieldInfo0.tfield.name, item.request, fieldInfo0.fieldAnnotations, thriftValidator)
+        violations ++= validateFieldValue("request", item.request, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
         violations.toSet
       }
     
@@ -673,12 +672,9 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       def validateInstanceValue(item: Result): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
         val thriftValidator = com.twitter.scrooge.ThriftValidator()
         val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-        val fieldInfo0 = fieldInfos.apply(0)
-        violations ++= validateFieldValue(fieldInfo0.tfield.name, item.success, fieldInfo0.fieldAnnotations, thriftValidator)
-        val fieldInfo1 = fieldInfos.apply(1)
-        violations ++= validateFieldValue(fieldInfo1.tfield.name, item.ax, fieldInfo1.fieldAnnotations, thriftValidator)
-        val fieldInfo2 = fieldInfos.apply(2)
-        violations ++= validateFieldValue(fieldInfo2.tfield.name, item.oce, fieldInfo2.fieldAnnotations, thriftValidator)
+        violations ++= validateFieldValue("success", item.success, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
+        violations ++= validateFieldValue("ax", item.ax, fieldInfos.apply(1).fieldAnnotations, thriftValidator);
+        violations ++= validateFieldValue("oce", item.oce, fieldInfos.apply(2).fieldAnnotations, thriftValidator);
         violations.toSet
       }
     

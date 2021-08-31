@@ -85,9 +85,24 @@ object ThriftValidator {
      *
      * @note If any of the provided [[customConstraints]] is already
      *       defined, an [[IllegalArgumentException]] will be thrown.
+     * @see [[withConstraints(java.util.Map)]] for a Java-friendly
+     *      version.
      */
     def withConstraints(constraints: Map[String, ThriftConstraintValidator[_, _]]): Builder =
       Builder(constraints)
+
+    /**
+     * Java-friendly API to create a [[Builder]] with [[customConstraints]].
+     *
+     * @param constraints a [[java.util.Map]] of constraint validation name to
+     *                    [[ThriftConstraintValidator]].
+     * @return a [[Builder]] with embedded [[customConstraints]].
+     * @see [[withConstraints]] for the Scala API.
+     */
+    def withConstraints(
+      constraints: java.util.Map[String, ThriftConstraintValidator[_, _]]
+    ): Builder =
+      withConstraints(constraints.asScala.toMap)
 
     /**
      * Create a [[ThriftValidator]] with given [[customConstraints]].

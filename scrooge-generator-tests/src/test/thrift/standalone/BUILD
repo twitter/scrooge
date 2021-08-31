@@ -1,8 +1,11 @@
 java_thrift_library(
     name = "thrift-all-scala",
-    sources = ["**/*.thrift"],
+    # exclude generating custom java validations in Scala since it requires a
+    # different validator format
+    sources = ["**/*.thrift"] + exclude_globs(["customJavaValidations.thrift"]),
     compiler = "scrooge",
     language = "scala",
+    dependencies = ["scrooge/scrooge-generator-tests/src/test/scala:custom_validator"],
 )
 
 java_thrift_library(
@@ -24,9 +27,11 @@ java_thrift_library(
     name = "thrift-java",
     sources = [
         "constructorRequired.thrift",
+        "customJavaValidations.thrift",
         "enumSet.thrift",
         "exception_fields.thrift",
         "passthrough.thrift",
+        "validations.thrift",
     ],
     compiler = "scrooge",
     compiler_args = ["--java-passthrough"],
@@ -35,4 +40,5 @@ java_thrift_library(
     namespace_map = {
         "thrift.test": "thrift.apache_java_test",
     },
+    dependencies = ["scrooge/scrooge-generator-tests/src/test/scala:custom_validator"],
 )

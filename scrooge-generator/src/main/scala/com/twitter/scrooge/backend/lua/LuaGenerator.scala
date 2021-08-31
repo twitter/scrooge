@@ -199,7 +199,8 @@ class LuaGenerator(
     includes: Seq[Include],
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
-    toplevel: Boolean = false
+    toplevel: Boolean = false,
+    validator: Option[Identifier]
   ): Dictionary = {
     val dictionary = super.structDict(struct, namespace, includes, serviceOptions, genAdapt)
     // Struct or Enum types referenced in the struct that need a `require` statement at the top of the lua file

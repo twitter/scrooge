@@ -98,8 +98,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
   def validateInstanceValue(item: CollectionId): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
     val thriftValidator = com.twitter.scrooge.ThriftValidator()
     val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    val fieldInfo0 = fieldInfos.apply(0)
-    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.collectionLongId, fieldInfo0.fieldAnnotations, thriftValidator)
+    violations ++= validateFieldValue("collectionLongId", item.collectionLongId, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
     violations.toSet
   }
 

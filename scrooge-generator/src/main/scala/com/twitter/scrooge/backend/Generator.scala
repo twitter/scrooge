@@ -215,6 +215,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   def getNamespace(doc: Document): Identifier =
     TemplateGenerator.getNamespace(doc, namespaceLanguage, defaultNamespace)
 
+  def getValidator(doc: Document): Option[Identifier] = doc.validator
+
   def normalizeCase[N <: Node](node: N): N =
     TemplateGenerator.normalizeCase(node)
 
@@ -531,6 +533,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     val includes = doc.headers.collect {
       case x @ Include(_, _) => x
     }
+    val validator = getValidator(resolvedDoc.document)
 
     if (doc.consts.nonEmpty) {
       val file = new File(packageDir, "Constants" + fileExtension)
@@ -560,7 +563,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
             case _ => "struct"
           }
 
-        val dict = structDict(struct, Some(namespace), includes, serviceOptions, genAdapt, true)
+        val dict =
+          structDict(struct, Some(namespace), includes, serviceOptions, genAdapt, true, validator)
         writeFile(file, templates.header, templates(templateName).generate(dict))
       }
       generatedFiles += file

@@ -95,8 +95,7 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
   def validateInstanceValue(item: AnotherException): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
     val thriftValidator = com.twitter.scrooge.ThriftValidator()
     val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    val fieldInfo0 = fieldInfos.apply(0)
-    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.errorCode, fieldInfo0.fieldAnnotations, thriftValidator)
+    violations ++= validateFieldValue("errorCode", item.errorCode, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
     violations.toSet
   }
 

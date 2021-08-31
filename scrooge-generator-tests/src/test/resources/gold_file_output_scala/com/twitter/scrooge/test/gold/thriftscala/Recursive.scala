@@ -120,10 +120,8 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
   def validateInstanceValue(item: Recursive): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
     val thriftValidator = com.twitter.scrooge.ThriftValidator()
     val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    val fieldInfo0 = fieldInfos.apply(0)
-    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.id, fieldInfo0.fieldAnnotations, thriftValidator)
-    val fieldInfo1 = fieldInfos.apply(1)
-    violations ++= validateFieldValue(fieldInfo1.tfield.name, item.recRequest, fieldInfo1.fieldAnnotations, thriftValidator)
+    violations ++= validateFieldValue("id", item.id, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
+    violations ++= validateFieldValue("recRequest", item.recRequest, fieldInfos.apply(1).fieldAnnotations, thriftValidator);
     violations.toSet
   }
 

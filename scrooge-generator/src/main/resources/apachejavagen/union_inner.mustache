@@ -47,7 +47,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue({{name}} item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
+    final ThriftValidator thriftValidator = {{validator}};
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
 
     _Fields field = item.getSetField();

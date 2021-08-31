@@ -1,21 +1,22 @@
-package com.twitter.scrooge.backend
+package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.backend.thriftscala._
-import com.twitter.scrooge.testutil.JMockSpec
+import apache_java_thrift._
+import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.validation.ThriftValidationViolation
+import scala.jdk.CollectionConverters._
 
-class ValidationsSpec extends JMockSpec {
-  "validateInstanceValue" should {
-    "validate Struct" in { _ =>
+class ValidationsJavaGeneratorSpec extends Spec {
+  "Java validateInstanceValue" should {
+    "validate Struct" in {
       val validationStruct =
-        ValidationStruct(
+        new ValidationStruct(
           "email",
           -1,
           101,
           0,
           0,
-          Map("1" -> "1", "2" -> "2"),
-          boolField = false,
+          Map("1" -> "1", "2" -> "2").asJava,
+          false,
           "anything")
       val validationViolations = ValidationStruct.validateInstanceValue(validationStruct)
       val violationMessages = Set(
@@ -28,25 +29,24 @@ class ValidationsSpec extends JMockSpec {
         "must be greater than 0",
         "must be greater than or equal to 0"
       )
-      assertViolations(validationViolations, 8, violationMessages)
+      assertViolations(validationViolations.asScala.toSet, 8, violationMessages)
     }
 
-    "validate nested Struct" in { _ =>
+    "validate nested Struct" in {
       val validationStruct =
-        ValidationStruct(
+        new ValidationStruct(
           "email",
           -1,
           101,
           0,
           0,
-          Map("1" -> "1", "2" -> "2"),
-          boolField = false,
-          "anything",
-          Some("nothing"))
-      val nestedValidationStruct = NestedValidationStruct(
+          Map("1" -> "1", "2" -> "2").asJava,
+          false,
+          "anything")
+      val nestedValidationStruct = new NestedValidationStruct(
         "not an email",
         validationStruct,
-        Seq(validationStruct, validationStruct))
+        Seq(validationStruct, validationStruct).asJava)
       val validationViolations =
         NestedValidationStruct.validateInstanceValue(nestedValidationStruct)
       val violationMessages = Set(
@@ -59,43 +59,48 @@ class ValidationsSpec extends JMockSpec {
         "must be greater than 0",
         "must be greater than or equal to 0"
       )
-      assertViolations(validationViolations, 10, violationMessages)
+      assertViolations(validationViolations.asScala.toSet, 10, violationMessages)
     }
 
-    "validate union" in { _ =>
-      val validationIntUnion = ValidationUnion.IntField(-1)
-      val validationStringUnion = ValidationUnion.StringField("")
+    "validate union" in {
+      val validationIntUnion = new ValidationUnion()
+      validationIntUnion.setIntField(-1)
+      val validationStringUnion = new ValidationUnion()
+      validationStringUnion.setStringField("")
       val validationIntViolations = ValidationUnion.validateInstanceValue(validationIntUnion)
       val validationStringViolations = ValidationUnion.validateInstanceValue(validationStringUnion)
-      assertViolations(validationIntViolations, 1, Set("must be greater than or equal to 0"))
-      assertViolations(validationStringViolations, 1, Set("must not be empty"))
+      assertViolations(
+        validationIntViolations.asScala.toSet,
+        1,
+        Set("must be greater than or equal to 0"))
+      assertViolations(validationStringViolations.asScala.toSet, 1, Set("must not be empty"))
     }
 
-    "validate exception" in { _ =>
-      val validationException = ValidationException("")
+    "validate exception" in {
+      val validationException = new ValidationException("")
       val validationViolations = ValidationException.validateInstanceValue(validationException)
-      assertViolations(validationViolations, 1, Set("must not be empty"))
+      assertViolations(validationViolations.asScala.toSet, 1, Set("must not be empty"))
     }
 
-    "skip annotations not for ThriftValidator" in { _ =>
-      val nonValidationStruct = NonValidationStruct("anything")
+    "skip annotations not for ThriftValidator" in {
+      val nonValidationStruct = new NonValidationStruct("anything")
       val validationViolations = NonValidationStruct.validateInstanceValue(nonValidationStruct)
-      assertViolations(validationViolations, 0, Set.empty)
+      assertViolations(validationViolations.asScala.toSet, 0, Set.empty)
     }
   }
 
-  "custom validator" should {
-    "validate Struct" in { _ =>
+  "Java custom validator" should {
+    "validate Struct" in {
       val validationStruct =
-        CustomValidationStruct(
+        new JCustomValidationStruct(
           "email",
           "abc",
           101,
           0,
           0,
-          Map("1" -> "1", "2" -> "2"),
-          boolField = false)
-      val validationViolations = CustomValidationStruct.validateInstanceValue(validationStruct)
+          Map("1" -> "1", "2" -> "2").asJava,
+          false)
+      val validationViolations = JCustomValidationStruct.validateInstanceValue(validationStruct)
       val violationMessages = Set(
         "length must be between 6 and 2147483647",
         "must be a well-formed email address",
@@ -107,25 +112,25 @@ class ValidationsSpec extends JMockSpec {
         "invalid user id",
         "invalid user screen name"
       )
-      assertViolations(validationViolations, 9, violationMessages)
+      assertViolations(validationViolations.asScala.toSet, 9, violationMessages)
     }
 
-    "validate nested Struct" in { _ =>
+    "validate nested Struct" in {
       val validationStruct =
-        CustomValidationStruct(
+        new JCustomValidationStruct(
           "email",
           "abc",
           101,
           0,
           0,
-          Map("1" -> "1", "2" -> "2"),
-          boolField = false)
-      val nestedValidationStruct = CustomNestedValidationStruct(
+          Map("1" -> "1", "2" -> "2").asJava,
+          false)
+      val nestedValidationStruct = new JCustomNestedValidationStruct(
         "not an email",
         validationStruct,
-        Seq(validationStruct, validationStruct))
+        Seq(validationStruct, validationStruct).asJava)
       val validationViolations =
-        CustomNestedValidationStruct.validateInstanceValue(nestedValidationStruct)
+        JCustomNestedValidationStruct.validateInstanceValue(nestedValidationStruct)
       val violationMessages = Set(
         "length must be between 6 and 2147483647",
         "must be a well-formed email address",
@@ -139,27 +144,33 @@ class ValidationsSpec extends JMockSpec {
         "invalid user id",
         "invalid user screen name"
       )
-      assertViolations(validationViolations, 12, violationMessages)
+      assertViolations(validationViolations.asScala.toSet, 12, violationMessages)
     }
 
-    "validate union" in { _ =>
-      val validationIntUnion = CustomValidationUnion.UserId(123)
-      val validationStringUnion = CustomValidationUnion.ScreenName("")
-      val validationIntViolations = CustomValidationUnion.validateInstanceValue(validationIntUnion)
+    "validate union" in {
+      val validationIntUnion = new JCustomValidationUnion()
+      validationIntUnion.setUserId(1)
+      val validationStringUnion = new JCustomValidationUnion()
+      validationStringUnion.setScreenName("")
+      val validationIntViolations = JCustomValidationUnion.validateInstanceValue(validationIntUnion)
       val validationStringViolations =
-        CustomValidationUnion.validateInstanceValue(validationStringUnion)
-      assertViolations(validationIntViolations, 1, Set("invalid user id"))
+        JCustomValidationUnion.validateInstanceValue(validationStringUnion)
+
+      assertViolations(validationIntViolations.asScala.toSet, 1, Set("invalid user id"))
       assertViolations(
-        validationStringViolations,
+        validationStringViolations.asScala.toSet,
         2,
         Set("must not be empty", "invalid user screen name"))
     }
 
-    "validate exception" in { _ =>
-      val validationException = CustomValidationException("")
+    "validate exception" in {
+      val validationException = new JCustomValidationException("")
       val validationViolations =
-        CustomValidationException.validateInstanceValue(validationException)
-      assertViolations(validationViolations, 2, Set("must not be empty", "must start with a"))
+        JCustomValidationException.validateInstanceValue(validationException)
+      assertViolations(
+        validationViolations.asScala.toSet,
+        2,
+        Set("must not be empty", "must start with a"))
     }
   }
 

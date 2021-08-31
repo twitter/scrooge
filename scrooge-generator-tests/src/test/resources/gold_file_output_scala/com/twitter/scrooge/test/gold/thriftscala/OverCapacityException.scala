@@ -99,8 +99,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
   def validateInstanceValue(item: OverCapacityException): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
     val thriftValidator = com.twitter.scrooge.ThriftValidator()
     val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    val fieldInfo0 = fieldInfos.apply(0)
-    violations ++= validateFieldValue(fieldInfo0.tfield.name, item.chillTimeSeconds, fieldInfo0.fieldAnnotations, thriftValidator)
+    violations ++= validateFieldValue("chillTimeSeconds", item.chillTimeSeconds, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
     violations.toSet
   }
 

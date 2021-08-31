@@ -609,7 +609,10 @@ trait StructTemplate { self: TemplateGenerator =>
     serviceOptions: Set[ServiceOption],
     genAdapt: Boolean,
     toplevel: Boolean =
-      false // True if this struct is defined in its own file. False for internal structs.
+      false, // True if this struct is defined in its own file. False for internal structs.
+    // Set a default value for now to not break API for other AST,
+    // the default ThriftValidator will be used if set to `None`.
+    validator: Option[Identifier] = None
   ): Dictionary = {
     val fullyQualifiedThriftExn = "_root_.com.twitter.scrooge.ThriftException"
     val fullyQualifiedSourcedExn = "_root_.com.twitter.finagle.SourcedException"
@@ -656,6 +659,8 @@ trait StructTemplate { self: TemplateGenerator =>
 
     val pkg = namespace.map(genID).getOrElse(v(""))
     val pkgName = v(basename(pkg.toData))
+    val thriftValidator =
+      validator.map(genID).getOrElse(v("com.twitter.scrooge.ThriftValidator()"))
 
     Dictionary(
       "public" -> v(toplevel),
@@ -701,7 +706,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "withTrait" -> v(isStruct),
       "adapt" -> v(genAdapt),
       "hasFailureFlags" -> v(isException && serviceOptions.contains(WithFinagle)),
-      "structAnnotations" -> TemplateGenerator.renderPairs(struct.annotations)
+      "structAnnotations" -> TemplateGenerator.renderPairs(struct.annotations),
+      "validator" -> thriftValidator
     )
   }
 }

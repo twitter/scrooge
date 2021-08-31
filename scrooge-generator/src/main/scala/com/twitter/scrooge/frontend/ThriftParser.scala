@@ -100,6 +100,16 @@ class ThriftParser(
   val identifierRegex: Regex = "[A-Za-z_][A-Za-z0-9\\._]*".r
   lazy val identifier: Parser[Identifier] = positioned(identifierRegex ^^ { x => Identifier(x) })
 
+  /**
+   * regex for parsing a validator, similar to [[identifierRegex]],
+   * but adding "()" for creating validators in Java.
+   */
+  val validatorIdentifier: Regex = "[A-Za-z_][A-Za-z0-9\\._\\(\\)]*".r
+  lazy val validator: Parser[Validator] = "#@validator" ~> "new ".? ~ validatorIdentifier ^^ {
+    case Some(n) ~ i => Validator(Identifier(n + i))
+    case None ~ i => Validator(Identifier(i))
+  }
+
   lazy val simpleIDRegex: Regex = "[A-Za-z_][A-Za-z0-9_]*".r
   lazy val simpleID: Parser[SimpleID] = positioned(simpleIDRegex ^^ { x =>
     if (ThriftKeywords.contains(x))
@@ -396,7 +406,7 @@ class ThriftParser(
     case hs ~ ds => Document(hs, ds)
   }
 
-  lazy val header: Parser[Header] = include | cppInclude | namespace
+  lazy val header: Parser[Header] = include | cppInclude | namespace | validator
 
   lazy val include: Parser[Include] = opt(comments) ~> "include" ~> positioned(stringLiteral ^^ {
     s =>
