@@ -165,4 +165,11 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
       }
     }
   }
+
+  test("gold.thrift is successfully parsed") {
+    exception match {
+      case Some(t) => fail(t)
+      case None => // passed
+    }
+  }
 }
