@@ -236,11 +236,8 @@ val jmockSettings = Seq(
 )
 
 // this omits scrooge-generator, since it needs special treatment for 2.10.x
-lazy val publishedProjects = Seq[sbt.ProjectReference](
-  scroogeAdaptive,
-  scroogeCore,
-  scroogeLinter,
-  scroogeSerializer)
+lazy val publishedProjects =
+  Seq[sbt.ProjectReference](scroogeAdaptive, scroogeCore, scroogeLinter, scroogeSerializer)
 
 lazy val scrooge = Project(
   id = "scrooge",
@@ -375,7 +372,7 @@ lazy val scroogeSbtPlugin = Project(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.twitter",
     sbtPlugin := true,
-    resolvers += Resolver.typesafeIvyRepo("releases")
+    resolvers += Resolver.typesafeIvyRepo("releases").withName("typesafe-alt-ivy-releases")
   ).dependsOn(scroogeGenerator)
 
 lazy val scroogeLinter = Project(
