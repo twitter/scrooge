@@ -17,7 +17,9 @@ import org.apache.thrift.protocol._
 class PlatinumService$FinagleClient(
     override val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     override val clientParam: RichClientParam)
-  extends GoldService$FinagleClient(service, clientParam) with PlatinumService[Future] {
+  extends GoldService$FinagleClient(service, clientParam)
+  with PlatinumService.MethodPerEndpoint
+  with PlatinumService.FutureIface {
 
   @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(

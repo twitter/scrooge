@@ -494,7 +494,8 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   trait FutureIface
     extends {{#futureIfaceParent}}{{futureIfaceParent}}
-    with {{/futureIfaceParent}}{{ServiceName}}[Future] {
+    with {{/futureIfaceParent}}MethodPerEndpoint
+    with {{ServiceName}}[Future] {
 {{#asyncFunctions}}
     {{>function}}
 {{/asyncFunctions}}
