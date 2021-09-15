@@ -11,34 +11,29 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 object ThriftValidator {
-
-  private case class ConstraintMetadata(
-    annotationType: Class[_ <: Annotation],
-    annotationValues: Option[String] = None)
-  // A mapping from Thrift String annotation to Jakarta bean
-  // annotation and its metadata. This includes some built-in
-  // validation constraints in util-validation, and is used to call
-  // [[ScalaValidator.validateFieldValue]] to validate each field
-  // defined in the Thrift IDL.
-  private val DefaultConstraints: Map[String, ConstraintMetadata] = Map(
-    "validation.countryCode" -> ConstraintMetadata(classOf[CountryCode]),
-    "validation.UUID" -> ConstraintMetadata(classOf[UUID]),
-    "validation.assertFalse" -> ConstraintMetadata(classOf[AssertFalse]),
-    "validation.assertTrue" -> ConstraintMetadata(classOf[AssertTrue]),
-    "validation.max" -> ConstraintMetadata(classOf[Max], Some("value")),
-    "validation.notEmpty" -> ConstraintMetadata(classOf[jakarta.validation.constraints.NotEmpty]),
-    "validation.min" -> ConstraintMetadata(classOf[Min], Some("value")),
-    "validation.size.min" -> ConstraintMetadata(classOf[Size], Some("min")),
-    "validation.size.max" -> ConstraintMetadata(classOf[Size], Some("max")),
-    "validation.email" -> ConstraintMetadata(classOf[jakarta.validation.constraints.Email]),
-    "validation.negative" -> ConstraintMetadata(classOf[Negative]),
-    "validation.negativeOrZero" -> ConstraintMetadata(classOf[NegativeOrZero]),
-    "validation.positive" -> ConstraintMetadata(classOf[Positive]),
-    "validation.positiveOrZero" -> ConstraintMetadata(classOf[PositiveOrZero]),
-    "validation.EAN" -> ConstraintMetadata(classOf[EAN]),
-    "validation.ISBN" -> ConstraintMetadata(classOf[ISBN]),
-    "validation.length.min" -> ConstraintMetadata(classOf[Length], Some("min")),
-    "validation.length.max" -> ConstraintMetadata(classOf[Length], Some("max"))
+  // A mapping from Thrift String annotation to Jakarta bean annotation.
+  // This includes some built-in validation constraints in util-validation,
+  // and is used to call [[ScalaValidator.validateFieldValue]] to validate
+  // each field defined in the Thrift IDL.
+  private val DefaultConstraints: Map[String, Class[_ <: Annotation]] = Map(
+    "validation.countryCode" -> classOf[CountryCode],
+    "validation.UUID" -> classOf[UUID],
+    "validation.assertFalse" -> classOf[AssertFalse],
+    "validation.assertTrue" -> classOf[AssertTrue],
+    "validation.max" -> classOf[Max],
+    "validation.notEmpty" -> classOf[jakarta.validation.constraints.NotEmpty],
+    "validation.min" -> classOf[Min],
+    "validation.size.min" -> classOf[Size],
+    "validation.size.max" -> classOf[Size],
+    "validation.email" -> classOf[jakarta.validation.constraints.Email],
+    "validation.negative" -> classOf[Negative],
+    "validation.negativeOrZero" -> classOf[NegativeOrZero],
+    "validation.positive" -> classOf[Positive],
+    "validation.positiveOrZero" -> classOf[PositiveOrZero],
+    "validation.EAN" -> classOf[EAN],
+    "validation.ISBN" -> classOf[ISBN],
+    "validation.length.min" -> classOf[Length],
+    "validation.length.max" -> classOf[Length]
   )
 
   /**
@@ -190,41 +185,39 @@ class ThriftValidator(
     fieldValue: T,
     fieldAnnotations: Map[String, String]
   ): Set[ThriftValidationViolation] = {
-    val constraints: mutable.Map[Class[_ <: Annotation], Map[String, Any]] = mutable.Map.empty
-
-    for ((annotationKey, annotationValue) <- fieldAnnotations) {
-      // validation.size and validation.length work on collections,
-      // which will be evaluated in the `collectionConstraints`
-      if (!annotationKey.startsWith("validation.size") && !annotationKey.startsWith(
-          "validation.length")) {
-        val constraintMetadata = DefaultConstraints(annotationKey)
-        // For annotations that require a value, e.g. max = "10", the type of
-        // the annotation value should match the type of the field, this is
-        // enforced at compile time.
-        val constraintsAnnotation: Map[String, Any] = {
-          constraintMetadata.annotationValues match {
-            case Some(annotationName) =>
-              Map(annotationName -> castString(annotationValue, fieldValue.getClass))
-            case None => Map.empty[String, Any]
-          }
+    val constraints = fieldAnnotations.flatMap {
+      case (annotationKey, annotationValue) =>
+        // 4 default annotations require an annotation value:
+        // "validation.size": applies to container types, requires an annotation type `int`.
+        // "validation.length": applies to String, requires an annotation type `int`.
+        // "validation.min": applies to numeric types, requires an annotation type `long`.
+        // "validation.max": apply to numeric types, requires an annotation type `long`.
+        // the annotation types are checked and enforced at compile time.
+        if (annotationKey.startsWith("validation.size")) {
+          sizeAndLengthConstraints(fieldAnnotations, "validation.size.min", "validation.size.max")
+        } else if (annotationKey.startsWith("validation.length")) {
+          sizeAndLengthConstraints(
+            fieldAnnotations,
+            "validation.length.min",
+            "validation.length.max")
+        } else if (annotationKey.startsWith("validation.min")) {
+          // it is safe to call `toLong` since the annotation value
+          // types are checked and enforced at compile time.
+          Map[Class[_ <: Annotation], Map[String, Long]](
+            classOf[Min] -> Map("value" -> annotationValue.toLong))
+        } else if (annotationKey.startsWith("validation.max")) {
+          // it is safe to call `toLong` since the annotation value
+          // types are checked and enforced at compile time.
+          Map[Class[_ <: Annotation], Map[String, Long]](
+            classOf[Max] -> Map("value" -> annotationValue.toLong))
+        } else {
+          Map[Class[_ <: Annotation], Map[String, Any]](
+            DefaultConstraints(annotationKey) -> Map.empty[String, Any])
         }
-        constraints += (constraintMetadata.annotationType -> constraintsAnnotation)
-      }
     }
 
-    // validation.size and validation.length are evaluated separately
-    // since they both apply to collections which we treat differently.
-    constraints ++= collectionConstraints(
-      fieldAnnotations,
-      "validation.size.min",
-      "validation.size.max")
-    constraints ++= collectionConstraints(
-      fieldAnnotations,
-      "validation.length.min",
-      "validation.length.max")
-
     underlying
-      .validateFieldValue(constraints.toMap, fieldName, fieldValue)
+      .validateFieldValue(constraints, fieldName, fieldValue)
       .map(violation => ThriftValidationViolation(fieldName, fieldValue, violation.getMessage))
   }
 
@@ -240,46 +233,49 @@ class ThriftValidator(
       // other than Thrift Validations.
       customAnnotations.get(annotationKey) match {
         case Some(constraintValidator) =>
-          val castedAnnotationValue =
-            castString(annotationValue, constraintValidator.annotationClazz)
-          val violation = castedAnnotationValue match {
-            case _: Int =>
-              validateCustomConstraint[T, Int](
-                fieldName,
-                fieldValue,
-                castedAnnotationValue.asInstanceOf[Int],
-                constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Int]])
-            case _: Long =>
+          val clazz = constraintValidator.annotationClazz
+          val violation = {
+            if (clazz == classOf[java.lang.Long] || clazz == classOf[Long]) {
               validateCustomConstraint[T, Long](
                 fieldName,
                 fieldValue,
-                castedAnnotationValue.asInstanceOf[Long],
+                annotationValue.toLong,
                 constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Long]])
-            case _: Double =>
+            } else if (clazz == classOf[java.lang.Integer] || clazz == classOf[Int]) {
+              validateCustomConstraint[T, Int](
+                fieldName,
+                fieldValue,
+                annotationValue.toInt,
+                constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Int]])
+            } else if (clazz == classOf[java.lang.Double] || clazz == classOf[Double]) {
               validateCustomConstraint[T, Double](
                 fieldName,
                 fieldValue,
-                castedAnnotationValue.asInstanceOf[Double],
+                annotationValue.toDouble,
                 constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Double]])
-            case _: Byte =>
-              validateCustomConstraint[T, Byte](
-                fieldName,
-                fieldValue,
-                castedAnnotationValue.asInstanceOf[Byte],
-                constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Byte]])
-            case _: Short =>
+            } else if (clazz == classOf[java.lang.Short] || clazz == classOf[Short]) {
               validateCustomConstraint[T, Short](
                 fieldName,
                 fieldValue,
-                castedAnnotationValue.asInstanceOf[Short],
+                annotationValue.toShort,
                 constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Short]])
-            case _: String =>
+            } else if (clazz == classOf[java.lang.Byte] || clazz == classOf[Byte]) {
+              validateCustomConstraint[T, Byte](
+                fieldName,
+                fieldValue,
+                annotationValue.toByte,
+                constraintValidator.asInstanceOf[ThriftConstraintValidator[T, Byte]])
+            } else if (clazz == classOf[java.lang.String] || clazz == classOf[String]) {
               validateCustomConstraint[T, String](
                 fieldName,
                 fieldValue,
-                castedAnnotationValue.asInstanceOf[String],
+                annotationValue,
                 constraintValidator.asInstanceOf[ThriftConstraintValidator[T, String]])
-            case _ => Set.empty[ThriftValidationViolation]
+            } else {
+              throw new IllegalArgumentException(
+                s"The annotation with value $annotationValue's type is $clazz, $clazz is not among " +
+                  s"the supported types Int, Long, Double, Short, Byte, and String.")
+            }
           }
           violations ++= violation
         case None =>
@@ -310,43 +306,20 @@ class ThriftValidator(
           constraintValidator.violationMessage(fieldValue, annotationValue)))
   }
 
-  // cast the given string to a value of type `A`.
-  private def castString[A](string: String, clazz: Class[A]): A =
-    if (clazz == classOf[java.lang.Long] || clazz == classOf[Long])
-      string.toLong.asInstanceOf[A]
-    else if (clazz == classOf[java.lang.Integer] || clazz == classOf[Int])
-      string.toInt.asInstanceOf[A]
-    else if (clazz == classOf[java.lang.Double] || clazz == classOf[Double])
-      string.toDouble.asInstanceOf[A]
-    else if (clazz == classOf[java.lang.Short] || clazz == classOf[Short])
-      string.toShort.asInstanceOf[A]
-    else if (clazz == classOf[java.lang.Byte] || clazz == classOf[Byte])
-      string.toByte.asInstanceOf[A]
-    else if (clazz == classOf[java.lang.String] || clazz == classOf[String])
-      string.asInstanceOf[A]
-    else
-      throw new IllegalArgumentException(
-        s"The annotation with value $string's type is $clazz, $clazz is not among " +
-          s"the supported types Int, Long, Double, Short, Byte, and String.")
-
-  // some annotations applies to collections
+  // "validation.size" and "validation.length"
   // require setting up a min or/and a max value.
-  // eg. "validation.size", "validation.length".
-  private def collectionConstraints(
+  private def sizeAndLengthConstraints(
     fieldAnnotations: Map[String, String],
     minConstraint: String,
     maxConstraint: String
   ): Map[Class[_ <: Annotation], Map[String, Any]] =
     (fieldAnnotations.get(minConstraint), fieldAnnotations.get(maxConstraint)) match {
       case (Some(min), Some(max)) =>
-        Map(
-          DefaultConstraints(minConstraint).annotationType -> Map(
-            "min" -> min.toInt,
-            "max" -> max.toInt))
+        Map(DefaultConstraints(minConstraint) -> Map("min" -> min.toInt, "max" -> max.toInt))
       case (Some(min), _) =>
-        Map(DefaultConstraints(minConstraint).annotationType -> Map("min" -> min.toInt))
+        Map(DefaultConstraints(minConstraint) -> Map("min" -> min.toInt))
       case (_, Some(max)) =>
-        Map(DefaultConstraints(maxConstraint).annotationType -> Map("max" -> max.toInt))
+        Map(DefaultConstraints(maxConstraint) -> Map("max" -> max.toInt))
       case _ => Map.empty[Class[_ <: Annotation], Map[String, Any]]
     }
 }

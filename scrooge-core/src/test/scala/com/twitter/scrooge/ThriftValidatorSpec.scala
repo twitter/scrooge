@@ -63,6 +63,90 @@ class ThriftValidatorSpec extends AnyFunSuite {
       size = 1,
       messages = Set("must be less than or equal to 10")
     )
+    assertViolations(
+      violations = thriftValidator.validateField[Int](
+        "max",
+        100,
+        Map("validation.max" -> "10")
+      ),
+      size = 1,
+      messages = Set("must be less than or equal to 10")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Short](
+        "max",
+        100.toShort,
+        Map("validation.max" -> "10")
+      ),
+      size = 1,
+      messages = Set("must be less than or equal to 10")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Byte](
+        "max",
+        100.toByte,
+        Map("validation.max" -> "10")
+      ),
+      size = 1,
+      messages = Set("must be less than or equal to 10")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Double](
+        "max",
+        100.1,
+        Map("validation.max" -> "10")
+      ),
+      size = 1,
+      messages = Set("must be less than or equal to 10")
+    )
+  }
+
+  test("validation.min") {
+    assertViolations(
+      violations = thriftValidator.validateField[Long](
+        "min",
+        0,
+        Map("validation.min" -> "1")
+      ),
+      size = 1,
+      messages = Set("must be greater than or equal to 1")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Int](
+        "min",
+        0,
+        Map("validation.min" -> "1")
+      ),
+      size = 1,
+      messages = Set("must be greater than or equal to 1")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Short](
+        "min",
+        0.toShort,
+        Map("validation.min" -> "1")
+      ),
+      size = 1,
+      messages = Set("must be greater than or equal to 1")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Byte](
+        "min",
+        0.toByte,
+        Map("validation.min" -> "1")
+      ),
+      size = 1,
+      messages = Set("must be greater than or equal to 1")
+    )
+    assertViolations(
+      violations = thriftValidator.validateField[Double](
+        "min",
+        0.1,
+        Map("validation.min" -> "1")
+      ),
+      size = 1,
+      messages = Set("must be greater than or equal to 1")
+    )
   }
 
   test("validation.notEmpty") {
@@ -109,18 +193,6 @@ class ThriftValidatorSpec extends AnyFunSuite {
       ),
       size = 1,
       messages = Set("size must be between 1 and 2")
-    )
-  }
-
-  test("validation.min") {
-    assertViolations(
-      violations = thriftValidator.validateField[Long](
-        "min",
-        0,
-        Map("validation.min" -> "1")
-      ),
-      size = 1,
-      messages = Set("must be greater than or equal to 1")
     )
   }
 
