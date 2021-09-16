@@ -2,12 +2,18 @@ package com.twitter.scrooge.finagle_integration
 
 import com.twitter.conversions.DurationOps._
 import com.twitter.finagle._
-import com.twitter.scrooge.{Request, Response, ThriftMethod}
+import com.twitter.scrooge.Request
+import com.twitter.scrooge.Response
+import com.twitter.scrooge.ThriftMethod
 import com.twitter.scrooge.finagle_integration.thriftscala._
 import com.twitter.scrooge.finagle_integration.thriftscala.BarService.Echo
 import com.twitter.scrooge.finagle_integration.thriftscala.ExtendedBarService.Triple
-import com.twitter.util.{Await, Awaitable, Duration, Future}
-import java.net.{InetAddress, InetSocketAddress}
+import com.twitter.util.Await
+import com.twitter.util.Awaitable
+import com.twitter.util.Duration
+import com.twitter.util.Future
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import org.apache.thrift.TApplicationException
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -16,7 +22,7 @@ class ScalaIntegrationTest extends AnyFunSuite {
   def await[T](a: Awaitable[T], d: Duration = 5.seconds): T =
     Await.result(a, d)
 
-  val iface = new BarService.FutureIface {
+  val iface = new BarService.MethodPerEndpoint {
     override def echo(x: String): Future[String] = Future.value(x)
 
     override def duplicate(y: String): Future[String] = Future.value(y + y)
@@ -29,7 +35,7 @@ class ScalaIntegrationTest extends AnyFunSuite {
   val muxServer =
     ThriftMux.server.serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), iface)
 
-  val muxClient = ThriftMux.client.newIface[BarService.FutureIface](
+  val muxClient = ThriftMux.client.build[BarService.MethodPerEndpoint](
     Name.bound(Address(muxServer.boundAddress.asInstanceOf[InetSocketAddress])),
     "client"
   )
@@ -80,72 +86,6 @@ class ScalaIntegrationTest extends AnyFunSuite {
       override def triple(z: String): Future[String] = Future.value(z + z + z)
     }
   )
-
-  test("construct Thrift server with FutureIface -- backward compatible") {
-    val futureIfaceBarServer = Thrift.server.serveIface(
-      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-      new BarService.FutureIface {
-        def echo(x: String): Future[String] = Future.value(x)
-
-        def duplicate(y: String): Future[String] = Future.value(y + y)
-
-        def getDuck(key: Long): Future[String] = Future.value("Scrooge")
-
-        def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
-      }
-    )
-
-    val futureIfaceExtendedBarServer = Thrift.server.serveIface(
-      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-      new ExtendedBarService.FutureIface {
-        def echo(x: String): Future[String] = Future.value(x)
-
-        def duplicate(y: String): Future[String] = Future.value(y + y)
-
-        def getDuck(key: Long): Future[String] = Future.value("Scrooge")
-
-        def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
-
-        def triple(z: String): Future[String] = Future.value(z + z + z)
-      }
-    )
-
-    assert(await(thriftBarClient(futureIfaceBarServer).echo("echo")) == "echo")
-    assert(await(thriftExtendedBarClient(futureIfaceExtendedBarServer).triple("3")) == "333")
-
-  }
-
-  test("construct Thrift server with Service[Future]") {
-    val serviceBarServer = Thrift.server.serveIface(
-      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-      new BarService[Future] {
-        def echo(x: String): Future[String] = Future.value(x)
-
-        def duplicate(y: String): Future[String] = Future.value(y + y)
-
-        def getDuck(key: Long): Future[String] = Future.value("Scrooge")
-
-        def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
-      }
-    )
-
-    val serviceExtendedBarServer = Thrift.server.serveIface(
-      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-      new ExtendedBarService[Future] {
-        def echo(x: String): Future[String] = Future.value(x)
-
-        def duplicate(y: String): Future[String] = Future.value(y + y)
-
-        def getDuck(key: Long): Future[String] = Future.value("Scrooge")
-
-        def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
-
-        def triple(z: String): Future[String] = Future.value(z + z + z)
-      }
-    )
-    assert(await(thriftBarClient(serviceBarServer).echo("echo")) == "echo")
-    assert(await(thriftExtendedBarClient(serviceExtendedBarServer).triple("3")) == "333")
-  }
 
   test("construct Thrift server with MethodPerEndpoint") {
     assert(await(thriftBarClient(thriftBarServer).echo("echo")) == "echo")
@@ -266,37 +206,6 @@ class ScalaIntegrationTest extends AnyFunSuite {
 
   }
 
-  test("construct Thrift client with newIface[FutureIface] -- backward compatible") {
-    val futureIfaceBarClient = Thrift.client.newIface[BarService.FutureIface](
-      Name.bound(Address(thriftBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
-      "futureIfaceBarClient"
-    )
-
-    val futureIfaceExtendedBarClient = Thrift.client.newIface[ExtendedBarService.FutureIface](
-      Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
-      "futureIfaceExtendedBarClient"
-    )
-
-    assert(await(futureIfaceBarClient.echo("echo")) == "echo")
-    assert(await(futureIfaceExtendedBarClient.triple("3")) == "333")
-
-  }
-
-  test("construct Thrift client with Service[Future]]") {
-    val serviceBarClient = Thrift.client.build[BarService[Future]](
-      Name.bound(Address(thriftBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
-      "serviceBarClient"
-    )
-
-    val serviceExtendedBarClient = Thrift.client.build[ExtendedBarService[Future]](
-      Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
-      "serviceExtendedBarClient"
-    )
-
-    assert(await(serviceBarClient.echo("echo")) == "echo")
-    assert(await(serviceExtendedBarClient.triple("3")) == "333")
-  }
-
   val tripleFilter = new SimpleFilter[Triple.Args, Triple.SuccessType] {
     def apply(args: Triple.Args, service: Service[Triple.Args, Triple.SuccessType]) =
       service(args.copy(z = args.z + "."))
@@ -305,22 +214,6 @@ class ScalaIntegrationTest extends AnyFunSuite {
   val echoFilter = new SimpleFilter[Echo.Args, Echo.SuccessType] {
     def apply(args: Echo.Args, service: Service[Echo.Args, Echo.SuccessType]) =
       service(args.copy(x = args.x + args.x))
-  }
-
-  test("construct Thrift client with newServiceIface[ServiceIface] -- backward compatible") {
-    val clientExtendedBarService = Thrift.client.newServiceIface[ExtendedBarService.ServiceIface](
-      Name.bound(Address(thriftExtendedBarServer.boundAddress.asInstanceOf[InetSocketAddress])),
-      "clientExtendedBarService"
-    )
-
-    val filteredServicePerEndpointCopy = clientExtendedBarService
-      .copy(echo = echoFilter.andThen(clientExtendedBarService.echo))
-      .copy(triple = tripleFilter.andThen(clientExtendedBarService.triple))
-
-    val barMethodPerEndpointCopy = Thrift.Client.newMethodIface(filteredServicePerEndpointCopy)
-
-    assert(await(barMethodPerEndpointCopy.echo("echo")) == "echoecho")
-    assert(await(barMethodPerEndpointCopy.triple("3")) == "3.3.3.")
   }
 
   test("construct Thrift client with servicePerEndpoint[ServicePerEndpoint]") {
