@@ -1,6 +1,9 @@
 junit_tests(
     sources = ["**/*.scala"],
     compiler_option_sets = ["fatal_warnings"],
+    tags = [
+        "bazel-incompatible-glob",  # See http://go/bazel-incompatible-glob
+    ],
     dependencies = [
         "3rdparty/jvm/junit",
         "3rdparty/jvm/org/apache/thrift:libthrift",

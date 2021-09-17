@@ -3,6 +3,9 @@ resources(
         "!BUILD*",
         "**/*",
     ],
+    tags = [
+        "bazel-incompatible-glob",  # See http://go/bazel-incompatible-glob
+    ],
 )
 
 java_thrift_library(
