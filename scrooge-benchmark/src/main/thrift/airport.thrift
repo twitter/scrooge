@@ -19,7 +19,8 @@ struct Airport {
 struct Flight {
   1: required i64 id
   2: required string name
-  3: required Airport from
+  // Fieldname `from` is a forbidden thrift keyword. Underscores added to make fieldname valid.
+  3: required Airport from_
   4: required Airport to
   5: optional i64 departureTime
 }
