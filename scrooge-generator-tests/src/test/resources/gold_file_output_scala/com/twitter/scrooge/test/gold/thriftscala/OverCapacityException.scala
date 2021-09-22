@@ -170,7 +170,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
       chillTimeSeconds
     )
 
-  def unapply(_item: OverCapacityException): _root_.scala.Option[Int] = _root_.scala.Some(_item.chillTimeSeconds)
+  def unapply(_item: OverCapacityException): _root_.scala.Some[Int] = _root_.scala.Some(_item.chillTimeSeconds)
 
 
 

@@ -166,7 +166,7 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
       errorCode
     )
 
-  def unapply(_item: AnotherException): _root_.scala.Option[Int] = _root_.scala.Some(_item.errorCode)
+  def unapply(_item: AnotherException): _root_.scala.Some[Int] = _root_.scala.Some(_item.errorCode)
 
 
 

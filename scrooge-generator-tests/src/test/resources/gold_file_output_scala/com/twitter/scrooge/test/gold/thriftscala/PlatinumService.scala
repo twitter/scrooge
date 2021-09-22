@@ -467,7 +467,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           request
         )
     
-      def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
+      def unapply(_item: Args): _root_.scala.Some[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
     
     
     
@@ -777,7 +777,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           oce
         )
     
-      def unapply(_item: Result): _root_.scala.Option[_root_.scala.Tuple3[Option[Int], Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
+      def unapply(_item: Result): _root_.scala.Some[_root_.scala.Tuple3[Option[Int], Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException], Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]]] = _root_.scala.Some(_item.toTuple)
     
     
     

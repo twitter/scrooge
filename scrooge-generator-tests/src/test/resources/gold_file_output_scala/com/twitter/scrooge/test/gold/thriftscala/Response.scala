@@ -270,7 +270,7 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
       responseUnion
     )
 
-  def unapply(_item: Response): _root_.scala.Option[_root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Response): _root_.scala.Some[_root_.scala.Tuple2[Int, com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]] = _root_.scala.Some(_item.toTuple)
 
 
 

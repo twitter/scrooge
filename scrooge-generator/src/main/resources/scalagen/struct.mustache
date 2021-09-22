@@ -389,10 +389,10 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
   def unapply(_item: {{StructName}}): Boolean = true
 {{/arity0}}
 {{#arity1}}
-  def unapply(_item: {{StructName}}): _root_.scala.Option[{{>optionalType}}] = _root_.scala.Some(_item.{{fieldName}})
+  def unapply(_item: {{StructName}}): _root_.scala.Some[{{>optionalType}}] = _root_.scala.Some(_item.{{fieldName}})
 {{/arity1}}
 {{#arityN}}
-  def unapply(_item: {{StructName}}): _root_.scala.Option[{{tuple}}] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: {{StructName}}): _root_.scala.Some[{{tuple}}] = _root_.scala.Some(_item.toTuple)
 {{/arityN}}
 
 

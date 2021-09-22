@@ -229,7 +229,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
       collectionLongId
     )
 
-  def unapply(_item: CollectionId): _root_.scala.Option[Long] = _root_.scala.Some(_item.collectionLongId)
+  def unapply(_item: CollectionId): _root_.scala.Some[Long] = _root_.scala.Some(_item.collectionLongId)
 
 
 
