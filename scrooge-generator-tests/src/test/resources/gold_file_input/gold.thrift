@@ -69,6 +69,7 @@ struct Request {
   13: required string requiredField
   14: optional i64 constructionRequiredField (construction_required = "true")
   15: optional i8 anInt8
+  16: optional binary aBinaryField
 } (s.annotation.one = "something",
   s.annotation.two = "other",
   com.twitter.scrooge.scala.generateStructProxy = "true")

@@ -37,6 +37,7 @@ Request.fields[12] = { name = 'recRequest', ttype = 'struct', fields = Recursive
 Request.fields[13] = { name = 'requiredField', required = true, ttype = 'string', }
 Request.fields[14] = { name = 'constructionRequiredField', ttype = 'i64', }
 Request.fields[15] = { name = 'anInt8', ttype = 'byte', }
+Request.fields[16] = { name = 'aBinaryField', ttype = 'binary', }
 
 local binaryCodec = require 'libthrift'
 

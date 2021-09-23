@@ -50,6 +50,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   private static final TField REQUIRED_FIELD_FIELD_DESC = new TField("requiredField", TType.STRING, (short)13);
   private static final TField CONSTRUCTION_REQUIRED_FIELD_FIELD_DESC = new TField("constructionRequiredField", TType.I64, (short)14);
   private static final TField AN_INT8_FIELD_DESC = new TField("anInt8", TType.BYTE, (short)15);
+  private static final TField A_BINARY_FIELD_FIELD_DESC = new TField("aBinaryField", TType.STRING, (short)16);
 
 
   public List<String> aList;
@@ -67,6 +68,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public String requiredField;
   public long constructionRequiredField;
   public byte anInt8;
+  public ByteBuffer aBinaryField;
   private Map<Short, TFieldBlob> passThroughFields;
 
   /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
@@ -85,7 +87,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     REC_REQUEST((short)12, "recRequest"),
     REQUIRED_FIELD((short)13, "requiredField"),
     CONSTRUCTION_REQUIRED_FIELD((short)14, "constructionRequiredField"),
-    AN_INT8((short)15, "anInt8");
+    AN_INT8((short)15, "anInt8"),
+    A_BINARY_FIELD((short)16, "aBinaryField");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -130,6 +133,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           return CONSTRUCTION_REQUIRED_FIELD;
         case 15: // AN_INT8
           return AN_INT8;
+        case 16: // A_BINARY_FIELD
+          return A_BINARY_FIELD;
         default:
           return null;
       }
@@ -232,6 +237,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       new FieldValueMetaData(TType.I64)));
     tmpMap.put(_Fields.AN_INT8, new FieldMetaData("anInt8", TFieldRequirementType.OPTIONAL,
       new FieldValueMetaData(TType.BYTE)));
+    tmpMap.put(_Fields.A_BINARY_FIELD, new FieldMetaData("aBinaryField", TFieldRequirementType.OPTIONAL,
+      registerBinaryFieldValueMetaData(new FieldValueMetaData(TType.STRING, true), tmpSet)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(Request.class, metaDataMap);
@@ -375,6 +382,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     this.constructionRequiredField = other.constructionRequiredField;
     this.anInt8 = other.anInt8;
+    if (other.isSetABinaryField()) {
+      this.aBinaryField = TBaseHelper.copyBinary(other.aBinaryField);
+    }
     this.passThroughFields = other.passThroughFields;
   }
 
@@ -449,6 +459,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     this.constructionRequiredField = 0;
     setAnInt8IsSet(false);
     this.anInt8 = 0;
+    this.aBinaryField = null;
     this.passThroughFields = null;
   }
 
@@ -876,6 +887,41 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     __isset_bit_vector.set(__ANINT8_ISSET_ID, value);
   }
 
+  public byte[] getABinaryField() {
+    setABinaryField(TBaseHelper.rightSize(aBinaryField));
+    return aBinaryField.array();
+  }
+
+  public ByteBuffer BufferForABinaryField() {
+    return aBinaryField;
+  }
+
+  public Request setABinaryField(byte[] aBinaryField) {
+    setABinaryField(ByteBuffer.wrap(aBinaryField));
+    return this;
+  }
+
+  public Request setABinaryField(ByteBuffer aBinaryField) {
+    this.aBinaryField = aBinaryField;
+    
+    return this;
+  }
+
+  public void unsetABinaryField() {
+    this.aBinaryField = null;
+  }
+
+  /** Returns true if field aBinaryField is set (has been assigned a value) and false otherwise */
+  public boolean isSetABinaryField() {
+    return this.aBinaryField != null;
+  }
+
+  public void setABinaryFieldIsSet(boolean value) {
+    if (!value) {
+      this.aBinaryField = null;
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
@@ -984,6 +1030,13 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         setAnInt8((Byte)value);
       }
       break;
+    case A_BINARY_FIELD:
+      if (value == null) {
+        unsetABinaryField();
+      } else {
+        setABinaryField((ByteBuffer)value);
+      }
+      break;
     }
   }
 
@@ -1019,6 +1072,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return Long.valueOf(getConstructionRequiredField());
     case AN_INT8:
       return Byte.valueOf(getAnInt8());
+    case A_BINARY_FIELD:
+      return getABinaryField();
     }
     throw new IllegalStateException();
   }
@@ -1060,6 +1115,8 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       return isSetConstructionRequiredField();
     case AN_INT8:
       return isSetAnInt8();
+    case A_BINARY_FIELD:
+      return isSetABinaryField();
     }
     throw new IllegalStateException();
   }
@@ -1200,6 +1257,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (this.anInt8 != that.anInt8)
         return false;
     }
+    boolean this_present_aBinaryField = true && this.isSetABinaryField();
+    boolean that_present_aBinaryField = true && that.isSetABinaryField();
+    if (this_present_aBinaryField || that_present_aBinaryField) {
+      if (!(this_present_aBinaryField && that_present_aBinaryField))
+        return false;
+      if (!this.aBinaryField.equals(that.aBinaryField))
+        return false;
+    }
     return true;
   }
 
@@ -1261,6 +1326,9 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     }
     if (isSetAnInt8()) {
       hashCode = 31 * hashCode + ((Byte)anInt8).hashCode();
+    }
+    if (isSetABinaryField()) {
+      hashCode = 31 * hashCode + aBinaryField.hashCode();
     }
     return hashCode;
   }
@@ -1423,6 +1491,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetABinaryField()).compareTo(typedOther.isSetABinaryField());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetABinaryField()) {
+      lastComparison = TBaseHelper.compareTo(this.aBinaryField, typedOther.aBinaryField);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -1557,6 +1635,10 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
           this.anInt8 = iprot.readByte();
           setAnInt8IsSet(true);
           break;
+        case 16: // A_BINARY_FIELD
+          TProtocols.validateFieldType(TType.STRING, field.type, "aBinaryField");
+          this.aBinaryField = iprot.readBinary();
+          break;
         default:
           if (this.passThroughFields == null) {
             this.passThroughFields = new HashMap<Short, TFieldBlob>();
@@ -1683,6 +1765,13 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       oprot.writeByte(this.anInt8);
       oprot.writeFieldEnd();
     }
+    if (this.aBinaryField != null) {
+      if (isSetABinaryField()) {
+        oprot.writeFieldBegin(A_BINARY_FIELD_FIELD_DESC);
+        oprot.writeBinary(this.aBinaryField);
+        oprot.writeFieldEnd();
+      }
+    }
     if (this.passThroughFields != null) {
       for (TFieldBlob field : this.passThroughFields.values()) {
         field.write(oprot);
@@ -1803,6 +1892,16 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       if (!first) sb.append(", ");
       sb.append("anInt8:");
       sb.append(this.anInt8);
+      first = false;
+      }
+    if (isSetABinaryField()) {
+      if (!first) sb.append(", ");
+      sb.append("aBinaryField:");
+      if (this.aBinaryField == null) {
+        sb.append("null");
+      } else {
+        TBaseHelper.toString(this.aBinaryField, sb);
+      }
       first = false;
       }
     sb.append(")");

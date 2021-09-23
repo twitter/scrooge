@@ -65,6 +65,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
   val ConstructionRequiredFieldFieldManifest: Manifest[Long] = manifest[Long]
   val AnInt8Field: TField = new TField("anInt8", TType.BYTE, 15)
   val AnInt8FieldManifest: Manifest[Byte] = manifest[Byte]
+  val ABinaryFieldField: TField = new TField("aBinaryField", TType.STRING, 16)
+  val ABinaryFieldFieldManifest: Manifest[_root_.java.nio.ByteBuffer] = manifest[_root_.java.nio.ByteBuffer]
 
   /**
    * Field information in declaration order.
@@ -256,6 +258,18 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       immutable$Map.empty[String, String],
       None,
       _root_.scala.Option(0)
+    ),
+    new ThriftStructFieldInfo(
+      ABinaryFieldField,
+      true,
+      false,
+      ABinaryFieldFieldManifest,
+      _root_.scala.None,
+      _root_.scala.None,
+      immutable$Map.empty[String, String],
+      immutable$Map.empty[String, String],
+      None,
+      _root_.scala.Option(null)
     )
   )
 
@@ -282,7 +296,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     classTag[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]].asInstanceOf[ClassTag[_]],
     classTag[String].asInstanceOf[ClassTag[_]],
     classTag[Long].asInstanceOf[ClassTag[_]],
-    classTag[_root_.scala.Option[Byte]].asInstanceOf[ClassTag[_]]
+    classTag[_root_.scala.Option[Byte]].asInstanceOf[ClassTag[_]],
+    classTag[_root_.scala.Option[_root_.java.nio.ByteBuffer]].asInstanceOf[ClassTag[_]]
   )
 
   private[this] val structFields: Seq[ThriftStructField[Request]] = Seq[ThriftStructField[Request]](
@@ -375,6 +390,12 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.Some(AnInt8FieldManifest),
       classOf[Request]) {
         def getValue[R](struct: Request): R = struct.anInt8.asInstanceOf[R]
+    },
+    new ThriftStructField[Request](
+      ABinaryFieldField,
+      _root_.scala.Some(ABinaryFieldFieldManifest),
+      classOf[Request]) {
+        def getValue[R](struct: Request): R = struct.aBinaryField.asInstanceOf[R]
     }
   )
 
@@ -416,6 +437,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       )
     buf ++= validateField(item.constructionRequiredField)
     buf ++= validateField(item.anInt8)
+    buf ++= validateField(item.aBinaryField)
     buf.toList
   }
 
@@ -441,6 +463,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     violations ++= validateFieldValue("requiredField", item.requiredField, fieldInfos.apply(12).fieldAnnotations, thriftValidator);
     violations ++= validateFieldValue("constructionRequiredField", item.constructionRequiredField, fieldInfos.apply(13).fieldAnnotations, thriftValidator);
     violations ++= validateFieldValue("anInt8", item.anInt8, fieldInfos.apply(14).fieldAnnotations, thriftValidator);
+    violations ++= validateFieldValue("aBinaryField", item.aBinaryField, fieldInfos.apply(15).fieldAnnotations, thriftValidator);
     violations.toSet
   }
 
@@ -478,7 +501,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         },
       requiredField = original.requiredField,
       constructionRequiredField = original.constructionRequiredField,
-      anInt8 = original.anInt8
+      anInt8 = original.anInt8,
+      aBinaryField = original.aBinaryField
     )
 
   lazy val unsafeEmpty: Request = {
@@ -497,6 +521,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     val requiredField: String = "empty"
     val constructionRequiredField: _root_.scala.Option[Long] = _root_.scala.None
     val anInt8: _root_.scala.Option[Byte] = _root_.scala.None
+    val aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = _root_.scala.None
 
     new Immutable(
       aList,
@@ -514,6 +539,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredField,
       constructionRequiredField,
       anInt8,
+      aBinaryField,
       _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
     )
   }
@@ -610,6 +636,10 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       accessRecorder.fieldAccessed(15)
       underlying.anInt8
     }
+    override def aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = {
+      accessRecorder.fieldAccessed(16)
+      underlying.aBinaryField
+    }
     override def write(_oprot: TProtocol): Unit = underlying.write(_oprot)
 
     override def _passthroughFields: immutable$Map[Short, TFieldBlob] = underlying._passthroughFields
@@ -655,6 +685,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     var constructionRequiredField: Option[Long] = None
     var anInt8Offset: Int = -1
     var anInt8: Option[Byte] = None
+    var aBinaryField: Option[_root_.java.nio.ByteBuffer] = None
 
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
@@ -741,6 +772,9 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
               anInt8Offset = _iprot.asInstanceOf[LazyTProtocol].offsetSkipByte()
             else
               anInt8 = _root_.scala.Some(_iprot.readByte())
+          case 16 =>
+            _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRING, _fieldType, "aBinaryField")
+            aBinaryField = _root_.scala.Some(_iprot.readBinary())
           case _ =>
             _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
         }
@@ -776,6 +810,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         requiredFieldOffset,
         constructionRequiredFieldOffset,
         anInt8Offset,
+        aBinaryField,
         _passthroughFieldsResult
       )
     } else {
@@ -795,6 +830,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
         requiredField,
         constructionRequiredField,
         anInt8,
+        aBinaryField,
         _passthroughFieldsResult
       )
     }
@@ -815,7 +851,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None,
     requiredField: String,
     constructionRequiredField: Long,
-    anInt8: _root_.scala.Option[Byte] = _root_.scala.None
+    anInt8: _root_.scala.Option[Byte] = _root_.scala.None,
+    aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = _root_.scala.None
   ): Request =
     new Immutable(
       aList,
@@ -832,10 +869,11 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       recRequest,
       requiredField,
       constructionRequiredField,
-      anInt8
+      anInt8,
+      aBinaryField
     )
 
-  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]]] = _root_.scala.Some(_item.toTuple)
+  def unapply(_item: Request): _root_.scala.Option[_root_.scala.Tuple16[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte], Option[_root_.java.nio.ByteBuffer]]] = _root_.scala.Some(_item.toTuple)
 
 
   private[thriftscala] def readAListValue(_iprot: TProtocol): _root_.scala.collection.Seq[String] = {
@@ -898,6 +936,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       val requiredField: String,
       val constructionRequiredField: _root_.scala.Option[Long],
       val anInt8: _root_.scala.Option[Byte],
+      val aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
     private[thriftscala] def this(
@@ -915,7 +954,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive],
       requiredField: String,
       constructionRequiredField: _root_.scala.Option[Long],
-      anInt8: _root_.scala.Option[Byte]
+      anInt8: _root_.scala.Option[Byte],
+      aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer]
     ) = this(
       aList,
       aSet,
@@ -932,6 +972,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredField,
       constructionRequiredField,
       anInt8,
+      aBinaryField,
       immutable$Map.empty[Short, TFieldBlob]
     )
   def this(
@@ -949,7 +990,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = _root_.scala.None,
       requiredField: String,
       constructionRequiredField: Long,
-      anInt8: _root_.scala.Option[Byte] = _root_.scala.None
+      anInt8: _root_.scala.Option[Byte] = _root_.scala.None,
+      aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = _root_.scala.None
     ) = this(
       aList,
       aSet,
@@ -966,6 +1008,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredField,
       Some(constructionRequiredField),
       anInt8,
+      aBinaryField,
       immutable$Map.empty[Short, TFieldBlob]
     )
   def this(
@@ -984,6 +1027,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredField: String,
       constructionRequiredField: Long,
       anInt8: _root_.scala.Option[Byte],
+      aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer],
       _passthroughFields: immutable$Map[Short, TFieldBlob]
   ) = this(
       aList,
@@ -1001,6 +1045,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredField,
       Some(constructionRequiredField),
       anInt8,
+      aBinaryField,
       _passthroughFields
   )
   }
@@ -1029,6 +1074,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       requiredFieldOffset: Int,
       constructionRequiredFieldOffset: Int,
       anInt8Offset: Int,
+      val aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer],
       override val _passthroughFields: immutable$Map[Short, TFieldBlob])
     extends Request {
 
@@ -1131,6 +1177,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     override def requiredField: String = _underlying_Request.requiredField
     override def constructionRequiredField: _root_.scala.Option[Long] = _underlying_Request.constructionRequiredField
     override def anInt8: _root_.scala.Option[Byte] = _underlying_Request.anInt8
+    override def aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = _underlying_Request.aBinaryField
     override def _passthroughFields: immutable$Map[Short, TFieldBlob] = _underlying_Request._passthroughFields
   }
 }
@@ -1141,7 +1188,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
  */
 trait Request
   extends ThriftStruct
-  with _root_.scala.Product15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]]
+  with _root_.scala.Product16[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte], Option[_root_.java.nio.ByteBuffer]]
   with ValidatingThriftStruct[Request]
   with java.io.Serializable
 {
@@ -1168,6 +1215,7 @@ trait Request
   def requiredField: String
   def constructionRequiredField: _root_.scala.Option[Long]
   def anInt8: _root_.scala.Option[Byte]
+  def aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer]
 
   def _passthroughFields: immutable$Map[Short, TFieldBlob] = immutable$Map.empty
 
@@ -1186,9 +1234,10 @@ trait Request
   def _13: String = requiredField
   def _14: _root_.scala.Option[Long] = constructionRequiredField
   def _15: _root_.scala.Option[Byte] = anInt8
+  def _16: _root_.scala.Option[_root_.java.nio.ByteBuffer] = aBinaryField
 
-  def toTuple: _root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]] =
-    _root_.scala.Tuple15[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte]](
+  def toTuple: _root_.scala.Tuple16[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte], Option[_root_.java.nio.ByteBuffer]] =
+    _root_.scala.Tuple16[_root_.scala.collection.Seq[String], _root_.scala.collection.Set[Int], _root_.scala.collection.Map[Long, Long], Option[com.twitter.scrooge.test.gold.thriftscala.Request], _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request], String, Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[com.twitter.scrooge.test.gold.thriftscala.Recursive], String, Option[Long], Option[Byte], Option[_root_.java.nio.ByteBuffer]](
       aList,
       aSet,
       aMap,
@@ -1203,7 +1252,8 @@ trait Request
       recRequest,
       requiredField,
       constructionRequiredField,
-      anInt8
+      anInt8,
+      aBinaryField
     )
 
 
@@ -1327,6 +1377,13 @@ trait Request
           } else {
             _root_.scala.None
           }
+        case 16 =>
+          if (aBinaryField.isDefined) {
+            _oprot.writeBinary(aBinaryField.get)
+            _root_.scala.Some(Request.ABinaryFieldField)
+          } else {
+            _root_.scala.None
+          }
         case _ => _root_.scala.None
       }
       if (_fieldOpt.isDefined) {
@@ -1367,6 +1424,7 @@ trait Request
     var requiredField: String = this.requiredField
     var constructionRequiredField: _root_.scala.Option[Long] = this.constructionRequiredField
     var anInt8: _root_.scala.Option[Byte] = this.anInt8
+    var aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = this.aBinaryField
     var _passthroughFields = this._passthroughFields
     val _iprot = _blob.read 
     _blob.id match {
@@ -1400,6 +1458,8 @@ trait Request
         constructionRequiredField = _root_.scala.Some(_iprot.readI64())
       case 15 =>
         anInt8 = _root_.scala.Some(_iprot.readByte())
+      case 16 =>
+        aBinaryField = _root_.scala.Some(_iprot.readBinary())
       case _ => _passthroughFields += _root_.scala.Tuple2(_blob.id, _blob)
     }
     new Immutable(
@@ -1418,6 +1478,7 @@ trait Request
       requiredField,
       constructionRequiredField,
       anInt8,
+      aBinaryField,
       _passthroughFields
     )
   }
@@ -1443,6 +1504,7 @@ trait Request
     var requiredField: String = this.requiredField
     var constructionRequiredField: _root_.scala.Option[Long] = this.constructionRequiredField
     var anInt8: _root_.scala.Option[Byte] = this.anInt8
+    var aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = this.aBinaryField
 
     _fieldId match {
       case 1 =>
@@ -1475,6 +1537,8 @@ trait Request
         constructionRequiredField = _root_.scala.None
       case 15 =>
         anInt8 = _root_.scala.None
+      case 16 =>
+        aBinaryField = _root_.scala.None
       case _ =>
     }
     new Immutable(
@@ -1493,6 +1557,7 @@ trait Request
       requiredField,
       constructionRequiredField,
       anInt8,
+      aBinaryField,
       _passthroughFields - _fieldId
     )
   }
@@ -1531,6 +1596,8 @@ trait Request
   def unsetConstructionRequiredField: Request = unsetField(14)
 
   def unsetAnInt8: Request = unsetField(15)
+
+  def unsetABinaryField: Request = unsetField(16)
 
 
   override def write(_oprot: TProtocol): Unit = {
@@ -1612,6 +1679,11 @@ trait Request
       _oprot.writeByte(anInt8.get)
       _oprot.writeFieldEnd()
     }
+    if (aBinaryField.isDefined) {
+      _oprot.writeFieldBegin(ABinaryFieldField)
+      _oprot.writeBinary(aBinaryField.get)
+      _oprot.writeFieldEnd()
+    }
     _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
   }
 
@@ -1630,6 +1702,7 @@ trait Request
     recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive] = this.recRequest,
     requiredField: String = this.requiredField,
     anInt8: _root_.scala.Option[Byte] = this.anInt8,
+    aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = this.aBinaryField,
     _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
   ): Request =
     new Immutable(
@@ -1648,6 +1721,7 @@ trait Request
       requiredField,
       this.constructionRequiredField,
       anInt8,
+      aBinaryField,
       _passthroughFields
     )
 
@@ -1676,6 +1750,7 @@ trait Request
       this.requiredField,
       constructionRequiredField.orElse(this.constructionRequiredField),
       this.anInt8,
+      this.aBinaryField,
       _passthroughFields
     )
 
@@ -1724,7 +1799,8 @@ private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Re
         if (_fieldArray(11) == null) instanceValue.recRequest else _fieldArray(11).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
         if (_fieldArray(12) == null) instanceValue.requiredField else _fieldArray(12).asInstanceOf[String],
         if (_fieldArray(13) == null) instanceValue.constructionRequiredField.get else _fieldArray(13).asInstanceOf[Long],
-        if (_fieldArray(14) == null) instanceValue.anInt8 else _fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]]
+        if (_fieldArray(14) == null) instanceValue.anInt8 else _fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]],
+        if (_fieldArray(15) == null) instanceValue.aBinaryField else _fieldArray(15).asInstanceOf[_root_.scala.Option[_root_.java.nio.ByteBuffer]]
       )
     } else {
       if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Request"))
@@ -1743,7 +1819,8 @@ private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Re
         _fieldArray(11).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]],
         _fieldArray(12).asInstanceOf[String],
         _fieldArray(13).asInstanceOf[Long],
-        _fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]]
+        _fieldArray(14).asInstanceOf[_root_.scala.Option[Byte]],
+        _fieldArray(15).asInstanceOf[_root_.scala.Option[_root_.java.nio.ByteBuffer]]
       )
     }
   }
@@ -1851,6 +1928,12 @@ private class Request__AdaptDecoder {
 
     adapt.set_anInt8(anInt8)
     AdaptTProtocol.usedEndMarker(15)
+
+    AdaptTProtocol.usedStartMarker(16)
+    var aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = _root_.scala.None
+
+    adapt.set_aBinaryField(aBinaryField)
+    AdaptTProtocol.usedEndMarker(16)
 
     _iprot.readStructBegin()
     do {
@@ -2146,6 +2229,25 @@ private class Request__AdaptDecoder {
             adapt.set_anInt8(anInt8)
             AdaptTProtocol.usedEndMarker(15)
           }
+          case 16 => {
+            if (_fieldType == TType.STRING) {
+              AdaptTProtocol.usedStartMarker(16)
+              aBinaryField = _root_.scala.Some(_iprot.readBinary())
+              AdaptTProtocol.usedEndMarker(16)
+              AdaptTProtocol.unusedStartMarker(16)
+              _iprot.offsetSkipBinary()
+              AdaptTProtocol.unusedEndMarker(16)
+            } else {
+              throw AdaptTProtocol.unexpectedTypeException(
+                TType.STRING,
+                _fieldType,
+                "aBinaryField"
+              )
+            }
+            AdaptTProtocol.usedStartMarker(16)
+            adapt.set_aBinaryField(aBinaryField)
+            AdaptTProtocol.usedEndMarker(16)
+          }
           case _ =>
             if (_passthroughFields eq null)
               _passthroughFields = immutable$Map.newBuilder[Short, TFieldBlob]
@@ -2287,6 +2389,13 @@ private class Request__Adapt(
   def anInt8: _root_.scala.Option[Byte] = m_anInt8
   // This will be removed by ASM if field is used otherwise renamed to anInt8.
   def delegated_anInt8: _root_.scala.Option[Byte] = delegate.anInt8
+
+  private[this] var m_aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = _
+  def set_aBinaryField(aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer]): Unit = m_aBinaryField = aBinaryField
+  // This will be removed by ASM if field is unused.
+  def aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = m_aBinaryField
+  // This will be removed by ASM if field is used otherwise renamed to aBinaryField.
+  def delegated_aBinaryField: _root_.scala.Option[_root_.java.nio.ByteBuffer] = delegate.aBinaryField
 
 
   private[this] var _end_offset: Int = _

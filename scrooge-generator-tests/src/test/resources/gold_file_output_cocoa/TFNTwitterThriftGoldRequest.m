@@ -43,6 +43,8 @@
     [ms appendFormat:@"%@ ", @(_constructionRequiredField)];
     [ms appendString:@"anInt8:"];
     [ms appendFormat:@"%@ ", @(_anInt8)];
+    [ms appendString:@"aBinaryField:"];
+    [ms appendFormat:@"%@ ", _aBinaryField];
     [ms appendString:@")"];
     return [NSString stringWithString:ms];
 }
@@ -123,6 +125,9 @@
         if ([decoder containsValueForKey:@"15"]) {
             [self setAnInt8:(int8_t)[decoder decodeInt32ForKey:@"15"]];
         }
+        if ([decoder containsValueForKey:@"16"]) {
+            [self setABinaryField:(NSData *)[decoder decodeDataObjectForKey:@"16"]];
+        }
     }
     return self;
 }
@@ -173,6 +178,9 @@
     }
     if (_anInt8IsSet) {
         [encoder encodeInt32:_anInt8 forKey:@"15"];
+    }
+    if (_aBinaryFieldIsSet) {
+        [encoder encodeDataObject:_aBinaryField forKey:@"16"];
     }
 }
 
@@ -264,6 +272,12 @@
 {
     _anInt8 = anInt8;
     _anInt8IsSet = YES;
+}
+
+- (void)setABinaryField:(NSData *)aBinaryField
+{
+    _aBinaryField = [aBinaryField copy];
+    _aBinaryFieldIsSet = aBinaryField != nil;
 }
 
 - (void)read:(id <TProtocol>)inProtocol
@@ -474,6 +488,16 @@
                     [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
                 }
                 break;
+            case 16:
+                if (fieldType == TType_STRING) {
+                    NSData * aBinaryField_item;
+                    aBinaryField_item = [inProtocol readBinary];
+                    [self setABinaryField:aBinaryField_item];
+                } else {
+                    NSLog(@"%s: field ID %i has unexpected type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
+                    [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
+                }
+                break;
         default:
             NSLog(@"%s: unexpected field ID %i with type %i.  Skipping.", __PRETTY_FUNCTION__, fieldID, fieldType);
             [TProtocolUtil skipType:fieldType onProtocol:inProtocol];
@@ -601,6 +625,12 @@
         [outProtocol writeFieldBeginWithName:@"anInt8" type:TType_BYTE fieldID:15];
         int8_t anInt8_item = _anInt8;
         [outProtocol writeByte:anInt8_item];
+        [outProtocol writeFieldEnd];
+    }
+    if (_aBinaryFieldIsSet) {
+        [outProtocol writeFieldBeginWithName:@"aBinaryField" type:TType_STRING fieldID:16];
+        NSData * aBinaryField_item = _aBinaryField;
+        [outProtocol writeBinary:aBinaryField_item];
         [outProtocol writeFieldEnd];
     }
     [outProtocol writeFieldStop];

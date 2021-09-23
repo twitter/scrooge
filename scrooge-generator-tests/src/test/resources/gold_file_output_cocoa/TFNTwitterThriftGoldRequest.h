@@ -56,6 +56,9 @@
 @property (nonatomic) int8_t anInt8;
 @property (nonatomic, readonly) BOOL anInt8IsSet;
 
+@property (nonatomic, copy) NSData * aBinaryField;
+@property (nonatomic, readonly) BOOL aBinaryFieldIsSet;
+
 
 - (instancetype)initWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests _default:(NSString *)_default requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField;
 + (instancetype)instanceWithAList:(NSArray *)aList aSet:(NSSet *)aSet aMap:(NSDictionary *)aMap subRequests:(NSArray *)subRequests _default:(NSString *)_default requiredField:(NSString *)requiredField constructionRequiredField:(int64_t)constructionRequiredField error:(NSError **)error;
