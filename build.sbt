@@ -372,7 +372,6 @@ lazy val scroogeSbtPlugin = Project(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.twitter",
     sbtPlugin := true,
-    resolvers += Resolver.typesafeIvyRepo("releases").withName("typesafe-alt-ivy-releases")
   ).dependsOn(scroogeGenerator)
 
 lazy val scroogeLinter = Project(
