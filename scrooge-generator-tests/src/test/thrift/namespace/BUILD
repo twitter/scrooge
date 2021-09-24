@@ -4,6 +4,7 @@ java_thrift_library(
     compiler = "scrooge",
     default_java_namespace = "bar",
     language = "scala",
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(

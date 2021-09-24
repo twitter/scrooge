@@ -13,6 +13,7 @@ java_thrift_library(
     sources = ["constant_sets.thrift"],
     compiler = "scrooge",
     language = "scala",
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(

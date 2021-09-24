@@ -8,6 +8,7 @@ java_thrift_library(
     namespace_map = {
         "thrift.test": "com.twitter.scrooge.integration_scala",
     },
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(

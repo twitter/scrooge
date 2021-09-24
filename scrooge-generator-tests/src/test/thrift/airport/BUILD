@@ -3,6 +3,7 @@ java_thrift_library(
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(
