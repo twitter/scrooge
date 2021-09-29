@@ -7,9 +7,6 @@ java_thrift_library(
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3",
     ],
     language = "scala",
-    tags = [
-        "bazel-incompatible-glob",  # See http://go/bazel-incompatible-glob
-    ],
     dependencies = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2:include-scala",
@@ -27,9 +24,6 @@ java_thrift_library(
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3",
     ],
     language = "android",
-    tags = [
-        "bazel-incompatible-glob",  # See http://go/bazel-incompatible-glob
-    ],
     dependencies = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
