@@ -23,14 +23,14 @@ import org.apache.thrift.transport.TMemoryInputTransport
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class GoldService$FinagleService(
-  iface: GoldService[Future],
+  iface: GoldService.MethodPerEndpoint,
   serverParam: RichServerParam
 ) extends com.twitter.finagle.Service[Array[Byte], Array[Byte]] {
   import GoldService._
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService[Future],
+    iface: GoldService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -39,7 +39,7 @@ class GoldService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService[Future],
+    iface: GoldService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -47,7 +47,7 @@ class GoldService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService[Future],
+    iface: GoldService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 

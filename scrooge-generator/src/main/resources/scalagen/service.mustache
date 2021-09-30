@@ -36,21 +36,6 @@ import scala.reflect.{ClassTag, classTag}
 
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-trait {{ServiceName}}[+MM[_]] {{#genericParent}}extends {{genericParent}} {{/genericParent}}{
-{{#genericFunctions}}
-  {{>function}}
-{{/genericFunctions}}
-
-{{#withAsClosable}}
-  /**
-   * Used to close the underlying `Service`.
-   * Not a user-defined API.
-   */
-  {{#parent}}override {{/parent}}def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
-{{/withAsClosable}}
-}
-
-{{docstring}}
 object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift.GeneratedThriftService {{/withFinagle}}{ self =>
 
 {{#annotations}}
@@ -394,12 +379,17 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 {{/thriftFunctions}}
 
 {{#withFinagle}}
-  trait MethodPerEndpoint
-    extends {{#methodPerEndpointParent}}{{methodPerEndpointParent}}
-    with {{/methodPerEndpointParent}}{{ServiceName}}[Future] {
+  trait MethodPerEndpoint extends {{genericParent}} {
 {{#asyncFunctions}}
     {{>function}}
 {{/asyncFunctions}}
+{{#withAsClosable}}
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    {{#parent}}override {{/parent}}def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
+{{/withAsClosable}}
   }
 {{#generateServiceIface}}
 
@@ -457,7 +447,7 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   class MethodIface(serviceIface: BaseServiceIface)
     extends {{#parent}}{{parent}}.MethodIface(serviceIface)
-    with {{/parent}}FutureIface {
+    with {{/parent}}MethodPerEndpoint {
 {{#ownFunctions}}
     def {{funcName}}({{fieldParams}}): Future[{{typeName}}] =
       serviceIface.{{dedupedFuncName}}(self.{{funcObjectName}}.Args({{argNames}})){{^isVoid}}{{/isVoid}}{{#isVoid}}.unit{{/isVoid}}
@@ -470,42 +460,17 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
       MethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use MethodPerEndpointBuilder", "2018-01-12")
-  implicit object ThriftServiceBuilder
-    extends _root_.com.twitter.finagle.thrift.service.ThriftServiceBuilder[ServicePerEndpoint, {{ServiceName}}[Future]] {
-    def build(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
-      MethodPerEndpoint(servicePerEndpoint)
-  }
-
   implicit object ReqRepMethodPerEndpointBuilder
     extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, MethodPerEndpoint] {
     def methodPerEndpoint(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
       ReqRepMethodPerEndpoint(servicePerEndpoint)
   }
-
-  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
-  implicit object MethodIfaceBuilder
-    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, {{ServiceName}}[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): MethodIface =
-      new MethodIface(serviceIface)
-  }
 {{/generateServiceIface}}
-
-  @deprecated("Use MethodPerEndpoint", "2017-11-07")
-  trait FutureIface
-    extends {{#futureIfaceParent}}{{futureIfaceParent}}
-    with {{/futureIfaceParent}}MethodPerEndpoint
-    with {{ServiceName}}[Future] {
-{{#asyncFunctions}}
-    {{>function}}
-{{/asyncFunctions}}
-  }
 
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       clientParam: RichClientParam)
     extends {{ServiceName}}$FinagleClient(service, clientParam)
-    with FutureIface
     with MethodPerEndpoint {
 
     @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
@@ -542,13 +507,13 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
   }
 
   class FinagledService(
-      iface: {{ServiceName}}[Future],
+      iface: MethodPerEndpoint,
       serverParam: RichServerParam)
     extends {{ServiceName}}$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: {{ServiceName}}[Future],
+      iface: MethodPerEndpoint,
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "{{ServiceName}}"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))

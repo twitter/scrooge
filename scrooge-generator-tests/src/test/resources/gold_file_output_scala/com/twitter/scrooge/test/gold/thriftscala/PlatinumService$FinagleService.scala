@@ -20,14 +20,14 @@ import org.apache.thrift.protocol._
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class PlatinumService$FinagleService(
-  iface: PlatinumService[Future],
+  iface: PlatinumService.MethodPerEndpoint,
   serverParam: RichServerParam
 ) extends GoldService$FinagleService(iface, serverParam) {
   import PlatinumService._
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService[Future],
+    iface: PlatinumService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -36,7 +36,7 @@ class PlatinumService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService[Future],
+    iface: PlatinumService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -44,7 +44,7 @@ class PlatinumService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService[Future],
+    iface: PlatinumService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 

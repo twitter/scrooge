@@ -33,18 +33,6 @@ import scala.reflect.{ClassTag, classTag}
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-trait PlatinumService[+MM[_]] extends GoldService[MM] {
-  
-  def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[Int]
-
-  /**
-   * Used to close the underlying `Service`.
-   * Not a user-defined API.
-   */
-  override def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
-}
-
-
 object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThriftService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map.empty
@@ -936,11 +924,14 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   type moreCoolThings$result = MoreCoolThings.Result
 
 
-  trait MethodPerEndpoint
-    extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodPerEndpoint
-    with PlatinumService[Future] {
+  trait MethodPerEndpoint extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodPerEndpoint {
     
     def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int]
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    override def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
   }
 
   object MethodPerEndpoint {
@@ -989,7 +980,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   class MethodIface(serviceIface: BaseServiceIface)
     extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodIface(serviceIface)
-    with FutureIface {
+    with MethodPerEndpoint {
     def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] =
       serviceIface.moreCoolThings(self.MoreCoolThings.Args(request))
   }
@@ -1000,40 +991,16 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       MethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use MethodPerEndpointBuilder", "2018-01-12")
-  implicit object ThriftServiceBuilder
-    extends _root_.com.twitter.finagle.thrift.service.ThriftServiceBuilder[ServicePerEndpoint, PlatinumService[Future]] {
-    def build(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
-      MethodPerEndpoint(servicePerEndpoint)
-  }
-
   implicit object ReqRepMethodPerEndpointBuilder
     extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, MethodPerEndpoint] {
     def methodPerEndpoint(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
       ReqRepMethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
-  implicit object MethodIfaceBuilder
-    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, PlatinumService[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): MethodIface =
-      new MethodIface(serviceIface)
-  }
-
-  @deprecated("Use MethodPerEndpoint", "2017-11-07")
-  trait FutureIface
-    extends com.twitter.scrooge.test.gold.thriftscala.GoldService.FutureIface
-    with MethodPerEndpoint
-    with PlatinumService[Future] {
-    
-    def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int]
-  }
-
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       clientParam: RichClientParam)
     extends PlatinumService$FinagleClient(service, clientParam)
-    with FutureIface
     with MethodPerEndpoint {
 
     @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
@@ -1070,13 +1037,13 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   }
 
   class FinagledService(
-      iface: PlatinumService[Future],
+      iface: MethodPerEndpoint,
       serverParam: RichServerParam)
     extends PlatinumService$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: PlatinumService[Future],
+      iface: MethodPerEndpoint,
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "PlatinumService"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))

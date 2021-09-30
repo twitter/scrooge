@@ -18,8 +18,7 @@ class PlatinumService$FinagleClient(
     override val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     override val clientParam: RichClientParam)
   extends GoldService$FinagleClient(service, clientParam)
-  with PlatinumService.MethodPerEndpoint
-  with PlatinumService.FutureIface {
+  with PlatinumService.MethodPerEndpoint {
 
   @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(

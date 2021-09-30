@@ -265,7 +265,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
         genQualifiedID(getServiceParentID(p), namespace).append(".FutureIface")
       }),
       "genericParent" -> service.parent
-        .map { p => genID(getServiceParentID(p)).append("[MM]") }
+        .map { p => genQualifiedID(getServiceParentID(p), namespace).append(".MethodPerEndpoint") }
         .getOrElse(v("_root_.com.twitter.finagle.thrift.ThriftService")),
       "syncFunctions" -> v(service.functions.map { f => functionDictionary(f, None) }),
       "asyncFunctions" -> v(service.functions.map { f => functionDictionary(f, Some("Future")) }),

@@ -10,6 +10,18 @@ Unreleased
 Breaking API Changes
 ~~~~~~~~~~~~~~~~~~~~
 
+* scrooge-generator: Dropped the generic (higher-kinded-types) service interface in scala-gen,
+  users are recommended to use YourService.MethodPerEndpoint, YourService.ServicePerEndpoint
+  and YourService.ReqRepServicePerEndpoint to represent Thrift service endpoints. Note,
+  `-finagle` option is required to generated finagle binding code. ``PHAB_ID=D747744``
+
+* scrooge-generator: Removed YourService.FutureIface and YourService[Future] in scala-gen,
+  use $YourService.MethodPerEndpoint instead. Correspondingly, YourService$FinagleService and
+  related constructors taking MethodPerEndpoint as parameters. ``PHAB_ID=D747744``
+
+* Scrooge-generator: Dropped ThriftServiceBuilder.build and MethodIfaceBuilder.newMethodIface.
+  ``PHAB_ID=D747744``
+
 * scrooge-generator: Add reserved keywords to ThriftParser. If your field names match
 these keywords, you may need to modify them. This change should not affect backwards 
 and forwards compatiblility if using binary protocol for serde. ``PHAB_ID=D707116`` 

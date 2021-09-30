@@ -15,8 +15,7 @@ class {{ServiceName}}$FinagleClient(
     {{#hasParent}}override {{/hasParent}}val service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
     {{#hasParent}}override {{/hasParent}}val clientParam: RichClientParam)
   extends {{#hasParent}}{{finagleClientParent}}(service, clientParam)
-  with {{/hasParent}}{{ServiceName}}.MethodPerEndpoint
-  with {{ServiceName}}.FutureIface {
+  with {{/hasParent}}{{ServiceName}}.MethodPerEndpoint {
 
   @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
   def this(

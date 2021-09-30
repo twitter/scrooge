@@ -1,22 +1,29 @@
 package com.twitter.scrooge.backend
 
 import com.twitter.conversions.DurationOps._
-import com.twitter.finagle.{Service, SourcedException}
-import com.twitter.scrooge.backend.thriftscala.{
-  ConstructorRequiredStruct,
-  ConstructorRequiredStructPackageProtected,
-  DeepValidationStruct,
-  DeepValidationUnion
-}
-import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
+import com.twitter.finagle.Service
+import com.twitter.finagle.SourcedException
+import com.twitter.scrooge.backend.thriftscala.ConstructorRequiredStruct
+import com.twitter.scrooge.backend.thriftscala.ConstructorRequiredStructPackageProtected
+import com.twitter.scrooge.backend.thriftscala.DeepValidationStruct
+import com.twitter.scrooge.backend.thriftscala.DeepValidationUnion
+import com.twitter.scrooge.testutil.EvalHelper
+import com.twitter.scrooge.testutil.JMockSpec
 import com.twitter.scrooge._
-import com.twitter.scrooge.validation.{MissingConstructionRequiredField, MissingRequiredField}
-import com.twitter.util.{Await, Future}
-import inheritance.aaa.{Aaa, Box}
+import com.twitter.scrooge.validation.MissingConstructionRequiredField
+import com.twitter.scrooge.validation.MissingRequiredField
+import com.twitter.util.Await
+import com.twitter.util.Future
+import inheritance.aaa.Aaa
+import inheritance.aaa.Box
 import inheritance.bbb.Bbb
-import inheritance.ccc.{Ccc, CccExtended}
+import inheritance.ccc.Ccc
+import inheritance.ccc.CccExtended
 import inheritance.ddd.Ddd
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryBuffer
@@ -1090,10 +1097,10 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
     "hide internal helper function to avoid naming conflict" in { _ =>
       import thrift.`def`.default._
-      val impl = new NaughtyService[Some] {
-        def foo() = Some(FooResult("dummy message"))
+      val impl = new NaughtyService.MethodPerEndpoint {
+        def foo() = Future.value(FooResult("dummy message"))
       }
-      impl.foo().get.message must be("dummy message")
+      Await.result(impl.foo(), 5.seconds).message must be("dummy message")
     }
 
     "passthrough fields" should {

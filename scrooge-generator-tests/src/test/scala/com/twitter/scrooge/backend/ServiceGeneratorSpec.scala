@@ -2,24 +2,38 @@ package com.twitter.scrooge.backend
 
 import _root_.thrift.test.ExceptionalService._
 import _root_.thrift.test._
-import collisions.dupes.thriftscala.{Aaa, Ccc}
+import collisions.dupes.thriftscala.Aaa
+import collisions.dupes.thriftscala.Ccc
 import com.twitter.conversions.DurationOps._
 import com.twitter.finagle
 import com.twitter.finagle.param.Stats
-import com.twitter.finagle.service.{ReqRep, ResponseClass, ResponseClassifier}
+import com.twitter.finagle.service.ReqRep
+import com.twitter.finagle.service.ResponseClass
+import com.twitter.finagle.service.ResponseClassifier
 import com.twitter.finagle.stats.InMemoryStatsReceiver
-import com.twitter.finagle.thrift.{RichClientParam, RichServerParam, ThriftClientRequest}
+import com.twitter.finagle.thrift.RichClientParam
+import com.twitter.finagle.thrift.RichServerParam
+import com.twitter.finagle.thrift.ThriftClientRequest
 import com.twitter.finagle.{Service => finagleService, _}
-import com.twitter.scrooge.testutil.{EvalHelper, JMockSpec}
-import com.twitter.scrooge.{Request, Response, ThriftException}
-import com.twitter.util.{Await, Future, Return, Time}
-import java.net.{InetAddress, InetSocketAddress}
+import com.twitter.scrooge.testutil.EvalHelper
+import com.twitter.scrooge.testutil.JMockSpec
+import com.twitter.scrooge.Request
+import com.twitter.scrooge.Response
+import com.twitter.scrooge.ThriftException
+import com.twitter.util.Await
+import com.twitter.util.Future
+import com.twitter.util.Return
+import com.twitter.util.Time
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TMemoryInputTransport
-import org.jmock.AbstractExpectations.{any, returnValue}
+import org.jmock.AbstractExpectations.any
+import org.jmock.AbstractExpectations.returnValue
 import org.jmock.lib.legacy.ClassImposteriser
-import org.jmock.{Expectations, Mockery}
+import org.jmock.Expectations
+import org.jmock.Mockery
 import org.scalatest.concurrent.Eventually
 import scala.language.reflectiveCalls
 import scala.collection
@@ -27,11 +41,11 @@ import scala.collection
 class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
   "ScalaGenerator service" should {
     "generate a service interface" in { _ =>
-      val service: SimpleService[Some] = new SimpleService[Some] {
-        def deliver(where: String) = Some(3)
+      val service: SimpleService.MethodPerEndpoint = new SimpleService.MethodPerEndpoint {
+        def deliver(where: String) = Future.value(3)
       }
 
-      service.deliver("Boston") must be(Some(3))
+      Await.result(service.deliver("Boston"), 5.seconds) must be(3)
     }
 
     "generate a future-based service interface" in { _ =>
@@ -258,10 +272,10 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
     "generate FinagleService" should {
       // use JMock manually - the scalatest JMock integration has trouble with
-      // the erasure for ExceptionalService[Future]
+      // the erasure for ExceptionalService.MethodPerEndpoint
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
-      val impl = context.mock(classOf[ExceptionalService[Future]])
+      val impl = context.mock(classOf[ExceptionalService.MethodPerEndpoint])
       val service = new ExceptionalService$FinagleService(impl, RichServerParam())
 
       "success" in { _ =>
@@ -383,7 +397,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
     "generate FinagledClient" should {
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
-      val impl = context.mock(classOf[ExceptionalService[Future]])
+      val impl = context.mock(classOf[ExceptionalService.MethodPerEndpoint])
       val service = new ExceptionalService$FinagleService(impl, RichServerParam())
       val clientService = new finagle.Service[ThriftClientRequest, Array[Byte]] {
         def apply(req: ThriftClientRequest) = service(req.message)
@@ -482,7 +496,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "be closable MethodPerEndpoint" in { _ =>
         val service = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new SimpleService[Future] {
+          new SimpleService.MethodPerEndpoint {
             def deliver(input: String) = Future.value(input.length)
           }
         )
@@ -505,7 +519,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "be closable ServicePerEndpoint" in { _ =>
         val service = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new SimpleService[Future] {
+          new SimpleService.MethodPerEndpoint {
             def deliver(input: String) = Future.value(input.length)
           }
         )
@@ -528,7 +542,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val service = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new SimpleService[Future] {
+          new SimpleService.MethodPerEndpoint {
             def deliver(input: String) = Future.value(input.length)
           }
         )
@@ -558,7 +572,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "user can define close method and their own asClosable method" in { _ =>
         val closableService = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new TestClosableService[Future] {
+          new TestClosableService.MethodPerEndpoint {
             def close() = Future.value("close")
             def asClosable() = Future.value("asClosable")
           }
@@ -576,13 +590,13 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
     "correctly inherit traits across services" should {
       "generic" in { _ =>
-        class BasicImpl extends ReadWriteService[Some] {
-          def getName() = Some("Rus")
-          def setName(name: String) = Some(())
+        class BasicImpl extends ReadWriteService.MethodPerEndpoint {
+          def getName() = Future.value("Rus")
+          def setName(name: String) = Future.Unit
         }
 
-        new BasicImpl().isInstanceOf[ReadOnlyService[Some]] must be(true)
-        new BasicImpl().isInstanceOf[ReadWriteService[Some]] must be(true)
+        new BasicImpl().isInstanceOf[ReadOnlyService.MethodPerEndpoint] must be(true)
+        new BasicImpl().isInstanceOf[ReadWriteService.MethodPerEndpoint] must be(true)
       }
 
       "future-based" in { _ =>
@@ -601,8 +615,8 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val client = new ReadWriteService$FinagleClient(null, RichClientParam())
         client.isInstanceOf[ReadOnlyService$FinagleClient] must be(true)
-        client.isInstanceOf[ReadOnlyService[Future]] must be(true)
-        client.isInstanceOf[ReadWriteService[Future]] must be(true)
+        client.isInstanceOf[ReadOnlyService.MethodPerEndpoint] must be(true)
+        client.isInstanceOf[ReadWriteService.MethodPerEndpoint] must be(true)
       }
     }
 
@@ -619,7 +633,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new SimpleService[Future] {
+          new MethodPerEndpoint {
             def deliver(where: String) = Future.value(3)
           }
         )
@@ -639,7 +653,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import ReadWriteService._
         val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new ReadWriteService[Future] {
+          new ReadWriteService.MethodPerEndpoint {
             private[this] var name = "Initial name"
             def getName(): Future[String] = Future.value(name)
 
@@ -679,7 +693,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       def serveExceptionalService(): ListeningServer = Thrift.server.serveIface(
         new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-        new ExceptionalService[Future] {
+        new ExceptionalService.MethodPerEndpoint {
           private[this] var counter = 0
 
           def deliver(where: String): Future[Int] = {
@@ -715,7 +729,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import ExceptionalService._
         val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new ExceptionalService[Future] {
+          new ExceptionalService.MethodPerEndpoint {
             def deliver(input: String) = Future.value(input.length)
             def remove(id: Int): Future[Unit] = Future.Done
           }
@@ -746,8 +760,11 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       "work with retrying filters" in { _ =>
-        import com.twitter.finagle.service.{RetryExceptionsFilter, RetryPolicy}
-        import com.twitter.util.{JavaTimer, Throw, Try}
+        import com.twitter.finagle.service.RetryExceptionsFilter
+        import com.twitter.finagle.service.RetryPolicy
+        import com.twitter.util.JavaTimer
+        import com.twitter.util.Throw
+        import com.twitter.util.Try
 
         val service = serveExceptionalService()
         val clientService = Thrift.client.servicePerEndpoint[ExceptionalService.ServicePerEndpoint](
@@ -793,7 +810,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val server = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new CamelCaseSnakeCaseService[Future] {
+          new CamelCaseSnakeCaseService.MethodPerEndpoint {
             def fooBar(fooBar: String): Future[String] = Future.value(fooBar)
             def bazQux(bazQux: String): Future[String] = Future.value(bazQux)
           }
@@ -890,7 +907,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       "have correct stats with ResponseClassifier" in { _ =>
         val server: ListeningServer = Thrift.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new SimpleService[Future] {
+          new SimpleService.MethodPerEndpoint {
             def deliver(where: String): Future[Int] = Future.value(where.length)
           }
         )
@@ -968,7 +985,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val server = ThriftMux.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new SimpleService[Future] {
+          new SimpleService.MethodPerEndpoint {
             def deliver(where: String) = Future.value(3)
           }
         )
@@ -991,7 +1008,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import ReadWriteService._
         val server = ThriftMux.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new ReadWriteService[Future] {
+          new ReadWriteService.MethodPerEndpoint {
             private[this] var name = "Initial name"
             def getName(): Future[String] = Future.value(name)
 
@@ -1039,7 +1056,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       def serveExceptionalService(): ListeningServer = ThriftMux.server.serveIface(
         new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-        new ExceptionalService[Future] {
+        new ExceptionalService.MethodPerEndpoint {
           private[this] var counter = 0
 
           def deliver(where: String): Future[Int] = {
@@ -1076,7 +1093,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
         import ExceptionalService._
         val server = ThriftMux.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new ExceptionalService[Future] {
+          new ExceptionalService.MethodPerEndpoint {
             def deliver(input: String) = Future.value(input.length)
             def remove(id: Int): Future[Unit] = Future.Done
           }
@@ -1107,8 +1124,11 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
       }
 
       "work with retrying filters" in { _ =>
-        import com.twitter.finagle.service.{RetryExceptionsFilter, RetryPolicy}
-        import com.twitter.util.{JavaTimer, Throw, Try}
+        import com.twitter.finagle.service.RetryExceptionsFilter
+        import com.twitter.finagle.service.RetryPolicy
+        import com.twitter.util.JavaTimer
+        import com.twitter.util.Throw
+        import com.twitter.util.Try
 
         val service = serveExceptionalService()
         val clientService =
@@ -1156,7 +1176,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
         val server = ThriftMux.server.serveIface(
           new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-          new CamelCaseSnakeCaseService[Future] {
+          new CamelCaseSnakeCaseService.MethodPerEndpoint {
             def fooBar(fooBar: String): Future[String] = Future.value(fooBar)
             def bazQux(bazQux: String): Future[String] = Future.value(bazQux)
           }
@@ -1281,7 +1301,7 @@ class ServiceGeneratorSpec extends JMockSpec with EvalHelper with Eventually {
 
       val context = new Mockery
       context.setImposteriser(ClassImposteriser.INSTANCE)
-      val impl = context.mock(classOf[_root_.thrift.test.Service[Future]])
+      val impl = context.mock(classOf[_root_.thrift.test.Service.MethodPerEndpoint])
       val service = new _root_.thrift.test.Service$FinagleService(impl, RichServerParam())
 
       "allow generation and calls to eponymous FinagledService" in { _ =>

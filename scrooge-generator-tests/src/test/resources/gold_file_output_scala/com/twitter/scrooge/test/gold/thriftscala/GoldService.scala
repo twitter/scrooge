@@ -34,20 +34,6 @@ import scala.reflect.{ClassTag, classTag}
 
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
-trait GoldService[+MM[_]] extends _root_.com.twitter.finagle.thrift.ThriftService {
-  /** Hello, I'm a comment. */
-  def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[com.twitter.scrooge.test.gold.thriftscala.Response]
-  
-  def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): MM[com.twitter.scrooge.test.gold.thriftscala.Response]
-
-  /**
-   * Used to close the underlying `Service`.
-   * Not a user-defined API.
-   */
-  def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
-}
-
-
 object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftService { self =>
 
   val annotations: immutable$Map[String, String] = immutable$Map(
@@ -1367,12 +1353,16 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   type noExceptionCall$result = NoExceptionCall.Result
 
 
-  trait MethodPerEndpoint
-    extends GoldService[Future] {
+  trait MethodPerEndpoint extends _root_.com.twitter.finagle.thrift.ThriftService {
     /** Hello, I'm a comment. */
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
     
     def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
+    /**
+     * Used to close the underlying `Service`.
+     * Not a user-defined API.
+     */
+    def asClosable: _root_.com.twitter.util.Closable = _root_.com.twitter.util.Closable.nop
   }
 
   object MethodPerEndpoint {
@@ -1425,7 +1415,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   class MethodIface(serviceIface: BaseServiceIface)
-    extends FutureIface {
+    extends MethodPerEndpoint {
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
       serviceIface.doGreatThings(self.DoGreatThings.Args(request))
     def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
@@ -1438,41 +1428,16 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       MethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use MethodPerEndpointBuilder", "2018-01-12")
-  implicit object ThriftServiceBuilder
-    extends _root_.com.twitter.finagle.thrift.service.ThriftServiceBuilder[ServicePerEndpoint, GoldService[Future]] {
-    def build(servicePerEndpoint: ServicePerEndpoint): MethodPerEndpoint =
-      MethodPerEndpoint(servicePerEndpoint)
-  }
-
   implicit object ReqRepMethodPerEndpointBuilder
     extends _root_.com.twitter.finagle.thrift.service.ReqRepMethodPerEndpointBuilder[ReqRepServicePerEndpoint, MethodPerEndpoint] {
     def methodPerEndpoint(servicePerEndpoint: ReqRepServicePerEndpoint): MethodPerEndpoint =
       ReqRepMethodPerEndpoint(servicePerEndpoint)
   }
 
-  @deprecated("Use MethodPerEndpointBuilder", "2017-11-07")
-  implicit object MethodIfaceBuilder
-    extends com.twitter.finagle.thrift.MethodIfaceBuilder[ServiceIface, GoldService[Future]] {
-    def newMethodIface(serviceIface: ServiceIface): MethodIface =
-      new MethodIface(serviceIface)
-  }
-
-  @deprecated("Use MethodPerEndpoint", "2017-11-07")
-  trait FutureIface
-    extends MethodPerEndpoint
-    with GoldService[Future] {
-    /** Hello, I'm a comment. */
-    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
-    
-    def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
-  }
-
   class FinagledClient(
       service: com.twitter.finagle.Service[ThriftClientRequest, Array[Byte]],
       clientParam: RichClientParam)
     extends GoldService$FinagleClient(service, clientParam)
-    with FutureIface
     with MethodPerEndpoint {
 
     @deprecated("Use com.twitter.finagle.thrift.RichClientParam", "2017-08-16")
@@ -1509,13 +1474,13 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   }
 
   class FinagledService(
-      iface: GoldService[Future],
+      iface: MethodPerEndpoint,
       serverParam: RichServerParam)
     extends GoldService$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: GoldService[Future],
+      iface: MethodPerEndpoint,
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "GoldService"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))

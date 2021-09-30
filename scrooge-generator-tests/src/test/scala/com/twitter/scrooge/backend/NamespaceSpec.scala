@@ -1,19 +1,22 @@
 package com.twitter.scrooge.backend
 
+import com.twitter.conversions.DurationOps._
 import com.twitter.scrooge.testutil.Spec
+import com.twitter.util.Await
+import com.twitter.util.Future
 
 class NamespaceSpec extends Spec {
   "Scala Generator" should {
     import bar._
     import com.fake._
     "import from another namespace" in {
-      val service: Restaurant[Some] = new Restaurant[Some] {
-        def isOpen(whichDay: Weekday) = Some(whichDay != Weekday.Monday)
+      val service: Restaurant.MethodPerEndpoint = new Restaurant.MethodPerEndpoint {
+        def isOpen(whichDay: Weekday) = Future.value(whichDay != Weekday.Monday)
         def makeReservation(whichDay: Weekday, howMany: Int) =
-          Some(if (whichDay == Weekday.Monday) 0 else howMany)
+          Future.value(if (whichDay == Weekday.Monday) 0 else howMany)
       }
-      service.makeReservation(Weekday.Monday, 2) must be(Some(0))
-      service.makeReservation(Weekday.Tuesday, 2) must be(Some(2))
+      Await.result(service.makeReservation(Weekday.Monday, 2), 5.seconds) must equal(0)
+      Await.result(service.makeReservation(Weekday.Tuesday, 2), 5.seconds) must equal(2)
     }
   }
 }
