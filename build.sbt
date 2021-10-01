@@ -9,7 +9,7 @@ Global / excludeLintKeys += scalacOptions
 // 'git checkout develop; sbt publishLocal' to publish SNAPSHOT versions of these projects.
 
 // All Twitter library releases are date versioned as YY.MM.patch
-val releaseVersion = "21.9.0"
+val releaseVersion = "21.10.0-SNAPSHOT"
 
 lazy val versions = new {
   val slf4j = "1.7.30"
