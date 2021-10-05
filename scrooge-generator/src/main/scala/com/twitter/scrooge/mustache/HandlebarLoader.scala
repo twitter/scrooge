@@ -17,7 +17,8 @@
 package com.twitter.scrooge.mustache
 
 import HandlebarLoader._
-import java.util.logging.{Level, Logger}
+import java.util.logging.Level
+import java.util.logging.Logger
 import java.util.Properties
 import scala.collection.concurrent.TrieMap
 import scala.io.Source
@@ -54,7 +55,7 @@ class HandlebarLoader(
     if (resource == null)
       Logger
         .getLogger("scrooge-generator")
-        .log(Level.WARNING, "Scrooge's build.properties not found")
+        .log(Level.CONFIG, "Scrooge's build.properties not found")
     else
       p.load(resource.openStream())
 
