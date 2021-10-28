@@ -1,6 +1,6 @@
-package com.twitter.scrooge;
+package com.twitter.scrooge.validation;
 
-import com.twitter.scrooge.validation.ThriftConstraintValidator;
+import com.twitter.scrooge.ThriftValidator;
 
 public class JCustomValidator {
 

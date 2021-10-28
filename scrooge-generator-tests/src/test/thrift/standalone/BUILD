@@ -5,7 +5,7 @@ java_thrift_library(
     sources = ["**/*.thrift"] + exclude_globs(["customJavaValidations.thrift"]),
     compiler = "scrooge",
     language = "scala",
-    dependencies = ["scrooge/scrooge-generator-tests/src/test/scala:custom_validator"],
+    dependencies = ["scrooge/scrooge-generator-tests/src/test/scala/com/twitter/scrooge/validation"],
 )
 
 java_thrift_library(
@@ -40,5 +40,5 @@ java_thrift_library(
     namespace_map = {
         "thrift.test": "thrift.apache_java_test",
     },
-    dependencies = ["scrooge/scrooge-generator-tests/src/test/scala:custom_validator"],
+    dependencies = ["scrooge/scrooge-generator-tests/src/test/scala/com/twitter/scrooge/validation"],
 )

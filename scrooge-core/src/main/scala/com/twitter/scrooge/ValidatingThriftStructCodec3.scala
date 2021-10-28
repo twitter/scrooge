@@ -1,6 +1,7 @@
 package com.twitter.scrooge
 
-import com.twitter.scrooge.validation.{Issue, ThriftValidationViolation}
+import com.twitter.scrooge.validation.Issue
+import com.twitter.scrooge.validation.ThriftValidationViolation
 
 abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec3[T] {
 

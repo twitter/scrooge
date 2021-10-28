@@ -1,7 +1,8 @@
 package com.twitter.scrooge
 
 import com.twitter.scrooge.ThriftValidator.DefaultConstraints
-import com.twitter.scrooge.validation.{ThriftConstraintValidator, ThriftValidationViolation}
+import com.twitter.scrooge.validation.ThriftConstraintValidator
+import com.twitter.scrooge.validation.ThriftValidationViolation
 import com.twitter.util.validation.ScalaValidator
 import com.twitter.util.validation.constraints._
 import jakarta.validation.constraints._

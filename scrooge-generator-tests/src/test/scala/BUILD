@@ -21,8 +21,8 @@ LIB_SOURCES = [
 ]
 
 CUSTOM_VALIDATORS = [
-    "com/twitter/scrooge/CustomValidator.scala",
-    "com/twitter/scrooge/JCustomValidator.java",
+    "com/twitter/scrooge/validation/CustomValidator.scala",
+    "com/twitter/scrooge/validation/JCustomValidator.java",
 ]
 
 java_library(
@@ -33,14 +33,6 @@ java_library(
         "3rdparty/jvm/org/scalatest",
         "scrooge/scrooge-core",
         "scrooge/scrooge-generator",
-    ],
-)
-
-scala_library(
-    name = "custom_validator",
-    sources = CUSTOM_VALIDATORS,
-    dependencies = [
-        "scrooge/scrooge-core/src/main/scala",
     ],
 )
 

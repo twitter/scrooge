@@ -1,5 +1,5 @@
 #@namespace scala com.twitter.scrooge.backend.thriftscala
-#@validator com.twitter.scrooge.CustomValidator.validator
+#@validator com.twitter.scrooge.validation.CustomValidator.validator
 
 struct CustomValidationStruct {
   1: string email (validation.length.min = "6", validation.email = "", validation.testStartWithA = "")
