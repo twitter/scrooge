@@ -632,6 +632,7 @@ trait StructTemplate { self: TemplateGenerator =>
     val isException = struct.isInstanceOf[Exception_]
     val isUnion = struct.isInstanceOf[Union]
     val isResponse = struct.isInstanceOf[FunctionResult]
+    val hasValidator = validator.isDefined
 
     val exceptionMsgField: Option[SimpleID] =
       if (isException) exceptionMsgFieldName(struct) else None
@@ -659,8 +660,10 @@ trait StructTemplate { self: TemplateGenerator =>
 
     val pkg = namespace.map(genID).getOrElse(v(""))
     val pkgName = v(basename(pkg.toData))
-    val thriftValidator =
-      validator.map(genID).getOrElse(v("com.twitter.scrooge.ThriftValidator()"))
+    val thriftValidator = validator match {
+      case Some(vd) => v("Some(new " + vd.fullName + "())")
+      case _ => v("scala.None")
+    }
 
     Dictionary(
       "public" -> v(toplevel),

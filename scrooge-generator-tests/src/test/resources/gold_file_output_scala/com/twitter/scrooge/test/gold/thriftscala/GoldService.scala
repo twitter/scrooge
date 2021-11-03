@@ -342,10 +342,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
        * Validate that all validation annotations on the struct meet the criteria defined in the
        * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
        */
-      def validateInstanceValue(item: Args): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-        val thriftValidator = com.twitter.scrooge.ThriftValidator()
-        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-        violations ++= validateFieldValue("request", item.request, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
+      def validateInstanceValue(item: Args): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+        violations ++= validateFieldValue("request", item.request, fieldInfos.apply(0).fieldAnnotations, scala.None)
         violations.toSet
       }
     
@@ -600,11 +599,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
        * Validate that all validation annotations on the struct meet the criteria defined in the
        * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
        */
-      def validateInstanceValue(item: Result): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-        val thriftValidator = com.twitter.scrooge.ThriftValidator()
-        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-        violations ++= validateFieldValue("success", item.success, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
-        violations ++= validateFieldValue("ex", item.ex, fieldInfos.apply(1).fieldAnnotations, thriftValidator);
+      def validateInstanceValue(item: Result): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+        violations ++= validateFieldValue("success", item.success, fieldInfos.apply(0).fieldAnnotations, scala.None)
+        violations ++= validateFieldValue("ex", item.ex, fieldInfos.apply(1).fieldAnnotations, scala.None)
         violations.toSet
       }
     
@@ -911,10 +909,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
        * Validate that all validation annotations on the struct meet the criteria defined in the
        * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
        */
-      def validateInstanceValue(item: Args): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-        val thriftValidator = com.twitter.scrooge.ThriftValidator()
-        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-        violations ++= validateFieldValue("request", item.request, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
+      def validateInstanceValue(item: Args): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+        violations ++= validateFieldValue("request", item.request, fieldInfos.apply(0).fieldAnnotations, scala.None)
         violations.toSet
       }
     
@@ -1147,10 +1144,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
        * Validate that all validation annotations on the struct meet the criteria defined in the
        * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
        */
-      def validateInstanceValue(item: Result): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-        val thriftValidator = com.twitter.scrooge.ThriftValidator()
-        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-        violations ++= validateFieldValue("success", item.success, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
+      def validateInstanceValue(item: Result): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+        val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+        violations ++= validateFieldValue("success", item.success, fieldInfos.apply(0).fieldAnnotations, scala.None)
         violations.toSet
       }
     

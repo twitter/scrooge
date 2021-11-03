@@ -219,8 +219,7 @@ object ScroogeRunner {
           s"$base/src/test/thrift/standalone/enumSet.thrift " +
           s"$base/src/test/thrift/standalone/exception_fields.thrift " +
           s"$base/src/test/thrift/standalone/passthrough.thrift " +
-          s"$base/src/test/thrift/standalone/validations.thrift " +
-          s"$base/src/test/thrift/standalone/customJavaValidations.thrift"
+          s"$base/src/test/thrift/standalone/validations.thrift "
       runScrooge(Seq(Scala), scalaFiles)
       runScrooge(Seq(Android), javaFiles)
       runScrooge(Seq(ApacheJava), s"--java-passthrough $javaFiles")

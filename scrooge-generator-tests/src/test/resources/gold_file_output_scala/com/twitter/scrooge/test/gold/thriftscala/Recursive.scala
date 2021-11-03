@@ -117,11 +117,10 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
    * Validate that all validation annotations on the struct meet the criteria defined in the
    * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
    */
-  def validateInstanceValue(item: Recursive): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-    val thriftValidator = com.twitter.scrooge.ThriftValidator()
-    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    violations ++= validateFieldValue("id", item.id, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("recRequest", item.recRequest, fieldInfos.apply(1).fieldAnnotations, thriftValidator);
+  def validateInstanceValue(item: Recursive): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    violations ++= validateFieldValue("id", item.id, fieldInfos.apply(0).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("recRequest", item.recRequest, fieldInfos.apply(1).fieldAnnotations, scala.None)
     violations.toSet
   }
 

@@ -1,6 +1,6 @@
 package com.twitter.scrooge
 
-import com.twitter.scrooge.validation.ThriftConstraintValidator
+import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator
 
 object LongAnnotationValueConstraintValidator extends ThriftConstraintValidator[Long, Long] {
 
@@ -9,6 +9,8 @@ object LongAnnotationValueConstraintValidator extends ThriftConstraintValidator[
    * where the annotation value is an integer.
    */
   override def annotationClazz: Class[Long] = classOf[Long]
+
+  override def fieldClazz: Class[Long] = classOf[Long]
 
   override def violationMessage(
     obj: Long,

@@ -1,7 +1,13 @@
 package com.twitter.scrooge
 
+import com.twitter.scrooge.ValidatingThriftStructCodec3.utilValidator
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation
+import com.twitter.scrooge.thrift_validation.ThriftValidator
 import com.twitter.scrooge.validation.Issue
-import com.twitter.scrooge.validation.ThriftValidationViolation
+
+object ValidatingThriftStructCodec3 {
+  final val utilValidator: UtilValidator = UtilValidator()
+}
 
 abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStructCodec3[T] {
 
@@ -13,8 +19,10 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
 
   /**
    * Validate that all validation annotations on the struct meet the criteria defined in the
-   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   * corresponding [[com.twitter.scrooge.thrift_validation.ThriftConstraintValidator]].
+   *
    * @param item the struct instance to validate.
+   *
    * @return a set of [[ThriftValidationViolation]]. Return an empty set if all validations
    *         passed.
    */
@@ -52,7 +60,8 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
    * @param fieldName name of the struct field.
    * @param fieldValue runtime value of the struct field.
    * @param fieldAnnotations annotations for each field on the IDL.
-   * @param thriftValidator a [[ThriftValidator]] instance.
+   * @param thriftValidatorOpt an Option of [[ThriftValidator]] instance. When present, custom
+   *                           validations are defined.
    * @tparam U type of the field.
    * @return a set of [[ThriftValidationViolation]]. Return an empty set if all validations
    *         passed.
@@ -61,7 +70,7 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
     fieldName: String,
     fieldValue: Any,
     fieldAnnotations: Map[String, String],
-    thriftValidator: ThriftValidator
+    thriftValidatorOpt: Option[ThriftValidator]
   ): Set[ThriftValidationViolation] =
     fieldValue match {
       // U is unchecked since it is eliminated by erasure, but we know that validatingStruct extends
@@ -69,12 +78,24 @@ abstract class ValidatingThriftStructCodec3[T <: ThriftStruct] extends ThriftStr
       case validatingStruct: ValidatingThriftStruct[_] =>
         val struct: U = validatingStruct.asInstanceOf[U]
         // recursively validate for nested struct
-        struct._codec.validateInstanceValue(struct) ++ thriftValidator.validateField(
-          fieldName,
-          fieldValue,
-          fieldAnnotations)
+        struct._codec.validateInstanceValue(struct) ++
+          withValidator(fieldName, fieldValue, fieldAnnotations, thriftValidatorOpt)
       case _ =>
         // if the field is not a struct, invoke thriftValidator for field validations
-        thriftValidator.validateField(fieldName, fieldValue, fieldAnnotations)
+        withValidator(fieldName, fieldValue, fieldAnnotations, thriftValidatorOpt)
+    }
+
+  private def withValidator(
+    fieldName: String,
+    fieldValue: Any,
+    fieldAnnotations: Map[String, String],
+    thriftValidatorOpt: Option[ThriftValidator]
+  ): Set[ThriftValidationViolation] =
+    thriftValidatorOpt match {
+      case Some(thriftValidator) =>
+        // perform both default and custom validations
+        utilValidator.validateField(fieldName, fieldValue, fieldAnnotations) ++
+          thriftValidator.validateField(fieldName, fieldValue, fieldAnnotations)
+      case _ => utilValidator.validateField(fieldName, fieldValue, fieldAnnotations)
     }
 }

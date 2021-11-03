@@ -25,8 +25,9 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
-import com.twitter.scrooge.ThriftValidator;
-import com.twitter.scrooge.validation.ThriftValidationViolation;
+import com.twitter.scrooge.UtilValidator;
+import com.twitter.scrooge.thrift_validation.BaseValidator;
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -191,8 +192,9 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(CollectionId item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
 
     return violations;
   }

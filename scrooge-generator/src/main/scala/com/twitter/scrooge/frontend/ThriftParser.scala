@@ -18,9 +18,11 @@ package com.twitter.scrooge.frontend
 
 import java.util.logging.Logger
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.backend.{ServiceOption, WithAsClosable}
+import com.twitter.scrooge.backend.ServiceOption
+import com.twitter.scrooge.backend.WithAsClosable
 import java.io.FileNotFoundException
-import scala.collection.concurrent.{Map, TrieMap}
+import scala.collection.concurrent.Map
+import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 import scala.util.parsing.combinator._
 import scala.collection.immutable
@@ -100,14 +102,8 @@ class ThriftParser(
   val identifierRegex: Regex = "[A-Za-z_][A-Za-z0-9\\._]*".r
   lazy val identifier: Parser[Identifier] = positioned(identifierRegex ^^ { x => Identifier(x) })
 
-  /**
-   * regex for parsing a validator, similar to [[identifierRegex]],
-   * but adding "()" for creating validators in Java.
-   */
-  val validatorIdentifier: Regex = "[A-Za-z_][A-Za-z0-9\\._\\(\\)]*".r
-  lazy val validator: Parser[Validator] = "#@validator" ~> "new ".? ~ validatorIdentifier ^^ {
-    case Some(n) ~ i => Validator(Identifier(n + i))
-    case None ~ i => Validator(Identifier(i))
+  lazy val validator: Parser[Validator] = "#@validator" ~> identifierRegex ^^ { i =>
+    Validator(Identifier(i))
   }
 
   lazy val simpleIDRegex: Regex = "[A-Za-z_][A-Za-z0-9_]*".r

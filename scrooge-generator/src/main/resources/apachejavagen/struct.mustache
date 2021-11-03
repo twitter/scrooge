@@ -7,8 +7,9 @@ import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 {{/is_exception}}
 import com.twitter.scrooge.ThriftStructIface;
-import com.twitter.scrooge.ThriftValidator;
-import com.twitter.scrooge.validation.ThriftValidationViolation;
+import com.twitter.scrooge.UtilValidator;
+import com.twitter.scrooge.thrift_validation.BaseValidator;
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation;
 {{#is_passthrough_struct}}
 import com.twitter.scrooge.TFieldBlob;
 {{/is_passthrough_struct}}

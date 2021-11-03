@@ -25,8 +25,9 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
-import com.twitter.scrooge.ThriftValidator;
-import com.twitter.scrooge.validation.ThriftValidationViolation;
+import com.twitter.scrooge.UtilValidator;
+import com.twitter.scrooge.thrift_validation.BaseValidator;
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -420,13 +421,14 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(Request item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateInstanceValue(item.aRequest));
-    violations.addAll(thriftValidator.validateField("hashtagComment", item.hashtagComment, fieldAnnotations.get(_Fields.HASHTAG_COMMENT)));
-    violations.addAll(thriftValidator.validateField("singleAsteriskComment", item.singleAsteriskComment, fieldAnnotations.get(_Fields.SINGLE_ASTERISK_COMMENT)));
+    violations.addAll(validator.validateField("hashtagComment", item.hashtagComment, fieldAnnotations.get(_Fields.HASHTAG_COMMENT)));
+    violations.addAll(validator.validateField("singleAsteriskComment", item.singleAsteriskComment, fieldAnnotations.get(_Fields.SINGLE_ASTERISK_COMMENT)));
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Recursive.validateInstanceValue(item.recRequest));
-    violations.addAll(thriftValidator.validateField("constructionRequiredField", item.constructionRequiredField, fieldAnnotations.get(_Fields.CONSTRUCTION_REQUIRED_FIELD)));
+    violations.addAll(validator.validateField("constructionRequiredField", item.constructionRequiredField, fieldAnnotations.get(_Fields.CONSTRUCTION_REQUIRED_FIELD)));
 
     return violations;
   }

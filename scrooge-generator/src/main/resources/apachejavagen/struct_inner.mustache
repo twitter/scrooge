@@ -155,11 +155,16 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue({{name}} item) {
-    final ThriftValidator thriftValidator = {{validator}};
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = {{validator}};
+
 {{#fields}}
 {{#field.has_annotations}}
-    violations.addAll(thriftValidator.validateField("{{name}}", item.{{name}}, fieldAnnotations.get(_Fields.{{#constant_name}}{{name}}{{/constant_name}})));
+    violations.addAll(validator.validateField("{{name}}", item.{{name}}, fieldAnnotations.get(_Fields.{{#constant_name}}{{name}}{{/constant_name}})));
+{{#has_validator}}
+    // when a custom validator is specified, we need to perform default validations following custom validations
+    violations.addAll(new UtilValidator().validateField("{{name}}", item.{{name}}, fieldAnnotations.get(_Fields.{{#constant_name}}{{name}}{{/constant_name}})));
+{{/has_validator}}
 {{/field.has_annotations}}
 {{#consolidate_newlines}}
 {{#field_type.is_struct}}

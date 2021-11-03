@@ -27,8 +27,9 @@ import org.apache.thrift.protocol.*;
 import com.twitter.finagle.AbstractFailureFlags;
 import com.twitter.finagle.JavaFailureFlags;
 import com.twitter.scrooge.ThriftStructIface;
-import com.twitter.scrooge.ThriftValidator;
-import com.twitter.scrooge.validation.ThriftValidationViolation;
+import com.twitter.scrooge.UtilValidator;
+import com.twitter.scrooge.thrift_validation.BaseValidator;
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -204,8 +205,9 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(AnotherException item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
 
     return violations;
   }

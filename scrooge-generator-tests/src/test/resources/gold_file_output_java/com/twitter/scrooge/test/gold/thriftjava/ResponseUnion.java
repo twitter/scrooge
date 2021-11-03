@@ -25,8 +25,9 @@ import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftStructIface;
-import com.twitter.scrooge.ThriftValidator;
-import com.twitter.scrooge.validation.ThriftValidationViolation;
+import com.twitter.scrooge.UtilValidator;
+import com.twitter.scrooge.thrift_validation.BaseValidator;
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
 
@@ -180,13 +181,12 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(ResponseUnion item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
-
     _Fields field = item.getSetField();
     Map<String, String> annotations = fieldAnnotations.get(field);
     if (annotations != null) {
-      violations.addAll(thriftValidator.validateField(field.getFieldName(), item.getFieldValue(), annotations));
+      final BaseValidator validator = new UtilValidator();
+      violations.addAll(validator.validateField(field.getFieldName(), item.getFieldValue(), annotations));
     }
 
     return violations;

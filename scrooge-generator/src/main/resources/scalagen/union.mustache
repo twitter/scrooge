@@ -257,13 +257,12 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
 
   /**
    * Validate that all validation annotations on the struct meet the criteria defined in the
-   * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
+   * corresponding [[com.twitter.scrooge.thrift_validation.ThriftConstraintValidator]].
    */
-  override def validateInstanceValue(item: {{StructName}}): Set[com.twitter.scrooge.validation.ThriftValidationViolation] =
+  override def validateInstanceValue(item: {{StructName}}): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
     item.unionStructFieldInfo match {
       case _root_.scala.Some(fieldInfo) =>
-        val thriftValidator = {{validator}}
-        validateFieldValue(fieldInfo.tfield.name, item.containedValue(), fieldInfo.fieldAnnotations, thriftValidator)
+        validateFieldValue(fieldInfo.tfield.name, item.containedValue(), fieldInfo.fieldAnnotations, {{validator}})
       case _ =>
         Set.empty
     }

@@ -1,7 +1,7 @@
-package com.twitter.scrooge.validation
+package com.twitter.scrooge.thrift_validation
 
 /**
- *  An exception which is used to communicate when a thriftValidation
+ *  An exception which is used to communicate when a thrift_validation
  *  has failed with the respective [[ThriftValidationViolation]]
  *  @param endpoint   thrift method the invalid request tries to reach
  *  @param requestClazz  the type of request that was passed in

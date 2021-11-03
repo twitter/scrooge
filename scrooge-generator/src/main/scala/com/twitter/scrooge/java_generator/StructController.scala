@@ -1,8 +1,12 @@
 package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.ast.{Field, _}
-import com.twitter.scrooge.backend.{Generator, ServiceOption, WithJavaPassThrough}
-import java.util.{Map => JMap, Set => JSet}
+import com.twitter.scrooge.ast.Field
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.backend.Generator
+import com.twitter.scrooge.backend.ServiceOption
+import com.twitter.scrooge.backend.WithJavaPassThrough
+import java.util.{Map => JMap}
+import java.util.{Set => JSet}
 import scala.collection.JavaConverters._
 
 class StructController(
@@ -73,5 +77,7 @@ class StructController(
   val has_default_value: Seq[Field] = allFields.filter(_.default.nonEmpty)
 
   val validator: String =
-    validatorOpt.map(_.fullName).getOrElse("ThriftValidator.newBuilder().build()")
+    validatorOpt.map("new " + _.fullName + "()").getOrElse("new UtilValidator()")
+
+  val has_validator: Boolean = validatorOpt.isDefined
 }

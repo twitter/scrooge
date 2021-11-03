@@ -47,13 +47,16 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue({{name}} item) {
-    final ThriftValidator thriftValidator = {{validator}};
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
-
     _Fields field = item.getSetField();
     Map<String, String> annotations = fieldAnnotations.get(field);
     if (annotations != null) {
-      violations.addAll(thriftValidator.validateField(field.getFieldName(), item.getFieldValue(), annotations));
+      final BaseValidator validator = {{validator}};
+      violations.addAll(validator.validateField(field.getFieldName(), item.getFieldValue(), annotations));
+{{#has_validator}}
+      // when a custom validator is specified, we need to perform default validations following custom validations
+      violations.addAll(new UtilValidator().validateField(field.getFieldName(), item.getFieldValue(), annotations));
+{{/has_validator}}
     }
 {{#field_type.is_struct}}
 {{!Use a fully qualified name here in case there is a field with the same name as this type}}

@@ -1,6 +1,6 @@
 package com.twitter.scrooge
 
-import com.twitter.scrooge.validation.ThriftConstraintValidator
+import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator
 
 object ByteAnnotationValueConstraintValidator extends ThriftConstraintValidator[Byte, Byte] {
 
@@ -9,6 +9,8 @@ object ByteAnnotationValueConstraintValidator extends ThriftConstraintValidator[
    * where the annotation value is an integer.
    */
   override def annotationClazz: Class[Byte] = classOf[Byte]
+
+  override def fieldClazz: Class[Byte] = classOf[Byte]
 
   override def violationMessage(
     obj: Byte,

@@ -92,10 +92,9 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
    * Validate that all validation annotations on the struct meet the criteria defined in the
    * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
    */
-  def validateInstanceValue(item: AnotherException): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-    val thriftValidator = com.twitter.scrooge.ThriftValidator()
-    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    violations ++= validateFieldValue("errorCode", item.errorCode, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
+  def validateInstanceValue(item: AnotherException): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    violations ++= validateFieldValue("errorCode", item.errorCode, fieldInfos.apply(0).fieldAnnotations, scala.None)
     violations.toSet
   }
 

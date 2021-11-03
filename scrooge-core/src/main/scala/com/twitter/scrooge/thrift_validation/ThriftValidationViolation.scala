@@ -1,4 +1,4 @@
-package com.twitter.scrooge.validation
+package com.twitter.scrooge.thrift_validation
 
 /**
  * To store the data for failed validations.

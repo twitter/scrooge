@@ -26,12 +26,13 @@ import org.apache.thrift.protocol.*;
 
 import com.twitter.scrooge.ThriftMethodIface;
 import com.twitter.scrooge.ThriftStructIface;
-import com.twitter.scrooge.ThriftValidator;
+import com.twitter.scrooge.UtilValidator;
 import com.twitter.scrooge.TReusableBuffer;
 import com.twitter.scrooge.TReusableMemoryTransport;
 import com.twitter.scrooge.TFieldBlob;
 import com.twitter.scrooge.internal.TProtocols;
-import com.twitter.scrooge.validation.ThriftValidationViolation;
+import com.twitter.scrooge.thrift_validation.BaseValidator;
+import com.twitter.scrooge.thrift_validation.ThriftValidationViolation;
 import com.twitter.util.ConstFuture;
 import com.twitter.util.Future;
 import com.twitter.util.Function;
@@ -957,8 +958,9 @@ public class GoldService {
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(doGreatThings_args item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateInstanceValue(item.request));
 
     return violations;
@@ -1348,8 +1350,9 @@ public class GoldService {
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(doGreatThings_result item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Response.validateInstanceValue(item.success));
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.OverCapacityException.validateInstanceValue(item.ex));
 
@@ -1809,8 +1812,9 @@ public class GoldService {
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(noExceptionCall_args item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateInstanceValue(item.request));
 
     return violations;
@@ -2183,8 +2187,9 @@ public class GoldService {
   }
 
   public static Set<ThriftValidationViolation> validateInstanceValue(noExceptionCall_result item) {
-    final ThriftValidator thriftValidator = ThriftValidator.newBuilder().build();
     final Set<ThriftValidationViolation> violations = new HashSet<ThriftValidationViolation>();
+    final BaseValidator validator = new UtilValidator();
+
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Response.validateInstanceValue(item.success));
 
     return violations;

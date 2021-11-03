@@ -1,6 +1,6 @@
 package com.twitter.scrooge
 
-import com.twitter.scrooge.validation.ThriftConstraintValidator
+import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator
 
 object ShortAnnotationValueConstraintValidator extends ThriftConstraintValidator[Short, Short] {
 
@@ -9,6 +9,8 @@ object ShortAnnotationValueConstraintValidator extends ThriftConstraintValidator
    * where the annotation value is an integer.
    */
   override def annotationClazz: Class[Short] = classOf[Short]
+
+  override def fieldClazz: Class[Short] = classOf[Short]
 
   override def violationMessage(
     obj: Short,

@@ -1,6 +1,6 @@
 package com.twitter.scrooge
 
-import com.twitter.scrooge.validation.ThriftConstraintValidator
+import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator
 
 /**
  * A custom constraint validator that will always fail any validations
@@ -9,6 +9,8 @@ import com.twitter.scrooge.validation.ThriftConstraintValidator
 object InvalidConstraintValidator extends ThriftConstraintValidator[Int, String] {
 
   override def annotationClazz: Class[String] = classOf[String]
+
+  override def fieldClazz: Class[Int] = classOf[Int]
 
   override def violationMessage(
     obj: Int,

@@ -445,25 +445,24 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
    * Validate that all validation annotations on the struct meet the criteria defined in the
    * corresponding [[com.twitter.scrooge.validation.ThriftConstraintValidator]].
    */
-  def validateInstanceValue(item: Request): Set[com.twitter.scrooge.validation.ThriftValidationViolation] = {
-    val thriftValidator = com.twitter.scrooge.ThriftValidator()
-    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.validation.ThriftValidationViolation]
-    violations ++= validateFieldValue("aList", item.aList, fieldInfos.apply(0).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("aSet", item.aSet, fieldInfos.apply(1).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("aMap", item.aMap, fieldInfos.apply(2).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("aRequest", item.aRequest, fieldInfos.apply(3).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("subRequests", item.subRequests, fieldInfos.apply(4).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("_default", item._default, fieldInfos.apply(5).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("noComment", item.noComment, fieldInfos.apply(6).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("doubleSlashComment", item.doubleSlashComment, fieldInfos.apply(7).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("hashtagComment", item.hashtagComment, fieldInfos.apply(8).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("singleAsteriskComment", item.singleAsteriskComment, fieldInfos.apply(9).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("docStringComment", item.docStringComment, fieldInfos.apply(10).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("recRequest", item.recRequest, fieldInfos.apply(11).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("requiredField", item.requiredField, fieldInfos.apply(12).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("constructionRequiredField", item.constructionRequiredField, fieldInfos.apply(13).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("anInt8", item.anInt8, fieldInfos.apply(14).fieldAnnotations, thriftValidator);
-    violations ++= validateFieldValue("aBinaryField", item.aBinaryField, fieldInfos.apply(15).fieldAnnotations, thriftValidator);
+  def validateInstanceValue(item: Request): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
+    val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    violations ++= validateFieldValue("aList", item.aList, fieldInfos.apply(0).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("aSet", item.aSet, fieldInfos.apply(1).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("aMap", item.aMap, fieldInfos.apply(2).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("aRequest", item.aRequest, fieldInfos.apply(3).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("subRequests", item.subRequests, fieldInfos.apply(4).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("_default", item._default, fieldInfos.apply(5).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("noComment", item.noComment, fieldInfos.apply(6).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("doubleSlashComment", item.doubleSlashComment, fieldInfos.apply(7).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("hashtagComment", item.hashtagComment, fieldInfos.apply(8).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("singleAsteriskComment", item.singleAsteriskComment, fieldInfos.apply(9).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("docStringComment", item.docStringComment, fieldInfos.apply(10).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("recRequest", item.recRequest, fieldInfos.apply(11).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("requiredField", item.requiredField, fieldInfos.apply(12).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("constructionRequiredField", item.constructionRequiredField, fieldInfos.apply(13).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("anInt8", item.anInt8, fieldInfos.apply(14).fieldAnnotations, scala.None)
+    violations ++= validateFieldValue("aBinaryField", item.aBinaryField, fieldInfos.apply(15).fieldAnnotations, scala.None)
     violations.toSet
   }
 
