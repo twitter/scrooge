@@ -17,9 +17,17 @@
 package com.twitter.scrooge.linter
 
 import com.twitter.scrooge.ast.Document
-import com.twitter.scrooge.frontend.{FileParseException, Importer, ThriftParser}
+import com.twitter.scrooge.frontend.FileParseException
+import com.twitter.scrooge.frontend.Importer
+import com.twitter.scrooge.frontend.ThriftParser
 import java.io.File
-import java.util.logging.{ConsoleHandler, Formatter, Level, LogManager, LogRecord, Logger}
+import java.util.logging.ConsoleHandler
+import java.util.logging.Formatter
+import java.util.logging.Level
+import java.util.logging.LogManager
+import java.util.logging.LogRecord
+import java.util.logging.Logger
+import scala.collection.mutable
 
 // these must be objects so we can access this constructor
 object ErrorLogLevel extends Level("LINT-ERROR", 999)
@@ -38,11 +46,17 @@ class Linter(cfg: Config) {
   log.addHandler(handler)
 
   private[this] val rules = cfg.enabledRules
+  var errMsgs: mutable.Map[String, mutable.Set[String]] = mutable.Map()
 
-  def error(msg: String): Unit = log.log(ErrorLogLevel, msg)
+  def error(msg: String): Unit = log.log(ErrorLogLevel, s"${Console.RED}$msg")
   def warning(msg: String): Unit = {
     if (cfg.showWarnings)
       log.log(WarningLogLevel, msg)
+  }
+  def addError(msg: String, inputFile: String): Unit = {
+    if (errMsgs.isDefinedAt(msg)) errMsgs(msg) += inputFile
+    else errMsgs += (msg -> mutable.Set(inputFile))
+    ()
   }
 
   // Lint a document, returning the number of lint errors found.
@@ -57,7 +71,7 @@ class Linter(cfg: Config) {
       val errorAndWarnCount = errorCount + warnCount
       messages.foreach {
         case LintMessage(msg, _) =>
-          error(s"$inputFile\n$msg")
+          addError(msg, inputFile)
       }
 
       if (errorAndWarnCount > 0) {
@@ -67,12 +81,11 @@ class Linter(cfg: Config) {
     } else {
       messages.foreach {
         case LintMessage(msg, Error) =>
-          error(s"$inputFile\n$msg")
+          addError(msg, inputFile)
         case LintMessage(msg, Warning) =>
           warning(s"$inputFile\n$msg")
         case _ => ()
       }
-
       if (errorCount + warnCount > 0) {
         warning("%d warnings and %d errors found".format(warnCount, errorCount))
       }
@@ -102,6 +115,13 @@ class Linter(cfg: Config) {
         case e: FileParseException if cfg.ignoreParseErrors =>
           e.printStackTrace()
           0
+      }
+    }
+
+    if (errMsgs.nonEmpty) {
+      error("\nERROR SUMMARY:")
+      errMsgs.foreach {
+        case (msg, inputFiles) => error(s"${msg}:\n${inputFiles.mkString("\n")}")
       }
     }
     errorCounts.sum
