@@ -1,8 +1,10 @@
 package com.twitter.scrooge
 
 import com.twitter.app.GlobalFlag
-import com.twitter.util.{Base64StringEncoder, StringEncoder}
-import java.io.{ByteArrayInputStream, InputStream}
+import com.twitter.util.Base64StringEncoder
+import com.twitter.util.StringEncoder
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.util.concurrent.atomic.AtomicLong
 import org.apache.thrift.protocol._
 import org.apache.thrift.transport.TIOStreamTransport
@@ -19,12 +21,13 @@ private object ThriftStructSerializer {
 
   val transportTooBig: AtomicLong = new AtomicLong(0)
 
+  private val maxRBS = maxReusableBufferSize()
+
   val reusableTransport: ThreadLocal[TReusableMemoryTransport] =
     new ThreadLocal[TReusableMemoryTransport] {
       override def initialValue(): TReusableMemoryTransport =
-        TReusableMemoryTransport(maxReusableBufferSize())
+        TReusableMemoryTransport(maxRBS)
     }
-
 }
 
 trait ThriftStructSerializer[T <: ThriftStruct] {
@@ -43,7 +46,7 @@ trait ThriftStructSerializer[T <: ThriftStruct] {
       trans.read(bytes, 0, trans.length())
       bytes
     } finally {
-      if (trans.currentCapacity > maxReusableBufferSize()) {
+      if (trans.currentCapacity > maxRBS) {
         transportTooBig.incrementAndGet()
         reusableTransport.remove()
       } else {
