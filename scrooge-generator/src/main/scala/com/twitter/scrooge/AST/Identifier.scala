@@ -1,6 +1,5 @@
 package com.twitter.scrooge.ast
 
-import scala.collection.mutable
 import com.twitter.scrooge.frontend.ScroogeInternalException
 
 sealed abstract class Identifier extends IdNode {
@@ -55,7 +54,8 @@ object Identifier {
    *     (_genHtmlReport, _genHtmlReport, _GenHtmlReport)
    */
   def toCamelCase(str: String, firstCharUp: Boolean = false): String = {
-    str.takeWhile(_ == '_') + str
+    val (prefix, rest) = str.span(_ == '_')
+    prefix + (rest
       .split('_')
       .filterNot(_.isEmpty)
       .zipWithIndex
@@ -64,9 +64,9 @@ object Identifier {
           val first = if (ind == 0 && !firstCharUp) part(0).toLower else part(0).toUpper
           val isAllUpperCase = part.forall { c => c.isUpper || !c.isLetter }
           val rest = if (isAllUpperCase) part.drop(1).toLowerCase else part.drop(1)
-          new mutable.StringBuilder(part.size).append(first).append(rest)
+          first + rest
       }
-      .mkString
+      .mkString)
   }
 }
 
