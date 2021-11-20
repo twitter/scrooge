@@ -6,6 +6,22 @@ addService("{{methodSvcNameForWire}}", {
         trace.recordRpc("{{methodSvcNameForWire}}")
         trace.recordBinary("srv/thrift_endpoint", "{{package}}.{{ServiceName}}#{{methodSvcNameForCompile}}()")
       }
+{{#args}}
+{{#isValidationType}}
+{{#isOption}}
+      if ({{arg}}.isDefined) {
+{{/isOption}}
+      try {
+        val {{argResult}} = {{typeParameter}}.validateInstanceValue({{deReferencedArg}})
+        if ({{argResult}}.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{methodSvcNameForCompile}}", {{arg}}.getClass, {{argResult}})
+      } catch  {
+         case _: NullPointerException => ()
+      }
+{{#isOption}}
+      }
+{{/isOption}}
+{{/isValidationType}}
+{{/args}}
       iface.{{methodSvcNameForCompile}}({{argNames}})
     }
   }

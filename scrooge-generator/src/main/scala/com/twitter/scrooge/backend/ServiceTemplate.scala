@@ -65,7 +65,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
             v(s"($typesString)")
         }
       },
-      "args" -> v(function.args.map { arg => Dictionary("arg" -> genID(arg.sid)) }),
+      "args" -> v(function.args.map { arg =>
+        Dictionary(
+          "arg" -> genID(arg.sid)
+        )
+      }),
       "isVoid" -> v(function.funcType == Void || function.funcType == OnewayVoid),
       "is_oneway" -> v(function.funcType == OnewayVoid),
       "functionType" -> {
@@ -106,6 +110,14 @@ trait ServiceTemplate { self: TemplateGenerator =>
       success,
       throws
     )
+  }
+
+  /**
+   * Check if the fieldType is optional, If it is we append `.get` to get the value
+   * And if it is not we leave it as fieldName
+   */
+  private[this] def genOptional(fieldName: CodeFragment, isOptional: Boolean): CodeFragment = {
+    if (isOptional) fieldName.append(".get") else fieldName
   }
 
   def functionObjectName(f: Function): SimpleID = f.funcName.toTitleCase
@@ -173,6 +185,18 @@ trait ServiceTemplate { self: TemplateGenerator =>
                 .map { field => "args." + genID(field.sid).toData }
                 .mkString(", ")
             ),
+          "args" -> v(f.args.map {
+            arg =>
+              Dictionary(
+                "arg" -> v("args." + genID(arg.sid)),
+                "argResult" -> genID(arg.sid.append("_item")),
+                "typeParameter" -> genType(arg.fieldType),
+                "deReferencedArg" -> v(
+                  "args." + genOptional(genID(arg.sid), arg.requiredness.isOptional)),
+                "isOption" -> v(arg.requiredness.isOptional),
+                "isValidationType" -> v(arg.fieldType.isInstanceOf[StructType])
+              )
+          }),
           "typeName" -> genType(f.funcType),
           "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
           "resultNamedArg" ->

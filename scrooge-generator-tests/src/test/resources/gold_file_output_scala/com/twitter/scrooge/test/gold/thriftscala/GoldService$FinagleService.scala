@@ -95,6 +95,12 @@ class GoldService$FinagleService(
           trace.recordRpc("doGreatThings")
           trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.GoldService#doGreatThings()")
         }
+        try {
+          val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
+          if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", args.request.getClass, request_item)
+        } catch  {
+           case _: NullPointerException => ()
+        }
         iface.doGreatThings(args.request)
       }
     }
@@ -108,6 +114,12 @@ class GoldService$FinagleService(
         if (trace.isActivelyTracing) {
           trace.recordRpc("noExceptionCall")
           trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.GoldService#noExceptionCall()")
+        }
+        try {
+          val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
+          if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", args.request.getClass, request_item)
+        } catch  {
+           case _: NullPointerException => ()
         }
         iface.noExceptionCall(args.request)
       }

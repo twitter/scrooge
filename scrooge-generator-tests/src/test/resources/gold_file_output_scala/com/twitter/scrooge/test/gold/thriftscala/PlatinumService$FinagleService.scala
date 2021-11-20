@@ -61,6 +61,12 @@ class PlatinumService$FinagleService(
           trace.recordRpc("moreCoolThings")
           trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.PlatinumService#moreCoolThings()")
         }
+        try {
+          val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
+          if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", args.request.getClass, request_item)
+        } catch  {
+           case _: NullPointerException => ()
+        }
         iface.moreCoolThings(args.request)
       }
     }

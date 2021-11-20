@@ -12,6 +12,17 @@ struct ValidationStruct {
   9: optional string optionalField
 }
 
+service ValidationService {
+  bool validate(
+  1: ValidationStruct structRequest,
+  2: ValidationUnion unionRequest,
+  3: ValidationException exceptionRequest)
+  bool validateOption (
+  1: optional ValidationStruct structRequest,
+  2: optional ValidationUnion unionRequest,
+  3: optional ValidationException exceptionRequest)
+}
+
 // skip annotations not used for ThriftValidator
 struct NonValidationStruct {
   1: string stringField (structFieldKey = "")
