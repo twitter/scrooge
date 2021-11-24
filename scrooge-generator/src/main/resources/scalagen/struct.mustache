@@ -32,10 +32,6 @@ import scala.reflect.{ClassTag, classTag}
 {{/public}}
 {{docstring}}
 object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with StructBuilderFactory[{{StructName}}] {
-{{#hasFields}}
-  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-{{/hasFields}}
-
   val Struct: TStruct = new TStruct("{{StructNameForWire}}")
 {{#fields}}
   val {{fieldConst}}: TField = new TField("{{fieldNameForWire}}", TType.{{constType}}, {{id}})
@@ -653,7 +649,6 @@ class {{StructName}}(
       passedthroughValue
     } else {
 {{#hasFields}}
-      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -713,9 +708,6 @@ class {{StructName}}(
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): {{StructName}} = {
-{{#hasFields}}
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-{{/hasFields}}
 {{#fields}}
     var {{fieldName}}: {{>optionalType}} = this.{{fieldName}}
 {{/fields}}
@@ -788,7 +780,6 @@ class {{StructName}}(
 
   override def write(_oprot: TProtocol): Unit = {
     {{StructName}}.validate(this)
-    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
 {{#fields}}
 {{#readWriteInfo}}
@@ -962,7 +953,6 @@ private class {{StructName}}__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): {{StructName}} = {
     import {{StructName}}._
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset

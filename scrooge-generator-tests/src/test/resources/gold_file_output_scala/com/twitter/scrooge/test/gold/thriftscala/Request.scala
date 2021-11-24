@@ -32,8 +32,6 @@ import scala.reflect.{ClassTag, classTag}
  * Request struct docstring
  */
 object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderFactory[Request] {
-  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-
   val Struct: TStruct = new TStruct("Request")
   val AListField: TField = new TField("aList", TType.LIST, 1)
   val AListFieldManifest: Manifest[_root_.scala.collection.Seq[String]] = manifest[_root_.scala.collection.Seq[String]]
@@ -876,35 +874,35 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
 
   private[thriftscala] def readAListValue(_iprot: TProtocol): _root_.scala.collection.Seq[String] = {
-    _protos.readList(_iprot, _root_.com.twitter.scrooge.internal.TProtocols.readStringFn)
+    _root_.com.twitter.scrooge.internal.TProtocols().readList(_iprot, _root_.com.twitter.scrooge.internal.TProtocols.readStringFn)
   }
 
   private def writeAListValue(_oprot: TProtocol, _value: _root_.scala.collection.Seq[String]): Unit = {
-    _protos.writeList(_oprot, _value, TType.STRING, _root_.com.twitter.scrooge.internal.TProtocols.writeStringFn)
+    _root_.com.twitter.scrooge.internal.TProtocols().writeList(_oprot, _value, TType.STRING, _root_.com.twitter.scrooge.internal.TProtocols.writeStringFn)
   }
 
   private[thriftscala] def readASetValue(_iprot: TProtocol): _root_.scala.collection.Set[Int] = {
-    _protos.readSet(_iprot, _root_.com.twitter.scrooge.internal.TProtocols.readI32Fn)
+    _root_.com.twitter.scrooge.internal.TProtocols().readSet(_iprot, _root_.com.twitter.scrooge.internal.TProtocols.readI32Fn)
   }
 
   private def writeASetValue(_oprot: TProtocol, _value: _root_.scala.collection.Set[Int]): Unit = {
-    _protos.writeSet(_oprot, _value, TType.I32, _root_.com.twitter.scrooge.internal.TProtocols.writeI32Fn)
+    _root_.com.twitter.scrooge.internal.TProtocols().writeSet(_oprot, _value, TType.I32, _root_.com.twitter.scrooge.internal.TProtocols.writeI32Fn)
   }
 
   private[thriftscala] def readAMapValue(_iprot: TProtocol): _root_.scala.collection.Map[Long, Long] = {
-    _protos.readMap(_iprot, _root_.com.twitter.scrooge.internal.TProtocols.readI64Fn, _root_.com.twitter.scrooge.internal.TProtocols.readI64Fn)
+    _root_.com.twitter.scrooge.internal.TProtocols().readMap(_iprot, _root_.com.twitter.scrooge.internal.TProtocols.readI64Fn, _root_.com.twitter.scrooge.internal.TProtocols.readI64Fn)
   }
 
   private def writeAMapValue(_oprot: TProtocol, _value: _root_.scala.collection.Map[Long, Long]): Unit = {
-    _protos.writeMap(_oprot, _value, TType.I64, _root_.com.twitter.scrooge.internal.TProtocols.writeI64Fn, TType.I64, _root_.com.twitter.scrooge.internal.TProtocols.writeI64Fn)
+    _root_.com.twitter.scrooge.internal.TProtocols().writeMap(_oprot, _value, TType.I64, _root_.com.twitter.scrooge.internal.TProtocols.writeI64Fn, TType.I64, _root_.com.twitter.scrooge.internal.TProtocols.writeI64Fn)
   }
 
   private[thriftscala] def readSubRequestsValue(_iprot: TProtocol): _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = {
-    _protos.readList(_iprot, com.twitter.scrooge.test.gold.thriftscala.Request.decode _)
+    _root_.com.twitter.scrooge.internal.TProtocols().readList(_iprot, com.twitter.scrooge.test.gold.thriftscala.Request.decode _)
   }
 
   private def writeSubRequestsValue(_oprot: TProtocol, _value: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]): Unit = {
-    _protos.writeList(_oprot, _value, TType.STRUCT, (proto, elem: com.twitter.scrooge.test.gold.thriftscala.Request) => elem.write(proto))
+    _root_.com.twitter.scrooge.internal.TProtocols().writeList(_oprot, _value, TType.STRUCT, (proto, elem: com.twitter.scrooge.test.gold.thriftscala.Request) => elem.write(proto))
   }
 
 
@@ -1266,7 +1264,6 @@ trait Request
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
-      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -1407,7 +1404,6 @@ trait Request
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): Request = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var aList: _root_.scala.collection.Seq[String] = this.aList
     var aSet: _root_.scala.collection.Set[Int] = this.aSet
     var aMap: _root_.scala.collection.Map[Long, Long] = this.aMap
@@ -1601,7 +1597,6 @@ trait Request
 
   override def write(_oprot: TProtocol): Unit = {
     Request.validate(this)
-    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
     if (aList ne null) {
       _oprot.writeFieldBegin(AListField)
@@ -1829,7 +1824,6 @@ private class Request__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): Request = {
     import Request._
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset

@@ -36,6 +36,8 @@ trait StructTemplate { self: TemplateGenerator =>
       "isCollection" -> v(false)
     )
 
+  private val rootProtos = "_root_.com.twitter.scrooge.internal.TProtocols()"
+
   def genWireConstType(t: FunctionType): CodeFragment = t match {
     case _: EnumType => v("I32")
     case _ => genConstType(t)
@@ -142,7 +144,7 @@ trait StructTemplate { self: TemplateGenerator =>
 
   /**
    * Generates code that reads the fieldType from a TProtocol variable of name `protoName`
-   * and a TProtocols instance named `_protos`.
+   * and the root TProtocols instance.
    *
    * For an i32: "readI32($protoName)"
    *
@@ -166,14 +168,14 @@ trait StructTemplate { self: TemplateGenerator =>
       case _: EnumType => genType(fieldType).append(s".getOrUnknown($protoName.readI32())")
       case t: SetType =>
         val readElement = genReadValueFn1(t.eltType)
-        v(s"_protos.readSet($protoName, $readElement)")
+        v(s"$rootProtos.readSet($protoName, $readElement)")
       case t: ListType =>
         val readElement = genReadValueFn1(t.eltType)
-        v(s"_protos.readList($protoName, $readElement)")
+        v(s"$rootProtos.readList($protoName, $readElement)")
       case t: MapType =>
         val readKey = genReadValueFn1(t.keyType)
         val readVal = genReadValueFn1(t.valueType)
-        v(s"_protos.readMap($protoName, $readKey, $readVal)")
+        v(s"$rootProtos.readMap($protoName, $readKey, $readVal)")
       case _ => throw new IllegalArgumentException(s"Unsupported FieldType: $fieldType")
     }
   }
@@ -293,17 +295,17 @@ trait StructTemplate { self: TemplateGenerator =>
       case t: SetType =>
         val elemFieldType = s"TType.${genConstType(t.eltType)}"
         val writeElement = genWriteValueFn2(t.eltType)
-        v(s"_protos.writeSet($protoName, $fieldName, $elemFieldType, $writeElement)")
+        v(s"$rootProtos.writeSet($protoName, $fieldName, $elemFieldType, $writeElement)")
       case t: ListType =>
         val elemFieldType = s"TType.${genConstType(t.eltType)}"
         val writeElement = genWriteValueFn2(t.eltType)
-        v(s"_protos.writeList($protoName, $fieldName, $elemFieldType, $writeElement)")
+        v(s"$rootProtos.writeList($protoName, $fieldName, $elemFieldType, $writeElement)")
       case t: MapType =>
         val keyType = s"TType.${genConstType(t.keyType)}"
         val valType = s"TType.${genConstType(t.valueType)}"
         val writeKey = genWriteValueFn2(t.keyType)
         val writeVal = genWriteValueFn2(t.valueType)
-        v(s"_protos.writeMap($protoName, $fieldName, $keyType, $writeKey, $valType, $writeVal)")
+        v(s"$rootProtos.writeMap($protoName, $fieldName, $keyType, $writeKey, $valType, $writeVal)")
       case _ => throw new IllegalArgumentException(s"Unsupported FieldType: $fieldType")
     }
   }

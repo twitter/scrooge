@@ -312,8 +312,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   object MoreCoolThings extends ThriftMethod {
     
     object Args extends ValidatingThriftStructCodec3[Args] with StructBuilderFactory[Args] {
-      private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-    
       val Struct: TStruct = new TStruct("moreCoolThings_args")
       val RequestField: TField = new TField("request", TType.STRUCT, 1)
       val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
@@ -483,7 +481,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       override def write(_oprot: TProtocol): Unit = {
         Args.validate(this)
-        val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
         _oprot.writeStructBegin(Struct)
         if (request ne null) {
           _oprot.writeFieldBegin(RequestField)
@@ -547,8 +544,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     type SuccessType = Int
     
     object Result extends ValidatingThriftStructCodec3[Result] with StructBuilderFactory[Result] {
-      private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-    
       val Struct: TStruct = new TStruct("moreCoolThings_result")
       val SuccessField: TField = new TField("success", TType.I32, 0)
       val SuccessFieldManifest: Manifest[Int] = manifest[Int]
@@ -809,7 +804,6 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       override def write(_oprot: TProtocol): Unit = {
         Result.validate(this)
-        val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
         _oprot.writeStructBegin(Struct)
         if (success.isDefined) {
           _oprot.writeFieldBegin(SuccessField)

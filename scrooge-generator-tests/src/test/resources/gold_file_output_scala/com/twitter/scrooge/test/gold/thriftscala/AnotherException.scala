@@ -27,8 +27,6 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object AnotherException extends ValidatingThriftStructCodec3[AnotherException] with StructBuilderFactory[AnotherException] {
-  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-
   val Struct: TStruct = new TStruct("AnotherException")
   val ErrorCodeField: TField = new TField("errorCode", TType.I32, 1)
   val ErrorCodeFieldManifest: Manifest[Int] = manifest[Int]
@@ -217,7 +215,6 @@ class AnotherException(
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
-      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -249,7 +246,6 @@ class AnotherException(
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): AnotherException = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var errorCode: Int = this.errorCode
     var _passthroughFields = this._passthroughFields
     val _iprot = _blob.read 
@@ -293,7 +289,6 @@ class AnotherException(
 
   override def write(_oprot: TProtocol): Unit = {
     AnotherException.validate(this)
-    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
     _oprot.writeFieldBegin(ErrorCodeField)
     _oprot.writeI32(errorCode)

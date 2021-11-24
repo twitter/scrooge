@@ -89,7 +89,6 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
     _item.write(_oprot)
 
   override def decode(_iprot: TProtocol): ResponseUnion = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _result: ResponseUnion = null
     _iprot.readStructBegin()
     val _field = _iprot.readFieldBegin()
@@ -160,13 +159,11 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
       _root_.scala.Some(Id.fieldInfo)
 
     def writeFieldValue(_oprot: TProtocol): Unit = {
-      val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
       val _value = id
       _oprot.writeI64(_value)
     }
 
     override def write(_oprot: TProtocol): Unit = {
-      val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
       _oprot.writeStructBegin(Union)
         val _value = id
         _oprot.writeFieldBegin(IdField)
@@ -210,13 +207,11 @@ object ResponseUnion extends ValidatingThriftStructCodec3[ResponseUnion] {
       _root_.scala.Some(Details.fieldInfo)
 
     def writeFieldValue(_oprot: TProtocol): Unit = {
-      val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
       val _value = details
       _oprot.writeString(_value)
     }
 
     override def write(_oprot: TProtocol): Unit = {
-      val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
       if (details eq null)
         throw new TProtocolException("Cannot write a TUnion with no set value!")
       _oprot.writeStructBegin(Union)

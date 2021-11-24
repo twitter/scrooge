@@ -30,8 +30,6 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with StructBuilderFactory[CollectionId] {
-  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-
   val Struct: TStruct = new TStruct("CollectionId")
   val CollectionLongIdField: TField = new TField("collectionLongId", TType.I64, 1)
   val CollectionLongIdFieldManifest: Manifest[Long] = manifest[Long]
@@ -322,7 +320,6 @@ trait CollectionId
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
-      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -354,7 +351,6 @@ trait CollectionId
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): CollectionId = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var collectionLongId: Long = this.collectionLongId
     var _passthroughFields = this._passthroughFields
     val _iprot = _blob.read 
@@ -398,7 +394,6 @@ trait CollectionId
 
   override def write(_oprot: TProtocol): Unit = {
     CollectionId.validate(this)
-    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
     _oprot.writeFieldBegin(CollectionLongIdField)
     _oprot.writeI64(collectionLongId)
@@ -461,7 +456,6 @@ private class CollectionId__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): CollectionId = {
     import CollectionId._
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset

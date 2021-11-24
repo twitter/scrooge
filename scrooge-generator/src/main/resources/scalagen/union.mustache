@@ -109,7 +109,6 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
     _item.write(_oprot)
 
   override def decode(_iprot: TProtocol): {{StructName}} = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _result: {{StructName}} = null
     _iprot.readStructBegin()
     val _field = _iprot.readFieldBegin()
@@ -202,7 +201,6 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
       _root_.scala.Some({{FieldName}}.fieldInfo)
 
     def writeFieldValue(_oprot: TProtocol): Unit = {
-      val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
 {{#readWriteInfo}}
       val _value = {{fieldName}}{{#optional}}.get{{/optional}}
       {{>writeValue}}
@@ -210,7 +208,6 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
     }
 
     override def write(_oprot: TProtocol): Unit = {
-      val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
 {{^isPrimitive}}
       if ({{fieldName}} eq null)
         throw new TProtocolException("Cannot write a TUnion with no set value!")

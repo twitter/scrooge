@@ -30,8 +30,6 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuilderFactory[Recursive] {
-  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-
   val Struct: TStruct = new TStruct("Recursive")
   val IdField: TField = new TField("id", TType.I64, 1)
   val IdFieldManifest: Manifest[Long] = manifest[Long]
@@ -375,7 +373,6 @@ trait Recursive
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
-      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -414,7 +411,6 @@ trait Recursive
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): Recursive = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var id: Long = this.id
     var recRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = this.recRequest
     var _passthroughFields = this._passthroughFields
@@ -468,7 +464,6 @@ trait Recursive
 
   override def write(_oprot: TProtocol): Unit = {
     Recursive.validate(this)
-    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
     _oprot.writeFieldBegin(IdField)
     _oprot.writeI64(id)
@@ -540,7 +535,6 @@ private class Recursive__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): Recursive = {
     import Recursive._
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset

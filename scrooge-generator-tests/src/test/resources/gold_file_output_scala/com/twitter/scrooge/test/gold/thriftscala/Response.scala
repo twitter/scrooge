@@ -30,8 +30,6 @@ import scala.reflect.{ClassTag, classTag}
 
 
 object Response extends ValidatingThriftStructCodec3[Response] with StructBuilderFactory[Response] {
-  private[this] val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
-
   val Struct: TStruct = new TStruct("Response")
   val StatusCodeField: TField = new TField("statusCode", TType.I32, 1)
   val StatusCodeFieldManifest: Manifest[Int] = manifest[Int]
@@ -386,7 +384,6 @@ trait Response
     if (passedthroughValue.isDefined) {
       passedthroughValue
     } else {
-      val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
       val _buff = new TMemoryBuffer(32)
       val _oprot = new TCompactProtocol(_buff)
 
@@ -425,7 +422,6 @@ trait Response
    * _passthroughFields.
    */
   def setField(_blob: TFieldBlob): Response = {
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var statusCode: Int = this.statusCode
     var responseUnion: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion = this.responseUnion
     var _passthroughFields = this._passthroughFields
@@ -479,7 +475,6 @@ trait Response
 
   override def write(_oprot: TProtocol): Unit = {
     Response.validate(this)
-    val _protos = _root_.com.twitter.scrooge.internal.TProtocols()
     _oprot.writeStructBegin(Struct)
     _oprot.writeFieldBegin(StatusCodeField)
     _oprot.writeI32(statusCode)
@@ -551,7 +546,6 @@ private class Response__AdaptDecoder {
 
   def decode(_iprot: AdaptTProtocol): Response = {
     import Response._
-    val _protos: _root_.com.twitter.scrooge.internal.TProtocols = _root_.com.twitter.scrooge.internal.TProtocols()
     var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
     var _done = false
     val _start_offset = _iprot.offset
