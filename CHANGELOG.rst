@@ -17,7 +17,7 @@ Runtime Behavior Changes
   trait in the `c.t.scrooge.` package now cache the value of its `maxReusableBufferSize`
   flag for the duration of the application. This improves performance but also makes them
   not observe changes to the flag. The value of this flag typically does not change during
-  run time of an application, so this is deemed an acceptable tradeoff. ``PHAB_ID=`D783669`
+  run time of an application, so this is deemed an acceptable tradeoff. ``PHAB_ID=D783669``
 
 21.10.0
 -------
