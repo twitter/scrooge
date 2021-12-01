@@ -99,6 +99,9 @@ object ThriftUtil {
         inProt.readListEnd()
         outProt.writeListEnd()
 
+      case TType.ENUM =>
+        outProt.writeI32(inProt.readI32())
+
       case unknown =>
         throw new TProtocolException(s"unrecognized type code $unknown")
     }

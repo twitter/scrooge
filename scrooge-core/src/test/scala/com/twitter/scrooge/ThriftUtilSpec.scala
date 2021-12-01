@@ -1,6 +1,8 @@
 package com.twitter.scrooge
 
-import org.apache.thrift.protocol.{TBinaryProtocol, TProtocolException, TType}
+import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.protocol.TProtocolException
+import org.apache.thrift.protocol.TType
 import org.apache.thrift.transport.TMemoryBuffer
 import org.junit.runner.RunWith
 import org.scalacheck.Arbitrary.arbitrary
@@ -24,7 +26,8 @@ class ThriftUtilSpec extends AnyFunSuite with Checkers {
       TType.STRUCT,
       TType.MAP,
       TType.SET,
-      TType.LIST
+      TType.LIST,
+      TType.ENUM
     )
 
   val unrecognizedTypeCodes = arbitrary[Byte].suchThat(b => !recognizedTypeCodes.contains(b))
