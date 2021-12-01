@@ -38,21 +38,21 @@ final class TProtocols private[TProtocols] {
     }
   }
 
-  def readList[T](protocol: TProtocol, readElement: TProtocol => T): collection.Seq[T] = {
+  def readList[T](protocol: TProtocol, readElement: TProtocol => T): Seq[T] = {
     val tlist: TList = protocol.readListBegin()
     if (tlist.size == 0) {
       protocol.readListEnd()
       Nil
     } else {
-      val seq = new mutable.ArrayBuffer[T](tlist.size)
+      val buff = new mutable.ArrayBuffer[T](tlist.size)
       var i = 0
       do {
         val element = readElement(protocol)
-        seq += element
+        buff += element
         i += 1
       } while (i < tlist.size)
       protocol.readListEnd()
-      seq
+      buff.toSeq
     }
   }
 

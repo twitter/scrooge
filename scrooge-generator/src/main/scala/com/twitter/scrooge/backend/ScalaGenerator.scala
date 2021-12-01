@@ -44,6 +44,7 @@ class ScalaGenerator(
   val fileExtension = ".scala"
 
   var warnOnJavaNamespaceFallback: Boolean = false
+  private val immutableSequences: Boolean = languageFlags.contains("immutable-sequences")
 
   private object ScalaKeywords {
     private[this] val set = Set[String](
@@ -220,8 +221,9 @@ class ScalaGenerator(
       case SetType(x, _) =>
         prefix + "Set[" + genType(x, immutable).toData + "]"
       case ListType(x, _) =>
-        // for historical reasons
-        "_root_.scala.collection.Seq[" + genType(x, immutable).toData + "]"
+        // for historical reasons, only use immutable sequences if explicitly requested
+        val listPrefix = if (immutableSequences) "_root_.scala.collection.immutable." else "_root_.scala.collection."
+        listPrefix + "Seq[" + genType(x, immutable).toData + "]"
       case t: NamedType =>
         val id = resolvedDoc.qualifyName(t, namespaceLanguage, defaultNamespace)
         // Named types are capitalized.
