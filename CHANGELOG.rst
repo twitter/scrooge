@@ -19,6 +19,10 @@ Runtime Behavior Changes
   not observe changes to the flag. The value of this flag typically does not change during
   run time of an application, so this is deemed an acceptable tradeoff. ``PHAB_ID=D783669``
 
+* scrooge-generator: support language-flag "immutable-sequences" to generate Scala 2.13 compatible
+  `scala.Seq` alias as `scala.collection.immutable.Seq`. and allows toggling the new behavior via
+  language-flag during code generation. ``PHAB_ID=D793036``
+
 21.10.0
 -------
 

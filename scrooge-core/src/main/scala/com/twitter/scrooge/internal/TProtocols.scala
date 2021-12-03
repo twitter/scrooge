@@ -1,9 +1,12 @@
 package com.twitter.scrooge.internal
 
-import com.twitter.scrooge.{TFieldBlob, ThriftEnum, ThriftUnion}
+import com.twitter.scrooge.TFieldBlob
+import com.twitter.scrooge.ThriftEnum
+import com.twitter.scrooge.ThriftUnion
 import java.nio.ByteBuffer
 import org.apache.thrift.protocol._
-import scala.collection.{immutable, mutable}
+import scala.collection.immutable
+import scala.collection.mutable
 
 /**
  * Reads and writes fields for a `TProtocol`. Intended to be used
@@ -38,21 +41,21 @@ final class TProtocols private[TProtocols] {
     }
   }
 
-  def readList[T](protocol: TProtocol, readElement: TProtocol => T): collection.Seq[T] = {
+  def readList[T](protocol: TProtocol, readElement: TProtocol => T): Seq[T] = {
     val tlist: TList = protocol.readListBegin()
     if (tlist.size == 0) {
       protocol.readListEnd()
       Nil
     } else {
-      val seq = new mutable.ArrayBuffer[T](tlist.size)
+      val buff = new mutable.ArrayBuffer[T](tlist.size)
       var i = 0
       do {
         val element = readElement(protocol)
-        seq += element
+        buff += element
         i += 1
       } while (i < tlist.size)
       protocol.readListEnd()
-      seq
+      buff.toSeq
     }
   }
 
