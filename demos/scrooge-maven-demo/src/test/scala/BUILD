@@ -1,5 +1,6 @@
 junit_tests(
     sources = ["com/twitter/example/DemoTest.scala"],
+    tags = ["bazel-compatible"],
     dependencies = [
         "3rdparty/jvm/junit",
         "3rdparty/jvm/org/scalatest",
