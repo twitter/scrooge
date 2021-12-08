@@ -10,6 +10,12 @@ import com.twitter.scrooge.backend.thriftscala.DeepValidationUnion
 import com.twitter.scrooge.testutil.EvalHelper
 import com.twitter.scrooge.testutil.JMockSpec
 import com.twitter.scrooge._
+import com.twitter.scrooge.ast.Document
+import com.twitter.scrooge.ast.ListType
+import com.twitter.scrooge.ast.TString
+import com.twitter.scrooge.frontend.ResolvedDocument
+import com.twitter.scrooge.frontend.TypeResolver
+import com.twitter.scrooge.mustache.HandlebarLoader
 import com.twitter.scrooge.validation.MissingConstructionRequiredField
 import com.twitter.scrooge.validation.MissingRequiredField
 import com.twitter.util.Await
@@ -1784,6 +1790,17 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
         val result = DeepValidationUnion.validateNewInstance(struct)
         result must be(Seq.empty)
       }
+    }
+
+    "return scala.collection.immutable.Seq when passing in `immutable-sequences` as a parameter to `language-flag`" in {
+      _ =>
+        val scalaGenerator = new ScalaGenerator(
+          resolvedDoc = ResolvedDocument(Document(Seq(), Seq()), TypeResolver()),
+          defaultNamespace = "",
+          languageFlags = Seq("immutable-sequences"),
+          templatesLoader = new HandlebarLoader("/scalagen/", ".mustache"))
+        val generatedList = scalaGenerator.genType(ListType(TString, None))
+        assert(generatedList.data == "_root_.scala.collection.immutable.Seq[String]")
     }
   }
 }
