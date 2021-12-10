@@ -7,6 +7,7 @@ target(
 
 test_suite(
     name = "tests",
+    tags = ["bazel-compatible"],
     dependencies = [
         "scrooge/scrooge-serializer/src/test/scala",
     ],

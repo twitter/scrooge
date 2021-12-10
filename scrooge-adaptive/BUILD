@@ -6,6 +6,7 @@ target(
 
 test_suite(
     name = "tests",
+    tags = ["bazel-compatible"],
     dependencies = [
         "scrooge/scrooge-adaptive/src/test/scala",
     ],
