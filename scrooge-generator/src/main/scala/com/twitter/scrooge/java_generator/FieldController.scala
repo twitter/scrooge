@@ -1,6 +1,8 @@
 package com.twitter.scrooge.java_generator
 
-import com.twitter.scrooge.ast.{Field, Identifier, Requiredness}
+import com.twitter.scrooge.ast.Field
+import com.twitter.scrooge.ast.Identifier
+import com.twitter.scrooge.ast.Requiredness
 import com.twitter.scrooge.backend.Generator
 import com.google.common.base
 
@@ -15,6 +17,8 @@ class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Ident
   val has_annotations: Boolean = f.fieldAnnotations.nonEmpty
 
   val field_type: FieldTypeController = new FieldTypeController(f.fieldType, generator)
+  val field_arg: String = "args." + f.sid.name
+  val arg_type: String = generator.typeName(f.fieldType)
 
   def getRequirement(field: Field): String = {
     field.requiredness match {

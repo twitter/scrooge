@@ -461,6 +461,13 @@ public class PlatinumService {
         private final com.twitter.finagle.Service<moreCoolThings_args, Integer> methodService = new com.twitter.finagle.Service<moreCoolThings_args, Integer>() {
           @Override
           public Future<Integer> apply(moreCoolThings_args args) {
+            try {
+              Set<ThriftValidationViolation> requestViolations = Request.validateInstanceValue(args.request);
+              if (!requestViolations.isEmpty()) {
+                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("moreCoolThings", args.request.getClass(), requestViolations);
+              }
+            } catch(NullPointerException e) {
+            }
             Future<Integer> future = iface.moreCoolThings(args.request);
             return future;
           }

@@ -610,6 +610,19 @@ public class {{name}} {
         private final com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}> methodService = new com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}>() {
           @Override
           public Future<{{{return_type.type_name_in_container}}}> apply({{name}}_args args) {
+{{#has_args}}
+{{#fields}}
+{{#field_type.is_struct}}
+            try {
+              Set<ThriftValidationViolation> {{field_name}}Violations = {{arg_type}}.validateInstanceValue({{field_arg}});
+              if (!{{field_name}}Violations.isEmpty()) {
+                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{field_name}}Violations);
+              }
+            } catch(NullPointerException e) {
+            }
+{{/field_type.is_struct}}
+{{/fields}}
+{{/has_args}}
             Future<{{{return_type.type_name_in_container}}}> future = iface.{{name}}({{{argument_list_with_args}}});
             return future;
           }

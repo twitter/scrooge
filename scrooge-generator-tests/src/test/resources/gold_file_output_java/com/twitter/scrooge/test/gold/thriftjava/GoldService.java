@@ -608,6 +608,13 @@ public class GoldService {
         private final com.twitter.finagle.Service<doGreatThings_args, Response> methodService = new com.twitter.finagle.Service<doGreatThings_args, Response>() {
           @Override
           public Future<Response> apply(doGreatThings_args args) {
+            try {
+              Set<ThriftValidationViolation> requestViolations = Request.validateInstanceValue(args.request);
+              if (!requestViolations.isEmpty()) {
+                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", args.request.getClass(), requestViolations);
+              }
+            } catch(NullPointerException e) {
+            }
             Future<Response> future = iface.doGreatThings(args.request);
             return future;
           }
@@ -697,6 +704,13 @@ public class GoldService {
         private final com.twitter.finagle.Service<noExceptionCall_args, Response> methodService = new com.twitter.finagle.Service<noExceptionCall_args, Response>() {
           @Override
           public Future<Response> apply(noExceptionCall_args args) {
+            try {
+              Set<ThriftValidationViolation> requestViolations = Request.validateInstanceValue(args.request);
+              if (!requestViolations.isEmpty()) {
+                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("noExceptionCall", args.request.getClass(), requestViolations);
+              }
+            } catch(NullPointerException e) {
+            }
             Future<Response> future = iface.noExceptionCall(args.request);
             return future;
           }

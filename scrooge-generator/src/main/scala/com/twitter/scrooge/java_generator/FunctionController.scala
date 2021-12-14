@@ -26,7 +26,6 @@ class FunctionController(
   val argument_list_with_args: String = function.args map { a =>
     "args." + a.sid.name
   } mkString ", "
-
   val has_args: Boolean = function.args.size > 0
   val fields: Seq[FieldController] = function.args map { a =>
     new FieldController(a, generator, ns)
