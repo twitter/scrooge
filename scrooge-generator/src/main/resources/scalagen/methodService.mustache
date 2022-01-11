@@ -1,11 +1,7 @@
 addService("{{methodSvcNameForWire}}", {
   val methodService = new _root_.com.twitter.finagle.Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType] {
     def apply(args: {{funcObjectName}}.Args): Future[{{funcObjectName}}.SuccessType] = {
-      val trace = _root_.com.twitter.finagle.tracing.Trace()
-      if (trace.isActivelyTracing) {
-        trace.recordRpc("{{methodSvcNameForWire}}")
-        trace.recordBinary("srv/thrift_endpoint", "{{package}}.{{ServiceName}}#{{methodSvcNameForCompile}}()")
-      }
+      _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("{{methodSvcNameForWire}}", "{{package}}.{{ServiceName}}#{{methodSvcNameForCompile}}()")
 {{#args}}
 {{#isValidationType}}
 {{#isOption}}

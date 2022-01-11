@@ -619,10 +619,12 @@ public class {{name}} {
                 throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{field_name}}Violations);
               }
             } catch(NullPointerException e) {
+              // The validation logic can throw a NPE but since it's not important we just ignore it.
             }
 {{/field_type.is_struct}}
 {{/fields}}
 {{/has_args}}
+            com.twitter.finagle.thrift.ServerAnnotations.annotate("{{name}}", "{{namespace}}.{{service_name}}#{{name}}()");
             Future<{{{return_type.type_name_in_container}}}> future = iface.{{name}}({{{argument_list_with_args}}});
             return future;
           }

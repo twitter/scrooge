@@ -2,8 +2,11 @@ package com.twitter.scrooge.goldfile
 
 import com.twitter.io.Files
 import com.twitter.scrooge.Main
-import com.twitter.scrooge.testutil.{TempDirectory, Utils}
-import java.io.{ByteArrayInputStream, File, InputStream}
+import com.twitter.scrooge.testutil.TempDirectory
+import com.twitter.scrooge.testutil.Utils
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.InputStream
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 import scala.io.Source
@@ -135,7 +138,7 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
          """.stripMargin
       println(msg)
       println(s"Generated file $genRelPath:\n$genStr<<<EOF")
-      fail(msg)
+      fail(if (deleteTempFiles) msg else msg + s"\nTemp dir $tempDir\n")
     }
   }
 

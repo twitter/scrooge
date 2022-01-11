@@ -614,7 +614,9 @@ public class GoldService {
                 throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", args.request.getClass(), requestViolations);
               }
             } catch(NullPointerException e) {
+              // The validation logic can throw a NPE but since it's not important we just ignore it.
             }
+            com.twitter.finagle.thrift.ServerAnnotations.annotate("doGreatThings", "com.twitter.scrooge.test.gold.thriftjava.GoldService#doGreatThings()");
             Future<Response> future = iface.doGreatThings(args.request);
             return future;
           }
@@ -710,7 +712,9 @@ public class GoldService {
                 throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("noExceptionCall", args.request.getClass(), requestViolations);
               }
             } catch(NullPointerException e) {
+              // The validation logic can throw a NPE but since it's not important we just ignore it.
             }
+            com.twitter.finagle.thrift.ServerAnnotations.annotate("noExceptionCall", "com.twitter.scrooge.test.gold.thriftjava.GoldService#noExceptionCall()");
             Future<Response> future = iface.noExceptionCall(args.request);
             return future;
           }

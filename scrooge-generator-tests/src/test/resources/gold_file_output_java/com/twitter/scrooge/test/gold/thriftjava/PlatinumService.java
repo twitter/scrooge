@@ -467,7 +467,9 @@ public class PlatinumService {
                 throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("moreCoolThings", args.request.getClass(), requestViolations);
               }
             } catch(NullPointerException e) {
+              // The validation logic can throw a NPE but since it's not important we just ignore it.
             }
+            com.twitter.finagle.thrift.ServerAnnotations.annotate("moreCoolThings", "com.twitter.scrooge.test.gold.thriftjava.PlatinumService#moreCoolThings()");
             Future<Integer> future = iface.moreCoolThings(args.request);
             return future;
           }

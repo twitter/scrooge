@@ -90,11 +90,7 @@ class GoldService$FinagleService(
   addService("doGreatThings", {
     val methodService = new _root_.com.twitter.finagle.Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
-        val trace = _root_.com.twitter.finagle.tracing.Trace()
-        if (trace.isActivelyTracing) {
-          trace.recordRpc("doGreatThings")
-          trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.GoldService#doGreatThings()")
-        }
+        _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("doGreatThings", "com.twitter.scrooge.test.gold.thriftscala.GoldService#doGreatThings()")
         try {
           val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
           if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", args.request.getClass, request_item)
@@ -110,11 +106,7 @@ class GoldService$FinagleService(
   addService("noExceptionCall", {
     val methodService = new _root_.com.twitter.finagle.Service[NoExceptionCall.Args, NoExceptionCall.SuccessType] {
       def apply(args: NoExceptionCall.Args): Future[NoExceptionCall.SuccessType] = {
-        val trace = _root_.com.twitter.finagle.tracing.Trace()
-        if (trace.isActivelyTracing) {
-          trace.recordRpc("noExceptionCall")
-          trace.recordBinary("srv/thrift_endpoint", "com.twitter.scrooge.test.gold.thriftscala.GoldService#noExceptionCall()")
-        }
+        _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("noExceptionCall", "com.twitter.scrooge.test.gold.thriftscala.GoldService#noExceptionCall()")
         try {
           val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
           if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", args.request.getClass, request_item)
