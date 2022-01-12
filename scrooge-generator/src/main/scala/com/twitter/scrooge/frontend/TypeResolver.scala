@@ -18,7 +18,8 @@ package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast._
 import scala.collection.mutable.ArrayBuffer
-import scala.util.parsing.input.{NoPosition, Positional}
+import scala.util.parsing.input.NoPosition
+import scala.util.parsing.input.Positional
 
 class PositionalException(message: String, node: Positional)
     extends Exception(s"$message\n${node.pos.longString}")
@@ -36,7 +37,7 @@ case class QualifierNotFoundException(name: String, node: Positional)
 case class DuplicatedIdentifierException(message: String, node: Positional)
     extends PositionalException(message, node)
 
-case class ResolvedDocument(document: Document, resolver: TypeResolver) {
+case class ResolvedDocument(filePath: Option[String], document: Document, resolver: TypeResolver) {
 
   /**
    * Given an ID, produce its FQN (e.g. a Java FQN) by appending the namespace.
@@ -104,6 +105,11 @@ case class ResolvedDocument(document: Document, resolver: TypeResolver) {
   }
 }
 
+object ResolvedDocument {
+  def apply(document: Document, resolver: TypeResolver): ResolvedDocument =
+    ResolvedDocument(None, document, resolver)
+}
+
 case class ResolvedService(serviceID: Identifier, service: Service)
 
 case class ResolvedDefinition(definition: Definition, resolver: TypeResolver)
@@ -161,7 +167,7 @@ case class TypeResolver(
    */
   private[scrooge] def withInclude(inc: Include): TypeResolver = {
     val resolver = TypeResolver()
-    val resolvedDocument = resolver(inc.document, Some(inc.prefix))
+    val resolvedDocument = resolver(inc.document, Some(inc.filePath), Some(inc.prefix))
     copy(includeMap = includeMap + (inc.prefix.fullName -> resolvedDocument))
   }
 
@@ -216,9 +222,14 @@ case class TypeResolver(
   /**
    * Resolves all types in the given document.
    *
+   * @param filePath fs path to document
    * @param scopePrefix the scope of the document if the document is an include
    */
-  def apply(doc: Document, scopePrefix: Option[Identifier] = None): ResolvedDocument = {
+  def apply(
+    doc: Document,
+    filePath: Option[String] = None,
+    scopePrefix: Option[Identifier] = None
+  ): ResolvedDocument = {
     var resolver = this
     val includes = doc.headers.collect { case i: Include => i }
     val defBuf = new ArrayBuffer[Definition](doc.defs.size)
@@ -246,7 +257,7 @@ case class TypeResolver(
       defBuf += d2
     }
 
-    ResolvedDocument(doc.copy(defs = defBuf.toSeq), resolver)
+    ResolvedDocument(filePath, doc.copy(defs = defBuf.toSeq), resolver)
   }
 
   /**
