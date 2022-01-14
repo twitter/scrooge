@@ -2,6 +2,11 @@ package com.twitter.scrooge
 
 /**
  * Collection of Java keywords so they can be filtered out of java-generated code.
+ *
+ * @note many of these keywords are also they're included in [[ThriftKeywords]]
+ *       Though they should not appear as fieldnames in any thrift files, there
+ *       are some exceptions, such as when these are used as, say, namespaces.
+ *       For those reasons, we leave the redunant keywords here.
  */
 private object JavaKeywords {
   private[this] val set = Set[String](

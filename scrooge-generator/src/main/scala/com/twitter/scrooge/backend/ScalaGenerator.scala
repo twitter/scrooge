@@ -47,6 +47,15 @@ class ScalaGenerator(
   var warnOnJavaNamespaceFallback: Boolean = false
   private val immutableSequences: Boolean = languageFlags.contains("immutable-sequences")
 
+  /**
+   * Collection of Scala keywords so they can be filtered out of scala-generated code.
+   *
+   * @note there are additional Scala Keywords, but they're included in [[ThriftKeywords]]
+   *       and therefore cannot appear in a thrift file as a fieldname. There are a few exceptions,
+   *       where these terms are used as, say, a namespace. For those reasons, we leave the
+   *       redundant keywords here.
+   *
+   */
   private object ScalaKeywords {
     private[this] val set = Set[String](
       "abstract",
