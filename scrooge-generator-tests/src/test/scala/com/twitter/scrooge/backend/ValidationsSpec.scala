@@ -4,8 +4,8 @@ import com.twitter.conversions.DurationOps.richDurationFromInt
 import com.twitter.finagle.Address
 import com.twitter.finagle.Name
 import com.twitter.finagle.Thrift
-import com.twitter.finagle.ThriftMux
 import com.twitter.scrooge.Request
+import com.twitter.scrooge.backend.thriftscala.ValidationService
 import com.twitter.scrooge.backend.thriftscala._
 import com.twitter.scrooge.testutil.JMockSpec
 import com.twitter.scrooge.thrift_validation.ThriftValidationViolation
@@ -19,7 +19,7 @@ import org.apache.thrift.TApplicationException
 
 class ValidationsSpec extends JMockSpec {
 
-  def await[T](a: Awaitable[T], d: Duration = 5.seconds): T = Await.result(a, d)
+  def await[T](a: Awaitable[T], d: Duration = 100.seconds): T = Await.result(a, d)
 
   val validationStruct =
     ValidationStruct(
@@ -33,11 +33,23 @@ class ValidationsSpec extends JMockSpec {
       "anything",
       Some("nothing"))
 
+  val noValidationStruct =
+    NoValidationStruct(
+      "email",
+      -1,
+      101,
+      0,
+      0,
+      Map("1" -> "1", "2" -> "2"),
+      boolField = false,
+      "anything",
+      Some("nothing"))
+
   val validationException = ValidationException("")
 
-  val validationUnion = ValidationUnion.IntField(-1)
+  val validationUnion = ValidationUnion.UnionIntField(-1)
 
-  val iface = new ValidationService.MethodPerEndpoint {
+  val methodPerEndpoint = new ValidationService.MethodPerEndpoint with ServerValidationMixin {
     override def validate(
       structRequest: ValidationStruct,
       unionRequest: ValidationUnion,
@@ -49,13 +61,27 @@ class ValidationsSpec extends JMockSpec {
       unionRequest: Option[ValidationUnion],
       exceptionRequest: Option[ValidationException]
     ): Future[Boolean] = Future.True
+
+    override def validateOnlyValidatedRequest(
+      validationRequest: ValidationStruct
+    ): Future[Boolean] = Future.True
+
+    override def validateWithNonValidatedRequest(
+      validationRequest: ValidationStruct,
+      nonValidationRequest: NoValidationStruct
+    ): Future[Boolean] = Future.True
+
+    override def validateOnlyNonValidatedRequest(
+      nonValidationRequest: NoValidationStruct
+    ): Future[Boolean] = Future.True
   }
 
-  val muxServer =
-    ThriftMux.server.serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), iface)
+  val thriftServer =
+    Thrift.server
+      .serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), methodPerEndpoint)
 
-  val muxClient = ThriftMux.client.build[ValidationService.MethodPerEndpoint](
-    Name.bound(Address(muxServer.boundAddress.asInstanceOf[InetSocketAddress])),
+  val methodPerEndpointClient = Thrift.client.build[ValidationService.MethodPerEndpoint](
+    Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
     "client"
   )
 
@@ -96,8 +122,8 @@ class ValidationsSpec extends JMockSpec {
     }
 
     "validate union" in { _ =>
-      val validationIntUnion = ValidationUnion.IntField(-1)
-      val validationStringUnion = ValidationUnion.StringField("")
+      val validationIntUnion = ValidationUnion.UnionIntField(-1)
+      val validationStringUnion = ValidationUnion.UnionStringField("")
       val validationIntViolations = ValidationUnion.validateInstanceValue(validationIntUnion)
       val validationStringViolations = ValidationUnion.validateInstanceValue(validationStringUnion)
       assertViolations(validationIntViolations, 1, Set("must be greater than or equal to 0"))
@@ -117,24 +143,167 @@ class ValidationsSpec extends JMockSpec {
 
     "validate struct, union and exception request" in { _ =>
       intercept[TApplicationException] {
-        await(muxClient.validate(validationStruct, validationUnion, validationException))
+        await(
+          methodPerEndpointClient.validate(validationStruct, validationUnion, validationException))
       }
+    }
+
+    "Execute violationReturning method in MethodPerEndpoint with overriding method" in { _ =>
+      val methodPerEndpoint = new ValidationService.MethodPerEndpoint with ServerValidationMixin {
+        override def validate(
+          structRequest: ValidationStruct,
+          unionRequest: ValidationUnion,
+          exceptionRequest: ValidationException
+        ): Future[Boolean] = Future.False
+
+        override def validateOption(
+          structRequest: Option[ValidationStruct],
+          unionRequest: Option[ValidationUnion],
+          exceptionRequest: Option[ValidationException]
+        ): Future[Boolean] = Future.False
+
+        override def validateOnlyValidatedRequest(
+          validationRequest: ValidationStruct
+        ): Future[Boolean] = Future.False
+
+        override def validateWithNonValidatedRequest(
+          validationRequest: ValidationStruct,
+          nonValidationRequest: NoValidationStruct
+        ): Future[Boolean] = Future.False
+
+        override def validateOnlyNonValidatedRequest(
+          nonValidationRequest: NoValidationStruct
+        ): Future[Boolean] = Future.False
+
+        override def violationReturningValidate(
+          structRequest: ValidationStruct,
+          unionRequest: ValidationUnion,
+          exceptionRequest: ValidationException,
+          structRequestViolations: Set[ThriftValidationViolation],
+          unionRequestViolations: Set[ThriftValidationViolation],
+          exceptionRequestViolations: Set[ThriftValidationViolation]
+        ): Future[Boolean] = {
+          // if any of the request parameters has validation violations, return true, otherwise return false
+          if (structRequestViolations.nonEmpty || unionRequestViolations.nonEmpty || exceptionRequestViolations.nonEmpty)
+            Future.True
+          else Future.False
+        }
+
+        override def violationReturningValidateOption(
+          structRequest: Option[ValidationStruct],
+          unionRequest: Option[ValidationUnion],
+          exceptionRequest: Option[ValidationException],
+          structRequestViolations: Set[ThriftValidationViolation],
+          unionRequestViolations: Set[ThriftValidationViolation],
+          exceptionRequestViolations: Set[ThriftValidationViolation]
+        ): Future[Boolean] = {
+          // if any of the request parameters has validation violations, return true, otherwise return false
+          if (structRequestViolations.nonEmpty || unionRequestViolations.nonEmpty || exceptionRequestViolations.nonEmpty)
+            Future.True
+          else Future.False
+        }
+
+        override def violationReturningValidateWithNonValidatedRequest(
+          validationRequest: ValidationStruct,
+          noValidationRequest: NoValidationStruct,
+          validationRequestViolations: Set[ThriftValidationViolation]
+        ): Future[Boolean] = Future.value(validationRequestViolations.nonEmpty)
+
+        override def violationReturningValidateOnlyValidatedRequest(
+          validationRequest: ValidationStruct,
+          validationRequestViolations: Set[ThriftValidationViolation]
+        ): Future[Boolean] = Future.value(validationRequestViolations.nonEmpty)
+      }
+
+      val thriftServer =
+        Thrift.server
+          .serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), methodPerEndpoint)
+
+      val methodPerEndpointClient = Thrift.client.build[ValidationService.MethodPerEndpoint](
+        Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
+        "client"
+      )
+
+      /******* validate endpoint *******/
+      // all 3 inputs have violations, return true
+      assert(
+        await(methodPerEndpointClient
+          .validate(validationStruct, validationUnion, validationException)))
+
+      /******* validateOption endpoint *******/
+      // all 3 inputs have violations, return true
+      assert(await(methodPerEndpointClient
+        .validateOption(Some(validationStruct), Some(validationUnion), Some(validationException))))
+      // 2 inputs have violations (`None` has no violations), return true
+      assert(
+        await(methodPerEndpointClient
+          .validateOption(Some(validationStruct), Some(validationUnion), None)))
+      // all 3 inputs are `None`, invoking original method, return false
+      assert(!await(methodPerEndpointClient.validateOption(None, None, None)))
+
+      /******* validateOnlyValidatedRequest endpoint *******/
+      assert(await(
+        methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest = validationStruct)))
+
+      /******* validateWithNonValidatedRequest endpoint *******/
+      assert(
+        await(
+          methodPerEndpointClient.validateWithNonValidatedRequest(
+            validationRequest = validationStruct,
+            nonValidationRequest = noValidationStruct)))
+
+      /******* validateOnlyNonValidatedRequest endpoint *******/
+      assert(
+        !await(methodPerEndpointClient.validateOnlyNonValidatedRequest(nonValidationRequest =
+          noValidationStruct)))
+    }
+
+    "Execute violationReturning method in MethodPerEndpoint WITHOUT overriding method" in { _ =>
+      /******* validate endpoint *******/
+      intercept[TApplicationException](
+        await(methodPerEndpointClient
+          .validate(validationStruct, validationUnion, validationException)))
+
+      /******* validateOption endpoint *******/
+      intercept[TApplicationException](await(methodPerEndpointClient
+        .validateOption(Some(validationStruct), Some(validationUnion), Some(validationException))))
+      intercept[TApplicationException](
+        await(methodPerEndpointClient
+          .validateOption(Some(validationStruct), Some(validationUnion), None)))
+      // all 3 inputs are `None`, invoking original method, return true
+      assert(await(methodPerEndpointClient.validateOption(None, None, None)))
+
+      /******* validateOnlyValidatedRequest endpoint *******/
+      intercept[TApplicationException](await(
+        methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest = validationStruct)))
+
+      /******* validateWithNonValidatedRequest endpoint *******/
+      intercept[TApplicationException](
+        await(
+          methodPerEndpointClient.validateWithNonValidatedRequest(
+            validationRequest = validationStruct,
+            nonValidationRequest = noValidationStruct)))
+
+      /******* validateOnlyNonValidatedRequest endpoint *******/
+      assert(
+        await(methodPerEndpointClient.validateOnlyNonValidatedRequest(nonValidationRequest =
+          noValidationStruct)))
     }
 
     "validate Option type with None and Some() request" in { _ =>
       intercept[TApplicationException] {
-        await(muxClient
+        await(methodPerEndpointClient
           .validateOption(Some(validationStruct), Some(validationUnion), Some(validationException)))
       }
       // check for option that has None as value
       // it shouldn't return an exception
-      assert(await(muxClient.validateOption(None, None, None)))
+      assert(await(methodPerEndpointClient.validateOption(None, None, None)))
     }
 
     "validate with Thrift client with servicePerEndpoint[ServicePerEndpoint]" in { _ =>
       val clientIface = Thrift.server.serveIface(
         new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-        iface
+        methodPerEndpoint
       )
       val clientValidationService =
         Thrift.client.servicePerEndpoint[ValidationService.ServicePerEndpoint](
@@ -158,7 +327,7 @@ class ValidationsSpec extends JMockSpec {
     "validate with Thrift client with reqRepServiceEndPoint[ReqRepServiceEndPoint]" in { _ =>
       val clientIface = Thrift.server.serveIface(
         new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
-        iface
+        methodPerEndpoint
       )
       val clientValidationService =
         Thrift.client.servicePerEndpoint[ValidationService.ReqRepServicePerEndpoint](
@@ -182,7 +351,7 @@ class ValidationsSpec extends JMockSpec {
 
     "validate if null parameters are passed as requests" in { _ =>
       //nullPointerException is handled in the mustache file
-      assert(await(muxClient.validate(null, null, null)))
+      assert(await(methodPerEndpointClient.validate(null, null, null)))
     }
   }
 

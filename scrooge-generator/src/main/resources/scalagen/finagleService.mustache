@@ -18,10 +18,13 @@ import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
 {{/hasParent}}
 
+{{#hasValidationAnnotation}}
+{{>serverValidationMixin}}
+{{/hasValidationAnnotation}}
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleService(
-  iface: {{ServiceName}}.MethodPerEndpoint,
+  iface: {{ServiceName}}.MethodPerEndpoint{{#hasValidationAnnotation}} with ServerValidationMixin{{/hasValidationAnnotation}},
   serverParam: RichServerParam
 ) extends {{finagleServiceParent}}{{#hasParent}}(iface, serverParam){{/hasParent}} {
 {{#hasMethodServices}}
@@ -35,7 +38,7 @@ class {{ServiceName}}$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: {{ServiceName}}.MethodPerEndpoint,
+    iface: {{ServiceName}}.MethodPerEndpoint{{#hasValidationAnnotation}} with ServerValidationMixin{{/hasValidationAnnotation}},
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -44,7 +47,7 @@ class {{ServiceName}}$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: {{ServiceName}}.MethodPerEndpoint,
+    iface: {{ServiceName}}.MethodPerEndpoint{{#hasValidationAnnotation}} with ServerValidationMixin{{/hasValidationAnnotation}},
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -52,7 +55,7 @@ class {{ServiceName}}$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: {{ServiceName}}.MethodPerEndpoint,
+    iface: {{ServiceName}}.MethodPerEndpoint{{#hasValidationAnnotation}} with ServerValidationMixin{{/hasValidationAnnotation}},
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 

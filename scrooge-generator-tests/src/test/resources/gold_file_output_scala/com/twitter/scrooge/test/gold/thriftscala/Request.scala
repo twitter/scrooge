@@ -227,7 +227,9 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       _root_.scala.None,
       _root_.scala.None,
       immutable$Map.empty[String, String],
-      immutable$Map.empty[String, String],
+      immutable$Map.apply[String, String](
+        ("validation.length.min", "6")
+      ),
       None,
       _root_.scala.Option("empty")
     ),

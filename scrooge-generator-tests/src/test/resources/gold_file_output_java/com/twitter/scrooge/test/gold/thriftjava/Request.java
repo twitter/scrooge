@@ -279,6 +279,11 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
       }
       {
         Map<String, String> tmpFieldMap = new HashMap<String, String>();
+        tmpFieldMap.put("validation.length.min", "6");
+        tmpMap.put(_Fields.REQUIRED_FIELD, Collections.unmodifiableMap(tmpFieldMap));
+      }
+      {
+        Map<String, String> tmpFieldMap = new HashMap<String, String>();
         tmpFieldMap.put("construction_required", "true");
         tmpMap.put(_Fields.CONSTRUCTION_REQUIRED_FIELD, Collections.unmodifiableMap(tmpFieldMap));
       }
@@ -428,6 +433,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
     violations.addAll(validator.validateField("hashtagComment", item.hashtagComment, fieldAnnotations.get(_Fields.HASHTAG_COMMENT)));
     violations.addAll(validator.validateField("singleAsteriskComment", item.singleAsteriskComment, fieldAnnotations.get(_Fields.SINGLE_ASTERISK_COMMENT)));
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Recursive.validateInstanceValue(item.recRequest));
+    violations.addAll(validator.validateField("requiredField", item.requiredField, fieldAnnotations.get(_Fields.REQUIRED_FIELD)));
     violations.addAll(validator.validateField("constructionRequiredField", item.constructionRequiredField, fieldAnnotations.get(_Fields.CONSTRUCTION_REQUIRED_FIELD)));
 
     return violations;

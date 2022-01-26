@@ -32,6 +32,19 @@ class ValidationsJavaGeneratorSpec extends Spec {
       unionRequest: ValidationUnion,
       exceptionRequest: ValidationException
     ): Future[lang.Boolean] = Future.value(true)
+
+    override def validateWithNonValidatedRequest(
+      validationRequest: ValidationStruct,
+      nonValidationRequest: NoValidationStruct
+    ): Future[lang.Boolean] = Future.value(true)
+
+    override def validateOnlyNonValidatedRequest(
+      nonValidationRequest: NoValidationStruct
+    ): Future[lang.Boolean] = Future.value(true)
+
+    override def validateOnlyValidatedRequest(
+      validationRequest: ValidationStruct
+    ): Future[lang.Boolean] = Future.value(true)
   }
 
   "Java validateInstanceValue" should {
@@ -92,9 +105,9 @@ class ValidationsJavaGeneratorSpec extends Spec {
 
     "validate union" in {
       val validationIntUnion = new ValidationUnion()
-      validationIntUnion.setIntField(-1)
+      validationIntUnion.setUnionIntField(-1)
       val validationStringUnion = new ValidationUnion()
-      validationStringUnion.setStringField("")
+      validationStringUnion.setUnionStringField("")
       val validationIntViolations = ValidationUnion.validateInstanceValue(validationIntUnion)
       val validationStringViolations = ValidationUnion.validateInstanceValue(validationStringUnion)
       assertViolations(
@@ -128,7 +141,7 @@ class ValidationsJavaGeneratorSpec extends Spec {
         "anything")
       val impl = new ValidationServiceImpl()
       val validationIntUnion = new ValidationUnion()
-      validationIntUnion.setIntField(-1)
+      validationIntUnion.setUnionIntField(-1)
       val validationException = new ValidationException("")
       val muxServer = ThriftMux.server.serveIface("localhost:*", impl)
       val muxClient = ThriftMux.client.build[ValidationService.ServiceIface](

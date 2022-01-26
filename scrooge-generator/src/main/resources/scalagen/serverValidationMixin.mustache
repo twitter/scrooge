@@ -1,0 +1,32 @@
+trait ServerValidationMixin {
+{{#serverValidationMethods}}
+{{#hasValidationAnnotation}}
+
+  def {{violationReturningFuncName}}(
+{{#args}}
+    {{arg}}: {{typeParameter}},
+{{/args}}
+{{#argsWithValidations}}
+    {{violationArg}}: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+{{/argsWithValidations|,}}
+  ): Future[{{typeName}}] = {
+{{#argsWithValidations}}
+{{#oneArg}}
+    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/oneArg}}
+{{^oneArg}}
+{{#firstArg}}
+    if ({{violationArg}}.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/firstArg}}
+{{#middleArgs}}
+    else if ({{violationArg}}.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/middleArgs}}
+{{#lastArg}}
+    else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/lastArg}}
+{{/oneArg}}
+{{/argsWithValidations}}
+  }
+{{/hasValidationAnnotation}}
+{{/serverValidationMethods}}
+}

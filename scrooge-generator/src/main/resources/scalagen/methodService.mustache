@@ -2,23 +2,34 @@ addService("{{methodSvcNameForWire}}", {
   val methodService = new _root_.com.twitter.finagle.Service[{{funcObjectName}}.Args, {{funcObjectName}}.SuccessType] {
     def apply(args: {{funcObjectName}}.Args): Future[{{funcObjectName}}.SuccessType] = {
       _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("{{methodSvcNameForWire}}", "{{package}}.{{ServiceName}}#{{methodSvcNameForCompile}}()")
-{{#args}}
+{{#hasValidationAnnotation}}
+{{#argsWithValidations}}
+      val {{violationArg}}: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
 {{#isValidationType}}
 {{#isOption}}
-      if ({{arg}}.isDefined) {
+        if ({{arg}}.isDefined) {
 {{/isOption}}
-      try {
-        val {{argResult}} = {{typeParameter}}.validateInstanceValue({{deReferencedArg}})
-        if ({{argResult}}.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{methodSvcNameForCompile}}", {{arg}}.getClass, {{argResult}})
-      } catch  {
-         case _: NullPointerException => ()
-      }
+        if ({{deReferencedArg}} != null) {{typeParameter}}.validateInstanceValue({{deReferencedArg}})
+        else Set.empty
 {{#isOption}}
-      }
+        } else {
+          Set.empty
+        }
 {{/isOption}}
 {{/isValidationType}}
-{{/args}}
+{{^isValidationType}}
+        Set.empty
+{{/isValidationType}}
+{{/argsWithValidations}}
+      if ({{#argsWithValidations}}{{violationArg}}.isEmpty{{/argsWithValidations| && }}) {
+        iface.{{methodSvcNameForCompile}}({{argNames}})
+      } else {
+        iface.{{violationReturningMethodSvcNameForCompile}}({{argNames}}, {{#argsWithValidations}}{{violationArg}}{{/argsWithValidations|, }})
+      }
+{{/hasValidationAnnotation}}
+{{^hasValidationAnnotation}}
       iface.{{methodSvcNameForCompile}}({{argNames}})
+{{/hasValidationAnnotation}}
     }
   }
 

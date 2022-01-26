@@ -2,7 +2,7 @@ package {{package}}
 
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{Protocols, RichClientParam, ThriftClientRequest}
+import com.twitter.finagle.thrift.{ClientFunction, Protocols, RichClientParam, ThriftClientRequest}
 import com.twitter.util.Future
 {{^hasParent}}
 import org.apache.thrift.TApplicationException
@@ -45,30 +45,10 @@ class {{ServiceName}}$FinagleClient(
   override def asClosable: _root_.com.twitter.util.Closable = service
 {{/withAsClosable}}
 
-  private[this] def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
+  protected def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
 
-  private[this] val tlReusableBuffer: _root_.com.twitter.scrooge.TReusableBuffer =
+  protected val tlReusableBuffer: _root_.com.twitter.scrooge.TReusableBuffer =
     clientParam.createThriftReusableBuffer()
-
-  protected def encodeRequest(name: String, args: _root_.com.twitter.scrooge.ThriftStruct): ThriftClientRequest = {
-    val memoryBuffer = tlReusableBuffer.get()
-    try {
-      val oprot = protocolFactory.getProtocol(memoryBuffer)
-
-      oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
-      args.write(oprot)
-      oprot.writeMessageEnd()
-      oprot.getTransport.flush()
-      val bytes = _root_.java.util.Arrays.copyOfRange(
-        memoryBuffer.getArray(),
-        0,
-        memoryBuffer.length()
-      )
-      new ThriftClientRequest(bytes, false)
-    } finally {
-      tlReusableBuffer.reset()
-    }
-  }
 
   protected def decodeResponse[T <: _root_.com.twitter.scrooge.ThriftStruct](
     resBytes: Array[Byte],

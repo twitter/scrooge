@@ -1029,13 +1029,13 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   }
 
   class FinagledService(
-      iface: MethodPerEndpoint,
+      iface: MethodPerEndpoint with ServerValidationMixin,
       serverParam: RichServerParam)
     extends PlatinumService$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: MethodPerEndpoint,
+      iface: MethodPerEndpoint with ServerValidationMixin,
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "PlatinumService"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))

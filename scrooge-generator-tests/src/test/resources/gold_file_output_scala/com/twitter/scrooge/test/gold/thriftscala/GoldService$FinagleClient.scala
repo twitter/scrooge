@@ -8,7 +8,7 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{Protocols, RichClientParam, ThriftClientRequest}
+import com.twitter.finagle.thrift.{ClientFunction, Protocols, RichClientParam, ThriftClientRequest}
 import com.twitter.util.Future
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.protocol._
@@ -43,30 +43,10 @@ class GoldService$FinagleClient(
 
   override def asClosable: _root_.com.twitter.util.Closable = service
 
-  private[this] def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
+  protected def protocolFactory: TProtocolFactory = clientParam.restrictedProtocolFactory
 
-  private[this] val tlReusableBuffer: _root_.com.twitter.scrooge.TReusableBuffer =
+  protected val tlReusableBuffer: _root_.com.twitter.scrooge.TReusableBuffer =
     clientParam.createThriftReusableBuffer()
-
-  protected def encodeRequest(name: String, args: _root_.com.twitter.scrooge.ThriftStruct): ThriftClientRequest = {
-    val memoryBuffer = tlReusableBuffer.get()
-    try {
-      val oprot = protocolFactory.getProtocol(memoryBuffer)
-
-      oprot.writeMessageBegin(new TMessage(name, TMessageType.CALL, 0))
-      args.write(oprot)
-      oprot.writeMessageEnd()
-      oprot.getTransport.flush()
-      val bytes = _root_.java.util.Arrays.copyOfRange(
-        memoryBuffer.getArray(),
-        0,
-        memoryBuffer.length()
-      )
-      new ThriftClientRequest(bytes, false)
-    } finally {
-      tlReusableBuffer.reset()
-    }
-  }
 
   protected def decodeResponse[T <: _root_.com.twitter.scrooge.ThriftStruct](
     resBytes: Array[Byte],
@@ -101,40 +81,20 @@ class GoldService$FinagleClient(
     }
   }
   /** Hello, I'm a comment. */
-  def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
-    __stats_doGreatThings.RequestsCounter.incr()
-    val inputArgs = DoGreatThings.Args(request)
-  
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, doGreatThingsGoldServiceReplyDeserializer)
-    _root_.com.twitter.finagle.context.Contexts.local.let(
-      _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
-      serdeCtx,
-      _root_.com.twitter.finagle.thrift.Headers.Request.Key,
-      _root_.com.twitter.finagle.thrift.Headers.Request.newValues
-    ) {
-      serdeCtx.rpcName("doGreatThings")
-      val start = System.nanoTime
-      val serialized = encodeRequest("doGreatThings", inputArgs)
-      serdeCtx.serializationTime(System.nanoTime - start)
-      this.service(serialized).flatMap { response =>
-        Future.const(serdeCtx.deserialize(response))
-      }.respond { response =>
-        val classified = responseClassifier.applyOrElse(
-          ctfs.ReqRep(inputArgs, response),
-          ctfs.ResponseClassifier.Default)
-        if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
-          __stats_doGreatThings.SuccessCounter.incr()
-        } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
-          __stats_doGreatThings.FailuresCounter.incr()
-          if (response.isThrow) {
-            _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
-            __stats_doGreatThings.FailuresScope.counter(
-              _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
-          }
-        } // Last ResponseClass is Ignorable, which we do not need to record
-      }
-    }
-  }
+  def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+    ClientFunction.serde[com.twitter.scrooge.test.gold.thriftscala.Response](
+      "doGreatThings",
+      doGreatThingsGoldServiceReplyDeserializer,
+      DoGreatThings.Args(request),
+      serviceName,
+      service,
+      responseClassifier,
+      tlReusableBuffer,
+      protocolFactory,
+      __stats_doGreatThings.FailuresScope,
+      __stats_doGreatThings.RequestsCounter,
+      __stats_doGreatThings.SuccessCounter,
+      __stats_doGreatThings.FailuresCounter)
   private[this] object __stats_noExceptionCall {
     val RequestsCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("noExceptionCall").counter("requests")
     val SuccessCounter: _root_.com.twitter.finagle.stats.Counter = scopedStats.scope("noExceptionCall").counter("success")
@@ -156,38 +116,18 @@ class GoldService$FinagleClient(
     }
   }
   
-  def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
-    __stats_noExceptionCall.RequestsCounter.incr()
-    val inputArgs = NoExceptionCall.Args(request)
-  
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[com.twitter.scrooge.test.gold.thriftscala.Response](inputArgs, noExceptionCallGoldServiceReplyDeserializer)
-    _root_.com.twitter.finagle.context.Contexts.local.let(
-      _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
-      serdeCtx,
-      _root_.com.twitter.finagle.thrift.Headers.Request.Key,
-      _root_.com.twitter.finagle.thrift.Headers.Request.newValues
-    ) {
-      serdeCtx.rpcName("noExceptionCall")
-      val start = System.nanoTime
-      val serialized = encodeRequest("noExceptionCall", inputArgs)
-      serdeCtx.serializationTime(System.nanoTime - start)
-      this.service(serialized).flatMap { response =>
-        Future.const(serdeCtx.deserialize(response))
-      }.respond { response =>
-        val classified = responseClassifier.applyOrElse(
-          ctfs.ReqRep(inputArgs, response),
-          ctfs.ResponseClassifier.Default)
-        if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
-          __stats_noExceptionCall.SuccessCounter.incr()
-        } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
-          __stats_noExceptionCall.FailuresCounter.incr()
-          if (response.isThrow) {
-            _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
-            __stats_noExceptionCall.FailuresScope.counter(
-              _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
-          }
-        } // Last ResponseClass is Ignorable, which we do not need to record
-      }
-    }
-  }
+  def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+    ClientFunction.serde[com.twitter.scrooge.test.gold.thriftscala.Response](
+      "noExceptionCall",
+      noExceptionCallGoldServiceReplyDeserializer,
+      NoExceptionCall.Args(request),
+      serviceName,
+      service,
+      responseClassifier,
+      tlReusableBuffer,
+      protocolFactory,
+      __stats_noExceptionCall.FailuresScope,
+      __stats_noExceptionCall.RequestsCounter,
+      __stats_noExceptionCall.SuccessCounter,
+      __stats_noExceptionCall.FailuresCounter)
 }

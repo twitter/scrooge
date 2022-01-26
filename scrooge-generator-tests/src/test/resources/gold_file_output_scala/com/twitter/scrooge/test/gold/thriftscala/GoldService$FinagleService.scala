@@ -20,17 +20,33 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
 
+trait ServerValidationMixin {
+
+  def violationReturningDoGreatThings(
+    request: com.twitter.scrooge.test.gold.thriftscala.Request,
+    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+  ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", request.getClass, requestViolations)
+  }
+
+  def violationReturningNoExceptionCall(
+    request: com.twitter.scrooge.test.gold.thriftscala.Request,
+    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+  ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", request.getClass, requestViolations)
+  }
+}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class GoldService$FinagleService(
-  iface: GoldService.MethodPerEndpoint,
+  iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
   serverParam: RichServerParam
 ) extends com.twitter.finagle.Service[Array[Byte], Array[Byte]] {
   import GoldService._
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService.MethodPerEndpoint,
+    iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -39,7 +55,7 @@ class GoldService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService.MethodPerEndpoint,
+    iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -47,7 +63,7 @@ class GoldService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService.MethodPerEndpoint,
+    iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
@@ -91,13 +107,14 @@ class GoldService$FinagleService(
     val methodService = new _root_.com.twitter.finagle.Service[DoGreatThings.Args, DoGreatThings.SuccessType] {
       def apply(args: DoGreatThings.Args): Future[DoGreatThings.SuccessType] = {
         _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("doGreatThings", "com.twitter.scrooge.test.gold.thriftscala.GoldService#doGreatThings()")
-        try {
-          val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
-          if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", args.request.getClass, request_item)
-        } catch  {
-           case _: NullPointerException => ()
+        val requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
+          if (args.request != null) com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
+          else Set.empty
+        if (requestViolations.isEmpty) {
+          iface.doGreatThings(args.request)
+        } else {
+          iface.violationReturningDoGreatThings(args.request, requestViolations)
         }
-        iface.doGreatThings(args.request)
       }
     }
   
@@ -107,13 +124,14 @@ class GoldService$FinagleService(
     val methodService = new _root_.com.twitter.finagle.Service[NoExceptionCall.Args, NoExceptionCall.SuccessType] {
       def apply(args: NoExceptionCall.Args): Future[NoExceptionCall.SuccessType] = {
         _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("noExceptionCall", "com.twitter.scrooge.test.gold.thriftscala.GoldService#noExceptionCall()")
-        try {
-          val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
-          if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", args.request.getClass, request_item)
-        } catch  {
-           case _: NullPointerException => ()
+        val requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
+          if (args.request != null) com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
+          else Set.empty
+        if (requestViolations.isEmpty) {
+          iface.noExceptionCall(args.request)
+        } else {
+          iface.violationReturningNoExceptionCall(args.request, requestViolations)
         }
-        iface.noExceptionCall(args.request)
       }
     }
   

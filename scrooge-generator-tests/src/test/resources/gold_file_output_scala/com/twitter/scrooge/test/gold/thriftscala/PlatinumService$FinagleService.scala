@@ -17,17 +17,26 @@ import com.twitter.finagle.thrift.RichServerParam
 import com.twitter.util.Future
 import org.apache.thrift.protocol._
 
+trait ServerValidationMixin {
+
+  def violationReturningMoreCoolThings(
+    request: com.twitter.scrooge.test.gold.thriftscala.Request,
+    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+  ): Future[Int] = {
+    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", request.getClass, requestViolations)
+  }
+}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class PlatinumService$FinagleService(
-  iface: PlatinumService.MethodPerEndpoint,
+  iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
   serverParam: RichServerParam
 ) extends GoldService$FinagleService(iface, serverParam) {
   import PlatinumService._
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService.MethodPerEndpoint,
+    iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -36,7 +45,7 @@ class PlatinumService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService.MethodPerEndpoint,
+    iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -44,7 +53,7 @@ class PlatinumService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService.MethodPerEndpoint,
+    iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
@@ -57,13 +66,14 @@ class PlatinumService$FinagleService(
     val methodService = new _root_.com.twitter.finagle.Service[MoreCoolThings.Args, MoreCoolThings.SuccessType] {
       def apply(args: MoreCoolThings.Args): Future[MoreCoolThings.SuccessType] = {
         _root_.com.twitter.finagle.thrift.ServerAnnotations.annotate("moreCoolThings", "com.twitter.scrooge.test.gold.thriftscala.PlatinumService#moreCoolThings()")
-        try {
-          val request_item = com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
-          if (request_item.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", args.request.getClass, request_item)
-        } catch  {
-           case _: NullPointerException => ()
+        val requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
+          if (args.request != null) com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
+          else Set.empty
+        if (requestViolations.isEmpty) {
+          iface.moreCoolThings(args.request)
+        } else {
+          iface.violationReturningMoreCoolThings(args.request, requestViolations)
         }
-        iface.moreCoolThings(args.request)
       }
     }
   

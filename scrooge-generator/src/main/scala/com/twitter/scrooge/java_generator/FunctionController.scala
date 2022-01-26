@@ -59,7 +59,14 @@ class FunctionController(
     val args = function.args map { a =>
       val requiredness =
         if (a.requiredness.isRequired) Requiredness.Required else Requiredness.Default
-      Field(a.index, a.sid, a.originalName, a.fieldType, a.default, requiredness)
+      Field(
+        a.index,
+        a.sid,
+        a.originalName,
+        a.fieldType,
+        a.default,
+        requiredness,
+        hasValidationAnnotation = a.fieldAnnotations.keySet.exists(_.startsWith("validation.")))
     }
     val structName = function.funcName.name + "_args"
     val struct = Struct(SimpleID(structName), structName, args, function.docstring, Map.empty)

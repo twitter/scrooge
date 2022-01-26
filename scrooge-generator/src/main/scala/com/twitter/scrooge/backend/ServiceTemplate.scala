@@ -41,6 +41,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "hasThrows" -> v(hasThrows),
       "throws" -> v(throwsDictionaries),
       "funcName" -> genID(function.funcName.toCamelCase),
+      "violationReturningFuncName" -> genID(
+        function.funcName.toTitleCase.prepend("violationReturning")),
       "originalFuncName" -> v(function.originalName),
       "funcObjectName" -> genID(functionObjectName(function)),
       "typeName" -> genType(function.funcType),
@@ -67,7 +69,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
       },
       "args" -> v(function.args.map { arg =>
         Dictionary(
-          "arg" -> genID(arg.sid)
+          "arg" -> genID(arg.sid),
+          "typeParameter" -> genType(arg.fieldType),
+          "deReferencedArg" -> genOptional(genID(arg.sid), arg.requiredness.isOptional),
+          "isOption" -> v(arg.requiredness.isOptional),
+          "isValidationType" -> v(arg.fieldType.isInstanceOf[StructType])
         )
       }),
       "isVoid" -> v(function.funcType == Void || function.funcType == OnewayVoid),
@@ -173,47 +179,91 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "finagleServiceParent" ->
         service.parent.map(getParentFinagleService).getOrElse(genBaseFinagleService),
       "methodService" -> v(templates("methodService")),
-      "methodServices" -> v(service.functions map { f =>
-        Dictionary(
-          "methodSvcNameForCompile" -> genID(f.funcName.toCamelCase),
-          "methodSvcNameForWire" -> v(f.originalName),
-          "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
-          "funcObjectName" -> genID(functionObjectName(f)),
-          "argNames" ->
-            v(
-              f.args
-                .map { field => "args." + genID(field.sid).toData }
-                .mkString(", ")
-            ),
-          "args" -> v(f.args.map {
-            arg =>
+      "methodServices" -> v(service.functions map {
+        f =>
+          Dictionary(
+            "methodSvcNameForCompile" -> genID(f.funcName.toCamelCase),
+            "violationReturningMethodSvcNameForCompile" -> genID(
+              f.funcName.toTitleCase.prepend("violationReturning")),
+            "methodSvcNameForWire" -> v(f.originalName),
+            "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
+            "funcObjectName" -> genID(functionObjectName(f)),
+            "argNames" ->
+              v(
+                f.args
+                  .map { field => "args." + genID(field.sid).toData }
+                  .mkString(", ")
+              ),
+            "argsWithValidations" -> v(f.args.filter(hasValidationAnnotation).map { arg =>
               Dictionary(
+                "violationArg" -> v(genID(arg.sid) + "Violations"),
                 "arg" -> v("args." + genID(arg.sid)),
-                "argResult" -> genID(arg.sid.append("_item")),
                 "typeParameter" -> genType(arg.fieldType),
                 "deReferencedArg" -> v(
                   "args." + genOptional(genID(arg.sid), arg.requiredness.isOptional)),
                 "isOption" -> v(arg.requiredness.isOptional),
                 "isValidationType" -> v(arg.fieldType.isInstanceOf[StructType])
               )
+            }),
+            "typeName" -> genType(f.funcType),
+            "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
+            "resultNamedArg" ->
+              v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(resTry.apply())"
+              else ""),
+            "exceptions" -> v(f.throws.zipWithIndex map {
+              case (t, index) =>
+                Dictionary(
+                  "exceptionType" -> genType(t.fieldType),
+                  "fieldName" -> genID(t.sid),
+                  "first" -> v(index == 0),
+                  "last" -> v(index == f.throws.size - 1)
+                )
+            }),
+            "hasExceptions" -> v(f.throws.nonEmpty),
+            "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation))
+          )
+      }),
+      "serverValidationMixin" -> v(templates("serverValidationMixin")),
+      "serverValidationMethods" -> v(service.functions.map { f =>
+        Dictionary(
+          "args" -> v(f.args.map { arg =>
+            Dictionary(
+              "arg" -> genID(arg.sid),
+              "typeParameter" -> genFieldType(arg)
+            )
           }),
+          "argsWithValidations" -> {
+            val validatedArg = f.args.filter(hasValidationAnnotation)
+            v(validatedArg.zipWithIndex.map {
+              case (arg, index) =>
+                Dictionary(
+                  "violationArg" -> v(genID(arg.sid) + "Violations"),
+                  "arg" -> genID(arg.sid),
+                  "firstArg" -> v(index == 0),
+                  "middleArgs" -> v(index > 0 && index < f.args.size - 1),
+                  "lastArg" -> v(index == f.args.size - 1),
+                  "oneArg" -> v(validatedArg.size == 1)
+                )
+            })
+          },
           "typeName" -> genType(f.funcType),
-          "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
-          "resultNamedArg" ->
-            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(resTry.apply())"
-            else ""),
-          "exceptions" -> v(f.throws.zipWithIndex map {
-            case (t, index) =>
-              Dictionary(
-                "exceptionType" -> genType(t.fieldType),
-                "fieldName" -> genID(t.sid),
-                "first" -> v(index == 0),
-                "last" -> v(index == f.throws.size - 1)
-              )
-          }),
-          "hasExceptions" -> v(f.throws.nonEmpty)
+          "funcName" -> genID(f.funcName.toCamelCase),
+          "argNames" -> {
+            val code = f.args
+              .map { field => genID(field.sid).toData }
+              .mkString(", ")
+            v(code)
+          },
+          "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation)),
+          "violationReturningFuncName" -> genID(
+            f.funcName.toTitleCase.prepend("violationReturning")),
+          "fieldParams" -> genFieldParams(
+            f.args
+          ) // A list of parameters with types: (a: A, b: B...)
         )
       }),
+      "hasValidationAnnotation" -> v(
+        service.functions.exists(f => f.args.exists(hasValidationAnnotation))),
       "hasMethodServices" -> v(service.functions.nonEmpty)
     )
 
@@ -251,10 +301,11 @@ trait ServiceTemplate { self: TemplateGenerator =>
             .reverse
             .flatMap { result: ResolvedService =>
               result.service.functions.map { function =>
+                val camelCase = function.funcName.toCamelCase
                 Dictionary(
                   "ParentServiceName" -> genID(result.serviceID),
-                  "funcName" -> genID(function.funcName.toCamelCase),
-                  "dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
+                  "funcName" -> genID(camelCase),
+                  "dedupedFuncName" -> genID(deduper.dedupe(camelCase)),
                   "funcObjectName" -> genID(functionObjectName(function)),
                   "withFuncName" -> genID(deduper.dedupe(function.funcName.toTitleCase))
                 )
@@ -264,7 +315,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
           functionDictionary(function, Some("Future")) ++= (
             "ParentServiceName" -> v("self"),
             "dedupedFuncName" -> genID(deduper.dedupe(function.funcName.toCamelCase)),
-            "withFuncName" -> genID(deduper.dedupe(function.funcName.toTitleCase))
+            "withFuncName" -> genID(deduper.dedupe(function.funcName.toTitleCase)),
+            "hasValidationAnnotation" -> v(function.args.exists(hasValidationAnnotation))
           )
         }
         (inheritedFunctions, ownFunctions)
@@ -295,6 +347,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "asyncFunctions" -> v(service.functions.map { f => functionDictionary(f, Some("Future")) }),
       "genericFunctions" -> v(service.functions.map { f => functionDictionary(f, Some("MM")) }),
       "struct" -> v(templates("struct")),
+      "hasValidationAnnotation" -> v(
+        service.functions.exists(f => f.args.exists(hasValidationAnnotation))),
       "thriftFunctions" -> v(service.functions.map { f =>
         Dictionary(
           "functionArgsStruct" ->
@@ -312,7 +366,8 @@ trait ServiceTemplate { self: TemplateGenerator =>
           },
           "annotations" -> TemplateGenerator.renderPairs(f.annotations),
           "funcObjectName" -> genID(functionObjectName(f)),
-          "unwrapArgs" -> v(unwrapArgs(f.args.length))
+          "unwrapArgs" -> v(unwrapArgs(f.args.length)),
+          "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation))
         ) + functionDictionary(f, Some("Future"))
       }),
       "hasThriftFunctions" -> v(service.functions.nonEmpty),
@@ -380,6 +435,20 @@ trait ServiceTemplate { self: TemplateGenerator =>
       })
     )
   }
+
+  // return true if the `Field` is of struct type (struct, union, or exception), and any fields
+  // of the `Field` has validation annotation (annotation key starts with "validation.")
+  private[this] def hasValidationAnnotation(field: Field): Boolean =
+    field.fieldType match {
+      case structType: StructType =>
+        val structLike = structType.struct
+        structLike match {
+          case _: Struct | _: Union | _: Exception_ =>
+            structLike.fields.exists(_.hasValidationAnnotation)
+          case _ => false
+        }
+      case _ => false
+    }
 
   private[this] class NameDeduplicator() {
     private[this] val seenIDs = new mutable.HashSet[String]

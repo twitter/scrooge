@@ -12,15 +12,16 @@ struct ValidationStruct {
   9: optional string optionalField
 }
 
-service ValidationService {
-  bool validate(
-  1: ValidationStruct structRequest,
-  2: ValidationUnion unionRequest,
-  3: ValidationException exceptionRequest)
-  bool validateOption (
-  1: optional ValidationStruct structRequest,
-  2: optional ValidationUnion unionRequest,
-  3: optional ValidationException exceptionRequest)
+struct NoValidationStruct {
+  1: string stringField
+  2: i32 intField
+  3: i64 longField
+  4: i16 shortField
+  5: i8 byteField
+  6: map<string, string> mapField
+  7: bool boolField
+  8: required string requiredField
+  9: optional string optionalField
 }
 
 // skip annotations not used for ThriftValidator
@@ -38,10 +39,33 @@ struct NestedValidationStruct {
 }
 
 union ValidationUnion {
-  1: i32 intField (validation.positiveOrZero = "")
-  2: string stringField (validation.notEmpty = "")
+  1: i32 unionIntField (validation.positiveOrZero = "")
+  2: string unionStringField (validation.notEmpty = "")
 }
 
 exception ValidationException {
   1: string excField (validation.notEmpty = "")
+}
+
+service ValidationService {
+  bool validate(
+    1: ValidationStruct structRequest,
+    2: ValidationUnion unionRequest,
+    3: ValidationException exceptionRequest
+  )
+  bool validateOption (
+    1: optional ValidationStruct structRequest,
+    2: optional ValidationUnion unionRequest,
+    3: optional ValidationException exceptionRequest
+  )
+  bool validateWithNonValidatedRequest (
+    1: ValidationStruct validationRequest,
+    2: NoValidationStruct nonValidationRequest
+  )
+  bool validateOnlyNonValidatedRequest (
+    1: NoValidationStruct nonValidationRequest
+  )
+  bool validateOnlyValidatedRequest (
+    1: ValidationStruct validationRequest
+  )
 }

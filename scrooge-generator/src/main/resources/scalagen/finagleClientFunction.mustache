@@ -19,38 +19,19 @@ val {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer: Array[Byte] => _r
     }
   }
 }
-{{>function}} = {
-  {{__stats_name}}.RequestsCounter.incr()
-  val inputArgs = {{funcObjectName}}.Args({{argNames}})
-  {{! this is used to store values to be read later, inside the finagle stack }}
-  val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[{{typeName}}](inputArgs, {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer)
-  _root_.com.twitter.finagle.context.Contexts.local.let(
-    _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
-    serdeCtx,
-    _root_.com.twitter.finagle.thrift.Headers.Request.Key,
-    _root_.com.twitter.finagle.thrift.Headers.Request.newValues
-  ) {
-    serdeCtx.rpcName("{{clientFuncNameForWire}}")
-    val start = System.nanoTime
-    val serialized = encodeRequest("{{clientFuncNameForWire}}", inputArgs)
-    serdeCtx.serializationTime(System.nanoTime - start)
-    this.service(serialized).flatMap { response =>
-      Future.const(serdeCtx.deserialize(response))
-    }.respond { response =>
-      val classified = responseClassifier.applyOrElse(
-        ctfs.ReqRep(inputArgs, response),
-        ctfs.ResponseClassifier.Default)
-      if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
-        {{__stats_name}}.SuccessCounter.incr()
-      } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
-        {{__stats_name}}.FailuresCounter.incr()
-        if (response.isThrow) {
-          _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
-          {{__stats_name}}.FailuresScope.counter(
-            _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
-        }
-      } // Last ResponseClass is Ignorable, which we do not need to record
-    }
-  }
-}
+{{>function}} =
+  ClientFunction.serde[{{typeName}}](
+    "{{clientFuncNameForWire}}",
+    {{clientFuncNameForWire}}{{ServiceName}}ReplyDeserializer,
+    {{funcObjectName}}.Args({{argNames}}),
+    serviceName,
+    service,
+    responseClassifier,
+    tlReusableBuffer,
+    protocolFactory,
+    {{__stats_name}}.FailuresScope,
+    {{__stats_name}}.RequestsCounter,
+    {{__stats_name}}.SuccessCounter,
+    {{__stats_name}}.FailuresCounter)
+
 {{/functionInfo}}

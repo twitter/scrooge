@@ -66,7 +66,8 @@ case class Field(
   requiredness: Requiredness = Requiredness.Default,
   typeAnnotations: Map[String, String] = Map.empty,
   fieldAnnotations: Map[String, String] = Map.empty,
-  docstring: Option[String] = None)
+  docstring: Option[String] = None,
+  hasValidationAnnotation: Boolean = false)
     extends Node
 
 case class Function(

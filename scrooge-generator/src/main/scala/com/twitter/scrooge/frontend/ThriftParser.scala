@@ -236,7 +236,8 @@ class ThriftParser(
           transformedReq,
           typeAnnotations,
           fieldAnnotations,
-          comm
+          comm,
+          fieldAnnotations.keySet.exists(_.startsWith("validation."))
         )
     }
   )

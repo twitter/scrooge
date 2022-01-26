@@ -507,13 +507,13 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
   }
 
   class FinagledService(
-      iface: MethodPerEndpoint,
+      iface: MethodPerEndpoint{{#hasValidationAnnotation}} with ServerValidationMixin{{/hasValidationAnnotation}},
       serverParam: RichServerParam)
     extends {{ServiceName}}$FinagleService(iface, serverParam) {
 
     @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
     def this(
-      iface: MethodPerEndpoint,
+      iface: MethodPerEndpoint{{#hasValidationAnnotation}} with ServerValidationMixin{{/hasValidationAnnotation}},
       protocolFactory: org.apache.thrift.protocol.TProtocolFactory,
       serviceName: String = "{{ServiceName}}"
     ) = this(iface, RichServerParam(protocolFactory, serviceName))

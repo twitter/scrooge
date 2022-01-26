@@ -8,7 +8,7 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.finagle.{service => ctfs}
 import com.twitter.finagle.stats.{NullStatsReceiver, StatsReceiver}
-import com.twitter.finagle.thrift.{Protocols, RichClientParam, ThriftClientRequest}
+import com.twitter.finagle.thrift.{ClientFunction, Protocols, RichClientParam, ThriftClientRequest}
 import com.twitter.util.Future
 import org.apache.thrift.protocol._
 
@@ -65,38 +65,18 @@ class PlatinumService$FinagleClient(
     }
   }
   
-  def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] = {
-    __stats_moreCoolThings.RequestsCounter.incr()
-    val inputArgs = MoreCoolThings.Args(request)
-  
-    val serdeCtx = new _root_.com.twitter.finagle.thrift.ClientDeserializeCtx[Int](inputArgs, moreCoolThingsPlatinumServiceReplyDeserializer)
-    _root_.com.twitter.finagle.context.Contexts.local.let(
-      _root_.com.twitter.finagle.thrift.ClientDeserializeCtx.Key,
-      serdeCtx,
-      _root_.com.twitter.finagle.thrift.Headers.Request.Key,
-      _root_.com.twitter.finagle.thrift.Headers.Request.newValues
-    ) {
-      serdeCtx.rpcName("moreCoolThings")
-      val start = System.nanoTime
-      val serialized = encodeRequest("moreCoolThings", inputArgs)
-      serdeCtx.serializationTime(System.nanoTime - start)
-      this.service(serialized).flatMap { response =>
-        Future.const(serdeCtx.deserialize(response))
-      }.respond { response =>
-        val classified = responseClassifier.applyOrElse(
-          ctfs.ReqRep(inputArgs, response),
-          ctfs.ResponseClassifier.Default)
-        if (classified.isInstanceOf[ctfs.ResponseClass.Successful]) {
-          __stats_moreCoolThings.SuccessCounter.incr()
-        } else if (classified.isInstanceOf[ctfs.ResponseClass.Failed]) {
-          __stats_moreCoolThings.FailuresCounter.incr()
-          if (response.isThrow) {
-            _root_.com.twitter.finagle.SourcedException.setServiceName(response.throwable, serviceName)
-            __stats_moreCoolThings.FailuresScope.counter(
-              _root_.com.twitter.util.Throwables.mkString(response.throwable): _*).incr()
-          }
-        } // Last ResponseClass is Ignorable, which we do not need to record
-      }
-    }
-  }
+  def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int] =
+    ClientFunction.serde[Int](
+      "moreCoolThings",
+      moreCoolThingsPlatinumServiceReplyDeserializer,
+      MoreCoolThings.Args(request),
+      serviceName,
+      service,
+      responseClassifier,
+      tlReusableBuffer,
+      protocolFactory,
+      __stats_moreCoolThings.FailuresScope,
+      __stats_moreCoolThings.RequestsCounter,
+      __stats_moreCoolThings.SuccessCounter,
+      __stats_moreCoolThings.FailuresCounter)
 }

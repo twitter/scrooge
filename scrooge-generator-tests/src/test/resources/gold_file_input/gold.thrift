@@ -66,7 +66,7 @@ struct Request {
    */
   12: optional Recursive recRequest
 
-  13: required string requiredField
+  13: required string requiredField (validation.length.min = "6")
   14: optional i64 constructionRequiredField (construction_required = "true")
   15: optional i8 anInt8
   16: optional binary aBinaryField
