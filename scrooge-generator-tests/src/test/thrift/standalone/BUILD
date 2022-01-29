@@ -37,3 +37,8 @@ java_thrift_library(
         "thrift.test": "thrift.apache_java_test",
     },
 )
+
+resources(
+    name = "resources",
+    sources = ["*.thrift"],
+)

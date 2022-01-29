@@ -28,3 +28,16 @@ java_thrift_library(
         "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )
+
+resources(
+    name = "resources",
+    sources = [
+        "*",
+        "dir1/*.thrift",
+        "dir1/dir4/*.thrift",
+    ],
+    dependencies = [
+        "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3:resources",
+    ],
+)

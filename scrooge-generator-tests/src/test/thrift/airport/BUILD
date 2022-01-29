@@ -1,6 +1,6 @@
 java_thrift_library(
     name = "thrift-scala",
-    sources = ["**/*.thrift"],
+    sources = ["*.thrift"],
     compiler = "scrooge",
     language = "scala",
     tags = ["bazel-compatible"],
@@ -9,7 +9,7 @@ java_thrift_library(
 java_thrift_library(
     # Renamed longer to assist bazel migration
     name = "thrift-bazel-workaround-android",
-    sources = ["**/*.thrift"],
+    sources = ["*.thrift"],
     compiler = "scrooge",
     language = "android",
     dependencies = [
@@ -20,7 +20,7 @@ java_thrift_library(
 # namespaced and non-Finagle
 java_thrift_library(
     name = "thrift-namespace-scala",
-    sources = ["**/*.thrift"],
+    sources = ["*.thrift"],
     compiler = "scrooge",
     language = "scala",
     namespace_map = {
@@ -33,7 +33,7 @@ java_thrift_library(
 java_thrift_library(
     # Renamed longer to assist bazel migration
     name = "thrift-namespace-bazel-workaround-android",
-    sources = ["**/*.thrift"],
+    sources = ["*.thrift"],
     compiler = "scrooge",
     language = "android",
     namespace_map = {
@@ -44,4 +44,9 @@ java_thrift_library(
     dependencies = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
+)
+
+resources(
+    name = "resources",
+    sources = ["*.thrift"],
 )

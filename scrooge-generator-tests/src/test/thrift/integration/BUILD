@@ -38,3 +38,8 @@ java_thrift_library(
         "com.twitter.scrooge.integration_scala": "com.twitter.scrooge.integration_apache",
     },
 )
+
+resources(
+    name = "resources",
+    sources = ["*.thrift"],
+)

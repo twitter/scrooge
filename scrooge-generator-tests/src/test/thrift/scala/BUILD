@@ -7,3 +7,11 @@ create_thrift_libraries(
         "scala",
     ],
 )
+
+resources(
+    name = "resources",
+    sources = [
+        "*.thrift",
+        "inheritance/*.thrift",
+    ],
+)

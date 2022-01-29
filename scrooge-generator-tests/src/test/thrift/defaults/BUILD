@@ -19,3 +19,8 @@ java_thrift_library(
         "3rdparty/jvm/org/apache/thrift:libthrift",
     ],
 )
+
+resources(
+    name = "resources",
+    sources = ["*.thrift"],
+)

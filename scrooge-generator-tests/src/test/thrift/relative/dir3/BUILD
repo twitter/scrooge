@@ -5,3 +5,8 @@ java_thrift_library(
     language = "scala",
     tags = ["bazel-compatible"],
 )
+
+resources(
+    name = "resources",
+    sources = ["**/*"],
+)

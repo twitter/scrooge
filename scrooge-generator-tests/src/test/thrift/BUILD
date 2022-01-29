@@ -1,10 +1,15 @@
 resources(
-    sources = [
-        "!BUILD*",
-        "**/*",
-    ],
-    tags = [
-        "bazel-incompatible-glob",  # See http://go/bazel-incompatible-glob
+    sources = ["*"],
+    dependencies = [
+        "scrooge/scrooge-generator-tests/src/test/thrift/airport:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/android_integration:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/defaults:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/finagle_integration:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/integration:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/namespace:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/relative:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/scala:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/standalone:resources",
     ],
 )
 
