@@ -1,0 +1,31 @@
+{{#consolidate_newlines}}
+{{>autogen}}
+{{>type_imports}}
+{{>thrift_imports}}
+{{/consolidate_newlines}}
+{{#is_objc}}
+@objc({{objc_prefix}}{{alternative_name}})
+{{/is_objc}}
+{{#public_interface}}public {{/public_interface}}enum {{alternative_name}}: Int32, ThriftCodable {
+  {{#constants}}
+  case {{name}} = {{value}}
+  {{/constants}}
+
+  {{#public_interface}}public {{/public_interface}}func thriftEncode(to encoder: ThriftEncoder) throws {
+     var container = encoder.unkeyedContainer()
+     try container.encode(self.rawValue)
+  }
+
+  {{#public_interface}}public {{/public_interface}}init(fromThrift decoder: ThriftDecoder) throws {
+    var container = try decoder.unkeyedContainer()
+    let value = try container.decode(Int32.self)
+    guard let enumValue = {{alternative_name}}(rawValue: value) else {
+      throw ThriftDecoderError.undecodableType(type: value.self)
+    }
+    self = enumValue
+  }
+
+  {{#public_interface}}public {{/public_interface}}static func thriftType() -> ThriftType {
+    return .int32
+  }
+}

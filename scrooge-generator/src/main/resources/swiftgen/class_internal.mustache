@@ -1,0 +1,33 @@
+{{#is_objc}}
+{{#public_interface}}public {{/public_interface}}override var hash: Int {
+        var hasher = Hasher()
+{{/is_objc}}
+{{^is_objc}}
+{{#public_interface}}public {{/public_interface}}func hash(into hasher: inout Hasher) {
+    {{/is_objc}}
+    {{#fields}}
+        hasher.combine(self.{{name}})
+    {{/fields}}
+    {{#is_objc}}
+        return hasher.finalize()
+    {{/is_objc}}
+    }
+
+{{#is_objc}}
+    {{#public_interface}}public {{/public_interface}}override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? Self else {
+            return false
+        }
+{{/is_objc}}
+{{^is_objc}}
+    {{#public_interface}}public {{/public_interface}}static func == (lhs: {{alternative_name}}, rhs: {{alternative_name}}) -> Bool {
+{{/is_objc}}
+{{#has_fields}}
+    {{#fields}}
+        {{#first}}return {{/first}}{{#is_objc}}self{{/is_objc}}{{^is_objc}}lhs{{/is_objc}}.{{name}} == {{#is_objc}}other{{/is_objc}}{{^is_objc}}rhs{{/is_objc}}.{{name}}{{^last}} &&{{/last}}
+    {{/fields}}
+{{/has_fields}}
+{{^has_fields}}
+       return true
+{{/has_fields}}
+    }

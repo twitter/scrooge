@@ -1,0 +1,25 @@
+{{#newlines_to_spaces}}
+{{#consolidate_newlines}}
+{{#defval}}
+{{^in_static}}{{#public_interface}}public {{/public_interface}}static let {{/in_static}}{{name}}: {{{field_type.type_name}}}
+=
+{{#field_type.is_base_type_or_enum}}{{{rendered_value}}}{{/field_type.is_base_type_or_enum}}
+{{/defval}}
+
+{{^field_type.is_base_type_or_enum}}
+{{#field_type.map_types}}
+[{{#map_constant_values}}{{{key}}} : {{{value}}}{{^last}}, {{/last}}{{/map_constant_values}}]
+{{/field_type.map_types}}
+
+
+{{#field_type.is_list_or_set}}
+[{{#collection_constant_values}}{{{value}}}{{^last}}, {{/last}}{{/collection_constant_values}}]
+{{/field_type.is_list_or_set}}
+
+{{#field_type.is_struct}}
+{{{field_type.type_name}}}({{#struct_constant_values}}{{name}}: {{{rendered_value}}}{{^last}}, {{/last}}{{/struct_constant_values}})
+{{/field_type.is_struct}}
+
+{{/field_type.is_base_type_or_enum}}
+{{/consolidate_newlines}}
+{{/newlines_to_spaces}}

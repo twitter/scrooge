@@ -1,0 +1,41 @@
+{{#is_objc}}
+@objc({{objc_prefix}}{{alternative_name}})
+@objcMembers
+{{/is_objc}}
+{{#public_interface}}public {{/public_interface}}{{#generate_classes}}class{{/generate_classes}}{{^generate_classes}}struct{{/generate_classes}} {{alternative_name}}:{{#generate_classes}} {{#is_objc}}NSObject, {{/is_objc}}ThriftCodable{{^is_objc}},{{/is_objc}}{{/generate_classes}}{{^is_objc}} Hashable{{/is_objc}} {
+{{^has_fields}}
+    {{^is_objc}}
+    {{#public_interface}}public {{/public_interface}}init() {}
+    {{/is_objc}}
+
+    {{#generate_classes}}
+    {{>class_internal}}
+    {{/generate_classes}}
+}
+{{/has_fields}}
+{{#has_fields}}
+    {{#fields}}
+    {{#public_interface}}public {{/public_interface}}{{^field.constructionRequired}}var{{/field.constructionRequired}}{{#field.constructionRequired}}let{{/field.constructionRequired}} {{name}}: {{{alternative_type_name}}}{{#field.optional}}?{{/field.optional}}
+    {{/fields}}
+
+    enum CodingKeys: Int, CodingKey {
+     {{#fields}}
+        case {{name}} = {{key}}
+     {{/fields}}
+    }
+
+    {{#public_interface}}public {{/public_interface}}init({{#fields}}{{name}}: {{{alternative_type_name}}}{{#field.optional}}?{{^field.constructionRequired}} = nil{{/field.constructionRequired}}{{/field.optional}}{{^last}}, {{/last}}{{/fields}}) {
+        {{#fields}}
+        self.{{name}} = {{name}}
+        {{/fields}}
+        {{#is_objc}}
+        super.init()
+        {{/is_objc}}
+    }
+
+    {{#generate_classes}}
+    {{>class_internal}}
+    {{/generate_classes}}
+}{{/has_fields}}
+
+{{^generate_classes}}extension {{alternative_name}}: ThriftCodable {}{{/generate_classes}}

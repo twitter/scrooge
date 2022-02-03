@@ -1,0 +1,128 @@
+{{^is_objc}}
+{{#public_interface}}public {{/public_interface}}enum {{alternative_name}}: ThriftCodable, Hashable {
+
+  {{#fields}}
+  case {{name}}({{{alternative_type_name}}})
+  {{/fields}}
+
+  enum CodingKeys: Int, CodingKey {
+    {{#fields}}
+    case {{name}} = {{key}}
+    {{/fields}}
+  }
+
+  {{#fields}}
+  {{#public_interface}}public {{/public_interface}}init({{name}} value: {{{alternative_type_name}}}) {
+      self = .{{name}}(value)
+  }
+  {{/fields}}
+
+  {{#public_interface}}public {{/public_interface}}init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      {{#fields}}
+      {{#first}}
+      if let decodedClass = try container.decodeIfPresent({{{alternative_type_name}}}.self, forKey: .{{name}}) {
+      {{/first}}
+      {{^first}}
+      } else if let decodedClass = try container.decodeIfPresent({{{alternative_type_name}}}.self, forKey: .{{name}}) {
+      {{/first}}
+        self = .{{name}}(decodedClass)
+      {{/fields}}
+      } else {
+        throw DecodingError.valueNotFound({{alternative_name}}.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "{{alternative_name}} not decodable"))
+     }
+  }
+
+  {{#public_interface}}public {{/public_interface}}func encode(to encoder: Encoder) throws {
+     var container = encoder.container(keyedBy: CodingKeys.self)
+     switch self {
+     {{#fields}}
+     case .{{name}}(let codedClass):
+        try container.encode(codedClass, forKey: .{{name}})
+     {{/fields}}
+     }
+  }
+}
+{{/is_objc}}
+{{#is_objc}}
+@objc({{objc_prefix}}{{alternative_name}})
+@objcMembers
+public class {{alternative_name}}: NSObject, ThriftCodable {
+    public enum Union: ThriftCodable, Hashable {
+
+        {{#fields}}
+        case {{name}}({{{alternative_type_name}}})
+        {{/fields}}
+
+        enum CodingKeys: Int, CodingKey {
+            {{#fields}}
+            case {{name}} = {{key}}
+            {{/fields}}
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            {{#fields}}
+            {{#first}}
+            if let decodedClass = try container.decodeIfPresent({{{alternative_type_name}}}.self, forKey: .{{name}}) {
+            {{/first}}
+            {{^first}}
+            } else if let decodedClass = try container.decodeIfPresent({{{alternative_type_name}}}.self, forKey: .{{name}}) {
+            {{/first}}
+                 self = .{{name}}(decodedClass)
+            {{/fields}}
+            } else {
+                 throw DecodingError.valueNotFound({{alternative_name}}.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "{{alternative_name}} not decodable"))
+            }
+        }
+
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            {{#fields}}
+            case .{{name}}(let codedClass):
+               try container.encode(codedClass, forKey: .{{name}})
+            {{/fields}}
+            }
+        }
+    }
+
+    public let value: Union
+
+    {{#fields}}
+    public init({{name}} value: {{{alternative_type_name}}}) {
+        self.value = .{{name}}(value)
+    }
+    {{/fields}}
+
+    required public init(from decoder: Decoder) throws {
+        self.value = try Union(from: decoder)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        try self.value.encode(to: encoder)
+    }
+
+    public override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(self.value)
+        return hasher.finalize()
+    }
+
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? Self else {
+            return false
+        }
+        return self.value == other.value
+    }
+
+    {{#fields}}
+    public var {{name}}: {{{alternative_type_name}}}? {
+        guard case .{{name}}(let value) = self.value else {
+            return nil
+        }
+        return value
+    }
+    {{/fields}}
+}
+{{/is_objc}}

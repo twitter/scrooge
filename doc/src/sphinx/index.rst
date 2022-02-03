@@ -87,6 +87,7 @@ User's guide
    GeneratedCodeUsage
    Semantics
    Linter
+   SwiftUserGuide
 
 Notes
 -----

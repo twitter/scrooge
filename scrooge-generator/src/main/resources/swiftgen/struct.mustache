@@ -1,0 +1,12 @@
+{{#consolidate_newlines}}
+{{>autogen}}
+{{>type_imports}}
+{{>thrift_imports}}
+
+{{#is_union}}
+{{>union_inner}}
+{{/is_union}}
+{{^is_union}}
+{{>struct_inner}}
+{{/is_union}}
+{{/consolidate_newlines}}

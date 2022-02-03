@@ -19,11 +19,17 @@ package com.twitter.scrooge.backend
 import com.twitter.scrooge.android_generator.AndroidGeneratorFactory
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.lua.LuaGeneratorFactory
-import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
+import com.twitter.scrooge.frontend.ResolvedDocument
+import com.twitter.scrooge.frontend.ScroogeInternalException
 import com.twitter.scrooge.java_generator.ApacheJavaGeneratorFactory
-import com.twitter.scrooge.mustache.Dictionary.{NoValue, v}
-import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
-import java.io.{File, FileOutputStream, OutputStreamWriter}
+import com.twitter.scrooge.mustache.Dictionary.NoValue
+import com.twitter.scrooge.mustache.Dictionary.v
+import com.twitter.scrooge.mustache.Dictionary
+import com.twitter.scrooge.mustache.HandlebarLoader
+import com.twitter.scrooge.swift_generator.SwiftGeneratorFactory
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -93,7 +99,8 @@ object GeneratorFactory {
         ApacheJavaGeneratorFactory,
         AndroidGeneratorFactory,
         CocoaGeneratorFactory,
-        LuaGeneratorFactory
+        LuaGeneratorFactory,
+        SwiftGeneratorFactory
       ) ++
         loadedGenerators
 
