@@ -65,6 +65,15 @@ trait ThriftStructMetaData[T <: ThriftStruct] {
 object ThriftStructMetaData {
 
   /**
+   * For a given thrift struct or union class, returns its metadata
+   * @param c the class representing a thrift struct or union
+   * @tparam T the thrift struct or union type
+   * @return the metadata belonging to the class
+   */
+  def forStructClass[T <: ThriftStruct](c: Class[T]): ThriftStructMetaData[T] =
+    ThriftStructCodec.forStructClass(c).metaData
+
+  /**
    * Constructs an implementation of [[ThriftStructMetaData]] that uses reflection
    * to discover field and annotation information.
    */

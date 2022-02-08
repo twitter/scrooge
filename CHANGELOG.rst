@@ -9,6 +9,11 @@ Unreleased
 
 New Features
 ~~~~~~~~~~~~
+
+* scrooge-core: `c.t.scrooge.ThriftStructCodec.forStructClass` API for retrieving codec
+  for a struct or union class and `c.t.scrooge.ThriftStructMetadata.forStructClass` for
+  similarly retrieving its metadata. ``PHAB_ID=_D825675``
+
 * scrooge-generator: for each method defined in a service in the Thrift IDL, if any request arg
   of a method has annotations started with `validation.`, generate a new trait
   `ServerValidationMixin` with a new API `violationReturning<method_name>` which validates incoming
