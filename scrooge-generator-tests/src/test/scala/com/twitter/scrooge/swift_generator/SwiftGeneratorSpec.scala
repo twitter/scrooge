@@ -50,7 +50,7 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("swift/swift.thrift").getPath
+    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
 
     val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
     Main.main(args)
@@ -82,7 +82,7 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("swift/swift.thrift").getPath
+    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
 
     val args =
       Array[String](
@@ -123,7 +123,7 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("swift/swift.thrift").getPath
+    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
 
     val args =
       Array[String](
@@ -164,7 +164,7 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("swift/swift.thrift").getPath
+    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
 
     val args =
       Array[String](
@@ -205,7 +205,7 @@ class SwiftGeneratorSpec extends Spec {
 
     val ccl = Thread.currentThread().getContextClassLoader
     val inputThrift =
-      ccl.getResource("swift/alternative_type.thrift").getPath
+      ccl.getResource("test_thrift/swift/alternative_type.thrift").getPath
 
     val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
     Main.main(args)

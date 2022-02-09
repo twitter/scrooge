@@ -90,7 +90,6 @@ junit_tests(
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-all-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-bazel-workaround-android",
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-java",
-        "scrooge/scrooge-generator-tests/src/test/thrift/swift:idl-resources",
         "util/util-core:scala",
     ],
 )
