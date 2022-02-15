@@ -23,10 +23,35 @@ trait ThriftStructCodec[T <: ThriftStruct] {
  */
 object ThriftStructCodec {
   private[this] val codecForStructClass = Memoize.classValue { c =>
-    Class
-      .forName(c.getName + "$", true, c.getClassLoader)
-      .getField("MODULE$")
-      .get(null)
+    def getCodec(className: String) =
+      Class
+        .forName(className, true, c.getClassLoader)
+        .getField("MODULE$")
+        .get(null)
+        .asInstanceOf[ThriftStructCodec[_]]
+
+    val cname = c.getName
+    try {
+      // Most struct classes will have their
+      // companion object as the decoder.
+      getCodec(cname + "$")
+    } catch {
+      case e1: Exception =>
+        val i = cname.lastIndexOf('$')
+        if (i == -1) {
+          throw e1;
+        }
+        try {
+          // Some struct classes (LazyImmutable,
+          // union members) will have the object
+          // they're embedded in as their decoder.
+          getCodec(cname.substring(0, i + 1))
+        } catch {
+          case e2: Exception =>
+            e2.addSuppressed(e1)
+            throw e2
+        }
+    }
   }
 
   /**
