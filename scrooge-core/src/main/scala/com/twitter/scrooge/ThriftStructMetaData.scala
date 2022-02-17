@@ -1,5 +1,7 @@
 package com.twitter.scrooge
 
+import scala.reflect.ClassTag
+
 /**
  * A trait for generic introspection on ThriftStruct classes.
  */
@@ -72,6 +74,15 @@ object ThriftStructMetaData {
    */
   def forStructClass[T <: ThriftStruct](c: Class[T]): ThriftStructMetaData[T] =
     ThriftStructCodec.forStructClass(c).metaData
+
+  /**
+   * For a given thrift struct or union class, returns its metadata
+   * @param classTag the class tag or manifest representing a thrift struct or union
+   * @tparam T the thrift struct or union type
+   * @return the metadata belonging to the class
+   */
+  def forStructClassTag[T <: ThriftStruct](classTag: ClassTag[T]): ThriftStructMetaData[T] =
+    ThriftStructCodec.forStructClassTag(classTag).metaData
 
   /**
    * Constructs an implementation of [[ThriftStructMetaData]] that uses reflection

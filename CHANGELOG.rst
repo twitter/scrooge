@@ -10,6 +10,11 @@ Unreleased
 New Features
 ~~~~~~~~~~~~
 
+* scrooge-core: `c.t.scrooge.ThriftStructCodec.forStructClassTag` API for retrieving
+  the codec for a struct or union class given a class tag or manifest and
+  `c.t.scrooge.ThriftStructMetadata.forStructClassTag` for retrieving its metadata.
+  ``PHAB_ID=D834052``
+
 * scrooge-core: `c.t.scrooge.ThriftStructCodec.forStructClass` API for retrieving codec
   for a struct or union class and `c.t.scrooge.ThriftStructMetadata.forStructClass` for
   similarly retrieving its metadata. ``PHAB_ID=_D825675``
