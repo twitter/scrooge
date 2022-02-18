@@ -17,17 +17,17 @@
 package com.twitter.scrooge
 
 import com.twitter.scrooge.ast.Document
-import com.twitter.scrooge.backend.{GeneratorFactory, ScalaGenerator}
-import com.twitter.scrooge.frontend.{
-  FileParseException,
-  Importer,
-  NullImporter,
-  ThriftParser,
-  TypeResolver
-}
+import com.twitter.scrooge.backend.GeneratorFactory
+import com.twitter.scrooge.backend.ScalaGenerator
+import com.twitter.scrooge.frontend.FileParseException
+import com.twitter.scrooge.frontend.Importer
+import com.twitter.scrooge.frontend.NullImporter
+import com.twitter.scrooge.frontend.ThriftParser
+import com.twitter.scrooge.frontend.TypeResolver
 import com.twitter.scrooge.java_generator.ApacheJavaGenerator
 
-import java.io.{File, FileWriter}
+import java.io.File
+import java.io.FileWriter
 import scala.collection.concurrent.TrieMap
 
 object CompilerDefaults {
@@ -75,7 +75,7 @@ class Compiler(val config: ScroogeConfig) {
         val doc = parser.parseFile(inputFile).mapNamespaces(config.namespaceMappings)
 
         if (config.verbose) println("+ Compiling %s".format(inputFile))
-        val resolvedDoc = TypeResolver()(doc)
+        val resolvedDoc = TypeResolver()(doc, Some(inputFile))
         val generator =
           GeneratorFactory(
             config.language,
