@@ -46,18 +46,36 @@ import com.twitter.finagle.thrift.ThriftClientRequest;
 import com.twitter.finagle.thrift.AbstractThriftService;
 
 public class GoldService {
+  public interface ServerValidationMixin extends ServiceIface {
+    public default Future<Response> violationReturningDoGreatThings(
+      Request request, RequestUnion unionRequest, RequestException exceptionRequest,
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> requestViolations,
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> unionRequestViolations,
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> exceptionRequestViolations
+    ) {
+      if (!requestViolations.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", request.getClass(), requestViolations);
+      else if (!unionRequestViolations.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", unionRequest.getClass(), unionRequestViolations);
+      else throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", exceptionRequest.getClass(), exceptionRequestViolations);
+    };
+    public default Future<Response> violationReturningNoExceptionCall(
+      Request request,
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> requestViolations
+    ) {
+      throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("noExceptionCall", request.getClass(), requestViolations);
+    };
+  }
   public interface Iface {
-    public Response doGreatThings(Request request) throws OverCapacityException, TException;
+    public Response doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest) throws OverCapacityException, TException;
     public Response noExceptionCall(Request request) throws TException;
   }
 
   public interface AsyncIface {
-    public void doGreatThings(Request request, AsyncMethodCallback<Response> resultHandler) throws TException;
+    public void doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest, AsyncMethodCallback<Response> resultHandler) throws TException;
     public void noExceptionCall(Request request, AsyncMethodCallback<Response> resultHandler) throws TException;
   }
 
   public interface ServiceIface extends AbstractThriftService {
-    public Future<Response> doGreatThings(Request request);
+    public Future<Response> doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest);
     public Future<Response> noExceptionCall(Request request);
   }
 
@@ -82,17 +100,19 @@ public class GoldService {
       super(iprot, oprot);
     }
 
-    public Response doGreatThings(Request request) throws OverCapacityException, TException
+    public Response doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest) throws OverCapacityException, TException
     {
-      send_doGreatThings(request);
+      send_doGreatThings(request, unionRequest, exceptionRequest);
       return recv_doGreatThings();
     }
 
-    public void send_doGreatThings(Request request) throws TException
+    public void send_doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest) throws TException
     {
       oprot_.writeMessageBegin(new TMessage("doGreatThings", TMessageType.CALL, ++seqid_));
       doGreatThings_args __args__ = new doGreatThings_args();
       __args__.setRequest(request);
+      __args__.setUnionRequest(unionRequest);
+      __args__.setExceptionRequest(exceptionRequest);
       __args__.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
@@ -179,24 +199,30 @@ public class GoldService {
       this.transport = transport;
     }
 
-    public void doGreatThings(Request request, AsyncMethodCallback<Response> __resultHandler__) throws TException {
+    public void doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest, AsyncMethodCallback<Response> __resultHandler__) throws TException {
       checkReady();
-      doGreatThings_call __method_call__ = new doGreatThings_call(request, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      doGreatThings_call __method_call__ = new doGreatThings_call(request, unionRequest, exceptionRequest, __resultHandler__, this, super.getProtocolFactory(), this.transport);
       this.manager.call(__method_call__);
     }
 
     public static class doGreatThings_call extends TAsyncMethodCall<Response> {
       private Request request;
+      private RequestUnion unionRequest;
+      private RequestException exceptionRequest;
 
-      public doGreatThings_call(Request request, AsyncMethodCallback<Response> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public doGreatThings_call(Request request, RequestUnion unionRequest, RequestException exceptionRequest, AsyncMethodCallback<Response> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
         this.request = request;
+        this.unionRequest = unionRequest;
+        this.exceptionRequest = exceptionRequest;
       }
 
       public void write_args(TProtocol __prot__) throws TException {
         __prot__.writeMessageBegin(new TMessage("doGreatThings", TMessageType.CALL, 0));
         doGreatThings_args __args__ = new doGreatThings_args();
         __args__.setRequest(request);
+        __args__.setUnionRequest(unionRequest);
+        __args__.setExceptionRequest(exceptionRequest);
         __args__.write(__prot__);
         __prot__.writeMessageEnd();
       }
@@ -278,13 +304,15 @@ public class GoldService {
       this(service, com.twitter.finagle.thrift.RichClientParam.apply(protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default()));
     }
 
-    public Future<Response> doGreatThings(Request request) {
+    public Future<Response> doGreatThings(Request request, RequestUnion unionRequest, RequestException exceptionRequest) {
       try {
         TReusableMemoryTransport __memoryTransport__ = tlReusableBuffer.get();
         TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
         __prot__.writeMessageBegin(new TMessage("doGreatThings", TMessageType.CALL, 0));
         doGreatThings_args __args__ = new doGreatThings_args();
         __args__.setRequest(request);
+        __args__.setUnionRequest(unionRequest);
+        __args__.setExceptionRequest(exceptionRequest);
 
         Function<byte[], com.twitter.util.Try<Response>> replyDeserializer =
           new Function<byte[], com.twitter.util.Try<Response>>() {
@@ -443,7 +471,7 @@ public class GoldService {
         iprot.readMessageEnd();
         doGreatThings_result result = new doGreatThings_result();
         try {
-          result.success = iface_.doGreatThings(args.request);
+          result.success = iface_.doGreatThings(args.request, args.unionRequest, args.exceptionRequest);
           
         } catch (OverCapacityException ex) {
           result.ex = ex;
@@ -608,17 +636,23 @@ public class GoldService {
         private final com.twitter.finagle.Service<doGreatThings_args, Response> methodService = new com.twitter.finagle.Service<doGreatThings_args, Response>() {
           @Override
           public Future<Response> apply(doGreatThings_args args) {
-            try {
-              Set<ThriftValidationViolation> requestViolations = Request.validateInstanceValue(args.request);
-              if (!requestViolations.isEmpty()) {
-                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", args.request.getClass(), requestViolations);
-              }
-            } catch(NullPointerException e) {
-              // The validation logic can throw a NPE but since it's not important we just ignore it.
-            }
             com.twitter.finagle.thrift.ServerAnnotations.annotate("doGreatThings", "com.twitter.scrooge.test.gold.thriftjava.GoldService#doGreatThings()");
-            Future<Response> future = iface.doGreatThings(args.request);
-            return future;
+            Set<ThriftValidationViolation> requestViolations = args.request == null ? new HashSet<ThriftValidationViolation>() : Request.validateInstanceValue(args.request);
+            Set<ThriftValidationViolation> unionRequestViolations = args.unionRequest == null ? new HashSet<ThriftValidationViolation>() : RequestUnion.validateInstanceValue(args.unionRequest);
+            Set<ThriftValidationViolation> exceptionRequestViolations = args.exceptionRequest == null ? new HashSet<ThriftValidationViolation>() : RequestException.validateInstanceValue(args.exceptionRequest);
+            if (requestViolations.isEmpty() && unionRequestViolations.isEmpty() && exceptionRequestViolations.isEmpty()) {
+              return iface.doGreatThings(args.request, args.unionRequest, args.exceptionRequest);
+            } else if (iface instanceof ServerValidationMixin) {
+              // If any request failed validation and user implement the `violationReturning` method, we will
+              // execute the overriden implementation of `violationReturning` method provided by the user.
+              return ((ServerValidationMixin) iface).violationReturningDoGreatThings(args.request, args.unionRequest, args.exceptionRequest, requestViolations, unionRequestViolations, exceptionRequestViolations);
+            } else {
+              // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+              // throw an exception for failed validations.
+              if (!requestViolations.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", args.request.getClass(), requestViolations);
+              else if (!unionRequestViolations.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", args.unionRequest.getClass(), unionRequestViolations);
+              else throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("doGreatThings", args.exceptionRequest.getClass(), exceptionRequestViolations);
+            }
           }
         };
 
@@ -706,17 +740,19 @@ public class GoldService {
         private final com.twitter.finagle.Service<noExceptionCall_args, Response> methodService = new com.twitter.finagle.Service<noExceptionCall_args, Response>() {
           @Override
           public Future<Response> apply(noExceptionCall_args args) {
-            try {
-              Set<ThriftValidationViolation> requestViolations = Request.validateInstanceValue(args.request);
-              if (!requestViolations.isEmpty()) {
-                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("noExceptionCall", args.request.getClass(), requestViolations);
-              }
-            } catch(NullPointerException e) {
-              // The validation logic can throw a NPE but since it's not important we just ignore it.
-            }
             com.twitter.finagle.thrift.ServerAnnotations.annotate("noExceptionCall", "com.twitter.scrooge.test.gold.thriftjava.GoldService#noExceptionCall()");
-            Future<Response> future = iface.noExceptionCall(args.request);
-            return future;
+            Set<ThriftValidationViolation> requestViolations = args.request == null ? new HashSet<ThriftValidationViolation>() : Request.validateInstanceValue(args.request);
+            if (requestViolations.isEmpty()) {
+              return iface.noExceptionCall(args.request);
+            } else if (iface instanceof ServerValidationMixin) {
+              // If any request failed validation and user implement the `violationReturning` method, we will
+              // execute the overriden implementation of `violationReturning` method provided by the user.
+              return ((ServerValidationMixin) iface).violationReturningNoExceptionCall(args.request, requestViolations);
+            } else {
+              // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+              // throw an exception for failed validations.
+              throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("noExceptionCall", args.request.getClass(), requestViolations);
+            }
           }
         };
 
@@ -823,14 +859,20 @@ public class GoldService {
   private static final TStruct STRUCT_DESC = new TStruct("doGreatThings_args");
 
   private static final TField REQUEST_FIELD_DESC = new TField("request", TType.STRUCT, (short)1);
+  private static final TField UNION_REQUEST_FIELD_DESC = new TField("unionRequest", TType.STRUCT, (short)2);
+  private static final TField EXCEPTION_REQUEST_FIELD_DESC = new TField("exceptionRequest", TType.STRUCT, (short)3);
 
 
   public Request request;
+  public RequestUnion unionRequest;
+  public RequestException exceptionRequest;
   private Map<Short, TFieldBlob> passThroughFields;
 
   /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
-    REQUEST((short)1, "request");
+    REQUEST((short)1, "request"),
+    UNION_REQUEST((short)2, "unionRequest"),
+    EXCEPTION_REQUEST((short)3, "exceptionRequest");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -847,6 +889,10 @@ public class GoldService {
       switch(fieldId) {
         case 1: // REQUEST
           return REQUEST;
+        case 2: // UNION_REQUEST
+          return UNION_REQUEST;
+        case 3: // EXCEPTION_REQUEST
+          return EXCEPTION_REQUEST;
         default:
           return null;
       }
@@ -908,6 +954,10 @@ public class GoldService {
     Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
     tmpMap.put(_Fields.REQUEST, new FieldMetaData("request", TFieldRequirementType.DEFAULT,
       new StructMetaData(TType.STRUCT, Request.class)));
+    tmpMap.put(_Fields.UNION_REQUEST, new FieldMetaData("unionRequest", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, RequestUnion.class)));
+    tmpMap.put(_Fields.EXCEPTION_REQUEST, new FieldMetaData("exceptionRequest", TFieldRequirementType.DEFAULT,
+      new StructMetaData(TType.STRUCT, RequestException.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(doGreatThings_args.class, metaDataMap);
@@ -948,10 +998,14 @@ public class GoldService {
   }
 
   public doGreatThings_args(
-    Request request)
+    Request request,
+    RequestUnion unionRequest,
+    RequestException exceptionRequest)
   {
     this();
     this.request = request;
+    this.unionRequest = unionRequest;
+    this.exceptionRequest = exceptionRequest;
   }
 
   /**
@@ -960,6 +1014,12 @@ public class GoldService {
   public doGreatThings_args(doGreatThings_args other) {
     if (other.isSetRequest()) {
       this.request = new Request(other.request);
+    }
+    if (other.isSetUnionRequest()) {
+      this.unionRequest = new RequestUnion(other.unionRequest);
+    }
+    if (other.isSetExceptionRequest()) {
+      this.exceptionRequest = new RequestException(other.exceptionRequest);
     }
     this.passThroughFields = other.passThroughFields;
   }
@@ -972,6 +1032,16 @@ public class GoldService {
       buf.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateNewInstance(_request));
     }
 
+    if (item.isSetUnionRequest()) {
+      RequestUnion _unionRequest = item.unionRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.RequestUnion.validateNewInstance(_unionRequest));
+    }
+
+    if (item.isSetExceptionRequest()) {
+      RequestException _exceptionRequest = item.exceptionRequest;
+      buf.addAll(com.twitter.scrooge.test.gold.thriftjava.RequestException.validateNewInstance(_exceptionRequest));
+    }
+
     return buf;
   }
 
@@ -980,6 +1050,8 @@ public class GoldService {
     final BaseValidator validator = new UtilValidator();
 
     violations.addAll(com.twitter.scrooge.test.gold.thriftjava.Request.validateInstanceValue(item.request));
+    violations.addAll(com.twitter.scrooge.test.gold.thriftjava.RequestUnion.validateInstanceValue(item.unionRequest));
+    violations.addAll(com.twitter.scrooge.test.gold.thriftjava.RequestException.validateInstanceValue(item.exceptionRequest));
 
     return violations;
   }
@@ -991,6 +1063,8 @@ public class GoldService {
   @java.lang.Override
   public void clear() {
     this.request = null;
+    this.unionRequest = null;
+    this.exceptionRequest = null;
     this.passThroughFields = null;
   }
 
@@ -1019,6 +1093,56 @@ public class GoldService {
     }
   }
 
+  public RequestUnion getUnionRequest() {
+    return this.unionRequest;
+  }
+
+  public doGreatThings_args setUnionRequest(RequestUnion unionRequest) {
+    this.unionRequest = unionRequest;
+    
+    return this;
+  }
+
+  public void unsetUnionRequest() {
+    this.unionRequest = null;
+  }
+
+  /** Returns true if field unionRequest is set (has been assigned a value) and false otherwise */
+  public boolean isSetUnionRequest() {
+    return this.unionRequest != null;
+  }
+
+  public void setUnionRequestIsSet(boolean value) {
+    if (!value) {
+      this.unionRequest = null;
+    }
+  }
+
+  public RequestException getExceptionRequest() {
+    return this.exceptionRequest;
+  }
+
+  public doGreatThings_args setExceptionRequest(RequestException exceptionRequest) {
+    this.exceptionRequest = exceptionRequest;
+    
+    return this;
+  }
+
+  public void unsetExceptionRequest() {
+    this.exceptionRequest = null;
+  }
+
+  /** Returns true if field exceptionRequest is set (has been assigned a value) and false otherwise */
+  public boolean isSetExceptionRequest() {
+    return this.exceptionRequest != null;
+  }
+
+  public void setExceptionRequestIsSet(boolean value) {
+    if (!value) {
+      this.exceptionRequest = null;
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
@@ -1029,6 +1153,20 @@ public class GoldService {
         setRequest((Request)value);
       }
       break;
+    case UNION_REQUEST:
+      if (value == null) {
+        unsetUnionRequest();
+      } else {
+        setUnionRequest((RequestUnion)value);
+      }
+      break;
+    case EXCEPTION_REQUEST:
+      if (value == null) {
+        unsetExceptionRequest();
+      } else {
+        setExceptionRequest((RequestException)value);
+      }
+      break;
     }
   }
 
@@ -1036,6 +1174,10 @@ public class GoldService {
     switch (field) {
     case REQUEST:
       return getRequest();
+    case UNION_REQUEST:
+      return getUnionRequest();
+    case EXCEPTION_REQUEST:
+      return getExceptionRequest();
     }
     throw new IllegalStateException();
   }
@@ -1049,6 +1191,10 @@ public class GoldService {
     switch (field) {
     case REQUEST:
       return isSetRequest();
+    case UNION_REQUEST:
+      return isSetUnionRequest();
+    case EXCEPTION_REQUEST:
+      return isSetExceptionRequest();
     }
     throw new IllegalStateException();
   }
@@ -1077,6 +1223,22 @@ public class GoldService {
       if (!this.request.equals(that.request))
         return false;
     }
+    boolean this_present_unionRequest = true && this.isSetUnionRequest();
+    boolean that_present_unionRequest = true && that.isSetUnionRequest();
+    if (this_present_unionRequest || that_present_unionRequest) {
+      if (!(this_present_unionRequest && that_present_unionRequest))
+        return false;
+      if (!this.unionRequest.equals(that.unionRequest))
+        return false;
+    }
+    boolean this_present_exceptionRequest = true && this.isSetExceptionRequest();
+    boolean that_present_exceptionRequest = true && that.isSetExceptionRequest();
+    if (this_present_exceptionRequest || that_present_exceptionRequest) {
+      if (!(this_present_exceptionRequest && that_present_exceptionRequest))
+        return false;
+      if (!this.exceptionRequest.equals(that.exceptionRequest))
+        return false;
+    }
     return true;
   }
 
@@ -1097,6 +1259,12 @@ public class GoldService {
     if (isSetRequest()) {
       hashCode = 31 * hashCode + request.hashCode();
     }
+    if (isSetUnionRequest()) {
+      hashCode = 31 * hashCode + unionRequest.hashCode();
+    }
+    if (isSetExceptionRequest()) {
+      hashCode = 31 * hashCode + exceptionRequest.hashCode();
+    }
     return hashCode;
   }
 
@@ -1114,6 +1282,26 @@ public class GoldService {
     }
     if (isSetRequest()) {
       lastComparison = TBaseHelper.compareTo(this.request, typedOther.request);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetUnionRequest()).compareTo(typedOther.isSetUnionRequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetUnionRequest()) {
+      lastComparison = TBaseHelper.compareTo(this.unionRequest, typedOther.unionRequest);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetExceptionRequest()).compareTo(typedOther.isSetExceptionRequest());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetExceptionRequest()) {
+      lastComparison = TBaseHelper.compareTo(this.exceptionRequest, typedOther.exceptionRequest);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1141,6 +1329,16 @@ public class GoldService {
           this.request = new Request();
             this.request.read(iprot);
           break;
+        case 2: // UNION_REQUEST
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "unionRequest");
+          this.unionRequest = new RequestUnion();
+            this.unionRequest.read(iprot);
+          break;
+        case 3: // EXCEPTION_REQUEST
+          TProtocols.validateFieldType(TType.STRUCT, field.type, "exceptionRequest");
+          this.exceptionRequest = new RequestException();
+            this.exceptionRequest.read(iprot);
+          break;
         default:
           if (this.passThroughFields == null) {
             this.passThroughFields = new HashMap<Short, TFieldBlob>();
@@ -1164,6 +1362,16 @@ public class GoldService {
       this.request.write(oprot);
       oprot.writeFieldEnd();
     }
+    if (this.unionRequest != null) {
+      oprot.writeFieldBegin(UNION_REQUEST_FIELD_DESC);
+      this.unionRequest.write(oprot);
+      oprot.writeFieldEnd();
+    }
+    if (this.exceptionRequest != null) {
+      oprot.writeFieldBegin(EXCEPTION_REQUEST_FIELD_DESC);
+      this.exceptionRequest.write(oprot);
+      oprot.writeFieldEnd();
+    }
     if (this.passThroughFields != null) {
       for (TFieldBlob field : this.passThroughFields.values()) {
         field.write(oprot);
@@ -1182,6 +1390,22 @@ public class GoldService {
       sb.append("null");
     } else {
       sb.append(this.request);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("unionRequest:");
+    if (this.unionRequest == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.unionRequest);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("exceptionRequest:");
+    if (this.exceptionRequest == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.exceptionRequest);
     }
     first = false;
     sb.append(")");

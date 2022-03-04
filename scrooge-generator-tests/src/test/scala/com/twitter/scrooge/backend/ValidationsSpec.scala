@@ -250,11 +250,11 @@ class ValidationsSpec extends JMockSpec {
         await(
           methodPerEndpointClient.validateWithNonValidatedRequest(
             validationRequest = validationStruct,
-            nonValidationRequest = noValidationStruct)))
+            noValidationRequest = noValidationStruct)))
 
       /******* validateOnlyNonValidatedRequest endpoint *******/
       assert(
-        !await(methodPerEndpointClient.validateOnlyNonValidatedRequest(nonValidationRequest =
+        !await(methodPerEndpointClient.validateOnlyNonValidatedRequest(noValidationRequest =
           noValidationStruct)))
     }
 
@@ -282,11 +282,11 @@ class ValidationsSpec extends JMockSpec {
         await(
           methodPerEndpointClient.validateWithNonValidatedRequest(
             validationRequest = validationStruct,
-            nonValidationRequest = noValidationStruct)))
+            noValidationRequest = noValidationStruct)))
 
       /******* validateOnlyNonValidatedRequest endpoint *******/
       assert(
-        await(methodPerEndpointClient.validateOnlyNonValidatedRequest(nonValidationRequest =
+        await(methodPerEndpointClient.validateOnlyNonValidatedRequest(noValidationRequest =
           noValidationStruct)))
     }
 

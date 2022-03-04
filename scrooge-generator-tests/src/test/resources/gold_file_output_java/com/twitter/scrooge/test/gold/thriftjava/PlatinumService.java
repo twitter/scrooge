@@ -45,6 +45,14 @@ import com.twitter.finagle.thrift.ServerToReqRep;
 import com.twitter.finagle.thrift.ThriftClientRequest;
 
 public class PlatinumService {
+  public interface ServerValidationMixin extends ServiceIface {
+    public default Future<Integer> violationReturningMoreCoolThings(
+      Request request,
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> requestViolations
+    ) {
+      throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("moreCoolThings", request.getClass(), requestViolations);
+    };
+  }
   public interface Iface extends GoldService.Iface {
     public int moreCoolThings(Request request) throws AnotherException, OverCapacityException, TException;
   }
@@ -461,17 +469,19 @@ public class PlatinumService {
         private final com.twitter.finagle.Service<moreCoolThings_args, Integer> methodService = new com.twitter.finagle.Service<moreCoolThings_args, Integer>() {
           @Override
           public Future<Integer> apply(moreCoolThings_args args) {
-            try {
-              Set<ThriftValidationViolation> requestViolations = Request.validateInstanceValue(args.request);
-              if (!requestViolations.isEmpty()) {
-                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("moreCoolThings", args.request.getClass(), requestViolations);
-              }
-            } catch(NullPointerException e) {
-              // The validation logic can throw a NPE but since it's not important we just ignore it.
-            }
             com.twitter.finagle.thrift.ServerAnnotations.annotate("moreCoolThings", "com.twitter.scrooge.test.gold.thriftjava.PlatinumService#moreCoolThings()");
-            Future<Integer> future = iface.moreCoolThings(args.request);
-            return future;
+            Set<ThriftValidationViolation> requestViolations = args.request == null ? new HashSet<ThriftValidationViolation>() : Request.validateInstanceValue(args.request);
+            if (requestViolations.isEmpty()) {
+              return iface.moreCoolThings(args.request);
+            } else if (iface instanceof ServerValidationMixin) {
+              // If any request failed validation and user implement the `violationReturning` method, we will
+              // execute the overriden implementation of `violationReturning` method provided by the user.
+              return ((ServerValidationMixin) iface).violationReturningMoreCoolThings(args.request, requestViolations);
+            } else {
+              // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+              // throw an exception for failed validations.
+              throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("moreCoolThings", args.request.getClass(), requestViolations);
+            }
           }
         };
 

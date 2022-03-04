@@ -24,9 +24,15 @@ trait ServerValidationMixin {
 
   def violationReturningDoGreatThings(
     request: com.twitter.scrooge.test.gold.thriftscala.Request,
-    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion,
+    exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException,
+    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation],
+    unionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation],
+    exceptionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
   ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
-    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", request.getClass, requestViolations)
+    if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", request.getClass, requestViolations)
+    else if (unionRequestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", unionRequest.getClass, unionRequestViolations)
+    else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", exceptionRequest.getClass, exceptionRequestViolations)
   }
 
   def violationReturningNoExceptionCall(
@@ -110,10 +116,16 @@ class GoldService$FinagleService(
         val requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
           if (args.request != null) com.twitter.scrooge.test.gold.thriftscala.Request.validateInstanceValue(args.request)
           else Set.empty
-        if (requestViolations.isEmpty) {
-          iface.doGreatThings(args.request)
+        val unionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
+          if (args.unionRequest != null) com.twitter.scrooge.test.gold.thriftscala.RequestUnion.validateInstanceValue(args.unionRequest)
+          else Set.empty
+        val exceptionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] =
+          if (args.exceptionRequest != null) com.twitter.scrooge.test.gold.thriftscala.RequestException.validateInstanceValue(args.exceptionRequest)
+          else Set.empty
+        if (requestViolations.isEmpty && unionRequestViolations.isEmpty && exceptionRequestViolations.isEmpty) {
+          iface.doGreatThings(args.request, args.unionRequest, args.exceptionRequest)
         } else {
-          iface.violationReturningDoGreatThings(args.request, requestViolations)
+          iface.violationReturningDoGreatThings(args.request, args.unionRequest, args.exceptionRequest, requestViolations, unionRequestViolations, exceptionRequestViolations)
         }
       }
     }

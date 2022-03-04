@@ -12,6 +12,7 @@ struct ValidationStruct {
   9: optional string optionalField
 }
 
+// a struct without any annotations
 struct NoValidationStruct {
   1: string stringField
   2: i32 intField
@@ -60,10 +61,10 @@ service ValidationService {
   )
   bool validateWithNonValidatedRequest (
     1: ValidationStruct validationRequest,
-    2: NoValidationStruct nonValidationRequest
+    2: NoValidationStruct noValidationRequest
   )
   bool validateOnlyNonValidatedRequest (
-    1: NoValidationStruct nonValidationRequest
+    1: NoValidationStruct noValidationRequest
   )
   bool validateOnlyValidatedRequest (
     1: ValidationStruct validationRequest

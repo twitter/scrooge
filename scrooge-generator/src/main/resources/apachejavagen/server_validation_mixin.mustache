@@ -1,0 +1,30 @@
+{{#hasValidationAnnotation}}
+    public default Future<{{{return_type.type_name_in_container}}}> {{violationReturningFuncName}}(
+      {{{argument_list_with_types}}},
+{{#argsWithValidations}}
+{{#lastArg}}
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> {{violationArg}}
+{{/lastArg}}
+{{^lastArg}}
+      Set<com.twitter.scrooge.thrift_validation.ThriftValidationViolation> {{violationArg}},
+{{/lastArg}}
+{{/argsWithValidations}}
+    ) {
+{{#argsWithValidations}}
+{{#oneArg}}
+      throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_name}}.getClass(), {{violationArg}});
+{{/oneArg}}
+{{^oneArg}}
+{{#firstArg}}
+      if (!{{violationArg}}.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_name}}.getClass(), {{violationArg}});
+{{/firstArg}}
+{{#middleArg}}
+      else if (!{{violationArg}}.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_name}}.getClass(), {{violationArg}});
+{{/middleArg}}
+{{#lastArg}}
+      else throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_name}}.getClass(), {{violationArg}});
+{{/lastArg}}
+{{/oneArg}}
+{{/argsWithValidations}}
+    };
+{{/hasValidationAnnotation}}

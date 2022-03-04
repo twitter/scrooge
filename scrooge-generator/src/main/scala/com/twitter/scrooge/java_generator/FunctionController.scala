@@ -51,6 +51,25 @@ class FunctionController(
   val is_oneway: Boolean = function.funcType == OnewayVoid
   val is_oneway_or_void: Boolean = is_oneway || return_type.is_void
 
+  // thrift validations utilities
+  val validationFields: Seq[Field] = function.args.filter(FieldController.hasValidationAnnotation)
+  val numArgWithValidations: Int = validationFields.size
+  val argsWithValidations: Seq[FieldController] =
+    validationFields.zipWithIndex.map {
+      case (arg, index) =>
+        new FieldController(arg, generator, ns) {
+          val firstArg: Boolean = index == 0
+          val middleArg: Boolean = index > 0 && index < numArgWithValidations - 1
+          val lastArg: Boolean = index == numArgWithValidations - 1
+          // need to have `oneArg` inside `argsWithValidations` to be able to access
+          // variables defined in `FieldController` upon evaluating `oneArg` in template
+          val oneArg: Boolean = numArgWithValidations == 1
+        }
+    }
+  val hasValidationAnnotation: Boolean = argsWithValidations.nonEmpty
+  val violationReturningFuncName: String =
+    function.funcName.toTitleCase.prepend("violationReturning").name
+
   def i_if_has_exceptions: base.Function[String, String] = newHelper { input =>
     if (exceptions.size > 0) indent(input, 2, false) else input
   }
@@ -60,13 +79,15 @@ class FunctionController(
       val requiredness =
         if (a.requiredness.isRequired) Requiredness.Required else Requiredness.Default
       Field(
-        a.index,
-        a.sid,
-        a.originalName,
-        a.fieldType,
-        a.default,
-        requiredness,
-        hasValidationAnnotation = a.fieldAnnotations.keySet.exists(_.startsWith("validation.")))
+        index = a.index,
+        sid = a.sid,
+        originalName = a.originalName,
+        fieldType = a.fieldType,
+        default = a.default,
+        requiredness = requiredness,
+        fieldAnnotations = a.fieldAnnotations,
+        hasValidationAnnotation = a.fieldAnnotations.keySet.exists(_.startsWith("validation."))
+      )
     }
     val structName = function.funcName.name + "_args"
     val struct = Struct(SimpleID(structName), structName, args, function.docstring, Map.empty)

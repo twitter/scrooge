@@ -280,6 +280,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       val Struct: TStruct = new TStruct("doGreatThings_args")
       val RequestField: TField = new TField("request", TType.STRUCT, 1)
       val RequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.Request] = manifest[com.twitter.scrooge.test.gold.thriftscala.Request]
+      val UnionRequestField: TField = new TField("unionRequest", TType.STRUCT, 2)
+      val UnionRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.RequestUnion] = manifest[com.twitter.scrooge.test.gold.thriftscala.RequestUnion]
+      val ExceptionRequestField: TField = new TField("exceptionRequest", TType.STRUCT, 3)
+      val ExceptionRequestFieldManifest: Manifest[com.twitter.scrooge.test.gold.thriftscala.RequestException] = manifest[com.twitter.scrooge.test.gold.thriftscala.RequestException]
     
       /**
        * Field information in declaration order.
@@ -296,6 +300,30 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           immutable$Map.empty[String, String],
           None,
           _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty)
+        ),
+        new ThriftStructFieldInfo(
+          UnionRequestField,
+          false,
+          false,
+          UnionRequestFieldManifest,
+          _root_.scala.None,
+          _root_.scala.None,
+          immutable$Map.empty[String, String],
+          immutable$Map.empty[String, String],
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.RequestUnion.unsafeEmpty)
+        ),
+        new ThriftStructFieldInfo(
+          ExceptionRequestField,
+          false,
+          false,
+          ExceptionRequestFieldManifest,
+          _root_.scala.None,
+          _root_.scala.None,
+          immutable$Map.empty[String, String],
+          immutable$Map.empty[String, String],
+          None,
+          _root_.scala.Option(com.twitter.scrooge.test.gold.thriftscala.RequestException.unsafeEmpty)
         )
       )
     
@@ -304,7 +332,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         immutable$Map.empty[String, String]
     
       private val fieldTypes: IndexedSeq[ClassTag[_]] = IndexedSeq[ClassTag[_]](
-        classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]]
+        classTag[com.twitter.scrooge.test.gold.thriftscala.Request].asInstanceOf[ClassTag[_]],
+        classTag[com.twitter.scrooge.test.gold.thriftscala.RequestUnion].asInstanceOf[ClassTag[_]],
+        classTag[com.twitter.scrooge.test.gold.thriftscala.RequestException].asInstanceOf[ClassTag[_]]
       )
     
       private[this] val structFields: Seq[ThriftStructField[Args]] = Seq[ThriftStructField[Args]](
@@ -313,6 +343,18 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _root_.scala.Some(RequestFieldManifest),
           classOf[Args]) {
             def getValue[R](struct: Args): R = struct.request.asInstanceOf[R]
+        },
+        new ThriftStructField[Args](
+          UnionRequestField,
+          _root_.scala.Some(UnionRequestFieldManifest),
+          classOf[Args]) {
+            def getValue[R](struct: Args): R = struct.unionRequest.asInstanceOf[R]
+        },
+        new ThriftStructField[Args](
+          ExceptionRequestField,
+          _root_.scala.Some(ExceptionRequestFieldManifest),
+          classOf[Args]) {
+            def getValue[R](struct: Args): R = struct.exceptionRequest.asInstanceOf[R]
         }
       )
     
@@ -333,6 +375,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         val buf = scala.collection.mutable.ListBuffer.empty[com.twitter.scrooge.validation.Issue]
     
         buf ++= validateField(item.request)
+        buf ++= validateField(item.unionRequest)
+        buf ++= validateField(item.exceptionRequest)
         buf.toList
       }
     
@@ -343,6 +387,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       def validateInstanceValue(item: Args): Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation] = {
         val violations = scala.collection.mutable.Set.empty[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
         violations ++= validateFieldValue("request", item.request, fieldInfos.apply(0).fieldAnnotations, scala.None)
+        violations ++= validateFieldValue("unionRequest", item.unionRequest, fieldInfos.apply(1).fieldAnnotations, scala.None)
+        violations ++= validateFieldValue("exceptionRequest", item.exceptionRequest, fieldInfos.apply(2).fieldAnnotations, scala.None)
         violations.toSet
       }
     
@@ -352,14 +398,28 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
             {
               val field = original.request
               com.twitter.scrooge.test.gold.thriftscala.Request.withoutPassthroughFields(field)
+            },
+          unionRequest =
+            {
+              val field = original.unionRequest
+              com.twitter.scrooge.test.gold.thriftscala.RequestUnion.withoutPassthroughFields(field)
+            },
+          exceptionRequest =
+            {
+              val field = original.exceptionRequest
+              com.twitter.scrooge.test.gold.thriftscala.RequestException.withoutPassthroughFields(field)
             }
         )
     
       lazy val unsafeEmpty: Args = {
         val request: com.twitter.scrooge.test.gold.thriftscala.Request = com.twitter.scrooge.test.gold.thriftscala.Request.unsafeEmpty
+        val unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion = com.twitter.scrooge.test.gold.thriftscala.RequestUnion.unsafeEmpty
+        val exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException = com.twitter.scrooge.test.gold.thriftscala.RequestException.unsafeEmpty
     
         new Args(
           request,
+          unionRequest,
+          exceptionRequest,
           _root_.com.twitter.scrooge.internal.TProtocols.NoPassthroughFields
         )
       }
@@ -377,6 +437,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
       private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): Args = {
         var request: com.twitter.scrooge.test.gold.thriftscala.Request = null
+        var unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion = null
+        var exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException = null
     
         var _passthroughFields: Builder[(Short, TFieldBlob), immutable$Map[Short, TFieldBlob]] = null
         var _done = false
@@ -392,6 +454,12 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
               case 1 =>
                 _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRUCT, _fieldType, "request")
                 request = com.twitter.scrooge.test.gold.thriftscala.Request.decode(_iprot)
+              case 2 =>
+                _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRUCT, _fieldType, "unionRequest")
+                unionRequest = com.twitter.scrooge.test.gold.thriftscala.RequestUnion.decode(_iprot)
+              case 3 =>
+                _root_.com.twitter.scrooge.internal.TProtocols.validateFieldType(TType.STRUCT, _fieldType, "exceptionRequest")
+                exceptionRequest = com.twitter.scrooge.test.gold.thriftscala.RequestException.decode(_iprot)
               case _ =>
                 _passthroughFields = _root_.com.twitter.scrooge.internal.TProtocols.readPassthroughField(_iprot, _field, _passthroughFields)
             }
@@ -406,18 +474,24 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           else _passthroughFields.result()
         new Args(
           request,
+          unionRequest,
+          exceptionRequest,
           _passthroughFieldsResult
         )
       }
     
       def apply(
-        request: com.twitter.scrooge.test.gold.thriftscala.Request
+        request: com.twitter.scrooge.test.gold.thriftscala.Request,
+        unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion,
+        exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException
       ): Args =
         new Args(
-          request
+          request,
+          unionRequest,
+          exceptionRequest
         )
     
-      def unapply(_item: Args): _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.Some(_item.request)
+      def unapply(_item: Args): _root_.scala.Option[_root_.scala.Tuple3[com.twitter.scrooge.test.gold.thriftscala.Request, com.twitter.scrooge.test.gold.thriftscala.RequestUnion, com.twitter.scrooge.test.gold.thriftscala.RequestException]] = _root_.scala.Some(_item.toTuple)
     
     
     
@@ -425,22 +499,37 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     
     class Args(
         val request: com.twitter.scrooge.test.gold.thriftscala.Request,
+        val unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion,
+        val exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException,
         val _passthroughFields: immutable$Map[Short, TFieldBlob])
       extends ThriftStruct
-      with _root_.scala.Product1[com.twitter.scrooge.test.gold.thriftscala.Request]
+      with _root_.scala.Product3[com.twitter.scrooge.test.gold.thriftscala.Request, com.twitter.scrooge.test.gold.thriftscala.RequestUnion, com.twitter.scrooge.test.gold.thriftscala.RequestException]
       with ValidatingThriftStruct[Args]
       with java.io.Serializable
     {
       import Args._
     
       def this(
-        request: com.twitter.scrooge.test.gold.thriftscala.Request
+        request: com.twitter.scrooge.test.gold.thriftscala.Request,
+        unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion,
+        exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException
       ) = this(
         request,
+        unionRequest,
+        exceptionRequest,
         immutable$Map.empty
       )
     
       def _1: com.twitter.scrooge.test.gold.thriftscala.Request = request
+      def _2: com.twitter.scrooge.test.gold.thriftscala.RequestUnion = unionRequest
+      def _3: com.twitter.scrooge.test.gold.thriftscala.RequestException = exceptionRequest
+    
+      def toTuple: _root_.scala.Tuple3[com.twitter.scrooge.test.gold.thriftscala.Request, com.twitter.scrooge.test.gold.thriftscala.RequestUnion, com.twitter.scrooge.test.gold.thriftscala.RequestException] =
+        _root_.scala.Tuple3[com.twitter.scrooge.test.gold.thriftscala.Request, com.twitter.scrooge.test.gold.thriftscala.RequestUnion, com.twitter.scrooge.test.gold.thriftscala.RequestException](
+          request,
+          unionRequest,
+          exceptionRequest
+        )
     
     
     
@@ -452,15 +541,29 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           request.write(_oprot)
           _oprot.writeFieldEnd()
         }
+        if (unionRequest ne null) {
+          _oprot.writeFieldBegin(UnionRequestField)
+          unionRequest.write(_oprot)
+          _oprot.writeFieldEnd()
+        }
+        if (exceptionRequest ne null) {
+          _oprot.writeFieldBegin(ExceptionRequestField)
+          exceptionRequest.write(_oprot)
+          _oprot.writeFieldEnd()
+        }
         _root_.com.twitter.scrooge.internal.TProtocols.finishWritingStruct(_oprot, _passthroughFields)
       }
     
       def copy(
         request: com.twitter.scrooge.test.gold.thriftscala.Request = this.request,
+        unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion = this.unionRequest,
+        exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException = this.exceptionRequest,
         _passthroughFields: immutable$Map[Short, TFieldBlob] = this._passthroughFields
       ): Args =
         new Args(
           request,
+          unionRequest,
+          exceptionRequest,
           _passthroughFields
         )
     
@@ -495,12 +598,16 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
         if (instance.isDefined) {
           val instanceValue = instance.get
           Args(
-            if (_fieldArray(0) == null) instanceValue.request else _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            if (_fieldArray(0) == null) instanceValue.request else _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request],
+            if (_fieldArray(1) == null) instanceValue.unionRequest else _fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.RequestUnion],
+            if (_fieldArray(2) == null) instanceValue.exceptionRequest else _fieldArray(2).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.RequestException]
           )
         } else {
           if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
           Args(
-            _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request],
+            _fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.RequestUnion],
+            _fieldArray(2).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.RequestException]
           )
         }
       }
@@ -1339,7 +1446,7 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
 
   trait MethodPerEndpoint extends _root_.com.twitter.finagle.thrift.ThriftService {
     /** Hello, I'm a comment. */
-    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
+    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request, unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion, exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
     
     def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response]
     /**
@@ -1360,8 +1467,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
      */
     class MethodPerEndpointImpl protected (servicePerEndpoint: ServicePerEndpoint)
       extends MethodPerEndpoint {
-        def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
-          servicePerEndpoint.doGreatThings(self.DoGreatThings.Args(request))
+        def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request, unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion, exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+          servicePerEndpoint.doGreatThings(self.DoGreatThings.Args(request, unionRequest, exceptionRequest))
         def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
           servicePerEndpoint.noExceptionCall(self.NoExceptionCall.Args(request))
 
@@ -1381,9 +1488,9 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
     class ReqRepMethodPerEndpointImpl protected (servicePerEndpoint: ReqRepServicePerEndpoint)
       extends MethodPerEndpoint {
 
-        def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+        def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request, unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion, exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
           val requestCtx = _root_.com.twitter.finagle.context.Contexts.local.getOrElse(_root_.com.twitter.finagle.thrift.Headers.Request.Key, () => _root_.com.twitter.finagle.thrift.Headers.Request.newValues)
-          val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.DoGreatThings.Args(request))
+          val scroogeRequest = _root_.com.twitter.scrooge.Request(requestCtx.values, self.DoGreatThings.Args(request, unionRequest, exceptionRequest))
           servicePerEndpoint.doGreatThings(scroogeRequest).transform(_root_.com.twitter.finagle.thrift.service.ThriftReqRepServicePerEndpoint.transformResult)
         }
         def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
@@ -1400,8 +1507,8 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   @deprecated("Use MethodPerEndpoint", "2017-11-07")
   class MethodIface(serviceIface: BaseServiceIface)
     extends MethodPerEndpoint {
-    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
-      serviceIface.doGreatThings(self.DoGreatThings.Args(request))
+    def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request, unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion, exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+      serviceIface.doGreatThings(self.DoGreatThings.Args(request, unionRequest, exceptionRequest))
     def noExceptionCall(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
       serviceIface.noExceptionCall(self.NoExceptionCall.Args(request))
   }

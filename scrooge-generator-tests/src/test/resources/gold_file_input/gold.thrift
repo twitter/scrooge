@@ -18,6 +18,15 @@ enum RequestType {
   Read = 2,
 } (enum.annotation = "false")
 
+union RequestUnion {
+  1: i32 id (validation.positiveOrZero = "")
+  2: string name (validation.notEmpty = "")
+}
+
+exception RequestException {
+  1: string message (validation.notEmpty = "")
+}
+
 union ResponseUnion {
   1: i64 id
   2: string details (u.field.annotation = "x")
@@ -84,6 +93,8 @@ service GoldService {
   /** Hello, I'm a comment. */
   Response doGreatThings(
     1: Request request
+    2: RequestUnion unionRequest
+    3: RequestException exceptionRequest
   ) throws (
     1: OverCapacityException ex
   ) (some.annotation = "false")

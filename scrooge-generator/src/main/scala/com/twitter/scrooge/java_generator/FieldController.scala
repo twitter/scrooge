@@ -1,10 +1,30 @@
 package com.twitter.scrooge.java_generator
 
+import com.twitter.scrooge.ast.Exception_
 import com.twitter.scrooge.ast.Field
 import com.twitter.scrooge.ast.Identifier
 import com.twitter.scrooge.ast.Requiredness
+import com.twitter.scrooge.ast.Struct
+import com.twitter.scrooge.ast.StructType
+import com.twitter.scrooge.ast.Union
 import com.twitter.scrooge.backend.Generator
 import com.google.common.base
+
+object FieldController {
+  // return true if the `Field` is of struct type (struct, union, or exception), and any fields
+  // of the `Field` has validation annotation (annotation key starts with "validation.")
+  def hasValidationAnnotation(field: Field): Boolean =
+    field.fieldType match {
+      case structType: StructType =>
+        val structLike = structType.struct
+        structLike match {
+          case _: Struct | _: Union | _: Exception_ =>
+            structLike.fields.exists(_.hasValidationAnnotation)
+          case _ => false
+        }
+      case _ => false
+    }
+}
 
 class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Identifier])
     extends BaseController(generator, ns) {
@@ -35,4 +55,7 @@ class FieldController(f: Field, generator: ApacheJavaGenerator, ns: Option[Ident
   val i_if_optional: base.Function[String, String] = newHelper { input =>
     if (optional) indent(input, 2, false) else input
   }
+
+  // thrift validations utilities
+  val violationArg: String = f.sid.append("Violations").name
 }

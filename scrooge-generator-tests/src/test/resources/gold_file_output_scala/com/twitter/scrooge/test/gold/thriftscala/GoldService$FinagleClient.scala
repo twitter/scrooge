@@ -81,11 +81,11 @@ class GoldService$FinagleClient(
     }
   }
   /** Hello, I'm a comment. */
-  def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
+  def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request, unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion, exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException): Future[com.twitter.scrooge.test.gold.thriftscala.Response] =
     ClientFunction.serde[com.twitter.scrooge.test.gold.thriftscala.Response](
       "doGreatThings",
       doGreatThingsGoldServiceReplyDeserializer,
-      DoGreatThings.Args(request),
+      DoGreatThings.Args(request, unionRequest, exceptionRequest),
       serviceName,
       service,
       responseClassifier,

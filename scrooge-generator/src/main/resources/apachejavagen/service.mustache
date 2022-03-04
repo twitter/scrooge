@@ -30,6 +30,15 @@ import com.twitter.finagle.thrift.AbstractThriftService;
 {{/extends_iface}}
 
 public class {{name}} {
+{{#hasValidationAnnotation}}
+  public interface ServerValidationMixin extends ServiceIface {
+{{#consolidate_newlines}}
+{{#functions}}
+{{>server_validation_mixin}}
+{{/functions}}
+{{/consolidate_newlines}}
+  }
+{{/hasValidationAnnotation}}
   public interface Iface{{#extends_iface}} extends {{parent_name}}.Iface{{/extends_iface}} {
     {{#functions}}
     public {{{return_type.type_name}}} {{name}}({{{argument_list_with_types}}}) throws {{exceptions_string}}TException;
@@ -610,23 +619,45 @@ public class {{name}} {
         private final com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}> methodService = new com.twitter.finagle.Service<{{name}}_args, {{{return_type.type_name_in_container}}}>() {
           @Override
           public Future<{{{return_type.type_name_in_container}}}> apply({{name}}_args args) {
-{{#has_args}}
-{{#fields}}
-{{#field_type.is_struct}}
-            try {
-              Set<ThriftValidationViolation> {{field_name}}Violations = {{arg_type}}.validateInstanceValue({{field_arg}});
-              if (!{{field_name}}Violations.isEmpty()) {
-                throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{field_name}}Violations);
-              }
-            } catch(NullPointerException e) {
-              // The validation logic can throw a NPE but since it's not important we just ignore it.
-            }
-{{/field_type.is_struct}}
-{{/fields}}
-{{/has_args}}
             com.twitter.finagle.thrift.ServerAnnotations.annotate("{{name}}", "{{namespace}}.{{service_name}}#{{name}}()");
-            Future<{{{return_type.type_name_in_container}}}> future = iface.{{name}}({{{argument_list_with_args}}});
-            return future;
+{{#hasValidationAnnotation}}
+{{#has_args}}
+{{#argsWithValidations}}
+{{#field_type.is_struct}}
+            Set<ThriftValidationViolation> {{violationArg}} = {{field_arg}} == null ? new HashSet<ThriftValidationViolation>() : {{arg_type}}.validateInstanceValue({{field_arg}});
+{{/field_type.is_struct}}
+{{/argsWithValidations}}
+{{/has_args}}
+            if ({{#argsWithValidations}}{{#firstArg}}{{violationArg}}.isEmpty(){{/firstArg}}{{^firstArg}} && {{violationArg}}.isEmpty(){{/firstArg}}{{/argsWithValidations}}) {
+              return iface.{{name}}({{{argument_list_with_args}}});
+            } else if (iface instanceof ServerValidationMixin) {
+              // If any request failed validation and user implement the `violationReturning` method, we will
+              // execute the overriden implementation of `violationReturning` method provided by the user.
+              return ((ServerValidationMixin) iface).{{violationReturningFuncName}}({{{argument_list_with_args}}}, {{#argsWithValidations}}{{^lastArg}}{{violationArg}}, {{/lastArg}}{{#lastArg}}{{violationArg}}{{/lastArg}}{{/argsWithValidations}});
+            } else {
+              // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+              // throw an exception for failed validations.
+              {{#argsWithValidations}}
+              {{#oneArg}}
+              throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{violationArg}});
+              {{/oneArg}}
+              {{^oneArg}}
+              {{#firstArg}}
+              if (!{{violationArg}}.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{violationArg}});
+              {{/firstArg}}
+              {{#middleArg}}
+              else if (!{{violationArg}}.isEmpty()) throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{violationArg}});
+              {{/middleArg}}
+              {{#lastArg}}
+              else throw com.twitter.scrooge.thrift_validation.ThriftValidationException.create("{{name}}", {{field_arg}}.getClass(), {{violationArg}});
+              {{/lastArg}}
+              {{/oneArg}}
+              {{/argsWithValidations}}
+            }
+{{/hasValidationAnnotation}}
+{{^hasValidationAnnotation}}
+            return iface.{{name}}({{{argument_list_with_args}}});
+{{/hasValidationAnnotation}}
           }
         };
 

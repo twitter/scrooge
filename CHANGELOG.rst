@@ -7,6 +7,15 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+New Features
+~~~~~~~~~~~~
+
+* scrooge-generator: for each method defined in a service in the Thrift IDL, if any request arg
+  of a method has annotations started with `validation.`, in Java template, generate a new trait
+  `ServerValidationMixin` with a new API `violationReturning<method_name>` which validates incoming
+  request (of Struct, Union, Exception types) and return any violations (as method parameters
+  `<request_variable>Violations`) back to the users in the method API. ``PHAB_ID=D840524``
+
 22.2.0
 ------
 
