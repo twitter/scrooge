@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Swift User Guide &#8212; Scrooge 22.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scrooge Changelog" href="changelog.html" />
+    <link rel="prev" title="Scrooge thrift linter" href="Linter.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="changelog.html" title="Scrooge Changelog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Linter.html" title="Scrooge thrift linter"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="swift-user-guide">
+<h1>Swift User Guide<a class="headerlink" href="#swift-user-guide" title="Permalink to this headline">¶</a></h1>
+<p>This section explains how to work with the Swift file generator.</p>
+<p>Scrooge supports generation of the Swift model classes. The thrift files need to
+have this namespace definition: <code class="docutils literal notranslate"><span class="pre">#&#64;namespace</span> <span class="pre">swift</span> <span class="pre">ThriftEncoding</span></code>. Scrooge
+creates the models as a Swift package with that namespace as the name.</p>
+<p>The generated swift uses <cite>TwitterApacheThrift&lt;https://github.com/twitter/ios-twitter-apache-thrift&gt;</cite>.</p>
+<div class="section" id="objective-c-compatibility">
+<h2>Objective-C Compatibility<a class="headerlink" href="#objective-c-compatibility" title="Permalink to this headline">¶</a></h2>
+<p>The default is to create Swift only types. Scrooge has the ability to generate
+the models with Objective-C compatibility. This command line argument is
+<code class="docutils literal notranslate"><span class="pre">--language-flag</span> <span class="pre">'swift-objc</span> <span class="pre">prefix'</span></code>, with the prefix being the Obj-C class
+prefix. <strong>Note: The apostrophes are required.</strong> Enums will add &#64;objc and structs
+will become NSObject classes. Unions will be Enums with raw type wrapped in an
+NSObject class with initializers for each case. The swift encoder and decoder
+classes will remain Swift only. This allows this library to be a drop-in
+replacement for current ApacheThrift library.</p>
+</div>
+<div class="section" id="swift-classes">
+<h2>Swift Classes<a class="headerlink" href="#swift-classes" title="Permalink to this headline">¶</a></h2>
+<p>Scrooge can also generate non-NSObject classes instead of structs. To enable
+this pass <code class="docutils literal notranslate"><span class="pre">--language-flag</span> <span class="pre">swift-classes</span></code> to scrooge generation command.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When passing both the objective-c compatibility and swift class arguments. The
+swift class argument does nothing.</p>
+</div>
+</div>
+<div class="section" id="access-control">
+<h2>Access Control<a class="headerlink" href="#access-control" title="Permalink to this headline">¶</a></h2>
+<p>Scrooge can also generate for internal interfaces instead of public interfaces.
+To enable this pass <code class="docutils literal notranslate"><span class="pre">--language-flag</span> <span class="pre">internal-types</span></code> to scrooge generation
+command.</p>
+</div>
+<div class="section" id="type-naming">
+<h2>Type naming<a class="headerlink" href="#type-naming" title="Permalink to this headline">¶</a></h2>
+<p>Swift doesn’t support namespaces the same way as JVM languages. Scrooge uses an
+annotation on the thrift models to generate different type names. These new
+annotations will be available for Structs, Unions, and Enums. The following
+thrift will create a swift Struct with the name of UserV1.</p>
+<div class="highlight-thrift notranslate"><div class="highlight"><pre><span></span><span class="kd">struct</span><span class="w"> </span><span class="nc">User</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="k">required</span><span class="w"> </span><span class="kt">i64</span><span class="w"> </span><span class="n">id</span><span class="w"></span>
+<span class="p">}(</span><span class="n">alternative.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UserV1&#39;</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-swift notranslate"><div class="highlight"><pre><span></span><span class="c1">// Generated from thrift</span>
+<span class="kd">public</span> <span class="kd">struct</span> <span class="nc">UserV1</span><span class="p">:</span> <span class="n">ThriftCodable</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nv">id</span><span class="p">:</span> <span class="nb">Int64</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generation-command">
+<h2>Generation Command<a class="headerlink" href="#generation-command" title="Permalink to this headline">¶</a></h2>
+<p>Here is some example command to generate the swift models from thrift.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generates swift structs</span>
+$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -l swift -d generated -s your_file.thrift&#39;</span>
+
+<span class="c1"># Generates swift with obj-c compatibility</span>
+$ ./sbt <span class="s2">&quot;scrooge-generator/runMain com.twitter.scrooge.Main -d generated -l swift --language-flag &#39;swift-objc prefix&#39; -s your_file.thrift&quot;</span>
+
+<span class="c1"># Generates swift with classes instead of structs</span>
+$ ./sbt <span class="s1">&#39;scrooge-generator/runMain com.twitter.scrooge.Main -d generated -l swift --language-flag swift-classes -s your_file.thrift&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/scrooge.png" alt="Logo"/>
+            </a></p><a href="index.html"><h3>Scrooge</h3></a>
+<p>
+  Scrooge is a general purpose thrift parser/generator
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
+  <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
+</ul>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Swift User Guide</a><ul>
+<li><a class="reference internal" href="#objective-c-compatibility">Objective-C Compatibility</a></li>
+<li><a class="reference internal" href="#swift-classes">Swift Classes</a></li>
+<li><a class="reference internal" href="#access-control">Access Control</a></li>
+<li><a class="reference internal" href="#type-naming">Type naming</a></li>
+<li><a class="reference internal" href="#generation-command">Generation Command</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="Linter.html" title="previous chapter">Scrooge thrift linter</a></li>
+      <li>Next: <a href="changelog.html" title="next chapter">Scrooge Changelog</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Search the contents of this site.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013 Twitter, Inc.
+    Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

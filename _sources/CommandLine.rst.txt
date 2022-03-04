@@ -72,7 +72,7 @@ A complete command line help menu for scrooge-generator:
   --gen-file-map <path>                     generate map.txt in the destination folder to specify the mapping from input thrift files to output Scala/Java files
   --dry-run                                 parses and validates source thrift files, reporting any errors, but does not emit any generated source code.  can be used with --gen-file-mapping to get the file mapping
   -s, --skip-unchanged                      Don't re-generate if the target is newer than the input
-  -l, --language <value>                    name of language to generate code in (currently supported languages: java, lua, scala, cocoa, android)
+  -l, --language <value>                    name of language to generate code in (currently supported languages: java, lua, scala, cocoa, android, swift)
   --java-ser-enum-type                      Encode a thrift enum as o.a.t.p.TType.ENUM instead of TType.I32
   --language-flag <flag>                    Pass arguments to supported language generators. To generate Scala 2.13 compatible `scala.Seq` alias as `scala.collection.immutable.Seq`, please use "immutable-sequences".
   --scala-warn-on-java-ns-fallback          Print a warning when the scala generator falls back to the java namespace

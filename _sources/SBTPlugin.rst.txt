@@ -13,7 +13,7 @@ To use the scrooge-sbt-plugin, add the following lines to your
 
 ::
 
-    addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "22.1.0")
+    addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "22.2.0")
 
 Incorporating this line makes the Scrooge plugin available for use by SBT.
 Thrift files added to your project can now have code generated for them. By
@@ -41,8 +41,8 @@ An example using a `build.sbt` file.
         name := "Scrooge Demo",
         libraryDependencies ++= Seq(
           "org.apache.thrift" % "libthrift" % "0.10.0",
-          "com.twitter" %% "scrooge-core" % "22.1.0",
-          "com.twitter" %% "finagle-thrift" % "22.1.0",
+          "com.twitter" %% "scrooge-core" % "22.2.0",
+          "com.twitter" %% "finagle-thrift" % "22.2.0",
           scalaTest % Test
         )
       )
@@ -101,7 +101,7 @@ have Scrooge generate Java code.
         scroogeLanguages in Compile := Seq("java"),
         libraryDependencies ++= Seq(
           "org.apache.thrift" % "libthrift" % "0.10.0",
-          "com.twitter" %% "scrooge-core" % "22.1.0",
-          "com.twitter" %% "finagle-thrift" % "22.1.0",
+          "com.twitter" %% "scrooge-core" % "22.2.0",
+          "com.twitter" %% "finagle-thrift" % "22.2.0",
           scalaTest % Test
         )
