@@ -16,6 +16,11 @@ New Features
   request (of Struct, Union, Exception types) and return any violations (as method parameters
   `<request_variable>Violations`) back to the users in the method API. ``PHAB_ID=D840524``
 
+Runtime Behavior Changes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* scrooge: Bump version of Jackson to 2.13.2. ``PHAB_ID=D848592``
+
 22.2.0
 ------
 
