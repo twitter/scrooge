@@ -3,6 +3,7 @@ package com.twitter.scrooge
 import com.twitter.util.Memoize
 import org.apache.thrift.protocol.TProtocol
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe
 
 /**
  * A trait encapsulating the logic for encoding and decoding a specific thrift struct
@@ -23,36 +24,25 @@ trait ThriftStructCodec[T <: ThriftStruct] {
  * instances.
  */
 object ThriftStructCodec {
-  private[this] val codecForStructClass = Memoize.classValue { c =>
-    def getCodec(className: String) =
-      Class
-        .forName(className, true, c.getClassLoader)
-        .getField("MODULE$")
-        .get(null)
-        .asInstanceOf[ThriftStructCodec[_]]
+  private[this] val thriftStructCodecType = universe.typeOf[ThriftStructCodec[_]]
 
-    val cname = c.getName
-    try {
-      // Most struct classes will have their
-      // companion object as the decoder.
-      getCodec(cname + "$")
-    } catch {
-      case e1: Exception =>
-        val i = cname.lastIndexOf('$')
-        if (i == -1) {
-          throw e1;
-        }
-        try {
-          // Some struct classes (LazyImmutable,
-          // union members) will have the object
-          // they're embedded in as their decoder.
-          getCodec(cname.substring(0, i + 1))
-        } catch {
-          case e2: Exception =>
-            e2.addSuppressed(e1)
-            throw e2
-        }
-    }
+  private[this] val codecForStructClass = Memoize.classValue { c =>
+    val runtimeMirror = universe.runtimeMirror(c.getClassLoader)
+
+    val codecSymbol =
+      runtimeMirror
+        .classSymbol(c)
+        .baseClasses.iterator
+        .map(_.companion)
+        .filter(_.isModule)
+        .map(_.asModule)
+        .find(_.moduleClass.asType.toType <:< thriftStructCodecType)
+        .getOrElse(
+          throw new IllegalArgumentException(
+            s"No companion ThriftStructCodec found for ${c.getName} or its base classes")
+        )
+
+    runtimeMirror.reflectModule(codecSymbol).instance
   }
 
   /**
