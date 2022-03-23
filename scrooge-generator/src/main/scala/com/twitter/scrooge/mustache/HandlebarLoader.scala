@@ -49,7 +49,11 @@ class HandlebarLoader(
     )
   }
 
-  val header: String = {
+  val header: String = HandlebarLoader.header(commentFct)
+}
+
+object HandlebarLoader {
+  def header(commentFct: (CommentStyle => String) = scalaJavaCommentFunction): String = {
     val p = new Properties
     val resource = getClass.getResource("/com/twitter/scrooge-generator/build.properties")
     if (resource == null)
@@ -68,9 +72,7 @@ class HandlebarLoader(
       commentFct(BlockEnd)
     ).mkString("\n")
   }
-}
 
-object HandlebarLoader {
   sealed abstract class CommentStyle
   case object BlockBegin extends CommentStyle
   case object BlockContinuation extends CommentStyle
