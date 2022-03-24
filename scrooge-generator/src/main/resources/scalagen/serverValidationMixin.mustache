@@ -1,4 +1,4 @@
-trait ServerValidationMixin {
+trait ServerValidationMixin extends {{ServiceName}}.MethodPerEndpoint {
 {{#serverValidationMethods}}
 {{#hasValidationAnnotation}}
 

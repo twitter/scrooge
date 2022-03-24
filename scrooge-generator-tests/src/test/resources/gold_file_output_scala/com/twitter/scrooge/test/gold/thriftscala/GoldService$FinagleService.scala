@@ -20,7 +20,7 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
 
-trait ServerValidationMixin {
+trait ServerValidationMixin extends GoldService.MethodPerEndpoint {
 
   def violationReturningDoGreatThings(
     request: com.twitter.scrooge.test.gold.thriftscala.Request,
@@ -45,14 +45,14 @@ trait ServerValidationMixin {
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class GoldService$FinagleService(
-  iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
+  iface: GoldService.MethodPerEndpoint,
   serverParam: RichServerParam
 ) extends com.twitter.finagle.Service[Array[Byte], Array[Byte]] {
   import GoldService._
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
+    iface: GoldService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -61,7 +61,7 @@ class GoldService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
+    iface: GoldService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -69,7 +69,7 @@ class GoldService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: GoldService.MethodPerEndpoint with ServerValidationMixin,
+    iface: GoldService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
@@ -124,8 +124,16 @@ class GoldService$FinagleService(
           else Set.empty
         if (requestViolations.isEmpty && unionRequestViolations.isEmpty && exceptionRequestViolations.isEmpty) {
           iface.doGreatThings(args.request, args.unionRequest, args.exceptionRequest)
+        } else if (iface.isInstanceOf[ServerValidationMixin]) {
+          // If any request failed validation and user implement the `violationReturning` method, we will
+          // execute the overriden implementation of `violationReturning` method provided by the user.
+          iface.asInstanceOf[ServerValidationMixin].violationReturningDoGreatThings(args.request, args.unionRequest, args.exceptionRequest, requestViolations, unionRequestViolations, exceptionRequestViolations)
         } else {
-          iface.violationReturningDoGreatThings(args.request, args.unionRequest, args.exceptionRequest, requestViolations, unionRequestViolations, exceptionRequestViolations)
+          // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+          // throw an exception for failed validations.
+          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
+          else if (unionRequestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.unionRequest.getClass, unionRequestViolations)
+          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.exceptionRequest.getClass, exceptionRequestViolations)
         }
       }
     }
@@ -141,8 +149,15 @@ class GoldService$FinagleService(
           else Set.empty
         if (requestViolations.isEmpty) {
           iface.noExceptionCall(args.request)
+        } else if (iface.isInstanceOf[ServerValidationMixin]) {
+          // If any request failed validation and user implement the `violationReturning` method, we will
+          // execute the overriden implementation of `violationReturning` method provided by the user.
+          iface.asInstanceOf[ServerValidationMixin].violationReturningNoExceptionCall(args.request, requestViolations)
         } else {
-          iface.violationReturningNoExceptionCall(args.request, requestViolations)
+          // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+          // throw an exception for failed validations.
+          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
+          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
         }
       }
     }

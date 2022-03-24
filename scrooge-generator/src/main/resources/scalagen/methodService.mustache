@@ -23,8 +23,29 @@ addService("{{methodSvcNameForWire}}", {
 {{/argsWithValidations}}
       if ({{#argsWithValidations}}{{violationArg}}.isEmpty{{/argsWithValidations| && }}) {
         iface.{{methodSvcNameForCompile}}({{argNames}})
+      } else if (iface.isInstanceOf[ServerValidationMixin]) {
+        // If any request failed validation and user implement the `violationReturning` method, we will
+        // execute the overriden implementation of `violationReturning` method provided by the user.
+        iface.asInstanceOf[ServerValidationMixin].{{violationReturningMethodSvcNameForCompile}}({{argNames}}, {{#argsWithValidations}}{{violationArg}}{{/argsWithValidations|, }})
       } else {
-        iface.{{violationReturningMethodSvcNameForCompile}}({{argNames}}, {{#argsWithValidations}}{{violationArg}}{{/argsWithValidations|, }})
+        // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+        // throw an exception for failed validations.
+{{#argsWithValidations}}
+{{#oneArg}}
+        throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/oneArg}}
+{{^oneArg}}
+{{#firstArg}}
+        if ({{violationArg}}.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/firstArg}}
+{{#middleArgs}}
+        else if ({{violationArg}}.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/middleArgs}}
+{{#lastArg}}
+        else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("{{funcName}}", {{arg}}.getClass, {{violationArg}})
+{{/lastArg}}
+{{/oneArg}}
+{{/argsWithValidations}}
       }
 {{/hasValidationAnnotation}}
 {{^hasValidationAnnotation}}

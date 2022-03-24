@@ -21,7 +21,7 @@ class ValidationsSpec extends JMockSpec {
 
   def await[T](a: Awaitable[T], d: Duration = 100.seconds): T = Await.result(a, d)
 
-  val validationStruct =
+  val invalidStructRequest =
     ValidationStruct(
       "email",
       -1,
@@ -30,6 +30,18 @@ class ValidationsSpec extends JMockSpec {
       0,
       Map("1" -> "1", "2" -> "2"),
       boolField = false,
+      "anything",
+      Some("nothing"))
+
+  val validStructRequest =
+    ValidationStruct(
+      "email@gmail.com",
+      1,
+      99,
+      -1,
+      1,
+      Map("1" -> "1"),
+      boolField = true,
       "anything",
       Some("nothing"))
 
@@ -45,11 +57,13 @@ class ValidationsSpec extends JMockSpec {
       "anything",
       Some("nothing"))
 
-  val validationException = ValidationException("")
+  val invalidExceptionRequest = ValidationException("")
+  val validExceptionRequest = ValidationException("something")
 
-  val validationUnion = ValidationUnion.UnionIntField(-1)
+  val invalidationUnionRequest = ValidationUnion.UnionIntField(-1)
+  val validationUnionRequest = ValidationUnion.UnionIntField(1)
 
-  val methodPerEndpoint = new ValidationService.MethodPerEndpoint with ServerValidationMixin {
+  val methodPerEndpoint = new ValidationService.MethodPerEndpoint {
     override def validate(
       structRequest: ValidationStruct,
       unionRequest: ValidationUnion,
@@ -87,7 +101,7 @@ class ValidationsSpec extends JMockSpec {
 
   "validateInstanceValue" should {
     "validate Struct" in { _ =>
-      val validationViolations = ValidationStruct.validateInstanceValue(validationStruct)
+      val validationViolations = ValidationStruct.validateInstanceValue(invalidStructRequest)
       val violationMessages = Set(
         "length must be between 6 and 2147483647",
         "must be a well-formed email address",
@@ -104,8 +118,8 @@ class ValidationsSpec extends JMockSpec {
     "validate nested Struct" in { _ =>
       val nestedValidationStruct = NestedValidationStruct(
         "not an email",
-        validationStruct,
-        Seq(validationStruct, validationStruct))
+        invalidStructRequest,
+        Seq(invalidStructRequest, invalidStructRequest))
       val validationViolations =
         NestedValidationStruct.validateInstanceValue(nestedValidationStruct)
       val violationMessages = Set(
@@ -131,7 +145,7 @@ class ValidationsSpec extends JMockSpec {
     }
 
     "validate exception" in { _ =>
-      val validationViolations = ValidationException.validateInstanceValue(validationException)
+      val validationViolations = ValidationException.validateInstanceValue(invalidExceptionRequest)
       assertViolations(validationViolations, 1, Set("must not be empty"))
     }
 
@@ -144,12 +158,13 @@ class ValidationsSpec extends JMockSpec {
     "validate struct, union and exception request" in { _ =>
       intercept[TApplicationException] {
         await(
-          methodPerEndpointClient.validate(validationStruct, validationUnion, validationException))
+          methodPerEndpointClient
+            .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest))
       }
     }
 
     "Execute violationReturning method in MethodPerEndpoint with overriding method" in { _ =>
-      val methodPerEndpoint = new ValidationService.MethodPerEndpoint with ServerValidationMixin {
+      val methodPerEndpoint = new ServerValidationMixin {
         override def validate(
           structRequest: ValidationStruct,
           unionRequest: ValidationUnion,
@@ -228,28 +243,34 @@ class ValidationsSpec extends JMockSpec {
       // all 3 inputs have violations, return true
       assert(
         await(methodPerEndpointClient
-          .validate(validationStruct, validationUnion, validationException)))
+          .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest)))
 
       /******* validateOption endpoint *******/
       // all 3 inputs have violations, return true
-      assert(await(methodPerEndpointClient
-        .validateOption(Some(validationStruct), Some(validationUnion), Some(validationException))))
+      assert(
+        await(
+          methodPerEndpointClient
+            .validateOption(
+              Some(invalidStructRequest),
+              Some(invalidationUnionRequest),
+              Some(invalidExceptionRequest))))
       // 2 inputs have violations (`None` has no violations), return true
       assert(
         await(methodPerEndpointClient
-          .validateOption(Some(validationStruct), Some(validationUnion), None)))
+          .validateOption(Some(invalidStructRequest), Some(invalidationUnionRequest), None)))
       // all 3 inputs are `None`, invoking original method, return false
       assert(!await(methodPerEndpointClient.validateOption(None, None, None)))
 
       /******* validateOnlyValidatedRequest endpoint *******/
-      assert(await(
-        methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest = validationStruct)))
+      assert(
+        await(methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest =
+          invalidStructRequest)))
 
       /******* validateWithNonValidatedRequest endpoint *******/
       assert(
         await(
           methodPerEndpointClient.validateWithNonValidatedRequest(
-            validationRequest = validationStruct,
+            validationRequest = invalidStructRequest,
             noValidationRequest = noValidationStruct)))
 
       /******* validateOnlyNonValidatedRequest endpoint *******/
@@ -258,30 +279,121 @@ class ValidationsSpec extends JMockSpec {
           noValidationStruct)))
     }
 
+    "Execute original methods in MethodPerEndpoint withOUT implementing violationReturning method by extending ServerValidationMixin" in {
+      _ =>
+        val methodPerEndpoint = new ServerValidationMixin {
+          override def validate(
+            structRequest: ValidationStruct,
+            unionRequest: ValidationUnion,
+            exceptionRequest: ValidationException
+          ): Future[Boolean] = Future.False
+
+          override def validateOption(
+            structRequest: Option[ValidationStruct],
+            unionRequest: Option[ValidationUnion],
+            exceptionRequest: Option[ValidationException]
+          ): Future[Boolean] = Future.False
+
+          override def validateOnlyValidatedRequest(
+            validationRequest: ValidationStruct
+          ): Future[Boolean] = Future.False
+
+          override def validateWithNonValidatedRequest(
+            validationRequest: ValidationStruct,
+            nonValidationRequest: NoValidationStruct
+          ): Future[Boolean] = Future.False
+
+          override def validateOnlyNonValidatedRequest(
+            nonValidationRequest: NoValidationStruct
+          ): Future[Boolean] = Future.False
+        }
+
+        val thriftServer =
+          Thrift.server
+            .serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), methodPerEndpoint)
+
+        val methodPerEndpointClient = Thrift.client.build[ValidationService.MethodPerEndpoint](
+          Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
+          "client"
+        )
+
+        /******* validate endpoint *******/
+        // all 3 inputs have violations, throw exception
+        intercept[TApplicationException](
+          await(methodPerEndpointClient
+            .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest)))
+        // all 3 request params are valid, execute original API, return false
+        assert(
+          !await(methodPerEndpointClient
+            .validate(validStructRequest, validationUnionRequest, validExceptionRequest)))
+
+        /******* validateOption endpoint *******/
+        // all 3 inputs have violations, throw exception
+        intercept[TApplicationException](
+          await(
+            methodPerEndpointClient
+              .validateOption(
+                Some(invalidStructRequest),
+                Some(invalidationUnionRequest),
+                Some(invalidExceptionRequest))))
+        // 2 inputs have violations (`None` has no violations), throw exception
+        intercept[TApplicationException](
+          await(methodPerEndpointClient
+            .validateOption(Some(invalidStructRequest), Some(invalidationUnionRequest), None)))
+        // all 3 inputs are `None`, invoking original method, return false
+        assert(!await(methodPerEndpointClient.validateOption(None, None, None)))
+
+        /******* validateOnlyValidatedRequest endpoint *******/
+        // invalid request, throw exception
+        intercept[TApplicationException](
+          await(methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest =
+            invalidStructRequest)))
+
+        /******* validateWithNonValidatedRequest endpoint *******/
+        // invalid request, throw exception
+        intercept[TApplicationException](
+          await(
+            methodPerEndpointClient.validateWithNonValidatedRequest(
+              validationRequest = invalidStructRequest,
+              noValidationRequest = noValidationStruct)))
+
+        /******* validateOnlyNonValidatedRequest endpoint *******/
+        // no violations, execute original method, return false
+        assert(
+          !await(methodPerEndpointClient.validateOnlyNonValidatedRequest(noValidationRequest =
+            noValidationStruct)))
+    }
+
     "Execute violationReturning method in MethodPerEndpoint WITHOUT overriding method" in { _ =>
       /******* validate endpoint *******/
       intercept[TApplicationException](
         await(methodPerEndpointClient
-          .validate(validationStruct, validationUnion, validationException)))
+          .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest)))
 
       /******* validateOption endpoint *******/
-      intercept[TApplicationException](await(methodPerEndpointClient
-        .validateOption(Some(validationStruct), Some(validationUnion), Some(validationException))))
+      intercept[TApplicationException](
+        await(
+          methodPerEndpointClient
+            .validateOption(
+              Some(invalidStructRequest),
+              Some(invalidationUnionRequest),
+              Some(invalidExceptionRequest))))
       intercept[TApplicationException](
         await(methodPerEndpointClient
-          .validateOption(Some(validationStruct), Some(validationUnion), None)))
+          .validateOption(Some(invalidStructRequest), Some(invalidationUnionRequest), None)))
       // all 3 inputs are `None`, invoking original method, return true
       assert(await(methodPerEndpointClient.validateOption(None, None, None)))
 
       /******* validateOnlyValidatedRequest endpoint *******/
-      intercept[TApplicationException](await(
-        methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest = validationStruct)))
+      intercept[TApplicationException](
+        await(methodPerEndpointClient.validateOnlyValidatedRequest(validationRequest =
+          invalidStructRequest)))
 
       /******* validateWithNonValidatedRequest endpoint *******/
       intercept[TApplicationException](
         await(
           methodPerEndpointClient.validateWithNonValidatedRequest(
-            validationRequest = validationStruct,
+            validationRequest = invalidStructRequest,
             noValidationRequest = noValidationStruct)))
 
       /******* validateOnlyNonValidatedRequest endpoint *******/
@@ -292,8 +404,12 @@ class ValidationsSpec extends JMockSpec {
 
     "validate Option type with None and Some() request" in { _ =>
       intercept[TApplicationException] {
-        await(methodPerEndpointClient
-          .validateOption(Some(validationStruct), Some(validationUnion), Some(validationException)))
+        await(
+          methodPerEndpointClient
+            .validateOption(
+              Some(invalidStructRequest),
+              Some(invalidationUnionRequest),
+              Some(invalidExceptionRequest)))
       }
       // check for option that has None as value
       // it shouldn't return an exception
@@ -311,16 +427,16 @@ class ValidationsSpec extends JMockSpec {
           "clientValidationService"
         )
       intercept[TApplicationException] {
-        await(clientValidationService.validate(
-          ValidationService.validate$args(validationStruct, validationUnion, validationException)))
+        await(clientValidationService.validate(ValidationService
+          .validate$args(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest)))
       }
       intercept[TApplicationException] {
         await(
           clientValidationService.validateOption(
             ValidationService.validateOption$args(
-              Some(validationStruct),
-              Some(validationUnion),
-              Some(validationException))))
+              Some(invalidStructRequest),
+              Some(invalidationUnionRequest),
+              Some(invalidExceptionRequest))))
       }
     }
 
@@ -335,17 +451,17 @@ class ValidationsSpec extends JMockSpec {
           "clientValidationService"
         )
       intercept[TApplicationException] {
-        await(clientValidationService.validate(Request(
-          ValidationService.validate$args(validationStruct, validationUnion, validationException))))
+        await(clientValidationService.validate(Request(ValidationService
+          .validate$args(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest))))
       }
       intercept[TApplicationException] {
         await(
           clientValidationService.validateOption(
             Request(
               ValidationService.validateOption$args(
-                Some(validationStruct),
-                Some(validationUnion),
-                Some(validationException)))))
+                Some(invalidStructRequest),
+                Some(invalidationUnionRequest),
+                Some(invalidExceptionRequest)))))
       }
     }
 

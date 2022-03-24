@@ -179,49 +179,55 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "finagleServiceParent" ->
         service.parent.map(getParentFinagleService).getOrElse(genBaseFinagleService),
       "methodService" -> v(templates("methodService")),
-      "methodServices" -> v(service.functions map {
-        f =>
-          Dictionary(
-            "methodSvcNameForCompile" -> genID(f.funcName.toCamelCase),
-            "violationReturningMethodSvcNameForCompile" -> genID(
-              f.funcName.toTitleCase.prepend("violationReturning")),
-            "methodSvcNameForWire" -> v(f.originalName),
-            "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
-            "funcObjectName" -> genID(functionObjectName(f)),
-            "argNames" ->
-              v(
-                f.args
-                  .map { field => "args." + genID(field.sid).toData }
-                  .mkString(", ")
-              ),
-            "argsWithValidations" -> v(f.args.filter(hasValidationAnnotation).map { arg =>
-              Dictionary(
-                "violationArg" -> v(genID(arg.sid) + "Violations"),
-                "arg" -> v("args." + genID(arg.sid)),
-                "typeParameter" -> genType(arg.fieldType),
-                "deReferencedArg" -> v(
-                  "args." + genOptional(genID(arg.sid), arg.requiredness.isOptional)),
-                "isOption" -> v(arg.requiredness.isOptional),
-                "isValidationType" -> v(arg.fieldType.isInstanceOf[StructType])
-              )
-            }),
-            "typeName" -> genType(f.funcType),
-            "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
-            "resultNamedArg" ->
-              v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(resTry.apply())"
-              else ""),
-            "exceptions" -> v(f.throws.zipWithIndex map {
-              case (t, index) =>
+      "methodServices" -> v(service.functions map { f =>
+        Dictionary(
+          "methodSvcNameForCompile" -> genID(f.funcName.toCamelCase),
+          "violationReturningMethodSvcNameForCompile" -> genID(
+            f.funcName.toTitleCase.prepend("violationReturning")),
+          "methodSvcNameForWire" -> v(f.originalName),
+          "__stats_name" -> genID(f.funcName.toCamelCase.prepend("__stats_")),
+          "funcObjectName" -> genID(functionObjectName(f)),
+          "argNames" ->
+            v(
+              f.args
+                .map { field => "args." + genID(field.sid).toData }
+                .mkString(", ")
+            ),
+          "argsWithValidations" -> {
+            val validatedArg = f.args.filter(hasValidationAnnotation)
+            v(validatedArg.zipWithIndex.map {
+              case (arg, index) =>
                 Dictionary(
-                  "exceptionType" -> genType(t.fieldType),
-                  "fieldName" -> genID(t.sid),
-                  "first" -> v(index == 0),
-                  "last" -> v(index == f.throws.size - 1)
+                  "violationArg" -> v(genID(arg.sid) + "Violations"),
+                  "arg" -> v("args." + genID(arg.sid)),
+                  "typeParameter" -> genType(arg.fieldType),
+                  "deReferencedArg" -> v(
+                    "args." + genOptional(genID(arg.sid), arg.requiredness.isOptional)),
+                  "isOption" -> v(arg.requiredness.isOptional),
+                  "isValidationType" -> v(arg.fieldType.isInstanceOf[StructType]),
+                  "firstArg" -> v(index == 0),
+                  "middleArgs" -> v(index > 0 && index < validatedArg.size - 1),
+                  "lastArg" -> v(index == validatedArg.size - 1)
                 )
-            }),
-            "hasExceptions" -> v(f.throws.nonEmpty),
-            "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation))
-          )
+            })
+          },
+          "typeName" -> genType(f.funcType),
+          "isVoid" -> v(f.funcType == Void || f.funcType == OnewayVoid),
+          "resultNamedArg" ->
+            v(if (f.funcType != Void && f.funcType != OnewayVoid) "success = Some(resTry.apply())"
+            else ""),
+          "exceptions" -> v(f.throws.zipWithIndex map {
+            case (t, index) =>
+              Dictionary(
+                "exceptionType" -> genType(t.fieldType),
+                "fieldName" -> genID(t.sid),
+                "first" -> v(index == 0),
+                "last" -> v(index == f.throws.size - 1)
+              )
+          }),
+          "hasExceptions" -> v(f.throws.nonEmpty),
+          "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation))
+        )
       }),
       "serverValidationMixin" -> v(templates("serverValidationMixin")),
       "serverValidationMethods" -> v(service.functions.map { f =>
@@ -240,12 +246,12 @@ trait ServiceTemplate { self: TemplateGenerator =>
                   "violationArg" -> v(genID(arg.sid) + "Violations"),
                   "arg" -> genID(arg.sid),
                   "firstArg" -> v(index == 0),
-                  "middleArgs" -> v(index > 0 && index < f.args.size - 1),
-                  "lastArg" -> v(index == f.args.size - 1),
-                  "oneArg" -> v(validatedArg.size == 1)
+                  "middleArgs" -> v(index > 0 && index < validatedArg.size - 1),
+                  "lastArg" -> v(index == validatedArg.size - 1)
                 )
             })
           },
+          "oneArg" -> v(f.args.filter(hasValidationAnnotation).size == 1),
           "typeName" -> genType(f.funcType),
           "funcName" -> genID(f.funcName.toCamelCase),
           "argNames" -> {

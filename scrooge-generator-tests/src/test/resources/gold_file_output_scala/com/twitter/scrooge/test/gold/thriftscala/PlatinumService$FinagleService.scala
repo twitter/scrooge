@@ -17,7 +17,7 @@ import com.twitter.finagle.thrift.RichServerParam
 import com.twitter.util.Future
 import org.apache.thrift.protocol._
 
-trait ServerValidationMixin {
+trait ServerValidationMixin extends PlatinumService.MethodPerEndpoint {
 
   def violationReturningMoreCoolThings(
     request: com.twitter.scrooge.test.gold.thriftscala.Request,
@@ -29,14 +29,14 @@ trait ServerValidationMixin {
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class PlatinumService$FinagleService(
-  iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
+  iface: PlatinumService.MethodPerEndpoint,
   serverParam: RichServerParam
 ) extends GoldService$FinagleService(iface, serverParam) {
   import PlatinumService._
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
+    iface: PlatinumService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver = NullStatsReceiver,
     maxThriftBufferSize: Int = Thrift.param.maxThriftBufferSize,
@@ -45,7 +45,7 @@ class PlatinumService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
+    iface: PlatinumService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory,
     stats: StatsReceiver,
     maxThriftBufferSize: Int
@@ -53,7 +53,7 @@ class PlatinumService$FinagleService(
 
   @deprecated("Use com.twitter.finagle.thrift.RichServerParam", "2017-08-16")
   def this(
-    iface: PlatinumService.MethodPerEndpoint with ServerValidationMixin,
+    iface: PlatinumService.MethodPerEndpoint,
     protocolFactory: TProtocolFactory
   ) = this(iface, protocolFactory, NullStatsReceiver, Thrift.param.maxThriftBufferSize)
 
@@ -71,8 +71,15 @@ class PlatinumService$FinagleService(
           else Set.empty
         if (requestViolations.isEmpty) {
           iface.moreCoolThings(args.request)
+        } else if (iface.isInstanceOf[ServerValidationMixin]) {
+          // If any request failed validation and user implement the `violationReturning` method, we will
+          // execute the overriden implementation of `violationReturning` method provided by the user.
+          iface.asInstanceOf[ServerValidationMixin].violationReturningMoreCoolThings(args.request, requestViolations)
         } else {
-          iface.violationReturningMoreCoolThings(args.request, requestViolations)
+          // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
+          // throw an exception for failed validations.
+          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
+          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
         }
       }
     }
