@@ -55,7 +55,7 @@ trait ThriftStructMetaData[T <: ThriftStruct] {
    *
    * For non-unions, will return an empty `Seq`.
    */
-  def unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]
+  def unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion, _]]
 
   /**
    * Parsed annotations at the struct or union level. Left hand side of equal sign is the key,
@@ -99,7 +99,7 @@ object ThriftStructMetaData {
     codec: ThriftStructCodec[T],
     fields: Seq[ThriftStructField[T]],
     fieldInfos: Seq[ThriftStructFieldInfo],
-    unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]],
+    unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion, _]],
     structAnnotations: Map[String, String]
   ): ThriftStructMetaData[T] =
     new ConcreteThriftStructMetaData(codec, fields, fieldInfos, unionFields, structAnnotations)

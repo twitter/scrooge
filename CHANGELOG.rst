@@ -16,6 +16,15 @@ New Features
   request (of Struct, Union, Exception types) and return any violations (as method parameters
   `<request_variable>Violations`) back to the users in the method API. ``PHAB_ID=D840524``
 
+Breaking API Changes
+~~~~~~~~~~~~~~~~~~~~
+
+* scrooge: `ThriftUnion` is now defined to extend `ThriftStruct`. In practice,
+  this is not a significant change as all Scrooge-generated classes that
+  implement `ThriftUnion` also implement `ThriftStruct`. We just made the
+  invariant that unions are always structs explicit in the type system.
+  ``PHAB_IB=D854592``
+
 Runtime Behavior Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

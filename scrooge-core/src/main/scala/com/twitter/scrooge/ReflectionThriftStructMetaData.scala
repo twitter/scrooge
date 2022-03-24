@@ -20,7 +20,7 @@ final private[scrooge] class ReflectionThriftStructMetaData[T <: ThriftStruct](
     PopulateMetaDataWithReflection.getFieldsWithReflection[T](codec, metaDataUtil)
   val fieldInfos: Seq[ThriftStructFieldInfo] =
     PopulateMetaDataWithReflection.getFieldInfosWithReflection[T](codec, metaDataUtil)
-  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]] =
+  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion, _]] =
     PopulateMetaDataWithReflection.getUnionFieldsWithReflection[T](codec, metaDataUtil)
   val structAnnotations: Map[String, String] =
     PopulateMetaDataWithReflection.getStructAnnotationsWithReflection[T](codec, metaDataUtil)

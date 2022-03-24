@@ -10,7 +10,7 @@ final private[scrooge] class ConcreteThriftStructMetaData[T <: ThriftStruct](
   val codec: ThriftStructCodec[T],
   val fields: Seq[ThriftStructField[T]],
   val fieldInfos: Seq[ThriftStructFieldInfo],
-  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]],
+  val unionFields: Seq[ThriftUnionFieldInfo[ThriftUnion, _]],
   val structAnnotations: Map[String, String])
     extends ThriftStructMetaData[T] {
 

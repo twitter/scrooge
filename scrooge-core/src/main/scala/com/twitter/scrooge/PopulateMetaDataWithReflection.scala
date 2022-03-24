@@ -64,14 +64,14 @@ private object PopulateMetaDataWithReflection {
   def getUnionFieldsWithReflection[T <: ThriftStruct](
     codec: ThriftStructCodec[T],
     metaDataUtil: ThriftStructMetaDataUtil[T]
-  ): Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]] =
+  ): Seq[ThriftUnionFieldInfo[ThriftUnion, _]] =
     if (!metaDataUtil.isUnion()) {
       Nil
     } else {
       metaDataUtil.structCodecClass
         .getMethod("fieldInfos")
         .invoke(codec)
-        .asInstanceOf[Seq[ThriftUnionFieldInfo[ThriftUnion with ThriftStruct, _]]]
+        .asInstanceOf[Seq[ThriftUnionFieldInfo[ThriftUnion, _]]]
     }
 
   /**

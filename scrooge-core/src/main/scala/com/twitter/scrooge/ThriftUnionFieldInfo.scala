@@ -12,10 +12,7 @@ import scala.reflect.ClassTag
  * @tparam ContainedType The type of the value contained in the union field represented by this
  *                       class
  */
-final class ThriftUnionFieldInfo[
-  UnionFieldType <: ThriftUnion with ThriftStruct: ClassTag,
-  ContainedType: ClassTag
-](
+final class ThriftUnionFieldInfo[UnionFieldType <: ThriftUnion: ClassTag, ContainedType: ClassTag](
   val structFieldInfo: ThriftStructFieldInfo,
   fieldUnapply: UnionFieldType => scala.Option[ContainedType]) {
 
@@ -31,7 +28,7 @@ final class ThriftUnionFieldInfo[
    * @param field The field instance from which to extract the contained value
    * @return The extracted value
    */
-  def fieldValue(field: ThriftStruct with ThriftUnion): ContainedType = {
+  def fieldValue(field: ThriftUnion): ContainedType = {
     fieldUnapply(field.asInstanceOf[UnionFieldType]).getOrElse {
       throw new IllegalStateException(
         s"Mismatch between UnionFieldType $fieldClassTag and ContainedType $containedClassTag"

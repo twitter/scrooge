@@ -8,7 +8,6 @@ package com.twitter.scrooge.test.gold.thriftscala
 
 import com.twitter.scrooge.{
   TFieldBlob,
-  ThriftStruct,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
   ThriftUnion,
@@ -21,7 +20,6 @@ import scala.collection.immutable.{Map => immutable$Map}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 sealed trait RequestUnion
   extends ThriftUnion
-  with ThriftStruct
   with ValidatingThriftStruct[RequestUnion] {
 
   def _codec: ValidatingThriftStructCodec3[RequestUnion] = RequestUnion
@@ -80,7 +78,7 @@ object RequestUnion extends ValidatingThriftStructCodec3[RequestUnion] {
     this,
     Nil,
     Nil,
-    fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion with _root_.com.twitter.scrooge.ThriftStruct, _]]],
+    fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion, _]]],
     structAnnotations)
 
   override def encode(_item: RequestUnion, _oprot: TProtocol): Unit =

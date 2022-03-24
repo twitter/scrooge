@@ -1,9 +1,9 @@
 package com.twitter.scrooge
 
 /**
- * Unions are tagged with this trait as well as with [[ThriftStruct]].
+ * Unions are tagged with this trait.
  */
-trait ThriftUnion {
+trait ThriftUnion extends ThriftStruct {
 
   /**
    * The type of the value contained in the union field.

@@ -3,7 +3,6 @@ package {{package}}
 
 import com.twitter.scrooge.{
   TFieldBlob,
-  ThriftStruct,
   ThriftStructFieldInfo,
   ThriftStructMetaData,
   ThriftUnion,
@@ -102,7 +101,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] {
     this,
     Nil,
     Nil,
-    fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion with _root_.com.twitter.scrooge.ThriftStruct, _]]],
+    fieldInfos.asInstanceOf[Seq[ThriftUnionFieldInfo[_root_.com.twitter.scrooge.ThriftUnion, _]]],
     structAnnotations)
 
   override def encode(_item: {{StructName}}, _oprot: TProtocol): Unit =

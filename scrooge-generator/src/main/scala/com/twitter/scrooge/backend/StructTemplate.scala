@@ -622,7 +622,7 @@ trait StructTemplate { self: TemplateGenerator =>
       case e: Exception_ if serviceOptions.contains(WithFinagle) =>
         s"$fullyQualifiedThriftExn with $fullyQualifiedSourcedExn with ThriftStruct"
       case e: Exception_ => s"$fullyQualifiedThriftExn with ThriftStruct"
-      case u: Union => "ThriftUnion\n  with ThriftStruct"
+      case u: Union => "ThriftUnion"
       case result: FunctionResult =>
         val resultType = getSuccessType(result)
         s"ThriftResponse[$resultType] with ThriftStruct"
