@@ -131,9 +131,9 @@ class GoldService$FinagleService(
         } else {
           // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
           // throw an exception for failed validations.
-          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
-          else if (unionRequestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.unionRequest.getClass, unionRequestViolations)
-          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.exceptionRequest.getClass, exceptionRequestViolations)
+          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", args.request.getClass, requestViolations)
+          else if (unionRequestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", args.unionRequest.getClass, unionRequestViolations)
+          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", args.exceptionRequest.getClass, exceptionRequestViolations)
         }
       }
     }
@@ -156,8 +156,8 @@ class GoldService$FinagleService(
         } else {
           // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
           // throw an exception for failed validations.
-          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
-          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
+          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", args.request.getClass, requestViolations)
+          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", args.request.getClass, requestViolations)
         }
       }
     }

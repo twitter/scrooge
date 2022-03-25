@@ -78,8 +78,8 @@ class PlatinumService$FinagleService(
         } else {
           // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
           // throw an exception for failed validations.
-          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
-          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("", args.request.getClass, requestViolations)
+          if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", args.request.getClass, requestViolations)
+          else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", args.request.getClass, requestViolations)
         }
       }
     }
