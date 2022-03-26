@@ -4,6 +4,7 @@ import com.twitter.conversions.DurationOps.richDurationFromInt
 import com.twitter.finagle.Address
 import com.twitter.finagle.Name
 import com.twitter.finagle.Thrift
+import com.twitter.finagle.stats.InMemoryStatsReceiver
 import com.twitter.scrooge.Request
 import com.twitter.scrooge.backend.thriftscala.ValidationService
 import com.twitter.scrooge.backend.thriftscala._
@@ -16,8 +17,9 @@ import com.twitter.util.Future
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import org.apache.thrift.TApplicationException
+import org.scalatest.OneInstancePerTest
 
-class ValidationsSpec extends JMockSpec {
+class ValidationsSpec extends JMockSpec with OneInstancePerTest {
 
   def await[T](a: Awaitable[T], d: Duration = 100.seconds): T = Await.result(a, d)
 
@@ -90,14 +92,18 @@ class ValidationsSpec extends JMockSpec {
     ): Future[Boolean] = Future.True
   }
 
-  val thriftServer =
-    Thrift.server
-      .serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), methodPerEndpoint)
+  val clientReceiver = new InMemoryStatsReceiver
+  val serverReceiver = new InMemoryStatsReceiver
 
-  val methodPerEndpointClient = Thrift.client.build[ValidationService.MethodPerEndpoint](
-    Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
-    "client"
-  )
+  val thriftServer = Thrift.server
+    .withStatsReceiver(serverReceiver).serveIface(
+      new InetSocketAddress(InetAddress.getLoopbackAddress, 0),
+      methodPerEndpoint)
+
+  val methodPerEndpointClient = Thrift.client
+    .withStatsReceiver(clientReceiver).build[ValidationService.MethodPerEndpoint](
+      Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
+      "client")
 
   "validateInstanceValue" should {
     "validate Struct" in { _ =>
@@ -161,6 +167,24 @@ class ValidationsSpec extends JMockSpec {
           methodPerEndpointClient
             .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest))
       }
+    }
+
+    "verify thriftServer and thriftClient are populated correctly in statsReceiver" in { _ =>
+      intercept[TApplicationException] {
+        await(
+          methodPerEndpointClient
+            .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest))
+      }
+      assert(
+        serverReceiver.counters(
+          Seq(
+            "thrift_validation",
+            "violation",
+            "validate",
+            "com.twitter.scrooge.backend.thriftscala.ValidationStruct$Immutable")) == 1)
+      assert(
+        clientReceiver.counters(
+          Seq("client", "validate", "failures", "org.apache.thrift.TApplicationException")) == 1)
     }
 
     "Execute violationReturning method in MethodPerEndpoint with overriding method" in { _ =>
