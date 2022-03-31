@@ -34,7 +34,6 @@ final case class ThriftValidationException(
     extends RuntimeException {
 
   override def getMessage: String =
-    s" The validation for request ${requestClazz.getName} to endpoint $endpoint failed with messages: ${validationViolations
-      .mkString(",")}"
-
+    s""" The validation for request \"${requestClazz.getName}\" to endpoint \"$endpoint\" failed with messages: [ ${validationViolations
+      .mkString(",")}]""""
 }
