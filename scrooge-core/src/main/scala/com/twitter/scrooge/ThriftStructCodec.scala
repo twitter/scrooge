@@ -1,9 +1,7 @@
 package com.twitter.scrooge
 
-import com.twitter.util.Memoize
 import org.apache.thrift.protocol.TProtocol
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe
 
 /**
  * A trait encapsulating the logic for encoding and decoding a specific thrift struct
@@ -24,26 +22,8 @@ trait ThriftStructCodec[T <: ThriftStruct] {
  * instances.
  */
 object ThriftStructCodec {
-  private[this] val thriftStructCodecType = universe.typeOf[ThriftStructCodec[_]]
-
-  private[this] val codecForStructClass = Memoize.classValue { c =>
-    val runtimeMirror = universe.runtimeMirror(c.getClassLoader)
-
-    val codecSymbol =
-      runtimeMirror
-        .classSymbol(c)
-        .baseClasses.iterator
-        .map(_.companion)
-        .filter(_.isModule)
-        .map(_.asModule)
-        .find(_.moduleClass.asType.toType <:< thriftStructCodecType)
-        .getOrElse(
-          throw new IllegalArgumentException(
-            s"No companion ThriftStructCodec found for ${c.getName} or its base classes")
-        )
-
-    runtimeMirror.reflectModule(codecSymbol).instance
-  }
+  private[this] val codecForStructClass =
+    Companions.createMemoizedCompanionFinder[ThriftStructCodec[_]]
 
   /**
    * For a given scrooge-generated thrift struct or union class, returns its codec

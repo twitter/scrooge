@@ -13,6 +13,9 @@ Unreleased
 New Features
 ~~~~~~~~~~~~
 
+* scrooge-core: `c.t.scrooge.ThriftEnumObject.forEnumClass` API for retrieving
+  `ThriftEnumObject` for a `ThriftEnum` class. ``PHAB_ID=D859929``
+
 * scrooge-generator: for each method defined in a service in the Thrift IDL, if any request arg
   of a method has annotations started with `validation.`, in Java template, generate a new trait
   `ServerValidationMixin` with a new API `violationReturning<method_name>` which validates incoming
@@ -22,11 +25,17 @@ New Features
 Breaking API Changes
 ~~~~~~~~~~~~~~~~~~~~
 
-* scrooge: `ThriftUnion` is now defined to extend `ThriftStruct`. In practice,
+* scrooge-core: `ThriftUnion` is now defined to extend `ThriftStruct`. In practice,
   this is not a significant change as all Scrooge-generated classes that
   implement `ThriftUnion` also implement `ThriftStruct`. We just made the
   invariant that unions are always structs explicit in the type system.
   ``PHAB_IB=D854592``
+
+* scrooge-core: `ThriftEnumObject` now has an additional method, `annotations`.
+  In practice, all Scrooge-generated `ThriftEnumObject` implementations already
+  had this member, it is now just made accessible as a strongly typed member on
+  the trait.
+  ``PHAB_IB=D859929``
 
 Runtime Behavior Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +55,7 @@ New Features
 
 * scrooge-core: `c.t.scrooge.ThriftStructCodec.forStructClass` API for retrieving codec
   for a struct or union class and `c.t.scrooge.ThriftStructMetadata.forStructClass` for
-  similarly retrieving its metadata. ``PHAB_ID=_D825675``
+  similarly retrieving its metadata. ``PHAB_ID=D825675``
 
 * scrooge-generator: for each method defined in a service in the Thrift IDL, if any request arg
   of a method has annotations started with `validation.`, generate a new trait

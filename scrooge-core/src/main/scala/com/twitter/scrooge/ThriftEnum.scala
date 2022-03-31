@@ -55,4 +55,18 @@ trait ThriftEnumObject[T <: ThriftEnum] {
    * Returns a list of all possible enums.
    */
   def list: List[T]
+
+  /**
+   * Parsed annotations at the enum level. Left hand side of equal sign is the key,
+   * right side is the value.
+   */
+  def annotations: Map[String, String]
+}
+
+object ThriftEnumObject {
+  private[this] val enumObjectForEnumClass =
+    Companions.createMemoizedCompanionFinder[ThriftEnumObject[_]]
+
+  def forEnumClass[T <: ThriftEnum](c: Class[T]): ThriftEnumObject[T] =
+    enumObjectForEnumClass(c).asInstanceOf[ThriftEnumObject[T]]
 }
