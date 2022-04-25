@@ -7,6 +7,13 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+New Features
+~~~~~~~~~~~~
+
+* scrooge-core: `c.t.scrooge.ThriftUnion.fieldInfoForUnionClass` API for retrieving
+  `ThriftStructFieldInfo` for a `ThriftUnion` member class without having to instantiate
+  it. ``PHAB_ID=D871986``
+
 22.4.0
 ------
 
