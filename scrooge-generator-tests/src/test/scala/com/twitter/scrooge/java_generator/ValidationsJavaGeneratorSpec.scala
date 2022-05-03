@@ -69,10 +69,9 @@ class ValidationsJavaGeneratorSpec extends Spec {
         "must be less than 0",
         "must be less than or equal to 100",
         "must be greater than 0",
-        "must be greater than or equal to 0",
-        "optional field must be present"
+        "must be greater than or equal to 0"
       )
-      assertViolations(validationViolations.asScala.toSet, 9, violationMessages)
+      assertViolations(validationViolations.asScala.toSet, 8, violationMessages)
     }
 
     "validate nested Struct" in {
@@ -100,10 +99,9 @@ class ValidationsJavaGeneratorSpec extends Spec {
         "must be less than 0",
         "must be less than or equal to 100",
         "must be greater than 0",
-        "must be greater than or equal to 0",
-        "optional field must be present"
+        "must be greater than or equal to 0"
       )
-      assertViolations(validationViolations.asScala.toSet, 11, violationMessages)
+      assertViolations(validationViolations.asScala.toSet, 10, violationMessages)
     }
 
     "validate union" in {

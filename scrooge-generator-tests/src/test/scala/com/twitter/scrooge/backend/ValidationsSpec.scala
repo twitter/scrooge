@@ -32,7 +32,8 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
       0,
       Map("1" -> "1", "2" -> "2"),
       boolField = false,
-      "anything")
+      "anything",
+      Some("nothing"))
 
   val validStructRequest =
     ValidationStruct(
@@ -115,10 +116,9 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
         "must be less than 0",
         "must be less than or equal to 100",
         "must be greater than 0",
-        "must be greater than or equal to 0",
-        "optional field must be present",
+        "must be greater than or equal to 0"
       )
-      assertViolations(validationViolations, 9, violationMessages)
+      assertViolations(validationViolations, 8, violationMessages)
     }
 
     "validate nested Struct" in { _ =>
@@ -136,10 +136,9 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
         "must be less than 0",
         "must be less than or equal to 100",
         "must be greater than 0",
-        "must be greater than or equal to 0",
-        "optional field must be present"
+        "must be greater than or equal to 0"
       )
-      assertViolations(validationViolations, 11, violationMessages)
+      assertViolations(validationViolations, 10, violationMessages)
     }
 
     "validate union" in { _ =>
