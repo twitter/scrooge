@@ -88,6 +88,18 @@ final class UtilValidator extends BaseValidator {
           // types are checked and enforced at compile time.
           Map[Class[_ <: Annotation], Map[String, Long]](
             classOf[Max] -> Map("value" -> annotationValue.toLong))
+        } else if (annotationKey.startsWith("validation.notEmpty")) {
+          // we need to check if a field value is an `Option` before calling `utilValidator` to
+          // validate the field value since `scalaValidator` calls hibernate validator, which
+          // doesn't support validations for optional values. The validation for None values
+          // is handled separately.
+          // we check for `null` for java compatability
+          fieldValue match {
+            case _: Option[_] | null => Set.empty
+            case _ =>
+              Map[Class[_ <: Annotation], Map[String, Any]](
+                classOf[jakarta.validation.constraints.NotEmpty] -> Map.empty)
+          }
         } else if (annotationIsDefined(annotationKey)) {
           Map[Class[_ <: Annotation], Map[String, Any]](
             DefaultAnnotations(annotationKey) -> Map.empty[String, Any])
@@ -96,9 +108,24 @@ final class UtilValidator extends BaseValidator {
         }
     }
 
+    // validate optional fields against `validation.notEmpty`. We need to do it separately
+    // since `scalaValidator` depends on hibernate validator, which doesn't support validations
+    // for optional value.
+    // we check for `null` for java compatability
+    val notEmptyViolations =
+      if (fieldAnnotations.contains(
+          "validation.notEmpty") && (fieldValue == None || fieldValue == null)) {
+        Set(ThriftValidationViolation(fieldName, fieldValue, "optional field must be present"))
+      } else {
+        Set.empty
+      }
     scalaValidator
       .validateFieldValue(constraints, fieldName, fieldValue)
-      .map(violation => ThriftValidationViolation(fieldName, fieldValue, violation.getMessage))
+      .map(violation =>
+        ThriftValidationViolation(
+          fieldName,
+          fieldValue,
+          violation.getMessage)) ++ notEmptyViolations
   }
 
   // "validation.size" and "validation.length"

@@ -9,7 +9,7 @@ struct ValidationStruct {
   6: map<string, string> mapField (validation.size.max = "1")
   7: bool boolField (validation.assertTrue = "")
   8: required string requiredField
-  9: optional string optionalField
+  9: optional string optionalField (validation.notEmpty = "")
 }
 
 // a struct without any annotations
