@@ -12,13 +12,13 @@ scala_library(
     dependencies = [
         "3rdparty/jvm/javax/annotation:javax.annotation-api",
         "3rdparty/jvm/org/apache/thrift:libthrift",
-        "scrooge/scrooge-core/src/main/scala/com/twitter/scrooge/thrift_validation",
+        "scrooge/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation",
         "util/util-core:scala",
         "util/util-validator/src/main/scala/com/twitter/util/validation",
     ],
     exports = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
-        "scrooge/scrooge-core/src/main/scala/com/twitter/scrooge/thrift_validation",
+        "scrooge/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation",
         "util/util-core:scala",
     ],
 )

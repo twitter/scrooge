@@ -17,6 +17,7 @@ scala_library(
         "3rdparty/jvm/org/scala-lang:scala-library",
         "3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators",
         "scrooge/scrooge-generator/src/main/resources",
+        "scrooge/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation",
     ],
     exports = [
         "3rdparty/jvm/com/github/scopt",

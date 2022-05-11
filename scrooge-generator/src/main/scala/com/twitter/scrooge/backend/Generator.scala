@@ -30,6 +30,7 @@ import com.twitter.scrooge.swift_generator.SwiftGeneratorFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
+import java.nio.ByteBuffer
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -86,6 +87,41 @@ abstract class Generator(doc: ResolvedDocument) {
   def namespaceLanguage: String
 
   def includeMap: Map[String, ResolvedDocument] = doc.resolver.includeMap
+
+  // validate default annotations on structs making it protected
+  // so all Generator implementations can access this method
+  protected def validateStructAnnotations(
+    structs: Seq[StructLike]
+  ): Unit = {
+    structs.flatMap(_.fields).foreach { field =>
+      // validate all annotations on each field
+      validateFieldAnnotations(field.fieldType, field.fieldAnnotations)
+    }
+  }
+
+  // validate all annotations on a field
+  private def validateFieldAnnotations(
+    fieldType: FieldType,
+    fieldAnnotations: scala.collection.immutable.Map[String, String]
+  ): Unit = {
+    val fieldTypes: Set[Class[_]] = fieldType match {
+      case TBool => Set(classOf[java.lang.Boolean], classOf[Boolean])
+      case TByte => Set(classOf[java.lang.Byte], classOf[Byte])
+      case TI16 => Set(classOf[java.lang.Short], classOf[Short])
+      case TI32 => Set(classOf[java.lang.Integer], classOf[Int])
+      case TI64 => Set(classOf[java.lang.Long], classOf[Long])
+      case TDouble => Set(classOf[java.lang.Double], classOf[Double])
+      case TString => Set(classOf[String])
+      case TBinary => Set(classOf[ByteBuffer])
+      case MapType(_, _, _) => Set(classOf[Map[_, _]])
+      case SetType(_, _) => Set(classOf[Set[_]])
+      case ListType(_, _) => Set(classOf[Seq[_]])
+      case _ => Set.empty
+    }
+    val violations = AnnotationValidator.validateAnnotations(fieldTypes, fieldAnnotations)
+    if (violations.nonEmpty)
+      throw new IllegalArgumentException(s"The annotation is invalid: ${violations.mkString(", ")}")
+  }
 }
 
 object GeneratorFactory {
@@ -104,7 +140,7 @@ object GeneratorFactory {
       ) ++
         loadedGenerators
 
-    factories.map { g => (g.language -> g) }.toMap
+    factories.map { g => g.language -> g }.toMap
   }
 
   def languages: Iterable[String] = factories.keys
@@ -541,6 +577,8 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case x @ Include(_, _) => x
     }
     val validator = getValidator(resolvedDoc.document)
+    // validate default annotations applied to structs during generation
+    validateStructAnnotations(doc.structs)
 
     if (doc.consts.nonEmpty) {
       val file = new File(packageDir, "Constants" + fileExtension)
@@ -571,7 +609,14 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
           }
 
         val dict =
-          structDict(struct, Some(namespace), includes, serviceOptions, genAdapt, true, validator)
+          structDict(
+            struct,
+            Some(namespace),
+            includes,
+            serviceOptions,
+            genAdapt,
+            toplevel = true,
+            validator)
         writeFile(file, templates.header, templates(templateName).generate(dict))
       }
       generatedFiles += file

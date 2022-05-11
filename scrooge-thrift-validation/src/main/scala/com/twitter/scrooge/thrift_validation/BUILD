@@ -7,4 +7,8 @@ scala_library(
         repo = artifactory,
     ),
     tags = ["bazel-compatible"],
+    dependencies = [
+        "3rdparty/jvm/org/hibernate/validator:hibernate-validator",
+        "util/util-validator-constraints/src/main/java/com/twitter/util/validation/constraints",
+    ],
 )

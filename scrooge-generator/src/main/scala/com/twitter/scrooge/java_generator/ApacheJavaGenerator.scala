@@ -1,11 +1,23 @@
 package com.twitter.scrooge.java_generator
 
-import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
+import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.Mustache
 import com.twitter.scrooge.mustache.ScalaObjectHandler
-import com.twitter.scrooge.ast.{EnumType, ListType, MapType, ReferenceType, SetType, StructType, _}
-import com.twitter.scrooge.backend.{GeneratorFactory, ServiceOption, Generator}
-import com.twitter.scrooge.frontend.{ResolvedDocument, ScroogeInternalException}
-import java.io.{File, FileWriter, StringWriter}
+import com.twitter.scrooge.ast.EnumType
+import com.twitter.scrooge.ast.ListType
+import com.twitter.scrooge.ast.MapType
+import com.twitter.scrooge.ast.ReferenceType
+import com.twitter.scrooge.ast.SetType
+import com.twitter.scrooge.ast.StructType
+import com.twitter.scrooge.ast._
+import com.twitter.scrooge.backend.GeneratorFactory
+import com.twitter.scrooge.backend.ServiceOption
+import com.twitter.scrooge.backend.Generator
+import com.twitter.scrooge.frontend.ResolvedDocument
+import com.twitter.scrooge.frontend.ScroogeInternalException
+import java.io.File
+import java.io.FileWriter
+import java.io.StringWriter
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 
@@ -274,6 +286,8 @@ class ApacheJavaGenerator(
     dryRun: Boolean = false,
     genAdapt: Boolean = false
   ): Iterable[File] = {
+    // validate default annotations applied to structs during generation
+    validateStructAnnotations(doc.structs)
     // TODO: Implement serviceOptions (WithFinagle, etc)
     val generatedFiles = new mutable.ListBuffer[File]
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)

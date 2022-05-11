@@ -237,7 +237,7 @@ val jmockSettings = Seq(
 
 // this omits scrooge-generator, since it needs special treatment for 2.10.x
 lazy val publishedProjects =
-  Seq[sbt.ProjectReference](scroogeAdaptive, scroogeCore, scroogeLinter, scroogeSerializer)
+  Seq[sbt.ProjectReference](scroogeAdaptive, scroogeCore, scroogeLinter, scroogeSerializer, thriftValidation)
 
 lazy val scrooge = Project(
   id = "scrooge",
@@ -264,6 +264,19 @@ lazy val scroogePublishLocal = Project(
   sharedSettings
 ).aggregate(publishedProjects: _*)
 
+lazy val thriftValidation = Project(
+  id = "scrooge-thriftValidation",
+  base = file("scrooge-thrift-validation")
+).settings(
+  settingsCrossCompiledWithTwoTen
+).settings(
+  libraryDependencies ++= Seq(
+    util("validator-constraints"),
+    "jakarta.validation" % "jakarta.validation-api" % "3.0.0",
+    "org.hibernate.validator" % "hibernate-validator" % "7.0.1.Final"
+  )
+)
+
 // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
 // has a dependency on this.
 lazy val scroogeGenerator = Project(
@@ -287,7 +300,7 @@ lazy val scroogeGenerator = Project(
   }),
   assembly / test := {}, // Skip tests when running assembly.
   assembly / mainClass := Some("com.twitter.scrooge.Main")
-)
+).dependsOn(thriftValidation)
 
 lazy val scroogeGeneratorTests = Project(
   id = "scrooge-generator-tests",
@@ -321,7 +334,7 @@ lazy val scroogeCore = Project(
     util("core"),
     util("validator")
   )
-)
+).dependsOn(thriftValidation)
 
 val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
   Test / sourceGenerators += ScroogeRunner.genSerializerTestThrift,
