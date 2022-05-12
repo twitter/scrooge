@@ -88,6 +88,7 @@ User's guide
    Semantics
    Linter
    SwiftUserGuide
+   ThriftValidation
 
 Notes
 -----
