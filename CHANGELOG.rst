@@ -133,8 +133,8 @@ Breaking API Changes
   ``PHAB_ID=D747744``
 
 * scrooge-generator: Add reserved keywords to ThriftParser. If your field names match
-these keywords, you may need to modify them. This change should not affect backwards 
-and forwards compatiblility if using binary protocol for serde. ``PHAB_ID=D707116`` 
+  these keywords, you may need to modify them. This change should not affect backwards
+  and forwards compatiblility if using binary protocol for serde. ``PHAB_ID=D707116``
 
 21.8.0 (No 21.7.0 Release)
 --------------------------
@@ -207,7 +207,7 @@ No Changes
 * scrooge-generator: Scrooge preallocates containers to the correct size on the deepCopy
   operation to improve performance in Java. ``PHAB_ID=D590776``
 
-  20.10.0
+20.10.0
 -------
 
 No Changes
@@ -530,40 +530,40 @@ No Changes
   server can implement a `ReqRepServicePerEndpoint`, and set response headers
   along with a method response, e.g.,
 
-.. code-block:: scala
+  .. code-block:: scala
 
-   class MyService extends MyService.ReqRepServicePerEndpoint {
+     class MyService extends MyService.ReqRepServicePerEndpoint {
 
-     def foo: Service[Request[Foo.Args], Response[Foo.SuccessType]] = {
-       Service.mk[Request[Foo.Args], Response[Foo.SuccessType]] { request: Request[Foo.Args] =>
-         val result = ... // computations
-         Future
-           .value(
-             Response(
-               headers = Map("myservice.foo.header" -> Seq(Buf.Utf8("value1"))),
-               result)
+       def foo: Service[Request[Foo.Args], Response[Foo.SuccessType]] = {
+         Service.mk[Request[Foo.Args], Response[Foo.SuccessType]] { request: Request[Foo.Args] =>
+           val result = ... // computations
+           Future
+             .value(
+               Response(
+                 headers = Map("myservice.foo.header" -> Seq(Buf.Utf8("value1"))),
+                 result)
+         }
        }
      }
-   }
 
   This `ServicePerEndpoint` can then be served using `ThriftMux`:
 
-.. code-block:: scala
+  .. code-block:: scala
 
-   ThriftMux.server.serveIface(":9999", new MyService().toThriftService)
+     ThriftMux.server.serveIface(":9999", new MyService().toThriftService)
 
   These response headers will be transported as `Mux#contexts` to the client. If
   the client is using the client-side `ReqRepServicePerEndpoint` it will be able
   to read the headers from the returned `Response` directly. E.g.,
 
-.. code-block:: scala
+  .. code-block:: scala
 
-   val client = ThriftMux.client.reqRepServicePerEndpoint[MyService.ReqRepServicePerEndpoint]
+     val client = ThriftMux.client.reqRepServicePerEndpoint[MyService.ReqRepServicePerEndpoint]
 
-   val response: Response[Foo.SuccessType] = Await.result(client.foo(..))
+     val response: Response[Foo.SuccessType] = Await.result(client.foo(..))
 
-   if (response.headers.contains("myservice.foo.header")) {
-     ...
+     if (response.headers.contains("myservice.foo.header")) {
+       ...
 
   Users can also choose to wrap the `ReqRepServicePerEndpoint` with a `MethodPerEndpoint`
   via `ThriftMux.client.reqRepMethodPerEndpoint(reqRepServicePerEndpoint)` in order to
