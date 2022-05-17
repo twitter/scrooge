@@ -22,6 +22,9 @@
       <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <distributionManagement>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
@@ -160,8 +163,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.5.1</version>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.8</source>
+            <target>1.8</target>
           </configuration>
         </plugin>
       </plugins>
@@ -170,7 +173,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.2</version>
         <executions>
           <execution>
             <id>scala-compile-first</id>
@@ -190,6 +193,9 @@
         </executions>
         <configuration>
           <scalaVersion>2.10.7</scalaVersion>
+          <args>
+            <arg>-nobootcp</arg>
+          </args>
         </configuration>
       </plugin>
       <plugin>
@@ -197,8 +203,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -225,6 +231,16 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.6.4</version>
+        <configuration>
+          <mojoDependencies>
+            <param>com.twitter:scrooge-generator_2.10</param>
+          </mojoDependencies>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -236,7 +252,7 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>3.0.5</version>
+      <version>3.8.5</version>
       <!-- Exclude sisu-guice which patches com.google.inject#guice-3.0.0
        This dependency causes https://github.com/google/guice/issues/846-->
       <exclusions>
@@ -245,6 +261,7 @@
           <artifactId>sisu-guice</artifactId>
         </exclusion>
       </exclusions>
+      <scope>provided</scope>
     </dependency>
     <!-- Include the fix for https://github.com/google/guice/issues/846 -->
     <dependency>
@@ -256,28 +273,30 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-compat</artifactId>
-      <version>3.0.5</version>
+      <version>3.8.5</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
       <version>2.2.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.reporting</groupId>
       <artifactId>maven-reporting-api</artifactId>
-      <version>3.0</version>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.4</version>
+      <version>3.6.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>1.5.4</version>
+      <version>3.4.1</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -309,7 +328,7 @@
     <dependency>
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
-      <version>2.1</version>
+      <version>3.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -332,13 +351,4 @@
       <url>https://repo1.maven.org/maven2</url>
     </repository>
   </repositories>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>2.9</version>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>

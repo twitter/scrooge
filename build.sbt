@@ -264,6 +264,8 @@ lazy val scroogePublishLocal = Project(
   sharedSettings
 ).aggregate(publishedProjects: _*)
 
+// must be cross compiled with scala 2.10 because scrooge-sbt-plugin
+// has a dependency on this.
 lazy val thriftValidation = Project(
   id = "scrooge-thriftValidation",
   base = file("scrooge-thrift-validation")
