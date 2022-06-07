@@ -8,9 +8,9 @@ object IntAnnotationValueConstraintValidator extends ThriftConstraintValidator[S
    * The IDL annotation for this constraint validator is validation.charLengthInt = "7"
    * where the annotation value is an integer.
    */
-  override def annotationClazz: Class[Int] = classOf[Int]
+  override def annotationClass: Class[Int] = classOf[Int]
 
-  override def fieldClazz: Class[String] = classOf[String]
+  override def fieldClass: Class[String] = classOf[String]
 
   override def violationMessage(
     obj: String,

@@ -238,7 +238,7 @@ In Scala:
     object StartWithAConstraintValidator extends ThriftConstraintValidator[String, String] {
 
       /** Annotation value is not required for this constraint validator. */
-      override def annotationClazz: Class[String] = classOf[String]
+      override def annotationClass: Class[String] = classOf[String]
 
       override def violationMessage(
         obj: String,
@@ -251,7 +251,7 @@ In Scala:
         annotation: String
       ): Boolean = obj.startsWith("a")
 
-      override def fieldClazz: Class[String] = classOf[String]
+      override def fieldClass: Class[String] = classOf[String]
     }
 
 In Java:
@@ -261,12 +261,12 @@ In Java:
     import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator;
 
     static class StartWithAConstraintValidator implements ThriftConstraintValidator<String, String> {
-      public Class<String> annotationClazz() {
+      public Class<String> annotationClass() {
         return String.class;
       }
 
       @Override
-      public Class<String> fieldClazz() {
+      public Class<String> fieldClass() {
         return String.class;
       }
 

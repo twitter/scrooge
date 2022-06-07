@@ -75,7 +75,7 @@ abstract class ThriftValidator extends BaseValidator {
       // other than Thrift Validations.
       customAnnotations.get(annotationKey) match {
         case Some(constraintValidator) =>
-          val clazz = constraintValidator.annotationClazz
+          val clazz = constraintValidator.annotationClass
           val violation = {
             if (clazz == classOf[java.lang.Long] || clazz == classOf[Long]) {
               validateCustomConstraint[T, Long](

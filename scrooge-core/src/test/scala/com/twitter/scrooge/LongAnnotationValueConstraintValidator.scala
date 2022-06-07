@@ -8,9 +8,9 @@ object LongAnnotationValueConstraintValidator extends ThriftConstraintValidator[
    * The IDL annotation for this constraint validator is validation.longEquals = "7L"
    * where the annotation value is an integer.
    */
-  override def annotationClazz: Class[Long] = classOf[Long]
+  override def annotationClass: Class[Long] = classOf[Long]
 
-  override def fieldClazz: Class[Long] = classOf[Long]
+  override def fieldClass: Class[Long] = classOf[Long]
 
   override def violationMessage(
     obj: Long,

@@ -8,9 +8,9 @@ import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator
  */
 object InvalidConstraintValidator extends ThriftConstraintValidator[Int, String] {
 
-  override def annotationClazz: Class[String] = classOf[String]
+  override def annotationClass: Class[String] = classOf[String]
 
-  override def fieldClazz: Class[Int] = classOf[Int]
+  override def fieldClass: Class[Int] = classOf[Int]
 
   override def violationMessage(
     obj: Int,

@@ -8,9 +8,9 @@ object ShortAnnotationValueConstraintValidator extends ThriftConstraintValidator
    * The IDL annotation for this constraint validator is validation.shortEquals = "7"
    * where the annotation value is an integer.
    */
-  override def annotationClazz: Class[Short] = classOf[Short]
+  override def annotationClass: Class[Short] = classOf[Short]
 
-  override def fieldClazz: Class[Short] = classOf[Short]
+  override def fieldClass: Class[Short] = classOf[Short]
 
   override def violationMessage(
     obj: Short,

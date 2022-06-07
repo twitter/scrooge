@@ -8,9 +8,9 @@ object ByteAnnotationValueConstraintValidator extends ThriftConstraintValidator[
    * The IDL annotation for this constraint validator is validation.byteEquals = "7"
    * where the annotation value is an integer.
    */
-  override def annotationClazz: Class[Byte] = classOf[Byte]
+  override def annotationClass: Class[Byte] = classOf[Byte]
 
-  override def fieldClazz: Class[Byte] = classOf[Byte]
+  override def fieldClass: Class[Byte] = classOf[Byte]
 
   override def violationMessage(
     obj: Byte,

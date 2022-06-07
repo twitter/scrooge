@@ -5,9 +5,9 @@ import com.twitter.scrooge.thrift_validation.ThriftConstraintValidator
 object EmptyAnnotationValueConstraintValidator extends ThriftConstraintValidator[String, String] {
 
   /** Annotation value is not required for this constraint validator. */
-  override def annotationClazz: Class[String] = classOf[String]
+  override def annotationClass: Class[String] = classOf[String]
 
-  override def fieldClazz: Class[String] = classOf[String]
+  override def fieldClass: Class[String] = classOf[String]
 
   override def violationMessage(
     obj: String,

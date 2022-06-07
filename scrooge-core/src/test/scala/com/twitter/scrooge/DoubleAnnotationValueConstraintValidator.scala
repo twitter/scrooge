@@ -8,9 +8,9 @@ object DoubleAnnotationValueConstraintValidator extends ThriftConstraintValidato
    * The IDL annotation for this constraint validator is validation.successRate = "99.97"
    * where the annotation value is an integer.
    */
-  override def annotationClazz: Class[Double] = classOf[Double]
+  override def annotationClass: Class[Double] = classOf[Double]
 
-  override def fieldClazz: Class[Double] = classOf[Double]
+  override def fieldClass: Class[Double] = classOf[Double]
 
   override def violationMessage(
     obj: Double,

@@ -18,10 +18,10 @@ trait ThriftConstraintValidator[
    * @return the annotation class if annotation value is required,
    * e.g. validation.max = "1". Otherwise return None.
    */
-  def annotationClazz: Class[A]
+  def annotationClass: Class[A]
 
   /** @return the class of the field where the annotation applies to. */
-  def fieldClazz: Class[T]
+  def fieldClass: Class[T]
 
   /** Define a violation message if the given `obj` failed validation */
   def violationMessage(obj: T, annotation: A): String
