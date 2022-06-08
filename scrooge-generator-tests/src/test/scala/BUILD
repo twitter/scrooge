@@ -23,7 +23,9 @@ LIB_SOURCES = [
 java_library(
     name = "lib",
     sources = LIB_SOURCES,
+    tags = ["bazel-compatible"],
     dependencies = [
+        "3rdparty/jvm/com/google/guava",
         "3rdparty/jvm/junit",
         "3rdparty/jvm/org/scalatest",
         "scrooge/scrooge-core",
