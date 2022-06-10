@@ -1,5 +1,6 @@
 #@namespace scala collisions.big.thriftscala
 namespace java collisions.big.thriftjava
+#@namespace typescript collisions.big.thriftts
 
 
 # Scala 2.10 can't handle case classes with 22+ arguments.

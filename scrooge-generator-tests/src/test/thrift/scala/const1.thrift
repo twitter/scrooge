@@ -1,5 +1,6 @@
 namespace java includes.b.thriftjava
 #@namespace scala includes.b.thriftscala
+#@namespace typescript includes.b.thriftts
 
 include "const.thrift"
 

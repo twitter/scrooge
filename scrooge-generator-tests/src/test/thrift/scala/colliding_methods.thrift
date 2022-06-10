@@ -1,5 +1,6 @@
 #@namespace scala collisions
 namespace java collisions_java
+#@namespace typescript collisions.thriftts
 
 
 // Test struct names colliding with capitalized method names.

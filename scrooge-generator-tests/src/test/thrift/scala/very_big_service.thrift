@@ -1,5 +1,6 @@
 #@namespace scala collisions.big.thriftscala
 namespace java collisions.big.thriftjava
+#@namespace typescript collisions.big.thriftts
 
 # We skip generation of ServiceIfaces for thrift services with 255+ methods.
 # see https://issues.scala-lang.org/browse/SI-7324

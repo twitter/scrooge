@@ -1,5 +1,6 @@
 #@namespace scala collisions.dupes.thriftscala
 namespace java collisions.dupes.thriftjava
+#@namespace typescript collisions.dups.thriftts
 
 
 service Aaa {

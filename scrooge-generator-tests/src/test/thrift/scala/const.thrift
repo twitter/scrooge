@@ -1,5 +1,6 @@
 namespace java includes.a.thriftjava
 #@namespace scala includes.a.thriftscala
+#@namespace typescript includes.a.thriftts
 
 struct CityState {
   1: string city

@@ -1,5 +1,6 @@
 #@namespace scala collisions.enums
 namespace java collisions.enums_java
+#@namespace typescript collisions.enums.thriftts
 
 union Result {
   string successValue

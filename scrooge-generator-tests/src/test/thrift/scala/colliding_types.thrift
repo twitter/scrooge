@@ -1,5 +1,6 @@
 #@namespace scala collisions
 namespace java collisions_java
+#@namespace typescript collisions.thriftts
 
 # Check for collisions between Result and MyService.MyMethod.Result
 struct Result {

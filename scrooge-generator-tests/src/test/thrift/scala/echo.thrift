@@ -1,5 +1,6 @@
 #@namespace scala collisions
 namespace java java_collisions
+#@namespace typescript collisions.thriftts
 
 /* Method colliding with service name */
 service Echo {
