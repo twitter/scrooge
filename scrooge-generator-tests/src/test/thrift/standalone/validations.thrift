@@ -30,6 +30,16 @@ struct NonValidationStruct {
   1: string stringField (structFieldKey = "")
 }
 
+struct NestedNonValidationStruct {
+ 1: string stringField
+ 2: ValidationStruct nestedStruct
+}
+
+struct DeepNestedValidationstruct {
+ 1: string stringField
+ 2: NestedNonValidationStruct deepNestedStruct
+}
+
 struct NestedValidationStruct {
   1: string stringField (validation.email = "")
   2: ValidationStruct nestedStructField
@@ -68,5 +78,11 @@ service ValidationService {
   )
   bool validateOnlyValidatedRequest (
     1: ValidationStruct validationRequest
+  )
+  bool validateNestedRequest (
+   1: NestedNonValidationStruct nestedNonRequest
+  )
+  bool validateDeepNestedRequest (
+   1: DeepNestedValidationstruct deepNestedRequest
   )
 }

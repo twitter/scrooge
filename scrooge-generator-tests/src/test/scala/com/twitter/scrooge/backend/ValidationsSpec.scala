@@ -90,6 +90,15 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
     override def validateOnlyNonValidatedRequest(
       nonValidationRequest: NoValidationStruct
     ): Future[Boolean] = Future.True
+
+    override def validateNestedRequest(
+      nestedNonRequest: NestedNonValidationStruct
+    ): Future[Boolean] = Future.True
+
+    override def validateDeepNestedRequest(
+      deepNestedRequest: DeepNestedValidationstruct
+    ): Future[Boolean] =
+      Future.True
   }
 
   val clientReceiver = new InMemoryStatsReceiver
@@ -104,6 +113,22 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
     .withStatsReceiver(clientReceiver).build[ValidationService.MethodPerEndpoint](
       Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
       "client")
+
+  "validate nestedStruct with annotation in the innerStruct" in { _ =>
+    val nestedNonValidationStruct = NestedNonValidationStruct("whatever", invalidStructRequest)
+    intercept[TApplicationException] {
+      await(methodPerEndpointClient.validateNestedRequest(nestedNonValidationStruct))
+    }
+  }
+
+  "validate deepNestedStruct with annotation in the deepInnerStruct" in { _ =>
+    val nestedNonValidationStruct = NestedNonValidationStruct("whatever", invalidStructRequest)
+    val deepNestedValidationStruct =
+      DeepNestedValidationstruct("whatever", nestedNonValidationStruct)
+    intercept[TApplicationException] {
+      await(methodPerEndpointClient.validateDeepNestedRequest(deepNestedValidationStruct))
+    }
+  }
 
   "validateInstanceValue" should {
     "validate Struct" in { _ =>
@@ -252,6 +277,15 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
           validationRequest: ValidationStruct,
           validationRequestViolations: Set[ThriftValidationViolation]
         ): Future[Boolean] = Future.value(validationRequestViolations.nonEmpty)
+
+        override def validateNestedRequest(
+          nestedNonRequest: NestedNonValidationStruct
+        ): Future[Boolean] = Future.False
+
+        override def validateDeepNestedRequest(
+          deepNestedRequest: DeepNestedValidationstruct
+        ): Future[Boolean] =
+          Future.False
       }
 
       val thriftServer =
@@ -330,6 +364,15 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
           override def validateOnlyNonValidatedRequest(
             nonValidationRequest: NoValidationStruct
           ): Future[Boolean] = Future.False
+
+          override def validateNestedRequest(
+            nestedNonRequest: NestedNonValidationStruct
+          ): Future[Boolean] = Future.False
+
+          override def validateDeepNestedRequest(
+            deepNestedRequest: DeepNestedValidationstruct
+          ): Future[Boolean] =
+            Future.False
         }
 
         val thriftServer =

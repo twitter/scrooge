@@ -46,6 +46,15 @@ class ValidationsJavaGeneratorSpec extends Spec {
     override def validateOnlyValidatedRequest(
       validationRequest: ValidationStruct
     ): Future[lang.Boolean] = Future.value(true)
+
+    override def validateNestedRequest(
+      nestedNonRequest: NestedNonValidationStruct
+    ): Future[lang.Boolean] = Future.value(true)
+
+    override def validateDeepNestedRequest(
+      deepNestedRequest: DeepNestedValidationstruct
+    ): Future[lang.Boolean] =
+      Future.value(true)
   }
 
   "Java validateInstanceValue" should {
@@ -203,6 +212,14 @@ class ValidationsJavaGeneratorSpec extends Spec {
           // should return false if `structRequest` is invalid
           Future.value(structRequestViolations.isEmpty)
         }
+
+        override def validateNestedRequest(
+          nestedNonRequest: NestedNonValidationStruct
+        ): Future[lang.Boolean] = Future.value(true)
+
+        override def validateDeepNestedRequest(
+          deepNestedRequest: DeepNestedValidationstruct
+        ): Future[lang.Boolean] = Future.value(true)
       }
       val validationStruct = new ValidationStruct(
         "email",

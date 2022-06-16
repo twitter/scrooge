@@ -13,7 +13,11 @@ New Features
 * scrooge-core: `c.t.scrooge.ThriftUnion.fieldInfoForUnionClass` API for retrieving
   `ThriftStructFieldInfo` for a `ThriftUnion` member class without having to instantiate
   it. ``PHAB_ID=D871986``
+
 * scrooge-generator: Add @.generated annotation to Swift generated code ``PHAB_ID=D879262``
+
+* scrooge-generator: support thrift validations on nested fields that are struct, union, and
+  exception ``PHAB_ID=D911262``
 
 22.4.0
 ------

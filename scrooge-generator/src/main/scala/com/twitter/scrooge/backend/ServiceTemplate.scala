@@ -444,17 +444,21 @@ trait ServiceTemplate { self: TemplateGenerator =>
 
   // return true if the `Field` is of struct type (struct, union, or exception), and any fields
   // of the `Field` has validation annotation (annotation key starts with "validation.")
-  private[this] def hasValidationAnnotation(field: Field): Boolean =
+  private[this] def hasValidationAnnotation(field: Field): Boolean = {
     field.fieldType match {
       case structType: StructType =>
         val structLike = structType.struct
         structLike match {
           case _: Struct | _: Union | _: Exception_ =>
-            structLike.fields.exists(_.hasValidationAnnotation)
+            structLike.fields.exists { field =>
+              // recursively look for validation annotations for nestedFields
+              field.hasValidationAnnotation || hasValidationAnnotation(field)
+            }
           case _ => false
         }
       case _ => false
     }
+  }
 
   private[this] class NameDeduplicator() {
     private[this] val seenIDs = new mutable.HashSet[String]
