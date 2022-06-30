@@ -67,6 +67,30 @@ class TypeResolverSpec extends Spec {
       }
     }
 
+    "resolve annotations inside of container types" in {
+      val input =
+        """ struct Test {
+          |  1: list<i32 (my.annotation="list")> testList,
+          |  2: set<string (my.annotation="set")> testSet,
+          |  3: map<i32 (my.annotation="mapKey"), i32 (my.annotation="mapValue")> testMap
+          |}
+        """.stripMargin
+      val result = resolve(input)
+      result.document.defs.head match {
+        case struct: Struct =>
+          struct.fields(0).fieldType must be(
+            ListType(AnnotatedFieldType.wrap(TI32, Map("my.annotation" -> "list")), None))
+          struct.fields(1).fieldType must be(
+            SetType(AnnotatedFieldType.wrap(TString, Map("my.annotation" -> "set")), None))
+          struct.fields(2).fieldType must be(
+            MapType(
+              AnnotatedFieldType.wrap(TI32, Map("my.annotation" -> "mapKey")),
+              AnnotatedFieldType.wrap(TI32, Map("my.annotation" -> "mapValue")),
+              None))
+        case _ => fail()
+      }
+    }
+
     "resolve self-referencing types" in {
       val input =
         """struct S {

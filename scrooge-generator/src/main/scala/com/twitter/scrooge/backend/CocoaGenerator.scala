@@ -2,10 +2,14 @@ package com.twitter.scrooge.backend
 
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.mustache.Dictionary._
-import com.twitter.scrooge.mustache.{Dictionary, HandlebarLoader}
-import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.scrooge.mustache.Dictionary
+import com.twitter.scrooge.mustache.HandlebarLoader
+import com.twitter.scrooge.frontend.ScroogeInternalException
+import com.twitter.scrooge.frontend.ResolvedDocument
 
-import java.io.{OutputStreamWriter, FileOutputStream, File}
+import java.io.OutputStreamWriter
+import java.io.FileOutputStream
+import java.io.File
 import scala.collection.mutable
 
 object CocoaGeneratorFactory extends GeneratorFactory {
@@ -96,6 +100,7 @@ class CocoaGenerator(
   def getDependentTypes(struct: StructLike): Set[FieldType] = {
     def getDependentTypes(fieldType: FieldType): Set[FieldType] = {
       fieldType match {
+        case at: AnnotatedFieldType => getDependentTypes(at.unwrap)
         case t: ListType => getDependentTypes(t.eltType)
         case t: MapType => getDependentTypes(t.keyType) ++ getDependentTypes(t.valueType)
         case t: SetType => getDependentTypes(t.eltType)
@@ -288,7 +293,9 @@ class CocoaGenerator(
   def toMutable(f: Field): (String, String) = ("", "")
 
   def genType(t: FunctionType, immutable: Boolean = false): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case Void => "void"
       case OnewayVoid => "void"
       case TBool => "BOOL"
@@ -306,7 +313,7 @@ class CocoaGenerator(
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genFieldType(f: Field): CodeFragment = {

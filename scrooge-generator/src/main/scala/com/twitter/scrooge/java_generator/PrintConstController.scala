@@ -85,6 +85,7 @@ class PrintConstController(
 
   private[twitter] def renderConstValue(constant: RHS, fieldType: FieldType): ConstValue = {
     fieldType match {
+      case at: AnnotatedFieldType => renderConstValue(constant, at.unwrap)
       case TString => {
         val constValue = constant.asInstanceOf[StringLiteral].value
         new ConstValue(null, "\"" + constValue + "\"")

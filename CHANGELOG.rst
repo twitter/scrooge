@@ -10,6 +10,10 @@ Unreleased
 New Features
 ~~~~~~~~~~~~
 
+* scrooge-generator: Introduce a `AnnotatedFieldType` to abstract type annotations from
+  `FieldType` definitions. Currently used to propagate thrift annotations inside of
+  collection types. ``PHAB_ID=D911997``
+
 * scrooge-core: `c.t.scrooge.ThriftUnion.fieldInfoForUnionClass` API for retrieving
   `ThriftStructFieldInfo` for a `ThriftUnion` member class without having to instantiate
   it. ``PHAB_ID=D871986``

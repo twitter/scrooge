@@ -1,9 +1,13 @@
 package com.twitter.scrooge.backend.lua
 
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.backend.{Generator, GeneratorFactory, ServiceOption, TemplateGenerator}
+import com.twitter.scrooge.backend.Generator
+import com.twitter.scrooge.backend.GeneratorFactory
+import com.twitter.scrooge.backend.ServiceOption
+import com.twitter.scrooge.backend.TemplateGenerator
 import com.twitter.scrooge.frontend.ResolvedDocument
-import com.twitter.scrooge.mustache.Dictionary.{CodeFragment, v}
+import com.twitter.scrooge.mustache.Dictionary.CodeFragment
+import com.twitter.scrooge.mustache.Dictionary.v
 import com.twitter.scrooge.mustache.HandlebarLoader
 import java.io.File
 import com.twitter.scrooge.mustache.Dictionary
@@ -105,6 +109,7 @@ class LuaGenerator(
     }
 
   def genType(t: FunctionType, immutable: Boolean = false): CodeFragment = t match {
+    case at: AnnotatedFieldType => genType(at.unwrap, immutable)
     case bt: BaseType => v(s"ttype = '${genPrimitiveType(bt)}'")
     case StructType(st, _) => v(s"ttype = 'struct', fields = ${genID(st.sid.toTitleCase)}.fields")
     case EnumType(et, _) => v(s"ttype = 'enum', value = ${genID(et.sid.toTitleCase)}")
@@ -173,6 +178,7 @@ class LuaGenerator(
     excludeSelfType: SimpleID
   ): Seq[NamedType] = {
     ft match {
+      case at: AnnotatedFieldType => findRequireableStructTypes(at.unwrap, excludeSelfType)
       case t: NamedType if (excludeSelfType == t.sid) => Nil
       case t: StructType => Seq(t)
       case t: EnumType => Seq(t)

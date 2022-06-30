@@ -104,20 +104,25 @@ abstract class Generator(doc: ResolvedDocument) {
     fieldType: FieldType,
     fieldAnnotations: scala.collection.immutable.Map[String, String]
   ): Unit = {
-    val fieldTypes: Set[Class[_]] = fieldType match {
-      case TBool => Set(classOf[java.lang.Boolean], classOf[Boolean])
-      case TByte => Set(classOf[java.lang.Byte], classOf[Byte])
-      case TI16 => Set(classOf[java.lang.Short], classOf[Short])
-      case TI32 => Set(classOf[java.lang.Integer], classOf[Int])
-      case TI64 => Set(classOf[java.lang.Long], classOf[Long])
-      case TDouble => Set(classOf[java.lang.Double], classOf[Double])
-      case TString => Set(classOf[String])
-      case TBinary => Set(classOf[ByteBuffer])
-      case MapType(_, _, _) => Set(classOf[Map[_, _]])
-      case SetType(_, _) => Set(classOf[Set[_]])
-      case ListType(_, _) => Set(classOf[Seq[_]])
-      case _ => Set.empty
+    @scala.annotation.tailrec
+    def extractFieldTypes(fieldType: FieldType): Set[Class[_]] = {
+      fieldType match {
+        case at: AnnotatedFieldType => extractFieldTypes(at.unwrap)
+        case TBool => Set(classOf[java.lang.Boolean], classOf[Boolean])
+        case TByte => Set(classOf[java.lang.Byte], classOf[Byte])
+        case TI16 => Set(classOf[java.lang.Short], classOf[Short])
+        case TI32 => Set(classOf[java.lang.Integer], classOf[Int])
+        case TI64 => Set(classOf[java.lang.Long], classOf[Long])
+        case TDouble => Set(classOf[java.lang.Double], classOf[Double])
+        case TString => Set(classOf[String])
+        case TBinary => Set(classOf[ByteBuffer])
+        case MapType(_, _, _) => Set(classOf[Map[_, _]])
+        case SetType(_, _) => Set(classOf[Set[_]])
+        case ListType(_, _) => Set(classOf[Seq[_]])
+        case _ => Set.empty
+      }
     }
+    val fieldTypes: Set[Class[_]] = extractFieldTypes(fieldType)
     val violations = AnnotationValidator.validateAnnotations(fieldTypes, fieldAnnotations)
     if (violations.nonEmpty)
       throw new IllegalArgumentException(s"The annotation is invalid: ${violations.mkString(", ")}")
@@ -287,6 +292,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
   def isPrimitive(t: FunctionType): Boolean = {
     t match {
+      case at: AnnotatedFieldType => isPrimitive(at.unwrap)
       case Void | TBool | TByte | TI16 | TI32 | TI64 | TDouble => true
       case _ => false
     }
@@ -294,6 +300,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
   def isLazyReadEnabled(t: FunctionType, optional: Boolean): Boolean = {
     t match {
+      case at: AnnotatedFieldType => isLazyReadEnabled(at.unwrap, optional)
       case TString => true
       case Void | TBool | TByte | TI16 | TI32 | TI64 | TDouble => optional
       case _ => false
@@ -358,13 +365,15 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
    * The default value for the specified type and mutability.
    */
   def genDefaultValue(fieldType: FieldType): CodeFragment = {
-    val code = fieldType match {
+    @scala.annotation.tailrec
+    def getCode(fieldType: FieldType): String = fieldType match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "false"
       case TByte | TI16 | TI32 => "0"
       case TDouble => "0.0"
       case _ => "null"
     }
-    v(code)
+    v(getCode(fieldType))
   }
 
   /**
@@ -373,7 +382,9 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
    * For String, null is not valid value for required field.
    */
   def genUnsafeEmptyValue(fieldType: FieldType): CodeFragment = {
-    val code = fieldType match {
+    @scala.annotation.tailrec
+    def getCode(fieldType: FieldType): String = fieldType match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "false"
       case TByte | TI16 | TI32 => "0"
       case TDouble => "0.0"
@@ -381,7 +392,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TString => "\"empty\""
       case _ => "null"
     }
-    v(code)
+    v(getCode(fieldType))
   }
 
   def genDefaultFieldValueForFieldInfo(f: Field): Option[CodeFragment] = {
@@ -428,7 +439,9 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     genDefaultFieldValue(f).getOrElse(genDefaultValue(f.fieldType))
 
   def genConstType(t: FunctionType): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case Void => "VOID"
       case TBool => "BOOL"
       case TByte => "BYTE"
@@ -445,7 +458,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case ListType(_, _) => "LIST"
       case x => throw new InternalError("constType#" + t)
     }
-    v(code)
+    v(getCode(t))
   }
 
   /**
@@ -460,7 +473,9 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
     }
 
   def genProtocolReadMethod(t: FunctionType): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "readBool"
       case TByte => "readByte"
       case TI16 => "readI16"
@@ -471,11 +486,13 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TBinary => "readBinary"
       case x => throw new ScroogeInternalException("genProtocolReadMethod#" + t)
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genProtocolSkipMethod(t: FunctionType): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "offsetSkipBool"
       case TByte => "offsetSkipBool"
       case TI16 => "offsetSkipI16"
@@ -486,11 +503,13 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TBinary => "offsetSkipBinary"
       case x => throw new ScroogeInternalException("genProtocolSkipMethod#" + t)
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genOffsetSkipProtocolMethod(t: FunctionType): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "offsetSkipBool"
       case TByte => "offsetSkipByte"
       case TI16 => "offsetSkipI16"
@@ -502,11 +521,13 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case x =>
         s"""Invalid type passed($x) for genOffsetSkipProtocolMethod method. Compile will fail here."""
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genDecodeProtocolMethod(t: FunctionType): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "decodeBool"
       case TByte => "decodeByte"
       case TI16 => "decodeI16"
@@ -518,11 +539,13 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case x =>
         s"""Invalid type passed ($x) for genDecodeProtocolMethod method. Compile will fail here."""
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genProtocolWriteMethod(t: FunctionType): CodeFragment = {
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TBool => "writeBool"
       case TByte => "writeByte"
       case TI16 => "writeI16"
@@ -533,7 +556,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       case TBinary => "writeBinary"
       case x => throw new ScroogeInternalException("protocolWriteMethod#" + t)
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genType(t: FunctionType, immutable: Boolean = false): CodeFragment

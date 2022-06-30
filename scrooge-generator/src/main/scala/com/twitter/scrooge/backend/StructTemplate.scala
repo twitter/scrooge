@@ -45,6 +45,7 @@ trait StructTemplate { self: TemplateGenerator =>
 
   def readWriteInfo[T <: FieldType](sid: SimpleID, t: FieldType): Dictionary = {
     t match {
+      case at: AnnotatedFieldType => readWriteInfo(sid, at.unwrap)
       case t: ListType =>
         val elt = sid.append("_element")
         TypeTemplate + Dictionary(
@@ -154,8 +155,10 @@ trait StructTemplate { self: TemplateGenerator =>
    * For a set<list<i32>>:
    * "readSet($protoName, proto => { readList(proto, TProtocols.readI32Fn) })"
    */
+  @scala.annotation.tailrec
   private[this] def genReadValue(fieldType: FieldType, protoName: String): CodeFragment = {
     fieldType match {
+      case at: AnnotatedFieldType => genReadValue(at.unwrap, protoName)
       case TBool => v(s"$protoName.readBool()")
       case TByte => v(s"$protoName.readByte()")
       case TI16 => v(s"$protoName.readI16()")
@@ -214,8 +217,10 @@ trait StructTemplate { self: TemplateGenerator =>
    * For a set<list<i32>>:
    * "proto => { readSet(proto => { readList(protocol, TProtocols.readStringFn) }}}"
    */
+  @scala.annotation.tailrec
   private[this] def genReadValueFn1(fieldType: FieldType): CodeFragment = {
     fieldType match {
+      case at: AnnotatedFieldType => genReadValueFn1(at.unwrap)
       case TBool => v("_root_.com.twitter.scrooge.internal.TProtocols.readBoolFn")
       case TByte => v("_root_.com.twitter.scrooge.internal.TProtocols.readByteFn")
       case TI16 => v("_root_.com.twitter.scrooge.internal.TProtocols.readI16Fn")
@@ -231,8 +236,10 @@ trait StructTemplate { self: TemplateGenerator =>
     }
   }
 
+  @scala.annotation.tailrec
   private[this] def genWriteValueFn2(fieldType: FieldType): CodeFragment = {
     fieldType match {
+      case at: AnnotatedFieldType => genWriteValueFn2(at.unwrap)
       case TBool =>
         v("_root_.com.twitter.scrooge.internal.TProtocols.writeBoolFn")
       case TByte =>
@@ -266,12 +273,14 @@ trait StructTemplate { self: TemplateGenerator =>
     }
   }
 
+  @scala.annotation.tailrec
   private[this] def genWriteValue(
     fieldName: CodeFragment,
     fieldType: FieldType,
     protoName: String
   ): CodeFragment = {
     fieldType match {
+      case at: AnnotatedFieldType => genWriteValue(fieldName, at.unwrap, protoName)
       case TBool =>
         v(s"$protoName.writeBool($fieldName)")
       case TByte =>
@@ -548,6 +557,7 @@ trait StructTemplate { self: TemplateGenerator =>
    */
   private def canCallWithoutPassthroughFields(fieldType: FieldType): Boolean = {
     fieldType match {
+      case at: AnnotatedFieldType => canCallWithoutPassthroughFields(at.unwrap)
       case t if isPrimitive(t) =>
         true
       case TBinary | TString =>

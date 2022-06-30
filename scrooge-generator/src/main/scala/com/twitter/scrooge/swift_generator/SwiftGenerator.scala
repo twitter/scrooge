@@ -2,10 +2,6 @@ package com.twitter.scrooge.swift_generator
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
-import com.twitter.scrooge.ast.ListType
-import com.twitter.scrooge.ast.MapType
-import com.twitter.scrooge.ast.ReferenceType
-import com.twitter.scrooge.ast.SetType
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.Generator
 import com.twitter.scrooge.backend.GeneratorFactory
@@ -117,6 +113,8 @@ class SwiftGenerator(
     fileNamespace: Option[Identifier] = None
   ): String = {
     t match {
+      case at: AnnotatedFieldType =>
+        typeName(at.unwrap, inContainer, inInit, skipGeneric, fileNamespace)
       case Void => "Void"
       case OnewayVoid => "Void"
       case TBool => "Bool"
@@ -143,6 +141,7 @@ class SwiftGenerator(
 
   def leftElementTypeName(t: FunctionType, skipGeneric: Boolean = false): String = {
     t match {
+      case at: AnnotatedFieldType => leftElementTypeName(at.unwrap, skipGeneric)
       case MapType(k, v, _) => typeName(k, inContainer = true, skipGeneric = skipGeneric)
       case SetType(x, _) => typeName(x, inContainer = true, skipGeneric = skipGeneric)
       case ListType(x, _) => typeName(x, inContainer = true, skipGeneric = skipGeneric)
@@ -152,6 +151,7 @@ class SwiftGenerator(
 
   def rightElementTypeName(t: FunctionType, skipGeneric: Boolean = false): String = {
     t match {
+      case at: AnnotatedFieldType => rightElementTypeName(at.unwrap, skipGeneric)
       case MapType(k, v, _) => typeName(v, inContainer = true, skipGeneric = skipGeneric)
       case _ => ""
     }
@@ -159,6 +159,7 @@ class SwiftGenerator(
 
   def isListOrSetType(t: FunctionType): Boolean = {
     t match {
+      case at: AnnotatedFieldType => isListOrSetType(at.unwrap)
       case ListType(_, _) => true
       case SetType(_, _) => true
       case _ => false

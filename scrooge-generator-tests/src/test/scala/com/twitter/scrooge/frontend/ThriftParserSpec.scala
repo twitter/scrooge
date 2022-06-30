@@ -101,11 +101,29 @@ struct MyStruct {}
       parser.parse("list<list<string>>", parser.fieldType) must be(
         ListType(ListType(TString, None), None)
       )
-      // Annotations within container type definitions are parsed properly, but thrown away
       parser.parse("list < i64 (something = \"else\") >", parser.fieldType) must be(
-        ListType(TI64, None))
+        ListType(
+          AnnotatedFieldType.wrap(
+            TI64,
+            Map("something" -> "else")
+          ),
+          None
+        )
+      )
       parser.parse("list<list<string (a = \"b\")>(c = \"d\")>", parser.fieldType) must be(
-        ListType(ListType(TString, None), None)
+        ListType(
+          AnnotatedFieldType.wrap(
+            ListType(
+              AnnotatedFieldType.wrap(
+                TString,
+                Map("a" -> "b")
+              ),
+              None
+            ),
+            Map("c" -> "d")
+          ),
+          None
+        )
       )
     }
 
@@ -114,7 +132,13 @@ struct MyStruct {}
         SetType(ReferenceType(Identifier("Monster")), None)
       )
       parser.parse("set<bool (hello = \"goodbye\")>", parser.fieldType) must be(
-        SetType(TBool, None)
+        SetType(
+          AnnotatedFieldType.wrap(
+            TBool,
+            Map("hello" -> "goodbye")
+          ),
+          None
+        )
       )
     }
 
@@ -125,7 +149,70 @@ struct MyStruct {}
       parser.parse(
         "map<string (a=\"b\"), list<bool (c=\"d\")> (e=\"f\")>",
         parser.fieldType) must be(
-        MapType(TString, ListType(TBool, None), None)
+        MapType(
+          AnnotatedFieldType.wrap(
+            TString,
+            Map("a" -> "b")
+          ),
+          AnnotatedFieldType.wrap(
+            ListType(
+              AnnotatedFieldType.wrap(
+                TBool,
+                Map("c" -> "d")
+              ),
+              None
+            ),
+            Map("e" -> "f")
+          ),
+          None
+        )
+      )
+    }
+
+    "inner collection types annotations" in {
+      parser.parse(
+        """list<map<set<i32 (python.immutable = "0")> (python.immutable = "1"), map<i32,set<list<map<Insanity,string>(python.immutable = "2")> (python.immutable = "3")>>>>""",
+        parser.fieldType
+      ) must be(
+        ListType(
+          MapType(
+            AnnotatedFieldType.wrap(
+              SetType(
+                AnnotatedFieldType.wrap(
+                  TI32,
+                  Map("python.immutable" -> "0")
+                ),
+                None
+              ),
+              Map("python.immutable" -> "1")
+            ),
+            MapType(
+              TI32,
+              SetType(
+                AnnotatedFieldType.wrap(
+                  ListType(
+                    AnnotatedFieldType.wrap(
+                      MapType(
+                        ReferenceType(
+                          Identifier("Insanity")
+                        ),
+                        TString,
+                        None
+                      ),
+                      Map("python.immutable" -> "2")
+                    ),
+                    None
+                  ),
+                  Map("python.immutable" -> "3")
+                ),
+                None
+              ),
+              None
+            ),
+            None
+          ),
+          None
+        )
       )
     }
 
@@ -862,7 +949,13 @@ enum Foo
       ) must be(
         Typedef(
           SimpleID("tiny_float_list", None),
-          ListType(TDouble, None),
+          ListType(
+            AnnotatedFieldType.wrap(
+              TDouble,
+              Map("cpp.fixed_point" -> "16")
+            ),
+            None
+          ),
           Map(),
           Map()
         )

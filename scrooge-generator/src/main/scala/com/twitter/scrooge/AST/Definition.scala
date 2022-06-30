@@ -42,6 +42,16 @@ sealed abstract class StructLike extends Definition {
   val fields: Seq[Field]
   val docstring: Option[String]
   val annotations: Map[String, String]
+
+  def withAnnotations(newAnnotations: Map[String, String]): StructLike =
+    this match {
+      case s: Struct => s.copy(annotations = annotations ++ newAnnotations)
+      case u: Union => u.copy(annotations = annotations ++ newAnnotations)
+      case e: Exception_ => e.copy(annotations = annotations ++ newAnnotations)
+      // FunctionResult and FunctionArgs don't keep track of annotations
+      case r: FunctionResult => r
+      case a: FunctionArgs => a
+    }
 }
 
 case class Struct(

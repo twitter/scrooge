@@ -3,12 +3,6 @@ package com.twitter.scrooge.java_generator
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.twitter.scrooge.mustache.ScalaObjectHandler
-import com.twitter.scrooge.ast.EnumType
-import com.twitter.scrooge.ast.ListType
-import com.twitter.scrooge.ast.MapType
-import com.twitter.scrooge.ast.ReferenceType
-import com.twitter.scrooge.ast.SetType
-import com.twitter.scrooge.ast.StructType
 import com.twitter.scrooge.ast._
 import com.twitter.scrooge.backend.GeneratorFactory
 import com.twitter.scrooge.backend.ServiceOption
@@ -187,6 +181,8 @@ class ApacheJavaGenerator(
     fileNamespace: Option[Identifier] = None
   ): String = {
     t match {
+      case at: AnnotatedFieldType =>
+        typeName(at.unwrap, inContainer, inInit, skipGeneric, fileNamespace)
       case Void => if (inContainer) "Void" else "void"
       case OnewayVoid => if (inContainer) "Void" else "void"
       case TBool => if (inContainer) "Boolean" else "boolean"
@@ -226,6 +222,7 @@ class ApacheJavaGenerator(
 
   def initField(fieldType: FunctionType, inContainer: Boolean = false): String = {
     fieldType match {
+      case at: AnnotatedFieldType => initField(at.unwrap, inContainer)
       case SetType(eltType: EnumType, _) =>
         s"EnumSet.noneOf(${typeName(eltType)}.class)"
       case _ =>
@@ -241,6 +238,7 @@ class ApacheJavaGenerator(
 
   def getTypeString(fieldType: FunctionType): String = {
     fieldType match {
+      case at: AnnotatedFieldType => getTypeString(at.unwrap)
       case TString => "TType.STRING"
       case TBool => "TType.BOOL"
       case TByte => "TType.BYTE"

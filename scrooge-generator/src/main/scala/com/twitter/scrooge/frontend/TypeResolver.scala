@@ -329,26 +329,21 @@ case class TypeResolver(
     case m @ MapType(k, v, _) => m.copy(keyType = apply(k), valueType = apply(v))
     case s @ SetType(e, _) => s.copy(eltType = apply(e))
     case l @ ListType(e, _) => l.copy(eltType = apply(e))
+    case at: AnnotatedFieldType => at.copy(underlying = apply(at.unwrap))
     case b: BaseType => b
     case e: EnumType => e
     case s: StructType => s
   }
 
-  def apply(c: RHS, fieldType: FieldType): RHS = c match {
-    // list values and map values look the same in Thrift, but different in Java and Scala
-    // So we need type information in order to generated correct code.
-    case l @ ListRHS(elems) =>
+  def apply(c: RHS, fieldType: FieldType): RHS = {
+    @scala.annotation.tailrec
+    def loop(fieldType: FieldType, m: MapRHS): RHS = {
       fieldType match {
-        case ListType(eltType, _) => l.copy(elems = elems.map(e => apply(e, eltType)))
-        case SetType(eltType, _) => SetRHS(elems.map(e => apply(e, eltType)).toSet)
-        case _ => throw TypeMismatchException("Expecting " + fieldType + ", found " + l, c)
-      }
-    case m @ MapRHS(elems) =>
-      fieldType match {
+        case at: AnnotatedFieldType => loop(at.unwrap, m)
         case MapType(keyType, valType, _) =>
-          m.copy(elems = elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
+          m.copy(elems = m.elems.map { case (k, v) => (apply(k, keyType), apply(v, valType)) })
         case st @ StructType(structLike: StructLike, _) =>
-          val fieldMultiMap: Map[String, Seq[(String, RHS)]] = elems
+          val fieldMultiMap: Map[String, Seq[(String, RHS)]] = m.elems
             .collect {
               case (StringLiteral(fieldName), value) => (fieldName, value)
             }
@@ -401,29 +396,43 @@ case class TypeResolver(
           }
         case _ => throw TypeMismatchException("Expecting " + fieldType + ", found " + m, m)
       }
-    case i @ IdRHS(id) =>
-      val (constFieldType, constRHS) = id match {
-        case sid: SimpleID =>
-          // When the rhs value is a simpleID, it can only be a constant
-          // defined in the same file
-          resolveConst(sid)
-        case qid @ QualifiedID(names) =>
-          fieldType match {
-            case EnumType(enum, _) =>
-              val resolvedFieldType = resolveFieldType(qid.qualifier)
-              val value = enum.values
-                .find(_.sid.name == names.last)
-                .getOrElse(throw UndefinedSymbolException(qid.fullName, qid))
-              (resolvedFieldType, EnumRHS(enum, value))
-            case t => resolveConst(qid)
-          }
-      }
-      if (constFieldType != fieldType)
-        throw TypeMismatchException(
-          s"Type mismatch: Expecting $fieldType, found ${id.fullName}: $constFieldType",
-          id
-        )
-      constRHS
-    case _ => c
+    }
+
+    c match {
+      // list values and map values look the same in Thrift, but different in Java and Scala
+      // So we need type information in order to generated correct code.
+      case l @ ListRHS(elems) =>
+        fieldType match {
+          case ListType(eltType, _) => l.copy(elems = elems.map(e => apply(e, eltType)))
+          case SetType(eltType, _) => SetRHS(elems.map(e => apply(e, eltType)).toSet)
+          case _ => throw TypeMismatchException("Expecting " + fieldType + ", found " + l, c)
+        }
+      case m @ MapRHS(elems) =>
+        loop(fieldType, m)
+      case i @ IdRHS(id) =>
+        val (constFieldType, constRHS) = id match {
+          case sid: SimpleID =>
+            // When the rhs value is a simpleID, it can only be a constant
+            // defined in the same file
+            resolveConst(sid)
+          case qid @ QualifiedID(names) =>
+            fieldType match {
+              case EnumType(enum, _) =>
+                val resolvedFieldType = resolveFieldType(qid.qualifier)
+                val value = enum.values
+                  .find(_.sid.name == names.last)
+                  .getOrElse(throw UndefinedSymbolException(qid.fullName, qid))
+                (resolvedFieldType, EnumRHS(enum, value))
+              case t => resolveConst(qid)
+            }
+        }
+        if (constFieldType != fieldType)
+          throw TypeMismatchException(
+            s"Type mismatch: Expecting $fieldType, found ${id.fullName}: $constFieldType",
+            id
+          )
+        constRHS
+      case _ => c
+    }
   }
 }

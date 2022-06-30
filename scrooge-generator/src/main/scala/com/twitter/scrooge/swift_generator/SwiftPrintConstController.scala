@@ -1,25 +1,6 @@
 package com.twitter.scrooge.swift_generator
 
-import com.twitter.scrooge.ast.EnumType
-import com.twitter.scrooge.ast.FieldType
-import com.twitter.scrooge.ast.Identifier
-import com.twitter.scrooge.ast.IntLiteral
-import com.twitter.scrooge.ast.ListRHS
-import com.twitter.scrooge.ast.ListType
-import com.twitter.scrooge.ast.MapRHS
-import com.twitter.scrooge.ast.MapType
-import com.twitter.scrooge.ast.RHS
-import com.twitter.scrooge.ast.SetRHS
-import com.twitter.scrooge.ast.SetType
-import com.twitter.scrooge.ast.StructRHS
-import com.twitter.scrooge.ast.StructType
-import com.twitter.scrooge.ast.TBool
-import com.twitter.scrooge.ast.TByte
-import com.twitter.scrooge.ast.TDouble
-import com.twitter.scrooge.ast.TI16
-import com.twitter.scrooge.ast.TI32
-import com.twitter.scrooge.ast.TI64
-import com.twitter.scrooge.ast.TString
+import com.twitter.scrooge.ast._
 import com.twitter.scrooge.frontend.ScroogeInternalException
 import com.twitter.scrooge.java_generator.ConstValue
 import com.twitter.scrooge.java_generator.PrintConstController
@@ -101,6 +82,7 @@ class SwiftPrintConstController(
 
   override def renderConstValue(constant: RHS, fieldType: FieldType): ConstValue = {
     fieldType match {
+      case at: AnnotatedFieldType => renderConstValue(constant, at.unwrap)
       case TByte | TI16 | TI32 | TI64 =>
         new ConstValue(
           null,

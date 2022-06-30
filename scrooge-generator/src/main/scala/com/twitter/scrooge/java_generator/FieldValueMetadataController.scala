@@ -36,6 +36,10 @@ class FieldValueMetadataController(
   }
 
   def generateMetadata(k: FieldType): String = {
-    indent(generator.fieldValueMetaData(k, ns), 4, skipFirst = true, addLast = false)
+    k match {
+      case at: AnnotatedFieldType => generateMetadata(at.unwrap)
+      case otherwise =>
+        indent(generator.fieldValueMetaData(otherwise, ns), 4, skipFirst = true, addLast = false)
+    }
   }
 }

@@ -1,18 +1,21 @@
 package com.twitter.scrooge.android_generator
 
-import com.github.mustachejava.{Mustache, DefaultMustacheFactory}
-import com.twitter.scrooge.ast.ListType
-import com.twitter.scrooge.ast.MapType
-import com.twitter.scrooge.ast.ReferenceType
-import com.twitter.scrooge.ast.SetType
+import com.github.mustachejava.Mustache
+import com.github.mustachejava.DefaultMustacheFactory
 import com.twitter.scrooge.ast._
-import com.twitter.scrooge.backend.{GeneratorFactory, Generator, ServiceOption}
+import com.twitter.scrooge.backend.GeneratorFactory
+import com.twitter.scrooge.backend.Generator
+import com.twitter.scrooge.backend.ServiceOption
 import com.twitter.scrooge.CompilerDefaults
-import com.twitter.scrooge.frontend.{ScroogeInternalException, ResolvedDocument}
+import com.twitter.scrooge.frontend.ScroogeInternalException
+import com.twitter.scrooge.frontend.ResolvedDocument
 import com.twitter.scrooge.frontend.ParseException
-import com.twitter.scrooge.java_generator.{ApacheJavaGenerator, TypeController}
+import com.twitter.scrooge.java_generator.ApacheJavaGenerator
+import com.twitter.scrooge.java_generator.TypeController
 import com.twitter.scrooge.mustache.ScalaObjectHandler
-import java.io.{FileWriter, File, StringWriter}
+import java.io.FileWriter
+import java.io.File
+import java.io.StringWriter
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 
@@ -70,6 +73,8 @@ class AndroidGenerator(
     t match {
       case Void => if (inContainer) "Void" else "void"
       case OnewayVoid => if (inContainer) "Void" else "void"
+      case at: AnnotatedFieldType =>
+        typeName(at.unwrap, inContainer, inInit, skipGeneric, fileNamespace)
       case TBool => if (inContainer) "Boolean" else "boolean"
       case TByte => if (inContainer) "Byte" else "byte"
       case TI16 => if (inContainer) "Short" else "short"
@@ -120,6 +125,7 @@ class AndroidGenerator(
 
   def isListOrSetType(t: FunctionType): Boolean = {
     t match {
+      case at: AnnotatedFieldType => isListOrSetType(at.unwrap)
       case ListType(_, _) => true
       case SetType(_, _) => true
       case _ => false

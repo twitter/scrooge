@@ -193,7 +193,9 @@ class ScalaGenerator(
   }
 
   override def genDefaultValue(fieldType: FieldType): CodeFragment = {
-    val code = fieldType match {
+    @scala.annotation.tailrec
+    def getCode(fieldType: FieldType): String = fieldType match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case TI64 => "0L"
       case ListType(_, _) =>
         "_root_.scala.collection.immutable.Nil"
@@ -203,7 +205,7 @@ class ScalaGenerator(
         "_root_.scala.collection.immutable.Set.empty"
       case _ => super.genDefaultValue(fieldType).toData
     }
-    v(code)
+    v(getCode(fieldType))
   }
 
   override def genConstant(constant: RHS, fieldType: Option[FieldType] = None): CodeFragment = {
@@ -215,7 +217,9 @@ class ScalaGenerator(
 
   def genType(t: FunctionType, immutable: Boolean = false): CodeFragment = {
     val prefix = if (immutable) "_root_.scala.collection.immutable." else "_root_.scala.collection."
-    val code = t match {
+    @scala.annotation.tailrec
+    def getCode(t: FunctionType): String = t match {
+      case at: AnnotatedFieldType => getCode(at.unwrap)
       case Void => "Unit"
       case OnewayVoid => "Unit"
       case TBool => "Boolean"
@@ -243,7 +247,7 @@ class ScalaGenerator(
       case r: ReferenceType =>
         throw new ScroogeInternalException("ReferenceType should not appear in backend")
     }
-    v(code)
+    v(getCode(t))
   }
 
   def genPrimitiveType(t: FunctionType): CodeFragment = genType(t)
