@@ -1,1 +1,4 @@
-resources(sources = ["**/*.swift"])
+resources(
+    sources = ["**/*.swift"],
+    tags = ["bazel-compatible"],
+)

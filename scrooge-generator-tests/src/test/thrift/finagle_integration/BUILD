@@ -11,4 +11,5 @@ create_thrift_libraries(
 resources(
     name = "resources",
     sources = ["*.thrift"],
+    tags = ["bazel-compatible"],
 )

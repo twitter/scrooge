@@ -19,12 +19,11 @@ java_thrift_library(
         "bar": "android_bar",
         "com.fake": "com.android_fake",
     },
-    dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift",
-    ],
+    tags = ["bazel-compatible"],
 )
 
 resources(
     name = "resources",
     sources = ["*.thrift"],
+    tags = ["bazel-compatible"],
 )

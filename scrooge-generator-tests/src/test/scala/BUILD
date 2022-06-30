@@ -39,13 +39,13 @@ junit_tests(
     # and instead 'depend' on them
     sources = ["**/*.scala"] + exclude_globs(LIB_SOURCES),
     compiler_option_sets = ["fatal_warnings"],
+    tags = ["bazel-compatible"],
     dependencies = [
         ":lib",
         "3rdparty/jvm/cglib",
         "3rdparty/jvm/com/github/spullara/mustache/java",
         "3rdparty/jvm/com/google/guava",
         "3rdparty/jvm/junit",
-        "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/hamcrest:hamcrest-core",
         "3rdparty/jvm/org/jmock",
         "3rdparty/jvm/org/jmock:jmock-legacy",
@@ -68,6 +68,7 @@ junit_tests(
         "scrooge/scrooge-core",
         "scrooge/scrooge-generator",
         "scrooge/scrooge-generator-tests/src/test/resources",
+        "scrooge/scrooge-generator-tests/src/test/resources:files",
         "scrooge/scrooge-generator-tests/src/test/thrift",
         "scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-bazel-workaround-android",
         "scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-scala",

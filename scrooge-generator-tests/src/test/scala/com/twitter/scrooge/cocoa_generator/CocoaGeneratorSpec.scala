@@ -4,19 +4,20 @@ import com.twitter.scrooge.Main
 import java.io._
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
-import com.twitter.scrooge.testutil.{Spec, TempDirectory}
+import com.twitter.scrooge.testutil.Spec
+import com.twitter.scrooge.testutil.TempDirectory
 import com.twitter.scrooge.testutil.Utils.verify
 
 class CocoaGeneratorSpec extends Spec {
 
   val templateFiles = List(
-    "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.h",
-    "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.m",
-    "cocoa_output/TFNTwitterThriftScribeTestEnum.h",
-    "cocoa_output/TFNTwitterThriftScribeTestStruct.h",
-    "cocoa_output/TFNTwitterThriftScribeTestStruct.m",
-    "cocoa_output/TFNTwitterThriftScribeTestEmptyStruct.h",
-    "cocoa_output/TFNTwitterThriftScribeTestEmptyStruct.m"
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.h",
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.m",
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeTestEnum.h",
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeTestStruct.h",
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeTestStruct.m",
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeTestEmptyStruct.h",
+    "scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/TFNTwitterThriftScribeTestEmptyStruct.m"
   ).map { new File(_) }
 
   def getFileContents(resource: String): String = {
@@ -40,9 +41,7 @@ class CocoaGeneratorSpec extends Spec {
 
   "Cocoa generator" should {
     val tempDir = TempDirectory.create(None)
-
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("test_thrift/cocoa.thrift").getPath()
+    val inputThrift = "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/cocoa.thrift"
 
     val args = Array[String]("-l", "cocoa", "-d", tempDir.getPath, inputThrift)
     Main.main(args)

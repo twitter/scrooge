@@ -9,4 +9,5 @@ java_thrift_library(
 resources(
     name = "resources",
     sources = ["**/*"],
+    tags = ["bazel-compatible"],
 )

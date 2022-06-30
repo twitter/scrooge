@@ -10,10 +10,10 @@ namespace java thrift.test2
 include "./dir1/../dir1/include1.thrift"
 
 // from relative path "dir2" passed through command line
-include "include2.thrift"
+include "./dir2/include2.thrift"
 
 // from relative path "dir3" passed through command line
-include "include3.thrift"
+include "./dir3/include3.thrift"
 
 typedef include1.CandyType CandyType
 

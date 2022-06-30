@@ -23,9 +23,7 @@ java_thrift_library(
         "thrift.test": "com.twitter.scrooge.integration_android",
         "com.twitter.scrooge.integration_scala": "com.twitter.scrooge.integration_android",
     },
-    dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift",
-    ],
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(
@@ -37,9 +35,11 @@ java_thrift_library(
         "thrift.test": "com.twitter.scrooge.integration_apache",
         "com.twitter.scrooge.integration_scala": "com.twitter.scrooge.integration_apache",
     },
+    tags = ["bazel-compatible"],
 )
 
 resources(
     name = "resources",
     sources = ["*.thrift"],
+    tags = ["bazel-compatible"],
 )

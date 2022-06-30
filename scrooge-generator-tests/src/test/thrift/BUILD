@@ -1,5 +1,6 @@
 resources(
     sources = ["*"],
+    tags = ["bazel-compatible"],
     dependencies = [
         "scrooge/scrooge-generator-tests/src/test/thrift/airport:resources",
         "scrooge/scrooge-generator-tests/src/test/thrift/android_integration:resources",
@@ -27,7 +28,5 @@ java_thrift_library(
     compiler = "scrooge",
     default_java_namespace = "android_thrift_default_namespace",
     language = "android",
-    dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift",
-    ],
+    tags = ["bazel-compatible"],
 )

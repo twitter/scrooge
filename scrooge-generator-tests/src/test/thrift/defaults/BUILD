@@ -15,12 +15,11 @@ java_thrift_library(
     compiler = "scrooge",
     default_java_namespace = "apache_java_thrift",
     language = "android",
-    dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift",
-    ],
+    tags = ["bazel-compatible"],
 )
 
 resources(
     name = "resources",
     sources = ["*.thrift"],
+    tags = ["bazel-compatible"],
 )

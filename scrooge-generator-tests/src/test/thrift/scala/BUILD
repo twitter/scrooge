@@ -15,4 +15,5 @@ resources(
         "*.thrift",
         "inheritance/*.thrift",
     ],
+    tags = ["bazel-compatible"],
 )

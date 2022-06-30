@@ -3,6 +3,7 @@ java_thrift_library(
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(
@@ -15,9 +16,7 @@ java_thrift_library(
     compiler = "scrooge",
     default_java_namespace = "android_thrift_default_namespace",
     language = "android",
-    dependencies = [
-        "3rdparty/jvm/org/apache/thrift:libthrift",
-    ],
+    tags = ["bazel-compatible"],
 )
 
 java_thrift_library(
@@ -36,9 +35,11 @@ java_thrift_library(
     namespace_map = {
         "thrift.test": "thrift.apache_java_test",
     },
+    tags = ["bazel-compatible"],
 )
 
 resources(
     name = "resources",
     sources = ["*.thrift"],
+    tags = ["bazel-compatible"],
 )

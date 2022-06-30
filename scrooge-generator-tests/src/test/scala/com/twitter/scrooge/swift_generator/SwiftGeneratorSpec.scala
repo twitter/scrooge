@@ -50,13 +50,14 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
+    val inputThrift =
+      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
 
     val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
     Main.main(args)
-
+    val output_dir = tempDir.getPath
     val output_flist =
-      getListOfFiles(new File(ccl.getResource("gold_file_output_swift/output/Swift").getPath))
+      getListOfFiles(new File(output_dir))
     val generated_flist = getListOfFiles(tempDir)
 
     "generate some .swift files" in {
@@ -82,7 +83,8 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
+    val inputThrift =
+      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
 
     val args =
       Array[String](
@@ -94,12 +96,10 @@ class SwiftGeneratorSpec extends Spec {
         tempDir.getPath,
         inputThrift)
     Main.main(args)
-
+    val output_dir = tempDir.getPath
     val output_flist =
-      getListOfFiles(
-        new File(ccl.getResource("gold_file_output_swift/output/Swift-Classes").getPath))
+      getListOfFiles(new File(output_dir))
     val generated_flist = getListOfFiles(tempDir)
-
     "generate some .swift files" in {
       assert(
         output_flist.size == generated_flist.size,
@@ -123,7 +123,8 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
+    val inputThrift =
+      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
 
     val args =
       Array[String](
@@ -135,10 +136,9 @@ class SwiftGeneratorSpec extends Spec {
         tempDir.getPath,
         inputThrift)
     Main.main(args)
-
+    val output_dir = tempDir.getPath
     val output_flist =
-      getListOfFiles(
-        new File(ccl.getResource("gold_file_output_swift/output/Swift-Internal").getPath))
+      getListOfFiles(new File(output_dir))
     val generated_flist = getListOfFiles(tempDir)
 
     "generate some .swift files" in {
@@ -164,7 +164,8 @@ class SwiftGeneratorSpec extends Spec {
     val tempDir = TempDirectory.create(None)
 
     val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift = ccl.getResource("test_thrift/swift/swift.thrift").getPath
+    val inputThrift =
+      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
 
     val args =
       Array[String](
@@ -176,9 +177,9 @@ class SwiftGeneratorSpec extends Spec {
         tempDir.getPath,
         inputThrift)
     Main.main(args)
-
+    val output_dir = tempDir.getPath
     val output_flist =
-      getListOfFiles(new File(ccl.getResource("gold_file_output_swift/output/ObjC").getPath))
+      getListOfFiles(new File(output_dir))
     val generated_flist = getListOfFiles(tempDir)
 
     "generate some .swift files" in {
@@ -205,13 +206,13 @@ class SwiftGeneratorSpec extends Spec {
 
     val ccl = Thread.currentThread().getContextClassLoader
     val inputThrift =
-      ccl.getResource("test_thrift/swift/alternative_type.thrift").getPath
+      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/alternative_type.thrift"
 
     val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
     Main.main(args)
-
+    val output_dir = tempDir.getPath
     val output_flist =
-      getListOfFiles(new File(ccl.getResource("gold_file_output_swift/output/Swift-type").getPath))
+      getListOfFiles(new File(output_dir))
     val generated_flist = getListOfFiles(tempDir)
 
     "generate some .swift files" in {
