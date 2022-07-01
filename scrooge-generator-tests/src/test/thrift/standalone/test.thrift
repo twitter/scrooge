@@ -117,7 +117,7 @@ struct Ints {
 
 /** structdocs */
 struct Bytes {
-  1: byte x
+  1: i8 x
   /** field docs */
   2: binary y
 }
@@ -256,7 +256,7 @@ struct ReallyBig {
 
 struct OneOfEach {
   1: bool z
-  2: byte b
+  2: i8 b
   3: i16 s
   4: i32 i
   5: i64 j
@@ -271,7 +271,7 @@ struct OneOfEach {
 
 struct OneOfEachWithDefault {
   1: bool z = 1
-  2: byte b = 1
+  2: i8 b = 1
   3: i16 s = 1
   4: i32 i = 1
   5: i64 j = 1
@@ -285,7 +285,7 @@ struct OneOfEachWithDefault {
 
 struct OneOfEachOptional {
   1: optional bool z
-  2: optional byte b
+  2: optional i8 b
   3: optional i16 s
   4: optional i32 i
   5: optional i64 j
@@ -300,7 +300,7 @@ struct OneOfEachOptional {
 
 struct OneOfEachOptionalWithDefault {
   1: optional bool z = 1
-  2: optional byte b = 1
+  2: optional i8 b = 1
   3: optional i16 s = 1
   4: optional i32 i = 1
   5: optional i64 j = 1
@@ -326,14 +326,14 @@ struct Bools {
 struct Xtruct
 {
   1:  string string_thing,
-  4:  byte   byte_thing,
+  4:  i8   byte_thing,
   9:  i32    i32_thing,
   11: i64    i64_thing
 }
 
 struct Xtruct2
 {
-  1: byte   byte_thing,
+  1: i8   byte_thing,
   2: Xtruct struct_thing,
   3: i32    i32_thing
 }
@@ -438,7 +438,7 @@ service ThriftTest
 {
   void         testVoid(),
   string       testString(1: string thing),
-  byte         testByte(1: byte thing),
+  i8         testByte(1: i8 thing),
   i32          testI32(1: i32 thing),
   i64          testI64(1: i64 thing),
   double       testDouble(1: double thing),
@@ -460,7 +460,7 @@ service ThriftTest
 
   /* Multiple parameters */
   Xtruct testMulti(
-    1: byte arg0,
+    1: i8 arg0,
     /** function parameter doc */
     2: i32 arg1,
     3: i64 arg2,
@@ -492,7 +492,7 @@ struct VersioningTestV2 {
        1: i32 begin_in_both,
 
        2: i32 newint,
-       3: byte newbyte,
+       3: i8 newbyte,
        4: i16 newshort,
        5: i64 newlong,
        6: double newdouble

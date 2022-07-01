@@ -2,7 +2,7 @@
 
 struct TestStruct {
   1: required bool boolField;
-  2: required byte byteField;
+  2: required i8 byteField;
   3: required i16 shortField;
   4: required i32 intField;
   5: required i64 longField;

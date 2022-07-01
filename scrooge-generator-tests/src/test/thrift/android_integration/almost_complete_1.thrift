@@ -4,7 +4,7 @@ namespace * thrift.star.test1
 
 struct Simple {
   1: optional bool z
-  2: optional byte b
+  2: optional i8 b
   3: optional i16 s
   4: optional i32 i
   5: optional i64 j
@@ -17,7 +17,7 @@ struct Simple {
 
 struct SimpleWithDefaults {
   1: optional bool z = true
-  2: optional byte b = 1
+  2: optional i8 b = 1
   3: optional i16 s = 1
   4: optional i32 i = 1
   5: optional i64 j = 1
