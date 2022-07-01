@@ -3,6 +3,7 @@ THRIFT_VALIDATION = ["com/twitter/scrooge/thrift_validation/*.scala"]
 scala_library(
     sources = ["**/*.scala"] + exclude_globs(THRIFT_VALIDATION),
     compiler_option_sets = ["fatal_warnings"],
+    platform = "java8",
     provides = scala_artifact(
         org = "com.twitter",
         name = "scrooge-core",
