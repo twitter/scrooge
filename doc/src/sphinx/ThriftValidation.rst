@@ -320,9 +320,7 @@ In Java:
         java.util.Map<String, ThriftConstraintValidator<?, ?>> customConstraints =
             new java.util.HashMap<>();
         customConstraints.put("validation.startWithA", new JStartWithAConstraintValidator());
-            return JavaConverters.mapAsScalaMapConverter(customConstraints).asScala().toMap(
-            Predef.conforms()
-        );
+            return toScalaMap(customConstraints);
       }
 
 Provide `ThriftValidator` class name

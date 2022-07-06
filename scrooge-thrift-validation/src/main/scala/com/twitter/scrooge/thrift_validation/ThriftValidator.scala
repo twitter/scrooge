@@ -1,6 +1,7 @@
 package com.twitter.scrooge.thrift_validation
 
 import com.twitter.scrooge.thrift_validation.ThriftValidator.DefaultAnnotationKeys
+import scala.collection.JavaConverters
 import scala.collection.mutable
 
 object ThriftValidator {
@@ -39,8 +40,21 @@ abstract class ThriftValidator extends BaseValidator {
    * A map of String annotations to [[ThriftConstraintValidator]].
    * @note Must override this method to define all custom validations
    *       in an implementation of [[ThriftValidator]].
+   *
+   * @note There is a Java helper `toScalaMap`, which takes a [[java.util.Map]]
+   *       and return a [[scala.collection.immutable.Map]] for `customAnnotations`.
    */
   def customAnnotations: Map[String, ThriftConstraintValidator[_, _]]
+
+  /**
+   * A helper method that converts a [[java.util.Map]]
+   * to a [[scala.collection.immutable.Map]]
+   */
+  protected final def toScalaMap(
+    javaMap: java.util.Map[String, ThriftConstraintValidator[_, _]]
+  ): Map[String, ThriftConstraintValidator[_, _]] = {
+    JavaConverters.mapAsScalaMapConverter(javaMap).asScala.toMap
+  }
 
   /** All custom annotations defined in this validator. */
   def annotations: Set[String] = customAnnotations.keySet
