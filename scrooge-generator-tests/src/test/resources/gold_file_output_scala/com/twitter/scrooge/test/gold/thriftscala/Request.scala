@@ -1560,6 +1560,33 @@ trait Request
   }
 
   /**
+   * If the specified fields are optional, they are set to None.  Otherwise, if the fields are
+   * known, they are reverted to their default values; if the fields are unknown, they are removed
+   * from the passthroughFields map, if present.
+   */
+  def unsetFields(_fieldIds: Set[Short]): Request = {
+    new Immutable(
+      if (_fieldIds(1)) _root_.scala.collection.immutable.Nil else this.aList,
+      if (_fieldIds(2)) _root_.scala.collection.immutable.Set.empty else this.aSet,
+      if (_fieldIds(3)) _root_.scala.collection.immutable.Map.empty else this.aMap,
+      if (_fieldIds(4)) _root_.scala.None else this.aRequest,
+      if (_fieldIds(5)) _root_.scala.collection.immutable.Nil else this.subRequests,
+      if (_fieldIds(6)) "the_default" else this._default,
+      if (_fieldIds(7)) _root_.scala.None else this.noComment,
+      if (_fieldIds(8)) _root_.scala.None else this.doubleSlashComment,
+      if (_fieldIds(9)) _root_.scala.None else this.hashtagComment,
+      if (_fieldIds(10)) _root_.scala.None else this.singleAsteriskComment,
+      if (_fieldIds(11)) _root_.scala.None else this.docStringComment,
+      if (_fieldIds(12)) _root_.scala.None else this.recRequest,
+      if (_fieldIds(13)) null else this.requiredField,
+      if (_fieldIds(14)) _root_.scala.None else this.constructionRequiredField,
+      if (_fieldIds(15)) _root_.scala.None else this.anInt8,
+      if (_fieldIds(16)) _root_.scala.None else this.aBinaryField,
+      _passthroughFields -- _fieldIds
+    )
+  }
+
+  /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
    * known, it is reverted to its default value; if the field is unknown, it is removed
    * from the passthroughFields map, if present.

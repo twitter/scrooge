@@ -66,5 +66,34 @@ class ImmutableStructSpec extends Spec {
       )
       Xtruct.Immutable.metaData.fields.map(_.name).toSet must be(expectedFieldNames)
     }
+
+    "unset non-optional field" in {
+      val xtruct = Xtruct(
+        "string_thing",
+        10.toByte,
+        100,
+        1000L
+      )
+      xtruct.unsetField(4) must be(Xtruct("string_thing", 0.toByte, 100, 1000L))
+    }
+
+    "unset optional field" in {
+      val boolTest = OptionalInt(
+        "my_name",
+        Some(32)
+      )
+      boolTest.unsetField(2) must be(OptionalInt("my_name", None))
+    }
+
+    "unset fields" in {
+      val xtruct = Xtruct(
+        "string_thing",
+        10.toByte,
+        100,
+        1000L
+      )
+
+      xtruct.unsetFields(Set(1, 4, 9)) must be(Xtruct(null, 0.toByte, 0, 1000L))
+    }
   }
 }

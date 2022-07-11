@@ -284,6 +284,18 @@ class OverCapacityException(
   }
 
   /**
+   * If the specified fields are optional, they are set to None.  Otherwise, if the fields are
+   * known, they are reverted to their default values; if the fields are unknown, they are removed
+   * from the passthroughFields map, if present.
+   */
+  def unsetFields(_fieldIds: Set[Short]): OverCapacityException = {
+    new OverCapacityException(
+      if (_fieldIds(1)) 0 else this.chillTimeSeconds,
+      _passthroughFields -- _fieldIds
+    )
+  }
+
+  /**
    * If the specified field is optional, it is set to None.  Otherwise, if the field is
    * known, it is reverted to its default value; if the field is unknown, it is removed
    * from the passthroughFields map, if present.

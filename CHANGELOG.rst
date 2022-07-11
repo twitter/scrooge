@@ -20,6 +20,8 @@ New Features
 
 * scrooge-generator: Add @.generated annotation to Swift generated code ``PHAB_ID=D879262``
 
+* scrooge-generator: Provide a `$STRUCT#unsetFields` method to allow bulk unsets ``PHAB_ID=D911135``
+
 * scrooge-generator: support thrift validations on nested fields that are struct, union, and
   exception ``PHAB_ID=D911262``
 
