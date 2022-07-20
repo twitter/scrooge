@@ -3,6 +3,7 @@ java_thrift_library(
     sources = ["**/*.thrift"],
     compiler = "scrooge",
     language = "scala",
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -16,6 +17,7 @@ java_thrift_library(
     compiler = "scrooge",
     default_java_namespace = "android_thrift_default_namespace",
     language = "android",
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -35,6 +37,7 @@ java_thrift_library(
     namespace_map = {
         "thrift.test": "thrift.apache_java_test",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 

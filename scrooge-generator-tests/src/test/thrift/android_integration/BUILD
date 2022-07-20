@@ -3,6 +3,7 @@ java_thrift_library(
     sources = ["*.thrift"],
     compiler = "scrooge",
     language = "android",
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 

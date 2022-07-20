@@ -23,6 +23,7 @@ LIB_SOURCES = [
 java_library(
     name = "lib",
     sources = LIB_SOURCES,
+    platform = "java8",
     tags = ["bazel-compatible"],
     dependencies = [
         "3rdparty/jvm/com/google/guava",
@@ -39,6 +40,7 @@ junit_tests(
     # and instead 'depend' on them
     sources = ["**/*.scala"] + exclude_globs(LIB_SOURCES),
     compiler_option_sets = ["fatal_warnings"],
+    platform = "java8",
     tags = ["bazel-compatible"],
     dependencies = [
         ":lib",

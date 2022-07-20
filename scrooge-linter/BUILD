@@ -1,6 +1,7 @@
 jvm_binary(
     name = "bin",
     main = "com.twitter.scrooge.linter.Main",
+    platform = "java8",
     tags = ["bazel-compatible"],
     dependencies = [
         "scrooge/scrooge-linter/src/main/scala/com/twitter/scrooge/linter",

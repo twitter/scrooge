@@ -4,6 +4,7 @@ java_thrift_library(
     compiler = "scrooge",
     default_java_namespace = "bar",
     language = "scala",
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -19,6 +20,7 @@ java_thrift_library(
         "bar": "android_bar",
         "com.fake": "com.android_fake",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 

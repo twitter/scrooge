@@ -1,5 +1,6 @@
 junit_tests(
     sources = ["com/twitter/example/DemoTest.scala"],
+    platform = "java8",
     tags = ["bazel-compatible"],
     dependencies = [
         "3rdparty/jvm/junit",

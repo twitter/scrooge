@@ -1,6 +1,7 @@
 scala_library(
     sources = ["**/*.scala"],
     compiler_option_sets = ["fatal_warnings"],
+    platform = "java8",
     dependencies = [
         "3rdparty/jvm/org/apache/thrift:libthrift",
         "3rdparty/jvm/org/openjdk/jmh:jmh-core",
@@ -18,6 +19,7 @@ scala_library(
 jvm_binary(
     name = "jmh",
     main = "org.openjdk.jmh.Main",
+    platform = "java8",
     dependencies = [
         ":scala",
         scoped(

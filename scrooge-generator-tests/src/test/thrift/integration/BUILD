@@ -8,6 +8,7 @@ java_thrift_library(
     namespace_map = {
         "thrift.test": "com.twitter.scrooge.integration_scala",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -23,6 +24,7 @@ java_thrift_library(
         "thrift.test": "com.twitter.scrooge.integration_android",
         "com.twitter.scrooge.integration_scala": "com.twitter.scrooge.integration_android",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -35,6 +37,7 @@ java_thrift_library(
         "thrift.test": "com.twitter.scrooge.integration_apache",
         "com.twitter.scrooge.integration_scala": "com.twitter.scrooge.integration_apache",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 

@@ -3,6 +3,7 @@ java_thrift_library(
     sources = ["*.thrift"],
     compiler = "scrooge",
     language = "scala",
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -12,6 +13,7 @@ java_thrift_library(
     sources = ["*.thrift"],
     compiler = "scrooge",
     language = "android",
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -26,6 +28,7 @@ java_thrift_library(
         "thrift.test1": "vanilla.test1",
         "thrift.test2": "vanilla.test2",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
@@ -40,6 +43,7 @@ java_thrift_library(
         "androidthrift.test1": "vanilla_android.test1",
         "androidthrift.test2": "vanilla_android.test2",
     },
+    platform = "java8",
     tags = ["bazel-compatible"],
 )
 
