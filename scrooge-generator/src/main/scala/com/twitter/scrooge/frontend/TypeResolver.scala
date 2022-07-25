@@ -143,6 +143,19 @@ case class TypeResolver(
         }
     }
 
+  // skip level field resolving
+  private[twitter] def resolveFieldType2(
+    id: Identifier,
+    scopePrefix: Seq[Identifier]
+  ): FieldType = {
+    scopePrefix match {
+      case head +: tail =>
+        val subResolver = getResolver(head.fullName)
+        subResolver.resolveFieldType2(id, tail)
+      case Seq(last) => resolveFieldType(id, Some(last))
+      case Nil => resolveFieldType(id, None)
+    }
+  }
   protected def resolveServiceParent(parent: ServiceParent): Service =
     parent.filename match {
       case None => resolveService(parent.sid)
@@ -251,6 +264,7 @@ case class TypeResolver(
     // we expect that these will all end up being replaced by more concrete resolutions in a subsequent pass
     resolver = resolver.withTypesFrom(doc, scopePrefix)
 
+    val oldResolver = resolver
     for (d <- doc.defs) {
       val ResolvedDefinition(d2, r2) = resolver(d, scopePrefix)
       resolver = r2
