@@ -51,6 +51,7 @@ class StructController(
 
   val has_map_fields: Boolean = cleanup(allFields.filter { f =>
     f.fieldType match {
+      case AnnotatedFieldType(MapType(_, _, _), _) => true
       case MapType(_, _, _) => true
       case _ => false
     }

@@ -39,6 +39,7 @@ class DeepGeneratorController(
 
   def map_value: Any = {
     fieldType match {
+      case at: AnnotatedFieldType => unwrap(at).map_value
       case MapType(k, v, _) =>
         Map(
           "key_type" -> new FieldTypeController(k, generator),
@@ -70,6 +71,7 @@ class DeepGeneratorController(
 
   def list_or_set_value: Any = {
     fieldType match {
+      case at: AnnotatedFieldType => unwrap(at).list_or_set_value
       case SetType(x, _) => getListSetMap(x)
       case ListType(x, _) => getListSetMap(x)
       case _ => false
@@ -84,4 +86,14 @@ class DeepGeneratorController(
       s"generate_deep_${operation.name}_non_container" -> deepNonContainer("", x)
     )
   }
+
+  private def unwrap(at: AnnotatedFieldType): DeepGeneratorController =
+    new DeepGeneratorController(
+      sourceNamePart1,
+      sourceNamePart2,
+      result_name,
+      at.unwrap,
+      generator,
+      ns,
+      operation)
 }

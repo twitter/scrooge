@@ -15,6 +15,7 @@ class DeserializeFieldController(
 
   def deserialize_map_element: Any = {
     fieldType match {
+      case at: AnnotatedFieldType => unwrap(at).deserialize_map_element
       case MapType(k, v, _) => {
         val tmpKey = generator.tmp("_key")
         val tmpVal = generator.tmp("_val")
@@ -33,6 +34,7 @@ class DeserializeFieldController(
 
   def deserialize_set_or_list_element: Any = {
     fieldType match {
+      case at: AnnotatedFieldType => unwrap(at).deserialize_set_or_list_element
       case SetType(x, _) => deserialize_elem(x)
       case ListType(x, _) => deserialize_elem(x)
       case _ => false
@@ -47,4 +49,7 @@ class DeserializeFieldController(
       "deserialize_elem" -> indent(generator.deserializeField(x, tmpElem, ns), 2)
     )
   }
+
+  private def unwrap(at: AnnotatedFieldType): DeserializeFieldController =
+    new DeserializeFieldController(at.unwrap, fieldName, prefix, generator, ns)
 }

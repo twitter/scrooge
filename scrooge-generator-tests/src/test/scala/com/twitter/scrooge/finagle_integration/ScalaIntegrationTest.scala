@@ -30,6 +30,9 @@ class ScalaIntegrationTest extends AnyFunSuite {
     override def getDuck(key: Long): Future[String] = Future.value("Scrooge")
 
     override def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
+
+    override def regression(arg: Option[scala.collection.Set[String]]): Future[RegressionStruct] =
+      Future.value(RegressionStruct(List("regression")))
   }
 
   val muxServer =
@@ -69,6 +72,9 @@ class ScalaIntegrationTest extends AnyFunSuite {
       def getDuck(key: Long): Future[String] = Future.value("Scrooge")
 
       def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
+
+      def regression(arg: Option[scala.collection.Set[String]]): Future[RegressionStruct] =
+        Future.value(RegressionStruct(List("regression")))
     }
   )
 
@@ -84,6 +90,9 @@ class ScalaIntegrationTest extends AnyFunSuite {
       override def setDuck(key: Long, value: String): Future[Unit] = Future.Unit
 
       override def triple(z: String): Future[String] = Future.value(z + z + z)
+
+      def regression(arg: Option[scala.collection.Set[String]]): Future[RegressionStruct] =
+        Future.value(RegressionStruct(List("regression")))
     }
   )
 
@@ -112,7 +121,10 @@ class ScalaIntegrationTest extends AnyFunSuite {
       },
       mkPair(BarService.Echo) { a: BarService.Echo.Args => Future.value(a.x) },
       mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args => Future.value(a.y + a.y) },
-      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit }
+      mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit },
+      mkPair(BarService.Regression) { a: BarService.Regression.Args =>
+        Future.value(RegressionStruct(List("regression")))
+      }
       // Missing GetDuck
     )
 
@@ -140,7 +152,10 @@ class ScalaIntegrationTest extends AnyFunSuite {
       mkPair(BarService.Echo) { a: BarService.Echo.Args => Future.value(a.x) },
       mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args => Future.value(a.y + a.y) },
       mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit },
-      mkPair(BarService.GetDuck) { a: BarService.GetDuck.Args => Future.value("Scrooge") }
+      mkPair(BarService.GetDuck) { a: BarService.GetDuck.Args => Future.value("Scrooge") },
+      mkPair(BarService.Regression) { a: BarService.Regression.Args =>
+        Future.value(RegressionStruct(List("regression")))
+      }
     )
 
     val extendedBarService = Thrift.server.serveIface(
@@ -190,7 +205,10 @@ class ScalaIntegrationTest extends AnyFunSuite {
       mkPair(BarService.Echo) { a: BarService.Echo.Args => Future.value(a.x) },
       mkPair(BarService.Duplicate) { a: BarService.Duplicate.Args => Future.value(a.y + a.y) },
       mkPair(BarService.SetDuck) { a: BarService.SetDuck.Args => Future.Unit },
-      BarService.GetDuck -> echoService
+      BarService.GetDuck -> echoService,
+      mkPair(BarService.Regression) { a: BarService.Regression.Args =>
+        Future.value(RegressionStruct(List("regression")))
+      }
     )
 
     val extendedBarService = Thrift.server.serveIface(
@@ -230,6 +248,9 @@ class ScalaIntegrationTest extends AnyFunSuite {
           Future.exception(new InvalidQueryException(value.length))
 
         def triple(z: String): Future[String] = Future.value(z + z + z)
+
+        def regression(arg: Option[scala.collection.Set[String]]): Future[RegressionStruct] =
+          Future.value(RegressionStruct(List("regression")))
       }
     )
 

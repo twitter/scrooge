@@ -13,6 +13,7 @@ class FieldValueMetadataController(
 
   def map_element: Any = {
     fieldType match {
+      case at: AnnotatedFieldType => unwrap(at).map_element
       case MapType(k, v, _) => {
         Map(
           "field_value_meta_data_key" -> generateMetadata(k),
@@ -25,6 +26,7 @@ class FieldValueMetadataController(
 
   def set_or_list_element: Any = {
     fieldType match {
+      case at: AnnotatedFieldType => unwrap(at).set_or_list_element
       case SetType(x, _) => elem(x)
       case ListType(x, _) => elem(x)
       case _ => false
@@ -42,4 +44,7 @@ class FieldValueMetadataController(
         indent(generator.fieldValueMetaData(otherwise, ns), 4, skipFirst = true, addLast = false)
     }
   }
+  private def unwrap(at: AnnotatedFieldType): FieldValueMetadataController =
+    new FieldValueMetadataController(at.unwrap, generator, ns)
+
 }

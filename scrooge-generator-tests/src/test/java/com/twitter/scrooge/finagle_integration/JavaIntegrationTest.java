@@ -1,6 +1,8 @@
 package com.twitter.scrooge.finagle_integration;
 
 import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -12,6 +14,7 @@ import com.twitter.finagle.ThriftMux;
 import com.twitter.finagle.thrift.AbstractThriftService;
 import com.twitter.scrooge.finagle_integration.thriftjava.BarService;
 import com.twitter.scrooge.finagle_integration.thriftjava.InvalidQueryException;
+import com.twitter.scrooge.finagle_integration.thriftjava.RegressionStruct;
 import com.twitter.util.Await;
 import com.twitter.util.Duration;
 import com.twitter.util.Future;
@@ -19,6 +22,9 @@ import com.twitter.util.Future;
 import static org.junit.Assert.*;
 
 public class JavaIntegrationTest {
+
+  private RegressionStruct regressionReturnValue =
+    new RegressionStruct(Collections.singletonList("Regression"));
 
   @Test
   public void test() throws Exception {
@@ -38,6 +44,8 @@ public class JavaIntegrationTest {
     assertEquals(Await.result(client.duplicate("double"), Duration.fromSeconds(5)), "doubledouble");
     assertEquals(Await.result(client.getDuck(10L), Duration.fromSeconds(5)), "Scrooge");
     assertNull(Await.result(client.setDuck(20L, "McDuck"), Duration.fromSeconds(5)));
+    assertEquals(Await.result(client.regression(Collections.singleton("regression")),
+      Duration.fromSeconds(5)), regressionReturnValue);
     Await.result(server.close(), Duration.fromSeconds(5));
   }
 
@@ -61,6 +69,11 @@ public class JavaIntegrationTest {
     @Override
     public Future<Void> setDuck(long key, String value) {
       return Future.Void();
+    }
+
+    @Override
+    public Future<RegressionStruct> regression(Set<String> arg) {
+      return Future.value(regressionReturnValue);
     }
   }
 

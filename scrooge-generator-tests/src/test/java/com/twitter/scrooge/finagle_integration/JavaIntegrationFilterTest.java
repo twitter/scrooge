@@ -2,6 +2,8 @@ package com.twitter.scrooge.finagle_integration;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.Set;
 
 import org.apache.thrift.TApplicationException;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import com.twitter.finagle.Service;
 import com.twitter.finagle.ThriftMux;
 import com.twitter.finagle.thrift.RichServerParam;
 import com.twitter.scrooge.finagle_integration.thriftjava.BarService;
+import com.twitter.scrooge.finagle_integration.thriftjava.RegressionStruct;
 import com.twitter.util.Await;
 import com.twitter.util.Duration;
 import com.twitter.util.ExceptionalFunction;
@@ -98,6 +101,12 @@ public class JavaIntegrationFilterTest {
     @Override
     public Future<Void> setDuck(long key, String value) {
       return Future.Void();
+    }
+
+    @Override
+    public Future<RegressionStruct> regression(Set<String> arg) {
+      RegressionStruct returnValue = new RegressionStruct(Collections.singletonList("Regression"));
+      return Future.value(returnValue);
     }
   }
 }
