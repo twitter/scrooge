@@ -17,6 +17,7 @@
 package com.twitter.scrooge.frontend
 
 import com.twitter.scrooge.ast._
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.util.parsing.input.NoPosition
 import scala.util.parsing.input.Positional
@@ -131,10 +132,8 @@ case class TypeResolver(
       .resolver
   }
 
-  def resolveFieldType(id: Identifier, scopePrefix: Option[Identifier] = None): FieldType =
+  def resolveFieldType(id: Identifier): FieldType =
     id match {
-      case sid: SimpleID if scopePrefix.isDefined =>
-        getResolver(scopePrefix.get.fullName).resolveFieldType(sid)
       case sid: SimpleID =>
         typeMap.getOrElse(sid.name, throw TypeNotFoundException(sid.name, id))
       case qid: QualifiedID =>
@@ -143,6 +142,19 @@ case class TypeResolver(
         }
     }
 
+  // scopePrefixes stores namespaces lead to the field in the includeMap
+  @tailrec
+  private[twitter] final def findAndResolveField(
+    id: Identifier,
+    scopePrefixes: Seq[Identifier]
+  ): FieldType = {
+    scopePrefixes match {
+      case head +: tail =>
+        val subResolver = getResolver(head.fullName)
+        subResolver.findAndResolveField(id, tail)
+      case Nil => resolveFieldType(id)
+    }
+  }
   protected def resolveServiceParent(parent: ServiceParent): Service =
     parent.filename match {
       case None => resolveService(parent.sid)
