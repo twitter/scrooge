@@ -186,11 +186,13 @@ val settingsWithTwoTen =
       )
     )
 
+val commonScalaVersions = Seq("2.12.12", "2.13.6")
+
 // settings for projects that are cross compiled with scala 2.10
 val settingsCrossCompiledWithTwoTen =
   sharedSettingsWithoutScalaVersion ++
     Seq(
-      crossScalaVersions := Seq("2.10.7", "2.12.12", "2.13.1"),
+      crossScalaVersions := Seq("2.10.7") ++ commonScalaVersions,
       scalaVersion := "2.13.6",
       scalacOptions := scalacTwoTenOptions,
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
@@ -204,7 +206,7 @@ val sharedSettings =
   sharedSettingsWithoutScalaVersion ++
     Seq(
       scalaVersion := "2.13.6",
-      crossScalaVersions := Seq("2.12.8", "2.13.6"),
+      crossScalaVersions := commonScalaVersions,
       scalacOptions := Seq(
         "-deprecation",
         "-unchecked",
@@ -244,8 +246,6 @@ lazy val scrooge = Project(
   base = file(".")
 ).enablePlugins(
   ScalaUnidocPlugin
-).settings(
-  sharedSettings
 ).aggregate(publishedProjects: _*)
 
 // This target is used for publishing dependencies locally
@@ -260,8 +260,6 @@ lazy val scroogePublishLocal = Project(
   // use a different target so that we don't have conflicting output paths
   // between this and the `scrooge` target.
   base = file("target/")
-).settings(
-  sharedSettings
 ).aggregate(publishedProjects: _*)
 
 // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
