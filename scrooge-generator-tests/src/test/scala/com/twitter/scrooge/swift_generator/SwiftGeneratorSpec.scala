@@ -9,6 +9,7 @@ import com.twitter.scrooge.frontend.TypeResolver
 import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.TempDirectory
+import com.twitter.scrooge.testutil.Utils
 import com.twitter.scrooge.testutil.Utils.verify
 import java.io.FileInputStream
 import java.io.InputStream
