@@ -91,3 +91,92 @@ Then, for example, `Proxy` can then be used in the following manner,
       protected def _underlying_User: User = aUserInstance
       override def id: Long = 50
     }
+
+Codecs and Metadata
+-------------------
+When you write code that works with a particular set of Scrooge-generated classes,
+you know statically what fields do they have and what are their types. You also
+have access to those classes' `ThriftStructCodec` simply as the companion object to
+the struct class. However, if you write code that generally works with any Scrooge-generated
+structs, Scrooge gives you APIs to obtain both their codec and the metadata describing their
+fields. (Unions are structs too, so everything that applies to structs applies to unions as
+well.)
+
+How to get the codec for a struct class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To get a `com.twitter.scrooge.ThriftStructCodec` for any struct class, use the
+`ThriftStructCodec.forStructClass(Class)` method. Pass it the runtime class of a
+Scrooge-generated struct and it will return its codec object:
+
+.. code-block:: scala
+
+    def structionize(s: ThriftStruct) = {
+      val codec = ThriftStructCodec.forStructClass(s.getClass)
+      ... use the codec
+    }
+
+
+Codecs have `encode` and `decode` methods as well as a `metaData` method that returns a
+`com.twitter.scrooge.ThriftStructMetaData` object describing the structure in detail.
+
+How to get metadata for a struct class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can also obtain the metadata object directly using the
+`ThriftStructMetaData.forStructClass(Class)` method. Metadata describes the struct, most notably
+providing access to information about its fields (`fieldInfos` for structs and `unionFields`
+for unions) as well as access to annotations with the `structAnnotations` method. The `fields`
+method (separate from `fieldInfos`) provides access to `ThriftStructField` objects that most
+notably expose a `getValue` method allowing you to retrieve the field value from a struct instance.
+For example, to read an arbitrary named field's value you could use a method like this below:
+
+.. code-block:: scala
+
+    def readFieldValue[R](s: ThriftStruct, fieldName: String): Option[R] = {
+      val metaData = ThriftStructMetaData.forStructClass(s.getClass)
+      metaData.fields.collectFirst {
+        case f if f.name == fieldName => f.getValue(s)
+      }
+    }
+
+To get field annotations for a particular field you could use a method such as:
+
+.. code-block:: scala
+
+    def getFieldAnnotations(s: ThriftStruct, fieldName: String): Map[String, String] = {
+      val metaData = ThriftStructMetaData.forStructClass(s.getClass)
+      val annOpt = metaData.fieldInfos.collectFirst {
+        case f if f.tfield.name == fieldName => f.fieldAnnotations
+      }
+      annOpt.getOrElse(Map.Empty)
+    }
+
+How to retrieve field information for a union arm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Unions have one more special method. In Scrooge, union arms are represented as
+subclasses of a top-level class representing the union itself. The
+`com.twitter.scrooge.ThriftStructFieldInfo` for a particular arm can be accessed
+using `ThriftUnion.fieldInfoForUnionClass(Class)` method. It is equivalent to calling
+the `unionStructFieldInfo` on an instance of the union, but is helpful if you don't have
+an instance of a union arm, just its runtime `Class` object. For example, if you have
+an instance of a union arm, you can get all of its annotations using
+
+.. code-block:: scala
+
+    def unionArmAnnotations(u: ThriftUnion): Map[String, String] = {
+      u.unionStructFieldInfo.map(_.fieldAnnotations).getOrElse(Map.Empty)
+    }
+
+However, if all you have is a runtime class for it, then you can use the class-specific
+method:
+
+.. code-block:: scala
+
+    def unionArmAnnotations(uc: Class[_ <: ThriftUnion]): Map[String, String] = {
+      ThriftUnion.fieldInfoForUnionClass(uc).map(_.fieldAnnotations).getOrElse(Map.Empty)
+    }
+
+(Note in above examples, both methods return an `Option[ThriftStructFieldInfo]` - if you pass
+the instance/class representing the overall union, and not a specific arm, they return `None`.)

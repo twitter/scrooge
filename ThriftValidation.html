@@ -1,0 +1,581 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Thrift Validation &#8212; Scrooge 22.7.0 documentation</title>
+    <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scrooge Changelog" href="changelog.html" />
+    <link rel="prev" title="Swift User Guide" href="SwiftUserGuide.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="_static/small_flask.css" type= "text/css" rel="stylesheet" />
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="changelog.html" title="Scrooge Changelog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SwiftUserGuide.html" title="Swift User Guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="thrift-validation">
+<h1>Thrift Validation<a class="headerlink" href="#thrift-validation" title="Permalink to this headline">¶</a></h1>
+<p>Data validation is a common task for many services, and there is a core
+set of validations that every service wants to do. It can be time consuming
+and error prone to define and perform validation in each service.</p>
+<p>Thrift Validation is a library and Scrooge compiler integration that validates
+Thrift requests for Scrooge generated Finagle services. It provides a core set
+of validation constraints by default. It also allows users to define custom
+validation constraints to suit different business needs. When Thrift
+Validation is enabled, data validation for a Thrift request will be performed
+before the request is processed by the service. Utilizing Thrift Validation
+library could reduce the amount of duplicated validation definitions, and
+identify or stop invalid requests before they even reach services.</p>
+<div class="section" id="enable-thrift-validation">
+<h2>Enable Thrift Validation<a class="headerlink" href="#enable-thrift-validation" title="Permalink to this headline">¶</a></h2>
+<p>To enable Thrift Validation, please annotate any fields from a <cite>struct</cite>,
+<cite>union</cite>, or <cite>exception</cite> in a Thrift IDL. For example:</p>
+<div class="code thrift highlight-scala notranslate"><div class="highlight"><pre><span></span>struct ValidationStruct {
+  1: string stringField (validation.length.min = &quot;6&quot;, validation.email = &quot;&quot;)
+  2: i32 intField (validation.positiveOrZero = &quot;&quot;)
+  3: i64 longField (validation.max = &quot;100&quot;)
+  4: i16 shortField (validation.negative = &quot;&quot;)
+  5: i8 byteField (validation.positive = &quot;&quot;)
+  6: map&lt;string, string&gt; mapField (validation.size.max = &quot;1&quot;)
+  7: bool boolField (validation.assertTrue = &quot;&quot;)
+  8: required string requiredField
+  9: optional string optionalField
+}
+
+struct NestedValidationStruct {
+  1: string stringField (validation.email = &quot;&quot;)
+  2: ValidationStruct nestedStructField
+  3: list&lt;ValidationStruct&gt; nestedStructSet (validation.size.max = &quot;1&quot;)
+}
+
+union ValidationUnion {
+  1: i32 unionIntField (validation.positiveOrZero = &quot;&quot;)
+  2: string unionStringField (validation.notEmpty = &quot;&quot;)
+}
+
+exception ValidationException {
+  1: string excField (validation.notEmpty = &quot;&quot;)
+}
+</pre></div>
+</div>
+<p>The annotations should be in the format of <cite>validation.&lt;suffix&gt; = &lt;criteria&gt;</cite>,
+where <cite>criteria</cite> can be empty for annotations that don’t require a value
+(e.g., <cite>validation.notEmpty</cite>, <cite>validation.positive</cite>, etc.). Annotations can be
+applied to any base types or containers on a <cite>struct</cite>, <cite>union</cite>, or <cite>exception</cite>
+in an IDL. When annotations are applied on container types, the data
+validation will be performed against the container value, instead of the
+internal values inside the container. Nested validations are supported.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can apply multiple validation annotations on the same field (see
+annotations for <cite>stringField</cite> in <cite>ValidationStruct</cite> from the above example).
+When doing so, the Thrift Validation library will run all applied annotations
+and return all violations to you regardless of the order of the annotations.</p>
+</div>
+</div>
+<div class="section" id="default-validation-constraints">
+<h2>Default validation constraints<a class="headerlink" href="#default-validation-constraints" title="Permalink to this headline">¶</a></h2>
+<p>Thrift Validation library provides the following built-in validation
+constraints.</p>
+<table border="1" class="colwidths-given table table-striped table-hover docutils">
+<colgroup>
+<col width="28%" />
+<col width="11%" />
+<col width="28%" />
+<col width="6%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Annotation Key</strong></th>
+<th class="head"><strong>Field Data Types</strong></th>
+<th class="head"><strong>Validation Function</strong></th>
+<th class="head"><strong>Annotation Criteria Data Type</strong></th>
+<th class="head"><strong>Example Usage</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>validation.assertFalse</td>
+<td>boolean</td>
+<td>Checks that the annotated element is false.</td>
+<td>N/A</td>
+<td>validation.assertFalse = “”</td>
+</tr>
+<tr class="row-odd"><td>validation.assertTrue</td>
+<td>boolean</td>
+<td>Checks that the annotated element is true.</td>
+<td>N/A</td>
+<td>validation.assertTrue = “”</td>
+</tr>
+<tr class="row-even"><td>validation.countryCode</td>
+<td>string</td>
+<td>Checks if the annotated element is a valid <a class="reference external" href="https://www.iso.org/iso-3166-country-codes.html">country code</a>.</td>
+<td>N/A</td>
+<td>validation.countryCode = “”</td>
+</tr>
+<tr class="row-odd"><td>validation.EAN</td>
+<td>string</td>
+<td>Checks that the annotated character sequence is a valid <a class="reference external" href="https://en.wikipedia.org/wiki/International_Article_Number">EAN barcode</a>.</td>
+<td>N/A</td>
+<td>validation.EAN = “”</td>
+</tr>
+<tr class="row-even"><td>validation.email</td>
+<td>string</td>
+<td>Checks whether the annotated element is a well formed email address.</td>
+<td>N/A</td>
+<td>validation.email = “”</td>
+</tr>
+<tr class="row-odd"><td>validation.ISBN</td>
+<td>string</td>
+<td>Checks that the annotated character sequence is a valid <a class="reference external" href="https://en.wikipedia.org/wiki/ISBN">ISBN</a>.</td>
+<td>N/A</td>
+<td>validation.ISBN = “”</td>
+</tr>
+<tr class="row-even"><td>validation.length.max</td>
+<td>string</td>
+<td>Checks whether the annotated character sequence has length less than or equal to the specified maximum.</td>
+<td>integer</td>
+<td>Validation.length.max = “100”</td>
+</tr>
+<tr class="row-odd"><td>validation.length.min</td>
+<td>string</td>
+<td>Checks whether the annotated character sequence has length greater than or equal to the specified minimum.</td>
+<td>integer</td>
+<td>validation.length.min = “1”</td>
+</tr>
+<tr class="row-even"><td>validation.max</td>
+<td>i8, i16, i32, i64, double</td>
+<td>Checks whether the annotated element is less than or equal to the specified maximum.</td>
+<td>long</td>
+<td>validation.max = “100”</td>
+</tr>
+<tr class="row-odd"><td>validation.min</td>
+<td>i8, i16, i32, i64, double</td>
+<td>Checks whether the annotated element is greater than or equal to the specified minimum.</td>
+<td>long</td>
+<td>validation.min = “1”</td>
+</tr>
+<tr class="row-even"><td>validation.negative</td>
+<td>i8, i16, i32, i64, double</td>
+<td>Checks if the annotated element is strictly negative. Zero values are considered invalid.</td>
+<td>N/A</td>
+<td>validation.negative = “”</td>
+</tr>
+<tr class="row-odd"><td>validation.negativeOrZero</td>
+<td>i8, i16, i32, i64, double</td>
+<td>Checks whether the annotated element is negative or zero.</td>
+<td>N/A</td>
+<td>validation.negativeOrZero = “”</td>
+</tr>
+<tr class="row-even"><td>validation.notEmpty</td>
+<td>list, set, map, string</td>
+<td>Checks whether the annotated element is empty.</td>
+<td>N/A</td>
+<td>validation.notEmpty = “”</td>
+</tr>
+<tr class="row-odd"><td>validation.positive</td>
+<td>i8, i16, i32, i64, double</td>
+<td>Checks whether the annotated element is strictly positive. Zero values are considered invalid.</td>
+<td>N/A</td>
+<td>validation.positive = “”</td>
+</tr>
+<tr class="row-even"><td>validation.positiveOrZero</td>
+<td>i8, i16, i32, i64, double</td>
+<td>Checks whether the annotated element is positive or zero.</td>
+<td>N/A</td>
+<td>validation.positiveOrZero = “”</td>
+</tr>
+<tr class="row-odd"><td>validation.size.max</td>
+<td>list, set, map</td>
+<td>Checks if the annotated element’s size is less than or equal to the specified maximum.</td>
+<td>integer</td>
+<td>validation.size.max = “100”</td>
+</tr>
+<tr class="row-even"><td>validation.size.min</td>
+<td>list, set, map</td>
+<td>Checks if the annotated element’s size is greater than or equal to the specified minimum.</td>
+<td>integer</td>
+<td>validation.size.min = “1”</td>
+</tr>
+<tr class="row-odd"><td>validation.UUID</td>
+<td>string</td>
+<td>Checks whether the annotated element is a universally unique identifier as in java.util.UUID.</td>
+<td>N/A</td>
+<td>validation.UUID = “”</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>When the criteria is not applicable to the annotation, any specified
+criteria value will be ignored. We recommend using an empty string as the
+criteria for such annotations to avoid confusion.</p>
+<p class="last">If any built-in validation constraints are applied to a field with an
+unsupported data type, or the annotation criteria is specified with
+unsupported data types, an error will be returned during code generation.</p>
+</div>
+</div>
+<div class="section" id="define-custom-validation-constraints">
+<h2>Define custom validation constraints<a class="headerlink" href="#define-custom-validation-constraints" title="Permalink to this headline">¶</a></h2>
+<p>If none of the built-in constraints suffice, you can define custom constraints
+to implement any specific validation requirements by following the below steps:</p>
+<div class="section" id="define-an-annotation">
+<h3>Define an annotation<a class="headerlink" href="#define-an-annotation" title="Permalink to this headline">¶</a></h3>
+<p>The new annotation, same as built-in annotations, will be used to annotate any
+field from a <cite>struct</cite>, <cite>union</cite>, or <cite>exception</cite> in a Thrift IDL. We recommend
+following the  <cite>validation.&lt;suffix&gt; = &lt;criteria&gt;</cite> format to prefix the
+annotation key with <cite>validation.</cite> for consistency.</p>
+<p>For example, if you want to validate if a string field starts with letter <cite>A</cite>,
+you can define an annotation <cite>validation.startWithA = “”</cite>, and apply the
+annotation in the IDL:</p>
+<div class="code thrift highlight-scala notranslate"><div class="highlight"><pre><span></span>struct CustomValidationStruct {
+  1: string email (validation.startWithA = &quot;&quot;)
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="implement-a-thriftconstraintvalidator">
+<h3>Implement a <cite>ThriftConstraintValidator</cite><a class="headerlink" href="#implement-a-thriftconstraintvalidator" title="Permalink to this headline">¶</a></h3>
+<p>Having defined an annotation, we now need to create an implementation by
+extending <a class="reference external" href="https://github.com/twitter/scrooge/blob/b9bc55099d0764bf6061b91c86bc006c33510b1d/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation/ThriftConstraintValidator.scala">ThriftConstraintValidator</a>:</p>
+<p>In Scala:</p>
+<div class="code scala highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">com.twitter.scrooge.thrift_validation.ThriftConstraintValidator</span>
+
+<span class="k">object</span> <span class="nc">StartWithAConstraintValidator</span> <span class="k">extends</span> <span class="nc">ThriftConstraintValidator</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="o">{</span>
+
+  <span class="cm">/** Annotation value is not required for this constraint validator. */</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">annotationClass</span><span class="k">:</span> <span class="kt">Class</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span>
+
+  <span class="k">override</span> <span class="k">def</span> <span class="n">violationMessage</span><span class="o">(</span>
+    <span class="n">obj</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+    <span class="n">annotation</span><span class="k">:</span> <span class="kt">String</span>
+  <span class="o">)</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">&quot;must start with a&quot;</span>
+
+  <span class="cm">/** Return true as long as the given `obj` starts with &quot;a&quot;. */</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">isValid</span><span class="o">(</span>
+    <span class="n">obj</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+    <span class="n">annotation</span><span class="k">:</span> <span class="kt">String</span>
+  <span class="o">)</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">startsWith</span><span class="o">(</span><span class="s">&quot;a&quot;</span><span class="o">)</span>
+
+  <span class="k">override</span> <span class="k">def</span> <span class="n">fieldClass</span><span class="k">:</span> <span class="kt">Class</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>In Java:</p>
+<div class="code java highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">com.twitter.scrooge.thrift_validation.ThriftConstraintValidator</span><span class="o">;</span>
+
+<span class="n">static</span> <span class="k">class</span> <span class="nc">StartWithAConstraintValidator</span> <span class="n">implements</span> <span class="nc">ThriftConstraintValidator</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="n">public</span> <span class="nc">Class</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">annotationClass</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">String</span><span class="o">.</span><span class="n">class</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="n">public</span> <span class="nc">Class</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">fieldClass</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">String</span><span class="o">.</span><span class="n">class</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="n">public</span> <span class="nc">String</span> <span class="n">violationMessage</span><span class="o">(</span><span class="nc">String</span> <span class="n">obj</span><span class="o">,</span> <span class="nc">String</span> <span class="n">annotation</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">&quot;must start with a&quot;</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="n">public</span> <span class="n">boolean</span> <span class="n">isValid</span><span class="o">(</span><span class="nc">String</span> <span class="n">obj</span><span class="o">,</span> <span class="nc">String</span> <span class="n">annotation</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">startsWith</span><span class="o">(</span><span class="s">&quot;a&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The return value of method <cite>violationMessage</cite> will be used for auditing,
+please make sure to not include any PII data in the returned value.</p>
+</div>
+</div>
+<div class="section" id="implement-thriftvalidator">
+<h3>Implement <cite>ThriftValidator</cite><a class="headerlink" href="#implement-thriftvalidator" title="Permalink to this headline">¶</a></h3>
+<p>The next step is to map the new validation annotation to its implementation
+by extending a <a class="reference external" href="https://github.com/twitter/scrooge/blob/b9bc55099d0764bf6061b91c86bc006c33510b1d/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation/ThriftValidator.scala">ThriftValidator</a>:</p>
+<p>In Scala:</p>
+<div class="code scala highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">package</span> <span class="nn">com.twitter.scrooge_internal.thrift_validation.example</span>
+
+<span class="k">import</span> <span class="nn">com.twitter.scrooge.thrift_validation.ThriftValidator</span>
+
+<span class="k">class</span> <span class="nc">CustomValidatorExample</span> <span class="k">extends</span> <span class="nc">ThriftValidator</span> <span class="o">{</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">customAnnotations</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">ThriftConstraintValidator</span><span class="o">[</span><span class="k">_</span>, <span class="k">_</span><span class="o">]]</span> <span class="k">=</span>
+    <span class="nc">Map</span><span class="o">(</span>
+      <span class="s">&quot;validation.startWithA&quot;</span> <span class="o">-&gt;</span> <span class="nc">StartWithAConstraintValidator</span>
+    <span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>In Java:</p>
+<div class="code java highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">package</span> <span class="nn">com.twitter.scrooge_internal.thrift_validation.example</span><span class="o">;</span>
+
+<span class="k">import</span> <span class="nn">com.twitter.scrooge.thrift_validation.ThriftValidator</span><span class="o">;</span>
+
+<span class="n">public</span> <span class="k">class</span> <span class="nc">CustomJavaValidatorExample</span> <span class="k">extends</span> <span class="nc">ThriftValidator</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="n">public</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">ThriftConstraintValidator</span><span class="o">&lt;?,</span> <span class="o">?&gt;&gt;</span> <span class="n">customAnnotations</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">java</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">ThriftConstraintValidator</span><span class="o">&lt;?,</span> <span class="o">?&gt;&gt;</span> <span class="n">customConstraints</span> <span class="k">=</span>
+        <span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+    <span class="n">customConstraints</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">&quot;validation.startWithA&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="nc">JStartWithAConstraintValidator</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">toScalaMap</span><span class="o">(</span><span class="n">customConstraints</span><span class="o">);</span>
+  <span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="provide-thriftvalidator-class-name">
+<h3>Provide <cite>ThriftValidator</cite> class name<a class="headerlink" href="#provide-thriftvalidator-class-name" title="Permalink to this headline">¶</a></h3>
+<p>The last step is to signal the Thrift Validation library the fully qualified
+class name (FQCN) of the new custom <a class="reference external" href="https://github.com/twitter/scrooge/blob/b9bc55099d0764bf6061b91c86bc006c33510b1d/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation/ThriftValidator.scala">ThriftValidator</a>
+in the same IDL where the custom annotation is applied. Please provide the FQCN
+after <cite>#&#64;validator</cite> annotation in the beginning of the IDL. In this way, the
+validation library knows where to look for the implementation of the custom
+validation:</p>
+<div class="code thrift highlight-scala notranslate"><div class="highlight"><pre><span></span>#@namespace scala com.twitter.scrooge_internal.thrift_validator
+#@validator com.twitter.scrooge_internal.thrift_validation.example.CustomValidatorExample
+
+struct CustomValidationStruct {
+  1: string email (validation.startWithA = &quot;&quot;)
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="validation-violation-reporting">
+<h2>Validation violation reporting<a class="headerlink" href="#validation-violation-reporting" title="Permalink to this headline">¶</a></h2>
+<p>Once Thrift Validation is enabled, the server will run all validations when a
+Thrift request comes in, and throw a <a class="reference external" href="https://github.com/twitter/scrooge/blob/b9bc55099d0764bf6061b91c86bc006c33510b1d/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation/ThriftValidationException.scala">ThriftValidationException</a>
+with all validation violations if any validation fails. The client, however,
+will receive a <cite>org.apache.thrift.TApplicationException</cite>. This is because
+Finagle Thrift clients operate at byte level so they convert any application
+exceptions into <cite>TApplicationException</cite> in order to transfer the exceptions
+over the wire.</p>
+<p>The validation violations are reported via logging, stats, and Zipkin tracing
+on both client and server side.</p>
+<div class="section" id="stats">
+<h3>Stats<a class="headerlink" href="#stats" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>thrift_validation/violation/&lt;method_name&gt;/&lt;request_class_name&gt;</strong></dt>
+<dd>A server side counter of the total number of failed requests of class
+<cite>&lt;request_class_name&gt;</cite> to the endpoint <cite>method_name</cite>.</dd>
+<dt><strong>client/&lt;method_name&gt;/failures/org.apache.thrift.TApplicationException</strong></dt>
+<dd>A client side counter of the total number of requests that failed with a
+<cite>TApplicationException</cite>, this includes the requests that failed Thrift
+Validation.</dd>
+</dl>
+</div>
+<div class="section" id="zipkin-tracing">
+<h3>Zipkin Tracing<a class="headerlink" href="#zipkin-tracing" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>validation/endpoint</strong></dt>
+<dd>Annotates the method name where the invalid request was trying to call.</dd>
+<dt><strong>validation/request</strong></dt>
+<dd>Annotates the invalid Thrift request class name.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="alternative-methodperendpoint-api">
+<h2>Alternative <cite>MethodPerEndpoint</cite> API<a class="headerlink" href="#alternative-methodperendpoint-api" title="Permalink to this headline">¶</a></h2>
+<p>If you don’t want the server to throw an exception upon receiving an invalid
+request, you can create a <cite>MethodPerEndpoint</cite> client by extending
+<a class="reference external" href="https://github.com/twitter/scrooge/blob/dd10a0efee67aff81c38c0b6407c3ac8e8cf8a10/scrooge-generator-tests/src/test/resources/gold_file_output_scala/com/twitter/scrooge/test/gold/thriftscala/GoldService%24FinagleService.scala#L23-L44">ServerValidationMixin</a>
+trait (which extends <cite>MethodPerEndpoint</cite>) and implementing the
+<cite>violationReturning&lt;method_name&gt;</cite> API:</p>
+<div class="code scala highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">methodPerEndpoint</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">ServerValidationMixin</span> <span class="o">{</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">validate</span><span class="o">(</span>
+    <span class="n">structRequest</span><span class="k">:</span> <span class="kt">ValidationStruct</span><span class="o">,</span>
+    <span class="n">unionRequest</span><span class="k">:</span> <span class="kt">ValidationUnion</span><span class="o">,</span>
+    <span class="n">exceptionRequest</span><span class="k">:</span> <span class="kt">ValidationException</span>
+  <span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Boolean</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Future</span><span class="o">.</span><span class="nc">False</span>
+
+  <span class="k">override</span> <span class="k">def</span> <span class="n">violationReturningValidate</span><span class="o">(</span>
+    <span class="n">structRequest</span><span class="k">:</span> <span class="kt">ValidationStruct</span><span class="o">,</span>
+    <span class="n">unionRequest</span><span class="k">:</span> <span class="kt">ValidationUnion</span><span class="o">,</span>
+    <span class="n">exceptionRequest</span><span class="k">:</span> <span class="kt">ValidationException</span><span class="o">,</span>
+    <span class="n">structRequestViolations</span><span class="k">:</span> <span class="kt">Set</span><span class="o">[</span><span class="kt">ThriftValidationViolation</span><span class="o">],</span>
+    <span class="n">unionRequestViolations</span><span class="k">:</span> <span class="kt">Set</span><span class="o">[</span><span class="kt">ThriftValidationViolation</span><span class="o">],</span>
+    <span class="n">exceptionRequestViolations</span><span class="k">:</span> <span class="kt">Set</span><span class="o">[</span><span class="kt">ThriftValidationViolation</span><span class="o">]</span>
+  <span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Boolean</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="c1">// if any of the request parameters has validation violations, return true, otherwise return false</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">structRequestViolations</span><span class="o">.</span><span class="n">nonEmpty</span> <span class="o">||</span> <span class="n">unionRequestViolations</span><span class="o">.</span><span class="n">nonEmpty</span> <span class="o">||</span> <span class="n">exceptionRequestViolations</span><span class="o">.</span><span class="n">nonEmpty</span><span class="o">)</span>
+      <span class="nc">Future</span><span class="o">.</span><span class="nc">True</span>
+    <span class="k">else</span> <span class="nc">Future</span><span class="o">.</span><span class="nc">False</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">thriftServer</span> <span class="k">=</span>
+  <span class="nc">Thrift</span><span class="o">.</span><span class="n">server</span>
+    <span class="o">.</span><span class="n">serveIface</span><span class="o">(</span><span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="nc">InetAddress</span><span class="o">.</span><span class="n">getLoopbackAddress</span><span class="o">,</span> <span class="mi">0</span><span class="o">),</span> <span class="n">methodPerEndpoint</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">methodPerEndpointClient</span> <span class="k">=</span> <span class="nc">Thrift</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">build</span><span class="o">[</span><span class="kt">ValidationService.MethodPerEndpoint</span><span class="o">](</span>
+  <span class="nc">Name</span><span class="o">.</span><span class="n">bound</span><span class="o">(</span><span class="nc">Address</span><span class="o">(</span><span class="n">thriftServer</span><span class="o">.</span><span class="n">boundAddress</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">InetSocketAddress</span><span class="o">])),</span>
+  <span class="s">&quot;client&quot;</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+<p>The Thrift request to the RPC method <cite>&lt;method_name&gt;</cite> is already validated by
+the Thrift Validation library, and the violation is returned as parameter
+<cite>&lt;request_name&gt;Violations</cite> in the signature of the
+<cite>violationReturning&lt;method_name&gt;</cite> API. You could access the violations and
+consume them in any forms your application desires.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When the <cite>violationReturning&lt;method_name&gt;</cite> is implemented, the server
+will execute the implementation of the <cite>violationReturning</cite> version instead
+of the implementation of the <cite>&lt;method_name&gt;</cite> when the method <cite>&lt;method_name&gt;</cite>
+is called. If you extend the <cite>ServerValidationMixin</cite> without implementing the
+<cite>violationReturning</cite> method, the <cite>&lt;method_name&gt;</cite> implementation will be
+executed when the method is called, and the server will throw a
+<a class="reference external" href="https://github.com/twitter/scrooge/blob/b9bc55099d0764bf6061b91c86bc006c33510b1d/scrooge-thrift-validation/src/main/scala/com/twitter/scrooge/thrift_validation/ThriftValidationException.scala">ThriftValidationException</a>
+per failed validation.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">No stats, logging, and tracing will be reported if no
+<cite>ThriftValidationException</cite> is thrown.</p>
+</div>
+</div>
+<div class="section" id="helper-validation-method">
+<h2>Helper validation method<a class="headerlink" href="#helper-validation-method" title="Permalink to this headline">¶</a></h2>
+<p>When Thrift Validation is enabled, Scrooge will provide a helper method in
+the generated class where a validation annotation is applied. For example,
+by annotating the struct with:</p>
+<div class="code thrift highlight-scala notranslate"><div class="highlight"><pre><span></span>struct ValidationStruct {
+  1: string stringField (validation.length.min = &quot;6&quot;, validation.email = &quot;&quot;)
+  2: i32 intField (validation.positiveOrZero = &quot;&quot;)
+  3: i64 longField (validation.max = &quot;100&quot;)
+  4: i16 shortField (validation.negative = &quot;&quot;)
+  5: i8 byteField (validation.positive = &quot;&quot;)
+  6: map&lt;string, string&gt; mapField (validation.size.max = &quot;1&quot;)
+  7: bool boolField (validation.assertTrue = &quot;&quot;)
+  8: required string requiredField
+  9: optional string optionalField
+}
+</pre></div>
+</div>
+<p>Scrooge will create a <a class="reference external" href="https://github.com/twitter/scrooge/blob/dd10a0efee67aff81c38c0b6407c3ac8e8cf8a10/scrooge-generator-tests/src/test/resources/gold_file_output_scala/com/twitter/scrooge/test/gold/thriftscala/Request.scala#L444-L467">validateInstanceValue</a>
+method in the generated <cite>ValidationStruct</cite> object. You can call the method
+anywhere in your code if you need a helper method without creating a RPC call:</p>
+<div class="code scala highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">invalidStruct</span> <span class="k">=</span>
+  <span class="nc">ValidationStruct</span><span class="o">(</span>
+    <span class="s">&quot;email&quot;</span><span class="o">,</span>
+    <span class="o">-</span><span class="mi">1</span><span class="o">,</span>
+    <span class="mi">101</span><span class="o">,</span>
+    <span class="mi">0</span><span class="o">,</span>
+    <span class="mi">0</span><span class="o">,</span>
+    <span class="nc">Map</span><span class="o">(</span><span class="s">&quot;1&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;1&quot;</span><span class="o">,</span> <span class="s">&quot;2&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;2&quot;</span><span class="o">),</span>
+    <span class="n">boolField</span> <span class="k">=</span> <span class="kc">false</span><span class="o">,</span>
+    <span class="s">&quot;anything&quot;</span><span class="o">,</span>
+    <span class="nc">Some</span><span class="o">(</span><span class="s">&quot;nothing&quot;</span><span class="o">))</span>
+
+<span class="k">val</span> <span class="n">validationViolations</span> <span class="k">=</span> <span class="nc">ValidationStruct</span><span class="o">.</span><span class="n">validateInstanceValue</span><span class="o">(</span><span class="n">invalidStruct</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/scrooge.png" alt="Logo"/>
+            </a></p><a href="index.html"><h3>Scrooge</h3></a>
+<p>
+  Scrooge is a general purpose thrift parser/generator
+</p>
+
+<h3>Useful Links</h3>
+<ul>
+  <li><a href="https://github.com/twitter/scrooge">Scrooge @ GitHub</a></li>
+  <li><a href="https://github.com/twitter/scrooge/issues">Issue Tracker</a></li>
+</ul>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Thrift Validation</a><ul>
+<li><a class="reference internal" href="#enable-thrift-validation">Enable Thrift Validation</a></li>
+<li><a class="reference internal" href="#default-validation-constraints">Default validation constraints</a></li>
+<li><a class="reference internal" href="#define-custom-validation-constraints">Define custom validation constraints</a><ul>
+<li><a class="reference internal" href="#define-an-annotation">Define an annotation</a></li>
+<li><a class="reference internal" href="#implement-a-thriftconstraintvalidator">Implement a <cite>ThriftConstraintValidator</cite></a></li>
+<li><a class="reference internal" href="#implement-thriftvalidator">Implement <cite>ThriftValidator</cite></a></li>
+<li><a class="reference internal" href="#provide-thriftvalidator-class-name">Provide <cite>ThriftValidator</cite> class name</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#validation-violation-reporting">Validation violation reporting</a><ul>
+<li><a class="reference internal" href="#stats">Stats</a></li>
+<li><a class="reference internal" href="#zipkin-tracing">Zipkin Tracing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#alternative-methodperendpoint-api">Alternative <cite>MethodPerEndpoint</cite> API</a></li>
+<li><a class="reference internal" href="#helper-validation-method">Helper validation method</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="SwiftUserGuide.html" title="previous chapter">Swift User Guide</a></li>
+      <li>Next: <a href="changelog.html" title="next chapter">Scrooge Changelog</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Search the contents of this site.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013 Twitter, Inc.
+    Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Scrooge &#8212; Scrooge 22.4.0 documentation</title>
+    <title>Scrooge &#8212; Scrooge 22.7.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -79,12 +79,12 @@ Maven users need to add the following to the pom.xml file:</p>
 <div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
   <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
   <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">scrooge</span><span class="o">-</span><span class="n">core_2</span><span class="o">.</span><span class="mi">12</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
-  <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">22.4</span><span class="o">.</span><span class="mi">0</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">22.7</span><span class="o">.</span><span class="mi">0</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
 <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>SBT users need this:</p>
-<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">scroogeCore</span> <span class="k">=</span> <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;22.4.0&quot;</span>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">scroogeCore</span> <span class="k">=</span> <span class="s">&quot;com.twitter&quot;</span> <span class="o">%%</span> <span class="s">&quot;scrooge-core&quot;</span> <span class="o">%</span> <span class="s">&quot;22.7.0&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -145,6 +145,12 @@ You can still build the scrooge-sbt-plugin separately by executing:</p>
 <li class="toctree-l1"><a class="reference internal" href="GeneratedCodeUsage.html">Generated Scala Code Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="GeneratedCodeUsage.html#unions">Unions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="GeneratedCodeUsage.html#optional-functionality">Optional functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GeneratedCodeUsage.html#codecs-and-metadata">Codecs and Metadata</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="GeneratedCodeUsage.html#how-to-get-the-codec-for-a-struct-class">How to get the codec for a struct class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GeneratedCodeUsage.html#how-to-get-metadata-for-a-struct-class">How to get metadata for a struct class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GeneratedCodeUsage.html#how-to-retrieve-field-information-for-a-union-arm">How to retrieve field information for a union arm</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Semantics.html">Implementation Semantics</a><ul>
@@ -165,6 +171,25 @@ You can still build the scrooge-sbt-plugin separately by executing:</p>
 <li class="toctree-l2"><a class="reference internal" href="SwiftUserGuide.html#generation-command">Generation Command</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ThriftValidation.html">Thrift Validation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ThriftValidation.html#enable-thrift-validation">Enable Thrift Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ThriftValidation.html#default-validation-constraints">Default validation constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ThriftValidation.html#define-custom-validation-constraints">Define custom validation constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ThriftValidation.html#define-an-annotation">Define an annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ThriftValidation.html#implement-a-thriftconstraintvalidator">Implement a <cite>ThriftConstraintValidator</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ThriftValidation.html#implement-thriftvalidator">Implement <cite>ThriftValidator</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ThriftValidation.html#provide-thriftvalidator-class-name">Provide <cite>ThriftValidator</cite> class name</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ThriftValidation.html#validation-violation-reporting">Validation violation reporting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ThriftValidation.html#stats">Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ThriftValidation.html#zipkin-tracing">Zipkin Tracing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ThriftValidation.html#alternative-methodperendpoint-api">Alternative <cite>MethodPerEndpoint</cite> API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ThriftValidation.html#helper-validation-method">Helper validation method</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -174,152 +199,154 @@ You can still build the scrooge-sbt-plugin separately by executing:</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Scrooge Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">Unreleased</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">22.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">22.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">22.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id6">22.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id7">21.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id8">21.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id10">21.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id11">21.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">22.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">22.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">22.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id5">22.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id8">22.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id9">21.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id10">21.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id12">21.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id13">21.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#no-21-7-0-release">21.8.0 (No 21.7.0 Release)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id14">21.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id15">21.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id16">21.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id17">21.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id20">21.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id21">21.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id22">20.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id23">20.9.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id24">20.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id16">21.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id17">21.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id18">21.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id19">21.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id22">21.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id23">21.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id24">20.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id25">20.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id26">20.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id27">20.8.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#do-not-use">20.8.0 (DO NOT USE)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id25">20.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id26">20.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id27">20.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id28">20.4.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id29">20.4.0 (DO NOT USE)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id30">20.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id31">20.2.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id32">20.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id33">19.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id34">19.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id35">19.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id36">19.9.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id37">19.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id38">19.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id39">19.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id40">19.5.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id41">19.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id42">19.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id43">19.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id44">19.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id45">19.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id46">18.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id47">18.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id48">18.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id49">18.9.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id50">18.9.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id52">18.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id53">18.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id54">18.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id55">18.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id56">18.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id57">18.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id58">18.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id59">18.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id60">17.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id61">17.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id62">17.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id63">4.20.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id64">4.19.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id65">4.18.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id66">4.17.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id67">4.16.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id68">4.15.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id69">4.14.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id70">4.13.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id71">4.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id72">4.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id73">4.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id74">4.9.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id75">4.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id77">4.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id78">4.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id79">4.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id80">4.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id81">4.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id82">4.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id83">4.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id84">4.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id28">20.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id29">20.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id30">20.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id31">20.4.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id32">20.4.0 (DO NOT USE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id33">20.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id34">20.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id35">20.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id36">19.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id37">19.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id38">19.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id39">19.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id40">19.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id41">19.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id42">19.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id43">19.5.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id44">19.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id45">19.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id46">19.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id47">19.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id48">19.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id49">18.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id50">18.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id51">18.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id52">18.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id53">18.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id55">18.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id56">18.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id57">18.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id58">18.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id59">18.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id60">18.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id61">18.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id62">18.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id63">17.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id64">17.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id65">17.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id66">4.20.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id67">4.19.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id68">4.18.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id69">4.17.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id70">4.16.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id71">4.15.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id72">4.14.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id73">4.13.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id74">4.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id75">4.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id76">4.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id77">4.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id78">4.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id80">4.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id81">4.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id82">4.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id83">4.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id84">4.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id85">4.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id86">4.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id87">4.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#x">3.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id85">3.20.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id86">3.19.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id87">3.18.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id88">3.18.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id89">3.17.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id90">3.16.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id91">3.16.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id92">3.16.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id93">3.16.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id94">3.15.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id95">3.14.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id96">3.14.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id97">3.13.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id98">3.13.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id99">3.13.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id100">3.12.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id101">3.12.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id102">3.12.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id103">3.12.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id104">3.11.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id105">3.11.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id106">3.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id107">3.10.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id108">3.10.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id109">3.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id110">3.9.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id111">3.9.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id112">3.9.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id113">3.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id114">3.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id115">3.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id116">3.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id117">3.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id118">3.3.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id119">3.3.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id120">3.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id121">3.2.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id122">3.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id123">3.1.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id124">3.1.9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id125">3.1.8</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id126">3.1.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id127">3.1.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id128">3.1.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id129">3.1.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id130">3.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id131">3.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id132">3.0.9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id133">3.0.8</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id134">3.0.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id135">3.0.6</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id136">3.0.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id137">3.0.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id138">3.0.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id139">3.0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id140">3.0.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id141">3.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id142">2.5.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id143">2.5.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id144">2.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id145">2.3.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id146">2.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id147">2.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id148">2.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id149">2.0.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id150">2.0.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id151">2.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id152">1.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id88">3.20.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id89">3.19.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id90">3.18.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id91">3.18.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id92">3.17.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id93">3.16.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id94">3.16.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id95">3.16.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id96">3.16.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id97">3.15.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id98">3.14.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id99">3.14.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id100">3.13.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id101">3.13.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id102">3.13.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id103">3.12.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id104">3.12.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id105">3.12.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id106">3.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id107">3.11.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id108">3.11.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id109">3.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id110">3.10.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id111">3.10.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id112">3.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id113">3.9.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id114">3.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id115">3.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id116">3.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id117">3.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id118">3.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id119">3.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id120">3.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id121">3.3.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id122">3.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id123">3.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id124">3.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id125">3.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id126">3.1.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id127">3.1.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id128">3.1.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id129">3.1.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id130">3.1.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id131">3.1.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id132">3.1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id133">3.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id134">3.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id135">3.0.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id136">3.0.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id137">3.0.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id138">3.0.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id139">3.0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id140">3.0.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id141">3.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id142">3.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id143">3.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id144">3.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id145">2.5.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id146">2.5.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id147">2.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id148">2.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id149">2.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id150">2.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id151">2.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id152">2.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id153">2.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id154">2.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id155">1.1.1</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>

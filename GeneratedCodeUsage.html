@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Generated Scala Code Usage &#8212; Scrooge 22.4.0 documentation</title>
+    <title>Generated Scala Code Usage &#8212; Scrooge 22.7.0 documentation</title>
     <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -129,6 +129,82 @@ delegates to another instance. These may be useful for tests and otherwise.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="codecs-and-metadata">
+<h2>Codecs and Metadata<a class="headerlink" href="#codecs-and-metadata" title="Permalink to this headline">¶</a></h2>
+<p>When you write code that works with a particular set of Scrooge-generated classes,
+you know statically what fields do they have and what are their types. You also
+have access to those classes’ <cite>ThriftStructCodec</cite> simply as the companion object to
+the struct class. However, if you write code that generally works with any Scrooge-generated
+structs, Scrooge gives you APIs to obtain both their codec and the metadata describing their
+fields. (Unions are structs too, so everything that applies to structs applies to unions as
+well.)</p>
+<div class="section" id="how-to-get-the-codec-for-a-struct-class">
+<h3>How to get the codec for a struct class<a class="headerlink" href="#how-to-get-the-codec-for-a-struct-class" title="Permalink to this headline">¶</a></h3>
+<p>To get a <cite>com.twitter.scrooge.ThriftStructCodec</cite> for any struct class, use the
+<cite>ThriftStructCodec.forStructClass(Class)</cite> method. Pass it the runtime class of a
+Scrooge-generated struct and it will return its codec object:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="n">structionize</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">ThriftStruct</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">codec</span> <span class="k">=</span> <span class="nc">ThriftStructCodec</span><span class="o">.</span><span class="n">forStructClass</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">getClass</span><span class="o">)</span>
+  <span class="o">...</span> <span class="n">use</span> <span class="n">the</span> <span class="n">codec</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Codecs have <cite>encode</cite> and <cite>decode</cite> methods as well as a <cite>metaData</cite> method that returns a
+<cite>com.twitter.scrooge.ThriftStructMetaData</cite> object describing the structure in detail.</p>
+</div>
+<div class="section" id="how-to-get-metadata-for-a-struct-class">
+<h3>How to get metadata for a struct class<a class="headerlink" href="#how-to-get-metadata-for-a-struct-class" title="Permalink to this headline">¶</a></h3>
+<p>You can also obtain the metadata object directly using the
+<cite>ThriftStructMetaData.forStructClass(Class)</cite> method. Metadata describes the struct, most notably
+providing access to information about its fields (<cite>fieldInfos</cite> for structs and <cite>unionFields</cite>
+for unions) as well as access to annotations with the <cite>structAnnotations</cite> method. The <cite>fields</cite>
+method (separate from <cite>fieldInfos</cite>) provides access to <cite>ThriftStructField</cite> objects that most
+notably expose a <cite>getValue</cite> method allowing you to retrieve the field value from a struct instance.
+For example, to read an arbitrary named field’s value you could use a method like this below:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="n">readFieldValue</span><span class="o">[</span><span class="kt">R</span><span class="o">](</span><span class="n">s</span><span class="k">:</span> <span class="kt">ThriftStruct</span><span class="o">,</span> <span class="n">fieldName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">R</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">metaData</span> <span class="k">=</span> <span class="nc">ThriftStructMetaData</span><span class="o">.</span><span class="n">forStructClass</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">getClass</span><span class="o">)</span>
+  <span class="n">metaData</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">collectFirst</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="n">f</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">fieldName</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">.</span><span class="n">getValue</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>To get field annotations for a particular field you could use a method such as:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="n">getFieldAnnotations</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">ThriftStruct</span><span class="o">,</span> <span class="n">fieldName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">metaData</span> <span class="k">=</span> <span class="nc">ThriftStructMetaData</span><span class="o">.</span><span class="n">forStructClass</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">getClass</span><span class="o">)</span>
+  <span class="k">val</span> <span class="n">annOpt</span> <span class="k">=</span> <span class="n">metaData</span><span class="o">.</span><span class="n">fieldInfos</span><span class="o">.</span><span class="n">collectFirst</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="n">f</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">tfield</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">fieldName</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">.</span><span class="n">fieldAnnotations</span>
+  <span class="o">}</span>
+  <span class="n">annOpt</span><span class="o">.</span><span class="n">getOrElse</span><span class="o">(</span><span class="nc">Map</span><span class="o">.</span><span class="nc">Empty</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-retrieve-field-information-for-a-union-arm">
+<h3>How to retrieve field information for a union arm<a class="headerlink" href="#how-to-retrieve-field-information-for-a-union-arm" title="Permalink to this headline">¶</a></h3>
+<p>Unions have one more special method. In Scrooge, union arms are represented as
+subclasses of a top-level class representing the union itself. The
+<cite>com.twitter.scrooge.ThriftStructFieldInfo</cite> for a particular arm can be accessed
+using <cite>ThriftUnion.fieldInfoForUnionClass(Class)</cite> method. It is equivalent to calling
+the <cite>unionStructFieldInfo</cite> on an instance of the union, but is helpful if you don’t have
+an instance of a union arm, just its runtime <cite>Class</cite> object. For example, if you have
+an instance of a union arm, you can get all of its annotations using</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="n">unionArmAnnotations</span><span class="o">(</span><span class="n">u</span><span class="k">:</span> <span class="kt">ThriftUnion</span><span class="o">)</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="n">u</span><span class="o">.</span><span class="n">unionStructFieldInfo</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">fieldAnnotations</span><span class="o">).</span><span class="n">getOrElse</span><span class="o">(</span><span class="nc">Map</span><span class="o">.</span><span class="nc">Empty</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>However, if all you have is a runtime class for it, then you can use the class-specific
+method:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="n">unionArmAnnotations</span><span class="o">(</span><span class="n">uc</span><span class="k">:</span> <span class="kt">Class</span><span class="o">[</span><span class="k">_</span> <span class="k">&lt;:</span> <span class="kt">ThriftUnion</span><span class="o">])</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="nc">ThriftUnion</span><span class="o">.</span><span class="n">fieldInfoForUnionClass</span><span class="o">(</span><span class="n">uc</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">fieldAnnotations</span><span class="o">).</span><span class="n">getOrElse</span><span class="o">(</span><span class="nc">Map</span><span class="o">.</span><span class="nc">Empty</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>(Note in above examples, both methods return an <cite>Option[ThriftStructFieldInfo]</cite> - if you pass
+the instance/class representing the overall union, and not a specific arm, they return <cite>None</cite>.)</p>
+</div>
+</div>
 </div>
 
 
@@ -154,6 +230,12 @@ delegates to another instance. These may be useful for tests and otherwise.</p>
 <li><a class="reference internal" href="#">Generated Scala Code Usage</a><ul>
 <li><a class="reference internal" href="#unions">Unions</a></li>
 <li><a class="reference internal" href="#optional-functionality">Optional functionality</a></li>
+<li><a class="reference internal" href="#codecs-and-metadata">Codecs and Metadata</a><ul>
+<li><a class="reference internal" href="#how-to-get-the-codec-for-a-struct-class">How to get the codec for a struct class</a></li>
+<li><a class="reference internal" href="#how-to-get-metadata-for-a-struct-class">How to get metadata for a struct class</a></li>
+<li><a class="reference internal" href="#how-to-retrieve-field-information-for-a-union-arm">How to retrieve field information for a union arm</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
