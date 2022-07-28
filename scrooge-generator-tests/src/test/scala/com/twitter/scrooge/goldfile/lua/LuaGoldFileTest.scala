@@ -11,5 +11,5 @@ class LuaGoldFileTest extends GoldFileTest {
   protected def language: String = LuaGeneratorFactory.language
 
   override def testThriftFiles =
-    super.testThriftFiles :+ "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/lua.thrift"
+    super.testThriftFiles :+ "test_thrift/lua.thrift"
 }

@@ -49,11 +49,9 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
 
-    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
+    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -82,9 +80,8 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator classes" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
+
 
     val args =
       Array[String](
@@ -94,7 +91,7 @@ class SwiftGeneratorSpec extends Spec {
         "swift-classes",
         "-d",
         tempDir.getPath,
-        inputThrift)
+        includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -122,9 +119,7 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator internal types" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
 
     val args =
       Array[String](
@@ -134,7 +129,7 @@ class SwiftGeneratorSpec extends Spec {
         "swift-internal-types",
         "-d",
         tempDir.getPath,
-        inputThrift)
+        includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -163,9 +158,8 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator Obj-C" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
+
 
     val args =
       Array[String](
@@ -175,7 +169,7 @@ class SwiftGeneratorSpec extends Spec {
         "swift-objc TEST",
         "-d",
         tempDir.getPath,
-        inputThrift)
+        includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -204,11 +198,10 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator with alternative type" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/alternative_type.thrift"
+    val includePath = Utils.getIncludeFilePath("alternative_type.thrift", Some("test_thrift/swift"))
 
-    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
+
+    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
