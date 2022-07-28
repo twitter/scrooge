@@ -1444,6 +1444,29 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
   type noExceptionCall$result = NoExceptionCall.Result
 
 
+  trait ServerValidationMixin extends GoldService.MethodPerEndpoint {
+  
+    def violationReturningDoGreatThings(
+      request: com.twitter.scrooge.test.gold.thriftscala.Request,
+      unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion,
+      exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException,
+      requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation],
+      unionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation],
+      exceptionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+      if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", request.getClass, requestViolations)
+      else if (unionRequestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", unionRequest.getClass, unionRequestViolations)
+      else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", exceptionRequest.getClass, exceptionRequestViolations)
+    }
+  
+    def violationReturningNoExceptionCall(
+      request: com.twitter.scrooge.test.gold.thriftscala.Request,
+      requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
+      throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", request.getClass, requestViolations)
+    }
+  }
+
   trait MethodPerEndpoint extends _root_.com.twitter.finagle.thrift.ThriftService {
     /** Hello, I'm a comment. */
     def doGreatThings(request: com.twitter.scrooge.test.gold.thriftscala.Request, unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion, exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException): Future[com.twitter.scrooge.test.gold.thriftscala.Response]

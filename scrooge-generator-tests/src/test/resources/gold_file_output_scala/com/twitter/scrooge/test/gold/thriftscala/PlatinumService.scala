@@ -916,6 +916,16 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
   type moreCoolThings$result = MoreCoolThings.Result
 
 
+  trait ServerValidationMixin extends PlatinumService.MethodPerEndpoint {
+  
+    def violationReturningMoreCoolThings(
+      request: com.twitter.scrooge.test.gold.thriftscala.Request,
+      requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
+    ): Future[Int] = {
+      throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", request.getClass, requestViolations)
+    }
+  }
+
   trait MethodPerEndpoint extends com.twitter.scrooge.test.gold.thriftscala.GoldService.MethodPerEndpoint {
     
     def moreCoolThings(request: com.twitter.scrooge.test.gold.thriftscala.Request): Future[Int]

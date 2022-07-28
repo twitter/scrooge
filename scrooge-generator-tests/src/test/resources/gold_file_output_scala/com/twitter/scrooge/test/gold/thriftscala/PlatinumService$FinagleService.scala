@@ -17,15 +17,6 @@ import com.twitter.finagle.thrift.RichServerParam
 import com.twitter.util.Future
 import org.apache.thrift.protocol._
 
-trait ServerValidationMixin extends PlatinumService.MethodPerEndpoint {
-
-  def violationReturningMoreCoolThings(
-    request: com.twitter.scrooge.test.gold.thriftscala.Request,
-    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
-  ): Future[Int] = {
-    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("moreCoolThings", request.getClass, requestViolations)
-  }
-}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class PlatinumService$FinagleService(
@@ -71,10 +62,10 @@ class PlatinumService$FinagleService(
           else Set.empty
         if (requestViolations.isEmpty) {
           iface.moreCoolThings(args.request)
-        } else if (iface.isInstanceOf[ServerValidationMixin]) {
+        } else if (iface.isInstanceOf[PlatinumService.ServerValidationMixin]) {
           // If any request failed validation and user implement the `violationReturning` method, we will
           // execute the overriden implementation of `violationReturning` method provided by the user.
-          iface.asInstanceOf[ServerValidationMixin].violationReturningMoreCoolThings(args.request, requestViolations)
+          iface.asInstanceOf[PlatinumService.ServerValidationMixin].violationReturningMoreCoolThings(args.request, requestViolations)
         } else {
           // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
           // throw an exception for failed validations.

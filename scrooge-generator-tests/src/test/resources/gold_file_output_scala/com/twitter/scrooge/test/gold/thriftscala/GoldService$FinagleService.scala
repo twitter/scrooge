@@ -20,28 +20,6 @@ import org.apache.thrift.protocol._
 import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
 
-trait ServerValidationMixin extends GoldService.MethodPerEndpoint {
-
-  def violationReturningDoGreatThings(
-    request: com.twitter.scrooge.test.gold.thriftscala.Request,
-    unionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestUnion,
-    exceptionRequest: com.twitter.scrooge.test.gold.thriftscala.RequestException,
-    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation],
-    unionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation],
-    exceptionRequestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
-  ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
-    if (requestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", request.getClass, requestViolations)
-    else if (unionRequestViolations.nonEmpty) throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", unionRequest.getClass, unionRequestViolations)
-    else throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("doGreatThings", exceptionRequest.getClass, exceptionRequestViolations)
-  }
-
-  def violationReturningNoExceptionCall(
-    request: com.twitter.scrooge.test.gold.thriftscala.Request,
-    requestViolations: Set[com.twitter.scrooge.thrift_validation.ThriftValidationViolation]
-  ): Future[com.twitter.scrooge.test.gold.thriftscala.Response] = {
-    throw new com.twitter.scrooge.thrift_validation.ThriftValidationException("noExceptionCall", request.getClass, requestViolations)
-  }
-}
 
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class GoldService$FinagleService(
@@ -124,10 +102,10 @@ class GoldService$FinagleService(
           else Set.empty
         if (requestViolations.isEmpty && unionRequestViolations.isEmpty && exceptionRequestViolations.isEmpty) {
           iface.doGreatThings(args.request, args.unionRequest, args.exceptionRequest)
-        } else if (iface.isInstanceOf[ServerValidationMixin]) {
+        } else if (iface.isInstanceOf[GoldService.ServerValidationMixin]) {
           // If any request failed validation and user implement the `violationReturning` method, we will
           // execute the overriden implementation of `violationReturning` method provided by the user.
-          iface.asInstanceOf[ServerValidationMixin].violationReturningDoGreatThings(args.request, args.unionRequest, args.exceptionRequest, requestViolations, unionRequestViolations, exceptionRequestViolations)
+          iface.asInstanceOf[GoldService.ServerValidationMixin].violationReturningDoGreatThings(args.request, args.unionRequest, args.exceptionRequest, requestViolations, unionRequestViolations, exceptionRequestViolations)
         } else {
           // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
           // throw an exception for failed validations.
@@ -149,10 +127,10 @@ class GoldService$FinagleService(
           else Set.empty
         if (requestViolations.isEmpty) {
           iface.noExceptionCall(args.request)
-        } else if (iface.isInstanceOf[ServerValidationMixin]) {
+        } else if (iface.isInstanceOf[GoldService.ServerValidationMixin]) {
           // If any request failed validation and user implement the `violationReturning` method, we will
           // execute the overriden implementation of `violationReturning` method provided by the user.
-          iface.asInstanceOf[ServerValidationMixin].violationReturningNoExceptionCall(args.request, requestViolations)
+          iface.asInstanceOf[GoldService.ServerValidationMixin].violationReturningNoExceptionCall(args.request, requestViolations)
         } else {
           // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
           // throw an exception for failed validations.

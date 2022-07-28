@@ -382,13 +382,13 @@ Alternative `MethodPerEndpoint` API
 
 If you don’t want the server to throw an exception upon receiving an invalid
 request, you can create a `MethodPerEndpoint` client by extending
-`ServerValidationMixin <https://github.com/twitter/scrooge/blob/dd10a0efee67aff81c38c0b6407c3ac8e8cf8a10/scrooge-generator-tests/src/test/resources/gold_file_output_scala/com/twitter/scrooge/test/gold/thriftscala/GoldService%24FinagleService.scala#L23-L44>`_
+`<your_service_name>.ServerValidationMixin <https://github.com/twitter/scrooge/blob/dd10a0efee67aff81c38c0b6407c3ac8e8cf8a10/scrooge-generator-tests/src/test/resources/gold_file_output_scala/com/twitter/scrooge/test/gold/thriftscala/GoldService%24FinagleService.scala#L23-L44>`_
 trait (which extends `MethodPerEndpoint`) and implementing the
 `violationReturning<method_name>` API:
 
 .. code:: scala
 
-    val methodPerEndpoint = new ServerValidationMixin {
+    val methodPerEndpoint = new ValidationService.ServerValidationMixin {
       override def validate(
         structRequest: ValidationStruct,
         unionRequest: ValidationUnion,
@@ -424,6 +424,9 @@ the Thrift Validation library, and the violation is returned as parameter
 `<request_name>Violations` in the signature of the
 `violationReturning<method_name>` API. You could access the violations and
 consume them in any forms your application desires.
+
+To override any inherited methods, please extend both `<parent_service_name>.ServerValidationMixin`
+and `<child_service_name>.ServerValidationMixin`, then implement the desired `violationReturning<method_name>` methods.
 
 .. note::
 

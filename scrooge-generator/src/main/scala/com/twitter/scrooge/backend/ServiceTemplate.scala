@@ -59,7 +59,7 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "argTypes" -> {
         function.args match {
           case Nil => v("Unit")
-          case singleArg :: Nil => genType(singleArg.fieldType)
+          case singleArg +: Nil => genType(singleArg.fieldType)
           case args =>
             val typesString = args
               .map { arg => genType(arg.fieldType) }
@@ -229,45 +229,6 @@ trait ServiceTemplate { self: TemplateGenerator =>
           "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation))
         )
       }),
-      "serverValidationMixin" -> v(templates("serverValidationMixin")),
-      "serverValidationMethods" -> v(service.functions.map { f =>
-        Dictionary(
-          "args" -> v(f.args.map { arg =>
-            Dictionary(
-              "arg" -> genID(arg.sid),
-              "typeParameter" -> genFieldType(arg)
-            )
-          }),
-          "argsWithValidations" -> {
-            val validatedArg = f.args.filter(hasValidationAnnotation)
-            v(validatedArg.zipWithIndex.map {
-              case (arg, index) =>
-                Dictionary(
-                  "violationArg" -> v(genID(arg.sid) + "Violations"),
-                  "arg" -> genID(arg.sid),
-                  "firstArg" -> v(index == 0),
-                  "middleArgs" -> v(index > 0 && index < validatedArg.size - 1),
-                  "lastArg" -> v(index == validatedArg.size - 1)
-                )
-            })
-          },
-          "oneArg" -> v(f.args.filter(hasValidationAnnotation).size == 1),
-          "typeName" -> genType(f.funcType),
-          "funcName" -> genID(f.funcName.toCamelCase),
-          "argNames" -> {
-            val code = f.args
-              .map { field => genID(field.sid).toData }
-              .mkString(", ")
-            v(code)
-          },
-          "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation)),
-          "violationReturningFuncName" -> genID(
-            f.funcName.toTitleCase.prepend("violationReturning")),
-          "fieldParams" -> genFieldParams(
-            f.args
-          ) // A list of parameters with types: (a: A, b: B...)
-        )
-      }),
       "hasValidationAnnotation" -> v(
         service.functions.exists(f => f.args.exists(hasValidationAnnotation))),
       "hasMethodServices" -> v(service.functions.nonEmpty)
@@ -355,6 +316,45 @@ trait ServiceTemplate { self: TemplateGenerator =>
       "struct" -> v(templates("struct")),
       "hasValidationAnnotation" -> v(
         service.functions.exists(f => f.args.exists(hasValidationAnnotation))),
+      "serverValidationMixin" -> v(templates("serverValidationMixin")),
+      "serverValidationMethods" -> v(service.functions.map { f =>
+        Dictionary(
+          "args" -> v(f.args.map { arg =>
+            Dictionary(
+              "arg" -> genID(arg.sid),
+              "typeParameter" -> genFieldType(arg)
+            )
+          }),
+          "argsWithValidations" -> {
+            val validatedArg = f.args.filter(hasValidationAnnotation)
+            v(validatedArg.zipWithIndex.map {
+              case (arg, index) =>
+                Dictionary(
+                  "violationArg" -> v(genID(arg.sid) + "Violations"),
+                  "arg" -> genID(arg.sid),
+                  "firstArg" -> v(index == 0),
+                  "middleArgs" -> v(index > 0 && index < validatedArg.size - 1),
+                  "lastArg" -> v(index == validatedArg.size - 1)
+                )
+            })
+          },
+          "oneArg" -> v(f.args.filter(hasValidationAnnotation).size == 1),
+          "typeName" -> genType(f.funcType),
+          "funcName" -> genID(f.funcName.toCamelCase),
+          "argNames" -> {
+            val code = f.args
+              .map { field => genID(field.sid).toData }
+              .mkString(", ")
+            v(code)
+          },
+          "hasValidationAnnotation" -> v(f.args.exists(hasValidationAnnotation)),
+          "violationReturningFuncName" -> genID(
+            f.funcName.toTitleCase.prepend("violationReturning")),
+          "fieldParams" -> genFieldParams(
+            f.args
+          ) // A list of parameters with types: (a: A, b: B...)
+        )
+      }),
       "thriftFunctions" -> v(service.functions.map { f =>
         Dictionary(
           "functionArgsStruct" ->
