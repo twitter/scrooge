@@ -7,6 +7,12 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+Runtime Behavior Changes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* scrooge-generator: Move `ServerValidationMixin` trait to be in the companion object of the service, this is to
+  avoid ambiguities when calling the trait from inherited services. ``PHAB_ID=D943975``
+
 22.7.0
 ------
 

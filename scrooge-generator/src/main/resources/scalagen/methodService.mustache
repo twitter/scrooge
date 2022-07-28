@@ -23,10 +23,10 @@ addService("{{methodSvcNameForWire}}", {
 {{/argsWithValidations}}
       if ({{#argsWithValidations}}{{violationArg}}.isEmpty{{/argsWithValidations| && }}) {
         iface.{{methodSvcNameForCompile}}({{argNames}})
-      } else if (iface.isInstanceOf[ServerValidationMixin]) {
+      } else if (iface.isInstanceOf[{{ServiceName}}.ServerValidationMixin]) {
         // If any request failed validation and user implement the `violationReturning` method, we will
         // execute the overriden implementation of `violationReturning` method provided by the user.
-        iface.asInstanceOf[ServerValidationMixin].{{violationReturningMethodSvcNameForCompile}}({{argNames}}, {{#argsWithValidations}}{{violationArg}}{{/argsWithValidations|, }})
+        iface.asInstanceOf[{{ServiceName}}.ServerValidationMixin].{{violationReturningMethodSvcNameForCompile}}({{argNames}}, {{#argsWithValidations}}{{violationArg}}{{/argsWithValidations|, }})
       } else {
         // If user did not override the default `violationReturning` method in the `ServerValidationMixin`,
         // throw an exception for failed validations.

@@ -86,3 +86,9 @@ service ValidationService {
    1: DeepNestedValidationstruct deepNestedRequest
   )
 }
+
+service MoreValidationService extends ValidationService {
+  bool moreValidate(
+    1: ValidationStruct request
+  )
+}

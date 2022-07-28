@@ -185,7 +185,9 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
       val validationViolations = NonValidationStruct.validateInstanceValue(nonValidationStruct)
       assertViolations(validationViolations, 0, Set.empty)
     }
+  }
 
+  "methodPerEndpoint with validation annotation" should {
     "validate struct, union and exception request" in { _ =>
       intercept[TApplicationException] {
         await(
@@ -213,7 +215,7 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
     }
 
     "Execute violationReturning method in MethodPerEndpoint with overriding method" in { _ =>
-      val methodPerEndpoint = new ServerValidationMixin {
+      val methodPerEndpoint = new ValidationService.ServerValidationMixin {
         override def validate(
           structRequest: ValidationStruct,
           unionRequest: ValidationUnion,
@@ -339,7 +341,7 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
 
     "Execute original methods in MethodPerEndpoint withOUT implementing violationReturning method by extending ServerValidationMixin" in {
       _ =>
-        val methodPerEndpoint = new ServerValidationMixin {
+        val methodPerEndpoint = new ValidationService.ServerValidationMixin {
           override def validate(
             structRequest: ValidationStruct,
             unionRequest: ValidationUnion,
@@ -535,6 +537,102 @@ class ValidationsSpec extends JMockSpec with OneInstancePerTest {
     "validate if null parameters are passed as requests" in { _ =>
       //nullPointerException is handled in the mustache file
       assert(await(methodPerEndpointClient.validate(null, null, null)))
+    }
+  }
+
+  "methodPerEndpoint for inherited service with validation annotation" should {
+    val moreMethodPerEndpoint = new MoreValidationService.ServerValidationMixin
+    with ValidationService.ServerValidationMixin {
+      override def validate(
+        structRequest: ValidationStruct,
+        unionRequest: ValidationUnion,
+        exceptionRequest: ValidationException
+      ): Future[Boolean] = Future.True
+
+      override def validateOption(
+        structRequest: Option[ValidationStruct],
+        unionRequest: Option[ValidationUnion],
+        exceptionRequest: Option[ValidationException]
+      ): Future[Boolean] = Future.True
+
+      override def validateOnlyValidatedRequest(
+        validationRequest: ValidationStruct
+      ): Future[Boolean] = Future.True
+
+      override def validateWithNonValidatedRequest(
+        validationRequest: ValidationStruct,
+        nonValidationRequest: NoValidationStruct
+      ): Future[Boolean] = Future.True
+
+      override def validateOnlyNonValidatedRequest(
+        nonValidationRequest: NoValidationStruct
+      ): Future[Boolean] = Future.True
+
+      override def validateNestedRequest(
+        nestedNonRequest: NestedNonValidationStruct
+      ): Future[Boolean] = Future.True
+
+      override def validateDeepNestedRequest(
+        deepNestedRequest: DeepNestedValidationstruct
+      ): Future[Boolean] =
+        Future.True
+
+      override def moreValidate(request: ValidationStruct): Future[Boolean] = Future.True
+
+      override def violationReturningValidateOption(
+        structRequest: Option[ValidationStruct],
+        unionRequest: Option[ValidationUnion],
+        exceptionRequest: Option[ValidationException],
+        structRequestViolations: Set[ThriftValidationViolation],
+        unionRequestViolations: Set[ThriftValidationViolation],
+        exceptionRequestViolations: Set[ThriftValidationViolation]
+      ): Future[Boolean] = {
+        // if any of the request parameters has validation violations, return true, otherwise return false
+        if (structRequestViolations.nonEmpty || unionRequestViolations.nonEmpty || exceptionRequestViolations.nonEmpty)
+          Future.True
+        else Future.False
+      }
+
+      override def violationReturningMoreValidate(
+        request: ValidationStruct,
+        requestViolations: Set[ThriftValidationViolation]
+      ): Future[Boolean] = {
+        if (requestViolations.nonEmpty) Future.True
+        else Future.False
+      }
+    }
+
+    val thriftServer =
+      Thrift.server
+        .serveIface(new InetSocketAddress(InetAddress.getLoopbackAddress, 0), moreMethodPerEndpoint)
+
+    val methodPerEndpointClient = Thrift.client.build[MoreValidationService.MethodPerEndpoint](
+      Name.bound(Address(thriftServer.boundAddress.asInstanceOf[InetSocketAddress])),
+      "client"
+    )
+
+    "throw an exception without overriding violationReturning method" in { _ =>
+      intercept[TApplicationException] {
+        await(
+          methodPerEndpointClient
+            .validate(invalidStructRequest, invalidationUnionRequest, invalidExceptionRequest))
+      }
+    }
+
+    "Do NOT throw an exception with overriding violationReturning method" in { _ =>
+      assert(
+        await(
+          methodPerEndpointClient
+            .validateOption(
+              Some(invalidStructRequest),
+              Some(invalidationUnionRequest),
+              Some(invalidExceptionRequest)))
+      )
+      assert(
+        await(
+          methodPerEndpointClient
+            .moreValidate(invalidStructRequest))
+      )
     }
   }
 

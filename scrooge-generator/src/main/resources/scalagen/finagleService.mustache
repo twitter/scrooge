@@ -18,9 +18,6 @@ import org.apache.thrift.TApplicationException
 import org.apache.thrift.transport.TMemoryInputTransport
 {{/hasParent}}
 
-{{#hasValidationAnnotation}}
-{{>serverValidationMixin}}
-{{/hasValidationAnnotation}}
 {{docstring}}
 @javax.annotation.Generated(value = Array("com.twitter.scrooge.Compiler"))
 class {{ServiceName}}$FinagleService(

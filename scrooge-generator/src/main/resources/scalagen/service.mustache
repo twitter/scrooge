@@ -378,6 +378,10 @@ object {{ServiceName}} {{#withFinagle}}extends _root_.com.twitter.finagle.thrift
 
 {{/thriftFunctions}}
 
+{{#hasValidationAnnotation}}
+  {{>serverValidationMixin}}
+{{/hasValidationAnnotation}}
+
 {{#withFinagle}}
   trait MethodPerEndpoint extends {{genericParent}} {
 {{#asyncFunctions}}
