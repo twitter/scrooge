@@ -70,7 +70,6 @@ junit_tests(
         "scrooge/scrooge-core",
         "scrooge/scrooge-generator",
         "scrooge/scrooge-generator-tests/src/test/resources",
-        "scrooge/scrooge-generator-tests/src/test/resources:files",
         "scrooge/scrooge-generator-tests/src/test/thrift",
         "scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-bazel-workaround-android",
         "scrooge/scrooge-generator-tests/src/test/thrift:constant-sets-thrift-scala",

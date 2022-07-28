@@ -32,7 +32,11 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
         println(s"Temp dir $tempDir")
       }
 
-      val inputThrifts = testThriftFiles
+      val inputThrifts = testThriftFiles.map { r =>
+        val file = r.substring(r.lastIndexOf('/') + 1)
+        val path = r.substring(0, r.lastIndexOf('/'))
+        Utils.getIncludeFilePath(file, Some(path))
+      }
 
       val args = Seq(
         "--language",
@@ -83,9 +87,9 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
   }
 
   protected def testThriftFiles = Seq(
-    "scrooge/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift")
+    "gold_file_input/gold.thrift")
   protected def goldFilesRoot: String =
-    s"scrooge/scrooge-generator-tests/src/test/resources/gold_file_output_$language"
+    s"gold_file_output_$language"
 
   protected def diff(
     gold: InputStream,
@@ -156,9 +160,8 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
 
         withClue(genRelPath) {
           val genStream = new ByteArrayInputStream(Files.readBytes(gen))
-          val goldStream = new java.io.FileInputStream(
-            new java.io.File(s"$goldFilesRoot/$genRelPath")
-          )
+          val goldStream = ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")
+
           diff(goldStream, genStream, gen.getName, genRelPath)
         }
       }
