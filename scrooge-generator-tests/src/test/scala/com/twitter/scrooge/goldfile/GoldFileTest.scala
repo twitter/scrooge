@@ -152,6 +152,7 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
 
   test("generated output looks as expected") {
     if (exception.isEmpty) {
+      val ccl = Thread.currentThread().getContextClassLoader
       generatedFiles.foreach { gen =>
         // We want to take the path after tempDir and compare to the gold file
         // in our resources dir. The +1 removes what would be a leading slash

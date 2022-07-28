@@ -6,6 +6,7 @@ import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.TempDirectory
+import com.twitter.scrooge.testutil.Utils
 import com.twitter.scrooge.testutil.Utils.verify
 
 class CocoaGeneratorSpec extends Spec {
