@@ -4,6 +4,12 @@ import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import java.io.{BufferedReader, InputStreamReader}
 import org.scalatest.matchers.must.Matchers
+import com.twitter.io.ClasspathResource
+import com.twitter.io.StreamIO
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStreamReader
 
 object Utils extends Matchers {
   def verify(
