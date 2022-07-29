@@ -1,5 +1,4 @@
 import scala.language.reflectiveCalls
-import scoverage.ScoverageKeys
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 Global / excludeLintKeys += scalacOptions
@@ -117,7 +116,6 @@ val sharedSettingsWithoutScalaVersion = Seq(
     "org.scalatestplus" %% "mockito-1-10" % "3.1.0.0" % "test",
     "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % "test"
   ),
-  ScoverageKeys.coverageHighlighting := true,
   Test / fork := true, // We have to fork to get the JavaOptions
   Test / parallelExecution := false,
   javaOptions ++= Seq(
