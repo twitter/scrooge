@@ -64,11 +64,13 @@ private[backend] object AnnotationValidator {
     if (isDefaultAnnotation(annotationKey)) {
       validateDefaultAnnotation(annotationKey, annotationValue, fieldClazz)
     } else {
+      if (annotationKey.startsWith("validation.")) {
+        logger.warning(
+          s"Annotation validation key: $annotationKey is not supported " +
+            s"and it was not validated. Only the built-in scrooge annotations " +
+            s"are supported for validation. The annotation value was $annotationValue.")
+      }
       // skip validations for all other annotations
-      logger.warning(
-        s"Annotation validation key: $annotationKey is not supported " +
-          s"and it was not validated. Only the built-in scrooge annotations " +
-          s"are supported for validation. The annotation value was $annotationValue.")
       Set.empty
     }
 
