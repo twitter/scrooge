@@ -1,23 +1,23 @@
 package com.twitter.scrooge.swift_generator
 
-import collection.JavaConverters._
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.twitter.scrooge.Main
+import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.frontend.ResolvedDocument
 import com.twitter.scrooge.frontend.TypeResolver
-import com.twitter.scrooge.ast.Document
 import com.twitter.scrooge.testutil.Spec
 import com.twitter.scrooge.testutil.TempDirectory
+import com.twitter.scrooge.testutil.Utils
 import com.twitter.scrooge.testutil.Utils.verify
+import java.io.BufferedReader
+import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-
+import scala.collection.JavaConverters._
 import scala.collection.concurrent.TrieMap
 
 class SwiftGeneratorSpec extends Spec {
@@ -48,12 +48,9 @@ class SwiftGeneratorSpec extends Spec {
 
   "Swift generator" should {
     val tempDir = TempDirectory.create(None)
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
-
-    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
+    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -82,9 +79,7 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator classes" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
 
     val args =
       Array[String](
@@ -94,7 +89,7 @@ class SwiftGeneratorSpec extends Spec {
         "swift-classes",
         "-d",
         tempDir.getPath,
-        inputThrift)
+        includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -122,9 +117,7 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator internal types" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
 
     val args =
       Array[String](
@@ -134,8 +127,9 @@ class SwiftGeneratorSpec extends Spec {
         "swift-internal-types",
         "-d",
         tempDir.getPath,
-        inputThrift)
+        includePath)
     Main.main(args)
+
     val output_dir = tempDir.getPath
     val output_flist =
       getListOfFiles(new File(output_dir))
@@ -163,9 +157,7 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator Obj-C" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/swift.thrift"
+    val includePath = Utils.getIncludeFilePath("swift.thrift", Some("test_thrift/swift"))
 
     val args =
       Array[String](
@@ -175,7 +167,7 @@ class SwiftGeneratorSpec extends Spec {
         "swift-objc TEST",
         "-d",
         tempDir.getPath,
-        inputThrift)
+        includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
@@ -204,11 +196,9 @@ class SwiftGeneratorSpec extends Spec {
   "Swift generator with alternative type" should {
     val tempDir = TempDirectory.create(None)
 
-    val ccl = Thread.currentThread().getContextClassLoader
-    val inputThrift =
-      "scrooge/scrooge-generator-tests/src/test/resources/test_thrift/swift/alternative_type.thrift"
+    val includePath = Utils.getIncludeFilePath("alternative_type.thrift", Some("test_thrift/swift"))
 
-    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, inputThrift)
+    val args = Array[String]("-l", "swift", "-d", tempDir.getPath, includePath)
     Main.main(args)
     val output_dir = tempDir.getPath
     val output_flist =
