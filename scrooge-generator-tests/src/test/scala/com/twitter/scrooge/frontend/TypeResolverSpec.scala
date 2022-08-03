@@ -410,7 +410,6 @@ class TypeResolverSpec extends Spec {
                   _,
                   _,
                   _,
-                  _,
                   _
                 ) => // pass
             case _ => fail()
@@ -421,7 +420,6 @@ class TypeResolverSpec extends Spec {
                   _,
                   _,
                   SetType(StructType(_, Some(SimpleID("typedef1", _))), None),
-                  _,
                   _,
                   _,
                   _,

@@ -85,8 +85,7 @@ class FunctionController(
         fieldType = a.fieldType,
         default = a.default,
         requiredness = requiredness,
-        fieldAnnotations = a.fieldAnnotations,
-        hasValidationAnnotation = a.fieldAnnotations.keySet.exists(_.startsWith("validation."))
+        fieldAnnotations = a.fieldAnnotations
       )
     }
     val structName = function.funcName.name + "_args"

@@ -15,6 +15,7 @@
  */
 package com.twitter.scrooge.ast
 
+import com.twitter.scrooge.thrift_validation.ThriftValidator
 import scala.util.parsing.input.Positional
 
 sealed abstract class Node extends Positional
@@ -66,9 +67,12 @@ case class Field(
   requiredness: Requiredness = Requiredness.Default,
   typeAnnotations: Map[String, String] = Map.empty,
   fieldAnnotations: Map[String, String] = Map.empty,
-  docstring: Option[String] = None,
-  hasValidationAnnotation: Boolean = false)
-    extends Node
+  docstring: Option[String] = None)
+    extends Node {
+
+  val hasValidationAnnotation =
+    fieldAnnotations.keysIterator.exists(ThriftValidator.isValidationAnnotationName)
+}
 
 case class Function(
   funcName: SimpleID,

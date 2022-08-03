@@ -24,7 +24,7 @@ object UtilValidator {
  */
 final class UtilValidator extends BaseValidator {
 
-  override def annotations: Set[String] = DefaultAnnotations.metadata.keySet
+  override def annotations: Set[String] = DefaultAnnotations.keys
 
   // validate each field value for default annotations defined on
   // this field.

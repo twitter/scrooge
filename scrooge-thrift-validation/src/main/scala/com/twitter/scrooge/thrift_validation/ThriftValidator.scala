@@ -1,30 +1,15 @@
 package com.twitter.scrooge.thrift_validation
 
 import com.twitter.scrooge.thrift_validation.ThriftValidator.DefaultAnnotationKeys
+import com.twitter.scrooge.thrift_validation.ThriftValidator.isValidationAnnotationName
 import scala.collection.JavaConverters
 import scala.collection.mutable
 
 object ThriftValidator {
-  val DefaultAnnotationKeys: Set[String] = Set(
-    "validation.assertFalse",
-    "validation.assertTrue",
-    "validation.countryCode",
-    "validation.EAN",
-    "validation.email",
-    "validation.UUID",
-    "validation.ISBN",
-    "validation.length.min",
-    "validation.length.max",
-    "validation.max",
-    "validation.min",
-    "validation.negative",
-    "validation.negativeOrZero",
-    "validation.notEmpty",
-    "validation.positive",
-    "validation.positiveOrZero",
-    "validation.size.min",
-    "validation.size.max"
-  )
+  def isValidationAnnotationName(annName: String): Boolean =
+    annName.startsWith("validation.")
+
+  val DefaultAnnotationKeys: Set[String] = DefaultAnnotations.keys
 }
 
 /**
@@ -33,8 +18,11 @@ object ThriftValidator {
 abstract class ThriftValidator extends BaseValidator {
   // Do not allow to override default annotations since we have a different
   // set of rules for default annotations and they are done before performing
-  // custom validations.
-  require(customAnnotations.keySet.intersect(DefaultAnnotationKeys).isEmpty)
+  // custom validations. All custom validations must have a name that starts
+  // with "validation."
+  require(customAnnotations.keysIterator.forall { name =>
+    isValidationAnnotationName(name) && !DefaultAnnotationKeys.contains(name)
+  })
 
   /**
    * A map of String annotations to [[ThriftConstraintValidator]].

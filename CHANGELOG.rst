@@ -7,11 +7,22 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+Breaking API Changes
+~~~~~~~~~~~~~~~~~~~~
+
+* scrooge-generator: `c.t.scrooge.ast.Field.hasValidationAnnotation` field can no longer
+  be set in the constructor, but it is now a property derived from the value in the
+  `Field.fieldAnnotations` field; if any annotations have a name starting with `validation.`
+  it is set to true, otherwise it is false. ``PHAB_ID=D912077``
+
 Runtime Behavior Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 * scrooge-generator: Move `ServerValidationMixin` trait to be in the companion object of the service, this is to
   avoid ambiguities when calling the trait from inherited services. ``PHAB_ID=D943975``
+
+* scrooge-thrift-validation: custom annotations in `ThriftValidator` must have a
+  name starting with `validation.` ``PHAB_ID=D912077``
 
 22.7.0
 ------

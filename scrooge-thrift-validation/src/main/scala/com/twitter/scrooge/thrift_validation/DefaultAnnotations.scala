@@ -132,4 +132,6 @@ object DefaultAnnotations {
     ),
     "validation.UUID" -> AnnotationMetaData(None, Set(classOf[String]), classOf[UUID])
   )
+
+  private[twitter] val keys = metadata.keySet
 }
