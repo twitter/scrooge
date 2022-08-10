@@ -180,3 +180,17 @@ method:
 
 (Note in above examples, both methods return an `Option[ThriftStructFieldInfo]` - if you pass
 the instance/class representing the overall union, and not a specific arm, they return `None`.)
+
+How to build a struct class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To build a new `ThriftStruct` instance, use the `StructBuilder.forStructClass(Class)` method.
+Pass it the runtime class of a Scrooge-generated struct and it will return the StructBuilder instance.
+StructBuilder contains `setField` & `build` functions that can be used to generate a new `ThriftStruct` instance:
+
+.. code-block:: scala
+
+    def builder(s: ThriftStruct) = {
+      val structBuilder = StructBuilder.forStructClass(s.getClass)
+      ... use the builder
+    }

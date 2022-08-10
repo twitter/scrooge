@@ -7,6 +7,12 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
+New Features
+~~~~~~~~~~~~
+
+* scrooge-core: `c.t.scrooge.StructBuilder.forStructClass` API for retrieving
+  the StructBuilder for a struct or union class that helps in building `ThriftStruct`. ``PHAB_ID=D934277``
+  
 Breaking API Changes
 ~~~~~~~~~~~~~~~~~~~~
 
