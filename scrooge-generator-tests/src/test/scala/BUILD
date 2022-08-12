@@ -82,6 +82,8 @@ junit_tests(
         "scrooge/scrooge-generator-tests/src/test/thrift/defaults:thrift-java",
         "scrooge/scrooge-generator-tests/src/test/thrift/defaults:thrift-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/finagle_integration:thrift-scala",
+        "scrooge/scrooge-generator-tests/src/test/thrift/goldfile:thrift-java",
+        "scrooge/scrooge-generator-tests/src/test/thrift/goldfile:thrift-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/integration:thrift-bazel-workaround-1-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/integration:thrift-bazel-workaround-android",
         "scrooge/scrooge-generator-tests/src/test/thrift/integration:thrift-java",

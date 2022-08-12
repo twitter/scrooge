@@ -199,10 +199,10 @@ class ScalaGenerator(
       case TI64 => "0L"
       case ListType(_, _) =>
         "_root_.scala.collection.immutable.Nil"
-      case MapType(_, _, _) =>
-        "_root_.scala.collection.immutable.Map.empty"
-      case SetType(_, _) =>
-        "_root_.scala.collection.immutable.Set.empty"
+      case MapType(keyType, valueType, _) =>
+        s"_root_.scala.collection.immutable.Map.empty[${genType(keyType)}, ${genType(valueType)}]"
+      case SetType(eltType, _) =>
+        s"_root_.scala.collection.immutable.Set.empty[${genType(eltType)}]"
       case _ => super.genDefaultValue(fieldType).toData
     }
     v(getCode(fieldType))

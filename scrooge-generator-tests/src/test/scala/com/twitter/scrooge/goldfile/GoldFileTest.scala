@@ -85,8 +85,7 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
     }
     accumulate(f, Vector.empty)
   }
-
-  protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
+  protected def testThriftFiles = Seq("goldfile/gold.thrift")
   protected def goldFilesRoot: String =
     s"gold_file_output_$language"
 

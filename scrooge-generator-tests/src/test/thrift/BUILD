@@ -6,6 +6,7 @@ resources(
         "scrooge/scrooge-generator-tests/src/test/thrift/android_integration:resources",
         "scrooge/scrooge-generator-tests/src/test/thrift/defaults:resources",
         "scrooge/scrooge-generator-tests/src/test/thrift/finagle_integration:resources",
+        "scrooge/scrooge-generator-tests/src/test/thrift/goldfile:resources",
         "scrooge/scrooge-generator-tests/src/test/thrift/integration:resources",
         "scrooge/scrooge-generator-tests/src/test/thrift/namespace:resources",
         "scrooge/scrooge-generator-tests/src/test/thrift/relative:resources",

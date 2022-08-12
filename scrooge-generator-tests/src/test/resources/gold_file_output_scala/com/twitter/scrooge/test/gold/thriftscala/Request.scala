@@ -92,7 +92,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None,
-      _root_.scala.Option(_root_.scala.collection.immutable.Set.empty)
+      _root_.scala.Option(_root_.scala.collection.immutable.Set.empty[Int])
     ),
     new ThriftStructFieldInfo(
       AMapField,
@@ -104,7 +104,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
       immutable$Map.empty[String, String],
       immutable$Map.empty[String, String],
       None,
-      _root_.scala.Option(_root_.scala.collection.immutable.Map.empty)
+      _root_.scala.Option(_root_.scala.collection.immutable.Map.empty[Long, Long])
     ),
     new ThriftStructFieldInfo(
       ARequestField,
@@ -506,8 +506,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
   lazy val unsafeEmpty: Request = {
     val aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
-    val aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
-    val aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
+    val aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty[Int]
+    val aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty[Long, Long]
     val aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None
     val subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
     val _default: String = "the_default"
@@ -660,8 +660,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
   private[this] def decodeInternal(_iprot: TProtocol, lazily: Boolean): Request = {
     var aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil
-    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
-    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
+    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty[Int]
+    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty[Long, Long]
     var aRequest: Option[com.twitter.scrooge.test.gold.thriftscala.Request] = None
     var subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil
     var _defaultOffset: Int = -1
@@ -837,8 +837,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
 
   def apply(
     aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil,
-    aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty,
-    aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty,
+    aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty[Int],
+    aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty[Long, Long],
     aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
     subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil,
     _default: String = "the_default",
@@ -976,8 +976,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     )
   def this(
       aList: _root_.scala.collection.Seq[String] = _root_.scala.collection.immutable.Nil,
-      aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty,
-      aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty,
+      aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty[Int],
+      aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty[Long, Long],
       aRequest: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.None,
       subRequests: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request] = _root_.scala.collection.immutable.Nil,
       _default: String = "the_default",
@@ -1507,9 +1507,9 @@ trait Request
       case 1 =>
         aList = _root_.scala.collection.immutable.Nil
       case 2 =>
-        aSet = _root_.scala.collection.immutable.Set.empty
+        aSet = _root_.scala.collection.immutable.Set.empty[Int]
       case 3 =>
-        aMap = _root_.scala.collection.immutable.Map.empty
+        aMap = _root_.scala.collection.immutable.Map.empty[Long, Long]
       case 4 =>
         aRequest = _root_.scala.None
       case 5 =>
@@ -1567,8 +1567,8 @@ trait Request
   def unsetFields(_fieldIds: Set[Short]): Request = {
     new Immutable(
       if (_fieldIds(1)) _root_.scala.collection.immutable.Nil else this.aList,
-      if (_fieldIds(2)) _root_.scala.collection.immutable.Set.empty else this.aSet,
-      if (_fieldIds(3)) _root_.scala.collection.immutable.Map.empty else this.aMap,
+      if (_fieldIds(2)) _root_.scala.collection.immutable.Set.empty[Int] else this.aSet,
+      if (_fieldIds(3)) _root_.scala.collection.immutable.Map.empty[Long, Long] else this.aMap,
       if (_fieldIds(4)) _root_.scala.None else this.aRequest,
       if (_fieldIds(5)) _root_.scala.collection.immutable.Nil else this.subRequests,
       if (_fieldIds(6)) "the_default" else this._default,
@@ -1869,13 +1869,13 @@ private class Request__AdaptDecoder {
     AdaptTProtocol.usedEndMarker(1)
 
     AdaptTProtocol.usedStartMarker(2)
-    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty
+    var aSet: _root_.scala.collection.Set[Int] = _root_.scala.collection.immutable.Set.empty[Int]
 
     adapt.set_aSet(aSet)
     AdaptTProtocol.usedEndMarker(2)
 
     AdaptTProtocol.usedStartMarker(3)
-    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty
+    var aMap: _root_.scala.collection.Map[Long, Long] = _root_.scala.collection.immutable.Map.empty[Long, Long]
 
     adapt.set_aMap(aMap)
     AdaptTProtocol.usedEndMarker(3)
