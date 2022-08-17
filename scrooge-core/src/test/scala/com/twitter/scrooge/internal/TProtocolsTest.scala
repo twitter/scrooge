@@ -1,13 +1,13 @@
 package com.twitter.scrooge.internal
 
-import com.twitter.scrooge.{TArrayByteTransport, TFieldBlob, ThriftUnion}
-import org.apache.thrift.protocol.{
-  TBinaryProtocol,
-  TCompactProtocol,
-  TField,
-  TProtocolException,
-  TType
-}
+import com.twitter.scrooge.TArrayByteTransport
+import com.twitter.scrooge.TFieldBlob
+import com.twitter.scrooge.ThriftUnion
+import org.apache.thrift.protocol.TBinaryProtocol
+import org.apache.thrift.protocol.TCompactProtocol
+import org.apache.thrift.protocol.TField
+import org.apache.thrift.protocol.TProtocolException
+import org.apache.thrift.protocol.TType
 import org.apache.thrift.transport.TMemoryBuffer
 import org.scalatestplus.mockito.MockitoSugar
 import scala.collection.immutable
@@ -96,7 +96,10 @@ class TProtocolsTest extends AnyFunSuite with MockitoSugar {
     assert(id == readTField.id)
     assert(tfield == readTField.field)
 
-    val readI32 = readTField.read.readI32()
+    val readProt = readTField.read
+    val readI32 = readProt.readI32()
+    // there should be no data left in the transport
+    assert(readProt.getTransport.read(new Array[Byte](1), 0, 1) == 0)
     assert(i32data == readI32)
   }
 

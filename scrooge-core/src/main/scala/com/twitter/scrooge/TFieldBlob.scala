@@ -3,7 +3,8 @@ package com.twitter.scrooge
 import com.twitter.io.Buf
 import java.util.Arrays
 import org.apache.thrift.protocol._
-import org.apache.thrift.transport.{TMemoryBuffer, TMemoryInputTransport}
+import org.apache.thrift.transport.TMemoryBuffer
+import org.apache.thrift.transport.TMemoryInputTransport
 
 object TFieldBlob {
 
@@ -23,7 +24,7 @@ object TFieldBlob {
     val buff = new TMemoryBuffer(32)
     val bprot = new TCompactProtocol(buff)
     f(bprot)
-    TFieldBlob(field, Buf.ByteArray.Owned(buff.getArray()))
+    TFieldBlob(field, Buf.ByteArray.Owned(buff.getArray(), 0, buff.length()))
   }
 
   private val sysPropReadLength: Int =
