@@ -514,9 +514,10 @@ trait Response
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Response]
 
   private[this] def _equals(other: Response): Boolean =
-      this.productArity == other.productArity &&
-      this.productIterator.sameElements(other.productIterator) &&
-      this._passthroughFields == other._passthroughFields
+      this.eq(other) || (
+        this.productArity == other.productArity &&
+        this.productIterator.sameElements(other.productIterator) &&
+        this._passthroughFields == other._passthroughFields )
 
   override def equals(other: Any): Boolean =
     canEqual(other) && _equals(other.asInstanceOf[Response])

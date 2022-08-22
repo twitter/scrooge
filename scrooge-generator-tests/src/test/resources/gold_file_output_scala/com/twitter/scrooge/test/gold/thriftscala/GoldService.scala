@@ -570,9 +570,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
       private[this] def _equals(other: Args): Boolean =
-          this.productArity == other.productArity &&
-          this.productIterator.sameElements(other.productIterator) &&
-          this._passthroughFields == other._passthroughFields
+          this.eq(other) || (
+            this.productArity == other.productArity &&
+            this.productIterator.sameElements(other.productIterator) &&
+            this._passthroughFields == other._passthroughFields )
     
       override def equals(other: Any): Boolean =
         canEqual(other) && _equals(other.asInstanceOf[Args])
@@ -866,9 +867,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     
       private[this] def _equals(other: Result): Boolean =
-          this.productArity == other.productArity &&
-          this.productIterator.sameElements(other.productIterator) &&
-          this._passthroughFields == other._passthroughFields
+          this.eq(other) || (
+            this.productArity == other.productArity &&
+            this.productIterator.sameElements(other.productIterator) &&
+            this._passthroughFields == other._passthroughFields )
     
       override def equals(other: Any): Boolean =
         canEqual(other) && _equals(other.asInstanceOf[Result])
@@ -1135,9 +1137,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
       private[this] def _equals(other: Args): Boolean =
-          this.productArity == other.productArity &&
-          this.productIterator.sameElements(other.productIterator) &&
-          this._passthroughFields == other._passthroughFields
+          this.eq(other) || (
+            this.productArity == other.productArity &&
+            this.productIterator.sameElements(other.productIterator) &&
+            this._passthroughFields == other._passthroughFields )
     
       override def equals(other: Any): Boolean =
         canEqual(other) && _equals(other.asInstanceOf[Args])
@@ -1371,9 +1374,10 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     
       private[this] def _equals(other: Result): Boolean =
-          this.productArity == other.productArity &&
-          this.productIterator.sameElements(other.productIterator) &&
-          this._passthroughFields == other._passthroughFields
+          this.eq(other) || (
+            this.productArity == other.productArity &&
+            this.productIterator.sameElements(other.productIterator) &&
+            this._passthroughFields == other._passthroughFields )
     
       override def equals(other: Any): Boolean =
         canEqual(other) && _equals(other.asInstanceOf[Result])

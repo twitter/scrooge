@@ -30,6 +30,9 @@ Runtime Behavior Changes
 * scrooge-thrift-validation: custom annotations in `ThriftValidator` must have a
   name starting with `validation.` ``PHAB_ID=D912077``
 
+* scrooge-generator: Checks for reference equality in Scala structs before iterating over the fields, this is to
+  reduce the cost of `equals` checks on large structs (many fields or deeply nested fields). ``PHAB_ID=D950010``
+
 22.7.0
 ------
 

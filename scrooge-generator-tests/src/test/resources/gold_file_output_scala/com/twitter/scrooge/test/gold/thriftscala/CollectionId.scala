@@ -425,9 +425,10 @@ trait CollectionId
   override def canEqual(other: Any): Boolean = other.isInstanceOf[CollectionId]
 
   private[this] def _equals(other: CollectionId): Boolean =
-      this.productArity == other.productArity &&
-      this.productIterator.sameElements(other.productIterator) &&
-      this._passthroughFields == other._passthroughFields
+      this.eq(other) || (
+        this.productArity == other.productArity &&
+        this.productIterator.sameElements(other.productIterator) &&
+        this._passthroughFields == other._passthroughFields )
 
   override def equals(other: Any): Boolean =
     canEqual(other) && _equals(other.asInstanceOf[CollectionId])

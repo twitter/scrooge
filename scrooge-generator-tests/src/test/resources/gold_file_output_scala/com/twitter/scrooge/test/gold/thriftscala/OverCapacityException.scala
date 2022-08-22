@@ -324,10 +324,11 @@ class OverCapacityException(
   override def canEqual(other: Any): Boolean = other.isInstanceOf[OverCapacityException]
 
   private[this] def _equals(other: OverCapacityException): Boolean =
-      this.productArity == other.productArity &&
-      this.productIterator.sameElements(other.productIterator) &&
-      this.flags == other.flags &&
-      this._passthroughFields == other._passthroughFields
+      this.eq(other) || (
+        this.productArity == other.productArity &&
+        this.productIterator.sameElements(other.productIterator) &&
+        this.flags == other.flags &&
+        this._passthroughFields == other._passthroughFields )
 
   override def equals(other: Any): Boolean =
     canEqual(other) && _equals(other.asInstanceOf[OverCapacityException])

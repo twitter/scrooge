@@ -860,6 +860,12 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
 
         "two default object must be equal" in { _ => Biggie() must be(Biggie()) }
 
+        "equals if eq" in { _ =>
+          val biggie = Biggie()
+          assert(biggie.eq(biggie))
+          assert(biggie.equals(biggie))
+        }
+
         "copy and equals" in { _ => Biggie().copy(num10 = -5) must be(Biggie(num10 = -5)) }
 
         "hashCode is the same for two similar objects" in { _ =>

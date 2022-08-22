@@ -873,12 +873,13 @@ class {{StructName}}(
   override def canEqual(other: Any): Boolean = other.isInstanceOf[{{StructName}}]
 
   private[this] def _equals(other: {{StructName}}): Boolean =
-      this.productArity == other.productArity &&
-      this.productIterator.sameElements(other.productIterator) &&
+      this.eq(other) || (
+        this.productArity == other.productArity &&
+        this.productIterator.sameElements(other.productIterator) &&
 {{#hasFailureFlags}}
-      this.flags == other.flags &&
+        this.flags == other.flags &&
 {{/hasFailureFlags}}
-      this._passthroughFields == other._passthroughFields
+        this._passthroughFields == other._passthroughFields )
 
   override def equals(other: Any): Boolean =
     canEqual(other) && _equals(other.asInstanceOf[{{StructName}}])
