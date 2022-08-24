@@ -83,17 +83,6 @@ object ScroogeOptionParser {
         .action((d, c) => c.copy(destFolder = d))
         .text("write generated code to a folder (default: %s)".format(defaultConfig.destFolder))
 
-      opt[String]("import-path")
-        .unbounded()
-        .valueName("<path>")
-        .action { (path, c) =>
-          val includePaths = path.split(File.pathSeparator) ++: c.includePaths
-          c.copy(includePaths = includePaths)
-        }
-        .text(
-          "[DEPRECATED] path(s) to search for included thrift files (may be used multiple times)"
-        )
-
       opt[String]('i', "include-path")
         .unbounded()
         .valueName("<path>")

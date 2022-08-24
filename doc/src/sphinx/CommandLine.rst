@@ -64,7 +64,6 @@ A complete command line help menu for scrooge-generator:
   -V, --version                             print version and quit
   -v, --verbose                             log verbose messages about progress
   -d, --dest <path>                         write generated code to a folder (default: .)
-  --import-path <path>                      [DEPRECATED] path(s) to search for included thrift files (may be used multiple times)
   -i, --include-path <path>                 path(s) to search for included thrift files (may be used multiple times)
   -n, --namespace-map <oldname>=<newname>   map old namespace to new (may be used multiple times)
   --default-java-namespace <name>           Use <name> as default namespace if the thrift file doesn't define its own namespace. If this option is not specified either, then use "thrift" as default namespace

@@ -89,6 +89,10 @@ Breaking API Changes
   the trait.
   ``PHAB_IB=D859929``
 
+* scrooge-generator: `--import-path` option is now deleted due to deprecation.
+An alternative is to use the `--include-path` option. 
+ ``PHAB_ID=D916638``
+
 Runtime Behavior Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
