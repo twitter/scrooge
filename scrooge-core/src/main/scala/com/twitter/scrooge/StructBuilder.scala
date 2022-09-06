@@ -1,7 +1,6 @@
 package com.twitter.scrooge
 
 import com.twitter.util.Memoize
-import java.lang.reflect.Method
 import scala.reflect.ClassTag
 
 /**
@@ -85,8 +84,10 @@ abstract class StructBuilder[T <: ThriftStruct](fieldTypes: IndexedSeq[ClassTag[
  * This object provides operations to obtain `StructBuilder` instances.
  */
 object StructBuilder {
-  private[this] val memoizeBuilderMethod: Class[_] => Method = Memoize.classValue { clazz =>
-    clazz.getMethod("newBuilder")
+  private[this] val memoizeBuilderMethod: Class[_] => () => Any = Memoize.classValue { clazz =>
+    val thriftCodec = ThriftStructCodec.forStructClass(clazz.asSubclass(classOf[ThriftStruct]))
+    val m = thriftCodec.getClass.getMethod("newBuilder")
+    () => m.invoke(thriftCodec)
   }
 
   /**
@@ -99,8 +100,6 @@ object StructBuilder {
    * @return the `StructBuilder` object for the class.
    */
   def forStructClass[T <: ThriftStruct](c: Class[T]): StructBuilder[T] = {
-    val thriftCodec = ThriftStructCodec.forStructClass(c)
-    val method = memoizeBuilderMethod(thriftCodec.getClass)
-    method.invoke(thriftCodec).asInstanceOf[StructBuilder[T]]
+    memoizeBuilderMethod(c)().asInstanceOf[StructBuilder[T]]
   }
 }
