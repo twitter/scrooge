@@ -3,6 +3,7 @@
  *   version: ?
  *   rev: ?
  *   built at: ?
+ *   source file: scrooge/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
  */
 #import "TFNTwitterThriftGoldRequestException.h"
 

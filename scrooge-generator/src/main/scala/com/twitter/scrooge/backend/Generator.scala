@@ -594,6 +594,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
   ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
     val doc = normalizeCase(resolvedDoc.document)
+    val header = templates.header(resolvedDoc.filePath)
     val namespace = getNamespace(resolvedDoc.document)
     val packageDir = namespacedFolder(outputPath, namespace.fullName, dryRun)
     val includes = doc.headers.collect {
@@ -607,7 +608,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       val file = new File(packageDir, "Constants" + fileExtension)
       if (!dryRun) {
         val dict = constDict(namespace, doc.consts)
-        writeFile(file, templates.header, templates("consts").generate(dict))
+        writeFile(file, header, templates("consts").generate(dict))
       }
       generatedFiles += file
     }
@@ -616,7 +617,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
       val file = new File(packageDir, enum.sid.toTitleCase.name + fileExtension)
       if (!dryRun) {
         val dict = enumDict(namespace, enum)
-        writeFile(file, templates.header, templates("enum").generate(dict))
+        writeFile(file, header, templates("enum").generate(dict))
       }
       generatedFiles += file
     }
@@ -640,7 +641,7 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
             genAdapt,
             toplevel = true,
             validator)
-        writeFile(file, templates.header, templates(templateName).generate(dict))
+        writeFile(file, header, templates(templateName).generate(dict))
       }
       generatedFiles += file
     }
@@ -653,16 +654,16 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
       if (!dryRun) {
         val dict = serviceDict(service, namespace, includes, allOptions, genAdapt)
-        writeFile(interfaceFile, templates.header, templates("service").generate(dict))
+        writeFile(interfaceFile, header, templates("service").generate(dict))
 
         finagleClientFileOpt foreach { file =>
           val dict = finagleClient(service, namespace, allOptions.contains(WithAsClosable))
-          writeFile(file, templates.header, templates("finagleClient").generate(dict))
+          writeFile(file, header, templates("finagleClient").generate(dict))
         }
 
         finagleServiceFileOpt foreach { file =>
           val dict = finagleService(service, namespace)
-          writeFile(file, templates.header, templates("finagleService").generate(dict))
+          writeFile(file, header, templates("finagleService").generate(dict))
         }
       }
       generatedFiles += interfaceFile

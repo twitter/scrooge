@@ -11,6 +11,11 @@ import java.io._
 
 class CocoaGeneratorSpec extends Spec {
 
+  /*
+   * Gold files can be regenerated via the command
+   * source $ ./pants run scrooge-internal/generator:bin --jvm-run-jvm-program-args="--language cocoa --dest scrooge/scrooge-generator-tests/src/test/resources/cocoa_output/ scrooge/scrooge-generator-tests/src/test/resources/test_thrift/cocoa.thrift"
+   */
+
   val templateFiles = List(
     "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.h",
     "cocoa_output/TFNTwitterThriftScribeAnotherTestStruct.m",

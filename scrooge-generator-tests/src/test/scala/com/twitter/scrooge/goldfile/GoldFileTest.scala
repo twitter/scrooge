@@ -4,9 +4,11 @@ import com.twitter.io.Files
 import com.twitter.scrooge.Main
 import com.twitter.scrooge.testutil.TempDirectory
 import com.twitter.scrooge.testutil.Utils
-import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
+import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 import scala.io.Source
@@ -51,9 +53,28 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
 
       Main.main(args.toArray)
       generatedFiles = generatedFiles(tempDir)
+      normalizedGeneratedHeaders()
     } catch {
       case ex: Throwable => exception = Some(ex)
     }
+
+  private[this] def normalizedGeneratedHeaders(): Unit = {
+    for (file <- generatedFiles) {
+      val raw = new String(Files.readBytes(file), StandardCharsets.UTF_8)
+      val normalized = Utils.normalizeHeaders(raw)
+      file.delete()
+
+      val stream = new FileOutputStream(file)
+      val writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8)
+
+      try {
+        writer.write(normalized)
+      } finally {
+        writer.close()
+        stream.close()
+      }
+    }
+  }
 
   final def relativePath(f: File): String = {
     val root = tempDir.getAbsolutePath
@@ -85,26 +106,23 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
     }
     accumulate(f, Vector.empty)
   }
-  protected def testThriftFiles = Seq("gold_file_input/gold.thrift")
-  protected def goldFilesRoot: String =
-    s"gold_file_output_$language"
+  protected def testThriftFiles: Seq[String] = Seq("gold_file_input/gold.thrift")
+  protected def goldFilesRoot: String = s"gold_file_output_$language"
 
   protected def diff(
-    gold: InputStream,
-    gen: InputStream,
+    expected: String,
+    gen: String,
     genFileName: String,
     genRelPath: String
   ): Unit = {
-    val genStr = Utils.normalizeHeaders(inputStreamToString(gen))
-    val expected = Utils.normalizeHeaders(inputStreamToString(gold))
-    if (genStr != expected) {
+    if (gen != expected) {
       val diff = {
         var i = 0
-        while (i < math.min(genStr.length, expected.length) && genStr(i) == expected(i)) {
+        while (i < math.min(gen.length, expected.length) && gen(i) == expected(i)) {
           i += 1
         }
         val surround = 50
-        val longerStr = if (genStr.length >= expected.length) genStr else expected
+        val longerStr = if (gen.length >= expected.length) gen else expected
         val substring =
           longerStr.substring(math.max(0, i - surround), i) ++
             s"|->${longerStr(i)}<-|" ++
@@ -120,7 +138,7 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
         s"""
            |The generated file ${genFileName} did not match gold file
            |"$goldFilesRoot/$genRelPath".
-           |Generated string is ${genStr.length} characters long
+           |Generated string is ${gen.length} characters long
            |Expected string is ${expected.length} characters long
            |
            |$diff
@@ -135,12 +153,12 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
            |
          """.stripMargin
       println(msg)
-      println(s"Generated file $genRelPath:\n$genStr<<<EOF")
+      println(s"Generated file $genRelPath:\n$gen<<<EOF")
       fail(if (deleteTempFiles) msg else msg + s"\nTemp dir $tempDir\n")
     }
   }
 
-  private def inputStreamToString(is: InputStream): String = {
+  private[this] def inputStreamToString(is: InputStream): String = {
     if (is == null) {
       ""
     } else {
@@ -158,10 +176,11 @@ abstract class GoldFileTest extends AnyFunSuite with BeforeAndAfterAll {
         val genRelPath = gen.toString.drop(tempDir.toString.length + 1)
 
         withClue(genRelPath) {
-          val genStream = new ByteArrayInputStream(Files.readBytes(gen))
-          val goldStream = ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")
+          val genString = new String(Files.readBytes(gen), StandardCharsets.UTF_8)
+          val goldString = Utils.normalizeHeaders(
+            inputStreamToString(ccl.getResourceAsStream(s"$goldFilesRoot/$genRelPath")))
 
-          diff(goldStream, genStream, gen.getName, genRelPath)
+          diff(goldString, genString, gen.getName, genRelPath)
         }
       }
     }

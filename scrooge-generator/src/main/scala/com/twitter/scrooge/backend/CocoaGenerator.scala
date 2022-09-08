@@ -51,16 +51,16 @@ class CocoaGenerator(
   implicit class RichDictionary(dictionary: Dictionary) {
     def update(keyPath: Seq[String], data: String): Unit = {
       keyPath match {
-        case head :: Nil => dictionary(head) = data
-        case head :: tail => dictionary(head).children.head(tail) = data
+        case head +: Nil => dictionary(head) = data
+        case head +: tail => dictionary(head).children.head(tail) = data
         case _ =>
       }
     }
 
     def update(keyPath: Seq[String], data: Boolean): Unit = {
       keyPath match {
-        case head :: Nil => dictionary(head) = data
-        case head :: tail => dictionary(head).children.head(tail) = data
+        case head +: Nil => dictionary(head) = data
+        case head +: tail => dictionary(head).children.head(tail) = data
         case _ =>
       }
     }
@@ -353,6 +353,7 @@ class CocoaGenerator(
   ): Iterable[File] = {
     val generatedFiles = new mutable.ListBuffer[File]
     val doc = normalizeCase(resolvedDoc.document)
+    val header = headerTemplateLoader.header(resolvedDoc.filePath)
     val namespace = getNamespace(resolvedDoc.document)
     currentNamespace = namespace.fullName
     val packageDir = outputPath
@@ -372,7 +373,7 @@ class CocoaGenerator(
       enumsWithNamespace.foreach { enum =>
         val hFile = new File(packageDir, enum.sid.toTitleCase.name + headerExtension)
         val dict = enumDict(namespace, enum)
-        writeFile(hFile, headerTemplateLoader.header, headerTemplateLoader("enum").generate(dict))
+        writeFile(hFile, header, headerTemplateLoader("enum").generate(dict))
       }
     }
 
@@ -404,12 +405,12 @@ class CocoaGenerator(
         val dict = structDict(struct, Some(namespace), includes, serviceOptions, true)
         writeFile(
           mFile,
-          implementationTemplateLoader.header,
+          header,
           implementationTemplateLoader(templateName).generate(dict)
         )
         writeFile(
           hFile,
-          headerTemplateLoader.header,
+          header,
           headerTemplateLoader(templateName).generate(dict)
         )
 

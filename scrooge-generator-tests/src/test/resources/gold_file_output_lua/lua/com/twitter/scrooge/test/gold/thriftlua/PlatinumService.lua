@@ -3,5 +3,6 @@
     version: ?
     rev: ?
     built at: ?
+    source file: scrooge/scrooge-generator-tests/src/test/resources/gold_file_input/gold.thrift
 --]]
 -- Service interfaces are not supported for Lua

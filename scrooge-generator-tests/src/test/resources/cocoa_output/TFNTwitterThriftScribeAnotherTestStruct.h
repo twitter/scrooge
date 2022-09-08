@@ -3,6 +3,7 @@
  *   version: ?
  *   rev: ?
  *   built at: ?
+ *   source file: scrooge/scrooge-generator-tests/src/test/resources/test_thrift/cocoa.thrift
  */
 #import <TFNTwitterThriftScribe/TFNTwitterThriftScribeTestEnum.h>
 #import <TFNTwitterThriftScribe/TFNTwitterThriftScribeTestStruct.h>

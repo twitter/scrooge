@@ -3,6 +3,7 @@
     version: ?
     rev: ?
     built at: ?
+    source file: ?
 --]]
 
 -- Import this file with:

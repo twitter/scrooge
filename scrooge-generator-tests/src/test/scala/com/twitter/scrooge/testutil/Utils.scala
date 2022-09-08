@@ -57,11 +57,13 @@ object Utils extends Matchers {
   private[this] val headerRegEx =
     """ (\*)?   version: .*
       | (\*)?   rev: .*
-      | (\*)?   built at: .*""".stripMargin.r
+      | (\*)?   built at: .*
+      | (\*)?   source file: .*""".stripMargin.r
   private[this] val headerNormalizedReplacement =
     """ $1   version: ?
       | $2   rev: ?
-      | $3   built at: ?""".stripMargin
+      | $3   built at: ?
+      | $4   source file: ?""".stripMargin
 
   def normalizeHeaders(generatedThrift: String): String = {
     // normalize the headers

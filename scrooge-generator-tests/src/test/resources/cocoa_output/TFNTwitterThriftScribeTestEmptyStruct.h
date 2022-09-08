@@ -3,6 +3,7 @@
  *   version: ?
  *   rev: ?
  *   built at: ?
+ *   source file: scrooge/scrooge-generator-tests/src/test/resources/test_thrift/cocoa.thrift
  */
 
 
