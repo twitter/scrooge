@@ -101,7 +101,7 @@ def travisTestJavaOptions: Seq[String] = {
 // scalac options for projects that are scala 2.10
 // or cross compiled with scala 2.10
 val scalacTwoTenOptions =
-Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-encoding", "utf8")
+  Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-encoding", "utf8")
 
 val sharedSettingsWithoutScalaVersion = Seq(
   version := releaseVersion,
@@ -113,7 +113,6 @@ val sharedSettingsWithoutScalaVersion = Seq(
     "junit" % "junit" % "4.12" % "test",
     "org.scalatest" %% "scalatest" % "3.1.2" % "test",
     "org.scalatestplus" %% "junit-4-12" % "3.1.2.0" % "test",
-    "org.scalatestplus" %% "mockito-1-10" % "3.1.0.0" % "test",
     "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % "test"
   ),
   Test / fork := true, // We have to fork to get the JavaOptions
@@ -226,9 +225,6 @@ val sharedSettings =
 val jmockSettings = Seq(
   libraryDependencies ++= Seq(
     "cglib" % "cglib" % "3.2.8" % "test",
-    "org.jmock" % "jmock" % "2.9.0" % "test",
-    "org.jmock" % "jmock-legacy" % "2.9.0" % "test",
-    "org.mockito" % "mockito-core" % "1.9.5" % "test",
     "org.objenesis" % "objenesis" % "1.1" % "test",
     "org.ow2.asm" % "asm" % "6.2.1" % "test",
     "org.scalatestplus" %% "jmock-2-8" % "3.1.2.0" % "test"
@@ -237,14 +233,19 @@ val jmockSettings = Seq(
 
 // this omits scrooge-generator, since it needs special treatment for 2.10.x
 lazy val publishedProjects =
-  Seq[sbt.ProjectReference](scroogeAdaptive, scroogeCore, scroogeLinter, scroogeSerializer, thriftValidation)
+  Seq[sbt.ProjectReference](
+    scroogeAdaptive,
+    scroogeCore,
+    scroogeLinter,
+    scroogeSerializer,
+    thriftValidation)
 
 lazy val scrooge = Project(
   id = "scrooge",
   base = file(".")
 ).enablePlugins(
-  ScalaUnidocPlugin
-).aggregate(publishedProjects: _*)
+    ScalaUnidocPlugin
+  ).aggregate(publishedProjects: _*)
 
 // This target is used for publishing dependencies locally
 // and is used for generating all(*) of the dependencies
@@ -266,14 +267,14 @@ lazy val thriftValidation = Project(
   id = "scrooge-thriftValidation",
   base = file("scrooge-thrift-validation")
 ).settings(
-  settingsCrossCompiledWithTwoTen
-).settings(
-  libraryDependencies ++= Seq(
-    util("validator-constraints"),
-    "jakarta.validation" % "jakarta.validation-api" % "3.0.0",
-    "org.hibernate.validator" % "hibernate-validator" % "7.0.1.Final"
+    settingsCrossCompiledWithTwoTen
+  ).settings(
+    libraryDependencies ++= Seq(
+      util("validator-constraints"),
+      "jakarta.validation" % "jakarta.validation-api" % "3.0.0",
+      "org.hibernate.validator" % "hibernate-validator" % "7.0.1.Final"
+    )
   )
-)
 
 // must be cross compiled with scala 2.10 because scrooge-sbt-plugin
 // has a dependency on this.
@@ -281,58 +282,59 @@ lazy val scroogeGenerator = Project(
   id = "scrooge-generator",
   base = file("scrooge-generator")
 ).settings(
-  settingsCrossCompiledWithTwoTen
-).settings(
-  name := "scrooge-generator",
-  libraryDependencies ++= Seq(
-    "org.apache.thrift" % "libthrift" % versions.libthrift,
-    "com.github.scopt" %% "scopt" % "4.0.0-RC2",
-    "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
-    "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
-    "com.google.code.findbugs" % "jsr305" % "2.0.1",
-    "commons-cli" % "commons-cli" % "1.3.1"
-  ).++(CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, x)) if x >= 11 =>
-      Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2")
-    case _ => Nil
-  }),
-  assembly / test := {}, // Skip tests when running assembly.
-  assembly / mainClass := Some("com.twitter.scrooge.Main")
-).dependsOn(thriftValidation)
+    settingsCrossCompiledWithTwoTen
+  ).settings(
+    name := "scrooge-generator",
+    libraryDependencies ++= Seq(
+      "org.apache.thrift" % "libthrift" % versions.libthrift,
+      "com.github.scopt" %% "scopt" % "4.0.0-RC2",
+      "com.github.spullara.mustache.java" % "compiler" % "0.8.18",
+      "org.codehaus.plexus" % "plexus-utils" % "1.5.4",
+      "com.google.code.findbugs" % "jsr305" % "2.0.1",
+      "commons-cli" % "commons-cli" % "1.3.1"
+    ).++(CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, x)) if x >= 11 =>
+        Seq("org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2")
+      case _ => Nil
+    }),
+    assembly / test := {}, // Skip tests when running assembly.
+    assembly / mainClass := Some("com.twitter.scrooge.Main")
+  ).dependsOn(thriftValidation)
 
 lazy val scroogeGeneratorTests = Project(
   id = "scrooge-generator-tests",
   base = file("scrooge-generator-tests")
 ).settings(
-  inConfig(Test)(testThriftSettings),
-  sharedSettings,
-  jmockSettings
-).settings(
-  name := "scrooge-generator-tests",
-  libraryDependencies ++= Seq(
-    "com.novocode" % "junit-interface" % "0.8" % "test->default" exclude ("org.mockito", "mockito-all"),
-    "org.slf4j" % "slf4j-nop" % versions.slf4j % "test", // used in thrift transports
-    finagle("thrift") % "test",
-    finagle("thriftmux") % "test"
-  ),
-  assembly / test := {}, // Skip tests when running assembly.
-  publishArtifact := false
-).dependsOn(scroogeCore, scroogeGenerator)
+    inConfig(Test)(testThriftSettings),
+    sharedSettings,
+    jmockSettings
+  ).settings(
+    name := "scrooge-generator-tests",
+    libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-nop" % versions.slf4j % "test", // used in thrift transports
+      finagle("thrift") % "test",
+      finagle("thriftmux") % "test",
+      util("mock") % "test"
+    ),
+    assembly / test := {}, // Skip tests when running assembly.
+    publishArtifact := false
+  ).dependsOn(scroogeCore, scroogeGenerator)
 
 lazy val scroogeCore = Project(
   id = "scrooge-core",
   base = file("scrooge-core")
 ).settings(
-  sharedSettings
-).settings(
-  name := "scrooge-core",
-  libraryDependencies ++= Seq(
-    "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
-    "javax.annotation" % "javax.annotation-api" % "1.3.2",
-    util("core"),
-    util("validator")
-  )
-).dependsOn(thriftValidation)
+    sharedSettings
+  ).settings(
+    name := "scrooge-core",
+    libraryDependencies ++= Seq(
+      "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
+      "javax.annotation" % "javax.annotation-api" % "1.3.2",
+      util("core"),
+      util("validator"),
+      util("mock") % "test"
+    )
+  ).dependsOn(thriftValidation)
 
 val serializerTestThriftSettings: Seq[Setting[_]] = Seq(
   Test / sourceGenerators += ScroogeRunner.genSerializerTestThrift,
@@ -343,60 +345,60 @@ lazy val scroogeSerializer = Project(
   id = "scrooge-serializer",
   base = file("scrooge-serializer")
 ).settings(
-  inConfig(Test)(serializerTestThriftSettings),
-  sharedSettings
-).settings(
-  name := "scrooge-serializer",
-  libraryDependencies ++= Seq(
-    util("app"),
-    util("codec"),
-    "org.slf4j" % "slf4j-nop" % versions.slf4j % "test",
-    "org.apache.thrift" % "libthrift" % versions.libthrift % "provided"
-  )
-).dependsOn(scroogeCore, scroogeGenerator % "test")
+    inConfig(Test)(serializerTestThriftSettings),
+    sharedSettings
+  ).settings(
+    name := "scrooge-serializer",
+    libraryDependencies ++= Seq(
+      util("app"),
+      util("codec"),
+      "org.slf4j" % "slf4j-nop" % versions.slf4j % "test",
+      "org.apache.thrift" % "libthrift" % versions.libthrift % "provided"
+    )
+  ).dependsOn(scroogeCore, scroogeGenerator % "test")
 
 lazy val scroogeAdaptive = Project(
   id = "scrooge-adaptive",
   base = file("scrooge-adaptive")
 ).settings(
-  inConfig(Test)(adaptiveScroogeTestThriftSettings),
-  sharedSettings
-).settings(
-  name := "scrooge-adaptive",
-  libraryDependencies ++= Seq(
-    "org.ow2.asm" % "asm" % "6.2.1",
-    "org.ow2.asm" % "asm-commons" % "6.2.1",
-    "org.ow2.asm" % "asm-util" % "6.2.1",
-    "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
-    util("logging")
-  )
-).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
+    inConfig(Test)(adaptiveScroogeTestThriftSettings),
+    sharedSettings
+  ).settings(
+    name := "scrooge-adaptive",
+    libraryDependencies ++= Seq(
+      "org.ow2.asm" % "asm" % "6.2.1",
+      "org.ow2.asm" % "asm-commons" % "6.2.1",
+      "org.ow2.asm" % "asm-util" % "6.2.1",
+      "org.apache.thrift" % "libthrift" % versions.libthrift % "provided",
+      util("logging")
+    )
+  ).dependsOn(scroogeCore, scroogeGenerator % "test", scroogeSerializer)
 
 lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin).settings(
-  settingsWithTwoTen: _*
-).settings(
-  scalaVersion := "2.10.7",
-  crossSbtVersions := Seq("0.13.18", "1.5.3"),
-  buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-  buildInfoPackage := "com.twitter",
-  sbtPlugin := true,
-).dependsOn(scroogeGenerator)
+    settingsWithTwoTen: _*
+  ).settings(
+    scalaVersion := "2.10.7",
+    crossSbtVersions := Seq("0.13.18", "1.5.3"),
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.twitter",
+    sbtPlugin := true,
+  ).dependsOn(scroogeGenerator)
 
 lazy val scroogeLinter = Project(
   id = "scrooge-linter",
   base = file("scrooge-linter")
 ).settings(
-  sharedSettings
-).settings(
-  name := "scrooge-linter",
-  libraryDependencies ++= Seq(
-    util("logging"),
-    util("app")
-  )
-).dependsOn(scroogeGenerator)
+    sharedSettings
+  ).settings(
+    name := "scrooge-linter",
+    libraryDependencies ++= Seq(
+      util("logging"),
+      util("app")
+    )
+  ).dependsOn(scroogeGenerator)
 
 val benchThriftSettings: Seq[Setting[_]] = Seq(
   Compile / sourceGenerators += ScroogeRunner.genBenchmarkThrift,
@@ -407,40 +409,40 @@ lazy val scroogeBenchmark = Project(
   id = "scrooge-benchmark",
   base = file("scrooge-benchmark")
 ).settings(
-  inConfig(Compile)(benchThriftSettings),
-  sharedSettings,
-  dumpClasspathSettings
-).enablePlugins(
-  JmhPlugin
-).settings(
-  libraryDependencies ++= Seq(
-    "org.slf4j" % "slf4j-nop" % versions.slf4j, // Needed for the thrift transports
-    "org.apache.thrift" % "libthrift" % versions.libthrift
+    inConfig(Compile)(benchThriftSettings),
+    sharedSettings,
+    dumpClasspathSettings
+  ).enablePlugins(
+    JmhPlugin
+  ).settings(
+    libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-nop" % versions.slf4j, // Needed for the thrift transports
+      "org.apache.thrift" % "libthrift" % versions.libthrift
+    )
+  ).dependsOn(
+    scroogeAdaptive % "compile->test", // Need ReloadOnceAdaptBinarySerializer defined in test
+    scroogeGenerator,
+    scroogeSerializer
   )
-).dependsOn(
-  scroogeAdaptive % "compile->test", // Need ReloadOnceAdaptBinarySerializer defined in test
-  scroogeGenerator,
-  scroogeSerializer
-)
 
 lazy val scroogeDoc = Project(
   id = "scrooge-doc",
   base = file("doc")
 ).enablePlugins(
-  SphinxPlugin
-).settings(
-  sharedSettings,
-  Seq(
-    doc / scalacOptions ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
-    Sphinx / includeFilter := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
+    SphinxPlugin
+  ).settings(
+    sharedSettings,
+    Seq(
+      doc / scalacOptions ++= Seq("-doc-title", "Scrooge", "-doc-version", version.value),
+      Sphinx / includeFilter := ("*.html" | "*.png" | "*.js" | "*.css" | "*.gif" | "*.txt")
+    )
+  ).configs(DocTest).settings(
+    inConfig(DocTest)(Defaults.testSettings): _*
+  ).settings(
+    DocTest / unmanagedSourceDirectories += baseDirectory.value / "src/sphinx/code",
+    // Make the "test" command run both, test and doctest:test
+    test := Seq(Test / test, DocTest / test).dependOn.value
   )
-).configs(DocTest).settings(
-  inConfig(DocTest)(Defaults.testSettings): _*
-).settings(
-  DocTest / unmanagedSourceDirectories += baseDirectory.value / "src/sphinx/code",
-  // Make the "test" command run both, test and doctest:test
-  test := Seq(Test / test, DocTest / test).dependOn.value
-)
 
 /* Test Configuration for running tests on doc sources */
 lazy val DocTest = config("testdoc") extend Test

@@ -49,16 +49,12 @@ junit_tests(
         "3rdparty/jvm/com/google/guava",
         "3rdparty/jvm/junit",
         "3rdparty/jvm/org/hamcrest:hamcrest-core",
-        "3rdparty/jvm/org/jmock",
-        "3rdparty/jvm/org/jmock:jmock-legacy",
-        "3rdparty/jvm/org/mockito:mockito-all",
         "3rdparty/jvm/org/objenesis",
         "3rdparty/jvm/org/ow2/asm",
         "3rdparty/jvm/org/scala-lang/modules:scala-parser-combinators",
         "3rdparty/jvm/org/scalatest",
         "3rdparty/jvm/org/scalatestplus:jmock",
         "3rdparty/jvm/org/scalatestplus:junit",
-        "3rdparty/jvm/org/scalatestplus:mockito-1-10",
         scoped(
             "3rdparty/jvm/org/slf4j:slf4j-nop",
             scope = "runtime",
@@ -97,5 +93,6 @@ junit_tests(
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-bazel-workaround-android",
         "scrooge/scrooge-generator-tests/src/test/thrift/standalone:thrift-java",
         "util/util-core:scala",
+        "util/util-mock/src/main/scala/com/twitter/util/mock",
     ],
 )

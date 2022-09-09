@@ -3,17 +3,17 @@ package com.twitter.scrooge.internal
 import com.twitter.scrooge.TArrayByteTransport
 import com.twitter.scrooge.TFieldBlob
 import com.twitter.scrooge.ThriftUnion
+import com.twitter.util.mock.Mockito
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.protocol.TCompactProtocol
 import org.apache.thrift.protocol.TField
 import org.apache.thrift.protocol.TProtocolException
 import org.apache.thrift.protocol.TType
 import org.apache.thrift.transport.TMemoryBuffer
-import org.scalatestplus.mockito.MockitoSugar
 import scala.collection.immutable
 import org.scalatest.funsuite.AnyFunSuite
 
-class TProtocolsTest extends AnyFunSuite with MockitoSugar {
+class TProtocolsTest extends AnyFunSuite with Mockito {
 
   test("writeSet and readSet") {
     val set = Set(1, 2, 3)
