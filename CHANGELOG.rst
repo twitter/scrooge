@@ -33,6 +33,9 @@ Runtime Behavior Changes
 * scrooge-generator: Checks for reference equality in Scala structs before iterating over the fields, this is to
   reduce the cost of `equals` checks on large structs (many fields or deeply nested fields). ``PHAB_ID=D950010``
 
+* scrooge-generator: Checks for reference equality in Java structs before iterating over the fields, this is to
+  reduce the cost of `equals` checks on large structs (many fields or deeply nested fields). ``PHAB_ID=D978252``
+
 * scrooge: Use the util-mock for testing which depends on the 3.12.4 "org.mockito", remove the
   "org.jmock" dependencies. ``PHAB_ID=D973946``
 

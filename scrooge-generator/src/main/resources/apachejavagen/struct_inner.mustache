@@ -367,7 +367,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   public boolean equals({{struct_type_name}} that) {
-    return equalsWithoutPassthrough(that){{#is_passthrough_struct}} && passthroughFieldsAreEqual(that){{/is_passthrough_struct}};
+    return this == that || (equalsWithoutPassthrough(that){{#is_passthrough_struct}} && passthroughFieldsAreEqual(that){{/is_passthrough_struct}});
   }
 
   private boolean equalsWithoutPassthrough({{struct_type_name}} that) {

@@ -295,6 +295,8 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   public boolean equals({{struct_type_name}} that) {
     if (that == null)
       return false;
+    if (this == that)
+      return true;
     {{#fields}}
     {{#consolidate_newlines}}
     boolean this_present_{{name}} = true{{#field_type.nullable}} && this.{{>generate_isset_check}}{{/field_type.nullable}}{{^field_type.nullable}}{{#field.optional}} && this.{{>generate_isset_check}}{{/field.optional}}{{/field_type.nullable}};

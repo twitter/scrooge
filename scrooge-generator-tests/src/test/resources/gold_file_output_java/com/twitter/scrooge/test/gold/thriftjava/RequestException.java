@@ -296,7 +296,7 @@ public class RequestException extends AbstractFailureFlags<RequestException> imp
   }
 
   public boolean equals(RequestException that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(RequestException that) {

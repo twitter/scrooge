@@ -327,7 +327,7 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
   }
 
   public boolean equals(Recursive that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(Recursive that) {

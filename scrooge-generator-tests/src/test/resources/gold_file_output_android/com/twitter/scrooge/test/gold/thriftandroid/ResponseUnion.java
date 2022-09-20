@@ -247,7 +247,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   }
 
   public boolean equals(ResponseUnion other) {
-    return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
+    return this == other || (other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue()));
   }
 
   @java.lang.Override

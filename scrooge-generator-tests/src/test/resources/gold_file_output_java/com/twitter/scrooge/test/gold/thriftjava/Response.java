@@ -331,7 +331,7 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
   }
 
   public boolean equals(Response that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(Response that) {

@@ -198,6 +198,8 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   public boolean equals(CollectionId that) {
     if (that == null)
       return false;
+    if (this == that)
+      return true;
     boolean this_present_collectionLongId = true;
     boolean that_present_collectionLongId = true;
     if (this_present_collectionLongId || that_present_collectionLongId) {

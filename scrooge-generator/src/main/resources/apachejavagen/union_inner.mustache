@@ -213,7 +213,7 @@ public {{#is_final}}final {{/is_final}}{{#in_class}}static {{/in_class}}class {{
   }
 
   public boolean equals({{name}} other) {
-    return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
+    return this == other || (other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue()));
   }
 
   @java.lang.Override

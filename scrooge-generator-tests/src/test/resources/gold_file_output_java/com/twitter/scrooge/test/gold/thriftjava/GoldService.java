@@ -1209,7 +1209,7 @@ public class GoldService {
   }
 
   public boolean equals(doGreatThings_args that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(doGreatThings_args that) {
@@ -1717,7 +1717,7 @@ public class GoldService {
   }
 
   public boolean equals(doGreatThings_result that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(doGreatThings_result that) {
@@ -2141,7 +2141,7 @@ public class GoldService {
   }
 
   public boolean equals(noExceptionCall_args that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(noExceptionCall_args that) {
@@ -2516,7 +2516,7 @@ public class GoldService {
   }
 
   public boolean equals(noExceptionCall_result that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(noExceptionCall_result that) {

@@ -292,7 +292,7 @@ public class AnotherException extends AbstractFailureFlags<AnotherException> imp
   }
 
   public boolean equals(AnotherException that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(AnotherException that) {

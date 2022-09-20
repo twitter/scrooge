@@ -301,7 +301,7 @@ public class OverCapacityException extends AbstractFailureFlags<OverCapacityExce
   }
 
   public boolean equals(OverCapacityException that) {
-    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
+    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
   }
 
   private boolean equalsWithoutPassthrough(OverCapacityException that) {

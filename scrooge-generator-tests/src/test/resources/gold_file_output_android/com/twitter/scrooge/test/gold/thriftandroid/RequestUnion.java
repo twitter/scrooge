@@ -247,7 +247,7 @@ public class RequestUnion extends TUnion<RequestUnion, RequestUnion._Fields> {
   }
 
   public boolean equals(RequestUnion other) {
-    return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
+    return this == other || (other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue()));
   }
 
   @java.lang.Override
