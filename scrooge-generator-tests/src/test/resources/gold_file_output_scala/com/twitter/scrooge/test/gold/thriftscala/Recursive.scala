@@ -68,6 +68,8 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
@@ -146,7 +148,7 @@ object Recursive extends ValidatingThriftStructCodec3[Recursive] with StructBuil
     )
   }
 
-  def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: Recursive, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -522,11 +524,11 @@ trait Recursive
 
   def _codec: ValidatingThriftStructCodec3[Recursive] = Recursive
 
-  def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[Recursive] = new RecursiveStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class RecursiveStructBuilder(instance: _root_.scala.Option[Recursive], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[Recursive](fieldTypes) {
+private[thriftscala] class RecursiveStructBuilder(instance: _root_.scala.Option[Recursive], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[Recursive](fieldTypes, nullableIndices) {
 
   def build(): Recursive = {
     val _fieldArray = fieldArray // shadow variable

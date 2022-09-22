@@ -442,7 +442,8 @@ trait StructTemplate { self: TemplateGenerator =>
           ),
           "required" -> v(field.requiredness.isRequired),
           "optional" -> v(field.requiredness.isOptional),
-          "nullable" -> v(isNullableType(field.fieldType, field.requiredness.isOptional)),
+          "nullable" -> v(isNullableType(field)),
+          "nullValid" -> v(isNullValid(field)),
           "constructionOptional" -> v(
             !isConstructionRequiredField(field) && field.requiredness.isOptional
           ),

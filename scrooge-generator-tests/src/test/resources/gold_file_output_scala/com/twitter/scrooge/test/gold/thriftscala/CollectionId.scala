@@ -54,6 +54,8 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
@@ -114,7 +116,7 @@ object CollectionId extends ValidatingThriftStructCodec3[CollectionId] with Stru
     )
   }
 
-  def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: CollectionId, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -444,11 +446,11 @@ trait CollectionId
 
   def _codec: ValidatingThriftStructCodec3[CollectionId] = CollectionId
 
-  def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[CollectionId] = new CollectionIdStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class CollectionIdStructBuilder(instance: _root_.scala.Option[CollectionId], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[CollectionId](fieldTypes) {
+private[thriftscala] class CollectionIdStructBuilder(instance: _root_.scala.Option[CollectionId], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[CollectionId](fieldTypes, nullableIndices) {
 
   def build(): CollectionId = {
     val _fieldArray = fieldArray // shadow variable

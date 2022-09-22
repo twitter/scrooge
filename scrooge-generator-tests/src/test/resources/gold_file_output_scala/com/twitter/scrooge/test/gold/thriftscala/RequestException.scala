@@ -53,6 +53,8 @@ object RequestException extends ValidatingThriftStructCodec3[RequestException] w
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
@@ -113,7 +115,7 @@ object RequestException extends ValidatingThriftStructCodec3[RequestException] w
     )
   }
 
-  def newBuilder(): StructBuilder[RequestException] = new RequestExceptionStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[RequestException] = new RequestExceptionStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: RequestException, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -358,23 +360,23 @@ class RequestException(
       flags
     )
 
-  def newBuilder(): StructBuilder[RequestException] = new RequestExceptionStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[RequestException] = new RequestExceptionStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class RequestExceptionStructBuilder(instance: _root_.scala.Option[RequestException], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[RequestException](fieldTypes) {
+private[thriftscala] class RequestExceptionStructBuilder(instance: _root_.scala.Option[RequestException], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[RequestException](fieldTypes, nullableIndices) {
 
   def build(): RequestException = {
     val _fieldArray = fieldArray // shadow variable
     if (instance.isDefined) {
       val instanceValue = instance.get
       RequestException(
-        if (_fieldArray(0) == null) instanceValue.message else _fieldArray(0).asInstanceOf[String]
+        if (_fieldArray(0) == null) instanceValue.message else StructBuilder.unwrapExplicitNull(_fieldArray(0)).asInstanceOf[String]
       )
     } else {
       if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("RequestException"))
       RequestException(
-        _fieldArray(0).asInstanceOf[String]
+        StructBuilder.unwrapExplicitNull(_fieldArray(0)).asInstanceOf[String]
       )
     }
   }

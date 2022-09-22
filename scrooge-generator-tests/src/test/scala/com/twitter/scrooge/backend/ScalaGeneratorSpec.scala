@@ -20,6 +20,7 @@ import com.twitter.scrooge.validation.MissingConstructionRequiredField
 import com.twitter.scrooge.validation.MissingRequiredField
 import com.twitter.util.Await
 import com.twitter.util.Future
+import includes.a.thriftscala.CityState
 import inheritance.aaa.Aaa
 import inheritance.aaa.Box
 import inheritance.bbb.Bbb
@@ -1624,6 +1625,36 @@ class ScalaGeneratorSpec extends JMockSpec with EvalHelper {
           intercept[InvalidFieldsException] {
             // Not all fields were set
             staticBuilder.build()
+          }
+        }
+
+        "create new struct with nullable fields" in { _ =>
+          val builder = CityState.newBuilder().setField(0, null).setField(1, null)
+          assert(builder.build() == CityState(null, null))
+        }
+
+        "throw an exception if nullable fields aren't explicitly set" in { _ =>
+          val builder = CityState.newBuilder().setField(0, null)
+
+          intercept[InvalidFieldsException] {
+            // Not all fields were set
+            builder.build()
+          }
+        }
+
+        "refuse null in non-nullable fields" in { _ =>
+          val boxBuilder = Box.newBuilder()
+          boxBuilder.setField(0, 42) // can set it to an int value
+          intercept[IllegalArgumentException] {
+            // primitive fields aren't nullable
+            boxBuilder.setField(0, null)
+          }
+
+          val ooeBuilder = OneOfEachOptional.newBuilder()
+          ooeBuilder.setField(6, Some("foo")) // can set it to option-of-string
+          intercept[IllegalArgumentException] {
+            // optional non-primitive fields aren't nullable either
+            ooeBuilder.setField(6, null)
           }
         }
       }

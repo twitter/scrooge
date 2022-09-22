@@ -336,6 +336,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
       )
     
     
+      lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+    
       val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
     
@@ -400,7 +402,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         )
       }
     
-      def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.None, fieldTypes)
+      def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
     
       override def encode(_item: Args, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
@@ -521,23 +523,23 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       def _codec: ValidatingThriftStructCodec3[Args] = Args
     
-      def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.Some(this), fieldTypes)
+      def newBuilder(): StructBuilder[Args] = new ArgsStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
     }
     
-    private[thriftscala] class ArgsStructBuilder(instance: _root_.scala.Option[Args], fieldTypes: IndexedSeq[ClassTag[_]])
-        extends StructBuilder[Args](fieldTypes) {
+    private[thriftscala] class ArgsStructBuilder(instance: _root_.scala.Option[Args], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+        extends StructBuilder[Args](fieldTypes, nullableIndices) {
     
       def build(): Args = {
         val _fieldArray = fieldArray // shadow variable
         if (instance.isDefined) {
           val instanceValue = instance.get
           Args(
-            if (_fieldArray(0) == null) instanceValue.request else _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            if (_fieldArray(0) == null) instanceValue.request else StructBuilder.unwrapExplicitNull(_fieldArray(0)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
           )
         } else {
           if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Args"))
           Args(
-            _fieldArray(0).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
+            StructBuilder.unwrapExplicitNull(_fieldArray(0)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.Request]
           )
         }
       }
@@ -596,6 +598,8 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         )
       )
     
+    
+      lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
     
       val structAnnotations: immutable$Map[String, String] =
         immutable$Map.empty[String, String]
@@ -693,7 +697,7 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
         )
       }
     
-      def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.None, fieldTypes)
+      def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
     
       override def encode(_item: Result, _oproto: TProtocol): Unit = {
         _item.write(_oproto)
@@ -859,11 +863,11 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
     
       def _codec: ValidatingThriftStructCodec3[Result] = Result
     
-      def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.Some(this), fieldTypes)
+      def newBuilder(): StructBuilder[Result] = new ResultStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
     }
     
-    private[thriftscala] class ResultStructBuilder(instance: _root_.scala.Option[Result], fieldTypes: IndexedSeq[ClassTag[_]])
-        extends StructBuilder[Result](fieldTypes) {
+    private[thriftscala] class ResultStructBuilder(instance: _root_.scala.Option[Result], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+        extends StructBuilder[Result](fieldTypes, nullableIndices) {
     
       def build(): Result = {
         val _fieldArray = fieldArray // shadow variable

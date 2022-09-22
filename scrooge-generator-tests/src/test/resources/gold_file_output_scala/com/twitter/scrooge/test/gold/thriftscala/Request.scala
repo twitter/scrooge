@@ -275,6 +275,8 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](
         ("s.annotation.one", "something"),
@@ -544,7 +546,7 @@ object Request extends ValidatingThriftStructCodec3[Request] with StructBuilderF
     )
   }
 
-  def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: Request, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -1799,23 +1801,23 @@ trait Request
 
   def _codec: ValidatingThriftStructCodec3[Request] = Request
 
-  def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[Request] = new RequestStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Request], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[Request](fieldTypes) {
+private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Request], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[Request](fieldTypes, nullableIndices) {
 
   def build(): Request = {
     val _fieldArray = fieldArray // shadow variable
     if (instance.isDefined) {
       val instanceValue = instance.get
       Request(
-        if (_fieldArray(0) == null) instanceValue.aList else _fieldArray(0).asInstanceOf[_root_.scala.collection.Seq[String]],
-        if (_fieldArray(1) == null) instanceValue.aSet else _fieldArray(1).asInstanceOf[_root_.scala.collection.Set[Int]],
-        if (_fieldArray(2) == null) instanceValue.aMap else _fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
+        if (_fieldArray(0) == null) instanceValue.aList else StructBuilder.unwrapExplicitNull(_fieldArray(0)).asInstanceOf[_root_.scala.collection.Seq[String]],
+        if (_fieldArray(1) == null) instanceValue.aSet else StructBuilder.unwrapExplicitNull(_fieldArray(1)).asInstanceOf[_root_.scala.collection.Set[Int]],
+        if (_fieldArray(2) == null) instanceValue.aMap else StructBuilder.unwrapExplicitNull(_fieldArray(2)).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
         if (_fieldArray(3) == null) instanceValue.aRequest else _fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        if (_fieldArray(4) == null) instanceValue.subRequests else _fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        if (_fieldArray(5) == null) instanceValue._default else _fieldArray(5).asInstanceOf[String],
+        if (_fieldArray(4) == null) instanceValue.subRequests else StructBuilder.unwrapExplicitNull(_fieldArray(4)).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        if (_fieldArray(5) == null) instanceValue._default else StructBuilder.unwrapExplicitNull(_fieldArray(5)).asInstanceOf[String],
         if (_fieldArray(6) == null) instanceValue.noComment else _fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
         if (_fieldArray(7) == null) instanceValue.doubleSlashComment else _fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
         if (_fieldArray(8) == null) instanceValue.hashtagComment else _fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],
@@ -1830,12 +1832,12 @@ private[thriftscala] class RequestStructBuilder(instance: _root_.scala.Option[Re
     } else {
       if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Request"))
       Request(
-        _fieldArray(0).asInstanceOf[_root_.scala.collection.Seq[String]],
-        _fieldArray(1).asInstanceOf[_root_.scala.collection.Set[Int]],
-        _fieldArray(2).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
+        StructBuilder.unwrapExplicitNull(_fieldArray(0)).asInstanceOf[_root_.scala.collection.Seq[String]],
+        StructBuilder.unwrapExplicitNull(_fieldArray(1)).asInstanceOf[_root_.scala.collection.Set[Int]],
+        StructBuilder.unwrapExplicitNull(_fieldArray(2)).asInstanceOf[_root_.scala.collection.Map[Long, Long]],
         _fieldArray(3).asInstanceOf[_root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        _fieldArray(4).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
-        _fieldArray(5).asInstanceOf[String],
+        StructBuilder.unwrapExplicitNull(_fieldArray(4)).asInstanceOf[_root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]],
+        StructBuilder.unwrapExplicitNull(_fieldArray(5)).asInstanceOf[String],
         _fieldArray(6).asInstanceOf[_root_.scala.Option[Long]],
         _fieldArray(7).asInstanceOf[_root_.scala.Option[Long]],
         _fieldArray(8).asInstanceOf[_root_.scala.Option[Long]],

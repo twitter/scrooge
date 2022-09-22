@@ -270,14 +270,19 @@ abstract class TemplateGenerator(val resolvedDoc: ResolvedDocument)
 
   def quote(str: String): String = "\"" + str + "\""
   def quoteKeyword(str: String): String
-  def isNullableType(t: FieldType, isOptional: Boolean = false): Boolean = {
-    !isOptional && (
-      t match {
-        case TBool | TByte | TI16 | TI32 | TI64 | TDouble => false
-        case _ => true
-      }
-    )
-  }
+
+  def isNullableType(f: Field): Boolean =
+    !(f.requiredness.isOptional || isPrimitiveField(f))
+
+  // True if null is a valid value for the field
+  def isNullValid(f: Field): Boolean =
+    f.requiredness.isDefault && !isPrimitiveField(f)
+
+  private[this] def isPrimitiveField(f: Field): Boolean =
+    f.fieldType match {
+      case TBool | TByte | TI16 | TI32 | TI64 | TDouble => true
+      case _ => false
+    }
 
   def getServiceParentID(parent: ServiceParent): Identifier = {
     val identifier: Identifier = parent.filename match {

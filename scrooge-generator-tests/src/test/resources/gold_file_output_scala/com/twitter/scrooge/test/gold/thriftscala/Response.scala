@@ -68,6 +68,8 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](
         ("com.twitter.scrooge.scala.generateStructProxy", "true")
@@ -146,7 +148,7 @@ object Response extends ValidatingThriftStructCodec3[Response] with StructBuilde
     )
   }
 
-  def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: Response, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -533,11 +535,11 @@ trait Response
 
   def _codec: ValidatingThriftStructCodec3[Response] = Response
 
-  def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[Response] = new ResponseStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class ResponseStructBuilder(instance: _root_.scala.Option[Response], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[Response](fieldTypes) {
+private[thriftscala] class ResponseStructBuilder(instance: _root_.scala.Option[Response], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[Response](fieldTypes, nullableIndices) {
 
   def build(): Response = {
     val _fieldArray = fieldArray // shadow variable
@@ -545,13 +547,13 @@ private[thriftscala] class ResponseStructBuilder(instance: _root_.scala.Option[R
       val instanceValue = instance.get
       Response(
         if (_fieldArray(0) == null) instanceValue.statusCode else _fieldArray(0).asInstanceOf[Int],
-        if (_fieldArray(1) == null) instanceValue.responseUnion else _fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+        if (_fieldArray(1) == null) instanceValue.responseUnion else StructBuilder.unwrapExplicitNull(_fieldArray(1)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
       )
     } else {
       if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("Response"))
       Response(
         _fieldArray(0).asInstanceOf[Int],
-        _fieldArray(1).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
+        StructBuilder.unwrapExplicitNull(_fieldArray(1)).asInstanceOf[com.twitter.scrooge.test.gold.thriftscala.ResponseUnion]
       )
     }
   }

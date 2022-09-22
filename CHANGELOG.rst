@@ -39,6 +39,8 @@ Runtime Behavior Changes
 * scrooge: Use the util-mock for testing which depends on the 3.12.4 "org.mockito", remove the
   "org.jmock" dependencies. ``PHAB_ID=D973946``
 
+* scrooge: `c.t.scrooge.StructBuilder` now accepts `null` values for non-primitive default-required fields. ``PHAB_ID=D976737``
+
 22.7.0
 ------
 

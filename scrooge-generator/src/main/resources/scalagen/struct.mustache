@@ -95,6 +95,8 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
   )
 {{/hasFields}}
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   {{#structAnnotations}}lazy {{/structAnnotations}}val structAnnotations: immutable$Map[String, String] =
 {{#structAnnotations}}
     immutable$Map[String, String](
@@ -211,7 +213,7 @@ object {{StructName}} extends ValidatingThriftStructCodec3[{{StructName}}] with 
     )
   }
 
-  def newBuilder(): StructBuilder[{{StructName}}] = new {{StructName}}StructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[{{StructName}}] = new {{StructName}}StructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: {{StructName}}, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -931,11 +933,11 @@ class {{StructName}}(
     )
 {{/hasFailureFlags}}
 
-  def newBuilder(): StructBuilder[{{StructName}}] = new {{StructName}}StructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[{{StructName}}] = new {{StructName}}StructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[{{packageName}}] class {{StructName}}StructBuilder(instance: _root_.scala.Option[{{StructName}}], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[{{StructName}}](fieldTypes) {
+private[{{packageName}}] class {{StructName}}StructBuilder(instance: _root_.scala.Option[{{StructName}}], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[{{StructName}}](fieldTypes, nullableIndices) {
 
   def build(): {{StructName}} = {
 {{#hasFields}}
@@ -944,14 +946,14 @@ private[{{packageName}}] class {{StructName}}StructBuilder(instance: _root_.scal
       val instanceValue = instance.get
       {{StructName}}(
 {{#fields}}
-        if (_fieldArray({{index}}) == null) instanceValue.{{fieldName}}{{#constructionRequired}}.get{{/constructionRequired}} else _fieldArray({{index}}).asInstanceOf[{{>constructionOptionalType}}]
+        if (_fieldArray({{index}}) == null) instanceValue.{{fieldName}}{{#constructionRequired}}.get{{/constructionRequired}} else {{#nullValid}}StructBuilder.unwrapExplicitNull({{/nullValid}}_fieldArray({{index}}){{#nullValid}}){{/nullValid}}.asInstanceOf[{{>constructionOptionalType}}]
 {{/fields|,}}
       )
     } else {
       if (genericArrayOps(_fieldArray).contains(null)) throw new InvalidFieldsException(structBuildError("{{StructName}}"))
       {{StructName}}(
 {{#fields}}
-        _fieldArray({{index}}).asInstanceOf[{{>constructionOptionalType}}]
+        {{#nullValid}}StructBuilder.unwrapExplicitNull({{/nullValid}}_fieldArray({{index}}){{#nullValid}}){{/nullValid}}.asInstanceOf[{{>constructionOptionalType}}]
 {{/fields|,}}
       )
     }

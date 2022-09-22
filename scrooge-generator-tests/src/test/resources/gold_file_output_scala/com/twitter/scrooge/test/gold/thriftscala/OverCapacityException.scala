@@ -53,6 +53,8 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   lazy val structAnnotations: immutable$Map[String, String] =
     immutable$Map[String, String](
         ("e.annotation", "true")
@@ -115,7 +117,7 @@ object OverCapacityException extends ValidatingThriftStructCodec3[OverCapacityEx
     )
   }
 
-  def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: OverCapacityException, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -352,11 +354,11 @@ class OverCapacityException(
       flags
     )
 
-  def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[OverCapacityException] = new OverCapacityExceptionStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class OverCapacityExceptionStructBuilder(instance: _root_.scala.Option[OverCapacityException], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[OverCapacityException](fieldTypes) {
+private[thriftscala] class OverCapacityExceptionStructBuilder(instance: _root_.scala.Option[OverCapacityException], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[OverCapacityException](fieldTypes, nullableIndices) {
 
   def build(): OverCapacityException = {
     val _fieldArray = fieldArray // shadow variable

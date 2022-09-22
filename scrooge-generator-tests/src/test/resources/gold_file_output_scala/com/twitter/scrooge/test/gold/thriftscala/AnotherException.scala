@@ -51,6 +51,8 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
   )
 
 
+  lazy val nullableIndices: Set[Int] = StructBuilder.nullableIndices(fieldInfos)
+
   val structAnnotations: immutable$Map[String, String] =
     immutable$Map.empty[String, String]
 
@@ -111,7 +113,7 @@ object AnotherException extends ValidatingThriftStructCodec3[AnotherException] w
     )
   }
 
-  def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.None, fieldTypes)
+  def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.None, fieldTypes, nullableIndices)
 
   override def encode(_item: AnotherException, _oproto: TProtocol): Unit = {
     _item.write(_oproto)
@@ -348,11 +350,11 @@ class AnotherException(
       flags
     )
 
-  def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.Some(this), fieldTypes)
+  def newBuilder(): StructBuilder[AnotherException] = new AnotherExceptionStructBuilder(_root_.scala.Some(this), fieldTypes, nullableIndices)
 }
 
-private[thriftscala] class AnotherExceptionStructBuilder(instance: _root_.scala.Option[AnotherException], fieldTypes: IndexedSeq[ClassTag[_]])
-    extends StructBuilder[AnotherException](fieldTypes) {
+private[thriftscala] class AnotherExceptionStructBuilder(instance: _root_.scala.Option[AnotherException], fieldTypes: IndexedSeq[ClassTag[_]], nullableIndices: Set[Int])
+    extends StructBuilder[AnotherException](fieldTypes, nullableIndices) {
 
   def build(): AnotherException = {
     val _fieldArray = fieldArray // shadow variable
