@@ -228,8 +228,6 @@ public class Response implements TBase<Response, Response._Fields>, java.io.Seri
   public boolean equals(Response that) {
     if (that == null)
       return false;
-    if (this == that)
-      return true;
     boolean this_present_statusCode = true;
     boolean that_present_statusCode = true;
     if (this_present_statusCode || that_present_statusCode) {

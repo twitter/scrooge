@@ -194,8 +194,6 @@ public class OverCapacityException extends Exception implements TBase<OverCapaci
   public boolean equals(OverCapacityException that) {
     if (that == null)
       return false;
-    if (this == that)
-      return true;
     boolean this_present_chillTimeSeconds = true;
     boolean that_present_chillTimeSeconds = true;
     if (this_present_chillTimeSeconds || that_present_chillTimeSeconds) {

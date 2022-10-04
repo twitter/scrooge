@@ -188,8 +188,6 @@ public class RequestException extends Exception implements TBase<RequestExceptio
   public boolean equals(RequestException that) {
     if (that == null)
       return false;
-    if (this == that)
-      return true;
     boolean this_present_message = true && this.isSet(_Fields.MESSAGE);
     boolean that_present_message = true && that.isSet(_Fields.MESSAGE);
     if (this_present_message || that_present_message) {

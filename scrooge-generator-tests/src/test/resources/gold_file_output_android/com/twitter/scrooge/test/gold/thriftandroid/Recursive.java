@@ -228,8 +228,6 @@ public class Recursive implements TBase<Recursive, Recursive._Fields>, java.io.S
   public boolean equals(Recursive that) {
     if (that == null)
       return false;
-    if (this == that)
-      return true;
     boolean this_present_id = true;
     boolean that_present_id = true;
     if (this_present_id || that_present_id) {

@@ -363,7 +363,7 @@ public class ResponseUnion extends TUnion<ResponseUnion, ResponseUnion._Fields> 
   }
 
   public boolean equals(ResponseUnion other) {
-    return this == other || (other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue()));
+    return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
   @java.lang.Override

@@ -278,7 +278,7 @@ public class CollectionId implements TBase<CollectionId, CollectionId._Fields>, 
   }
 
   public boolean equals(CollectionId that) {
-    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
   }
 
   private boolean equalsWithoutPassthrough(CollectionId that) {

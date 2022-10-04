@@ -828,7 +828,7 @@ public class PlatinumService {
   }
 
   public boolean equals(moreCoolThings_args that) {
-    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
   }
 
   private boolean equalsWithoutPassthrough(moreCoolThings_args that) {
@@ -1310,7 +1310,7 @@ public class PlatinumService {
   }
 
   public boolean equals(moreCoolThings_result that) {
-    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
   }
 
   private boolean equalsWithoutPassthrough(moreCoolThings_result that) {

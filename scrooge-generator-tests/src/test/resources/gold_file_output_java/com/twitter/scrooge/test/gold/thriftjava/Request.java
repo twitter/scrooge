@@ -1139,7 +1139,7 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   }
 
   public boolean equals(Request that) {
-    return this == that || (equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that));
+    return equalsWithoutPassthrough(that) && passthroughFieldsAreEqual(that);
   }
 
   private boolean equalsWithoutPassthrough(Request that) {

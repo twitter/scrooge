@@ -754,8 +754,6 @@ public class Request implements TBase<Request, Request._Fields>, java.io.Seriali
   public boolean equals(Request that) {
     if (that == null)
       return false;
-    if (this == that)
-      return true;
     boolean this_present_aList = true && this.isSet(_Fields.A_LIST);
     boolean that_present_aList = true && that.isSet(_Fields.A_LIST);
     if (this_present_aList || that_present_aList) {

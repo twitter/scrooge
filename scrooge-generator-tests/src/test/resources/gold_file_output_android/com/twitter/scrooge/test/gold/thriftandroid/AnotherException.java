@@ -194,8 +194,6 @@ public class AnotherException extends Exception implements TBase<AnotherExceptio
   public boolean equals(AnotherException that) {
     if (that == null)
       return false;
-    if (this == that)
-      return true;
     boolean this_present_errorCode = true;
     boolean that_present_errorCode = true;
     if (this_present_errorCode || that_present_errorCode) {
