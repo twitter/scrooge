@@ -342,6 +342,52 @@ validation:
       1: string email (validation.startWithA = "")
     }
 
+Specify path to custom validators 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For Twitter internal applications built with Bazel or Pants, please specify 
+the directory for the BUILD file of the custom validator as `validators` 
+when defining a `java_thrift_library` target or a `create_thrift_libraries` 
+target:
+
+.. code:: python
+
+    java_thrift_library(
+        name = "base",
+        sources = ["custom_validations.thrift"],
+        compiler = "scrooge",
+        language = "scala",
+        tags = ["bazel-compatible"],
+        validators = ["scrooge-internal/src/main/scala/com/twitter/scrooge_internal/thrift_validation/example"],
+    )
+
+.. code:: python
+
+    create_thrift_libraries(
+        base_name = "thrift",
+        sources = ["custom_validations.thrift"],
+        generate_languages = [
+          "java",
+          "scala"
+        ],
+        tags = ["bazel-compatible"],
+        validators = ["scrooge-internal/src/main/scala/com/twitter/scrooge_internal/thrift_validation/example"],
+    )
+
+For open source applications built with Pants, please specify the directory 
+for the BUILD file of the custom validator as `dependencies` when defining a 
+`java_thrift_library` target:
+
+.. code:: python
+
+    java_thrift_library(
+        name = "base",
+        sources = ["custom_validations.thrift"],
+        compiler = "scrooge",
+        language = "scala",
+        tags = ["bazel-compatible"],
+        dependencies = ["scrooge-internal/src/main/scala/com/twitter/scrooge_internal/thrift_validation/example"],
+    )
+
 Validation violation reporting
 ------------------------------
 
