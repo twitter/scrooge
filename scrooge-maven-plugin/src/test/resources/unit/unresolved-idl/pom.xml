@@ -10,7 +10,7 @@
       <plugin>
         <groupId>com.twitter</groupId>
         <artifactId>scrooge-maven-plugin</artifactId>
-        <version>22.12.0</version>
+        <version>23.3.0-SNAPSHOT</version>
         <configuration>
           <classifier>idl</classifier>
           <project implementation="com.twitter.stubs.ProjectIdlDependenciesStub">
