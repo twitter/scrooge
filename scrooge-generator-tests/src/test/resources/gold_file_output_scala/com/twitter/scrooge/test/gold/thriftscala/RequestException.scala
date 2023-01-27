@@ -328,6 +328,10 @@ class RequestException(
       _passthroughFields
     )
 
+  def copyWithMessage(value: String): RequestException =
+    this.copy(message = value)
+
+
   override def canEqual(other: Any): Boolean = other.isInstanceOf[RequestException]
 
   private[this] def _equals(other: RequestException): Boolean =

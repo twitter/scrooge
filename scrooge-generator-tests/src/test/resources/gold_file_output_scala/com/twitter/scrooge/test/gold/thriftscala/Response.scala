@@ -514,6 +514,13 @@ trait Response
       _passthroughFields
     )
 
+  def copyWithStatusCode(value: Int): Response =
+    this.copy(statusCode = value)
+
+  def copyWithResponseUnion(value: com.twitter.scrooge.test.gold.thriftscala.ResponseUnion): Response =
+    this.copy(responseUnion = value)
+
+
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Response]
 
   private[this] def _equals(other: Response): Boolean =

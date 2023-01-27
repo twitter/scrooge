@@ -1751,6 +1751,52 @@ trait Request
       _passthroughFields
     )
 
+  def copyWithAList(value: _root_.scala.collection.Seq[String]): Request =
+    this.copy(aList = value)
+
+  def copyWithASet(value: _root_.scala.collection.Set[Int]): Request =
+    this.copy(aSet = value)
+
+  def copyWithAMap(value: _root_.scala.collection.Map[Long, Long]): Request =
+    this.copy(aMap = value)
+
+  def copyWithARequest(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]): Request =
+    this.copy(aRequest = value)
+
+  def copyWithSubRequests(value: _root_.scala.collection.Seq[com.twitter.scrooge.test.gold.thriftscala.Request]): Request =
+    this.copy(subRequests = value)
+
+  def copyWith_Default(value: String): Request =
+    this.copy(_default = value)
+
+  def copyWithNoComment(value: _root_.scala.Option[Long]): Request =
+    this.copy(noComment = value)
+
+  def copyWithDoubleSlashComment(value: _root_.scala.Option[Long]): Request =
+    this.copy(doubleSlashComment = value)
+
+  def copyWithHashtagComment(value: _root_.scala.Option[Long]): Request =
+    this.copy(hashtagComment = value)
+
+  def copyWithSingleAsteriskComment(value: _root_.scala.Option[Long]): Request =
+    this.copy(singleAsteriskComment = value)
+
+  def copyWithDocStringComment(value: _root_.scala.Option[Long]): Request =
+    this.copy(docStringComment = value)
+
+  def copyWithRecRequest(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Recursive]): Request =
+    this.copy(recRequest = value)
+
+  def copyWithRequiredField(value: String): Request =
+    this.copy(requiredField = value)
+
+  def copyWithAnInt8(value: _root_.scala.Option[Byte]): Request =
+    this.copy(anInt8 = value)
+
+  def copyWithABinaryField(value: _root_.scala.Option[_root_.java.nio.ByteBuffer]): Request =
+    this.copy(aBinaryField = value)
+
+
   /**
    * Construction required fields need a different copy API than all the other fields. If a Some
    * argument is provided, then that value will change. None arguments mean that there is no change

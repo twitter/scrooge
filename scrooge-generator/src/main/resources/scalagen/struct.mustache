@@ -845,6 +845,14 @@ class {{StructName}}(
       _passthroughFields
     )
 
+{{#fields}}
+{{^constructionRequired}}
+  def {{copyWithName}}(value: {{>optionalType}}): {{StructName}} =
+    this.copy({{fieldName}} = value)
+
+{{/constructionRequired}}
+{{/fields}}
+
 {{#hasConstructionRequiredFields}}
   /**
    * Construction required fields need a different copy API than all the other fields. If a Some

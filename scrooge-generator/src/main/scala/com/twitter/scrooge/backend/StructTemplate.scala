@@ -356,6 +356,7 @@ trait StructTemplate { self: TemplateGenerator =>
           "indexP1" -> v((index + 1).toString),
           "_fieldName" -> genID(field.sid.prepend("_")), // for Java and Scala only
           "unsetName" -> genID(field.sid.toTitleCase.prepend("unset")),
+          "copyWithName" -> genID(field.sid.toTitleCase.prepend("copyWith")),
           "readName" -> genID(field.sid.toTitleCase.prepend("read")),
           "getBlobName" -> genID(field.sid.toTitleCase.prepend("get").append("Blob")),
           "readBlobName" -> genID(field.sid.toTitleCase.prepend("read").append("Blob")),

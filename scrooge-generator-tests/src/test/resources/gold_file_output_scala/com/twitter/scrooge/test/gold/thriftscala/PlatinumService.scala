@@ -502,6 +502,10 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           _passthroughFields
         )
     
+      def copyWithRequest(value: com.twitter.scrooge.test.gold.thriftscala.Request): Args =
+        this.copy(request = value)
+    
+    
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
       private[this] def _equals(other: Args): Boolean =
@@ -841,6 +845,16 @@ object PlatinumService extends _root_.com.twitter.finagle.thrift.GeneratedThrift
           oce,
           _passthroughFields
         )
+    
+      def copyWithSuccess(value: _root_.scala.Option[Int]): Result =
+        this.copy(success = value)
+    
+      def copyWithAx(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.AnotherException]): Result =
+        this.copy(ax = value)
+    
+      def copyWithOce(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]): Result =
+        this.copy(oce = value)
+    
     
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     
