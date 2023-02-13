@@ -425,10 +425,6 @@ trait CollectionId
       _passthroughFields
     )
 
-  def copyWithCollectionLongId(value: Long): CollectionId =
-    this.copy(collectionLongId = value)
-
-
   override def canEqual(other: Any): Boolean = other.isInstanceOf[CollectionId]
 
   private[this] def _equals(other: CollectionId): Boolean =

@@ -570,16 +570,6 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _passthroughFields
         )
     
-      def copyWithRequest(value: com.twitter.scrooge.test.gold.thriftscala.Request): Args =
-        this.copy(request = value)
-    
-      def copyWithUnionRequest(value: com.twitter.scrooge.test.gold.thriftscala.RequestUnion): Args =
-        this.copy(unionRequest = value)
-    
-      def copyWithExceptionRequest(value: com.twitter.scrooge.test.gold.thriftscala.RequestException): Args =
-        this.copy(exceptionRequest = value)
-    
-    
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
       private[this] def _equals(other: Args): Boolean =
@@ -879,13 +869,6 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _passthroughFields
         )
     
-      def copyWithSuccess(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]): Result =
-        this.copy(success = value)
-    
-      def copyWithEx(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.OverCapacityException]): Result =
-        this.copy(ex = value)
-    
-    
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     
       private[this] def _equals(other: Result): Boolean =
@@ -1158,10 +1141,6 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           _passthroughFields
         )
     
-      def copyWithRequest(value: com.twitter.scrooge.test.gold.thriftscala.Request): Args =
-        this.copy(request = value)
-    
-    
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Args]
     
       private[this] def _equals(other: Args): Boolean =
@@ -1400,10 +1379,6 @@ object GoldService extends _root_.com.twitter.finagle.thrift.GeneratedThriftServ
           success,
           _passthroughFields
         )
-    
-      def copyWithSuccess(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Response]): Result =
-        this.copy(success = value)
-    
     
       override def canEqual(other: Any): Boolean = other.isInstanceOf[Result]
     

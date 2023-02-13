@@ -7,12 +7,6 @@ Note that ``PHAB_ID=#`` and ``RB_ID=#`` correspond to associated messages in com
 Unreleased
 ----------
 
-New Features
-~~~~~~~~~~~~
-
-* scrooge-generator: Provide `$STRUCT#copyWith$FIELDNAME` methods to set single fields on
-  Thrift structs ``PHAB_ID=D1040974``
-
 22.12.0
 -------
 

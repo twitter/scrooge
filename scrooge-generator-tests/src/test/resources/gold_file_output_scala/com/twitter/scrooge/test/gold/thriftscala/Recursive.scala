@@ -503,13 +503,6 @@ trait Recursive
       _passthroughFields
     )
 
-  def copyWithId(value: Long): Recursive =
-    this.copy(id = value)
-
-  def copyWithRecRequest(value: _root_.scala.Option[com.twitter.scrooge.test.gold.thriftscala.Request]): Recursive =
-    this.copy(recRequest = value)
-
-
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Recursive]
 
   private[this] def _equals(other: Recursive): Boolean =

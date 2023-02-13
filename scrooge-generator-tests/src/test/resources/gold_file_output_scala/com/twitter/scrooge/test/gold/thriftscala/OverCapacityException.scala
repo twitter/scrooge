@@ -324,10 +324,6 @@ class OverCapacityException(
       _passthroughFields
     )
 
-  def copyWithChillTimeSeconds(value: Int): OverCapacityException =
-    this.copy(chillTimeSeconds = value)
-
-
   override def canEqual(other: Any): Boolean = other.isInstanceOf[OverCapacityException]
 
   private[this] def _equals(other: OverCapacityException): Boolean =

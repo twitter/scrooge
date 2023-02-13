@@ -320,10 +320,6 @@ class AnotherException(
       _passthroughFields
     )
 
-  def copyWithErrorCode(value: Int): AnotherException =
-    this.copy(errorCode = value)
-
-
   override def canEqual(other: Any): Boolean = other.isInstanceOf[AnotherException]
 
   private[this] def _equals(other: AnotherException): Boolean =
