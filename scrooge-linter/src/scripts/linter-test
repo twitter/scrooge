@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Run from source root
 # e.g. ./pants bundle scrooge/scrooge-linter:app \
