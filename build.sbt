@@ -12,7 +12,7 @@ val releaseVersion = "24.2.0-SNAPSHOT"
 
 lazy val versions = new {
   val slf4j = "1.7.30"
-  val libthrift = "0.10.0"
+  val libthrift = "0.19.0"
 }
 
 def util(which: String) = "com.twitter" %% ("util-" + which) % releaseVersion
