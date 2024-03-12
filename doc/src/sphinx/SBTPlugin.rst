@@ -40,7 +40,7 @@ An example using a `build.sbt` file.
       .settings(
         name := "Scrooge Demo",
         libraryDependencies ++= Seq(
-          "org.apache.thrift" % "libthrift" % "0.10.0",
+          "org.apache.thrift" % "libthrift" % "0.19.0",
           "com.twitter" %% "scrooge-core" % "23.11.0",
           "com.twitter" %% "finagle-thrift" % "23.11.0",
           scalaTest % Test
@@ -100,7 +100,7 @@ have Scrooge generate Java code.
         scroogeBuildOptions in Compile := Seq(),
         scroogeLanguages in Compile := Seq("java"),
         libraryDependencies ++= Seq(
-          "org.apache.thrift" % "libthrift" % "0.10.0",
+          "org.apache.thrift" % "libthrift" % "0.19.0",
           "com.twitter" %% "scrooge-core" % "23.11.0",
           "com.twitter" %% "finagle-thrift" % "23.11.0",
           scalaTest % Test
