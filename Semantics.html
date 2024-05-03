@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Implementation Semantics &#8212; Scrooge 22.7.0 documentation</title>
-    <link rel="stylesheet" href="_static/scrooge.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Implementation Semantics &#8212; Scrooge 24.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/scrooge.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Scrooge thrift linter" href="Linter.html" />
@@ -38,7 +37,8 @@
         <li class="right" >
           <a href="GeneratedCodeUsage.html" title="Generated Scala Code Usage"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Scrooge</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Implementation Semantics</a></li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="implementation-semantics">
+  <section id="implementation-semantics">
 <h1>Implementation Semantics<a class="headerlink" href="#implementation-semantics" title="Permalink to this headline">¶</a></h1>
 <p>Thrift is severely underspecified with respect to the handling of
 required/optional/unspecified-requiredness and default values in various cases
@@ -57,61 +57,58 @@ different implementations do different things (see
 <p>Scrooge attempts to be as rigorous as possible in this regard with
 consistently applied and, hopefully, easy-to-understand rules.</p>
 <ol class="arabic simple">
-<li>If neither “required” nor “optional” is declared for a field, it then has
+<li><p>If neither “required” nor “optional” is declared for a field, it then has
 the default requiredness of “optional-in/required-out”, or “optInReqOut”
-for short.</li>
-<li>It is invalid for a required field to be null and an exception will be
-thrown if you attempt to serialize a struct with a null required field.</li>
-<li>It is invalid for a required field to be missing during deserialization,
-and an exception will be thrown in this case.</li>
-<li>Optional fields can be set or unset, and the set-state is meaningful state
+for short.</p></li>
+<li><p>It is invalid for a required field to be null and an exception will be
+thrown if you attempt to serialize a struct with a null required field.</p></li>
+<li><p>It is invalid for a required field to be missing during deserialization,
+and an exception will be thrown in this case.</p></li>
+<li><p>Optional fields can be set or unset, and the set-state is meaningful state
 of the struct that should be preserved by serialization/deserialization.
 Un-set fields are not present in the serialized representation of the
-struct.</li>
-<li>Declared default values will be assigned to any non-required fields that
+struct.</p></li>
+<li><p>Declared default values will be assigned to any non-required fields that
 are missing during deserialization. If no default is declared for a field,
-a default value appropriate for the type will be used (see below).</li>
-<li>#4 and #5 imply that optional-with-default-value is not a tenable
+a default value appropriate for the type will be used (see below).</p></li>
+<li><p>#4 and #5 imply that optional-with-default-value is not a tenable
 combination, and will be treated as if “optional” was not specified
-(optInReqOut-with-default-value).</li>
+(optInReqOut-with-default-value).</p></li>
 </ol>
-<div class="section" id="default-values-by-type">
+<section id="default-values-by-type">
 <h2>Default values by type<a class="headerlink" href="#default-values-by-type" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>bool = false</li>
-<li>byte/i16/i32/i64/double = 0</li>
-<li>string/struct/enum = null</li>
-<li>list = Seq()</li>
-<li>set = Set()</li>
-<li>map = Map()</li>
+<li><p>bool = false</p></li>
+<li><p>byte/i16/i32/i64/double = 0</p></li>
+<li><p>string/struct/enum = null</p></li>
+<li><p>list = Seq()</p></li>
+<li><p>set = Set()</p></li>
+<li><p>map = Map()</p></li>
 </ul>
-</div>
-<div class="section" id="missing-values">
+</section>
+<section id="missing-values">
 <h2>Missing values<a class="headerlink" href="#missing-values" title="Permalink to this headline">¶</a></h2>
 <p>The following “matrix” defines all the scenarios where a value may not be
 present and how that case is handled:</p>
 <p><strong>required, no declared default value:</strong></p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>missing in deserialization:</dt>
-<dd><ul class="first last">
-<li>throws TProtocolException</li>
+<li><dl class="simple">
+<dt>missing in deserialization:</dt><dd><ul>
+<li><p>throws TProtocolException</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>null in serialization:</dt>
-<dd><ul class="first last">
-<li>throws TProtocolException</li>
+<li><dl class="simple">
+<dt>null in serialization:</dt><dd><ul>
+<li><p>throws TProtocolException</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>immutable instance instantiation:</dt>
-<dd><ul class="first last">
-<li>must be explicitly provided</li>
+<li><dl class="simple">
+<dt>immutable instance instantiation:</dt><dd><ul>
+<li><p>must be explicitly provided</p></li>
 </ul>
 </dd>
 </dl>
@@ -119,26 +116,23 @@ present and how that case is handled:</p>
 </ul>
 <p><strong>required, with declared default value:</strong></p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>missing in deserialization:</dt>
-<dd><ul class="first last">
-<li>throws TProtocolException</li>
+<li><dl class="simple">
+<dt>missing in deserialization:</dt><dd><ul>
+<li><p>throws TProtocolException</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>null in serialization:</dt>
-<dd><ul class="first last">
-<li>throws TProtocolException</li>
+<li><dl class="simple">
+<dt>null in serialization:</dt><dd><ul>
+<li><p>throws TProtocolException</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>immutable instance instantiation:</dt>
-<dd><ul class="first last">
-<li>declared default value</li>
+<li><dl class="simple">
+<dt>immutable instance instantiation:</dt><dd><ul>
+<li><p>declared default value</p></li>
 </ul>
 </dd>
 </dl>
@@ -146,26 +140,23 @@ present and how that case is handled:</p>
 </ul>
 <p><strong>optInReqOut, no declared default value:</strong></p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>missing in deserialization:</dt>
-<dd><ul class="first last">
-<li>default value for type</li>
+<li><dl class="simple">
+<dt>missing in deserialization:</dt><dd><ul>
+<li><p>default value for type</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>null in serialization:</dt>
-<dd><ul class="first last">
-<li>throws TProtocolException</li>
+<li><dl class="simple">
+<dt>null in serialization:</dt><dd><ul>
+<li><p>throws TProtocolException</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>immutable instance instantiation:</dt>
-<dd><ul class="first last">
-<li>must be explicitly provided</li>
+<li><dl class="simple">
+<dt>immutable instance instantiation:</dt><dd><ul>
+<li><p>must be explicitly provided</p></li>
 </ul>
 </dd>
 </dl>
@@ -173,26 +164,23 @@ present and how that case is handled:</p>
 </ul>
 <p><strong>optInReqOut, with declared default value:</strong></p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>missing in deserialization:</dt>
-<dd><ul class="first last">
-<li>declared default value</li>
+<li><dl class="simple">
+<dt>missing in deserialization:</dt><dd><ul>
+<li><p>declared default value</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>null in serialization:</dt>
-<dd><ul class="first last">
-<li>throws TProtocolException</li>
+<li><dl class="simple">
+<dt>null in serialization:</dt><dd><ul>
+<li><p>throws TProtocolException</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>immutable instance instantiation:</dt>
-<dd><ul class="first last">
-<li>declared default value</li>
+<li><dl class="simple">
+<dt>immutable instance instantiation:</dt><dd><ul>
+<li><p>declared default value</p></li>
 </ul>
 </dd>
 </dl>
@@ -200,26 +188,23 @@ present and how that case is handled:</p>
 </ul>
 <p><strong>optional, no declared default value:</strong></p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>missing in deserialization:</dt>
-<dd><ul class="first last">
-<li>None</li>
+<li><dl class="simple">
+<dt>missing in deserialization:</dt><dd><ul>
+<li><p>None</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>None in serialization:</dt>
-<dd><ul class="first last">
-<li>omitted</li>
+<li><dl class="simple">
+<dt>None in serialization:</dt><dd><ul>
+<li><p>omitted</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>immutable instance instantiation:</dt>
-<dd><ul class="first last">
-<li>None</li>
+<li><dl class="simple">
+<dt>immutable instance instantiation:</dt><dd><ul>
+<li><p>None</p></li>
 </ul>
 </dd>
 </dl>
@@ -227,20 +212,18 @@ present and how that case is handled:</p>
 </ul>
 <p><strong>optional, with declared default value:</strong></p>
 <ul class="simple">
-<li>case not valid, treated as optInReqOut with declared default value</li>
+<li><p>case not valid, treated as optInReqOut with declared default value</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/scrooge.png" alt="Logo"/>
-            </a></p><a href="index.html"><h3>Scrooge</h3></a>
+        <div class="sphinxsidebarwrapper"><a href="index.html"><h3>Scrooge</h3></a>
 <p>
   Scrooge is a general purpose thrift parser/generator
 </p>
