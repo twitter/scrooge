@@ -4,7 +4,10 @@ java_thrift_library(
     compiler = "scrooge",
     language = "scala",
     platform = "java8",
-    tags = ["bazel-compatible"],
+    tags = [
+        "bazel-compatible",
+        "thrift-linter.skip",
+    ],
     dependencies = [
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2:include-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3:include-scala",
@@ -18,7 +21,10 @@ java_thrift_library(
     default_java_namespace = "android_thrift_default_namespace",
     language = "scala",
     platform = "java8",
-    tags = ["bazel-compatible"],
+    tags = [
+        "bazel-compatible",
+        "thrift-linter.skip",
+    ],
     dependencies = [
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir2:include-scala",
         "scrooge/scrooge-generator-tests/src/test/thrift/relative/dir3:include-scala",
