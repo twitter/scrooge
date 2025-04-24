@@ -267,7 +267,7 @@
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
-      <version>4.0-beta5</version>
+      <version>4.2.3</version>
     </dependency>
     <!-- This dependency is required to patch the new api dependency vs old api style plugins-->
     <dependency>
