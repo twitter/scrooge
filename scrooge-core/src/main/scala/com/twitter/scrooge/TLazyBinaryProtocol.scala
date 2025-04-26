@@ -17,6 +17,7 @@ import org.apache.thrift.protocol._
 object TLazyBinaryProtocol {
   private val AnonymousStruct: TStruct = new TStruct()
   private val utf8Charset = Charset.forName("UTF-8")
+  private val NEW_ENUM_TYPE_ID: Byte = -1
 }
 
 class TLazyBinaryProtocol(transport: TArrayByteTransport)
@@ -30,9 +31,10 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
   }
 
   override def writeFieldBegin(field: TField): Unit = {
+    val typeToWrite = if (field.`type` == TType.ENUM) NEW_ENUM_TYPE_ID else field.`type`
     val buf = transport.getBuffer(3)
     val offset = transport.writerOffset
-    buf(offset) = field.`type`
+    buf(offset) = typeToWrite
     innerWriteI16(buf, offset + 1, field.id)
   }
 
@@ -176,7 +178,8 @@ class TLazyBinaryProtocol(transport: TArrayByteTransport)
   override def readFieldBegin(): TField = {
     val tpe: Byte = readByte()
     val id: Short = if (tpe == TType.STOP) 0 else readI16()
-    new TField("", tpe, id)
+    val finalType = if (tpe == NEW_ENUM_TYPE_ID) TType.ENUM else tpe
+    new TField("", finalType, id)
   }
 
   override def readFieldEnd(): Unit = ()

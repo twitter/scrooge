@@ -1,8 +1,6 @@
 package com.twitter.scrooge.internal
 
-import com.twitter.scrooge.TArrayByteTransport
-import com.twitter.scrooge.TFieldBlob
-import com.twitter.scrooge.ThriftUnion
+import com.twitter.scrooge.{TArrayByteTransport, TFieldBlob, TLazyBinaryProtocol, ThriftUnion}
 import com.twitter.util.mock.Mockito
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.protocol.TCompactProtocol
@@ -10,6 +8,7 @@ import org.apache.thrift.protocol.TField
 import org.apache.thrift.protocol.TProtocolException
 import org.apache.thrift.protocol.TType
 import org.apache.thrift.transport.TMemoryBuffer
+
 import scala.collection.immutable
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -171,6 +170,46 @@ class TProtocolsTest extends AnyFunSuite with Mockito {
     val readProto = new TBinaryProtocol(TArrayByteTransport(writeBuffer.getArray))
     TProtocols.finishReadingUnion(readProto, TType.STOP, mock[ThriftUnion])
     succeed
+  }
+
+  test("readFieldBegin handles new ENUM type identifier") {
+    val writeBuffer = new TMemoryBuffer(128)
+    val writeProto = new TBinaryProtocol(writeBuffer)
+
+    val newEnum = -1
+
+    writeProto.writeByte(newEnum.toByte) // New ENUM type identifier
+    writeProto.writeI16(1) // Field ID
+    writeProto.writeI32(2) // Enum value
+
+    val readBuffer = TArrayByteTransport(writeBuffer.getArray)
+    val readProto = new TLazyBinaryProtocol(readBuffer)
+
+    val field = readProto.readFieldBegin()
+    assert(field.`type` == TType.ENUM)
+    assert(field.id == 1)
+
+    val enumValue = readProto.readI32()
+    assert(enumValue == 2)
+  }
+
+  test("readFieldBegin handles old ENUM type identifier") {
+    val writeBuffer = new TMemoryBuffer(128)
+    val writeProto = new TBinaryProtocol(writeBuffer)
+
+    writeProto.writeByte(TType.ENUM)
+    writeProto.writeI16(1)
+    writeProto.writeI32(2)
+
+    val readBuffer = TArrayByteTransport(writeBuffer.getArray)
+    val readProto = new TLazyBinaryProtocol(readBuffer)
+
+    val field = readProto.readFieldBegin()
+    assert(field.`type` == TType.ENUM)
+    assert(field.id == 1)
+
+    val enumValue = readProto.readI32()
+    assert(enumValue == 2)
   }
 
 }
