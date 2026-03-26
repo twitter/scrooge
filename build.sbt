@@ -45,37 +45,9 @@ val adaptiveScroogeTestThriftSettings = Seq(
 )
 
 def gcJavaOptions: Seq[String] = {
-  val javaVersion = System.getProperty("java.version")
-  if (javaVersion.startsWith("1.8")) {
-    jdk8GcJavaOptions
-  } else {
-    jdk11GcJavaOptions
-  }
-}
-
-def jdk8GcJavaOptions: Seq[String] = {
   Seq(
-    "-XX:+UseParNewGC",
-    "-XX:+UseConcMarkSweepGC",
-    "-XX:+CMSParallelRemarkEnabled",
-    "-XX:+CMSClassUnloadingEnabled",
+    "-XX:+UseG1GC",
     "-XX:ReservedCodeCacheSize=128m",
-    "-XX:SurvivorRatio=128",
-    "-XX:MaxTenuringThreshold=0",
-    "-Xss8M",
-    "-Xms512M",
-    "-Xmx2G"
-  )
-}
-
-def jdk11GcJavaOptions: Seq[String] = {
-  Seq(
-    "-XX:+UseConcMarkSweepGC",
-    "-XX:+CMSParallelRemarkEnabled",
-    "-XX:+CMSClassUnloadingEnabled",
-    "-XX:ReservedCodeCacheSize=128m",
-    "-XX:SurvivorRatio=128",
-    "-XX:MaxTenuringThreshold=0",
     "-Xss8M",
     "-Xms512M",
     "-Xmx2G"
@@ -119,11 +91,13 @@ val sharedSettingsWithoutScalaVersion = Seq(
   Test / parallelExecution := false,
   javaOptions ++= Seq(
     "-Djava.net.preferIPv4Stack=true",
-    "-XX:+AggressiveOpts",
     "-server"
   ),
   javaOptions ++= gcJavaOptions,
   Test / javaOptions ++= travisTestJavaOptions,
+  Test / javaOptions ++= Seq(
+    "--add-opens=java.base/java.lang=ALL-UNNAMED"
+  ),
   // -a: print stack traces for failing asserts
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
   // Sonatype publishing
@@ -175,26 +149,26 @@ val sharedSettingsWithoutScalaVersion = Seq(
 val settingsWithTwoTen =
   sharedSettingsWithoutScalaVersion ++
     Seq(
-      scalaVersion := "2.10.7",
+      scalaVersion := "2.13.18",
       scalacOptions := scalacTwoTenOptions,
-      javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      doc / javacOptions := Seq("-source", "1.8"),
+      javacOptions ++= Seq("-source", "21", "-target", "21", "-Xlint:unchecked"),
+      doc / javacOptions := Seq("-source", "21"),
       libraryDependencies ++= Seq(
         "org.scalacheck" %% "scalacheck" % "1.14.3" % "test"
       )
     )
 
-val commonScalaVersions = Seq("2.12.12", "2.13.6")
+val commonScalaVersions = Seq("2.12.20", "2.13.18")
 
 // settings for projects that are cross compiled with scala 2.10
 val settingsCrossCompiledWithTwoTen =
   sharedSettingsWithoutScalaVersion ++
     Seq(
-      crossScalaVersions := Seq("2.10.7") ++ commonScalaVersions,
-      scalaVersion := "2.13.6",
+      crossScalaVersions := commonScalaVersions,
+      scalaVersion := "2.13.18",
       scalacOptions := scalacTwoTenOptions,
-      javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      doc / javacOptions := Seq("-source", "1.8"),
+      javacOptions ++= Seq("-source", "21", "-target", "21", "-Xlint:unchecked"),
+      doc / javacOptions := Seq("-source", "21"),
       libraryDependencies ++= Seq(
         "org.scalacheck" %% "scalacheck" % "1.14.3" % "test"
       )
@@ -203,7 +177,7 @@ val settingsCrossCompiledWithTwoTen =
 val sharedSettings =
   sharedSettingsWithoutScalaVersion ++
     Seq(
-      scalaVersion := "2.13.6",
+      scalaVersion := "2.13.18",
       crossScalaVersions := commonScalaVersions,
       scalacOptions := Seq(
         "-deprecation",
@@ -212,12 +186,12 @@ val sharedSettings =
         "-Xlint",
         "-encoding",
         "utf8",
-        "-target:jvm-1.8",
+        "-release:21",
         "-Ypatmat-exhaust-depth",
         "40"
       ),
-      javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      doc / javacOptions := Seq("-source", "1.8"),
+      javacOptions ++= Seq("-source", "21", "-target", "21", "-Xlint:unchecked"),
+      doc / javacOptions := Seq("-source", "21"),
       libraryDependencies ++= Seq(
         "org.scalacheck" %% "scalacheck" % "1.15.4" % "test"
       )
@@ -379,14 +353,21 @@ lazy val scroogeSbtPlugin = Project(
   id = "scrooge-sbt-plugin",
   base = file("scrooge-sbt-plugin")
 ).enablePlugins(BuildInfoPlugin).settings(
-    settingsWithTwoTen: _*
+    sharedSettingsWithoutScalaVersion: _*
   ).settings(
-    scalaVersion := "2.10.7",
-    crossSbtVersions := Seq("0.13.18", "1.5.3"),
+    scalaVersion := "2.12.20",
+    crossScalaVersions := Seq("2.12.20"),
+    scalacOptions := scalacTwoTenOptions,
+    javacOptions ++= Seq("-source", "21", "-target", "21", "-Xlint:unchecked"),
+    doc / javacOptions := Seq("-source", "21"),
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %% "scalacheck" % "1.14.3" % "test"
+    ),
+    crossSbtVersions := Seq("1.10.8"),
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.twitter",
     sbtPlugin := true,
-  ).dependsOn(scroogeGenerator)
+  ).dependsOn(scroogeGenerator % "compile->compile")
 
 lazy val scroogeLinter = Project(
   id = "scrooge-linter",
